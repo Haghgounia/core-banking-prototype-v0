@@ -1,0 +1,124 @@
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+1, '1', 'بانک آینده', 'Ayandeh Bank', 71, 'https://www.ba24.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+2, '2', 'بانک اقتصادنوین', 'Bank Eghtesad Novin', 71, 'https://www.enbank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+3, '3', 'بانک ایران زمین', 'Iran Zamin Bank', 71, 'https://www.izbank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+4, '4', 'بانک پارسیان', 'Parsian Bank', 71, 'https://parsian-bank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+5, '5', 'بانک پاسارگاد', 'Bank Pasargad', 71, 'https://www.bpi.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+6, '6', 'بانک تجارت', 'Tejarat Bank', 71, 'https://www.tejaratbank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+7, '7', 'بانک توسعه تعاون', 'Tose e Taavon Bank', 71, 'https://ttbank.ir/fa/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+8, '8', 'بانک توسعه صادرات ایران', 'Export Development Bank Of Iran', 71, 'https://www.edbi.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+9, '9', 'بانک خاورمیانه', 'Middle East Bank', 71, 'https://www.middleeastbank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+10, '10', 'بانک دی', 'Day Bank', 71, 'https://day24.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+11, '11', 'بانک رفاه کارگران', 'Refah Kargaran Bank', 71, 'https://www.refah-bank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+12, '12', 'بانک سامان', 'Saman Bank', 71, 'https://www.sb24.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+13, '13', 'بانک سپه', 'Sepah Bank', 71, 'https://www.banksepah.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+14, '14', 'بانک سرمایه', 'Sarmayeh Bank', 71, 'https://www.sbank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+15, '15', 'بانک سینا', 'Sina Bank ', 71, 'https://www.sinabank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+16, '16', 'بانک شهر', 'City Bank', 71, 'https://www.shahr-bank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+17, '17', 'بانک صادرات ایران', 'Bank Saderat Iran', 71, 'https://www.bsi.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+18, '18', 'بانک صنعت و معدن', 'Bank of Industry and Mine', 71, 'https://www.bim.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+19, '19', 'بانک قرض‌الحسنه رسالت', 'Gharzolhasaneh Resalat Bank', 71, 'https://www.rqbank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+20, '20', 'بانک قرض‌الحسنه مهر ایران', 'Gharzolhasaneh Resalat Bank', 71, 'https://www.qmb.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+21, '21', 'بانک گردشگری', 'Tourism Bank', 71, 'https://www.tourismbank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+22, '22', 'بانک مسکن', 'Bank Maskan', 71, 'https://www.bank-maskan.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+23, '23', 'بانک ملت', 'Bank Mellat', 71, 'https://www.bankmellat.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+24, '24', 'بانک ملی ایران', 'Bank Melli Iran', 71, 'https://www.bmi.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+25, '25', 'بانک کارآفرین', 'Karafarin Bank', 71, 'https://www.karafarinbank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+26, '26', 'بانک کشاورزی', 'Bank Keshavarzi Iran', 71, 'https://www.bki.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+27, '27', 'پست بانک ایران', 'Post Bank of Iran', 71, 'https://www.postbank.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+28, '28', 'موسسه اعتباری غیربانکی كاسپین', NULL, 71, NULL, 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+29, '29', 'موسسه اعتباری غیربانکی توسعه', NULL, 71, 'https://www.cid.ir/', 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+30, '30', 'موسسه اعتباری غیربانکی ملل', NULL, 71, NULL, 1, NULL);
+
+INSERT INTO GEO.BANKS(BANK_ID, BANK_CODE, BANK_NAME, BANK_ENGLISH_NAME, COUNTRY_ID, BANK_URL, IS_ACTIVE, SORT_ORDER
+) VALUES(
+31, '31', 'موسسه اعتباری غیربانکی نور', NULL, 71, NULL, 1, NULL);
+

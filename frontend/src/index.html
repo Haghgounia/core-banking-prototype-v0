@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>سامانه نمونه بانکداری متمرکز</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    (() => {
+      try {
+        const preference = localStorage.getItem('core-banking-prototype.theme')
+          ?? localStorage.getItem('reference-data-prototype.theme')
+          ?? 'system';
+        const dark = preference === 'dark' ||
+          (preference === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.add(dark ? 'theme-dark' : 'theme-light');
+      } catch {
+        document.documentElement.classList.add('theme-light');
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

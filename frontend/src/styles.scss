@@ -1,0 +1,159 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+:root,
+html.theme-light {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$orange-palette
+    ),
+    typography: Tahoma,
+    density: 0
+  ));
+
+  --app-bg: #f4f7fb;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f5f7fb;
+  --app-surface-hover: #f7faff;
+  --app-border: #e1e7f0;
+  --app-divider: #edf0f5;
+  --app-text: #172033;
+  --app-muted: #68758c;
+  --app-primary: #2874d0;
+  --app-primary-strong: #1358b0;
+  --app-primary-soft: #eaf2ff;
+  --app-topbar: linear-gradient(90deg, #174ea6, #2d6dcc);
+  --app-topbar-shadow: rgba(23, 78, 166, .18);
+  --app-shadow: rgba(23, 32, 51, .06);
+  --app-danger: #c83532;
+  --app-danger-soft: #ffeded;
+  --app-success: #19723b;
+  --app-success-soft: #e8f7ed;
+  --app-warning-bg: #fff8e8;
+  --app-warning-border: #f0d79a;
+  --app-warning-text: #77530a;
+  --app-code-bg: #eef3fa;
+  --app-code-text: #23405f;
+  --app-font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+  color-scheme: light;
+}
+
+html.theme-dark {
+  @include mat.theme((
+    color: (
+      theme-type: dark,
+      primary: mat.$azure-palette,
+      tertiary: mat.$orange-palette
+    ),
+    typography: Tahoma,
+    density: 0
+  ));
+
+  --app-bg: #0e1522;
+  --app-surface: #172131;
+  --app-surface-muted: #1d293a;
+  --app-surface-hover: #223149;
+  --app-border: #304057;
+  --app-divider: #26364b;
+  --app-text: #eef4ff;
+  --app-muted: #aab7ca;
+  --app-primary: #7bb4ff;
+  --app-primary-strong: #a8ccff;
+  --app-primary-soft: #203b5f;
+  --app-topbar: linear-gradient(90deg, #102f62, #1e4f91);
+  --app-topbar-shadow: rgba(0, 0, 0, .35);
+  --app-shadow: rgba(0, 0, 0, .25);
+  --app-danger: #ff8d8a;
+  --app-danger-soft: #4a2428;
+  --app-success: #72d493;
+  --app-success-soft: #173c29;
+  --app-warning-bg: #3a3019;
+  --app-warning-border: #6c5a2a;
+  --app-warning-text: #f5d886;
+  --app-code-bg: #0e1827;
+  --app-code-text: #c9def8;
+  --app-font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+/*
+ * Use an installed system font stack for all application text.
+ * This prevents mixed serif/sans-serif rendering when Google Fonts is unavailable.
+ * Material Symbols keep their dedicated icon font in the rule below.
+ */
+html,
+body,
+app-root,
+.mat-typography {
+  font-family: var(--app-font-family) !important;
+}
+
+body {
+  margin: 0;
+  background: var(--app-bg);
+  color: var(--app-text);
+  transition: background-color .18s ease, color .18s ease;
+}
+button,
+input,
+select,
+textarea,
+h1, h2, h3, h4, h5, h6,
+p, span, div, a, label, th, td,
+mat-card, mat-toolbar, mat-sidenav, mat-expansion-panel,
+.mat-mdc-button, .mat-mdc-menu-item, .mat-mdc-form-field, .mat-mdc-table {
+  font-family: var(--app-font-family) !important;
+}
+
+code, pre, kbd, samp {
+  font-family: Consolas, "Courier New", monospace !important;
+}
+.mat-mdc-form-field { width: 100%; }
+.material-symbols-rounded { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+.card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px var(--app-shadow);
+}
+
+.page-title { margin: 0; font-size: 1.35rem; font-weight: 700; }
+.muted { color: var(--app-muted); }
+.error-banner { padding: 12px 16px; border-radius: 10px; background: var(--app-danger-soft); color: var(--app-danger); margin-bottom: 12px; }
+
+/* Keep Angular Material surfaces aligned with the application theme. */
+.mat-drawer-container,
+.mat-drawer-content,
+.mat-expansion-panel,
+.mat-mdc-table,
+.mat-mdc-menu-panel {
+  color: var(--app-text);
+}
+
+/* Angular Material defaults to the legacy "Material Icons" font class.
+   This project loads Material Symbols Rounded, so force MatIcon to use it.
+   direction:ltr prevents icon ligatures from being split in the RTL shell. */
+mat-icon.mat-icon {
+  font-family: 'Material Symbols Rounded' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}

@@ -1,0 +1,37 @@
+# Backend build
+backend/target/
+backend/src/main/resources/static/
+*.class
+
+# Frontend build and dependencies
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.cache/
+
+# Packaged application
+app/
+*.jar
+
+# Logs and runtime files
+*.log
+*.pid
+logs/
+npm-debug.log*
+yarn-error.log*
+
+# Local and secret configuration
+config/application-local.yml
+backend/src/main/resources/application-local.yml
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Operating system
+.DS_Store
+Thumbs.db

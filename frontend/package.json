@@ -1,0 +1,31 @@
+{
+  "name": "core-banking-ui",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "prestart": "node ../tools/sync-system-specification.mjs",
+    "start": "ng serve --proxy-config proxy.conf.json",
+    "prebuild": "node ../tools/sync-system-specification.mjs",
+    "build": "ng build",
+    "test": "ng test --watch=false"
+  },
+  "dependencies": {
+    "@angular/animations": "^21.0.0",
+    "@angular/cdk": "^21.0.0",
+    "@angular/common": "^21.0.0",
+    "@angular/compiler": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/forms": "^21.0.0",
+    "@angular/material": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0",
+    "@angular/router": "^21.0.0",
+    "rxjs": "~7.8.2",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.0.0",
+    "@angular/cli": "^21.0.0",
+    "@angular/compiler-cli": "^21.0.0",
+    "typescript": "~5.9.2"
+  }
+}
