@@ -1,0 +1,10 @@
+.tree-page header { margin-bottom: 18px; }
+.tree-page header p { margin: 6px 0 0; }
+.tree-card { padding: 10px 0; overflow: hidden; }
+.tree-row { display: flex; align-items: center; min-height: 52px; border-bottom: 1px solid var(--app-divider); transition: background .15s ease; }
+.tree-row:hover { background: var(--app-surface-hover); }
+.node-icon { width: 36px; height: 36px; display: grid; place-items: center; color: var(--app-primary); background: var(--app-primary-soft); border-radius: 10px; }
+.node-label { flex: 1; justify-content: flex-start; text-align: right; }
+.node-label b, .node-label small { display: block; }
+.node-label small { color: var(--app-muted); margin-right: 10px; }
+.empty { padding: 50px; text-align: center; color: var(--app-muted); }

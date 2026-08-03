@@ -142,6 +142,14 @@ bin\start.cmd
 bin\stop.cmd
 ```
 
+استخراج DDL و داده Oracle:
+
+```cmd
+bin\export-database.cmd
+```
+
+این Batch پیش از شروع تأیید می‌گیرد و به‌صورت پیش‌فرض جدول‌های `DPS.REF_*` را در `database/oracle/exports` استخراج می‌کند. راهنمای کامل در `docs/DATABASE-EXPORT-FA.md` قرار دارد.
+
 آدرس برنامه:
 
 ```text

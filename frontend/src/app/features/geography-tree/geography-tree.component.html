@@ -1,0 +1,29 @@
+<section class="tree-page">
+  <header>
+    <h1 class="page-title">درخت جغرافیایی</h1>
+    <p class="muted">پیمایش تنبل استان ← شهرستان ← بخش ← شهر/دهستان ← روستا و آبادی</p>
+  </header>
+
+  @if (error(); as message) { <div class="error-banner">{{ message }}</div> }
+  @if (loading()) { <mat-progress-bar mode="indeterminate" /> }
+
+  <article class="tree-card card">
+    @for (node of nodes(); track node.resource + '-' + node.id; let index = $index) {
+      <div class="tree-row" [style.padding-right.px]="18 + node.level * 28">
+        <button mat-icon-button (click)="toggle(index)" [disabled]="!node.hasChildren" matTooltip="باز/بسته کردن">
+          <mat-icon>{{ node.loading ? 'progress_activity' : node.hasChildren ? (node.expanded ? 'expand_more' : 'chevron_left') : 'fiber_manual_record' }}</mat-icon>
+        </button>
+        <span class="node-icon"><mat-icon>{{ icon(node.resource) }}</mat-icon></span>
+        <button mat-button class="node-label" (click)="toggle(index)">
+          <b>{{ node.label }}</b>
+          <small>{{ node.code }}</small>
+        </button>
+        <a mat-icon-button [routerLink]="['/reference-data', node.resource]" matTooltip="مدیریت این سطح">
+          <mat-icon>open_in_new</mat-icon>
+        </a>
+      </div>
+    } @empty {
+      @if (!loading()) { <div class="empty">اطلاعاتی برای نمایش وجود ندارد.</div> }
+    }
+  </article>
+</section>

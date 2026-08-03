@@ -1,0 +1,27 @@
+.dashboard header { margin-bottom: 22px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+.stat-card { padding: 18px; display: flex; align-items: center; gap: 16px; }
+.stat-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: var(--app-primary-soft); color: var(--app-primary); }
+.stat-card span, .stat-card strong { display: block; }
+.stat-card span { color: var(--app-muted); font-size: .9rem; }
+.stat-card strong { margin-top: 5px; font-size: 1.55rem; }
+.system-specification-link { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; margin-top: 22px; padding: 20px; color: inherit; text-decoration: none; transition: transform .15s ease, border-color .15s ease; }
+.system-specification-link:hover { transform: translateY(-2px); border-color: var(--app-primary); }
+.specification-icon { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 15px; color: var(--app-primary); background: var(--app-primary-soft); }
+.system-specification-link h2, .system-specification-link p { margin: 0; }
+.system-specification-link h2 { font-size: 1.05rem; }
+.system-specification-link p { margin-top: 6px; color: var(--app-muted); }
+.link-arrow { color: var(--app-primary); }
+.roadmap { margin-top: 22px; padding: 20px; }
+.roadmap-title { display: flex; gap: 12px; align-items: center; }
+.roadmap-title h2, .roadmap-title p { margin: 0; }
+.planned-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.planned-item { display: inline-flex; gap: 7px; align-items: center; background: var(--app-surface-muted); border: 1px solid var(--app-border); border-radius: 20px; padding: 8px 12px; }
+.deposit-reference-section { margin-top: 28px; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px !important; }
+.section-heading h2, .section-heading p { margin: 0; }
+.section-heading h2 { font-size: 1.15rem; }
+.section-heading p { margin-top: 5px; }
+.section-heading > mat-icon { color: var(--app-primary); }
+.stat-link { color: inherit; text-decoration: none; transition: transform .15s ease, border-color .15s ease; }
+.stat-link:hover { transform: translateY(-2px); border-color: var(--app-primary); }

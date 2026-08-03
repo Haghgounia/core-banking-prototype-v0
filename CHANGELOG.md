@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- افزودن ابزار استخراج DDL و داده Oracle از طریق `bin\export-database.cmd`.
+- دریافت تأیید کاربر پیش از اتصال و شروع عملیات.
+- استخراج Sequence، Table، Index، PK/UK/CHECK، FK، Comment، Trigger و Object Grant برای هر جدول.
+- تولید داده هر جدول در قالب `INSERT INTO ... VALUES ...` با خروجی UTF-8 و Manifest اجرا.
+
 ## در حال توسعه
 
 - فعال‌سازی ۵۰ فرم `DPS.REF_*` زیر منوی «اطلاعات پایه محصول سپرده».

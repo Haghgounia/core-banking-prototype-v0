@@ -1,0 +1,69 @@
+<section class="dashboard">
+  <header>
+    <h1 class="page-title">داشبورد اطلاعات پایه</h1>
+    <p class="muted">ماژول اطلاعات پایه سامانه بانکداری متمرکز؛ شامل داده‌های GEO و اطلاعات پایه محصول سپرده در DPS</p>
+  </header>
+
+  @if (error()) {
+    <div class="error-banner" role="alert">{{ error() }}</div>
+  }
+
+  <div class="stat-grid">
+    @for (item of activeItems(); track item.resource) {
+      <article class="stat-card card">
+        <div class="stat-icon"><mat-icon>{{ item.icon }}</mat-icon></div>
+        <div>
+          <span>{{ item.title }}</span>
+          <strong>{{ loading() ? '…' : (counts()[item.resource] ?? '—') }}</strong>
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (depositProductReferenceItems().length) {
+    <section class="deposit-reference-section">
+      <header class="section-heading">
+        <div>
+          <h2>اطلاعات پایه محصول سپرده</h2>
+          <p class="muted">جداول مرجع Schema ‏DPS مورد استفاده در محصول‌ساز سپرده</p>
+        </div>
+        <mat-icon>savings</mat-icon>
+      </header>
+      <div class="stat-grid">
+        @for (item of depositProductReferenceItems(); track item.resource) {
+          <a class="stat-card card stat-link" [routerLink]="['/reference-data', item.resource]">
+            <div class="stat-icon"><mat-icon>{{ item.icon }}</mat-icon></div>
+            <div>
+              <span>{{ item.title }}</span>
+              <strong>{{ loading() ? '…' : (counts()[item.resource] ?? '—') }}</strong>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <a class="system-specification-link card" routerLink="/system-specification">
+    <div class="specification-icon"><mat-icon>info</mat-icon></div>
+    <div>
+      <h2>مشخصات فنی سیستم</h2>
+      <p>معماری، فناوری‌های Backend و Frontend، پایگاه داده، ابزارهای Build و قابلیت‌های نسخه جاری را مشاهده کنید.</p>
+    </div>
+    <mat-icon class="link-arrow">arrow_back</mat-icon>
+  </a>
+
+  <div class="roadmap card">
+    <div class="roadmap-title">
+      <mat-icon>route</mat-icon>
+      <div>
+        <h2>دامنه‌های برنامه‌ریزی‌شده</h2>
+        <p class="muted">موارد زیر هنوز در نسخه جاری فعال نشده‌اند.</p>
+      </div>
+    </div>
+    <div class="planned-grid">
+      @for (item of plannedItems(); track item.resource) {
+        <span class="planned-item"><mat-icon>{{ item.icon }}</mat-icon>{{ item.title }}</span>
+      }
+    </div>
+  </div>
+</section>

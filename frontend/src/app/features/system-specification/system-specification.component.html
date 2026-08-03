@@ -1,0 +1,108 @@
+<section class="system-specification">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">مشخصات فنی سیستم</h1>
+      <p class="muted">نمای کلی معماری، ابزارها، فناوری‌ها و ماژول فعال اطلاعات پایه در Core Banking Prototype</p>
+    </div>
+    <div class="release-badge" aria-label="مشخصات نسخه">
+      <mat-icon>verified</mat-icon>
+      <div>
+        <strong>{{ release.version }}</strong>
+        <small>آخرین بازنگری: {{ release.lastUpdated }}</small>
+      </div>
+    </div>
+  </header>
+
+  <div class="summary-grid">
+    <article class="summary-card card">
+      <mat-icon>table_view</mat-icon>
+      <span>فرم فعال</span>
+      <strong>{{ release.activeForms }}</strong>
+    </article>
+    <article class="summary-card card">
+      <mat-icon>account_tree</mat-icon>
+      <span>الگوی پیاده‌سازی</span>
+      <strong>Descriptor-driven</strong>
+    </article>
+    <article class="summary-card card">
+      <mat-icon>database</mat-icon>
+      <span>Schema Oracle</span>
+      <strong>{{ release.databaseSchema }}</strong>
+    </article>
+    <article class="summary-card card">
+      <mat-icon>package_2</mat-icon>
+      <span>بسته استقرار</span>
+      <strong>Executable JAR</strong>
+    </article>
+  </div>
+
+  <article class="section-card card">
+    <div class="section-heading">
+      <mat-icon>architecture</mat-icon>
+      <div>
+        <h2>معماری اجرایی</h2>
+        <p class="muted">جریان اصلی از رابط کاربری تا پایگاه داده</p>
+      </div>
+    </div>
+    <div class="architecture-flow">
+      @for (layer of architecture; track layer.title; let last = $last) {
+        <div class="architecture-layer">
+          <div class="layer-icon"><mat-icon>{{ layer.icon }}</mat-icon></div>
+          <h3>{{ layer.title }}</h3>
+          <p>{{ layer.description }}</p>
+        </div>
+        @if (!last) {
+          <mat-icon class="flow-arrow">arrow_back</mat-icon>
+        }
+      }
+    </div>
+  </article>
+
+  <div class="technology-grid">
+    @for (group of technologyGroups; track group.title) {
+      <article class="technology-card card">
+        <div class="section-heading compact">
+          <mat-icon>{{ group.icon }}</mat-icon>
+          <h2>{{ group.title }}</h2>
+        </div>
+        <div class="technology-list">
+          @for (technology of group.items; track technology.name) {
+            <div class="technology-row">
+              <div>
+                <strong>{{ technology.name }}</strong>
+                <span>{{ technology.purpose }}</span>
+              </div>
+              <code>{{ technology.version }}</code>
+            </div>
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  <article class="section-card card">
+    <div class="section-heading">
+      <mat-icon>checklist</mat-icon>
+      <div>
+        <h2>قابلیت‌های نسخه جاری</h2>
+        <p class="muted">قابلیت‌هایی که در Build فعلی قابل استفاده‌اند</p>
+      </div>
+    </div>
+    <div class="capability-grid">
+      @for (capability of capabilities; track capability) {
+        <div class="capability-item">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ capability }}</span>
+        </div>
+      }
+    </div>
+  </article>
+
+  <aside class="maintenance-note">
+    <mat-icon>update</mat-icon>
+    <div>
+      <strong>قاعده نگهداری این صفحه</strong>
+      <p>در هر نسخه، شماره Release، نسخه فناوری‌ها، تعداد فرم‌های فعال و قابلیت‌های جدید در همین صفحه و فایل Changelog به‌روزرسانی می‌شوند.</p>
+    </div>
+  </aside>
+</section>

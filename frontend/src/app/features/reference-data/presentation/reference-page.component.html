@@ -1,0 +1,192 @@
+<section class="reference-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">{{ store.descriptor()?.title ?? 'اطلاعات پایه' }}</h1>
+      <p class="muted">جست‌وجو، ثبت، ویرایش و حذف با Query پارامتری Oracle</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="create()" [disabled]="!store.descriptor()">
+      <mat-icon>add</mat-icon> افزودن رکورد
+    </button>
+  </header>
+
+  @if (store.error(); as error) { <div class="error-banner">{{ error }}</div> }
+  @if (store.loading()) { <mat-progress-bar mode="indeterminate" /> }
+
+  <div class="workspace" [class.editor-open]="editorVisible()">
+    <article class="list-card card">
+      <div class="filters" [class.has-parent-filter]="store.descriptor()?.parent">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>جست‌وجوی کد یا نام</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput [formControl]="searchControl">
+        </mat-form-field>
+        @if (store.descriptor()?.parent) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>فیلتر بر اساس {{ parentLabel() }}</mat-label>
+            <mat-select [formControl]="parentFilterControl">
+              <mat-option [value]="null">همه موارد</mat-option>
+              @for (option of parentFilterOptions(); track option.value) {
+                <mat-option [value]="option.value">{{ option.code }} — {{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+        @if (hasActiveField()) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>وضعیت</mat-label>
+            <mat-select [formControl]="activeControl">
+              <mat-option [value]="null">همه</mat-option>
+              <mat-option [value]="true">فعال</mat-option>
+              <mat-option [value]="false">غیرفعال</mat-option>
+            </mat-select>
+          </mat-form-field>
+        }
+      </div>
+
+      <div class="table-wrap">
+        <table mat-table matSort [dataSource]="store.rows()" (matSortChange)="onSort($event)">
+          @for (field of gridFields(); track field.apiName) {
+            <ng-container [matColumnDef]="field.apiName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ field.label }}</th>
+              <td mat-cell *matCellDef="let row">
+                @if (field.type === 'BOOLEAN' && field.apiName === 'isActive') {
+                  <span class="status" [class.inactive]="!row[field.apiName]">{{ cell(row, field) }}</span>
+                } @else { {{ cell(row, field) }} }
+              </td>
+            </ng-container>
+          }
+
+          @if (store.descriptor()?.parent) {
+            <ng-container matColumnDef="parentName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ parentLabel() }}</th>
+              <td mat-cell *matCellDef="let row">{{ row['parentName'] ?? '—' }}</td>
+            </ng-container>
+          }
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>عملیات</th>
+            <td mat-cell *matCellDef="let row" class="actions">
+              <button mat-icon-button matTooltip="ویرایش" (click)="edit(row)"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button matTooltip="حذف" class="danger" (click)="remove(row)"><mat-icon>delete</mat-icon></button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+          <tr class="mat-row" *matNoDataRow><td class="mat-cell no-data" [attr.colspan]="displayedColumns().length">رکوردی یافت نشد.</td></tr>
+        </table>
+      </div>
+
+      <mat-paginator
+        [length]="store.total()"
+        [pageIndex]="store.query().page"
+        [pageSize]="store.query().size"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        (page)="onPage($event)" />
+    </article>
+
+    @if (editorVisible()) {
+      <aside class="editor card">
+        <div class="editor-header">
+          <h2>{{ store.selected() ? 'ویرایش رکورد' : 'ثبت رکورد جدید' }}</h2>
+          <button mat-icon-button (click)="closeEditor()"><mat-icon>close</mat-icon></button>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="save()">
+          @if (hierarchy().length) {
+            <div class="section-title">موقعیت در سلسله‌مراتب</div>
+            @for (item of hierarchy(); track item.resource; let index = $index) {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ item.title }} *</mat-label>
+                <mat-select
+                  [value]="hierarchyValues()[item.resource]"
+                  (selectionChange)="onHierarchyChange(index, item.resource, $event.value)">
+                  @for (option of hierarchyOptions()[item.resource] ?? []; track option.value) {
+                    <mat-option [value]="option.value">{{ option.code }} — {{ option.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+          }
+
+          <div class="section-title">اطلاعات اصلی</div>
+          @for (field of editableFields(); track field.apiName) {
+            @switch (field.type) {
+              @case ('BOOLEAN') {
+                <div class="toggle-row"><span>{{ field.label }}</span><mat-slide-toggle [formControlName]="field.apiName">{{ field.apiName === 'isActive' ? 'فعال' : 'بله' }}</mat-slide-toggle></div>
+              }
+              @case ('SELECT') {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <mat-select [formControlName]="field.apiName">
+                    @for (option of field.options; track option.value) { <mat-option [value]="option.value">{{ option.label }}</mat-option> }
+                  </mat-select>
+                  @if (isInvalid(field)) { <mat-error>مقدار این فیلد الزامی است.</mat-error> }
+                </mat-form-field>
+              }
+              @case ('LOOKUP') {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <mat-select [formControlName]="field.apiName">
+                    @if (!field.required) { <mat-option [value]="null">بدون انتخاب</mat-option> }
+                    @for (option of lookupOptions()[field.apiName] ?? []; track option.value) {
+                      <mat-option [value]="option.value">{{ option.code }} — {{ option.label }}</mat-option>
+                    }
+                  </mat-select>
+                  @if (isInvalid(field)) { <mat-error>انتخاب این فیلد الزامی است.</mat-error> }
+                </mat-form-field>
+              }
+              @case ('NUMBER') {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <input matInput type="number" [formControlName]="field.apiName">
+                  @if (isInvalid(field)) { <mat-error>مقدار معتبر وارد کنید.</mat-error> }
+                </mat-form-field>
+              }
+              @case ('DATE') {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <input matInput type="date" [formControlName]="field.apiName">
+                  @if (isInvalid(field)) { <mat-error>تاریخ معتبر وارد کنید.</mat-error> }
+                </mat-form-field>
+              }
+              @case ('TEXT') {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ field.label }}</mat-label>
+                  @if (field.apiName === 'description') {
+                    <textarea matInput rows="4" [maxlength]="field.maxLength ?? 1000" [formControlName]="field.apiName"></textarea>
+                  } @else {
+                    <input matInput [maxlength]="field.maxLength ?? 500" [formControlName]="field.apiName">
+                  }
+                  @if (isInvalid(field)) { <mat-error>مقدار این فیلد الزامی یا بیش از حد مجاز است.</mat-error> }
+                </mat-form-field>
+              }
+              @default {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <input matInput [formControlName]="field.apiName">
+                </mat-form-field>
+              }
+            }
+          }
+
+          @if (store.selected() && systemFields().length) {
+            <details class="audit">
+              <summary>اطلاعات سیستمی</summary>
+              @for (field of systemFields(); track field.apiName) {
+                <div><span>{{ field.label }}</span><b>{{ auditValue(field.apiName) }}</b></div>
+              }
+            </details>
+          }
+
+          <div class="editor-actions">
+            <button mat-button type="button" (click)="closeEditor()">انصراف</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="store.saving() || !hierarchyComplete()">
+              <mat-icon>save</mat-icon> ذخیره
+            </button>
+          </div>
+        </form>
+      </aside>
+    }
+  </div>
+</section>

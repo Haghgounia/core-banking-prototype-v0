@@ -34,3 +34,8 @@ core-banking:
   schemas:
     reference-data: GEO
     deposit-product-factory: DPS
+  database-export:
+    enabled: false
+    schema: DPS
+    table-prefix: REF_
+    output-directory: database/oracle/exports
