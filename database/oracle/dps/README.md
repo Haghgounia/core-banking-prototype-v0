@@ -2,8 +2,11 @@
 
 این پوشه اسکریپت‌های استخراج‌شده از Oracle برای Schema `DPS` را نگهداری می‌کند.
 
-- `ddl/01_sequences.sql` تا `ddl/07_column-comments.sql`: خروجی‌های دریافت‌شده از پایگاه داده
-- `ddl/08_add-created-by-to-reference-tables.sql`: تغییر افزایشی اعلام‌شده برای افزودن `CREATED_BY` به همه جدول‌های `REF_*`
-- `data/`: محل اسکریپت داده‌های پایه و نمایشی؛ در این مرحله داده‌ای دریافت نشده است
+- `ddl/01_sequences.sql` تا `ddl/07_column-comments.sql`: DDL فعال جدول‌های مرجع `REF_*`
+- `ddl/08_add-created-by-to-reference-tables.sql`: افزودن ستون `CREATED_BY` و Comment آن به همه جدول‌های مرجع
+- `data/`: محل داده‌های پایه تأییدشده
+- `pending/`: اشیای مربوط به فازهای آینده که نباید همراه DDL فعال اجرا شوند
 
-اسکریپت `05_indexes.sql` علاوه بر Indexهای جداول مرجع، Indexهای جدول‌های Product Factory را نیز دارد؛ در این مرحله فقط جدول‌های `REF_*` در برنامه فعال شده‌اند.
+فایل `ddl/05_indexes.sql` فقط Indexهای جدول‌های `REF_*` را دارد. Indexهای `DEPOSIT_PRODUCT*` به `pending/product-factory-indexes.sql` منتقل شده‌اند.
+
+خروجی زمان‌دار ابزار Export در `database/oracle/exports/` تولید می‌شود و به دلیل Generated بودن در Git ثبت نمی‌شود.

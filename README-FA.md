@@ -158,15 +158,25 @@ http://localhost:8091
 
 ## اتصال Oracle
 
+اطلاعات اتصال در Repository نگهداری نمی‌شود و از متغیرهای محیطی خوانده می‌شود:
+
 ```yaml
 spring:
   datasource:
-    url: jdbc:oracle:thin:@//localhost:1521/FREEPDB1
-    username: SYSTEM
-    password: Oracle123
+    url: ${ORACLE_URL:jdbc:oracle:thin:@//localhost:1521/FREEPDB1}
+    username: ${ORACLE_USERNAME:}
+    password: ${ORACLE_PASSWORD:}
 ```
 
-این تنظیم برای محیط Prototype است و باید در استقرار واقعی با کاربر اختصاصی و Secret Management جایگزین شود.
+نمونه تنظیم موقت در Windows CMD:
+
+```cmd
+set "ORACLE_URL=jdbc:oracle:thin:@//localhost:1521/FREEPDB1"
+set "ORACLE_USERNAME=DPS_APP"
+set "ORACLE_PASSWORD=your-password"
+```
+
+برای برنامه یک کاربر اختصاصی Oracle با حداقل دسترسی لازم تعریف شود؛ استفاده از `SYSTEM` توصیه نمی‌شود.
 
 ## API فعلی
 

@@ -1,12 +1,40 @@
+# Backend build output
 backend/target/
 backend/src/main/resources/static/
+*.class
+
+# Frontend dependencies, cache and build output
 frontend/node_modules/
 frontend/dist/
 frontend/.angular/
-app/*.jar
+frontend/.cache/
+
+# Packaged application
+app/
+*.jar
+
+# Generated database exports
+database/oracle/exports/
+
+# Logs and runtime files
+*.log
+*.pid
+logs/
+npm-debug.log*
+yarn-error.log*
+
+# Local configuration and secrets
+config/application-local.yml
+backend/src/main/resources/application-local.yml
+.env
+.env.*
+!.env.example
+
+# IDE
 .idea/
 .vscode/
 *.iml
-*.log
+
+# Operating system
 .DS_Store
-config/application-local.yml
+Thumbs.db

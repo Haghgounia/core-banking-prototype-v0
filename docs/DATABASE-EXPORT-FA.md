@@ -40,7 +40,7 @@ bin\export-database.cmd DPS * D:\db-export
 
 ## ساختار خروجی
 
-برای هر اجرا یک پوشه Timestampدار ایجاد می‌شود:
+برای هر اجرا یک پوشه Timestampدار ایجاد می‌شود. این مسیر Generated است و توسط `.gitignore` وارد Git نمی‌شود:
 
 ```text
 database/oracle/exports/
@@ -85,4 +85,4 @@ INSERT INTO DPS.REF_TABLE (COL1, COL2, COL3) VALUES (...);
 
 ## دسترسی Oracle
 
-کاربر معرفی‌شده در `config/application.yml` باید دسترسی خواندن جدول‌ها و Viewهای Data Dictionary مورد استفاده را داشته باشد. برای استخراج DDL نیز دسترسی اجرای `DBMS_METADATA` و مشاهده Objectهای Schema هدف لازم است.
+اطلاعات اتصال از متغیرهای محیطی `ORACLE_URL`، `ORACLE_USERNAME` و `ORACLE_PASSWORD` خوانده می‌شود. کاربر معرفی‌شده باید دسترسی خواندن جدول‌ها و Viewهای Data Dictionary مورد استفاده را داشته باشد. برای استخراج DDL نیز دسترسی اجرای `DBMS_METADATA` و مشاهده Objectهای Schema هدف لازم است.

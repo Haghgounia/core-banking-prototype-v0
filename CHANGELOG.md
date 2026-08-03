@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- حذف خروجی‌های زمان‌دار `database/oracle/exports` از Source و افزودن آن به `.gitignore`.
+- حذف اطلاعات ثابت اتصال Oracle و استفاده از متغیرهای محیطی `ORACLE_URL`، `ORACLE_USERNAME` و `ORACLE_PASSWORD`.
+- جداسازی Indexهای آینده `DEPOSIT_PRODUCT*` از DDL فعال جدول‌های `REF_*` و انتقال آن‌ها به `database/oracle/dps/pending`.
+- افزودن Comment ستون `CREATED_BY` برای همه ۵۰ جدول مرجع DPS.
+- افزودن `frontend/public/.gitkeep` برای تطابق ساختار Repository با تنظیمات Angular.
+
 - افزودن ابزار استخراج DDL و داده Oracle از طریق `bin\export-database.cmd`.
 - دریافت تأیید کاربر پیش از اتصال و شروع عملیات.
 - استخراج Sequence، Table، Index، PK/UK/CHECK، FK، Comment، Trigger و Object Grant برای هر جدول.
