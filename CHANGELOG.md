@@ -2,8 +2,11 @@
 
 ## Unreleased
 
+- تغییر عنوان رابط کاربری به «سامانه نمونه بانکداری متمرکز».
+- انتقال قاره‌ها، کشورها و شهرهای خارجی به گروه «اطلاعات جغرافیایی» در منو و Dashboard.
+- نمایش ستون «نام انگلیسی» به‌جای «نسخه جاری» در Gridهای اطلاعات پایه محصول سپرده.
 - حذف خروجی‌های زمان‌دار `database/oracle/exports` از Source و افزودن آن به `.gitignore`.
-- حذف اطلاعات ثابت اتصال Oracle و استفاده از متغیرهای محیطی `ORACLE_URL`، `ORACLE_USERNAME` و `ORACLE_PASSWORD`.
+- ثبت مستقیم مشخصات اتصال Oracle محیط تست در هر دو فایل `application.yml` برای اجرای بدون تنظیم CMD.
 - جداسازی Indexهای آینده `DEPOSIT_PRODUCT*` از DDL فعال جدول‌های `REF_*` و انتقال آن‌ها به `database/oracle/dps/pending`.
 - افزودن Comment ستون `CREATED_BY` برای همه ۵۰ جدول مرجع DPS.
 - افزودن `frontend/public/.gitkeep` برای تطابق ساختار Repository با تنظیمات Angular.

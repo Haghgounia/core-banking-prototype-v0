@@ -158,25 +158,27 @@ http://localhost:8091
 
 ## اتصال Oracle
 
-اطلاعات اتصال در Repository نگهداری نمی‌شود و از متغیرهای محیطی خوانده می‌شود:
+این پروژه در محیط تستی و ایزوله اجرا می‌شود؛ بنابراین مشخصات اتصال مستقیماً در هر دو فایل `application.yml` ثبت شده است:
 
 ```yaml
 spring:
   datasource:
-    url: ${ORACLE_URL:jdbc:oracle:thin:@//localhost:1521/FREEPDB1}
-    username: ${ORACLE_USERNAME:}
-    password: ${ORACLE_PASSWORD:}
+    url: jdbc:oracle:thin:@//localhost:1521/FREEPDB1
+    username: SYSTEM
+    password: Oracle123
 ```
 
-نمونه تنظیم موقت در Windows CMD:
+فایل Runtime اصلی که توسط `bin\start.cmd` و `bin\export-database.cmd` خوانده می‌شود:
 
-```cmd
-set "ORACLE_URL=jdbc:oracle:thin:@//localhost:1521/FREEPDB1"
-set "ORACLE_USERNAME=DPS_APP"
-set "ORACLE_PASSWORD=your-password"
+```text
+config/application.yml
 ```
 
-برای برنامه یک کاربر اختصاصی Oracle با حداقل دسترسی لازم تعریف شود؛ استفاده از `SYSTEM` توصیه نمی‌شود.
+نسخه دوم برای اجرای مستقیم Backend از IDE یا Maven نگهداری می‌شود:
+
+```text
+backend/src/main/resources/application.yml
+```
 
 ## API فعلی
 

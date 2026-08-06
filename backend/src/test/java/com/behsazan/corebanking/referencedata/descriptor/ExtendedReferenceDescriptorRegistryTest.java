@@ -37,6 +37,14 @@ class ExtendedReferenceDescriptorRegistryTest {
     }
 
     @Test
+    void classifiesContinentsCountriesAndForeignCitiesAsGeography() {
+        assertThat(registry.require("continents").category()).isEqualTo("GEOGRAPHY");
+        assertThat(registry.require("countries").category()).isEqualTo("GEOGRAPHY");
+        assertThat(registry.require("foreign-cities").category()).isEqualTo("GEOGRAPHY");
+        assertThat(registry.require("languages").category()).isEqualTo("GENERAL");
+    }
+
+    @Test
     void preservesNewParentChainsAndLookupResources() {
         assertThat(registry.require("countries").parent().resource()).isEqualTo("continents");
         assertThat(registry.require("banks").parent().resource()).isEqualTo("countries");

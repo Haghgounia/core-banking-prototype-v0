@@ -20,6 +20,8 @@ class DepositProductReferenceDescriptorProviderTest {
                     assertThat(descriptor.sequenceName()).isEqualTo("SEQ_" + descriptor.tableName());
                     assertThat(descriptor.field("code").required()).isTrue();
                     assertThat(descriptor.field("nameFa").required()).isTrue();
+                    assertThat(descriptor.field("nameEn").grid()).isTrue();
+                    assertThat(descriptor.field("isCurrent").grid()).isFalse();
                     assertThat(descriptor.field("createdBy").readOnly()).isTrue();
                 });
     }

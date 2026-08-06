@@ -30,7 +30,7 @@ export class AppShellComponent {
   readonly theme = inject(ThemeService);
   readonly version = GENERATED_SYSTEM_VERSIONS.release;
   readonly groups = [
-    {key: 'GEOGRAPHY', title: 'ساختار جغرافیایی', icon: 'account_tree'},
+    {key: 'GEOGRAPHY', title: 'اطلاعات جغرافیایی', icon: 'account_tree'},
     {key: 'GENERAL', title: 'اطلاعات عمومی', icon: 'dataset'},
     {key: 'EMPLOYMENT', title: 'اشتغال و مشاغل', icon: 'work'},
     {key: 'EDUCATION', title: 'آموزش و تحصیلات', icon: 'school'},

@@ -30,7 +30,7 @@ public class GeneralReferenceDescriptorProvider implements ReferenceDescriptorPr
 
     private ReferenceTableDescriptor continents() {
         return descriptor(
-                "continents", "GENERAL", "قاره‌ها", "public",
+                "continents", "GEOGRAPHY", "قاره‌ها", "public",
                 schemaName, "CONTINENTS", "SEQ_CONTINENTS",
                 "continentId", "CONTINENT_ID", "continentCode", "continentName", null,
                 fields(
@@ -84,7 +84,7 @@ public class GeneralReferenceDescriptorProvider implements ReferenceDescriptorPr
     private ReferenceTableDescriptor countries() {
         ParentDescriptor parent = new ParentDescriptor("continents", "continentId", "CONTINENT_ID", "قاره");
         return descriptor(
-                "countries", "GENERAL", "کشورها", "flag",
+                "countries", "GEOGRAPHY", "کشورها", "flag",
                 schemaName, "COUNTRIES", "SEQ_COUNTRIES",
                 "countryId", "COUNTRY_ID", "countryIsoCode", "countryName", parent,
                 fields(
@@ -145,7 +145,7 @@ public class GeneralReferenceDescriptorProvider implements ReferenceDescriptorPr
     private ReferenceTableDescriptor foreignCities() {
         ParentDescriptor parent = new ParentDescriptor("countries", "countryId", "COUNTRY_ID", "کشور");
         return descriptor(
-                "foreign-cities", "GENERAL", "شهرهای خارجی", "travel_explore",
+                "foreign-cities", "GEOGRAPHY", "شهرهای خارجی", "travel_explore",
                 schemaName, "FOREIGN_CITIES", "SEQ_FOREIGN_CITIES",
                 "foreignCityId", "FOREIGN_CITY_ID", "foreignCityCode", "foreignCityName", parent,
                 fields(

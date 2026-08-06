@@ -85,4 +85,4 @@ INSERT INTO DPS.REF_TABLE (COL1, COL2, COL3) VALUES (...);
 
 ## دسترسی Oracle
 
-اطلاعات اتصال از متغیرهای محیطی `ORACLE_URL`، `ORACLE_USERNAME` و `ORACLE_PASSWORD` خوانده می‌شود. کاربر معرفی‌شده باید دسترسی خواندن جدول‌ها و Viewهای Data Dictionary مورد استفاده را داشته باشد. برای استخراج DDL نیز دسترسی اجرای `DBMS_METADATA` و مشاهده Objectهای Schema هدف لازم است.
+اطلاعات اتصال مستقیماً از `config/application.yml` خوانده می‌شود. در محیط تست فعلی مقادیر `SYSTEM` و `Oracle123` برای Service برابر `FREEPDB1` ثبت شده‌اند. کاربر معرفی‌شده باید دسترسی خواندن جدول‌ها و Viewهای Data Dictionary مورد استفاده را داشته باشد. برای استخراج DDL نیز دسترسی اجرای `DBMS_METADATA` و مشاهده Objectهای Schema هدف لازم است.

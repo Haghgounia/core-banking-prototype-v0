@@ -18,8 +18,13 @@ export class DashboardComponent {
   readonly counts = signal<Partial<Record<string, number>>>({});
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly activeItems = computed(() => this.catalog.items().filter(i =>
-    i.status === 'ACTIVE' && i.category !== 'DEPOSIT_PRODUCT_REFERENCE'
+  readonly geographyItems = computed(() => this.catalog.items().filter(i =>
+    i.status === 'ACTIVE' && i.category === 'GEOGRAPHY'
+  ));
+  readonly otherReferenceItems = computed(() => this.catalog.items().filter(i =>
+    i.status === 'ACTIVE' &&
+    i.category !== 'GEOGRAPHY' &&
+    i.category !== 'DEPOSIT_PRODUCT_REFERENCE'
   ));
   readonly depositProductReferenceItems = computed(() => this.catalog.items().filter(i =>
     i.status === 'ACTIVE' && i.category === 'DEPOSIT_PRODUCT_REFERENCE'

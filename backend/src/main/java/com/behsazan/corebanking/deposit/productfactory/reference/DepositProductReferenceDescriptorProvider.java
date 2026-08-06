@@ -38,7 +38,7 @@ public class DepositProductReferenceDescriptorProvider implements ReferenceDescr
         fields.add(id(spec.idApiName(), spec.idColumnName(), "شناسه"));
         fields.add(text("code", "CODE", "کد", true, true, true, 50));
         fields.add(text("nameFa", "NAME_FA", "عنوان فارسی", true, true, true, 200));
-        fields.add(text("nameEn", "NAME_EN", "عنوان انگلیسی", false, false, true, 200));
+        fields.add(text("nameEn", "NAME_EN", "نام انگلیسی", false, true, true, 200));
         fields.add(text("description", "DESCRIPTION", "توضیحات", false, false, true, 1000));
         fields.add(bool("isActive", "IS_ACTIVE", "فعال", true, true, true));
         if (spec.hasParentCode()) {
@@ -49,7 +49,7 @@ public class DepositProductReferenceDescriptorProvider implements ReferenceDescr
             fields.add(date("validTo", "VALID_TO", "پایان اعتبار", false, false));
         }
         fields.add(number("versionNo", "VERSION_NO", "شماره نسخه", true, true, 1L));
-        fields.add(bool("isCurrent", "IS_CURRENT", "نسخه جاری", true, true, true));
+        fields.add(bool("isCurrent", "IS_CURRENT", "نسخه جاری", true, false, true));
         if (spec.hasRecordVersion()) {
             fields.add(audit("recordVersion", "RECORD_VERSION", "نسخه رکورد", NUMBER));
         }

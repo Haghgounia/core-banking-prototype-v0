@@ -1,22 +1,45 @@
 <section class="dashboard">
   <header>
     <h1 class="page-title">داشبورد اطلاعات پایه</h1>
-    <p class="muted">ماژول اطلاعات پایه سامانه بانکداری متمرکز؛ شامل داده‌های GEO و اطلاعات پایه محصول سپرده در DPS</p>
+    <p class="muted">ماژول اطلاعات پایه سامانه نمونه بانکداری متمرکز؛ شامل داده‌های GEO و اطلاعات پایه محصول سپرده در DPS</p>
   </header>
 
   @if (error()) {
     <div class="error-banner" role="alert">{{ error() }}</div>
   }
 
-  <div class="stat-grid">
-    @for (item of activeItems(); track item.resource) {
-      <article class="stat-card card">
+  @if (geographyItems().length) {
+    <section class="geography-section">
+      <header class="section-heading">
+        <div>
+          <h2>اطلاعات جغرافیایی</h2>
+          <p class="muted">ساختار جغرافیایی داخلی، قاره‌ها، کشورها و شهرهای خارجی</p>
+        </div>
+        <mat-icon>public</mat-icon>
+      </header>
+      <div class="stat-grid">
+        @for (item of geographyItems(); track item.resource) {
+          <a class="stat-card card stat-link" [routerLink]="['/reference-data', item.resource]">
+            <div class="stat-icon"><mat-icon>{{ item.icon }}</mat-icon></div>
+            <div>
+              <span>{{ item.title }}</span>
+              <strong>{{ loading() ? '…' : (counts()[item.resource] ?? '—') }}</strong>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <div class="stat-grid other-reference-grid">
+    @for (item of otherReferenceItems(); track item.resource) {
+      <a class="stat-card card stat-link" [routerLink]="['/reference-data', item.resource]">
         <div class="stat-icon"><mat-icon>{{ item.icon }}</mat-icon></div>
         <div>
           <span>{{ item.title }}</span>
           <strong>{{ loading() ? '…' : (counts()[item.resource] ?? '—') }}</strong>
         </div>
-      </article>
+      </a>
     }
   </div>
 
