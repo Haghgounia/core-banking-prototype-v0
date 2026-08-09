@@ -4,6 +4,8 @@ import {firstValueFrom} from 'rxjs';
 import {RouterLink} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
 import {CatalogService} from '../../core/catalog/catalog.service';
+import {CifService} from '../cif/cif.service';
+import {CifDashboardSummary} from '../cif/cif.models';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,10 +16,13 @@ import {CatalogService} from '../../core/catalog/catalog.service';
 })
 export class DashboardComponent {
   private readonly http = inject(HttpClient);
+  private readonly cif = inject(CifService);
   readonly catalog = inject(CatalogService);
   readonly counts = signal<Partial<Record<string, number>>>({});
+  readonly cifSummary = signal<CifDashboardSummary | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly cifError = signal<string | null>(null);
   readonly geographyItems = computed(() => this.catalog.items().filter(i =>
     i.status === 'ACTIVE' && i.category === 'GEOGRAPHY'
   ));
@@ -38,15 +43,21 @@ export class DashboardComponent {
   private async load(): Promise<void> {
     try {
       await this.catalog.load();
-      this.counts.set(await firstValueFrom(
-        this.http.get<Record<string, number>>('/api/v1/dashboard/counts')
-      ));
-    } catch (error: unknown) {
-      console.error('Dashboard loading failed', error);
-      const status = this.httpStatus(error);
-      this.error.set(status === 0
-        ? 'ارتباط با Backend برقرار نشد. وضعیت اجرای سرویس و پورت 8091 را بررسی کنید.'
-        : 'آمار داشبورد دریافت نشد. اتصال Oracle و دسترسی کاربر به Schemaهای GEO و DPS را بررسی کنید.');
+      try {
+        this.counts.set(await firstValueFrom(this.http.get<Record<string, number>>('/api/v1/dashboard/counts')));
+      } catch (error: unknown) {
+        console.error('Reference dashboard loading failed', error);
+        const status = this.httpStatus(error);
+        this.error.set(status === 0
+          ? 'ارتباط با Backend برقرار نشد. وضعیت اجرای سرویس و پورت 8091 را بررسی کنید.'
+          : 'بخشی از آمار اطلاعات پایه دریافت نشد. Log سرویس و دسترسی Schemaهای GEO و DPS را بررسی کنید.');
+      }
+      try {
+        this.cifSummary.set(await firstValueFrom(this.cif.dashboardSummary()));
+      } catch (error) {
+        console.error('CIF dashboard loading failed', error);
+        this.cifError.set('آمار CIF دریافت نشد؛ این خطا مانع نمایش سایر بخش‌های داشبورد نمی‌شود.');
+      }
     } finally {
       this.loading.set(false);
     }

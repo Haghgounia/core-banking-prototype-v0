@@ -5,9 +5,21 @@ set "ROOT=%~dp0"
 for /f "usebackq delims=" %%V in ("%ROOT%VERSION") do set "APP_VERSION=%%V"
 echo Building Core Banking Prototype %APP_VERSION%...
 
+rem Fail fast when the source package is incomplete.
+if not exist "%ROOT%frontend\src\app\app.component.ts" (
+  echo ERROR: frontend\src\app is incomplete. app.component.ts was not found.
+  exit /b 1
+)
+if not exist "%ROOT%frontend\src\app\features\cif\party-list.component.ts" (
+  echo ERROR: CIF frontend source is missing.
+  exit /b 1
+)
+
 rem Remove stale packages first. A failed build must never leave an older JAR looking current.
 if exist "%ROOT%app\core-banking-prototype.jar" del /q "%ROOT%app\core-banking-prototype.jar"
 if exist "%ROOT%backend\target\core-banking-prototype.jar" del /q "%ROOT%backend\target\core-banking-prototype.jar"
+
+if exist "%ROOT%frontend\dist" rmdir /s /q "%ROOT%frontend\dist"
 
 cd /d "%ROOT%frontend"
 call npm install || exit /b 1

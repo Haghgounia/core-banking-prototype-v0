@@ -6,6 +6,8 @@ export const routes: Routes = [
     loadComponent: () => import('./layout/app-shell.component').then(m => m.AppShellComponent),
     children: [
       {path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)},
+      {path: 'cif/parties', loadComponent: () => import('./features/cif/party-list.component').then(m => m.PartyListComponent)},
+      {path: 'cif/parties/:partyId', loadComponent: () => import('./features/cif/party-360.component').then(m => m.Party360Component)},
       {path: 'geography-tree', loadComponent: () => import('./features/geography-tree/geography-tree.component').then(m => m.GeographyTreeComponent)},
       {path: 'system-specification', loadComponent: () => import('./features/system-specification/system-specification.component').then(m => m.SystemSpecificationComponent)},
       {path: 'reference/:resource', redirectTo: 'reference-data/:resource'},

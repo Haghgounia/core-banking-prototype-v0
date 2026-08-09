@@ -4,16 +4,17 @@
 
 ## وضعیت این نسخه
 
-در وضعیت فعلی دو بخش اطلاعات پایه فعال هستند:
+در وضعیت فعلی سه دامنه اصلی فعال هستند:
 
 ```text
 reference-data                    -> Schema GEO
 deposit-product reference-data    -> Schema DPS
+customer-information-file (CIF)   -> Schema CIF
 ```
 
-مجموعاً ۷۰ فرم فعال وجود دارد: ۲۰ فرم عمومی و جغرافیایی قبلی و ۵۰ فرم `DPS.REF_*` زیر مجموعه «اطلاعات پایه محصول سپرده».
+۷۰ فرم اطلاعات پایه فعال باقی مانده‌اند: ۲۰ فرم GEO و ۵۰ فرم `DPS.REF_*`. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party و صفحه Customer 360 فاز اول فعال شده است.
 
-در این مرحله فقط جداول مرجع محصول‌ساز سپرده فعال شده‌اند. برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است.
+برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. در دامنه CIF نیز فقط ۱۲ جدول اصلی فاز اول فعال شده‌اند و سایر جداول فایل DDL برای فازهای بعدی باقی مانده‌اند.
 
 ## معماری فعلی
 
@@ -48,9 +49,15 @@ com.behsazan.corebanking
 │   ├── general
 │   ├── geography
 │   └── management
-└── deposit
-    └── productfactory
-        └── reference
+├── deposit
+│   └── productfactory
+│       └── reference
+└── cif
+    ├── application
+    ├── domain
+    ├── error
+    ├── oracle
+    └── web
 ```
 
 Package `deposit.productfactory.reference` فقط Metadata موردنیاز ۵۰ فرم مرجع DPS را نگهداری می‌کند؛ هیچ مدل عملیاتی محصول سپرده در آن ایجاد نشده است.
@@ -62,10 +69,12 @@ core-banking:
   schemas:
     reference-data: GEO
     deposit-product-factory: DPS
+    cif: CIF
 ```
 
 - `GEO`: مالک فیزیکی فعلی جداول اطلاعات پایه. جداسازی منطقی ماژول در کد انجام شده است، اما جداول فعلاً در همین Schema باقی می‌مانند.
 - `DPS`: مالک جداول مرجع محصول‌ساز سپرده و اسکریپت‌های Oracle مربوط به آن‌ها.
+- `CIF`: مالک جداول مدیریت Party، Person/Organization، KYC، نشانی، تماس، ریسک و غربالگری.
 
 ## ساختار اسکریپت‌های پایگاه داده
 
@@ -76,16 +85,20 @@ database/oracle/
 │   ├── data/
 │   ├── install-ddl.sql
 │   └── install-data.sql
-└── dps/
-    ├── ddl/
-    └── data/
+├── dps/
+│   ├── ddl/
+│   └── data/
+└── cif/
+    └── ddl/
 ```
 
 DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون بازطراحی در `database/oracle/dps/ddl` نگهداری می‌شوند. فایل افزایشی `08_add-created-by-to-reference-tables.sql` تغییر اعلام‌شده برای ستون `CREATED_BY` را ثبت می‌کند.
 
 ## قابلیت‌های ماژول اطلاعات پایه
 
-- ۷۰ فرم فعال؛ شامل ۵۰ فرم مرجع محصول سپرده در DPS
+- ۷۰ فرم فعال اطلاعات پایه؛ شامل ۵۰ فرم مرجع محصول سپرده در DPS
+- فهرست Party و پرونده جامع Customer 360 در ماژول CIF
+- CRUD فاز اول CIF برای ۱۲ جدول اصلی
 - Runtime عمومی Descriptor-driven
 - جست‌وجو، مرتب‌سازی و صفحه‌بندی سمت سرور
 - ثبت، ویرایش و حذف
@@ -188,6 +201,9 @@ backend/src/main/resources/application.yml
 /api/v1/catalog
 /api/v1/reference/{resource}
 /api/v1/dashboard/counts
+/api/v1/cif/parties
+/api/v1/cif/parties/{partyId}
+/api/v1/cif/dashboard/summary
 ```
 
 مسیر رابط کاربری فرم‌ها به شکل زیر است:
@@ -207,3 +223,8 @@ backend/src/main/resources/application.yml
 ```text
 tools/sync-system-specification.mjs
 ```
+
+
+## مدیریت مشتری / CIF
+
+فاز اول CIF بر اساس DDL واقعی `database/oracle/cif/ddl/CIF-050517.sql` پیاده‌سازی شده است. راهنمای دامنه و API در `docs/CIF-CUSTOMER-360-PHASE1-FA.md` قرار دارد.

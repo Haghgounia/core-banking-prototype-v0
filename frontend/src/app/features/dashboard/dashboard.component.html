@@ -1,12 +1,29 @@
 <section class="dashboard">
   <header>
     <h1 class="page-title">داشبورد اطلاعات پایه</h1>
-    <p class="muted">ماژول اطلاعات پایه سامانه نمونه بانکداری متمرکز؛ شامل داده‌های GEO و اطلاعات پایه محصول سپرده در DPS</p>
+    <p class="muted">ماژول اطلاعات پایه سامانه دموی بانکداری متمرکز؛ شامل داده‌های GEO و اطلاعات پایه محصول سپرده در DPS</p>
   </header>
 
   @if (error()) {
     <div class="error-banner" role="alert">{{ error() }}</div>
   }
+
+  <section class="cif-section">
+    <header class="section-heading">
+      <div>
+        <h2>مدیریت مشتری / CIF</h2>
+        <p class="muted">نمای کلی Party، اشخاص حقیقی، اشخاص حقوقی و پرونده‌های KYC</p>
+      </div>
+      <mat-icon>group</mat-icon>
+    </header>
+    @if (cifError()) { <div class="error-banner">{{ cifError() }}</div> }
+    <div class="stat-grid cif-grid">
+      <a class="stat-card card stat-link" routerLink="/cif/parties"><div class="stat-icon"><mat-icon>groups</mat-icon></div><div><span>پارتی‌ها</span><strong>{{ loading() ? '…' : (cifSummary()?.parties ?? '—') }}</strong></div></a>
+      <a class="stat-card card stat-link" routerLink="/cif/parties"><div class="stat-icon"><mat-icon>person</mat-icon></div><div><span>اشخاص حقیقی</span><strong>{{ loading() ? '…' : (cifSummary()?.persons ?? '—') }}</strong></div></a>
+      <a class="stat-card card stat-link" routerLink="/cif/parties"><div class="stat-icon"><mat-icon>domain</mat-icon></div><div><span>اشخاص حقوقی</span><strong>{{ loading() ? '…' : (cifSummary()?.organizations ?? '—') }}</strong></div></a>
+      <a class="stat-card card stat-link" routerLink="/cif/parties"><div class="stat-icon"><mat-icon>verified_user</mat-icon></div><div><span>پرونده‌های KYC باز</span><strong>{{ loading() ? '…' : (cifSummary()?.openKycCases ?? '—') }}</strong></div></a>
+    </div>
+  </section>
 
   @if (geographyItems().length) {
     <section class="geography-section">

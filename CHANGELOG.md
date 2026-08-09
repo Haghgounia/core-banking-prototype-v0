@@ -2,7 +2,19 @@
 
 ## Unreleased
 
-- تغییر عنوان رابط کاربری به «سامانه نمونه بانکداری متمرکز».
+## 0.3.0-prototype
+
+- تغییر عنوان رابط کاربری به «سامانه دموی بانکداری متمرکز».
+- افزودن Schema `CIF` به تنظیمات Runtime با همان مشخصات Oracle محیط تست.
+- افزودن ماژول «مدیریت مشتری / CIF» با فهرست Party و صفحه Customer 360.
+- فعال‌سازی فاز اول CIF برای ۱۲ جدول: PARTY، PERSON، ORGANIZATION، PARTY_NAME، PARTY_IDENTIFIER، ADDRESS، PARTY_ADDRESS، CONTACT_POINT، KYC_CASE، PARTY_DOCUMENT، PARTY_RISK_ASSESSMENT و SCREENING_RESULT.
+- افزودن CRUD تایپ‌شده Spring/JdbcClient برای مشخصات پایه، نام و شناسه، نشانی و تماس، KYC و مدرک، ریسک و غربالگری.
+- افزودن Optimistic Lock بر پایه `RECORD_VERSION` در عملیات ویرایش CIF.
+- افزودن آمار CIF به Dashboard و لینک مستقیم به فهرست مشتریان.
+- جلوگیری از شکست کامل آمار اطلاعات پایه در صورت خطای یک جدول؛ شمارش جداول سالم ادامه پیدا می‌کند و خطای جدول ناموفق در Log ثبت می‌شود.
+- نگهداری Snapshot واقعی `CIF-050517.sql` در `database/oracle/cif/ddl`.
+- اصلاح بسته سورس 0.3.0 و بازگرداندن کامل `frontend/src/app` شامل Route، منوی CIF و صفحات Customer 360.
+
 - انتقال قاره‌ها، کشورها و شهرهای خارجی به گروه «اطلاعات جغرافیایی» در منو و Dashboard.
 - نمایش ستون «نام انگلیسی» به‌جای «نسخه جاری» در Gridهای اطلاعات پایه محصول سپرده.
 - حذف خروجی‌های زمان‌دار `database/oracle/exports` از Source و افزودن آن به `.gitignore`.

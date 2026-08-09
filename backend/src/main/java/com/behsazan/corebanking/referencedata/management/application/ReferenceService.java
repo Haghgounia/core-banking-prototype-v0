@@ -11,6 +11,8 @@ import com.behsazan.corebanking.referencedata.management.domain.ReferenceSearchQ
 import com.behsazan.corebanking.shared.error.ReferenceNotFoundException;
 import com.behsazan.corebanking.shared.error.ReferenceValidationException;
 import com.behsazan.corebanking.shared.model.PageResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,8 @@ import java.util.Map;
 
 @Service
 public class ReferenceService {
+    private static final Logger log = LoggerFactory.getLogger(ReferenceService.class);
+
     private final ReferenceDescriptorRegistry registry;
     private final ReferenceRepository repository;
 
@@ -101,9 +105,17 @@ public class ReferenceService {
     @Transactional(readOnly = true)
     public Map<String, Long> dashboardCounts() {
         Map<String, Long> result = new LinkedHashMap<>();
+        RuntimeException firstFailure = null;
         for (ReferenceTableDescriptor descriptor : registry.all()) {
-            result.put(descriptor.resource(), repository.count(descriptor));
+            try {
+                result.put(descriptor.resource(), repository.count(descriptor));
+            } catch (RuntimeException exception) {
+                if (firstFailure == null) firstFailure = exception;
+                log.warn("Dashboard count failed for {}.{} ({})",
+                        descriptor.schemaName(), descriptor.tableName(), descriptor.resource(), exception);
+            }
         }
+        if (result.isEmpty() && firstFailure != null) throw firstFailure;
         return result;
     }
 
