@@ -4,6 +4,7 @@ import com.behsazan.corebanking.cif.error.CifNotFoundException;
 import com.behsazan.corebanking.cif.error.CifValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -90,6 +91,32 @@ public class GlobalExceptionHandler {
         problem.setType(URI.create("urn:reference-data:problem:data-conflict"));
         problem.setTitle(title);
         problem.setProperty("errorCode", code);
+        return problem;
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    ProblemDetail handleDatabaseAccess(DataAccessException exception) {
+        String message = rootMessage(exception).toUpperCase(Locale.ROOT);
+        if (message.contains("ORA-01950")) {
+            log.error("Oracle tablespace quota error", exception);
+            ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Schema پایگاه داده روی Tablespace مورد نیاز Quota کافی ندارد."
+            );
+            problem.setType(URI.create("urn:core-banking:problem:oracle-quota"));
+            problem.setTitle("خطای فضای Oracle");
+            problem.setProperty("errorCode", "ORACLE_TABLESPACE_QUOTA");
+            return problem;
+        }
+
+        log.error("Database access error", exception);
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "عملیات پایگاه داده انجام نشد. جزئیات فنی در Log سرویس ثبت شده است."
+        );
+        problem.setType(URI.create("urn:core-banking:problem:database"));
+        problem.setTitle("خطای پایگاه داده");
+        problem.setProperty("errorCode", "DATABASE_ERROR");
         return problem;
     }
 

@@ -12,6 +12,7 @@ import {CatalogService} from '../core/catalog/catalog.service';
 import {CatalogItem} from '../core/models/catalog.model';
 import {ThemePreference, ThemeService} from '../core/theme/theme.service';
 import {GENERATED_SYSTEM_VERSIONS} from '../features/system-specification/system-version.generated';
+import {PartyReferenceService} from '../features/cif-reference/party-reference.service';
 
 @Component({
   selector: 'app-shell',
@@ -28,6 +29,7 @@ import {GENERATED_SYSTEM_VERSIONS} from '../features/system-specification/system
 export class AppShellComponent {
   readonly catalog = inject(CatalogService);
   readonly theme = inject(ThemeService);
+  readonly partyReference = inject(PartyReferenceService);
   readonly version = GENERATED_SYSTEM_VERSIONS.release;
   readonly groups = [
     {key: 'GEOGRAPHY', title: 'اطلاعات جغرافیایی', icon: 'account_tree'},
@@ -40,6 +42,7 @@ export class AppShellComponent {
 
   constructor() {
     void this.catalog.load();
+    void this.partyReference.loadCatalog();
   }
 
   routeFor(item: CatalogItem): readonly string[] {

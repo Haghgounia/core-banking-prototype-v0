@@ -14,6 +14,18 @@ if not exist "%ROOT%frontend\src\app\features\cif\party-list.component.ts" (
   echo ERROR: CIF frontend source is missing.
   exit /b 1
 )
+if not exist "%ROOT%frontend\src\app\features\cif\party-360.component.ts" (
+  echo ERROR: CIF Customer 360 frontend source is missing.
+  exit /b 1
+)
+if not exist "%ROOT%frontend\src\app\features\cif-reference\party-reference-page.component.ts" (
+  echo ERROR: CIF Party Reference frontend source is missing.
+  exit /b 1
+)
+if not exist "%ROOT%backend\src\main\resources\cif\party-reference\party-reference-model.json" (
+  echo ERROR: CIF Party Reference metadata is missing.
+  exit /b 1
+)
 
 rem Remove stale packages first. A failed build must never leave an older JAR looking current.
 if exist "%ROOT%app\core-banking-prototype.jar" del /q "%ROOT%app\core-banking-prototype.jar"

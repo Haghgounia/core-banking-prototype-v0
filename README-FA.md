@@ -12,7 +12,7 @@ deposit-product reference-data    -> Schema DPS
 customer-information-file (CIF)   -> Schema CIF
 ```
 
-۷۰ فرم اطلاعات پایه فعال باقی مانده‌اند: ۲۰ فرم GEO و ۵۰ فرم `DPS.REF_*`. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party و صفحه Customer 360 فاز اول فعال شده است.
+در این نسخه ۱۲۳ فرم اطلاعات پایه فعال هستند: ۲۰ فرم GEO، ۵۰ فرم `DPS.REF_*` و ۵۳ فرم اطلاعات پایه Party/Customer در CIF. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party و صفحه Customer 360 فعال است.
 
 برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. در دامنه CIF نیز فقط ۱۲ جدول اصلی فاز اول فعال شده‌اند و سایر جداول فایل DDL برای فازهای بعدی باقی مانده‌اند.
 
@@ -57,6 +57,11 @@ com.behsazan.corebanking
     ├── domain
     ├── error
     ├── oracle
+    ├── reference
+    │   ├── application
+    │   ├── domain
+    │   ├── oracle
+    │   └── web
     └── web
 ```
 
@@ -70,11 +75,23 @@ core-banking:
     reference-data: GEO
     deposit-product-factory: DPS
     cif: CIF
+    party-reference: CIF
 ```
 
 - `GEO`: مالک فیزیکی فعلی جداول اطلاعات پایه. جداسازی منطقی ماژول در کد انجام شده است، اما جداول فعلاً در همین Schema باقی می‌مانند.
 - `DPS`: مالک جداول مرجع محصول‌ساز سپرده و اسکریپت‌های Oracle مربوط به آن‌ها.
 - `CIF`: مالک جداول مدیریت Party، Person/Organization، KYC، نشانی، تماس، ریسک و غربالگری.
+- `party-reference`: مالک منطقی Reference Data جدید Party/Customer و در این فاز برابر Schema `CIF` است.
+
+### Reference Data جدید Party / Customer
+
+Reference Data جدید Party/Customer در دو فاز فعال شده است: ۳۲ فرم Identity/Party در فاز اول و ۲۱ فرم Compliance/Risk/KYC در فاز دوم. برای ارتقا از نسخه 0.3.2 فقط اسکریپت فاز دوم اجرا شود:
+
+```sql
+@database/oracle/cif/reference-data/compliance-risk/install.sql
+```
+
+برای نصب تازه، ابتدا `identity-party/install.sql` و سپس `compliance-risk/install.sql` اجرا می‌شود. جزئیات فاز دوم در `docs/CIF-PARTY-REFERENCE-PHASE2-COMPLIANCE-RISK-FA.md` ثبت شده است.
 
 ## ساختار اسکریپت‌های پایگاه داده
 
@@ -89,14 +106,17 @@ database/oracle/
 │   ├── ddl/
 │   └── data/
 └── cif/
-    └── ddl/
+    ├── ddl/
+    └── reference-data/
+        ├── identity-party/
+        └── compliance-risk/
 ```
 
 DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون بازطراحی در `database/oracle/dps/ddl` نگهداری می‌شوند. فایل افزایشی `08_add-created-by-to-reference-tables.sql` تغییر اعلام‌شده برای ستون `CREATED_BY` را ثبت می‌کند.
 
 ## قابلیت‌های ماژول اطلاعات پایه
 
-- ۷۰ فرم فعال اطلاعات پایه؛ شامل ۵۰ فرم مرجع محصول سپرده در DPS
+- ۱۲۳ فرم فعال اطلاعات پایه؛ شامل ۲۰ فرم GEO، ۵۰ فرم مرجع محصول سپرده در DPS و ۵۳ فرم Party/Customer در CIF
 - فهرست Party و پرونده جامع Customer 360 در ماژول CIF
 - CRUD فاز اول CIF برای ۱۲ جدول اصلی
 - Runtime عمومی Descriptor-driven

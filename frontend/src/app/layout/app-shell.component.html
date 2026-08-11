@@ -27,6 +27,26 @@
       </a>
     </mat-nav-list>
 
+    <div class="menu-section-label">اطلاعات پایه مشتری / Party</div>
+    @for (pkg of partyReference.packages(); track pkg.name) {
+      <mat-expansion-panel class="menu-group party-ref-group">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>badge</mat-icon>
+            {{ pkg.title }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list>
+          @for (item of pkg.tables; track item.resource) {
+            <a mat-list-item [routerLink]="['/cif/reference', item.resource]" routerLinkActive="active-link">
+              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+              <span matListItemTitle>{{ item.title }}</span>
+            </a>
+          }
+        </mat-nav-list>
+      </mat-expansion-panel>
+    }
+
     @for (group of groups; track group.key) {
       <mat-expansion-panel class="menu-group" [expanded]="group.key === 'GEOGRAPHY'">
         <mat-expansion-panel-header>

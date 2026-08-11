@@ -1,6 +1,67 @@
+## 0.3.7-prototype
+
+- Completed the Party/Customer reference catalog with Phase 6 Analytics and Recommendation.
+- Added 7 CIF reference tables and 24 reviewed seed rows for metrics, metric units, analytics models, recommendations and score metadata.
+- Reused `DPS.REF_CUSTOMER_SEGMENT_CODE` instead of creating duplicate `CIF.REF_CUSTOMER_SEGMENT`.
+- Party Reference catalog now exposes 96 CIF-owned forms; all 104 source definitions are resolved with 8 GEO/DPS mappings and no deferred items.
+- Added completion mapping/documentation for the entire Party/Customer reference catalog.
+
+## 0.3.6-prototype
+
+- Activated all 17 `Workflow and Interaction` CIF reference tables (71 seed rows).
+- Added reviewed Persian form titles, primary-key labels and normalized Persian seed captions for the new forms.
+- Preserved the explicit `Journey -> Stage -> Event Type` reference hierarchy with Oracle foreign keys and UI lookups.
+- Customer 360 KYC status now uses `CIF.REF_WORKFLOW_STATUS` instead of free text.
+- Party Reference catalog now exposes 89 active CIF forms; 7 source references remain mapped to GEO/DPS, leaving 8 Analytics/Recommendation source tables for the next phase.
+
+## 0.3.5-prototype
+
+- Activated 11 new `Organization and Product` CIF reference tables (44 seed rows).
+- Reused `GEO.CURRENCIES` and `DPS.REF_ORG_UNIT_CODE` instead of creating duplicate CIF sources.
+- Added reviewed Persian titles/labels and normalized broken Persian seed captions in the new forms.
+- Customer 360 ORGANIZATION now uses lookups for legal form, economic sector and ISIC activity.
+- Organization creation now selects legal form from `CIF.REF_LEGAL_FORM` and no longer falls back to the invented code `OTHER`.
+- Party Reference catalog now exposes 72 active CIF forms; 7 source references are mapped to existing GEO/DPS data, leaving 25 deferred source tables.
+
+## 0.3.4-prototype
+
+- Activated 8 Contact reference tables (33 seed rows).
+- Kept existing GEO country/province/city/district/language as the single geography source of truth.
+- Customer 360 now uses lookups for address type, contact type, contact purpose and country.
+- Party Reference catalog now exposes 61 active forms.
+
 # Changelog
 
+
+## 0.3.3-prototype
+
+- Activated all 21 `Compliance and Risk` Party/Customer reference tables (87 seed rows).
+- Added reviewed Persian form titles and primary-key labels for the new reference forms.
+- Normalized verification status `NOT_VERIFIED` to operational CIF code `UNVERIFIED`.
+- Replaced free-text KYC/risk/screening/verification fields in Customer 360 with reference-data lookups where a source table exists.
+- Party Reference catalog now exposes 53 active forms.
+
 ## Unreleased
+- Build fix for Spring Boot 4.1 / Jackson 3: migrated Party reference metadata loading from `com.fasterxml.jackson.databind.ObjectMapper` to `tools.jackson.databind.json.JsonMapper`; retained Jackson annotations and corrected Angular lookup typing to remove NG8102.
+
+## 0.3.2-prototype
+- Added CIF Party/Customer Reference Data Phase 1 generated from the supplied interactive reference model.
+- Added 32 code-keyed reference forms: all 31 `Identity and Party` tables plus `REF_LEGAL_CAPACITY`.
+- Added a new generic CIF reference engine supporting textual primary keys and the composite key of `REF_CLASSIFICATION_VALUE` without introducing surrogate IDs.
+- Added Oracle DDL and 123 seed rows for the enabled phase.
+- Connected Customer 360 PERSON and selected PARTY/name/identifier/document fields to the new CIF reference lookups while keeping country/language on existing GEO sources.
+- Deferred geography/currency/language duplicates and verification-status normalization pending explicit mapping.
+
+
+## 0.3.1-prototype
+
+- تکمیل فرم PERSON در Customer 360 با فیلدهای تاریخ فوت و توانایی جسمانی.
+- تبدیل کشور محل تولد و زبان اصلی به Lookup واقعی از `GEO.COUNTRIES` و `GEO.LANGUAGES`.
+- تبدیل جنسیت و وضعیت اقامت به Lookup از جداول مرجع موجود `DPS.REF_GENDER_CODE` و `DPS.REF_RESIDENCY_STATUS_CODE`.
+- عدم اختراع کدهای مرجع برای وضعیت تأهل، اهلیت قانونی و وضعیت حیات؛ این فیلدها تا دریافت DDL/Data مرجع مستقل، کد فعلی را حفظ می‌کنند.
+- نمایش پیام واقعی ProblemDetail سمت Backend در عملیات CIF به‌جای پیام عمومی ثابت.
+- تشخیص اختصاصی `ORA-01950` و بازگرداندن خطای قابل فهم برای کمبود Quota در Oracle.
+- بدون تغییر در DDL جداول CIF و بدون نیاز به Migration پایگاه داده.
 
 ## 0.3.0-prototype
 

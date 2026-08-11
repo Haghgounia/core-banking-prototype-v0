@@ -35,6 +35,7 @@ core-banking:
     reference-data: GEO
     deposit-product-factory: DPS
     cif: CIF
+    party-reference: CIF
   database-export:
     enabled: false
     schema: DPS

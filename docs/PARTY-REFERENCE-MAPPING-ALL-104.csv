@@ -1,0 +1,105 @@
+﻿SOURCE_TABLE,SOURCE_PACKAGE,SOURCE_PACKAGE_FA,FIELD_COUNT,SEED_COUNT,PRIMARY_KEY,DECISION,TARGET,STATUS,NOTE
+REF_CUSTOMER_SEGMENT,Analytics and Recommendation,تحلیل، امتیازدهی و پیشنهاد,10,4,CUSTOMER_SEGMENT_CODE,REUSE,DPS.REF_CUSTOMER_SEGMENT_CODE,MAPPED_TO_DPS,منبع بخش‌بندی مشتری از قبل در DPS وجود دارد؛ CUSTOMER_SEGMENT_CODE به CODE نگاشت می‌شود
+REF_METRIC,Analytics and Recommendation,تحلیل، امتیازدهی و پیشنهاد,10,3,METRIC_CODE,CREATE,CIF.REF_METRIC,ACTIVE_PHASE_6,در فاز ششم تحلیل، امتیازدهی و پیشنهاد فعال شده است
+REF_METRIC_UNIT,Analytics and Recommendation,تحلیل، امتیازدهی و پیشنهاد,10,3,METRIC_UNIT_CODE,CREATE,CIF.REF_METRIC_UNIT,ACTIVE_PHASE_6,در فاز ششم تحلیل، امتیازدهی و پیشنهاد فعال شده است
+REF_MODEL,Analytics and Recommendation,تحلیل، امتیازدهی و پیشنهاد,10,3,MODEL_CODE,CREATE,CIF.REF_MODEL,ACTIVE_PHASE_6,در فاز ششم تحلیل، امتیازدهی و پیشنهاد فعال شده است
+REF_RECOMMENDATION_STATUS,Analytics and Recommendation,تحلیل، امتیازدهی و پیشنهاد,10,5,RECOMMENDATION_STATUS_CODE,CREATE,CIF.REF_RECOMMENDATION_STATUS,ACTIVE_PHASE_6,در فاز ششم تحلیل، امتیازدهی و پیشنهاد فعال شده است
+REF_RECOMMENDATION_TYPE,Analytics and Recommendation,تحلیل، امتیازدهی و پیشنهاد,10,3,RECOMMENDATION_TYPE_CODE,CREATE,CIF.REF_RECOMMENDATION_TYPE,ACTIVE_PHASE_6,در فاز ششم تحلیل، امتیازدهی و پیشنهاد فعال شده است
+REF_SCORE_BAND,Analytics and Recommendation,تحلیل، امتیازدهی و پیشنهاد,10,4,SCORE_BAND_CODE,CREATE,CIF.REF_SCORE_BAND,ACTIVE_PHASE_6,در فاز ششم تحلیل، امتیازدهی و پیشنهاد فعال شده است
+REF_SCORE_TYPE,Analytics and Recommendation,تحلیل، امتیازدهی و پیشنهاد,10,3,SCORE_TYPE_CODE,CREATE,CIF.REF_SCORE_TYPE,ACTIVE_PHASE_6,در فاز ششم تحلیل، امتیازدهی و پیشنهاد فعال شده است
+REF_ALERT_RESOLUTION,Compliance and Risk,تطبیق، ریسک و KYC,10,4,RESOLUTION_CODE,CREATE,CIF.REF_ALERT_RESOLUTION,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_ALERT_TYPE,Compliance and Risk,تطبیق، ریسک و KYC,10,4,ALERT_TYPE_CODE,CREATE,CIF.REF_ALERT_TYPE,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_DECISION,Compliance and Risk,تطبیق، ریسک و KYC,10,9,DECISION_CODE,CREATE,CIF.REF_DECISION,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_DUE_DILIGENCE_LEVEL,Compliance and Risk,تطبیق، ریسک و KYC,10,3,DUE_DILIGENCE_LEVEL_CODE,CREATE,CIF.REF_DUE_DILIGENCE_LEVEL,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_INQUIRY_RESULT,Compliance and Risk,تطبیق، ریسک و KYC,10,4,INQUIRY_RESULT_CODE,CREATE,CIF.REF_INQUIRY_RESULT,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_INQUIRY_TYPE,Compliance and Risk,تطبیق، ریسک و KYC,10,4,INQUIRY_TYPE_CODE,CREATE,CIF.REF_INQUIRY_TYPE,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_KYC_TYPE,Compliance and Risk,تطبیق، ریسک و KYC,10,3,KYC_TYPE_CODE,CREATE,CIF.REF_KYC_TYPE,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_RESTRICTION_REASON,Compliance and Risk,تطبیق، ریسک و KYC,10,4,REASON_CODE,CREATE,CIF.REF_RESTRICTION_REASON,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_RESTRICTION_TYPE,Compliance and Risk,تطبیق، ریسک و KYC,10,4,RESTRICTION_TYPE_CODE,CREATE,CIF.REF_RESTRICTION_TYPE,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_RISK_LEVEL,Compliance and Risk,تطبیق، ریسک و KYC,10,4,RISK_LEVEL_CODE,CREATE,CIF.REF_RISK_LEVEL,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_RISK_MODEL,Compliance and Risk,تطبیق، ریسک و KYC,10,3,MODEL_CODE,CREATE,CIF.REF_RISK_MODEL,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_RISK_TYPE,Compliance and Risk,تطبیق، ریسک و KYC,10,4,RISK_TYPE_CODE,CREATE,CIF.REF_RISK_TYPE,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_SCREENING_LIST,Compliance and Risk,تطبیق، ریسک و KYC,10,4,SOURCE_LIST_CODE,CREATE,CIF.REF_SCREENING_LIST,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_SCREENING_PROVIDER,Compliance and Risk,تطبیق، ریسک و KYC,10,4,PROVIDER_CODE,CREATE,CIF.REF_SCREENING_PROVIDER,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_SCREENING_TYPE,Compliance and Risk,تطبیق، ریسک و KYC,10,4,SCREENING_TYPE_CODE,CREATE,CIF.REF_SCREENING_TYPE,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_SEVERITY,Compliance and Risk,تطبیق، ریسک و KYC,10,4,SEVERITY_CODE,CREATE,CIF.REF_SEVERITY,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_SOURCE_OF_FUNDS,Compliance and Risk,تطبیق، ریسک و KYC,10,5,SOURCE_OF_FUNDS_CODE,CREATE,CIF.REF_SOURCE_OF_FUNDS,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_SOURCE_OF_WEALTH,Compliance and Risk,تطبیق، ریسک و KYC,10,4,SOURCE_OF_WEALTH_CODE,CREATE,CIF.REF_SOURCE_OF_WEALTH,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_TAX_STATUS,Compliance and Risk,تطبیق، ریسک و KYC,10,3,TAX_STATUS_CODE,CREATE,CIF.REF_TAX_STATUS,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_VERIFICATION_METHOD,Compliance and Risk,تطبیق، ریسک و KYC,10,4,VERIFICATION_METHOD_CODE,CREATE,CIF.REF_VERIFICATION_METHOD,ACTIVE_PHASE_2,در فاز دوم تطبیق، ریسک و KYC فعال شده است
+REF_VERIFICATION_STATUS,Compliance and Risk,تطبیق، ریسک و KYC,10,5,VERIFICATION_STATUS_CODE,CREATE,CIF.REF_VERIFICATION_STATUS,ACTIVE_PHASE_2,NOT_VERIFIED به UNVERIFIED برای همسانی با مدل عملیاتی CIF نرمال شد
+REF_ADDRESS_TYPE,Contact and Geography,تماس و جغرافیا,10,4,ADDRESS_TYPE_CODE,CREATE,CIF.REF_ADDRESS_TYPE,ACTIVE_PHASE_3,در فاز تماس فعال شد
+REF_BRANCH,Contact and Geography,تماس و جغرافیا,10,3,BRANCH_CODE,CREATE,CIF.REF_BRANCH,ACTIVE_PHASE_3,در فاز تماس فعال شد
+REF_CHANNEL,Contact and Geography,تماس و جغرافیا,10,7,CHANNEL_CODE,CREATE,CIF.REF_CHANNEL,ACTIVE_PHASE_3,در فاز تماس فعال شد
+REF_CITY,Contact and Geography,تماس و جغرافیا,10,8,CITY_CODE,REUSE,GEO,MAPPED_TO_GEO,برای جلوگیری از دو منبع حقیقت، فرم/داده موجود GEO استفاده می‌شود
+REF_COMMUNICATION_PURPOSE,Contact and Geography,تماس و جغرافیا,10,5,COMMUNICATION_PURPOSE_CODE,CREATE,CIF.REF_COMMUNICATION_PURPOSE,ACTIVE_PHASE_3,در فاز تماس فعال شد
+REF_CONTACT_ASSOCIATION_TYPE,Contact and Geography,تماس و جغرافیا,10,3,ASSOCIATION_TYPE_CODE,CREATE,CIF.REF_CONTACT_ASSOCIATION_TYPE,ACTIVE_PHASE_3,در فاز تماس فعال شد
+REF_CONTACT_PURPOSE,Contact and Geography,تماس و جغرافیا,10,5,CONTACT_PURPOSE_CODE,CREATE,CIF.REF_CONTACT_PURPOSE,ACTIVE_PHASE_3,در فاز تماس فعال شد
+REF_CONTACT_TYPE,Contact and Geography,تماس و جغرافیا,10,4,CONTACT_TYPE_CODE,CREATE,CIF.REF_CONTACT_TYPE,ACTIVE_PHASE_3,در فاز تماس فعال شد
+REF_COUNTRY,Contact and Geography,تماس و جغرافیا,10,4,COUNTRY_CODE,REUSE,GEO,MAPPED_TO_GEO,برای جلوگیری از دو منبع حقیقت، فرم/داده موجود GEO استفاده می‌شود
+REF_DISTRICT,Contact and Geography,تماس و جغرافیا,10,3,DISTRICT_CODE,REUSE,GEO,MAPPED_TO_GEO,برای جلوگیری از دو منبع حقیقت، فرم/داده موجود GEO استفاده می‌شود
+REF_LANGUAGE,Contact and Geography,تماس و جغرافیا,10,3,LANGUAGE_CODE,REUSE,GEO,MAPPED_TO_GEO,برای جلوگیری از دو منبع حقیقت، فرم/داده موجود GEO استفاده می‌شود
+REF_LEGAL_CAPACITY,Contact and Geography,تماس و جغرافیا,10,3,LEGAL_CAPACITY_CODE,CREATE,CIF.REF_LEGAL_CAPACITY,ACTIVE_PHASE_1,وابستگی مستقیم CIF.PERSON
+REF_PROVINCE,Contact and Geography,تماس و جغرافیا,10,4,PROVINCE_CODE,REUSE,GEO,MAPPED_TO_GEO,برای جلوگیری از دو منبع حقیقت، فرم/داده موجود GEO استفاده می‌شود
+REF_SCRIPT,Contact and Geography,تماس و جغرافیا,10,2,SCRIPT_CODE,CREATE,CIF.REF_SCRIPT,ACTIVE_PHASE_3,در فاز تماس فعال شد
+REF_ASSIGNMENT_REASON,Identity and Party,هویت و Party,10,3,ASSIGNMENT_REASON_CODE,CREATE,CIF.REF_ASSIGNMENT_REASON,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_AUTHORITY_SCOPE,Identity and Party,هویت و Party,10,4,AUTHORITY_SCOPE_CODE,CREATE,CIF.REF_AUTHORITY_SCOPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_AUTHORITY_TYPE,Identity and Party,هویت و Party,10,3,AUTHORITY_TYPE_CODE,CREATE,CIF.REF_AUTHORITY_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_CLASSIFICATION_TYPE,Identity and Party,هویت و Party,10,4,CLASSIFICATION_TYPE_CODE,CREATE,CIF.REF_CLASSIFICATION_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_CLASSIFICATION_VALUE,Identity and Party,هویت و Party,11,4,"CLASSIFICATION_TYPE_CODE,CLASSIFICATION_VALUE_CODE",CREATE,CIF.REF_CLASSIFICATION_VALUE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_CONTEXT_TYPE,Identity and Party,هویت و Party,10,4,CONTEXT_TYPE_CODE,CREATE,CIF.REF_CONTEXT_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_CONTROL_BASIS,Identity and Party,هویت و Party,10,4,CONTROL_BASIS_CODE,CREATE,CIF.REF_CONTROL_BASIS,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_DATA_QUALITY_STATUS,Identity and Party,هویت و Party,10,4,DATA_QUALITY_STATUS_CODE,CREATE,CIF.REF_DATA_QUALITY_STATUS,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_DATA_SOURCE,Identity and Party,هویت و Party,10,7,DATA_SOURCE_CODE,CREATE,CIF.REF_DATA_SOURCE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_DOCUMENT_TYPE,Identity and Party,هویت و Party,10,4,DOCUMENT_TYPE_CODE,CREATE,CIF.REF_DOCUMENT_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_EXTERNAL_PROVIDER,Identity and Party,هویت و Party,10,4,EXTERNAL_PROVIDER_CODE,CREATE,CIF.REF_EXTERNAL_PROVIDER,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_GENDER,Identity and Party,هویت و Party,10,3,GENDER_CODE,CREATE,CIF.REF_GENDER,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_GROUP_MEMBER_ROLE,Identity and Party,هویت و Party,10,4,MEMBER_ROLE_CODE,CREATE,CIF.REF_GROUP_MEMBER_ROLE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_GROUP_TYPE,Identity and Party,هویت و Party,10,3,GROUP_TYPE_CODE,CREATE,CIF.REF_GROUP_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_IDENTIFIER_TYPE,Identity and Party,هویت و Party,10,4,IDENTIFIER_TYPE_CODE,CREATE,CIF.REF_IDENTIFIER_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_ISSUING_AUTHORITY,Identity and Party,هویت و Party,10,4,ISSUING_AUTHORITY_CODE,CREATE,CIF.REF_ISSUING_AUTHORITY,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_LIFE_STATUS,Identity and Party,هویت و Party,10,3,LIFE_STATUS_CODE,CREATE,CIF.REF_LIFE_STATUS,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_LIMIT_TYPE,Identity and Party,هویت و Party,10,4,LIMIT_TYPE_CODE,CREATE,CIF.REF_LIMIT_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_MARITAL_STATUS,Identity and Party,هویت و Party,10,4,MARITAL_STATUS_CODE,CREATE,CIF.REF_MARITAL_STATUS,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_NAME_TYPE,Identity and Party,هویت و Party,10,4,NAME_TYPE_CODE,CREATE,CIF.REF_NAME_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_PARTY_CONSENT_PURPOSE,Identity and Party,هویت و Party,10,5,PARTY_CONSENT_PURPOSE_CODE,CREATE,CIF.REF_PARTY_CONSENT_PURPOSE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_PARTY_CONSENT_STATUS,Identity and Party,هویت و Party,10,4,CONSENT_STATUS_CODE,CREATE,CIF.REF_PARTY_CONSENT_STATUS,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_PARTY_CONSENT_TYPE,Identity and Party,هویت و Party,10,4,CONSENT_TYPE_CODE,CREATE,CIF.REF_PARTY_CONSENT_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_PARTY_LIFECYCLE_STATUS,Identity and Party,هویت و Party,10,5,LIFECYCLE_STATUS_CODE,CREATE,CIF.REF_PARTY_LIFECYCLE_STATUS,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_PARTY_STATUS_REASON,Identity and Party,هویت و Party,10,4,REASON_CODE,CREATE,CIF.REF_PARTY_STATUS_REASON,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_PARTY_TYPE,Identity and Party,هویت و Party,10,2,PARTY_TYPE_CODE,CREATE,CIF.REF_PARTY_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_RESIDENCE_STATUS,Identity and Party,هویت و Party,10,3,RESIDENCE_STATUS_CODE,CREATE,CIF.REF_RESIDENCE_STATUS,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_ROLE_TYPE,Identity and Party,هویت و Party,10,5,ROLE_TYPE_CODE,CREATE,CIF.REF_ROLE_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_SIGNING_RULE,Identity and Party,هویت و Party,10,3,SIGNING_RULE_CODE,CREATE,CIF.REF_SIGNING_RULE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_SOURCE_SYSTEM,Identity and Party,هویت و Party,10,4,SOURCE_SYSTEM_CODE,CREATE,CIF.REF_SOURCE_SYSTEM,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_SPECIMEN_TYPE,Identity and Party,هویت و Party,10,3,SPECIMEN_TYPE_CODE,CREATE,CIF.REF_SPECIMEN_TYPE,ACTIVE_PHASE_1,در فاز اول فعال شده است
+REF_CURRENCY,Organization and Product,سازمان و محصول,10,4,CURRENCY_CODE,REUSE,GEO.CURRENCIES,MAPPED_TO_GEO,منبع ارز موجود GEO حفظ می‌شود؛ CURRENCY_CODE به CURRENCY_ALPHABETIC_ISO نگاشت می‌شود
+REF_ECONOMIC_SECTOR,Organization and Product,سازمان و محصول,10,5,ECONOMIC_SECTOR_CODE,CREATE,CIF.REF_ECONOMIC_SECTOR,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_ISIC_ACTIVITY,Organization and Product,سازمان و محصول,10,4,ISIC_CODE,CREATE,CIF.REF_ISIC_ACTIVITY,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_LEGAL_FORM,Organization and Product,سازمان و محصول,10,5,LEGAL_FORM_CODE,CREATE,CIF.REF_LEGAL_FORM,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_LICENSE_TYPE,Organization and Product,سازمان و محصول,10,3,LICENSE_TYPE_CODE,CREATE,CIF.REF_LICENSE_TYPE,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_OCCUPATION,Organization and Product,سازمان و محصول,10,4,OCCUPATION_CODE,CREATE,CIF.REF_OCCUPATION,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_OFFER,Organization and Product,سازمان و محصول,10,3,OFFER_CODE,CREATE,CIF.REF_OFFER,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_OFFICER_ROLE,Organization and Product,سازمان و محصول,10,4,OFFICER_ROLE_CODE,CREATE,CIF.REF_OFFICER_ROLE,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_ORGANIZATIONAL_UNIT,Organization and Product,سازمان و محصول,10,4,ORGANIZATIONAL_UNIT_CODE,REUSE,DPS.REF_ORG_UNIT_CODE,MAPPED_TO_DPS,ساختار واقعی واحدهای سازمانی DPS حفظ می‌شود؛ ORGANIZATIONAL_UNIT_CODE به CODE نگاشت می‌شود
+REF_PERIOD,Organization and Product,سازمان و محصول,10,4,PERIOD_CODE,CREATE,CIF.REF_PERIOD,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_PRODUCT_HOLDING_STATUS,Organization and Product,سازمان و محصول,10,3,PRODUCT_HOLDING_STATUS_CODE,CREATE,CIF.REF_PRODUCT_HOLDING_STATUS,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_PRODUCT_RELATIONSHIP_ROLE,Organization and Product,سازمان و محصول,10,4,PRODUCT_RELATIONSHIP_ROLE_CODE,CREATE,CIF.REF_PRODUCT_RELATIONSHIP_ROLE,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_PRODUCT_TYPE,Organization and Product,سازمان و محصول,10,5,PRODUCT_TYPE_CODE,CREATE,CIF.REF_PRODUCT_TYPE,ACTIVE_PHASE_4,در فاز چهار سازمان و محصول فعال شده است
+REF_ACTOR_ROLE,Workflow and Interaction,گردش‌کار و تعامل,10,4,ACTOR_ROLE_CODE,CREATE,CIF.REF_ACTOR_ROLE,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_AUDIT_ACTION,Workflow and Interaction,گردش‌کار و تعامل,10,2,AUDIT_ACTION_CODE,CREATE,CIF.REF_AUDIT_ACTION,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_AUDIT_ENTITY_TYPE,Workflow and Interaction,گردش‌کار و تعامل,10,4,AUDIT_ENTITY_TYPE_CODE,CREATE,CIF.REF_AUDIT_ENTITY_TYPE,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_AUDIT_REASON,Workflow and Interaction,گردش‌کار و تعامل,10,3,AUDIT_REASON_CODE,CREATE,CIF.REF_AUDIT_REASON,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_COMPLAINT_RESOLUTION,Workflow and Interaction,گردش‌کار و تعامل,10,4,COMPLAINT_RESOLUTION_CODE,CREATE,CIF.REF_COMPLAINT_RESOLUTION,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_COMPLAINT_STATUS,Workflow and Interaction,گردش‌کار و تعامل,10,5,COMPLAINT_STATUS_CODE,CREATE,CIF.REF_COMPLAINT_STATUS,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_COMPLAINT_STATUS_REASON,Workflow and Interaction,گردش‌کار و تعامل,10,3,COMPLAINT_STATUS_REASON_CODE,CREATE,CIF.REF_COMPLAINT_STATUS_REASON,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_COMPLAINT_TYPE,Workflow and Interaction,گردش‌کار و تعامل,10,4,COMPLAINT_TYPE_CODE,CREATE,CIF.REF_COMPLAINT_TYPE,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_HASH_ALGORITHM,Workflow and Interaction,گردش‌کار و تعامل,10,2,HASH_ALGORITHM_CODE,CREATE,CIF.REF_HASH_ALGORITHM,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_INTERACTION_OUTCOME,Workflow and Interaction,گردش‌کار و تعامل,10,4,INTERACTION_OUTCOME_CODE,CREATE,CIF.REF_INTERACTION_OUTCOME,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_INTERACTION_TYPE,Workflow and Interaction,گردش‌کار و تعامل,10,4,INTERACTION_TYPE_CODE,CREATE,CIF.REF_INTERACTION_TYPE,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_JOURNEY,Workflow and Interaction,گردش‌کار و تعامل,10,3,JOURNEY_CODE,CREATE,CIF.REF_JOURNEY,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_JOURNEY_EVENT_TYPE,Workflow and Interaction,گردش‌کار و تعامل,10,4,JOURNEY_EVENT_TYPE_CODE,CREATE,CIF.REF_JOURNEY_EVENT_TYPE,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_JOURNEY_STAGE,Workflow and Interaction,گردش‌کار و تعامل,10,4,JOURNEY_STAGE_CODE,CREATE,CIF.REF_JOURNEY_STAGE,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_PREFERENCE_TYPE,Workflow and Interaction,گردش‌کار و تعامل,10,3,PREFERENCE_TYPE_CODE,CREATE,CIF.REF_PREFERENCE_TYPE,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_REFERENCE_TYPE,Workflow and Interaction,گردش‌کار و تعامل,10,4,REFERENCE_TYPE_CODE,CREATE,CIF.REF_REFERENCE_TYPE,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
+REF_WORKFLOW_STATUS,Workflow and Interaction,گردش‌کار و تعامل,10,14,STATUS_CODE,CREATE,CIF.REF_WORKFLOW_STATUS,ACTIVE_PHASE_5,در فاز پنجم گردش‌کار و تعامل فعال شده است
