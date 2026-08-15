@@ -3,6 +3,9 @@
     <div>
       <h1 class="page-title">{{ store.descriptor()?.title ?? 'اطلاعات پایه' }}</h1>
       <p class="muted">جست‌وجو، ثبت، ویرایش و حذف با Query پارامتری Oracle</p>
+      @if (store.descriptor(); as d) {
+        <app-database-tables [tables]="[d.schemaName + '.' + d.tableName]" />
+      }
     </div>
     <button mat-flat-button color="primary" (click)="create()" [disabled]="!store.descriptor()">
       <mat-icon>add</mat-icon> افزودن رکورد
@@ -93,6 +96,9 @@
         </div>
 
         <form [formGroup]="form" (ngSubmit)="save()">
+          @if (store.descriptor(); as d) {
+            <app-database-tables [tables]="[d.schemaName + '.' + d.tableName]" />
+          }
           @if (hierarchy().length) {
             <div class="section-title">موقعیت در سلسله‌مراتب</div>
             @for (item of hierarchy(); track item.resource; let index = $index) {

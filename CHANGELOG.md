@@ -1,3 +1,11 @@
+## 0.3.8-prototype
+
+- Added a visible database-table context to every active data-entry/search form.
+- Generic GEO/DPS reference forms now show the exact descriptor-backed `SCHEMA.TABLE` name.
+- CIF Party reference forms now show their exact `CIF.REF_*` table name.
+- CIF Party list/create and Customer 360 forms now show the operational table or tables actually read/written by each form, including the two-table address form (`CIF.ADDRESS` + `CIF.PARTY_ADDRESS`).
+- Added a reusable `DatabaseTablesComponent` so future forms can expose their physical table mapping consistently.
+
 ## 0.3.7-prototype
 
 - Completed the Party/Customer reference catalog with Phase 6 Analytics and Recommendation.

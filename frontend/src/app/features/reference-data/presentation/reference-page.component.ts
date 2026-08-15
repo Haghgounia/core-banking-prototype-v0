@@ -20,6 +20,7 @@ import {CatalogItem, ReferenceFieldDescriptor} from '../../../core/models/catalo
 import {ReferenceGateway} from '../application/reference.gateway';
 import {ReferenceStore} from '../application/reference.store';
 import {LookupOption, ReferenceRecordResponse} from '../domain/reference.model';
+import {DatabaseTablesComponent} from '../../../shared/ui/database-tables.component';
 
 @Component({
   selector: 'app-reference-page',
@@ -27,7 +28,7 @@ import {LookupOption, ReferenceRecordResponse} from '../domain/reference.model';
   imports: [
     ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule,
     MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule,
-    MatSlideToggleModule, MatSortModule, MatTableModule, MatTooltipModule
+    MatSlideToggleModule, MatSortModule, MatTableModule, MatTooltipModule, DatabaseTablesComponent
   ],
   providers: [ReferenceStore],
   templateUrl: './reference-page.component.html',
