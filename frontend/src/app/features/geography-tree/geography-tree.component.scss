@@ -1,3 +1,6 @@
+.tree-breadcrumb { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; color: var(--app-muted); font-size: .78rem; }
+.tree-breadcrumb a { display: inline-flex; align-items: center; gap: 5px; color: var(--app-primary-strong); text-decoration: none; }
+.tree-breadcrumb mat-icon { width: 18px; height: 18px; font-size: 18px; }
 .tree-page header { margin-bottom: 18px; }
 .tree-page header p { margin: 6px 0 0; }
 .tree-card { padding: 10px 0; overflow: hidden; }

@@ -1,7 +1,15 @@
 <section class="tree-page">
+  <nav class="tree-breadcrumb" aria-label="مسیر اطلاعات پایه">
+    <a routerLink="/reference-data"><mat-icon>dataset</mat-icon><span>اطلاعات پایه</span></a>
+    <mat-icon>chevron_left</mat-icon>
+    <a routerLink="/reference-data/general"><span>اطلاعات پایه عمومی</span></a>
+    <mat-icon>chevron_left</mat-icon>
+    <span>درخت جغرافیایی</span>
+  </nav>
+
   <header>
     <h1 class="page-title">درخت جغرافیایی</h1>
-    <p class="muted">پیمایش تنبل استان ← شهرستان ← بخش ← شهر/دهستان ← روستا و آبادی</p>
+    <p class="muted">نمای تخصصی اطلاعات پایه عمومی؛ پیمایش تنبل استان ← شهرستان ← بخش ← شهر/دهستان ← روستا و آبادی</p>
   </header>
 
   @if (error(); as message) { <div class="error-banner">{{ message }}</div> }

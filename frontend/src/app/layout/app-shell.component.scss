@@ -4,10 +4,10 @@
 .brand-icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px; color: #fff; background: linear-gradient(135deg, #1f5fbf, #4a89e8); }
 .brand strong, .brand small { display: block; }
 .brand small { color: var(--app-muted); margin-top: 4px; }
-.menu-group { box-shadow: none !important; border-radius: 0 !important; border-top: 1px solid var(--app-divider); background: var(--app-surface) !important; }
-.menu-group mat-panel-title { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.menu-section-label { padding: 16px 18px 7px; color: var(--app-muted); font-size: .72rem; font-weight: 700; }
+.section-list { padding-top: 0; padding-bottom: 4px; }
+.reference-root-menu { border-block: 1px solid var(--app-divider); padding-block: 6px; }
 .active-link { background: var(--app-primary-soft) !important; color: var(--app-primary-strong) !important; border-right: 3px solid var(--app-primary); }
-.planned-badge { font-size: .7rem; border: 1px solid var(--app-border); border-radius: 10px; padding: 2px 7px; color: var(--app-muted); }
 .topbar { position: sticky; top: 0; z-index: 20; color: #fff; background: var(--app-topbar); box-shadow: 0 4px 15px var(--app-topbar-shadow); }
 .title { font-weight: 700; }
 .spacer { flex: 1; }
@@ -39,5 +39,3 @@
 @media (max-width: 900px) {
   .technical-link span, .theme-trigger span { display: none; }
 }
-.menu-section-label { padding: 14px 18px 8px; color: var(--app-muted); font-size: .75rem; font-weight: 700; }
-.party-ref-group { border-top-color: var(--app-divider); }

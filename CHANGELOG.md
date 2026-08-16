@@ -1,3 +1,29 @@
+## 0.3.11-prototype
+
+- Reworked the main navigation around business domains instead of listing reference-data domains directly in the sidebar.
+- Replaced the three Public / CIF Party / Deposit reference-data sidebar entries with a single «اطلاعات پایه» entry and a dedicated domain-selection hub.
+- Moved «درخت جغرافیایی» under «اطلاعات پایه عمومی → اطلاعات جغرافیایی» while preserving its existing route and geography-level management links.
+- Removed the «دامنه‌های برنامه‌ریزی‌شده / ادیان» area from the main dashboard.
+- Replaced the three reference-domain cards on the dashboard with one compact «اطلاعات پایه» quick-access card.
+- Kept Public, CIF/Party and Deposit reference forms physically and functionally separated behind the new reference-data hub.
+- No database/DDL changes.
+
+## 0.3.10-prototype
+
+- Removed the detailed public/general reference-data section from the main dashboard.
+- Removed geography and other public reference statistic cards from the dashboard; these forms remain available from the dedicated «اطلاعات پایه عمومی» menu.
+- Removed the no-longer-needed `/api/v1/dashboard/counts` request from the dashboard component.
+- Kept the three independent reference-domain entry cards for Public, CIF/Party and Deposit reference data.
+
+## 0.3.9-prototype
+
+- Separated public reference data from CIF/Party reference data in the main navigation.
+- Moved all DPS deposit-product reference forms out of the global sidebar/dashboard list into a dedicated Deposit Reference Data menu.
+- Moved all CIF/Party reference forms out of the global sidebar into a dedicated Party Reference Data menu grouped by package.
+- Added dedicated reference menu pages with search, form counts and domain-specific routing for Public, Party and Deposit reference data.
+- Dashboard now lists only public reference forms in detail; Party and Deposit reference forms are represented by separate domain entry cards.
+- Preserved the 0.3.8 database-table labels on all forms.
+
 ## 0.3.8-prototype
 
 - Added a visible database-table context to every active data-entry/search form.

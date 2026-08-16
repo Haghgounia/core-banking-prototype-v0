@@ -8,7 +8,8 @@
       </div>
     </div>
 
-    <mat-nav-list>
+    <div class="menu-section-label">عملیات</div>
+    <mat-nav-list class="section-list">
       <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <span matListItemTitle>داشبورد</span>
@@ -17,58 +18,23 @@
         <mat-icon matListItemIcon>group</mat-icon>
         <span matListItemTitle>مدیریت مشتری / CIF</span>
       </a>
-      <a mat-list-item routerLink="/geography-tree" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>account_tree</mat-icon>
-        <span matListItemTitle>درخت جغرافیایی</span>
+    </mat-nav-list>
+
+    <div class="menu-section-label">داده‌های مرجع</div>
+    <mat-nav-list class="section-list reference-root-menu">
+      <a mat-list-item routerLink="/reference-data" [class.active-link]="isReferenceSection()">
+        <mat-icon matListItemIcon>dataset</mat-icon>
+        <span matListItemTitle>اطلاعات پایه</span>
       </a>
+    </mat-nav-list>
+
+    <div class="menu-section-label">مدیریت و سیستم</div>
+    <mat-nav-list class="section-list">
       <a mat-list-item routerLink="/system-specification" routerLinkActive="active-link">
         <mat-icon matListItemIcon>info</mat-icon>
         <span matListItemTitle>مشخصات فنی سیستم</span>
       </a>
     </mat-nav-list>
-
-    <div class="menu-section-label">اطلاعات پایه مشتری / Party</div>
-    @for (pkg of partyReference.packages(); track pkg.name) {
-      <mat-expansion-panel class="menu-group party-ref-group">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon>badge</mat-icon>
-            {{ pkg.title }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <mat-nav-list>
-          @for (item of pkg.tables; track item.resource) {
-            <a mat-list-item [routerLink]="['/cif/reference', item.resource]" routerLinkActive="active-link">
-              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-              <span matListItemTitle>{{ item.title }}</span>
-            </a>
-          }
-        </mat-nav-list>
-      </mat-expansion-panel>
-    }
-
-    @for (group of groups; track group.key) {
-      <mat-expansion-panel class="menu-group" [expanded]="group.key === 'GEOGRAPHY'">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon>{{ group.icon }}</mat-icon>
-            {{ group.title }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-
-        <mat-nav-list>
-          @for (item of catalog.group(group.key); track item.resource) {
-            <a mat-list-item [routerLink]="routeFor(item)" routerLinkActive="active-link">
-              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-              <span matListItemTitle>{{ item.title }}</span>
-              @if (item.status === 'PLANNED') {
-                <span matListItemMeta class="planned-badge">بعدی</span>
-              }
-            </a>
-          }
-        </mat-nav-list>
-      </mat-expansion-panel>
-    }
   </mat-sidenav>
 
   <mat-sidenav-content>

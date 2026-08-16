@@ -1,18 +1,14 @@
 import {Component, inject} from '@angular/core';
-import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
 import {MatIconModule} from '@angular/material/icon';
-import {MatExpansionModule} from '@angular/material/expansion';
 import {MatButtonModule} from '@angular/material/button';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {CatalogService} from '../core/catalog/catalog.service';
-import {CatalogItem} from '../core/models/catalog.model';
 import {ThemePreference, ThemeService} from '../core/theme/theme.service';
 import {GENERATED_SYSTEM_VERSIONS} from '../features/system-specification/system-version.generated';
-import {PartyReferenceService} from '../features/cif-reference/party-reference.service';
 
 @Component({
   selector: 'app-shell',
@@ -20,35 +16,23 @@ import {PartyReferenceService} from '../features/cif-reference/party-reference.s
   imports: [
     RouterOutlet, RouterLink, RouterLinkActive,
     MatToolbarModule, MatSidenavModule, MatListModule,
-    MatIconModule, MatExpansionModule, MatButtonModule,
-    MatMenuModule, MatTooltipModule
+    MatIconModule, MatButtonModule, MatMenuModule, MatTooltipModule
   ],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss'
 })
 export class AppShellComponent {
-  readonly catalog = inject(CatalogService);
   readonly theme = inject(ThemeService);
-  readonly partyReference = inject(PartyReferenceService);
+  private readonly router = inject(Router);
   readonly version = GENERATED_SYSTEM_VERSIONS.release;
-  readonly groups = [
-    {key: 'GEOGRAPHY', title: 'اطلاعات جغرافیایی', icon: 'account_tree'},
-    {key: 'GENERAL', title: 'اطلاعات عمومی', icon: 'dataset'},
-    {key: 'EMPLOYMENT', title: 'اشتغال و مشاغل', icon: 'work'},
-    {key: 'EDUCATION', title: 'آموزش و تحصیلات', icon: 'school'},
-    {key: 'DEPOSIT_PRODUCT_REFERENCE', title: 'اطلاعات پایه محصول سپرده', icon: 'savings'}
-  ] as const;
 
-
-  constructor() {
-    void this.catalog.load();
-    void this.partyReference.loadCatalog();
-  }
-
-  routeFor(item: CatalogItem): readonly string[] {
-    return item.status === 'ACTIVE'
-      ? ['/reference-data', item.resource]
-      : ['/planned', item.resource];
+  isReferenceSection(): boolean {
+    const url = this.router.url;
+    return url.startsWith('/reference-data')
+      || url.startsWith('/cif/reference')
+      || url.startsWith('/deposit/reference-data')
+      || url.startsWith('/geography-tree')
+      || url.startsWith('/planned/');
   }
 
   setTheme(preference: ThemePreference): void {
