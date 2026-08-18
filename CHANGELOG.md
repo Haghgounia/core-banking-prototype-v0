@@ -1,3 +1,53 @@
+## 0.3.15-prototype
+
+- Added Party operational-form Phase 4 at `/cif/parties/{partyId}/onboarding/identifiers-documents`, linked from Phase 3 and Customer 360.
+- Added a protected read-only Primary Identifier section and operational CRUD for secondary `PARTY_IDENTIFIER` records; Phase 4 never promotes, demotes or deletes the primary identity created during Phase 1.
+- Added reference-backed identifier fields for identifier type, country, issuing authority, verification status, data source and verification method, with validity/issue/expiry controls and optimistic `RECORD_VERSION` editing.
+- Added application validation for the Oracle `UQ_IDENTIFIER` business key so duplicate type/value/issuer/valid-from combinations are rejected before a raw Oracle constraint error reaches the UI.
+- Added a dedicated `PARTY_DOCUMENT` operational editor including optional KYC association, document type/number, issuer, dates, verification metadata, content hash, secure storage reference and MIME type.
+- Synchronized `PARTY_DOCUMENT` with the latest supplied `CIF-tables3.xlsx` by adding `ISSUING_AUTHORITY_TEXT`, `CONTROL_STATUS_CODE` and `DESCRIPTION_TEXT` end-to-end in domain/API, Oracle repository and UI.
+- Added an idempotent Oracle migration `database/oracle/cif/migrations/0.3.15-party-document-alignment.sql` for existing environments and aligned the bundled CIF DDL snapshot.
+- When a document type matches the Party primary identifier type, the operational form reads the document number from that primary identifier instead of requesting a second manually-entered identity value.
+- No synthetic reference catalog was created for `PARTY_DOCUMENT.CONTROL_STATUS_CODE` because the supplied model does not define an explicit REF source for that column.
+
+## 0.3.14-prototype
+
+- Added Party operational-form Phase 3 at `/cif/parties/{partyId}/onboarding/financial-employment` and linked Phase 2 plus Customer 360 directly to this step.
+- Added operational CRUD and Party 360 coverage for `FINANCIAL_PROFILE`, `PARTY_EMPLOYMENT`, `PARTY_INCOME_SOURCE`, `PARTY_ASSET_LIABILITY` and `PARTY_LICENSE`, aligned to the supplied `CIF-tables3.xlsx` column set.
+- Preserved the model boundary that `PARTY_EMPLOYMENT` is PERSON-only; ORGANIZATION economic activity is maintained on `ORGANIZATION`, with activity licenses in `PARTY_LICENSE`.
+- Added financial snapshot fields from the latest schema including net/other monthly income, expected transaction count, funds countries, relationship-purpose code, real-estate/investment values, monthly installments, estimated net worth and financial-capacity code.
+- Added employment fields from the latest schema including employment status, occupation group, employer identifier, contract type, insurance number and tax code.
+- Added source-of-funds/wealth, tax, occupation, economic-sector, ISIC, verification and license-type lookups only where explicit reference sources exist; no synthetic REF mapping was introduced for unmapped code columns.
+- Added database-constraint-aware validation: exactly one employer source for employment, unique financial snapshot per Party/as-of date, license type/number uniqueness, date ordering, non-negative financial amounts and optimistic `RECORD_VERSION` updates.
+- Extended Customer 360 with a dedicated «مالی و شغلی» tab for financial profiles, income sources, employment/licenses and asset/liability records.
+- No database migration is included; this release targets the supplied current CIF schema definition in `CIF-tables3.xlsx`.
+
+## 0.3.13-prototype
+
+- Added Party operational-form Phase 2 at `/cif/parties/{partyId}/onboarding/contact-address` and redirected successful Phase 1 onboarding directly into this step.
+- Synchronized `ADDRESS`, `PARTY_ADDRESS` and `CONTACT_POINT` application models with the supplied `CIF-tables3.xlsx`, including county/structured address details, address verification/source fields, telephone dialing fields, contact owner and verification metadata.
+- Added operational support for `CONTACT_POINT_ADDRESS` so a contact point can be explicitly associated with a Party address.
+- Added create/edit/delete operations in the Phase 2 UI for addresses, contact points and contact-address associations with optimistic `RECORD_VERSION` updates.
+- Added cascading GEO lookups for province -> county -> district -> city using the existing reference-data API; no duplicate geography reference catalog was introduced.
+- Added reference lookups for address/contact type, contact purpose, contact-address association type and verification status/method.
+- Preserved free optional code entry for `PARTY_ADDRESS.TENURE_TYPE_CODE`, `PARTY_ADDRESS.SOURCE_CODE` and `CONTACT_POINT.OWNER_TYPE_CODE` because the supplied model does not define explicit independent REF/FK mappings for those columns.
+- Made address/contact deletion association-safe by removing dependent `CONTACT_POINT_ADDRESS` records inside the same transaction.
+- Corrected primary-record semantics so `IS_PRIMARY` is exclusive within each address/contact type, not globally across the whole Party.
+- Added a direct «ادامه فرم عملیاتی» action from Customer 360 back to Phase 2.
+- No database migration is included; this release targets the supplied current CIF schema definition in `CIF-tables3.xlsx`.
+
+## 0.3.12-prototype
+
+- Synchronized the operational CIF base models with `CIF-tables3.xlsx` for `PARTY`, `PERSON`, `ORGANIZATION`, `PARTY_NAME` and `PARTY_IDENTIFIER`.
+- Added `PERSON.NATIONALITY_COUNTRY_CODE` end-to-end in Oracle repository, domain/API models and Customer 360 UI.
+- Added the latest `ORGANIZATION` fields end-to-end: `REGISTRATION_COUNTRY_CODE`, `ACTIVITY_STATUS_CODE`, `MAIN_ACTIVITY_DESCRIPTION`, `EMPLOYEE_COUNT`, `ENTERPRISE_SIZE_CODE` and `OWNERSHIP_TYPE_CODE`.
+- Extended Party creation with `STATUS_REASON_CODE`, `VALID_FROM` and `VALID_TO` and replaced free-text creation source with `CIF.REF_SOURCE_SYSTEM` where applicable.
+- Added the first dedicated operational Party onboarding form at `/cif/parties/new`, separated from the legacy list modal and aligned with the supplied Party operational-form flow.
+- Added atomic onboarding API `POST /api/v1/cif/parties/onboarding` covering `PARTY + PARTY_NAME + PERSON/ORGANIZATION + PARTY_IDENTIFIER` in one transaction.
+- Added a dedicated «ایجاد Party جدید» navigation item and clarified Party search semantics independently from the banking-customer role.
+- Preserved database-supported lifecycle reference codes; no invented `DRAFT` code is persisted because the current `CIF.REF_PARTY_LIFECYCLE_STATUS` catalog does not define it.
+- No database/DDL changes; application code is aligned to the supplied current schema definition.
+
 ## 0.3.11-prototype
 
 - Reworked the main navigation around business domains instead of listing reference-data domains directly in the sidebar.

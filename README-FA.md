@@ -14,7 +14,7 @@ customer-information-file (CIF)   -> Schema CIF
 
 در این نسخه ۱۲۳ فرم اطلاعات پایه فعال هستند: ۲۰ فرم GEO، ۵۰ فرم `DPS.REF_*` و ۵۳ فرم اطلاعات پایه Party/Customer در CIF. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party و صفحه Customer 360 فعال است.
 
-برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. در دامنه CIF نیز فقط ۱۲ جدول اصلی فاز اول فعال شده‌اند و سایر جداول فایل DDL برای فازهای بعدی باقی مانده‌اند.
+برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. در دامنه CIF، CRUD فاز اول برای ۱۲ جدول اصلی فعال است؛ فاز ۲ جدول ارتباطی `CONTACT_POINT_ADDRESS` را وارد جریان عملیاتی کرد، فاز ۳ نیز `FINANCIAL_PROFILE`، `PARTY_EMPLOYMENT`، `PARTY_INCOME_SOURCE`، `PARTY_ASSET_LIABILITY` و `PARTY_LICENSE` را فعال کرد و فاز ۴ جریان مستقل شناسه‌های تکمیلی و مدارک را روی `PARTY_IDENTIFIER` و `PARTY_DOCUMENT` تکمیل کرده است. پوشش عملیاتی همچنان ۱۸ جدول CIF است، اما دو جدول هویتی/مدرکی اکنون Workflow اختصاصی دارند.
 
 ## معماری فعلی
 
@@ -118,7 +118,7 @@ DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون ب
 
 - ۱۲۳ فرم فعال اطلاعات پایه؛ شامل ۲۰ فرم GEO، ۵۰ فرم مرجع محصول سپرده در DPS و ۵۳ فرم Party/Customer در CIF
 - فهرست Party و پرونده جامع Customer 360 در ماژول CIF
-- CRUD فاز اول CIF برای ۱۲ جدول اصلی
+- CRUD عملیاتی CIF برای ۱۸ جدول: ۱۲ جدول پایه، `CONTACT_POINT_ADDRESS` در فاز ۲ و پنج جدول مالی/شغلی/مجوز در فاز ۳؛ فاز ۴ Workflow اختصاصی `PARTY_IDENTIFIER` و `PARTY_DOCUMENT` را تکمیل می‌کند
 - Runtime عمومی Descriptor-driven
 - جست‌وجو، مرتب‌سازی و صفحه‌بندی سمت سرور
 - ثبت، ویرایش و حذف
@@ -247,7 +247,7 @@ tools/sync-system-specification.mjs
 
 ## مدیریت مشتری / CIF
 
-فاز اول CIF بر اساس DDL واقعی `database/oracle/cif/ddl/CIF-050517.sql` پیاده‌سازی شده است. راهنمای دامنه و API در `docs/CIF-CUSTOMER-360-PHASE1-FA.md` قرار دارد.
+فاز اول CIF بر اساس DDL واقعی `database/oracle/cif/ddl/CIF-050517.sql` پیاده‌سازی شده است. از نسخه 0.3.12 به بعد، مدل اجرایی Party با فایل مدل به‌روز `CIF-tables3.xlsx` همگام شده و Snapshot قدیمی DDL داخل Repository عمداً به‌عنوان مرجع تاریخی نگهداری شده است. راهنمای فاز اول در `docs/CIF-CUSTOMER-360-PHASE1-FA.md` و راهنمای فرم عملیاتی فاز ۲ در `docs/CIF-PARTY-OPERATIONS-PHASE2-FA.md` قرار دارد.
 
 
 ## ساختار ناوبری اطلاعات پایه از نسخه 0.3.11

@@ -7,6 +7,10 @@ export const routes: Routes = [
     children: [
       {path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)},
       {path: 'cif/parties', loadComponent: () => import('./features/cif/party-list.component').then(m => m.PartyListComponent)},
+      {path: 'cif/parties/new', loadComponent: () => import('./features/cif/party-create.component').then(m => m.PartyCreateComponent)},
+      {path: 'cif/parties/:partyId/onboarding/contact-address', loadComponent: () => import('./features/cif/party-contact-address.component').then(m => m.PartyContactAddressComponent)},
+      {path: 'cif/parties/:partyId/onboarding/financial-employment', loadComponent: () => import('./features/cif/party-financial-employment.component').then(m => m.PartyFinancialEmploymentComponent)},
+      {path: 'cif/parties/:partyId/onboarding/identifiers-documents', loadComponent: () => import('./features/cif/party-identifiers-documents.component').then(m => m.PartyIdentifiersDocumentsComponent)},
       {path: 'cif/parties/:partyId', loadComponent: () => import('./features/cif/party-360.component').then(m => m.Party360Component)},
 
       {path: 'reference-data', loadComponent: () => import('./features/reference-hub/reference-hub.component').then(m => m.ReferenceHubComponent)},

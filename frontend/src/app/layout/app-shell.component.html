@@ -14,9 +14,13 @@
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <span matListItemTitle>داشبورد</span>
       </a>
-      <a mat-list-item routerLink="/cif/parties" routerLinkActive="active-link">
+      <a mat-list-item routerLink="/cif/parties" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
         <mat-icon matListItemIcon>group</mat-icon>
-        <span matListItemTitle>مدیریت مشتری / CIF</span>
+        <span matListItemTitle>جست‌وجو و پرونده Party</span>
+      </a>
+      <a mat-list-item routerLink="/cif/parties/new" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>person_add</mat-icon>
+        <span matListItemTitle>ایجاد Party جدید</span>
       </a>
     </mat-nav-list>
 

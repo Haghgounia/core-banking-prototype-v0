@@ -1,6 +1,6 @@
 {
   "name": "core-banking-ui",
-  "version": "0.3.11",
+  "version": "0.3.15",
   "private": true,
   "scripts": {
     "prestart": "node ../tools/sync-system-specification.mjs",

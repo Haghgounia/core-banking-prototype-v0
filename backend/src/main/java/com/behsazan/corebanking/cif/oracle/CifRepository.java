@@ -1,9 +1,21 @@
 package com.behsazan.corebanking.cif.oracle;
 
 import com.behsazan.corebanking.cif.domain.CifModels.CifDashboardSummary;
+import com.behsazan.corebanking.cif.domain.CifModels.ContactPointAddressRecord;
+import com.behsazan.corebanking.cif.domain.CifModels.ContactPointAddressRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.ContactPointRecord;
 import com.behsazan.corebanking.cif.domain.CifModels.ContactPointRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.CreatePartyRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.FinancialProfileRecord;
+import com.behsazan.corebanking.cif.domain.CifModels.FinancialProfileRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyAssetLiabilityRecord;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyAssetLiabilityRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyEmploymentRecord;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyEmploymentRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyIncomeSourceRecord;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyIncomeSourceRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyLicenseRecord;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyLicenseRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.KycCaseRecord;
 import com.behsazan.corebanking.cif.domain.CifModels.KycCaseRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.OrganizationProfile;
@@ -169,7 +181,7 @@ public class CifRepository {
                        BIRTH_PLACE_TEXT, FATHER_GIVEN_NAME, MOTHER_GIVEN_NAME, MARITAL_STATUS_CODE,
                        DEATH_DATE, LEGAL_CAPACITY_CODE, PRIMARY_LANGUAGE_CODE, DATA_QUALITY_STATUS_CODE,
                        VERIFICATION_STATUS_CODE, RESIDENCE_STATUS_CODE, PHYSICAL_ABILITY,
-                       LIFE_STATUS_CODE, RECORD_VERSION
+                       LIFE_STATUS_CODE, NATIONALITY_COUNTRY_CODE, RECORD_VERSION
                 FROM %s WHERE PARTY_ID = :partyId
                 """.formatted(table("PERSON"));
         return jdbc.sql(sql).param("partyId", partyId)
@@ -191,6 +203,7 @@ public class CifRepository {
                         rs.getString("RESIDENCE_STATUS_CODE"),
                         rs.getString("PHYSICAL_ABILITY"),
                         rs.getString("LIFE_STATUS_CODE"),
+                        rs.getString("NATIONALITY_COUNTRY_CODE"),
                         rs.getLong("RECORD_VERSION")
                 )).optional();
     }
@@ -199,7 +212,9 @@ public class CifRepository {
         String sql = """
                 SELECT ORGANIZATION_ID, PARTY_ID, REGISTERED_NAME, TRADE_NAME, LEGAL_FORM_CODE,
                        REGISTRATION_NO, REGISTRATION_PLACE_CODE, INCORPORATION_DATE, DISSOLUTION_DATE,
-                       ECONOMIC_SECTOR_CODE, ISIC_CODE, LISTED_COMPANY_FLAG, RECORD_VERSION
+                       ECONOMIC_SECTOR_CODE, ISIC_CODE, LISTED_COMPANY_FLAG, REGISTRATION_COUNTRY_CODE,
+                       ACTIVITY_STATUS_CODE, MAIN_ACTIVITY_DESCRIPTION, EMPLOYEE_COUNT, ENTERPRISE_SIZE_CODE,
+                       OWNERSHIP_TYPE_CODE, RECORD_VERSION
                 FROM %s WHERE PARTY_ID = :partyId
                 """.formatted(table("ORGANIZATION"));
         return jdbc.sql(sql).param("partyId", partyId)
@@ -216,6 +231,12 @@ public class CifRepository {
                         rs.getString("ECONOMIC_SECTOR_CODE"),
                         rs.getString("ISIC_CODE"),
                         rs.getString("LISTED_COMPANY_FLAG"),
+                        rs.getString("REGISTRATION_COUNTRY_CODE"),
+                        rs.getString("ACTIVITY_STATUS_CODE"),
+                        rs.getString("MAIN_ACTIVITY_DESCRIPTION"),
+                        nullableLong(rs, "EMPLOYEE_COUNT"),
+                        rs.getString("ENTERPRISE_SIZE_CODE"),
+                        rs.getString("OWNERSHIP_TYPE_CODE"),
                         rs.getLong("RECORD_VERSION")
                 )).optional();
     }
@@ -270,9 +291,11 @@ public class CifRepository {
     public List<PartyAddressRecord> findAddresses(long partyId) {
         String sql = """
                 SELECT PA.PARTY_ADDRESS_ID, PA.ADDRESS_ID, PA.PARTY_ID, PA.ADDRESS_TYPE_CODE,
-                       PA.IS_PRIMARY, PA.VALID_FROM, PA.VALID_TO, PA.RECORD_VERSION AS PA_RECORD_VERSION,
-                       A.COUNTRY_CODE, A.PROVINCE_CODE, A.CITY_CODE, A.DISTRICT_CODE, A.POSTAL_CODE,
-                       A.ADDRESS_LINE1, A.ADDRESS_LINE2, A.RECORD_VERSION AS ADDRESS_RECORD_VERSION
+                       PA.IS_PRIMARY, PA.VALID_FROM, PA.VALID_TO, PA.TENURE_TYPE_CODE,
+                       PA.VERIFICATION_STATUS_CODE, PA.SOURCE_CODE, PA.RECORD_VERSION AS PA_RECORD_VERSION,
+                       A.COUNTRY_CODE, A.PROVINCE_CODE, A.COUNTY_CODE, A.CITY_CODE, A.DISTRICT_CODE, A.POSTAL_CODE,
+                       A.ADDRESS_LINE1, A.ADDRESS_LINE2, A.NEIGHBORHOOD_TEXT, A.MAIN_STREET_TEXT, A.SIDE_STREET_TEXT,
+                       A.PLAQUE_NO, A.FLOOR_NO, A.UNIT_NO, A.ADDRESS_DETAIL, A.RECORD_VERSION AS ADDRESS_RECORD_VERSION
                 FROM %s PA
                 JOIN %s A ON A.ADDRESS_ID = PA.ADDRESS_ID
                 WHERE PA.PARTY_ID = :partyId
@@ -283,8 +306,12 @@ public class CifRepository {
                         rs.getLong("PARTY_ADDRESS_ID"), rs.getLong("ADDRESS_ID"), rs.getLong("PARTY_ID"),
                         rs.getString("ADDRESS_TYPE_CODE"), rs.getString("IS_PRIMARY"),
                         localDate(rs, "VALID_FROM"), localDate(rs, "VALID_TO"), trimChar(rs.getString("COUNTRY_CODE")),
-                        rs.getString("PROVINCE_CODE"), rs.getString("CITY_CODE"), rs.getString("DISTRICT_CODE"),
-                        rs.getString("POSTAL_CODE"), rs.getString("ADDRESS_LINE1"), rs.getString("ADDRESS_LINE2"),
+                        rs.getString("PROVINCE_CODE"), rs.getString("COUNTY_CODE"), rs.getString("CITY_CODE"),
+                        rs.getString("DISTRICT_CODE"), rs.getString("POSTAL_CODE"), rs.getString("ADDRESS_LINE1"),
+                        rs.getString("ADDRESS_LINE2"), rs.getString("NEIGHBORHOOD_TEXT"), rs.getString("MAIN_STREET_TEXT"),
+                        rs.getString("SIDE_STREET_TEXT"), rs.getString("PLAQUE_NO"), rs.getString("FLOOR_NO"),
+                        rs.getString("UNIT_NO"), rs.getString("ADDRESS_DETAIL"), rs.getString("TENURE_TYPE_CODE"),
+                        rs.getString("VERIFICATION_STATUS_CODE"), rs.getString("SOURCE_CODE"),
                         rs.getLong("PA_RECORD_VERSION"), rs.getLong("ADDRESS_RECORD_VERSION")
                 )).list();
     }
@@ -292,7 +319,9 @@ public class CifRepository {
     public List<ContactPointRecord> findContacts(long partyId) {
         String sql = """
                 SELECT CONTACT_POINT_ID, PARTY_ID, CONTACT_TYPE_CODE, CONTACT_VALUE, NORMALIZED_VALUE,
-                       PURPOSE_CODE, IS_PRIMARY, IS_VERIFIED, VERIFIED_AT, VALID_FROM, VALID_TO, RECORD_VERSION
+                       PURPOSE_CODE, IS_PRIMARY, IS_VERIFIED, VERIFIED_AT, VALID_FROM, VALID_TO,
+                       COUNTRY_DIAL_CODE, AREA_CODE, EXTENSION_NO, OWNER_TYPE_CODE,
+                       VERIFICATION_STATUS_CODE, VERIFICATION_METHOD_CODE, RECORD_VERSION
                 FROM %s WHERE PARTY_ID = :partyId
                 ORDER BY CASE WHEN IS_PRIMARY = 'Y' THEN 0 ELSE 1 END, VALID_FROM DESC, CONTACT_POINT_ID DESC
                 """.formatted(table("CONTACT_POINT"));
@@ -301,8 +330,119 @@ public class CifRepository {
                         rs.getLong("CONTACT_POINT_ID"), rs.getLong("PARTY_ID"), rs.getString("CONTACT_TYPE_CODE"),
                         rs.getString("CONTACT_VALUE"), rs.getString("NORMALIZED_VALUE"), rs.getString("PURPOSE_CODE"),
                         rs.getString("IS_PRIMARY"), rs.getString("IS_VERIFIED"), localDateTime(rs, "VERIFIED_AT"),
-                        localDate(rs, "VALID_FROM"), localDate(rs, "VALID_TO"), rs.getLong("RECORD_VERSION")
+                        localDate(rs, "VALID_FROM"), localDate(rs, "VALID_TO"), rs.getString("COUNTRY_DIAL_CODE"),
+                        rs.getString("AREA_CODE"), rs.getString("EXTENSION_NO"), rs.getString("OWNER_TYPE_CODE"),
+                        rs.getString("VERIFICATION_STATUS_CODE"), rs.getString("VERIFICATION_METHOD_CODE"),
+                        rs.getLong("RECORD_VERSION")
                 )).list();
+    }
+
+    public List<ContactPointAddressRecord> findContactAddressAssociations(long partyId) {
+        String sql = """
+                SELECT CPA.CONTACT_POINT_ADDRESS_ID, CPA.CONTACT_POINT_ID, CPA.PARTY_ADDRESS_ID,
+                       CPA.ASSOCIATION_TYPE_CODE, CPA.IS_PRIMARY_FOR_ADDRESS, CPA.VALID_FROM, CPA.VALID_TO, CPA.RECORD_VERSION
+                FROM %s CPA
+                JOIN %s CP ON CP.CONTACT_POINT_ID = CPA.CONTACT_POINT_ID
+                JOIN %s PA ON PA.PARTY_ADDRESS_ID = CPA.PARTY_ADDRESS_ID
+                WHERE CP.PARTY_ID = :partyId AND PA.PARTY_ID = :partyId
+                ORDER BY CPA.VALID_FROM DESC, CPA.CONTACT_POINT_ADDRESS_ID DESC
+                """.formatted(table("CONTACT_POINT_ADDRESS"), table("CONTACT_POINT"), table("PARTY_ADDRESS"));
+        return jdbc.sql(sql).param("partyId", partyId)
+                .query((rs, rowNum) -> new ContactPointAddressRecord(
+                        rs.getLong("CONTACT_POINT_ADDRESS_ID"), rs.getLong("CONTACT_POINT_ID"),
+                        rs.getLong("PARTY_ADDRESS_ID"), rs.getString("ASSOCIATION_TYPE_CODE"),
+                        rs.getString("IS_PRIMARY_FOR_ADDRESS"), localDate(rs, "VALID_FROM"),
+                        localDate(rs, "VALID_TO"), rs.getLong("RECORD_VERSION")
+                )).list();
+    }
+
+    public List<FinancialProfileRecord> findFinancialProfiles(long partyId) {
+        String sql = """
+                SELECT FINANCIAL_PROFILE_ID, PARTY_ID, AS_OF_DATE, ANNUAL_INCOME, TOTAL_ASSETS, TOTAL_LIABILITIES,
+                       CURRENCY_CODE, SOURCE_OF_FUNDS_CODE, SOURCE_OF_WEALTH_CODE, EXPECTED_MONTHLY_TURNOVER,
+                       TAX_STATUS_CODE, VERIFICATION_STATUS_CODE, NET_MONTHLY_INCOME, OTHER_MONTHLY_INCOME,
+                       EXPECTED_MONTHLY_TXN_COUNT, FUNDS_COUNTRIES_TEXT, FINANCIAL_RELATION_PURPOSE_CODE,
+                       REAL_ESTATE_VALUE, INVESTMENT_VALUE, TOTAL_MONTHLY_INSTALLMENT, ESTIMATED_NET_WORTH,
+                       FINANCIAL_CAPACITY_CODE, RECORD_VERSION
+                FROM %s WHERE PARTY_ID=:partyId
+                ORDER BY AS_OF_DATE DESC, FINANCIAL_PROFILE_ID DESC
+                """.formatted(table("FINANCIAL_PROFILE"));
+        return jdbc.sql(sql).param("partyId", partyId).query((rs, rowNum) -> new FinancialProfileRecord(
+                rs.getLong("FINANCIAL_PROFILE_ID"), rs.getLong("PARTY_ID"), localDate(rs, "AS_OF_DATE"),
+                rs.getBigDecimal("ANNUAL_INCOME"), rs.getBigDecimal("TOTAL_ASSETS"), rs.getBigDecimal("TOTAL_LIABILITIES"),
+                trimChar(rs.getString("CURRENCY_CODE")), rs.getString("SOURCE_OF_FUNDS_CODE"),
+                rs.getString("SOURCE_OF_WEALTH_CODE"), rs.getBigDecimal("EXPECTED_MONTHLY_TURNOVER"),
+                rs.getString("TAX_STATUS_CODE"), rs.getString("VERIFICATION_STATUS_CODE"),
+                rs.getBigDecimal("NET_MONTHLY_INCOME"), rs.getBigDecimal("OTHER_MONTHLY_INCOME"),
+                nullableLong(rs, "EXPECTED_MONTHLY_TXN_COUNT"), rs.getString("FUNDS_COUNTRIES_TEXT"),
+                rs.getString("FINANCIAL_RELATION_PURPOSE_CODE"), rs.getBigDecimal("REAL_ESTATE_VALUE"),
+                rs.getBigDecimal("INVESTMENT_VALUE"), rs.getBigDecimal("TOTAL_MONTHLY_INSTALLMENT"),
+                rs.getBigDecimal("ESTIMATED_NET_WORTH"), rs.getString("FINANCIAL_CAPACITY_CODE"), rs.getLong("RECORD_VERSION")
+        )).list();
+    }
+
+    public List<PartyEmploymentRecord> findEmployments(long partyId) {
+        String sql = """
+                SELECT EMPLOYMENT_ID, PARTY_ID, EMPLOYER_PARTY_ID, EMPLOYER_NAME, OCCUPATION_CODE, JOB_TITLE,
+                       ECONOMIC_SECTOR_CODE, ISIC_CODE, MONTHLY_INCOME, INCOME_CURRENCY_CODE, FAMILY_RANGE,
+                       JOB_STATUS, EMPLOYEE_RANGE, VALID_FROM, VALID_TO, EMPLOYMENT_STATUS_CODE, OCCUPATION_GROUP_CODE,
+                       EMPLOYER_IDENTIFIER, CONTRACT_TYPE_CODE, INSURANCE_NO, TAX_CODE, RECORD_VERSION
+                FROM %s WHERE PARTY_ID=:partyId
+                ORDER BY VALID_FROM DESC, EMPLOYMENT_ID DESC
+                """.formatted(table("PARTY_EMPLOYMENT"));
+        return jdbc.sql(sql).param("partyId", partyId).query((rs, rowNum) -> new PartyEmploymentRecord(
+                rs.getLong("EMPLOYMENT_ID"), rs.getLong("PARTY_ID"), nullableLong(rs, "EMPLOYER_PARTY_ID"),
+                rs.getString("EMPLOYER_NAME"), rs.getString("OCCUPATION_CODE"), rs.getString("JOB_TITLE"),
+                rs.getString("ECONOMIC_SECTOR_CODE"), rs.getString("ISIC_CODE"), rs.getBigDecimal("MONTHLY_INCOME"),
+                trimChar(rs.getString("INCOME_CURRENCY_CODE")), rs.getString("FAMILY_RANGE"), rs.getString("JOB_STATUS"),
+                rs.getString("EMPLOYEE_RANGE"), localDate(rs, "VALID_FROM"), localDate(rs, "VALID_TO"),
+                rs.getString("EMPLOYMENT_STATUS_CODE"), rs.getString("OCCUPATION_GROUP_CODE"),
+                rs.getString("EMPLOYER_IDENTIFIER"), rs.getString("CONTRACT_TYPE_CODE"), rs.getString("INSURANCE_NO"),
+                rs.getString("TAX_CODE"), rs.getLong("RECORD_VERSION")
+        )).list();
+    }
+
+    public List<PartyIncomeSourceRecord> findIncomeSources(long partyId) {
+        String sql = """
+                SELECT INCOME_SOURCE_ID, PARTY_ID, SOURCE_TYPE_CODE, MONTHLY_AMOUNT, CURRENCY_CODE,
+                       DOCUMENTED_FLAG, STATUS_CODE, RECORD_VERSION
+                FROM %s WHERE PARTY_ID=:partyId
+                ORDER BY INCOME_SOURCE_ID DESC
+                """.formatted(table("PARTY_INCOME_SOURCE"));
+        return jdbc.sql(sql).param("partyId", partyId).query((rs, rowNum) -> new PartyIncomeSourceRecord(
+                rs.getLong("INCOME_SOURCE_ID"), rs.getLong("PARTY_ID"), rs.getString("SOURCE_TYPE_CODE"),
+                rs.getBigDecimal("MONTHLY_AMOUNT"), rs.getString("CURRENCY_CODE"), rs.getString("DOCUMENTED_FLAG"),
+                rs.getString("STATUS_CODE"), rs.getLong("RECORD_VERSION")
+        )).list();
+    }
+
+    public List<PartyAssetLiabilityRecord> findAssetLiabilities(long partyId) {
+        String sql = """
+                SELECT ASSET_LIABILITY_ID, PARTY_ID, ITEM_TYPE_CODE, DESCRIPTION_TEXT, AMOUNT, CURRENCY_CODE,
+                       ASSESSMENT_DATE, STATUS_CODE, RECORD_VERSION
+                FROM %s WHERE PARTY_ID=:partyId
+                ORDER BY ASSESSMENT_DATE DESC, ASSET_LIABILITY_ID DESC
+                """.formatted(table("PARTY_ASSET_LIABILITY"));
+        return jdbc.sql(sql).param("partyId", partyId).query((rs, rowNum) -> new PartyAssetLiabilityRecord(
+                rs.getLong("ASSET_LIABILITY_ID"), rs.getLong("PARTY_ID"), rs.getString("ITEM_TYPE_CODE"),
+                rs.getString("DESCRIPTION_TEXT"), rs.getBigDecimal("AMOUNT"), rs.getString("CURRENCY_CODE"),
+                localDate(rs, "ASSESSMENT_DATE"), rs.getString("STATUS_CODE"), rs.getLong("RECORD_VERSION")
+        )).list();
+    }
+
+    public List<PartyLicenseRecord> findLicenses(long partyId) {
+        String sql = """
+                SELECT LICENSE_ID, PARTY_ID, LICENSE_TYPE_CODE, LICENSE_NUMBER, ISSUER_PARTY_ID, ISSUER_NAME,
+                       ISSUE_DATE, EXPIRY_DATE, STATUS_CODE, DOCUMENT_REF, RECORD_VERSION
+                FROM %s WHERE PARTY_ID=:partyId
+                ORDER BY ISSUE_DATE DESC NULLS LAST, LICENSE_ID DESC
+                """.formatted(table("PARTY_LICENSE"));
+        return jdbc.sql(sql).param("partyId", partyId).query((rs, rowNum) -> new PartyLicenseRecord(
+                rs.getLong("LICENSE_ID"), rs.getLong("PARTY_ID"), rs.getString("LICENSE_TYPE_CODE"),
+                rs.getString("LICENSE_NUMBER"), nullableLong(rs, "ISSUER_PARTY_ID"), rs.getString("ISSUER_NAME"),
+                localDate(rs, "ISSUE_DATE"), localDate(rs, "EXPIRY_DATE"), rs.getString("STATUS_CODE"),
+                rs.getString("DOCUMENT_REF"), rs.getLong("RECORD_VERSION")
+        )).list();
     }
 
     public List<KycCaseRecord> findKycCases(long partyId) {
@@ -328,7 +468,8 @@ public class CifRepository {
         String sql = """
                 SELECT DOCUMENT_ID, PARTY_ID, KYC_CASE_ID, DOCUMENT_TYPE_CODE, DOCUMENT_NUMBER,
                        ISSUER_CODE, ISSUE_DATE, EXPIRY_DATE, VERIFICATION_STATUS_CODE, VERIFIED_AT,
-                       CONTENT_HASH, STORAGE_REF, MIME_TYPE, RECORD_VERSION
+                       CONTENT_HASH, STORAGE_REF, MIME_TYPE, ISSUING_AUTHORITY_TEXT, CONTROL_STATUS_CODE,
+                       DESCRIPTION_TEXT, RECORD_VERSION
                 FROM %s WHERE PARTY_ID = :partyId
                 ORDER BY CREATED_AT DESC, DOCUMENT_ID DESC
                 """.formatted(table("PARTY_DOCUMENT"));
@@ -339,7 +480,8 @@ public class CifRepository {
                         localDate(rs, "ISSUE_DATE"), localDate(rs, "EXPIRY_DATE"),
                         rs.getString("VERIFICATION_STATUS_CODE"), localDateTime(rs, "VERIFIED_AT"),
                         rs.getString("CONTENT_HASH"), rs.getString("STORAGE_REF"), rs.getString("MIME_TYPE"),
-                        rs.getLong("RECORD_VERSION")
+                        rs.getString("ISSUING_AUTHORITY_TEXT"), rs.getString("CONTROL_STATUS_CODE"),
+                        rs.getString("DESCRIPTION_TEXT"), rs.getLong("RECORD_VERSION")
                 )).list();
     }
 
@@ -395,6 +537,12 @@ public class CifRepository {
                 findIdentifiers(partyId),
                 findAddresses(partyId),
                 findContacts(partyId),
+                findContactAddressAssociations(partyId),
+                findFinancialProfiles(partyId),
+                findEmployments(partyId),
+                findIncomeSources(partyId),
+                findAssetLiabilities(partyId),
+                findLicenses(partyId),
                 findKycCases(partyId),
                 findDocuments(partyId),
                 findRiskAssessments(partyId),
@@ -415,20 +563,24 @@ public class CifRepository {
         long id = nextVal("SEQ_PARTY");
         String sql = """
                 INSERT INTO %s (
-                    PARTY_ID, PARTY_TYPE_CODE, LIFECYCLE_STATUS_CODE, VERIFICATION_STATUS_CODE,
-                    DATA_QUALITY_STATUS_CODE, CREATION_SOURCE_CODE, VALID_FROM, IS_CURRENT, CREATED_BY
+                    PARTY_ID, PARTY_TYPE_CODE, LIFECYCLE_STATUS_CODE, STATUS_REASON_CODE,
+                    VERIFICATION_STATUS_CODE, DATA_QUALITY_STATUS_CODE, CREATION_SOURCE_CODE,
+                    VALID_FROM, VALID_TO, IS_CURRENT, CREATED_BY
                 ) VALUES (
-                    :partyId, :partyType, :lifecycle, :verification, :dataQuality, :source,
-                    TRUNC(SYSDATE), 'Y', :actor
+                    :partyId, :partyType, :lifecycle, :statusReason, :verification, :dataQuality, :source,
+                    :validFrom, :validTo, 'Y', :actor
                 )
                 """.formatted(table("PARTY"));
         jdbc.sql(sql)
                 .param("partyId", id)
                 .param("partyType", request.partyTypeCode())
                 .param("lifecycle", request.lifecycleStatusCode())
+                .param("statusReason", request.statusReasonCode())
                 .param("verification", request.verificationStatusCode())
                 .param("dataQuality", request.dataQualityStatusCode())
                 .param("source", request.creationSourceCode())
+                .param("validFrom", sqlDate(request.validFrom()))
+                .param("validTo", sqlDate(request.validTo()))
                 .param("actor", actor)
                 .update();
         return id;
@@ -477,11 +629,11 @@ public class CifRepository {
                     FATHER_GIVEN_NAME, MOTHER_GIVEN_NAME, MARITAL_STATUS_CODE, DEATH_DATE,
                     LEGAL_CAPACITY_CODE, PRIMARY_LANGUAGE_CODE, DATA_QUALITY_STATUS_CODE,
                     VERIFICATION_STATUS_CODE, RESIDENCE_STATUS_CODE, PHYSICAL_ABILITY,
-                    CREATED_AT, CREATED_BY, RECORD_VERSION, LIFE_STATUS_CODE
+                    CREATED_AT, CREATED_BY, RECORD_VERSION, LIFE_STATUS_CODE, NATIONALITY_COUNTRY_CODE
                 ) VALUES (
                     :partyId, :birthDate, :gender, :birthCountry, :birthPlaceId, :birthPlaceText,
                     :father, :mother, :marital, :deathDate, :legalCapacity, :language, :dataQuality,
-                    :verification, :residence, :physicalAbility, SYSTIMESTAMP, :actor, 1, :lifeStatus
+                    :verification, :residence, :physicalAbility, SYSTIMESTAMP, :actor, 1, :lifeStatus, :nationalityCountry
                 )
                 """.formatted(table("PERSON"));
         bindPerson(jdbc.sql(sql).param("partyId", partyId), request, actor).update();
@@ -496,7 +648,8 @@ public class CifRepository {
                     DEATH_DATE=:deathDate, LEGAL_CAPACITY_CODE=:legalCapacity, PRIMARY_LANGUAGE_CODE=:language,
                     DATA_QUALITY_STATUS_CODE=:dataQuality, VERIFICATION_STATUS_CODE=:verification,
                     RESIDENCE_STATUS_CODE=:residence, PHYSICAL_ABILITY=:physicalAbility,
-                    LIFE_STATUS_CODE=:lifeStatus, UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor,
+                    LIFE_STATUS_CODE=:lifeStatus, NATIONALITY_COUNTRY_CODE=:nationalityCountry,
+                    UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor,
                     RECORD_VERSION=RECORD_VERSION+1
                 WHERE PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
                 """.formatted(table("PERSON"));
@@ -523,6 +676,7 @@ public class CifRepository {
                 .param("residence", request.residenceStatusCode())
                 .param("physicalAbility", request.physicalAbility())
                 .param("lifeStatus", request.lifeStatusCode())
+                .param("nationalityCountry", request.nationalityCountryCode())
                 .param("actor", actor);
     }
 
@@ -532,12 +686,15 @@ public class CifRepository {
                 INSERT INTO %s (
                     ORGANIZATION_ID, PARTY_ID, REGISTERED_NAME, TRADE_NAME, LEGAL_FORM_CODE,
                     REGISTRATION_NO, REGISTRATION_PLACE_CODE, INCORPORATION_DATE, DISSOLUTION_DATE,
-                    ECONOMIC_SECTOR_CODE, ISIC_CODE, LISTED_COMPANY_FLAG,
-                    CREATED_AT, CREATED_BY, RECORD_VERSION
+                    ECONOMIC_SECTOR_CODE, ISIC_CODE, LISTED_COMPANY_FLAG, REGISTRATION_COUNTRY_CODE,
+                    ACTIVITY_STATUS_CODE, MAIN_ACTIVITY_DESCRIPTION, EMPLOYEE_COUNT, ENTERPRISE_SIZE_CODE,
+                    OWNERSHIP_TYPE_CODE, CREATED_AT, CREATED_BY, RECORD_VERSION
                 ) VALUES (
                     :organizationId, :partyId, :registeredName, :tradeName, :legalForm,
                     :registrationNo, :registrationPlace, :incorporationDate, :dissolutionDate,
-                    :economicSector, :isic, :listed, SYSTIMESTAMP, :actor, 1
+                    :economicSector, :isic, :listed, :registrationCountry, :activityStatus,
+                    :mainActivityDescription, :employeeCount, :enterpriseSize, :ownershipType,
+                    SYSTIMESTAMP, :actor, 1
                 )
                 """.formatted(table("ORGANIZATION"));
         bindOrganization(jdbc.sql(sql).param("organizationId", id).param("partyId", partyId), request, actor).update();
@@ -551,6 +708,9 @@ public class CifRepository {
                     REGISTRATION_NO=:registrationNo, REGISTRATION_PLACE_CODE=:registrationPlace,
                     INCORPORATION_DATE=:incorporationDate, DISSOLUTION_DATE=:dissolutionDate,
                     ECONOMIC_SECTOR_CODE=:economicSector, ISIC_CODE=:isic, LISTED_COMPANY_FLAG=:listed,
+                    REGISTRATION_COUNTRY_CODE=:registrationCountry, ACTIVITY_STATUS_CODE=:activityStatus,
+                    MAIN_ACTIVITY_DESCRIPTION=:mainActivityDescription, EMPLOYEE_COUNT=:employeeCount,
+                    ENTERPRISE_SIZE_CODE=:enterpriseSize, OWNERSHIP_TYPE_CODE=:ownershipType,
                     UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1
                 WHERE PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
                 """.formatted(table("ORGANIZATION"));
@@ -571,6 +731,12 @@ public class CifRepository {
                 .param("economicSector", request.economicSectorCode())
                 .param("isic", request.isicCode())
                 .param("listed", request.listedCompanyFlag())
+                .param("registrationCountry", request.registrationCountryCode())
+                .param("activityStatus", request.activityStatusCode())
+                .param("mainActivityDescription", request.mainActivityDescription())
+                .param("employeeCount", request.employeeCount())
+                .param("enterpriseSize", request.enterpriseSizeCode())
+                .param("ownershipType", request.ownershipTypeCode())
                 .param("actor", actor);
     }
 
@@ -668,30 +834,29 @@ public class CifRepository {
         long partyAddressId = nextVal("SEQ_PARTY_ADDRESS");
         String addressSql = """
                 INSERT INTO %s (
-                    ADDRESS_ID, COUNTRY_CODE, PROVINCE_CODE, CITY_CODE, DISTRICT_CODE, POSTAL_CODE,
-                    ADDRESS_LINE1, ADDRESS_LINE2, CREATED_AT, CREATED_BY, RECORD_VERSION
+                    ADDRESS_ID, COUNTRY_CODE, PROVINCE_CODE, COUNTY_CODE, CITY_CODE, DISTRICT_CODE, POSTAL_CODE,
+                    ADDRESS_LINE1, ADDRESS_LINE2, NEIGHBORHOOD_TEXT, MAIN_STREET_TEXT, SIDE_STREET_TEXT,
+                    PLAQUE_NO, FLOOR_NO, UNIT_NO, ADDRESS_DETAIL, CREATED_AT, CREATED_BY, RECORD_VERSION
                 ) VALUES (
-                    :addressId, :country, :province, :city, :district, :postal,
-                    :line1, :line2, SYSTIMESTAMP, :actor, 1
+                    :addressId, :country, :province, :county, :city, :district, :postal,
+                    :line1, :line2, :neighborhood, :mainStreet, :sideStreet, :plaque, :floorNo, :unitNo, :detail,
+                    SYSTIMESTAMP, :actor, 1
                 )
                 """.formatted(table("ADDRESS"));
-        jdbc.sql(addressSql).param("addressId", addressId).param("country", r.countryCode())
-                .param("province", r.provinceCode()).param("city", r.cityCode()).param("district", r.districtCode())
-                .param("postal", r.postalCode()).param("line1", r.addressLine1()).param("line2", r.addressLine2())
-                .param("actor", actor).update();
+        bindAddress(jdbc.sql(addressSql).param("addressId", addressId), r, actor).update();
 
         String relationSql = """
                 INSERT INTO %s (
                     PARTY_ADDRESS_ID, PARTY_ID, ADDRESS_ID, ADDRESS_TYPE_CODE, IS_PRIMARY,
-                    VALID_FROM, VALID_TO, CREATED_BY, RECORD_VERSION
+                    VALID_FROM, VALID_TO, TENURE_TYPE_CODE, VERIFICATION_STATUS_CODE, SOURCE_CODE,
+                    CREATED_AT, CREATED_BY, RECORD_VERSION
                 ) VALUES (
                     :partyAddressId, :partyId, :addressId, :addressType, :isPrimary,
-                    :validFrom, :validTo, :actor, 1
+                    :validFrom, :validTo, :tenure, :verification, :source, SYSTIMESTAMP, :actor, 1
                 )
                 """.formatted(table("PARTY_ADDRESS"));
-        jdbc.sql(relationSql).param("partyAddressId", partyAddressId).param("partyId", partyId)
-                .param("addressId", addressId).param("addressType", r.addressTypeCode()).param("isPrimary", r.isPrimary())
-                .param("validFrom", sqlDate(r.validFrom())).param("validTo", sqlDate(r.validTo())).param("actor", actor).update();
+        bindPartyAddress(jdbc.sql(relationSql).param("partyAddressId", partyAddressId).param("partyId", partyId)
+                .param("addressId", addressId), r, actor).update();
         return partyAddressId;
     }
 
@@ -700,29 +865,42 @@ public class CifRepository {
         if (addressId == null) {
             return 0;
         }
-        int addressUpdated = jdbc.sql("""
-                UPDATE %s SET COUNTRY_CODE=:country, PROVINCE_CODE=:province, CITY_CODE=:city,
+        int addressUpdated = bindAddress(jdbc.sql("""
+                UPDATE %s SET COUNTRY_CODE=:country, PROVINCE_CODE=:province, COUNTY_CODE=:county, CITY_CODE=:city,
                     DISTRICT_CODE=:district, POSTAL_CODE=:postal, ADDRESS_LINE1=:line1, ADDRESS_LINE2=:line2,
+                    NEIGHBORHOOD_TEXT=:neighborhood, MAIN_STREET_TEXT=:mainStreet, SIDE_STREET_TEXT=:sideStreet,
+                    PLAQUE_NO=:plaque, FLOOR_NO=:floorNo, UNIT_NO=:unitNo, ADDRESS_DETAIL=:detail,
                     UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1
                 WHERE ADDRESS_ID=:addressId AND RECORD_VERSION=:recordVersion
-                """.formatted(table("ADDRESS")))
-                .param("country", r.countryCode()).param("province", r.provinceCode()).param("city", r.cityCode())
-                .param("district", r.districtCode()).param("postal", r.postalCode()).param("line1", r.addressLine1())
-                .param("line2", r.addressLine2()).param("actor", actor).param("addressId", addressId)
-                .param("recordVersion", r.addressRecordVersion()).update();
+                """.formatted(table("ADDRESS"))).param("addressId", addressId)
+                .param("recordVersion", r.addressRecordVersion()), r, actor).update();
         if (addressUpdated == 0) {
             return 0;
         }
-        return jdbc.sql("""
+        return bindPartyAddress(jdbc.sql("""
                 UPDATE %s SET ADDRESS_TYPE_CODE=:addressType, IS_PRIMARY=:isPrimary,
-                    VALID_FROM=:validFrom, VALID_TO=:validTo, UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor,
-                    RECORD_VERSION=RECORD_VERSION+1
+                    VALID_FROM=:validFrom, VALID_TO=:validTo, TENURE_TYPE_CODE=:tenure,
+                    VERIFICATION_STATUS_CODE=:verification, SOURCE_CODE=:source,
+                    UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1
                 WHERE PARTY_ADDRESS_ID=:partyAddressId AND PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
-                """.formatted(table("PARTY_ADDRESS")))
-                .param("addressType", r.addressTypeCode()).param("isPrimary", r.isPrimary())
-                .param("validFrom", sqlDate(r.validFrom())).param("validTo", sqlDate(r.validTo())).param("actor", actor)
-                .param("partyAddressId", partyAddressId).param("partyId", partyId)
-                .param("recordVersion", r.partyAddressRecordVersion()).update();
+                """.formatted(table("PARTY_ADDRESS"))).param("partyAddressId", partyAddressId).param("partyId", partyId)
+                .param("recordVersion", r.partyAddressRecordVersion()), r, actor).update();
+    }
+
+    private JdbcClient.StatementSpec bindAddress(JdbcClient.StatementSpec spec, PartyAddressRequest r, String actor) {
+        return spec.param("country", r.countryCode()).param("province", r.provinceCode()).param("county", r.countyCode())
+                .param("city", r.cityCode()).param("district", r.districtCode()).param("postal", r.postalCode())
+                .param("line1", r.addressLine1()).param("line2", r.addressLine2()).param("neighborhood", r.neighborhoodText())
+                .param("mainStreet", r.mainStreetText()).param("sideStreet", r.sideStreetText()).param("plaque", r.plaqueNo())
+                .param("floorNo", r.floorNo()).param("unitNo", r.unitNo()).param("detail", r.addressDetail())
+                .param("actor", actor);
+    }
+
+    private JdbcClient.StatementSpec bindPartyAddress(JdbcClient.StatementSpec spec, PartyAddressRequest r, String actor) {
+        return spec.param("addressType", r.addressTypeCode()).param("isPrimary", r.isPrimary())
+                .param("validFrom", sqlDate(r.validFrom())).param("validTo", sqlDate(r.validTo()))
+                .param("tenure", r.tenureTypeCode()).param("verification", r.verificationStatusCode())
+                .param("source", r.sourceCode()).param("actor", actor);
     }
 
     public long insertContact(long partyId, ContactPointRequest r, String actor) {
@@ -731,10 +909,12 @@ public class CifRepository {
                 INSERT INTO %s (
                     CONTACT_POINT_ID, PARTY_ID, CONTACT_TYPE_CODE, CONTACT_VALUE, NORMALIZED_VALUE,
                     PURPOSE_CODE, IS_PRIMARY, IS_VERIFIED, VERIFIED_AT, VALID_FROM, VALID_TO,
-                    CREATED_AT, CREATED_BY, RECORD_VERSION
+                    COUNTRY_DIAL_CODE, AREA_CODE, EXTENSION_NO, OWNER_TYPE_CODE, VERIFICATION_STATUS_CODE,
+                    VERIFICATION_METHOD_CODE, CREATED_AT, CREATED_BY, RECORD_VERSION
                 ) VALUES (
                     :id, :partyId, :type, :value, :normalized, :purpose, :isPrimary, :isVerified,
-                    :verifiedAt, :validFrom, :validTo, SYSTIMESTAMP, :actor, 1
+                    :verifiedAt, :validFrom, :validTo, :countryDial, :areaCode, :extensionNo, :ownerType,
+                    :verificationStatus, :verificationMethod, SYSTIMESTAMP, :actor, 1
                 )
                 """.formatted(table("CONTACT_POINT"));
         bindContact(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor).update();
@@ -745,7 +925,9 @@ public class CifRepository {
         String sql = """
                 UPDATE %s SET CONTACT_TYPE_CODE=:type, CONTACT_VALUE=:value, NORMALIZED_VALUE=:normalized,
                     PURPOSE_CODE=:purpose, IS_PRIMARY=:isPrimary, IS_VERIFIED=:isVerified, VERIFIED_AT=:verifiedAt,
-                    VALID_FROM=:validFrom, VALID_TO=:validTo, UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor,
+                    VALID_FROM=:validFrom, VALID_TO=:validTo, COUNTRY_DIAL_CODE=:countryDial, AREA_CODE=:areaCode,
+                    EXTENSION_NO=:extensionNo, OWNER_TYPE_CODE=:ownerType, VERIFICATION_STATUS_CODE=:verificationStatus,
+                    VERIFICATION_METHOD_CODE=:verificationMethod, UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor,
                     RECORD_VERSION=RECORD_VERSION+1
                 WHERE CONTACT_POINT_ID=:id AND PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
                 """.formatted(table("CONTACT_POINT"));
@@ -757,7 +939,245 @@ public class CifRepository {
         return spec.param("type", r.contactTypeCode()).param("value", r.contactValue()).param("normalized", r.normalizedValue())
                 .param("purpose", r.purposeCode()).param("isPrimary", r.isPrimary()).param("isVerified", r.isVerified())
                 .param("verifiedAt", sqlTimestamp(r.verifiedAt())).param("validFrom", sqlDate(r.validFrom()))
-                .param("validTo", sqlDate(r.validTo())).param("actor", actor);
+                .param("validTo", sqlDate(r.validTo())).param("countryDial", r.countryDialCode()).param("areaCode", r.areaCode())
+                .param("extensionNo", r.extensionNo()).param("ownerType", r.ownerTypeCode())
+                .param("verificationStatus", r.verificationStatusCode()).param("verificationMethod", r.verificationMethodCode())
+                .param("actor", actor);
+    }
+
+    public long insertContactAddressAssociation(long partyId, ContactPointAddressRequest r, String actor) {
+        long id = nextVal("SEQ_CONTACT_POINT_ADDRESS");
+        jdbc.sql("""
+                INSERT INTO %s (CONTACT_POINT_ADDRESS_ID, CONTACT_POINT_ID, PARTY_ADDRESS_ID, ASSOCIATION_TYPE_CODE,
+                    IS_PRIMARY_FOR_ADDRESS, VALID_FROM, VALID_TO, CREATED_AT, CREATED_BY, RECORD_VERSION)
+                SELECT :id, CP.CONTACT_POINT_ID, PA.PARTY_ADDRESS_ID, :associationType, :isPrimary,
+                    :validFrom, :validTo, SYSTIMESTAMP, :actor, 1
+                FROM %s CP JOIN %s PA ON PA.PARTY_ID = CP.PARTY_ID
+                WHERE CP.CONTACT_POINT_ID=:contactPointId AND PA.PARTY_ADDRESS_ID=:partyAddressId AND CP.PARTY_ID=:partyId
+                """.formatted(table("CONTACT_POINT_ADDRESS"), table("CONTACT_POINT"), table("PARTY_ADDRESS")))
+                .param("id", id).param("associationType", r.associationTypeCode()).param("isPrimary", r.isPrimaryForAddress())
+                .param("validFrom", sqlDate(r.validFrom())).param("validTo", sqlDate(r.validTo())).param("actor", actor)
+                .param("contactPointId", r.contactPointId()).param("partyAddressId", r.partyAddressId()).param("partyId", partyId).update();
+        return id;
+    }
+
+    public int updateContactAddressAssociation(long partyId, long id, ContactPointAddressRequest r, String actor) {
+        return jdbc.sql("""
+                UPDATE %s CPA SET ASSOCIATION_TYPE_CODE=:associationType, IS_PRIMARY_FOR_ADDRESS=:isPrimary,
+                    VALID_FROM=:validFrom, VALID_TO=:validTo, UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor,
+                    RECORD_VERSION=RECORD_VERSION+1
+                WHERE CPA.CONTACT_POINT_ADDRESS_ID=:id AND CPA.RECORD_VERSION=:recordVersion
+                  AND EXISTS (SELECT 1 FROM %s CP WHERE CP.CONTACT_POINT_ID=CPA.CONTACT_POINT_ID AND CP.PARTY_ID=:partyId)
+                  AND EXISTS (SELECT 1 FROM %s PA WHERE PA.PARTY_ADDRESS_ID=CPA.PARTY_ADDRESS_ID AND PA.PARTY_ID=:partyId)
+                """.formatted(table("CONTACT_POINT_ADDRESS"), table("CONTACT_POINT"), table("PARTY_ADDRESS")))
+                .param("associationType", r.associationTypeCode()).param("isPrimary", r.isPrimaryForAddress())
+                .param("validFrom", sqlDate(r.validFrom())).param("validTo", sqlDate(r.validTo())).param("actor", actor)
+                .param("id", id).param("recordVersion", r.recordVersion()).param("partyId", partyId).update();
+    }
+
+    public int deleteContactAddressAssociation(long partyId, long id) {
+        return jdbc.sql("""
+                DELETE FROM %s CPA WHERE CPA.CONTACT_POINT_ADDRESS_ID=:id
+                  AND EXISTS (SELECT 1 FROM %s CP WHERE CP.CONTACT_POINT_ID=CPA.CONTACT_POINT_ID AND CP.PARTY_ID=:partyId)
+                  AND EXISTS (SELECT 1 FROM %s PA WHERE PA.PARTY_ADDRESS_ID=CPA.PARTY_ADDRESS_ID AND PA.PARTY_ID=:partyId)
+                """.formatted(table("CONTACT_POINT_ADDRESS"), table("CONTACT_POINT"), table("PARTY_ADDRESS")))
+                .param("id", id).param("partyId", partyId).update();
+    }
+
+    public boolean contactBelongsToParty(long partyId, long contactPointId) {
+        return jdbc.sql("SELECT COUNT(*) FROM " + table("CONTACT_POINT") + " WHERE CONTACT_POINT_ID=:id AND PARTY_ID=:partyId")
+                .param("id", contactPointId).param("partyId", partyId).query(Long.class).single() > 0;
+    }
+
+    public boolean partyAddressBelongsToParty(long partyId, long partyAddressId) {
+        return jdbc.sql("SELECT COUNT(*) FROM " + table("PARTY_ADDRESS") + " WHERE PARTY_ADDRESS_ID=:id AND PARTY_ID=:partyId")
+                .param("id", partyAddressId).param("partyId", partyId).query(Long.class).single() > 0;
+    }
+
+    public long insertFinancialProfile(long partyId, FinancialProfileRequest r, String actor) {
+        long id = nextVal("SEQ_FINANCIAL_PROFILE");
+        String sql = """
+                INSERT INTO %s (
+                    FINANCIAL_PROFILE_ID, PARTY_ID, AS_OF_DATE, ANNUAL_INCOME, TOTAL_ASSETS, TOTAL_LIABILITIES,
+                    CURRENCY_CODE, SOURCE_OF_FUNDS_CODE, SOURCE_OF_WEALTH_CODE, EXPECTED_MONTHLY_TURNOVER,
+                    TAX_STATUS_CODE, VERIFICATION_STATUS_CODE, CREATED_AT, CREATED_BY, RECORD_VERSION,
+                    NET_MONTHLY_INCOME, OTHER_MONTHLY_INCOME, EXPECTED_MONTHLY_TXN_COUNT, FUNDS_COUNTRIES_TEXT,
+                    FINANCIAL_RELATION_PURPOSE_CODE, REAL_ESTATE_VALUE, INVESTMENT_VALUE, TOTAL_MONTHLY_INSTALLMENT,
+                    ESTIMATED_NET_WORTH, FINANCIAL_CAPACITY_CODE
+                ) VALUES (
+                    :id, :partyId, :asOfDate, :annualIncome, :totalAssets, :totalLiabilities, :currencyCode,
+                    :sourceOfFundsCode, :sourceOfWealthCode, :turnover, :taxStatusCode, :verificationStatusCode,
+                    SYSTIMESTAMP, :actor, 1, :netMonthlyIncome, :otherMonthlyIncome, :txnCount, :fundsCountries,
+                    :relationPurpose, :realEstateValue, :investmentValue, :monthlyInstallment, :netWorth, :capacityCode
+                )
+                """.formatted(table("FINANCIAL_PROFILE"));
+        bindFinancialProfile(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor).update();
+        return id;
+    }
+
+    public int updateFinancialProfile(long partyId, long id, FinancialProfileRequest r, String actor) {
+        String sql = """
+                UPDATE %s SET AS_OF_DATE=:asOfDate, ANNUAL_INCOME=:annualIncome, TOTAL_ASSETS=:totalAssets,
+                    TOTAL_LIABILITIES=:totalLiabilities, CURRENCY_CODE=:currencyCode, SOURCE_OF_FUNDS_CODE=:sourceOfFundsCode,
+                    SOURCE_OF_WEALTH_CODE=:sourceOfWealthCode, EXPECTED_MONTHLY_TURNOVER=:turnover, TAX_STATUS_CODE=:taxStatusCode,
+                    VERIFICATION_STATUS_CODE=:verificationStatusCode, NET_MONTHLY_INCOME=:netMonthlyIncome,
+                    OTHER_MONTHLY_INCOME=:otherMonthlyIncome, EXPECTED_MONTHLY_TXN_COUNT=:txnCount,
+                    FUNDS_COUNTRIES_TEXT=:fundsCountries, FINANCIAL_RELATION_PURPOSE_CODE=:relationPurpose,
+                    REAL_ESTATE_VALUE=:realEstateValue, INVESTMENT_VALUE=:investmentValue,
+                    TOTAL_MONTHLY_INSTALLMENT=:monthlyInstallment, ESTIMATED_NET_WORTH=:netWorth,
+                    FINANCIAL_CAPACITY_CODE=:capacityCode, UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor,
+                    RECORD_VERSION=RECORD_VERSION+1
+                WHERE FINANCIAL_PROFILE_ID=:id AND PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
+                """.formatted(table("FINANCIAL_PROFILE"));
+        return bindFinancialProfile(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor)
+                .param("recordVersion", r.recordVersion()).update();
+    }
+
+    private JdbcClient.StatementSpec bindFinancialProfile(JdbcClient.StatementSpec spec, FinancialProfileRequest r, String actor) {
+        return spec.param("asOfDate", sqlDate(r.asOfDate())).param("annualIncome", r.annualIncome())
+                .param("totalAssets", r.totalAssets()).param("totalLiabilities", r.totalLiabilities())
+                .param("currencyCode", r.currencyCode()).param("sourceOfFundsCode", r.sourceOfFundsCode())
+                .param("sourceOfWealthCode", r.sourceOfWealthCode()).param("turnover", r.expectedMonthlyTurnover())
+                .param("taxStatusCode", r.taxStatusCode()).param("verificationStatusCode", r.verificationStatusCode())
+                .param("netMonthlyIncome", r.netMonthlyIncome()).param("otherMonthlyIncome", r.otherMonthlyIncome())
+                .param("txnCount", r.expectedMonthlyTxnCount()).param("fundsCountries", r.fundsCountriesText())
+                .param("relationPurpose", r.financialRelationPurposeCode()).param("realEstateValue", r.realEstateValue())
+                .param("investmentValue", r.investmentValue()).param("monthlyInstallment", r.totalMonthlyInstallment())
+                .param("netWorth", r.estimatedNetWorth()).param("capacityCode", r.financialCapacityCode()).param("actor", actor);
+    }
+
+    public long insertEmployment(long partyId, PartyEmploymentRequest r, String actor) {
+        long id = nextVal("SEQ_PARTY_EMPLOYMENT");
+        String sql = """
+                INSERT INTO %s (
+                    EMPLOYMENT_ID, PARTY_ID, EMPLOYER_PARTY_ID, EMPLOYER_NAME, OCCUPATION_CODE, JOB_TITLE,
+                    ECONOMIC_SECTOR_CODE, ISIC_CODE, MONTHLY_INCOME, INCOME_CURRENCY_CODE, FAMILY_RANGE, JOB_STATUS,
+                    EMPLOYEE_RANGE, VALID_FROM, VALID_TO, CREATED_AT, CREATED_BY, RECORD_VERSION,
+                    EMPLOYMENT_STATUS_CODE, OCCUPATION_GROUP_CODE, EMPLOYER_IDENTIFIER, CONTRACT_TYPE_CODE, INSURANCE_NO, TAX_CODE
+                ) VALUES (
+                    :id, :partyId, :employerPartyId, :employerName, :occupationCode, :jobTitle, :economicSectorCode,
+                    :isicCode, :monthlyIncome, :currencyCode, :familyRange, :jobStatus, :employeeRange, :validFrom, :validTo,
+                    SYSTIMESTAMP, :actor, 1, :employmentStatusCode, :occupationGroupCode, :employerIdentifier,
+                    :contractTypeCode, :insuranceNo, :taxCode
+                )
+                """.formatted(table("PARTY_EMPLOYMENT"));
+        bindEmployment(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor).update();
+        return id;
+    }
+
+    public int updateEmployment(long partyId, long id, PartyEmploymentRequest r, String actor) {
+        String sql = """
+                UPDATE %s SET EMPLOYER_PARTY_ID=:employerPartyId, EMPLOYER_NAME=:employerName, OCCUPATION_CODE=:occupationCode,
+                    JOB_TITLE=:jobTitle, ECONOMIC_SECTOR_CODE=:economicSectorCode, ISIC_CODE=:isicCode,
+                    MONTHLY_INCOME=:monthlyIncome, INCOME_CURRENCY_CODE=:currencyCode, FAMILY_RANGE=:familyRange,
+                    JOB_STATUS=:jobStatus, EMPLOYEE_RANGE=:employeeRange, VALID_FROM=:validFrom, VALID_TO=:validTo,
+                    EMPLOYMENT_STATUS_CODE=:employmentStatusCode, OCCUPATION_GROUP_CODE=:occupationGroupCode,
+                    EMPLOYER_IDENTIFIER=:employerIdentifier, CONTRACT_TYPE_CODE=:contractTypeCode, INSURANCE_NO=:insuranceNo,
+                    TAX_CODE=:taxCode, UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1
+                WHERE EMPLOYMENT_ID=:id AND PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
+                """.formatted(table("PARTY_EMPLOYMENT"));
+        return bindEmployment(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor)
+                .param("recordVersion", r.recordVersion()).update();
+    }
+
+    private JdbcClient.StatementSpec bindEmployment(JdbcClient.StatementSpec spec, PartyEmploymentRequest r, String actor) {
+        return spec.param("employerPartyId", r.employerPartyId()).param("employerName", r.employerName())
+                .param("occupationCode", r.occupationCode()).param("jobTitle", r.jobTitle())
+                .param("economicSectorCode", r.economicSectorCode()).param("isicCode", r.isicCode())
+                .param("monthlyIncome", r.monthlyIncome()).param("currencyCode", r.incomeCurrencyCode())
+                .param("familyRange", r.familyRange()).param("jobStatus", r.jobStatus()).param("employeeRange", r.employeeRange())
+                .param("validFrom", sqlDate(r.validFrom())).param("validTo", sqlDate(r.validTo()))
+                .param("employmentStatusCode", r.employmentStatusCode()).param("occupationGroupCode", r.occupationGroupCode())
+                .param("employerIdentifier", r.employerIdentifier()).param("contractTypeCode", r.contractTypeCode())
+                .param("insuranceNo", r.insuranceNo()).param("taxCode", r.taxCode()).param("actor", actor);
+    }
+
+    public long insertIncomeSource(long partyId, PartyIncomeSourceRequest r, String actor) {
+        long id = nextVal("SEQ_PARTY_INCOME_SOURCE");
+        String sql = """
+                INSERT INTO %s (INCOME_SOURCE_ID, PARTY_ID, SOURCE_TYPE_CODE, MONTHLY_AMOUNT, CURRENCY_CODE,
+                    DOCUMENTED_FLAG, STATUS_CODE, CREATED_AT, CREATED_BY, RECORD_VERSION)
+                VALUES (:id, :partyId, :sourceTypeCode, :monthlyAmount, :currencyCode, :documentedFlag, :statusCode,
+                    SYSTIMESTAMP, :actor, 1)
+                """.formatted(table("PARTY_INCOME_SOURCE"));
+        bindIncomeSource(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor).update();
+        return id;
+    }
+
+    public int updateIncomeSource(long partyId, long id, PartyIncomeSourceRequest r, String actor) {
+        String sql = """
+                UPDATE %s SET SOURCE_TYPE_CODE=:sourceTypeCode, MONTHLY_AMOUNT=:monthlyAmount, CURRENCY_CODE=:currencyCode,
+                    DOCUMENTED_FLAG=:documentedFlag, STATUS_CODE=:statusCode, UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor,
+                    RECORD_VERSION=RECORD_VERSION+1
+                WHERE INCOME_SOURCE_ID=:id AND PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
+                """.formatted(table("PARTY_INCOME_SOURCE"));
+        return bindIncomeSource(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor)
+                .param("recordVersion", r.recordVersion()).update();
+    }
+
+    private JdbcClient.StatementSpec bindIncomeSource(JdbcClient.StatementSpec spec, PartyIncomeSourceRequest r, String actor) {
+        return spec.param("sourceTypeCode", r.sourceTypeCode()).param("monthlyAmount", r.monthlyAmount())
+                .param("currencyCode", r.currencyCode()).param("documentedFlag", r.documentedFlag())
+                .param("statusCode", r.statusCode()).param("actor", actor);
+    }
+
+    public long insertAssetLiability(long partyId, PartyAssetLiabilityRequest r, String actor) {
+        long id = nextVal("SEQ_PARTY_ASSET_LIABILITY");
+        String sql = """
+                INSERT INTO %s (ASSET_LIABILITY_ID, PARTY_ID, ITEM_TYPE_CODE, DESCRIPTION_TEXT, AMOUNT, CURRENCY_CODE,
+                    ASSESSMENT_DATE, STATUS_CODE, CREATED_AT, CREATED_BY, RECORD_VERSION)
+                VALUES (:id, :partyId, :itemTypeCode, :descriptionText, :amount, :currencyCode, :assessmentDate,
+                    :statusCode, SYSTIMESTAMP, :actor, 1)
+                """.formatted(table("PARTY_ASSET_LIABILITY"));
+        bindAssetLiability(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor).update();
+        return id;
+    }
+
+    public int updateAssetLiability(long partyId, long id, PartyAssetLiabilityRequest r, String actor) {
+        String sql = """
+                UPDATE %s SET ITEM_TYPE_CODE=:itemTypeCode, DESCRIPTION_TEXT=:descriptionText, AMOUNT=:amount,
+                    CURRENCY_CODE=:currencyCode, ASSESSMENT_DATE=:assessmentDate, STATUS_CODE=:statusCode,
+                    UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1
+                WHERE ASSET_LIABILITY_ID=:id AND PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
+                """.formatted(table("PARTY_ASSET_LIABILITY"));
+        return bindAssetLiability(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor)
+                .param("recordVersion", r.recordVersion()).update();
+    }
+
+    private JdbcClient.StatementSpec bindAssetLiability(JdbcClient.StatementSpec spec, PartyAssetLiabilityRequest r, String actor) {
+        return spec.param("itemTypeCode", r.itemTypeCode()).param("descriptionText", r.descriptionText())
+                .param("amount", r.amount()).param("currencyCode", r.currencyCode()).param("assessmentDate", sqlDate(r.assessmentDate()))
+                .param("statusCode", r.statusCode()).param("actor", actor);
+    }
+
+    public long insertLicense(long partyId, PartyLicenseRequest r, String actor) {
+        long id = nextVal("SEQ_PARTY_LICENSE");
+        String sql = """
+                INSERT INTO %s (LICENSE_ID, PARTY_ID, LICENSE_TYPE_CODE, LICENSE_NUMBER, ISSUER_PARTY_ID, ISSUER_NAME,
+                    ISSUE_DATE, EXPIRY_DATE, STATUS_CODE, DOCUMENT_REF, CREATED_AT, CREATED_BY, RECORD_VERSION)
+                VALUES (:id, :partyId, :licenseTypeCode, :licenseNumber, :issuerPartyId, :issuerName, :issueDate,
+                    :expiryDate, :statusCode, :documentRef, SYSTIMESTAMP, :actor, 1)
+                """.formatted(table("PARTY_LICENSE"));
+        bindLicense(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor).update();
+        return id;
+    }
+
+    public int updateLicense(long partyId, long id, PartyLicenseRequest r, String actor) {
+        String sql = """
+                UPDATE %s SET LICENSE_TYPE_CODE=:licenseTypeCode, LICENSE_NUMBER=:licenseNumber, ISSUER_PARTY_ID=:issuerPartyId,
+                    ISSUER_NAME=:issuerName, ISSUE_DATE=:issueDate, EXPIRY_DATE=:expiryDate, STATUS_CODE=:statusCode,
+                    DOCUMENT_REF=:documentRef, UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1
+                WHERE LICENSE_ID=:id AND PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
+                """.formatted(table("PARTY_LICENSE"));
+        return bindLicense(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor)
+                .param("recordVersion", r.recordVersion()).update();
+    }
+
+    private JdbcClient.StatementSpec bindLicense(JdbcClient.StatementSpec spec, PartyLicenseRequest r, String actor) {
+        return spec.param("licenseTypeCode", r.licenseTypeCode()).param("licenseNumber", r.licenseNumber())
+                .param("issuerPartyId", r.issuerPartyId()).param("issuerName", r.issuerName())
+                .param("issueDate", sqlDate(r.issueDate())).param("expiryDate", sqlDate(r.expiryDate()))
+                .param("statusCode", r.statusCode()).param("documentRef", r.documentRef()).param("actor", actor);
     }
 
     public long insertKycCase(long partyId, KycCaseRequest r, String actor) {
@@ -803,10 +1223,12 @@ public class CifRepository {
                 INSERT INTO %s (
                     DOCUMENT_ID, PARTY_ID, KYC_CASE_ID, DOCUMENT_TYPE_CODE, DOCUMENT_NUMBER, ISSUER_CODE,
                     ISSUE_DATE, EXPIRY_DATE, VERIFICATION_STATUS_CODE, VERIFIED_AT, CONTENT_HASH,
-                    STORAGE_REF, MIME_TYPE, CREATED_AT, CREATED_BY, RECORD_VERSION
+                    STORAGE_REF, MIME_TYPE, ISSUING_AUTHORITY_TEXT, CONTROL_STATUS_CODE, DESCRIPTION_TEXT,
+                    CREATED_AT, CREATED_BY, RECORD_VERSION
                 ) VALUES (
                     :id, :partyId, :kycCaseId, :type, :number, :issuer, :issueDate, :expiryDate,
-                    :verification, :verifiedAt, :hash, :storageRef, :mimeType, SYSTIMESTAMP, :actor, 1
+                    :verification, :verifiedAt, :hash, :storageRef, :mimeType, :issuingAuthorityText,
+                    :controlStatus, :description, SYSTIMESTAMP, :actor, 1
                 )
                 """.formatted(table("PARTY_DOCUMENT"));
         bindDocument(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor).update();
@@ -818,7 +1240,8 @@ public class CifRepository {
                 UPDATE %s SET KYC_CASE_ID=:kycCaseId, DOCUMENT_TYPE_CODE=:type, DOCUMENT_NUMBER=:number,
                     ISSUER_CODE=:issuer, ISSUE_DATE=:issueDate, EXPIRY_DATE=:expiryDate,
                     VERIFICATION_STATUS_CODE=:verification, VERIFIED_AT=:verifiedAt, CONTENT_HASH=:hash,
-                    STORAGE_REF=:storageRef, MIME_TYPE=:mimeType, UPDATED_AT=SYSTIMESTAMP,
+                    STORAGE_REF=:storageRef, MIME_TYPE=:mimeType, ISSUING_AUTHORITY_TEXT=:issuingAuthorityText,
+                    CONTROL_STATUS_CODE=:controlStatus, DESCRIPTION_TEXT=:description, UPDATED_AT=SYSTIMESTAMP,
                     UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1
                 WHERE DOCUMENT_ID=:id AND PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
                 """.formatted(table("PARTY_DOCUMENT"));
@@ -830,7 +1253,9 @@ public class CifRepository {
         return spec.param("kycCaseId", r.kycCaseId()).param("type", r.documentTypeCode()).param("number", r.documentNumber())
                 .param("issuer", r.issuerCode()).param("issueDate", sqlDate(r.issueDate())).param("expiryDate", sqlDate(r.expiryDate()))
                 .param("verification", r.verificationStatusCode()).param("verifiedAt", sqlTimestamp(r.verifiedAt()))
-                .param("hash", r.contentHash()).param("storageRef", r.storageRef()).param("mimeType", r.mimeType()).param("actor", actor);
+                .param("hash", r.contentHash()).param("storageRef", r.storageRef()).param("mimeType", r.mimeType())
+                .param("issuingAuthorityText", r.issuingAuthorityText()).param("controlStatus", r.controlStatusCode())
+                .param("description", r.descriptionText()).param("actor", actor);
     }
 
     public long insertRisk(long partyId, RiskAssessmentRequest r, String actor) {
@@ -929,22 +1354,24 @@ public class CifRepository {
         spec.update();
     }
 
-    public void clearPrimaryAddresses(long partyId, Long exceptId, String actor) {
+    public void clearPrimaryAddresses(long partyId, String addressTypeCode, Long exceptId, String actor) {
         String sql = "UPDATE " + table("PARTY_ADDRESS")
                 + " SET IS_PRIMARY='N', UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1"
-                + " WHERE PARTY_ID=:partyId AND IS_PRIMARY='Y'"
+                + " WHERE PARTY_ID=:partyId AND ADDRESS_TYPE_CODE=:addressType AND IS_PRIMARY='Y'"
                 + (exceptId == null ? "" : " AND PARTY_ADDRESS_ID<>:exceptId");
-        JdbcClient.StatementSpec spec = jdbc.sql(sql).param("actor", actor).param("partyId", partyId);
+        JdbcClient.StatementSpec spec = jdbc.sql(sql).param("actor", actor).param("partyId", partyId)
+                .param("addressType", addressTypeCode);
         if (exceptId != null) spec = spec.param("exceptId", exceptId);
         spec.update();
     }
 
-    public void clearPrimaryContacts(long partyId, Long exceptId, String actor) {
+    public void clearPrimaryContacts(long partyId, String contactTypeCode, Long exceptId, String actor) {
         String sql = "UPDATE " + table("CONTACT_POINT")
                 + " SET IS_PRIMARY='N', UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1"
-                + " WHERE PARTY_ID=:partyId AND IS_PRIMARY='Y'"
+                + " WHERE PARTY_ID=:partyId AND CONTACT_TYPE_CODE=:contactType AND IS_PRIMARY='Y'"
                 + (exceptId == null ? "" : " AND CONTACT_POINT_ID<>:exceptId");
-        JdbcClient.StatementSpec spec = jdbc.sql(sql).param("actor", actor).param("partyId", partyId);
+        JdbcClient.StatementSpec spec = jdbc.sql(sql).param("actor", actor).param("partyId", partyId)
+                .param("contactType", contactTypeCode);
         if (exceptId != null) spec = spec.param("exceptId", exceptId);
         spec.update();
     }
@@ -958,7 +1385,32 @@ public class CifRepository {
     }
 
     public int deleteContact(long partyId, long id) {
+        if (!contactBelongsToParty(partyId, id)) {
+            return 0;
+        }
+        jdbc.sql("DELETE FROM " + table("CONTACT_POINT_ADDRESS") + " WHERE CONTACT_POINT_ID=:id")
+                .param("id", id).update();
         return deleteChild("CONTACT_POINT", "CONTACT_POINT_ID", partyId, id);
+    }
+
+    public int deleteFinancialProfile(long partyId, long id) {
+        return deleteChild("FINANCIAL_PROFILE", "FINANCIAL_PROFILE_ID", partyId, id);
+    }
+
+    public int deleteEmployment(long partyId, long id) {
+        return deleteChild("PARTY_EMPLOYMENT", "EMPLOYMENT_ID", partyId, id);
+    }
+
+    public int deleteIncomeSource(long partyId, long id) {
+        return deleteChild("PARTY_INCOME_SOURCE", "INCOME_SOURCE_ID", partyId, id);
+    }
+
+    public int deleteAssetLiability(long partyId, long id) {
+        return deleteChild("PARTY_ASSET_LIABILITY", "ASSET_LIABILITY_ID", partyId, id);
+    }
+
+    public int deleteLicense(long partyId, long id) {
+        return deleteChild("PARTY_LICENSE", "LICENSE_ID", partyId, id);
     }
 
     public int deleteKycCase(long partyId, long id) {
@@ -982,6 +1434,8 @@ public class CifRepository {
         if (addressId == null) {
             return 0;
         }
+        jdbc.sql("DELETE FROM " + table("CONTACT_POINT_ADDRESS") + " WHERE PARTY_ADDRESS_ID=:id")
+                .param("id", partyAddressId).update();
         int deleted = jdbc.sql("DELETE FROM " + table("PARTY_ADDRESS") + " WHERE PARTY_ADDRESS_ID=:id AND PARTY_ID=:partyId")
                 .param("id", partyAddressId).param("partyId", partyId).update();
         if (deleted > 0) {
@@ -989,6 +1443,62 @@ public class CifRepository {
                     .param("addressId", addressId).update();
         }
         return deleted;
+    }
+
+    public boolean financialProfileExistsForDate(long partyId, java.time.LocalDate asOfDate, Long exceptId) {
+        String sql = "SELECT COUNT(*) FROM " + table("FINANCIAL_PROFILE")
+                + " WHERE PARTY_ID=:partyId AND AS_OF_DATE=:asOfDate"
+                + (exceptId == null ? "" : " AND FINANCIAL_PROFILE_ID<>:exceptId");
+        JdbcClient.StatementSpec spec = jdbc.sql(sql).param("partyId", partyId).param("asOfDate", sqlDate(asOfDate));
+        if (exceptId != null) spec = spec.param("exceptId", exceptId);
+        return spec.query(Long.class).single() > 0;
+    }
+
+    public boolean licenseExists(String licenseTypeCode, String licenseNumber, Long exceptId) {
+        String sql = "SELECT COUNT(*) FROM " + table("PARTY_LICENSE")
+                + " WHERE LICENSE_TYPE_CODE=:type AND LICENSE_NUMBER=:number"
+                + (exceptId == null ? "" : " AND LICENSE_ID<>:exceptId");
+        JdbcClient.StatementSpec spec = jdbc.sql(sql).param("type", licenseTypeCode).param("number", licenseNumber);
+        if (exceptId != null) spec = spec.param("exceptId", exceptId);
+        return spec.query(Long.class).single() > 0;
+    }
+
+    public boolean hasPrimaryIdentifier(long partyId, Long exceptId) {
+        String sql = "SELECT COUNT(*) FROM " + table("PARTY_IDENTIFIER")
+                + " WHERE PARTY_ID=:partyId AND IS_PRIMARY='Y'"
+                + (exceptId == null ? "" : " AND PARTY_IDENTIFIER_ID<>:exceptId");
+        JdbcClient.StatementSpec spec = jdbc.sql(sql).param("partyId", partyId);
+        if (exceptId != null) spec = spec.param("exceptId", exceptId);
+        return spec.query(Long.class).single() > 0;
+    }
+
+    public boolean identifierIsPrimary(long partyId, long identifierId) {
+        return jdbc.sql("SELECT COUNT(*) FROM " + table("PARTY_IDENTIFIER")
+                        + " WHERE PARTY_ID=:partyId AND PARTY_IDENTIFIER_ID=:id AND IS_PRIMARY='Y'")
+                .param("partyId", partyId).param("id", identifierId).query(Long.class).single() > 0;
+    }
+
+    public boolean identifierExists(String identifierTypeCode, String identifierValue, String issuerCode, java.time.LocalDate validFrom, Long exceptId) {
+        String sql = "SELECT COUNT(*) FROM " + table("PARTY_IDENTIFIER")
+                + " WHERE IDENTIFIER_TYPE_CODE=:type AND IDENTIFIER_VALUE=:value"
+                + " AND ((ISSUER_CODE=:issuer) OR (ISSUER_CODE IS NULL AND :issuer IS NULL))"
+                + " AND VALID_FROM=:validFrom"
+                + (exceptId == null ? "" : " AND PARTY_IDENTIFIER_ID<>:exceptId");
+        JdbcClient.StatementSpec spec = jdbc.sql(sql).param("type", identifierTypeCode).param("value", identifierValue)
+                .param("issuer", issuerCode).param("validFrom", sqlDate(validFrom));
+        if (exceptId != null) spec = spec.param("exceptId", exceptId);
+        return spec.query(Long.class).single() > 0;
+    }
+
+    public boolean partyIsPerson(long partyId) {
+        return jdbc.sql("SELECT COUNT(*) FROM " + table("PARTY") + " WHERE PARTY_ID=:partyId AND PARTY_TYPE_CODE='PERSON'")
+                .param("partyId", partyId).query(Long.class).single() > 0;
+    }
+
+    public boolean partyExists(Long relatedPartyId) {
+        if (relatedPartyId == null) return true;
+        return jdbc.sql("SELECT COUNT(*) FROM " + table("PARTY") + " WHERE PARTY_ID=:id")
+                .param("id", relatedPartyId).query(Long.class).single() > 0;
     }
 
     public boolean kycCaseBelongsToParty(long partyId, Long kycCaseId) {

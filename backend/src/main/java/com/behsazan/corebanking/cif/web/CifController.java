@@ -2,8 +2,14 @@ package com.behsazan.corebanking.cif.web;
 
 import com.behsazan.corebanking.cif.application.CifService;
 import com.behsazan.corebanking.cif.domain.CifModels.CifDashboardSummary;
+import com.behsazan.corebanking.cif.domain.CifModels.ContactPointAddressRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.ContactPointRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.CreatePartyRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.FinancialProfileRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyAssetLiabilityRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyEmploymentRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyIncomeSourceRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyLicenseRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.KycCaseRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.OrganizationRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.Party360Response;
@@ -11,6 +17,7 @@ import com.behsazan.corebanking.cif.domain.CifModels.PartyAddressRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartyDocumentRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartyIdentifierRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartyNameRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyOnboardingRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartySummary;
 import com.behsazan.corebanking.cif.domain.CifModels.PersonRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.RiskAssessmentRequest;
@@ -63,6 +70,15 @@ public class CifController {
             @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor
     ) {
         Party360Response created = service.createParty(request, actor);
+        return ResponseEntity.created(URI.create("/api/v1/cif/parties/" + created.party().partyId())).body(created);
+    }
+
+    @PostMapping("/parties/onboarding")
+    ResponseEntity<Party360Response> onboardParty(
+            @Valid @RequestBody PartyOnboardingRequest request,
+            @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor
+    ) {
+        Party360Response created = service.onboardParty(request, actor);
         return ResponseEntity.created(URI.create("/api/v1/cif/parties/" + created.party().partyId())).body(created);
     }
 
@@ -163,6 +179,114 @@ public class CifController {
     @DeleteMapping("/parties/{partyId}/contacts/{id}")
     Party360Response deleteContact(@PathVariable long partyId, @PathVariable long id) {
         return service.deleteContact(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/contact-addresses")
+    Party360Response createContactAddressAssociation(
+            @PathVariable long partyId,
+            @Valid @RequestBody ContactPointAddressRequest request,
+            @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor
+    ) {
+        return service.createContactAddressAssociation(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/contact-addresses/{id}")
+    Party360Response updateContactAddressAssociation(
+            @PathVariable long partyId, @PathVariable long id,
+            @Valid @RequestBody ContactPointAddressRequest request,
+            @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor
+    ) {
+        return service.updateContactAddressAssociation(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/contact-addresses/{id}")
+    Party360Response deleteContactAddressAssociation(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteContactAddressAssociation(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/financial-profiles")
+    Party360Response createFinancialProfile(@PathVariable long partyId, @Valid @RequestBody FinancialProfileRequest request,
+                                            @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createFinancialProfile(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/financial-profiles/{id}")
+    Party360Response updateFinancialProfile(@PathVariable long partyId, @PathVariable long id, @Valid @RequestBody FinancialProfileRequest request,
+                                            @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateFinancialProfile(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/financial-profiles/{id}")
+    Party360Response deleteFinancialProfile(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteFinancialProfile(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/employments")
+    Party360Response createEmployment(@PathVariable long partyId, @Valid @RequestBody PartyEmploymentRequest request,
+                                      @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createEmployment(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/employments/{id}")
+    Party360Response updateEmployment(@PathVariable long partyId, @PathVariable long id, @Valid @RequestBody PartyEmploymentRequest request,
+                                      @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateEmployment(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/employments/{id}")
+    Party360Response deleteEmployment(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteEmployment(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/income-sources")
+    Party360Response createIncomeSource(@PathVariable long partyId, @Valid @RequestBody PartyIncomeSourceRequest request,
+                                        @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createIncomeSource(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/income-sources/{id}")
+    Party360Response updateIncomeSource(@PathVariable long partyId, @PathVariable long id, @Valid @RequestBody PartyIncomeSourceRequest request,
+                                        @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateIncomeSource(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/income-sources/{id}")
+    Party360Response deleteIncomeSource(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteIncomeSource(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/asset-liabilities")
+    Party360Response createAssetLiability(@PathVariable long partyId, @Valid @RequestBody PartyAssetLiabilityRequest request,
+                                          @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createAssetLiability(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/asset-liabilities/{id}")
+    Party360Response updateAssetLiability(@PathVariable long partyId, @PathVariable long id, @Valid @RequestBody PartyAssetLiabilityRequest request,
+                                          @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateAssetLiability(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/asset-liabilities/{id}")
+    Party360Response deleteAssetLiability(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteAssetLiability(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/licenses")
+    Party360Response createLicense(@PathVariable long partyId, @Valid @RequestBody PartyLicenseRequest request,
+                                   @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createLicense(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/licenses/{id}")
+    Party360Response updateLicense(@PathVariable long partyId, @PathVariable long id, @Valid @RequestBody PartyLicenseRequest request,
+                                   @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateLicense(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/licenses/{id}")
+    Party360Response deleteLicense(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteLicense(partyId, id);
     }
 
     @PostMapping("/parties/{partyId}/kyc-cases")
