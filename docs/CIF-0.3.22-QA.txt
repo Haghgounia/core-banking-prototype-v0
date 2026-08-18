@@ -1,0 +1,29 @@
+Core Banking Prototype 0.3.22 - Final Party/Customer QA
+=======================================================
+
+Release: 0.3.22-prototype
+Physical metadata: CIF-tables4.xlsx
+EA model: Party-Operation_Froms-1 (1).xml
+Operational flow: Party-Operation_Froms-1 (1).html
+
+Checks completed
+----------------
+1. CIF physical operational-table coverage: 48/48 non-REF tables referenced by backend.
+2. PARTY_REGISTRATION_REQUEST migration: 15/15 columns; exact physical column order; no missing/extra columns.
+3. EA PARTY_REGISTRATION_REQUEST: 15 attributes, aligned to the physical 15-column model.
+4. EA conceptual PARTY_360_SUMMARY: 10 attributes represented by calculated backend DTO; no synthetic Oracle table created.
+5. Read-only 360 SELECT audit: every selected physical column exists in CIF-tables4.xlsx for all 18 read-only aggregate tables.
+6. Java changed-slice compile: PASS using local framework stubs; 118 class files generated, javac exit 0.
+7. Angular relative imports: 80 checked, 0 missing.
+8. Angular templateUrl/styleUrl references: 0 missing.
+9. TypeScript noResolve syntax probe: no TS1xxx syntax diagnostics. Framework-module diagnostics are expected because node_modules is absent in this environment.
+10. Party 360 Angular control-block structural check: 135 block openings / 135 closings.
+11. Version synchronization: root 0.3.22-prototype, backend 0.3.22-SNAPSHOT, frontend 0.3.22, generated system version synchronized.
+
+Known environment limitation
+----------------------------
+A full Angular/Maven production build was not executed in this environment because frontend node_modules and the Maven dependency cache are absent. The user's Windows build remains the final integration build environment.
+
+Deliberate model boundary
+-------------------------
+PARTY_REGISTRATION_REQUEST is physically aligned and exposed read-only in 360. The supplied sources do not define an authoritative REQUEST_STATUS_CODE vocabulary/API state machine, so write APIs/status codes were not invented. Existing atomic Party onboarding remains unchanged.

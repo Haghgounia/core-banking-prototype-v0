@@ -1,3 +1,89 @@
+## 0.3.22-prototype
+
+- Completed Party Operations Phase 11 as the final Party / Customer 360 and end-to-end hardening slice; no new source-domain CRUD was introduced.
+- Added a calculated `Party360SummaryRecord` matching the conceptual EA 360 summary without creating a synthetic physical `PARTY_360_SUMMARY` table.
+- Added read-only 360 aggregation for the 18 remaining read-only 360 operational tables: products/restrictions/limits, interactions/journey, complaints/alerts, segment/value/metrics/recommendations, organization officers/groups/signatures, registration request and audit metadata.
+- Intentionally excludes `SIGNATURE_IMAGE` payload and `AUDIT_EVENT.BEFORE_DATA/AFTER_DATA` payloads from the 360 API; only safe summary/metadata is returned.
+- Added `GET /api/v1/cif/parties/{partyId}/readiness` to report workflow completion without changing lifecycle status; customer-specific requirements are conditional on an active Customer Role.
+- Hardened customer readiness so the current `PARTY_CUSTOMER` must reference one of the Party's active Customer Role records before its customer number satisfies the workflow.
+- Added the final 360 overview UI with summary metrics, readiness blockers and read-only source-system cards, while preserving existing maintenance tabs and routes.
+- Closed the remaining backend table-coverage gap: all 48 non-REF operational tables from `CIF-tables4.xlsx` are now referenced by CIF backend code; 18 are explicitly read-only 360 aggregates.
+- Added `database/oracle/cif/migrations/0.3.22-registration-request-alignment.sql` because `PARTY_REGISTRATION_REQUEST` exists in the current metadata/EA model but not in the historical bundled CIF DDL snapshot.
+- Added `docs/CIF-0.3.22-OPERATIONAL-TABLE-COVERAGE.csv` and Phase 11 documentation for final schema/workflow traceability.
+
+## 0.3.21-prototype
+
+- Added Party Operations Phase 10 at `/cif/parties/{partyId}/operations/lifecycle-merge`, following the supplied operational forms for time-bound lifecycle status changes and Party merge.
+- Added append-only `PARTY_STATUS_HISTORY` to Party 360 and a dedicated transactional status-change API that closes the current open period, creates the next period and updates `PARTY` with optimistic locking.
+- Reserved lifecycle status `MERGED` for the dedicated merge operation; ordinary status changes cannot move a Party into or out of MERGED.
+- Added `PARTY_MERGE_HISTORY` to Party 360 and a transactional merge API that records source/target/reason/conflict handling, marks the source Party as `MERGED`, sets `MERGED_INTO_PARTY_ID` and writes the corresponding status history.
+- Merge requires source and target to be distinct, non-merged and of the same Party type; the real `DUPLICATE_MERGED` status reason from `REF_PARTY_STATUS_REASON` is used for the lifecycle transition.
+- Kept `MERGE_REASON_CODE` and `CONFLICT_RESOLUTION_CODE` free of synthetic Reference Data because `CIF-tables4.xlsx` defines no physical REF tables for those columns; UI choices are the exact operational options from the supplied HTML.
+- Added idempotent migration `database/oracle/cif/migrations/0.3.21-party-lifecycle-merge.sql`, including safe sequence creation from `MAX(ID)+1`, table creation when missing, and physical `PARTY_MERGE_HISTORY.CREATED_DATE` alignment.
+- New Party creation now records its initial lifecycle row using the real `NEW_REGISTRATION` status reason, making lifecycle history complete for newly created Parties.
+- Added direct navigation from Phase 9 and Party 360 to lifecycle/merge operations.
+- Aligned Merge with the supplied operational form: currently-valid `PARTY_NAME`, active/current `PARTY_IDENTIFIER`, and currently-valid `PARTY_CLASSIFICATION` rows follow the canonical target; expired/historical rows remain on the merged source for audit, target primary name/identifier wins on primary conflicts, and duplicate classification periods are not re-created.
+
+## 0.3.20-prototype
+
+- Phase 9 build hotfix: corrected `DatabaseTablesComponent` import path in `party-consents-preferences.component.ts` so Angular can resolve the shared standalone component.
+
+- Added Party Operations Phase 9 at `/cif/parties/{partyId}/onboarding/consents-preferences`, following the supplied HTML workflow after KYC/Risk.
+- Added end-to-end `PARTY_CONSENT` CRUD semantics: create/update and lifecycle-preserving revoke, customer decision, capture channel, declaration time, validity, consent-text version, multi-scope text, limitations and evidence.
+- Aligned `PARTY_CONSENT` to all 21 columns in `CIF-tables4.xlsx` and added idempotent migration `database/oracle/cif/migrations/0.3.20-consent-preference-alignment.sql`.
+- Added `COMMUNICATION_PREFERENCE` CRUD with server-searchable channel/purpose, allowed flag, preferred time window, language, allowed days, time zone and marketing opt-out; aligned all 16 physical columns.
+- Added `PARTY_GENERAL_PREFERENCE` CRUD for service/general preferences using actual `REF_PREFERENCE_TYPE` and `REF_SOURCE_SYSTEM`; overlapping validity periods for the same type are blocked.
+- Reused the existing Phase 4 `PARTY_DOCUMENT` workflow instead of creating duplicate document CRUD inside Phase 9.
+- Added Consent/Preference data to Party 360 and linked Phase 8 directly to the new operational form.
+- Preserved physical-model gaps explicitly: no synthetic `REF_LANGUAGE`, consent-text-version, time-zone or allowed-days tables were introduced, and no unsupported preference types were seeded.
+- Kept customer rejection distinct from consent lifecycle: `CUSTOMER_DECISION_CODE=REJECT` is authoritative; because the supplied status catalog has no `REJECTED`, the lifecycle remains non-granted without inventing a new reference code.
+
+## 0.3.19-prototype
+
+- Added Party Operations Phase 8 at `/cif/parties/{partyId}/onboarding/kyc-risk` for the supplied operational KYC/Risk/Screening workflow.
+- Aligned `KYC_CASE` with the current 27-column `CIF-tables4.xlsx` model, adding the nine operational customer-understanding/PEP/EDD fields end-to-end.
+- Added idempotent migration `database/oracle/cif/migrations/0.3.19-kyc-case-alignment.sql` for existing databases; no synthetic FK/REF or new Y/N database checks were introduced where the supplied physical metadata has none.
+- Upgraded existing `PARTY_RISK_ASSESSMENT` and `SCREENING_RESULT` CRUD into the dedicated onboarding workflow with optimistic locking and searchable Reference Data.
+- Added `EXTERNAL_INQUIRY_RESULT` CRUD, validation and Party 360 visibility; payload reference/hash pairing and request/response/expiry rules mirror the supplied database constraints.
+- Added an application guard that prevents physical KYC-case deletion while risk, screening or document records still depend on it.
+- Fixed server-searchable Party Reference combos by normalizing `REF_*` UI resource names to the API's kebab-case resource contract centrally in `CifService`.
+- Corrected the bundled base DDL so the nine Phase 8 columns belong to `KYC_CASE` only and `ADDRESS` remains unchanged.
+- Corrected the root release marker from the inherited 0.3.17 value to `0.3.19-prototype`; backend and frontend versions are synchronized.
+
+## 0.3.18-prototype
+
+- Added Party Operations Phase 7 at `/cif/parties/{partyId}/onboarding/roles` for Party Role and banking-customer relationship management.
+- Implemented `PARTY_ROLE` CRUD with optimistic locking, server-searchable `REF_ROLE_TYPE`, `REF_CONTEXT_TYPE` and `REF_WORKFLOW_STATUS`, optional context pairing and related/principal Party selection.
+- Implemented the source-model boundary `Party -> Role -> Customer`: only role type `CUSTOMER` creates `PARTY_CUSTOMER` and a customer number; all other roles remain Party roles without customer numbers.
+- Added Party 360 role/customer data and a dedicated «نقش‌ها و رابطه بانکی» tab.
+- Added idempotent migration `database/oracle/cif/migrations/0.3.18-party-role-customer.sql`: aligns the historical 16-column `PARTY_ROLE` snapshot to the current 24-column model and creates the 13-column `PARTY_CUSTOMER` model when absent.
+- Added operational role values from the supplied Party form to `REF_ROLE_TYPE` without changing the generic Role model.
+- Added isolated prototype `SEQ_CUSTOMER_NO`; the supplied EA/XMI defines `CUSTOMER_NO` but does not define a bank numbering algorithm, so this sequence is explicitly replaceable by the production customer-number policy.
+- Customer roles are not physically deleted; they are closed by status/end-date so `CUSTOMER_NO` history remains stable.
+- Fixed a duplicated `SELECT` token in the existing `PARTY_DOCUMENT` read query discovered during Phase 7 QA.
+
+## 0.3.17-prototype
+
+- Added Party Operations Phase 6 at `/cif/parties/{partyId}/onboarding/relationships` for Party-to-Party relationships, beneficial ownership/UBO and authority/representation.
+- Added end-to-end CRUD and optimistic locking for `PARTY_RELATIONSHIP`, `BENEFICIAL_OWNERSHIP` and `PARTY_AUTHORITY`.
+- Added server-searchable Party selection to the reusable ComboBox flow; related parties are searched by Party ID, name or primary identifier and self-relationship is rejected.
+- Added relationship semantic validation: family relations are PERSON-to-PERSON, parent-company/affiliate are ORGANIZATION-to-ORGANIZATION, and BENEFICIAL_OWNER requires a positive ownership/control percentage.
+- Added UBO rules: ORGANIZATION-only ownership records, at least one direct/indirect/control percentage, 0..100 validation and `REF_CONTROL_BASIS` lookup.
+- Added authority rules using `REF_AUTHORITY_TYPE` and `REF_AUTHORITY_SCOPE`, amount/currency pairing and source-model semantics where `PRINCIPAL_PARTY_ID` is the grantor while `PARTY_ID` mirrors the authorized holder.
+- Added Phase 6 data to Party 360 and linked Phase 5 directly to the new operational step.
+- Added idempotent migration `database/oracle/cif/migrations/0.3.17-party-relationship.sql` because the supplied current `CIF-tables3.xlsx` contains `PARTY_RELATIONSHIP` while the historical repository DDL snapshot does not; missing sequences continue from `MAX(ID)+1` when data already exists.
+- Kept `RELATIONSHIP_TYPE_CODE` as an application-controlled code list because the supplied model does not define an explicit relationship-type REF table; no synthetic REF catalog was introduced.
+
+## 0.3.16-prototype
+
+- Added Party Operations Phase 5 for `CIF.PARTY_CLASSIFICATION`.
+- Added create/update/delete APIs with optimistic locking and reference validation.
+- Added dependent lookup for `REF_CLASSIFICATION_VALUE` filtered by classification type.
+- Added reusable server-searchable ComboBox UI component with debounce.
+- Added classifications to Party 360 response and UI.
+- Aligned `PARTY_CLASSIFICATION.DESCRIPTION_TEXT` with `CIF-tables3.xlsx` and added an idempotent Oracle migration.
+- Added onboarding route `/cif/parties/:partyId/onboarding/classifications`.
+
 ## 0.3.15-prototype
 
 - Added Party operational-form Phase 4 at `/cif/parties/{partyId}/onboarding/identifiers-documents`, linked from Phase 3 and Customer 360.

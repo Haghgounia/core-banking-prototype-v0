@@ -1,7 +1,14 @@
 package com.behsazan.corebanking.cif.web;
 
 import com.behsazan.corebanking.cif.application.CifService;
+import com.behsazan.corebanking.cif.domain.CifModels.*;
 import com.behsazan.corebanking.cif.domain.CifModels.CifDashboardSummary;
+import com.behsazan.corebanking.cif.domain.CifModels.ExternalInquiryRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyConsentRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.CommunicationPreferenceRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyGeneralPreferenceRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyStatusChangeRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyMergeRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.ContactPointAddressRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.ContactPointRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.CreatePartyRequest;
@@ -10,6 +17,11 @@ import com.behsazan.corebanking.cif.domain.CifModels.PartyAssetLiabilityRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartyEmploymentRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartyIncomeSourceRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartyLicenseRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyClassificationRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyRelationshipRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.BeneficialOwnershipRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyAuthorityRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyRoleRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.KycCaseRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.OrganizationRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.Party360Response;
@@ -23,6 +35,7 @@ import com.behsazan.corebanking.cif.domain.CifModels.PersonRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.RiskAssessmentRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.ScreeningResultRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.UpdatePartyRequest;
+import com.behsazan.corebanking.cif.reference.domain.PartyReferenceModels.LookupOption;
 import com.behsazan.corebanking.shared.model.PageResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/cif")
@@ -59,9 +73,23 @@ public class CifController {
         return service.search(text, partyType, status, page, size);
     }
 
+    @GetMapping("/classification-values")
+    List<LookupOption> classificationValues(
+            @RequestParam String typeCode,
+            @RequestParam(required = false) String text,
+            @RequestParam(defaultValue = "50") int limit
+    ) {
+        return service.classificationValues(typeCode, text, limit);
+    }
+
     @GetMapping("/parties/{partyId}")
     Party360Response find(@PathVariable long partyId) {
         return service.find(partyId);
+    }
+
+    @GetMapping("/parties/{partyId}/readiness")
+    PartyReadinessSummary readiness(@PathVariable long partyId) {
+        return service.readiness(partyId);
     }
 
     @PostMapping("/parties")
@@ -289,6 +317,97 @@ public class CifController {
         return service.deleteLicense(partyId, id);
     }
 
+    @PostMapping("/parties/{partyId}/classifications")
+    Party360Response createClassification(@PathVariable long partyId, @Valid @RequestBody PartyClassificationRequest request,
+                                          @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createClassification(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/classifications/{id}")
+    Party360Response updateClassification(@PathVariable long partyId, @PathVariable long id,
+                                          @Valid @RequestBody PartyClassificationRequest request,
+                                          @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateClassification(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/classifications/{id}")
+    Party360Response deleteClassification(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteClassification(partyId, id);
+    }
+
+
+    @PostMapping("/parties/{partyId}/relationships")
+    Party360Response createRelationship(@PathVariable long partyId, @Valid @RequestBody PartyRelationshipRequest request,
+                                        @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createRelationship(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/relationships/{id}")
+    Party360Response updateRelationship(@PathVariable long partyId, @PathVariable long id,
+                                        @Valid @RequestBody PartyRelationshipRequest request,
+                                        @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateRelationship(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/relationships/{id}")
+    Party360Response deleteRelationship(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteRelationship(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/beneficial-ownerships")
+    Party360Response createBeneficialOwnership(@PathVariable long partyId, @Valid @RequestBody BeneficialOwnershipRequest request,
+                                               @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createBeneficialOwnership(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/beneficial-ownerships/{id}")
+    Party360Response updateBeneficialOwnership(@PathVariable long partyId, @PathVariable long id,
+                                               @Valid @RequestBody BeneficialOwnershipRequest request,
+                                               @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateBeneficialOwnership(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/beneficial-ownerships/{id}")
+    Party360Response deleteBeneficialOwnership(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteBeneficialOwnership(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/authorities")
+    Party360Response createAuthority(@PathVariable long partyId, @Valid @RequestBody PartyAuthorityRequest request,
+                                     @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createAuthority(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/authorities/{id}")
+    Party360Response updateAuthority(@PathVariable long partyId, @PathVariable long id,
+                                     @Valid @RequestBody PartyAuthorityRequest request,
+                                     @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateAuthority(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/authorities/{id}")
+    Party360Response deleteAuthority(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteAuthority(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/roles")
+    Party360Response createRole(@PathVariable long partyId, @Valid @RequestBody PartyRoleRequest request,
+                                @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createRole(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/roles/{id}")
+    Party360Response updateRole(@PathVariable long partyId, @PathVariable long id,
+                                @Valid @RequestBody PartyRoleRequest request,
+                                @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateRole(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/roles/{id}")
+    Party360Response deleteRole(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteRole(partyId, id);
+    }
+
     @PostMapping("/parties/{partyId}/kyc-cases")
     Party360Response createKyc(@PathVariable long partyId, @Valid @RequestBody KycCaseRequest request,
                                @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
@@ -361,8 +480,95 @@ public class CifController {
         return service.deleteScreening(partyId, id);
     }
 
+    @PostMapping("/parties/{partyId}/external-inquiries")
+    Party360Response createExternalInquiry(@PathVariable long partyId, @Valid @RequestBody ExternalInquiryRequest request,
+                                           @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createExternalInquiry(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/external-inquiries/{id}")
+    Party360Response updateExternalInquiry(@PathVariable long partyId, @PathVariable long id,
+                                           @Valid @RequestBody ExternalInquiryRequest request,
+                                           @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateExternalInquiry(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/external-inquiries/{id}")
+    Party360Response deleteExternalInquiry(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteExternalInquiry(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/status-changes")
+    Party360Response changePartyStatus(@PathVariable long partyId, @Valid @RequestBody PartyStatusChangeRequest request,
+                                       @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.changePartyStatus(partyId, request, actor);
+    }
+
+    @PostMapping("/parties/{partyId}/merge")
+    Party360Response mergeParty(@PathVariable long partyId, @Valid @RequestBody PartyMergeRequest request,
+                                @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.mergeParty(partyId, request, actor);
+    }
+
     @GetMapping("/dashboard/summary")
     CifDashboardSummary dashboardSummary() {
         return service.dashboardSummary();
     }
+    @PostMapping("/parties/{partyId}/consents")
+    Party360Response createConsent(@PathVariable long partyId, @Valid @RequestBody PartyConsentRequest request,
+                                   @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createConsent(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/consents/{id}")
+    Party360Response updateConsent(@PathVariable long partyId, @PathVariable long id,
+                                   @Valid @RequestBody PartyConsentRequest request,
+                                   @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateConsent(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/consents/{id}")
+    Party360Response revokeConsent(@PathVariable long partyId, @PathVariable long id,
+                                   @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.revokeConsent(partyId, id, actor);
+    }
+
+    @PostMapping("/parties/{partyId}/communication-preferences")
+    Party360Response createCommunicationPreference(@PathVariable long partyId,
+                                                    @Valid @RequestBody CommunicationPreferenceRequest request,
+                                                    @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createCommunicationPreference(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/communication-preferences/{id}")
+    Party360Response updateCommunicationPreference(@PathVariable long partyId, @PathVariable long id,
+                                                    @Valid @RequestBody CommunicationPreferenceRequest request,
+                                                    @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateCommunicationPreference(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/communication-preferences/{id}")
+    Party360Response deleteCommunicationPreference(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteCommunicationPreference(partyId, id);
+    }
+
+    @PostMapping("/parties/{partyId}/general-preferences")
+    Party360Response createGeneralPreference(@PathVariable long partyId,
+                                             @Valid @RequestBody PartyGeneralPreferenceRequest request,
+                                             @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.createGeneralPreference(partyId, request, actor);
+    }
+
+    @PutMapping("/parties/{partyId}/general-preferences/{id}")
+    Party360Response updateGeneralPreference(@PathVariable long partyId, @PathVariable long id,
+                                             @Valid @RequestBody PartyGeneralPreferenceRequest request,
+                                             @RequestHeader(name = "X-User-Id", defaultValue = "1") String actor) {
+        return service.updateGeneralPreference(partyId, id, request, actor);
+    }
+
+    @DeleteMapping("/parties/{partyId}/general-preferences/{id}")
+    Party360Response deleteGeneralPreference(@PathVariable long partyId, @PathVariable long id) {
+        return service.deleteGeneralPreference(partyId, id);
+    }
+
 }

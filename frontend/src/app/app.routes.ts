@@ -11,6 +11,12 @@ export const routes: Routes = [
       {path: 'cif/parties/:partyId/onboarding/contact-address', loadComponent: () => import('./features/cif/party-contact-address.component').then(m => m.PartyContactAddressComponent)},
       {path: 'cif/parties/:partyId/onboarding/financial-employment', loadComponent: () => import('./features/cif/party-financial-employment.component').then(m => m.PartyFinancialEmploymentComponent)},
       {path: 'cif/parties/:partyId/onboarding/identifiers-documents', loadComponent: () => import('./features/cif/party-identifiers-documents.component').then(m => m.PartyIdentifiersDocumentsComponent)},
+      {path: 'cif/parties/:partyId/onboarding/classifications', loadComponent: () => import('./features/cif/party-classifications.component').then(m => m.PartyClassificationsComponent)},
+      {path: 'cif/parties/:partyId/onboarding/relationships', loadComponent: () => import('./features/cif/party-relationships.component').then(m => m.PartyRelationshipsComponent)},
+      {path: 'cif/parties/:partyId/onboarding/roles', loadComponent: () => import('./features/cif/party-roles.component').then(m => m.PartyRolesComponent)},
+      {path: 'cif/parties/:partyId/onboarding/kyc-risk', loadComponent: () => import('./features/cif/party-kyc-risk.component').then(m => m.PartyKycRiskComponent)},
+      {path: 'cif/parties/:partyId/onboarding/consents-preferences', loadComponent: () => import('./features/cif/party-consents-preferences.component').then(m => m.PartyConsentsPreferencesComponent)},
+      {path: 'cif/parties/:partyId/operations/lifecycle-merge', loadComponent: () => import('./features/cif/party-lifecycle-merge.component').then(m => m.PartyLifecycleMergeComponent)},
       {path: 'cif/parties/:partyId', loadComponent: () => import('./features/cif/party-360.component').then(m => m.Party360Component)},
 
       {path: 'reference-data', loadComponent: () => import('./features/reference-hub/reference-hub.component').then(m => m.ReferenceHubComponent)},

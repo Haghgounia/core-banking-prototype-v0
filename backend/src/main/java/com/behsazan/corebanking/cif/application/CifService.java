@@ -1,6 +1,14 @@
 package com.behsazan.corebanking.cif.application;
 
+import com.behsazan.corebanking.cif.domain.CifModels.*;
 import com.behsazan.corebanking.cif.domain.CifModels.CifDashboardSummary;
+import com.behsazan.corebanking.cif.domain.CifModels.ExternalInquiryRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyConsentRecord;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyConsentRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.CommunicationPreferenceRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyGeneralPreferenceRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyStatusChangeRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyMergeRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.ContactPointAddressRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.ContactPointRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.CreatePartyRequest;
@@ -9,6 +17,12 @@ import com.behsazan.corebanking.cif.domain.CifModels.PartyAssetLiabilityRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartyEmploymentRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartyIncomeSourceRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartyLicenseRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyClassificationRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyRelationshipRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.BeneficialOwnershipRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyAuthorityRequest;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyRoleRecord;
+import com.behsazan.corebanking.cif.domain.CifModels.PartyRoleRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.KycCaseRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.OrganizationRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.Party360Response;
@@ -25,12 +39,14 @@ import com.behsazan.corebanking.cif.domain.CifModels.UpdatePartyRequest;
 import com.behsazan.corebanking.cif.error.CifNotFoundException;
 import com.behsazan.corebanking.cif.error.CifValidationException;
 import com.behsazan.corebanking.cif.oracle.CifRepository;
+import com.behsazan.corebanking.cif.reference.domain.PartyReferenceModels.LookupOption;
 import com.behsazan.corebanking.shared.model.PageResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -41,6 +57,21 @@ public class CifService {
     private static final Set<String> PARTY_TYPES = Set.of("PERSON", "ORGANIZATION");
     private static final Set<String> YES_NO = Set.of("Y", "N");
     private static final Set<String> DUE_DILIGENCE = Set.of("SDD", "CDD", "EDD");
+    private static final Set<String> RELATIONSHIP_TYPES = Set.of(
+            "SPOUSE", "PARENT", "CHILD", "LEGAL_REPRESENTATIVE", "GUARDIAN",
+            "DIRECTOR", "BOARD_MEMBER", "SIGNATORY", "BENEFICIAL_OWNER", "PARENT_COMPANY", "AFFILIATE"
+    );
+    private static final Set<String> FAMILY_RELATIONSHIP_TYPES = Set.of("SPOUSE", "PARENT", "CHILD");
+    private static final Set<String> ORGANIZATION_RELATIONSHIP_TYPES = Set.of("PARENT_COMPANY", "AFFILIATE");
+    private static final Set<String> ROLES_REQUIRING_PRINCIPAL = Set.of(
+            "ATTORNEY", "GUARDIAN", "EXECUTOR", "TRUSTEE", "LEGAL_REPRESENTATIVE", "DIRECTOR",
+            "SIGNATORY", "GUARANTOR", "PLEDGOR", "BENEFICIAL_OWNER", "BENEFICIARY"
+    );
+    private static final Set<String> AUTHORITY_DOCUMENT_ROLES = Set.of(
+            "ATTORNEY", "GUARDIAN", "EXECUTOR", "TRUSTEE", "LEGAL_REPRESENTATIVE", "SIGNATORY"
+    );
+    private static final Set<String> MERGE_REASONS = Set.of("ثبت تکراری", "اصلاح شناسه هویتی");
+    private static final Set<String> MERGE_CONFLICT_RESOLUTIONS = Set.of("حفظ اطلاعات تأییدشده", "بررسی دستی");
 
     private final CifRepository repository;
 
@@ -65,6 +96,87 @@ public class CifService {
     }
 
     @Transactional(readOnly = true)
+    public PartyReadinessSummary readiness(long partyId) {
+        Party360Response response = find(partyId);
+        LocalDate today = LocalDate.now();
+        boolean primaryName = response.names().stream().anyMatch(n -> "Y".equals(n.isPrimary())
+                && (n.validFrom() == null || !n.validFrom().isAfter(today))
+                && (n.validTo() == null || !n.validTo().isBefore(today)));
+        boolean primaryIdentifier = response.identifiers().stream().anyMatch(i -> "Y".equals(i.isPrimary()) && "Y".equals(i.isActive())
+                && (i.validFrom() == null || !i.validFrom().isAfter(today))
+                && (i.validTo() == null || !i.validTo().isBefore(today)));
+        boolean profile = "PERSON".equals(response.party().partyTypeCode()) ? response.person() != null : response.organization() != null;
+        boolean identityComplete = profile && primaryName && primaryIdentifier;
+
+        Set<Long> activeCustomerRoleIds = response.roles().stream()
+                .filter(r -> "CUSTOMER".equals(r.roleTypeCode()))
+                .filter(r -> !Set.of("CLOSED", "REVOKED", "EXPIRED", "INACTIVE").contains(r.statusCode()))
+                .filter(r -> r.validFrom() == null || !r.validFrom().isAfter(today))
+                .filter(r -> r.validTo() == null || !r.validTo().isBefore(today))
+                .map(PartyRoleRecord::partyRoleId)
+                .collect(java.util.stream.Collectors.toSet());
+        boolean customerRole = !activeCustomerRoleIds.isEmpty();
+        PartyCustomerRecord currentCustomer = response.customers().stream()
+                .filter(c -> activeCustomerRoleIds.contains(c.partyRoleId()))
+                .filter(c -> "Y".equals(c.isCurrent()))
+                .filter(c -> c.validFrom() == null || !c.validFrom().isAfter(today))
+                .filter(c -> c.validTo() == null || !c.validTo().isBefore(today))
+                .findFirst().orElse(null);
+        String customerNo = currentCustomer == null ? null : currentCustomer.customerNo();
+
+        boolean addressComplete = !response.addresses().isEmpty();
+        boolean contactComplete = !response.contacts().isEmpty();
+        boolean financialComplete = !response.financialProfiles().isEmpty();
+        boolean customerRelationshipComplete = !customerRole || (currentCustomer != null && !blank(customerNo));
+        boolean kycComplete = response.kycCases().stream().anyMatch(k -> !blank(k.finalRiskLevelCode()) && !blank(k.decisionCode()));
+        boolean consentComplete = response.consents().stream().anyMatch(c -> "GRANT".equals(c.customerDecisionCode())
+                && "GRANTED".equals(c.consentStatusCode()) && (c.validTo() == null || !c.validTo().isBefore(today)));
+
+        List<PartyReadinessItem> items = List.of(
+                readinessItem("IDENTITY", "هویت پایه و شناسه اصلی", true, identityComplete,
+                        response.names().size() + response.identifiers().size(), "/cif/parties/" + partyId,
+                        identityComplete ? "پروفایل، نام اصلی و شناسه اصلی موجود است." : "پروفایل، نام اصلی یا شناسه اصلی جاری ناقص است."),
+                readinessItem("CONTACT_ADDRESS", "نشانی و راه تماس", customerRole, addressComplete && contactComplete,
+                        response.addresses().size() + response.contacts().size(), "/cif/parties/" + partyId + "/onboarding/contact-address",
+                        "نشانی و تماس برای Party دارای نقش مشتری بانک الزامی است."),
+                readinessItem("FINANCIAL", "اطلاعات مالی و شغلی/اقتصادی", customerRole, financialComplete,
+                        response.financialProfiles().size(), "/cif/parties/" + partyId + "/onboarding/financial-employment",
+                        "حداقل یک نمایه مالی برای نقش مشتری بانک لازم است."),
+                readinessItem("CUSTOMER_ROLE", "نقش مشتری و رابطه بانکی", customerRole, customerRelationshipComplete,
+                        response.roles().size() + response.customers().size(), "/cif/parties/" + partyId + "/onboarding/roles",
+                        customerRole ? "Customer Role باید رابطه جاری و شماره مشتری داشته باشد." : "این Party نقش مشتری بانک ندارد و شماره مشتری برای آن الزامی نیست."),
+                readinessItem("KYC", "KYC، ریسک و تصمیم", customerRole, kycComplete,
+                        response.kycCases().size(), "/cif/parties/" + partyId + "/onboarding/kyc-risk",
+                        "برای مشتری بانک حداقل یک KYC دارای سطح ریسک نهایی و تصمیم لازم است."),
+                readinessItem("CONSENT", "رضایت معتبر", customerRole, consentComplete,
+                        response.consents().size(), "/cif/parties/" + partyId + "/onboarding/consents-preferences",
+                        "برای مشتری بانک حداقل یک رضایت اعطاشده و معتبر لازم است.")
+        );
+
+        List<String> blockers = new java.util.ArrayList<>();
+        if ("MERGED".equals(response.party().lifecycleStatusCode()) || response.party().mergedIntoPartyId() != null) {
+            blockers.add("Party ادغام شده است و پرونده مبدأ قابل Finalize مجدد نیست.");
+        }
+        for (PartyReadinessItem item : items) {
+            if (item.required() && !item.complete()) blockers.add(item.label());
+        }
+        int requiredTotal = (int) items.stream().filter(PartyReadinessItem::required).count();
+        int requiredCompleted = (int) items.stream().filter(i -> i.required() && i.complete()).count();
+        return new PartyReadinessSummary(customerRole, customerNo, blockers.isEmpty(), requiredCompleted, requiredTotal, items, List.copyOf(blockers));
+    }
+
+    private static PartyReadinessItem readinessItem(String code, String label, boolean required, boolean complete,
+                                                    int recordCount, String actionPath, String detail) {
+        return new PartyReadinessItem(code, label, required, complete, recordCount, actionPath, detail);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LookupOption> classificationValues(String typeCode, String text, int limit) {
+        if (blank(typeCode)) return List.of();
+        return repository.classificationValueLookup(upper(typeCode), text, Math.min(Math.max(limit, 1), 200));
+    }
+
+    @Transactional(readOnly = true)
     public CifDashboardSummary dashboardSummary() {
         return repository.dashboardSummary();
     }
@@ -86,11 +198,21 @@ public class CifService {
         checkDateOrder("validFrom", raw.validFrom(), "validTo", raw.validTo(), errors);
         reject(errors);
 
+        String lifecycleStatus = defaultText(raw.lifecycleStatusCode(), "ACTIVE");
+        String statusReason = defaultText(raw.statusReasonCode(), "NEW_REGISTRATION");
+        if (!repository.activeReferenceCodeExists("REF_PARTY_LIFECYCLE_STATUS", "LIFECYCLE_STATUS_CODE", lifecycleStatus)) {
+            errors.put("lifecycleStatusCode", "وضعیت چرخه عمر در داده مرجع فعال یافت نشد.");
+        }
+        if (!repository.activeStatusReasonExists(statusReason)) {
+            errors.put("statusReasonCode", "دلیل وضعیت در داده مرجع فعال یافت نشد.");
+        }
+        reject(errors);
+
         CreatePartyRequest request = new CreatePartyRequest(
                 partyType,
                 raw.primaryName().trim(),
-                defaultText(raw.lifecycleStatusCode(), "ACTIVE"),
-                trimToNull(raw.statusReasonCode()),
+                lifecycleStatus,
+                statusReason,
                 defaultText(raw.verificationStatusCode(), "UNVERIFIED"),
                 defaultText(raw.dataQualityStatusCode(), "INCOMPLETE"),
                 trimToNull(raw.creationSourceCode()),
@@ -101,6 +223,8 @@ public class CifService {
         );
 
         long partyId = repository.insertParty(request, actor);
+        repository.insertStatusHistory(partyId, request.lifecycleStatusCode(), request.statusReasonCode(),
+                request.validFrom(), null, "وضعیت اولیه Party", actor);
         PartyNameRequest primaryName = normalizeName(new PartyNameRequest(
                 "LEGAL", "fa", "Arab", null, null, null, null, null,
                 request.primaryName(), request.primaryName(), request.primaryName(), request.primaryName(),
@@ -215,11 +339,11 @@ public class CifService {
         Map<String, String> errors = new LinkedHashMap<>();
         checkFlag("isCurrent", isCurrent, errors);
         checkDateOrder("validFrom", raw.validFrom(), "validTo", raw.validTo(), errors);
-        if ("MERGED".equals(lifecycle)) {
-            if (raw.mergedIntoPartyId() == null) errors.put("mergedIntoPartyId", "برای وضعیت MERGED پارتی مقصد الزامی است.");
-            if (raw.mergedIntoPartyId() != null && raw.mergedIntoPartyId() == partyId) errors.put("mergedIntoPartyId", "پارتی نمی‌تواند در خودش ادغام شود.");
-        } else if (raw.mergedIntoPartyId() != null) {
-            errors.put("mergedIntoPartyId", "پارتی مقصد فقط برای وضعیت MERGED قابل ثبت است.");
+        if (!lifecycle.equals(current.party().lifecycleStatusCode())) {
+            errors.put("lifecycleStatusCode", "تغییر چرخه عمر فقط از عملیات اختصاصی «تغییر وضعیت Party» مجاز است.");
+        }
+        if (!java.util.Objects.equals(raw.mergedIntoPartyId(), current.party().mergedIntoPartyId())) {
+            errors.put("mergedIntoPartyId", "مقصد ادغام فقط از عملیات اختصاصی Merge قابل تغییر است.");
         }
         reject(errors);
 
@@ -598,6 +722,151 @@ public class CifService {
     }
 
     @Transactional
+    public Party360Response createClassification(long partyId, PartyClassificationRequest raw, String actor) {
+        find(partyId);
+        PartyClassificationRequest request = normalizeClassification(raw);
+        validateClassification(partyId, null, request);
+        repository.insertClassification(partyId, request, actor);
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response updateClassification(long partyId, long id, PartyClassificationRequest raw, String actor) {
+        find(partyId);
+        requireVersion(raw.recordVersion());
+        PartyClassificationRequest request = normalizeClassification(raw);
+        validateClassification(partyId, id, request);
+        ensureUpdated(repository.updateClassification(partyId, id, request, actor));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response deleteClassification(long partyId, long id) {
+        find(partyId);
+        ensureDeleted(repository.deleteClassification(partyId, id));
+        return find(partyId);
+    }
+
+
+    @Transactional
+    public Party360Response createRelationship(long partyId, PartyRelationshipRequest raw, String actor) {
+        find(partyId);
+        PartyRelationshipRequest request = normalizeRelationship(raw);
+        validateRelationship(partyId, null, request);
+        repository.insertRelationship(partyId, request, actor);
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response updateRelationship(long partyId, long id, PartyRelationshipRequest raw, String actor) {
+        find(partyId);
+        requireVersion(raw.recordVersion());
+        PartyRelationshipRequest request = normalizeRelationship(raw);
+        validateRelationship(partyId, id, request);
+        ensureUpdated(repository.updateRelationship(partyId, id, request, actor));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response deleteRelationship(long partyId, long id) {
+        find(partyId);
+        ensureDeleted(repository.deleteRelationship(partyId, id));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response createBeneficialOwnership(long partyId, BeneficialOwnershipRequest raw, String actor) {
+        find(partyId);
+        BeneficialOwnershipRequest request = normalizeBeneficialOwnership(raw);
+        validateBeneficialOwnership(partyId, null, request);
+        repository.insertBeneficialOwnership(partyId, request, actor);
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response updateBeneficialOwnership(long partyId, long id, BeneficialOwnershipRequest raw, String actor) {
+        find(partyId);
+        requireVersion(raw.recordVersion());
+        BeneficialOwnershipRequest request = normalizeBeneficialOwnership(raw);
+        validateBeneficialOwnership(partyId, id, request);
+        ensureUpdated(repository.updateBeneficialOwnership(partyId, id, request, actor));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response deleteBeneficialOwnership(long partyId, long id) {
+        find(partyId);
+        ensureDeleted(repository.deleteBeneficialOwnership(partyId, id));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response createAuthority(long partyId, PartyAuthorityRequest raw, String actor) {
+        find(partyId);
+        PartyAuthorityRequest request = normalizeAuthority(raw);
+        validateAuthority(partyId, null, request);
+        repository.insertAuthority(partyId, request, actor);
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response updateAuthority(long partyId, long id, PartyAuthorityRequest raw, String actor) {
+        find(partyId);
+        requireVersion(raw.recordVersion());
+        PartyAuthorityRequest request = normalizeAuthority(raw);
+        validateAuthority(partyId, id, request);
+        ensureUpdated(repository.updateAuthority(partyId, id, request, actor));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response deleteAuthority(long partyId, long id) {
+        find(partyId);
+        ensureDeleted(repository.deleteAuthority(partyId, id));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response createRole(long partyId, PartyRoleRequest raw, String actor) {
+        find(partyId);
+        PartyRoleRequest request = normalizeRole(raw);
+        validateRole(partyId, null, request);
+        long roleId = repository.insertRole(partyId, request, actor);
+        if ("CUSTOMER".equals(request.roleTypeCode())) {
+            repository.insertCustomerForRole(partyId, roleId, request, actor);
+        }
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response updateRole(long partyId, long id, PartyRoleRequest raw, String actor) {
+        find(partyId);
+        requireVersion(raw.recordVersion());
+        PartyRoleRecord existing = repository.findRole(partyId, id)
+                .orElseThrow(() -> new CifNotFoundException("نقش Party یافت نشد."));
+        PartyRoleRequest request = normalizeRole(raw);
+        if (!existing.roleTypeCode().equals(request.roleTypeCode())) {
+            throw validation("roleTypeCode", "نوع نقش پس از ایجاد قابل تغییر نیست؛ نقش جدید را جداگانه ثبت کنید.");
+        }
+        validateRole(partyId, id, request);
+        ensureUpdated(repository.updateRole(partyId, id, request, actor));
+        if ("CUSTOMER".equals(request.roleTypeCode())) {
+            repository.updateCustomerForRole(partyId, id, request, actor);
+        }
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response deleteRole(long partyId, long id) {
+        find(partyId);
+        if (repository.customerForRoleExists(partyId, id)) {
+            throw validation("statusCode", "نقش مشتری بانک حذف فیزیکی نمی‌شود؛ وضعیت یا تاریخ پایان آن را ویرایش کنید.");
+        }
+        ensureDeleted(repository.deleteRole(partyId, id));
+        return find(partyId);
+    }
+
+    @Transactional
     public Party360Response createKycCase(long partyId, KycCaseRequest raw, String actor) {
         find(partyId);
         KycCaseRequest request = normalizeKyc(raw);
@@ -619,6 +888,9 @@ public class CifService {
     @Transactional
     public Party360Response deleteKycCase(long partyId, long id) {
         find(partyId);
+        if (repository.kycCaseHasDependents(partyId, id)) {
+            throw validation("kycCaseId", "پرونده KYC دارای ارزیابی ریسک، نتیجه Screening یا مدرک وابسته است؛ ابتدا وابستگی‌ها را مدیریت کنید.");
+        }
         ensureDeleted(repository.deleteKycCase(partyId, id));
         return find(partyId);
     }
@@ -699,6 +971,217 @@ public class CifService {
         find(partyId);
         ensureDeleted(repository.deleteScreening(partyId, id));
         return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response createExternalInquiry(long partyId, ExternalInquiryRequest raw, String actor) {
+        find(partyId);
+        ExternalInquiryRequest request = normalizeExternalInquiry(raw);
+        validateExternalInquiry(request);
+        repository.insertExternalInquiry(partyId, request, actor);
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response updateExternalInquiry(long partyId, long id, ExternalInquiryRequest raw, String actor) {
+        find(partyId);
+        requireVersion(raw.recordVersion());
+        ExternalInquiryRequest request = normalizeExternalInquiry(raw);
+        validateExternalInquiry(request);
+        ensureUpdated(repository.updateExternalInquiry(partyId, id, request, actor));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response deleteExternalInquiry(long partyId, long id) {
+        find(partyId);
+        ensureDeleted(repository.deleteExternalInquiry(partyId, id));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response createConsent(long partyId, PartyConsentRequest raw, String actor) {
+        find(partyId);
+        PartyConsentRequest request = normalizeConsent(raw);
+        validateConsent(partyId, null, request);
+        repository.insertConsent(partyId, request, derivedConsentStatus(request), actor);
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response updateConsent(long partyId, long id, PartyConsentRequest raw, String actor) {
+        find(partyId);
+        requireVersion(raw.recordVersion());
+        PartyConsentRecord existing = repository.findConsent(partyId, id)
+                .orElseThrow(() -> new CifNotFoundException("رضایت ثبت‌شده یافت نشد."));
+        if ("REVOKED".equals(existing.consentStatusCode())) {
+            throw validation("consentStatusCode", "رضایت لغوشده قابل ویرایش نیست؛ رکورد جدید ثبت کنید.");
+        }
+        PartyConsentRequest request = normalizeConsent(raw);
+        if (!existing.consentTypeCode().equals(request.consentTypeCode()) || !existing.purposeCode().equals(request.purposeCode())) {
+            throw validation("consentTypeCode", "نوع و هدف رضایت پس از ثبت قابل تغییر نیست؛ برای هدف جدید رکورد جداگانه ثبت کنید.");
+        }
+        if (existing.customerDecisionCode() != null && !existing.customerDecisionCode().equals(request.customerDecisionCode())) {
+            throw validation("customerDecisionCode", "تصمیم مشتری پس از ثبت تغییر نمی‌کند؛ رضایت اعطاشده را لغو و تصمیم جدید را جداگانه ثبت کنید.");
+        }
+        validateConsent(partyId, id, request);
+        ensureUpdated(repository.updateConsent(partyId, id, request, derivedConsentStatus(request), actor));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response revokeConsent(long partyId, long id, String actor) {
+        find(partyId);
+        PartyConsentRecord existing = repository.findConsent(partyId, id)
+                .orElseThrow(() -> new CifNotFoundException("رضایت ثبت‌شده یافت نشد."));
+        if (!"GRANTED".equals(existing.consentStatusCode())) {
+            throw validation("consentStatusCode", "فقط رضایت فعال و اعطاشده قابل لغو است.");
+        }
+        ensureUpdated(repository.revokeConsent(partyId, id, existing.recordVersion(), actor));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response createCommunicationPreference(long partyId, CommunicationPreferenceRequest raw, String actor) {
+        find(partyId);
+        CommunicationPreferenceRequest request = normalizeCommunicationPreference(raw);
+        validateCommunicationPreference(partyId, null, request);
+        repository.insertCommunicationPreference(partyId, request, actor);
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response updateCommunicationPreference(long partyId, long id, CommunicationPreferenceRequest raw, String actor) {
+        find(partyId);
+        requireVersion(raw.recordVersion());
+        CommunicationPreferenceRequest request = normalizeCommunicationPreference(raw);
+        validateCommunicationPreference(partyId, id, request);
+        ensureUpdated(repository.updateCommunicationPreference(partyId, id, request, actor));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response deleteCommunicationPreference(long partyId, long id) {
+        find(partyId);
+        ensureDeleted(repository.deleteCommunicationPreference(partyId, id));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response createGeneralPreference(long partyId, PartyGeneralPreferenceRequest raw, String actor) {
+        find(partyId);
+        PartyGeneralPreferenceRequest request = normalizeGeneralPreference(raw);
+        validateGeneralPreference(partyId, null, request);
+        repository.insertGeneralPreference(partyId, request, actor);
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response updateGeneralPreference(long partyId, long id, PartyGeneralPreferenceRequest raw, String actor) {
+        find(partyId);
+        requireVersion(raw.recordVersion());
+        PartyGeneralPreferenceRequest request = normalizeGeneralPreference(raw);
+        validateGeneralPreference(partyId, id, request);
+        ensureUpdated(repository.updateGeneralPreference(partyId, id, request, actor));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response deleteGeneralPreference(long partyId, long id) {
+        find(partyId);
+        ensureDeleted(repository.deleteGeneralPreference(partyId, id));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response changePartyStatus(long partyId, PartyStatusChangeRequest raw, String actor) {
+        Party360Response current = find(partyId);
+        requireVersion(raw.partyRecordVersion());
+        String lifecycle = upper(raw.lifecycleStatusCode());
+        String reason = upper(raw.statusReasonCode());
+        Map<String, String> errors = new LinkedHashMap<>();
+        if ("MERGED".equals(current.party().lifecycleStatusCode())) {
+            errors.put("lifecycleStatusCode", "Party ادغام‌شده از فرایند تغییر وضعیت قابل بازگشت نیست.");
+        }
+        if ("MERGED".equals(lifecycle)) {
+            errors.put("lifecycleStatusCode", "وضعیت MERGED فقط از فرایند اختصاصی ادغام Party قابل ثبت است.");
+        }
+        if (lifecycle.equals(current.party().lifecycleStatusCode()) && reason.equals(defaultText(current.party().statusReasonCode(), ""))) {
+            errors.put("lifecycleStatusCode", "وضعیت و دلیل جدید با وضعیت جاری یکسان است.");
+        }
+        LocalDate effectiveDate = raw.effectiveDate();
+        if (effectiveDate.isAfter(LocalDate.now())) errors.put("effectiveDate", "در این نسخه تغییر وضعیت آینده‌دار پشتیبانی نمی‌شود.");
+        if (current.party().validFrom() != null && effectiveDate.isBefore(current.party().validFrom())) {
+            errors.put("effectiveDate", "تاریخ اثر نمی‌تواند قبل از شروع اعتبار Party باشد.");
+        }
+        if (!repository.activeReferenceCodeExists("REF_PARTY_LIFECYCLE_STATUS", "LIFECYCLE_STATUS_CODE", lifecycle)) {
+            errors.put("lifecycleStatusCode", "وضعیت چرخه عمر در داده مرجع فعال یافت نشد.");
+        }
+        if (!repository.activeStatusReasonExists(reason)) {
+            errors.put("statusReasonCode", "دلیل وضعیت در داده مرجع فعال یافت نشد.");
+        }
+        var open = current.statusHistory().stream().filter(x -> x.validTo() == null).findFirst().orElse(null);
+        if (open != null && effectiveDate.isBefore(open.validFrom())) {
+            errors.put("effectiveDate", "تاریخ اثر نمی‌تواند قبل از شروع وضعیت جاری باشد.");
+        }
+        reject(errors);
+
+        if (current.statusHistory().isEmpty() && current.party().validFrom() != null && effectiveDate.isAfter(current.party().validFrom())) {
+            String initialReason = blank(current.party().statusReasonCode()) ? "NEW_REGISTRATION" : current.party().statusReasonCode();
+            if (!repository.activeStatusReasonExists(initialReason)) initialReason = reason;
+            repository.insertStatusHistory(partyId, current.party().lifecycleStatusCode(), initialReason,
+                    current.party().validFrom(), effectiveDate, "بازسازی وضعیت جاری پیش از اولین تغییر ثبت‌شده", actor);
+        } else {
+            repository.closeOpenStatusHistory(partyId, effectiveDate, actor);
+        }
+        repository.insertStatusHistory(partyId, lifecycle, reason, effectiveDate, null, trimToNull(raw.descriptionText()), actor);
+        ensureUpdated(repository.updatePartyStatus(partyId, lifecycle, reason, raw.partyRecordVersion(), actor));
+        return find(partyId);
+    }
+
+    @Transactional
+    public Party360Response mergeParty(long sourcePartyId, PartyMergeRequest raw, String actor) {
+        Party360Response source = find(sourcePartyId);
+        Party360Response target = find(raw.targetPartyId());
+        requireVersion(raw.partyRecordVersion());
+        Map<String, String> errors = new LinkedHashMap<>();
+        if (sourcePartyId == raw.targetPartyId()) errors.put("targetPartyId", "Party مبدأ و مقصد ادغام نمی‌توانند یکسان باشند.");
+        if ("MERGED".equals(source.party().lifecycleStatusCode())) errors.put("partyId", "Party مبدأ قبلاً ادغام شده است.");
+        if ("MERGED".equals(target.party().lifecycleStatusCode())) errors.put("targetPartyId", "Party مقصد نباید خودش ادغام‌شده باشد.");
+        if (!source.party().partyTypeCode().equals(target.party().partyTypeCode())) errors.put("targetPartyId", "ادغام فقط بین دو Party از یک نوع مجاز است.");
+        if (!"Y".equalsIgnoreCase(source.party().isCurrent())) errors.put("partyId", "Party مبدأ باید رکورد جاری باشد.");
+        if (!"Y".equalsIgnoreCase(target.party().isCurrent())) errors.put("targetPartyId", "Party مقصد باید رکورد جاری باشد.");
+        String mergeReason = raw.mergeReasonCode().trim();
+        String conflictResolution = trimToNull(raw.conflictResolutionCode());
+        if (!MERGE_REASONS.contains(mergeReason)) errors.put("mergeReasonCode", "دلیل ادغام باید یکی از گزینه‌های فرم عملیاتی مبنا باشد.");
+        if (conflictResolution != null && !MERGE_CONFLICT_RESOLUTIONS.contains(conflictResolution)) errors.put("conflictResolutionCode", "روش رفع تعارض باید یکی از گزینه‌های فرم عملیاتی مبنا باشد.");
+        if (!repository.activeReferenceCodeExists("REF_PARTY_LIFECYCLE_STATUS", "LIFECYCLE_STATUS_CODE", "MERGED")) {
+            errors.put("lifecycleStatusCode", "کد MERGED در داده مرجع چرخه عمر فعال نیست.");
+        }
+        if (!repository.activeStatusReasonExists("DUPLICATE_MERGED")) {
+            errors.put("statusReasonCode", "کد DUPLICATE_MERGED در داده مرجع دلیل وضعیت فعال نیست.");
+        }
+        reject(errors);
+
+        LocalDate effectiveDate = LocalDate.now();
+        if (source.statusHistory().isEmpty() && source.party().validFrom() != null && effectiveDate.isAfter(source.party().validFrom())) {
+            String initialReason = blank(source.party().statusReasonCode()) ? "NEW_REGISTRATION" : source.party().statusReasonCode();
+            if (!repository.activeStatusReasonExists(initialReason)) initialReason = "DUPLICATE_MERGED";
+            repository.insertStatusHistory(sourcePartyId, source.party().lifecycleStatusCode(), initialReason,
+                    source.party().validFrom(), effectiveDate, "بازسازی وضعیت جاری پیش از ادغام", actor);
+        } else {
+            repository.closeOpenStatusHistory(sourcePartyId, effectiveDate, actor);
+        }
+        repository.insertMergeHistory(sourcePartyId, raw.targetPartyId(), mergeReason, conflictResolution, actor);
+        // The supplied operational form explicitly requires valid names, identifiers and classifications
+        // to follow the canonical target. Historical/expired rows remain on the merged source for audit.
+        repository.transferValidNames(sourcePartyId, raw.targetPartyId(), actor);
+        repository.transferValidIdentifiers(sourcePartyId, raw.targetPartyId(), actor);
+        repository.transferValidClassifications(sourcePartyId, raw.targetPartyId(), actor);
+        repository.insertStatusHistory(sourcePartyId, "MERGED", "DUPLICATE_MERGED", effectiveDate, null,
+                "ادغام در Party مقصد " + raw.targetPartyId(), actor);
+        ensureUpdated(repository.markPartyMerged(sourcePartyId, raw.targetPartyId(), "DUPLICATE_MERGED", raw.partyRecordVersion(), actor));
+        return find(sourcePartyId);
     }
 
     private static PersonRequest defaultPersonRequest() {
@@ -898,12 +1381,181 @@ public class CifService {
         reject(errors);
     }
 
+    private static PartyClassificationRequest normalizeClassification(PartyClassificationRequest raw) {
+        return new PartyClassificationRequest(
+                upper(raw.classificationTypeCode()), upper(raw.classificationValueCode()), upper(raw.assignmentReasonCode()),
+                raw.validFrom(), raw.validTo(), trimToNull(raw.descriptionText()), raw.recordVersion()
+        );
+    }
+
+    private void validateClassification(long partyId, Long exceptId, PartyClassificationRequest r) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        checkDateOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
+        if (!repository.classificationReferenceExists(r.classificationTypeCode(), r.classificationValueCode(), r.assignmentReasonCode())) {
+            errors.put("classificationValueCode", "نوع، مقدار یا علت تخصیص با داده مرجع فعال CIF سازگار نیست.");
+        }
+        if (repository.classificationDuplicateExists(partyId, r.classificationTypeCode(), r.classificationValueCode(), r.validFrom(), exceptId)) {
+            errors.put("validFrom", "برای این Party همین نوع و مقدار طبقه‌بندی در تاریخ شروع انتخاب‌شده قبلاً ثبت شده است.");
+        }
+        reject(errors);
+    }
+
+
+    private static PartyRelationshipRequest normalizeRelationship(PartyRelationshipRequest raw) {
+        return new PartyRelationshipRequest(
+                raw.relatedPartyId(), upper(raw.relationshipTypeCode()), raw.ownershipPercent(),
+                trimToNull(raw.positionTitle()), upperOrNull(raw.signingRightCode()), raw.authorityLimitAmount(),
+                raw.startDate(), raw.endDate(), raw.evidenceDocumentId(), upperOrNull(raw.verificationStatusCode()), raw.recordVersion()
+        );
+    }
+
+    private void validateRelationship(long partyId, Long exceptId, PartyRelationshipRequest r) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        checkDateOrder("startDate", r.startDate(), "endDate", r.endDate(), errors);
+        if (!RELATIONSHIP_TYPES.contains(r.relationshipTypeCode())) {
+            errors.put("relationshipTypeCode", "نوع رابطه انتخاب‌شده در دامنه عملیاتی فعلی پشتیبانی نمی‌شود.");
+        }
+        if (r.relatedPartyId() == null) {
+            errors.put("relatedPartyId", "Party مرتبط الزامی است.");
+        } else if (r.relatedPartyId() == partyId) {
+            errors.put("relatedPartyId", "ثبت رابطه یک Party با خودش مجاز نیست.");
+        } else if (!repository.partyExists(r.relatedPartyId())) {
+            errors.put("relatedPartyId", "Party مرتبط در CIF یافت نشد.");
+        } else {
+            if (FAMILY_RELATIONSHIP_TYPES.contains(r.relationshipTypeCode())
+                    && (!repository.partyIsPerson(partyId) || !repository.partyIsPerson(r.relatedPartyId()))) {
+                errors.put("relationshipTypeCode", "رابطه همسر/والد/فرزند فقط میان دو Party از نوع شخص حقیقی مجاز است.");
+            }
+            if (ORGANIZATION_RELATIONSHIP_TYPES.contains(r.relationshipTypeCode())
+                    && (!repository.partyIsOrganization(partyId) || !repository.partyIsOrganization(r.relatedPartyId()))) {
+                errors.put("relationshipTypeCode", "رابطه شرکت مادر/وابسته فقط میان دو Party از نوع شخص حقوقی مجاز است.");
+            }
+        }
+        if ("BENEFICIAL_OWNER".equals(r.relationshipTypeCode())
+                && (r.ownershipPercent() == null || r.ownershipPercent().signum() <= 0)) {
+            errors.put("ownershipPercent", "برای رابطه مالک واقعی، درصد مالکیت/کنترل باید بیشتر از صفر باشد.");
+        }
+        if (!repository.documentBelongsToParty(partyId, r.evidenceDocumentId())) {
+            errors.put("evidenceDocumentId", "مدرک انتخاب‌شده متعلق به Party جاری نیست.");
+        }
+        if (r.relatedPartyId() != null && r.startDate() != null
+                && repository.relationshipDuplicateExists(partyId, r.relatedPartyId(), r.relationshipTypeCode(), r.startDate(), exceptId)) {
+            errors.put("startDate", "همین نوع رابطه با Party انتخاب‌شده در تاریخ شروع موردنظر قبلاً ثبت شده است.");
+        }
+        reject(errors);
+    }
+
+    private static PartyRoleRequest normalizeRole(PartyRoleRequest raw) {
+        return new PartyRoleRequest(
+                upper(raw.roleTypeCode()), upperOrNull(raw.contextTypeCode()), trimToNull(raw.contextId()),
+                raw.validFrom() == null ? LocalDate.now() : raw.validFrom(), raw.validTo(), upper(raw.statusCode()),
+                raw.principalPartyId(), upperOrNull(raw.relationshipTypeCode()), upperOrNull(raw.authorityBasisCode()),
+                trimToNull(raw.authorityDocumentNo()), trimToNull(raw.authorityIssuer()), trimToNull(raw.authorityScopeText()),
+                trimToNull(raw.assignmentReasonText()), trimToNull(raw.descriptionText()), raw.recordVersion()
+        );
+    }
+
+    private void validateRole(long partyId, Long exceptId, PartyRoleRequest r) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        checkDateOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
+        if (!repository.roleReferenceExists(r.roleTypeCode(), r.contextTypeCode(), r.statusCode())) {
+            errors.put("roleTypeCode", "نوع نقش، نوع زمینه یا وضعیت نقش با داده مرجع فعال CIF سازگار نیست.");
+        }
+        if ((r.contextTypeCode() == null) != (r.contextId() == null)) {
+            errors.put("contextId", "نوع زمینه و شناسه زمینه باید همزمان ثبت یا خالی شوند.");
+        }
+        if (r.principalPartyId() != null) {
+            if (r.principalPartyId() == partyId) errors.put("principalPartyId", "Party نمی‌تواند اصیل مرتبط خودش باشد.");
+            else if (!repository.partyExists(r.principalPartyId())) errors.put("principalPartyId", "Party مرتبط/اصیل در CIF یافت نشد.");
+        }
+        if (ROLES_REQUIRING_PRINCIPAL.contains(r.roleTypeCode()) && r.principalPartyId() == null) {
+            errors.put("principalPartyId", "برای این نوع نقش، Party مرتبط/اصیل الزامی است.");
+        }
+        if (AUTHORITY_DOCUMENT_ROLES.contains(r.roleTypeCode()) && blank(r.authorityDocumentNo())) {
+            errors.put("authorityDocumentNo", "برای نقش مبتنی بر اختیار، شماره و نوع سند اختیار الزامی است.");
+        }
+        if ("CUSTOMER".equals(r.roleTypeCode())) {
+            if (r.principalPartyId() != null) errors.put("principalPartyId", "نقش مشتری بانک رابطه مستقیم با بانک است و Party اصیل ندارد.");
+            if (isCurrentCustomerRequest(r)) {
+                boolean anotherCurrent = exceptId == null
+                        ? repository.currentCustomerExists(partyId)
+                        : repository.currentCustomerExistsForOtherRole(partyId, exceptId);
+                if (anotherCurrent) errors.put("roleTypeCode", "برای این Party قبلاً رابطه جاری مشتری بانک وجود دارد.");
+            }
+        }
+        if (repository.roleDuplicateExists(partyId, r.roleTypeCode(), r.contextTypeCode(), r.contextId(), r.validFrom(), exceptId)) {
+            errors.put("validFrom", "این نقش با همین زمینه و تاریخ شروع قبلاً برای Party ثبت شده است.");
+        }
+        reject(errors);
+    }
+
+
+    private static boolean isCurrentCustomerRequest(PartyRoleRequest r) {
+        LocalDate today = LocalDate.now();
+        if (Set.of("CLOSED", "REVOKED", "EXPIRED", "INACTIVE").contains(r.statusCode())) return false;
+        if (r.validFrom() != null && r.validFrom().isAfter(today)) return false;
+        return r.validTo() == null || !r.validTo().isBefore(today);
+    }
+
+    private static BeneficialOwnershipRequest normalizeBeneficialOwnership(BeneficialOwnershipRequest raw) {
+        return new BeneficialOwnershipRequest(
+                raw.beneficialOwnerPartyId(), raw.directOwnershipPercent(), raw.indirectOwnershipPercent(), raw.controlPercent(),
+                upperOrNull(raw.controlBasisCode()), upper(raw.isUltimateOwner()), trimToNull(raw.ownershipPath()),
+                raw.validFrom(), raw.validTo(), trimToNull(raw.evidenceRef()), raw.recordVersion()
+        );
+    }
+
+    private void validateBeneficialOwnership(long partyId, Long exceptId, BeneficialOwnershipRequest r) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        if (!repository.partyIsOrganization(partyId)) errors.put("beneficialOwnerPartyId", "ثبت مالک ذی‌نفع فقط برای Party از نوع شخص حقوقی مجاز است.");
+        if (r.beneficialOwnerPartyId() == null) errors.put("beneficialOwnerPartyId", "Party مالک یا کنترل‌کننده الزامی است.");
+        else if (r.beneficialOwnerPartyId() == partyId) errors.put("beneficialOwnerPartyId", "شخص حقوقی نمی‌تواند مالک ذی‌نفع خودش باشد.");
+        else if (!repository.partyExists(r.beneficialOwnerPartyId())) errors.put("beneficialOwnerPartyId", "Party مالک یا کنترل‌کننده در CIF یافت نشد.");
+        if (r.directOwnershipPercent() == null && r.indirectOwnershipPercent() == null && r.controlPercent() == null) {
+            errors.put("directOwnershipPercent", "حداقل یکی از درصد مالکیت مستقیم، غیرمستقیم یا کنترل باید وارد شود.");
+        }
+        checkFlag("isUltimateOwner", r.isUltimateOwner(), errors);
+        checkDateOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
+        if (r.beneficialOwnerPartyId() != null && r.validFrom() != null
+                && repository.beneficialOwnershipDuplicateExists(partyId, r.beneficialOwnerPartyId(), r.validFrom(), exceptId)) {
+            errors.put("validFrom", "برای این مالک ذی‌نفع در تاریخ شروع انتخاب‌شده قبلاً رکورد ثبت شده است.");
+        }
+        reject(errors);
+    }
+
+    private static PartyAuthorityRequest normalizeAuthority(PartyAuthorityRequest raw) {
+        return new PartyAuthorityRequest(
+                raw.authorizedPartyId(), upper(raw.authorityTypeCode()), upper(raw.scopeCode()), raw.maxAmount(),
+                upperOrNull(raw.currencyCode()), raw.validFrom(), raw.validTo(), raw.documentRef().trim(), raw.recordVersion()
+        );
+    }
+
+    private void validateAuthority(long partyId, Long exceptId, PartyAuthorityRequest r) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        if (r.authorizedPartyId() == null) errors.put("authorizedPartyId", "Party دارنده اختیار الزامی است.");
+        else if (r.authorizedPartyId() == partyId) errors.put("authorizedPartyId", "اعطاکننده و دارنده اختیار نمی‌توانند یک Party باشند.");
+        else if (!repository.partyExists(r.authorizedPartyId())) errors.put("authorizedPartyId", "Party دارنده اختیار در CIF یافت نشد.");
+        if ((r.maxAmount() == null) != (r.currencyCode() == null)) {
+            errors.put("maxAmount", "سقف مبلغ و کد ارز باید همزمان ثبت یا هر دو خالی باشند.");
+        }
+        checkDateOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
+        if (r.authorizedPartyId() != null && r.validFrom() != null
+                && repository.authorityDuplicateExists(partyId, r.authorizedPartyId(), r.authorityTypeCode(), r.scopeCode(), r.validFrom(), exceptId)) {
+            errors.put("validFrom", "همین اختیار برای Party انتخاب‌شده، نوع، دامنه و تاریخ شروع قبلاً ثبت شده است.");
+        }
+        reject(errors);
+    }
+
     private static KycCaseRequest normalizeKyc(KycCaseRequest raw) {
         return new KycCaseRequest(
                 upper(raw.kycTypeCode()), upper(raw.dueDiligenceLevelCode()), upper(raw.statusCode()),
                 raw.openedAt() == null ? LocalDateTime.now() : raw.openedAt(), raw.completedAt(), raw.reviewedAt(),
                 raw.nextReviewDate(), upperOrNull(raw.finalRiskLevelCode()), upperOrNull(raw.decisionCode()),
-                trimToNull(raw.decisionReason()), trimToNull(raw.approvedBy()), raw.recordVersion()
+                trimToNull(raw.decisionReason()), trimToNull(raw.approvedBy()), upperOrNull(raw.relationPurposeCode()),
+                upperOrNull(raw.expectedActivityLevelCode()), upperOrNull(raw.geographicScopeCode()),
+                trimToNull(raw.activityCountriesText()), trimToNull(raw.requestedProductsText()),
+                upperOrNull(raw.preferredServiceChannelCode()), upperOrNull(raw.pepStatusCode()),
+                upperOrNull(raw.highRiskCountryFlag()), upperOrNull(raw.eddRequiredFlag()), raw.recordVersion()
         );
     }
 
@@ -912,6 +1564,8 @@ public class CifService {
         if (!DUE_DILIGENCE.contains(r.dueDiligenceLevelCode())) errors.put("dueDiligenceLevelCode", "سطح بررسی باید SDD، CDD یا EDD باشد.");
         checkDateTimeOrder("openedAt", r.openedAt(), "completedAt", r.completedAt(), errors);
         checkDateTimeOrder("openedAt", r.openedAt(), "reviewedAt", r.reviewedAt(), errors);
+        if (r.highRiskCountryFlag() != null) checkFlag("highRiskCountryFlag", r.highRiskCountryFlag(), errors);
+        if (r.eddRequiredFlag() != null) checkFlag("eddRequiredFlag", r.eddRequiredFlag(), errors);
         reject(errors);
     }
 
@@ -963,6 +1617,106 @@ public class CifService {
         checkFlag("falsePositiveFlag", r.falsePositiveFlag(), errors);
         if ((r.reviewedAt() == null) != (r.reviewedBy() == null)) errors.put("reviewedAt", "زمان و کاربر بازبینی باید همزمان ثبت یا خالی شوند.");
         if (!repository.kycCaseBelongsToParty(partyId, r.kycCaseId())) errors.put("kycCaseId", "پرونده KYC انتخاب‌شده متعلق به این پارتی نیست.");
+        reject(errors);
+    }
+
+    private static ExternalInquiryRequest normalizeExternalInquiry(ExternalInquiryRequest raw) {
+        return new ExternalInquiryRequest(
+                upper(raw.inquiryTypeCode()), upper(raw.providerCode()), raw.referenceNo().trim(),
+                upperOrNull(raw.inquiryResultCode()), raw.requestedAt() == null ? LocalDateTime.now() : raw.requestedAt(),
+                raw.respondedAt(), raw.expiryAt(), trimToNull(raw.payloadRef()), trimToNull(raw.payloadHash()),
+                raw.recordVersion()
+        );
+    }
+
+    private static void validateExternalInquiry(ExternalInquiryRequest r) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        if ((r.respondedAt() == null) != (r.inquiryResultCode() == null)) {
+            errors.put("respondedAt", "زمان پاسخ و نتیجه استعلام باید همزمان ثبت یا هر دو خالی باشند.");
+        }
+        if (r.respondedAt() != null && r.respondedAt().isBefore(r.requestedAt())) {
+            errors.put("respondedAt", "زمان پاسخ نمی‌تواند قبل از زمان درخواست باشد.");
+        }
+        if (r.expiryAt() != null && (r.respondedAt() == null || r.expiryAt().isBefore(r.respondedAt()))) {
+            errors.put("expiryAt", "پایان اعتبار فقط پس از دریافت پاسخ و در زمانی مساوی یا بعد از پاسخ قابل ثبت است.");
+        }
+        if ((r.payloadRef() == null) != (r.payloadHash() == null)) {
+            errors.put("payloadRef", "مرجع Payload و Hash باید همزمان ثبت یا هر دو خالی باشند.");
+        }
+        reject(errors);
+    }
+
+    private static PartyConsentRequest normalizeConsent(PartyConsentRequest raw) {
+        return new PartyConsentRequest(
+                upper(raw.consentTypeCode()), upper(raw.purposeCode()), upper(raw.customerDecisionCode()),
+                upper(raw.captureChannelCode()), raw.declaredAt(), raw.validTo(), raw.consentTextVersionCode().trim(),
+                trimToNull(raw.scopeText()), trimToNull(raw.scopeLimitationText()), trimToNull(raw.evidenceRef()),
+                upper(raw.sourceCode()), raw.recordVersion()
+        );
+    }
+
+    private void validateConsent(long partyId, Long exceptId, PartyConsentRequest r) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        if (!Set.of("GRANT", "REJECT").contains(r.customerDecisionCode())) {
+            errors.put("customerDecisionCode", "تصمیم مشتری باید GRANT یا REJECT باشد.");
+        }
+        if (r.declaredAt().isAfter(LocalDateTime.now().plusMinutes(1))) errors.put("declaredAt", "زمان اعلام رضایت نمی‌تواند در آینده باشد.");
+        if (r.validTo() != null && r.validTo().isBefore(r.declaredAt().toLocalDate())) errors.put("validTo", "پایان اعتبار نمی‌تواند قبل از تاریخ اعلام باشد.");
+        if (!repository.activeReferenceCodeExists("REF_PARTY_CONSENT_TYPE", "CONSENT_TYPE_CODE", r.consentTypeCode())) errors.put("consentTypeCode", "نوع رضایت در داده مرجع فعال یافت نشد.");
+        if (!repository.activeReferenceCodeExists("REF_PARTY_CONSENT_PURPOSE", "PARTY_CONSENT_PURPOSE_CODE", r.purposeCode())) errors.put("purposeCode", "هدف رضایت در داده مرجع فعال یافت نشد.");
+        if (!repository.activeReferenceCodeExists("REF_SOURCE_SYSTEM", "SOURCE_SYSTEM_CODE", r.sourceCode())) errors.put("sourceCode", "منبع ثبت در داده مرجع فعال یافت نشد.");
+        if ("GRANT".equals(r.customerDecisionCode()) && repository.consentDuplicateExists(partyId, r.consentTypeCode(), r.purposeCode(), exceptId)) {
+            errors.put("purposeCode", "برای این نوع و هدف، یک رضایت فعال دیگر وجود دارد؛ ابتدا آن را لغو یا منقضی کنید.");
+        }
+        if (("MARKETING".equals(r.consentTypeCode()) || "THIRD_PARTY_SHARING".equals(r.consentTypeCode())) && blank(r.scopeText())) {
+            errors.put("scopeText", "برای رضایت بازاریابی یا اشتراک‌گذاری، حداقل یک دامنه باید ثبت شود.");
+        }
+        reject(errors);
+    }
+
+    private static String derivedConsentStatus(PartyConsentRequest r) {
+        if ("REJECT".equals(r.customerDecisionCode())) return "PENDING";
+        if (r.validTo() != null && r.validTo().isBefore(LocalDate.now())) return "EXPIRED";
+        return "GRANTED";
+    }
+
+    private static CommunicationPreferenceRequest normalizeCommunicationPreference(CommunicationPreferenceRequest raw) {
+        String optOut = blank(raw.marketingOptOutFlag()) ? "N" : upper(raw.marketingOptOutFlag());
+        String allowed = upper(raw.allowedFlag());
+        if ("Y".equals(optOut)) allowed = "N";
+        return new CommunicationPreferenceRequest(
+                upper(raw.channelCode()), upper(raw.purposeCode()), allowed, trimToNull(raw.preferredTimeFrom()),
+                trimToNull(raw.preferredTimeTo()), upperOrNull(raw.languageCode()), upperOrNull(raw.allowedDaysCode()),
+                trimToNull(raw.timeZoneCode()), optOut, raw.recordVersion()
+        );
+    }
+
+    private void validateCommunicationPreference(long partyId, Long exceptId, CommunicationPreferenceRequest r) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        checkFlag("allowedFlag", r.allowedFlag(), errors);
+        checkFlag("marketingOptOutFlag", r.marketingOptOutFlag(), errors);
+        if (r.preferredTimeFrom() != null && !r.preferredTimeFrom().matches("(?:[01]\\d|2[0-3]):[0-5]\\d")) errors.put("preferredTimeFrom", "زمان شروع باید HH:mm باشد.");
+        if (r.preferredTimeTo() != null && !r.preferredTimeTo().matches("(?:[01]\\d|2[0-3]):[0-5]\\d")) errors.put("preferredTimeTo", "زمان پایان باید HH:mm باشد.");
+        if (r.preferredTimeFrom() != null && r.preferredTimeTo() != null && r.preferredTimeTo().compareTo(r.preferredTimeFrom()) <= 0) errors.put("preferredTimeTo", "زمان پایان باید بعد از زمان شروع باشد.");
+        if (!repository.activeReferenceCodeExists("REF_CHANNEL", "CHANNEL_CODE", r.channelCode())) errors.put("channelCode", "کانال ارتباطی در داده مرجع فعال یافت نشد.");
+        if (!repository.activeReferenceCodeExists("REF_COMMUNICATION_PURPOSE", "COMMUNICATION_PURPOSE_CODE", r.purposeCode())) errors.put("purposeCode", "هدف ارتباط در داده مرجع فعال یافت نشد.");
+        if (repository.communicationPreferenceDuplicateExists(partyId, r.channelCode(), r.purposeCode(), exceptId)) errors.put("purposeCode", "ترجیح همین کانال و هدف قبلاً ثبت شده است.");
+        reject(errors);
+    }
+
+    private static PartyGeneralPreferenceRequest normalizeGeneralPreference(PartyGeneralPreferenceRequest raw) {
+        return new PartyGeneralPreferenceRequest(
+                upper(raw.preferenceTypeCode()), raw.preferenceValue().trim(), raw.validFrom(), raw.validTo(),
+                upper(raw.sourceCode()), raw.recordVersion()
+        );
+    }
+
+    private void validateGeneralPreference(long partyId, Long exceptId, PartyGeneralPreferenceRequest r) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        checkDateTimeOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
+        if (!repository.activeReferenceCodeExists("REF_PREFERENCE_TYPE", "PREFERENCE_TYPE_CODE", r.preferenceTypeCode())) errors.put("preferenceTypeCode", "نوع ترجیح در داده مرجع فعال یافت نشد.");
+        if (!repository.activeReferenceCodeExists("REF_SOURCE_SYSTEM", "SOURCE_SYSTEM_CODE", r.sourceCode())) errors.put("sourceCode", "منبع ترجیح در داده مرجع فعال یافت نشد.");
+        if (repository.generalPreferenceOverlapExists(partyId, r.preferenceTypeCode(), r.validFrom(), r.validTo(), exceptId)) errors.put("validFrom", "برای این نوع ترجیح یک بازه زمانی همپوشان وجود دارد.");
         reject(errors);
     }
 

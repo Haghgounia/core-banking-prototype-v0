@@ -308,6 +308,104 @@ public final class CifModels {
     ) {
     }
 
+    public record PartyClassificationRecord(
+            long partyClassificationId,
+            long partyId,
+            String classificationTypeCode,
+            String classificationValueCode,
+            String assignmentReasonCode,
+            LocalDate validFrom,
+            LocalDate validTo,
+            String descriptionText,
+            long recordVersion
+    ) {
+    }
+
+
+    public record PartyRelationshipRecord(
+            long partyRelationshipId,
+            long partyId,
+            long relatedPartyId,
+            String relationshipTypeCode,
+            BigDecimal ownershipPercent,
+            String positionTitle,
+            String signingRightCode,
+            BigDecimal authorityLimitAmount,
+            LocalDate startDate,
+            LocalDate endDate,
+            Long evidenceDocumentId,
+            String verificationStatusCode,
+            long recordVersion
+    ) {
+    }
+
+    public record BeneficialOwnershipRecord(
+            long ownershipId,
+            long legalPartyId,
+            long beneficialOwnerPartyId,
+            BigDecimal directOwnershipPercent,
+            BigDecimal indirectOwnershipPercent,
+            BigDecimal controlPercent,
+            String controlBasisCode,
+            String isUltimateOwner,
+            String ownershipPath,
+            LocalDate validFrom,
+            LocalDate validTo,
+            String evidenceRef,
+            long recordVersion
+    ) {
+    }
+
+    public record PartyAuthorityRecord(
+            long authorityId,
+            long principalPartyId,
+            long authorizedPartyId,
+            String authorityTypeCode,
+            String scopeCode,
+            BigDecimal maxAmount,
+            String currencyCode,
+            LocalDate validFrom,
+            LocalDate validTo,
+            String documentRef,
+            long partyId,
+            long recordVersion
+    ) {
+    }
+
+    public record PartyRoleRecord(
+            long partyRoleId,
+            long partyId,
+            String roleTypeCode,
+            String contextTypeCode,
+            String contextId,
+            LocalDate validFrom,
+            LocalDate validTo,
+            String statusCode,
+            long recordVersion,
+            Long principalPartyId,
+            String relationshipTypeCode,
+            String authorityBasisCode,
+            String authorityDocumentNo,
+            String authorityIssuer,
+            String authorityScopeText,
+            String assignmentReasonText,
+            String descriptionText
+    ) {
+    }
+
+    public record PartyCustomerRecord(
+            long partyCustomerId,
+            long partyId,
+            long partyRoleId,
+            String customerNo,
+            String customerStatusCode,
+            LocalDate validFrom,
+            LocalDate validTo,
+            String isCurrent,
+            long recordVersion
+    ) {
+    }
+
     public record KycCaseRecord(
             long kycCaseId,
             long partyId,
@@ -322,7 +420,16 @@ public final class CifModels {
             String decisionCode,
             String decisionReason,
             String approvedBy,
-            long recordVersion
+            long recordVersion,
+            String relationPurposeCode,
+            String expectedActivityLevelCode,
+            String geographicScopeCode,
+            String activityCountriesText,
+            String requestedProductsText,
+            String preferredServiceChannelCode,
+            String pepStatusCode,
+            String highRiskCountryFlag,
+            String eddRequiredFlag
     ) {
     }
 
@@ -385,8 +492,246 @@ public final class CifModels {
     ) {
     }
 
+    public record ExternalInquiryRecord(
+            long inquiryResultId,
+            long partyId,
+            String inquiryTypeCode,
+            String providerCode,
+            String referenceNo,
+            String inquiryResultCode,
+            LocalDateTime requestedAt,
+            LocalDateTime respondedAt,
+            LocalDateTime expiryAt,
+            String payloadRef,
+            String payloadHash,
+            long recordVersion
+    ) {
+    }
+
+    public record PartyConsentRecord(
+            long consentId,
+            long partyId,
+            String consentTypeCode,
+            String purposeCode,
+            String consentStatusCode,
+            LocalDateTime grantedAt,
+            LocalDateTime revokedAt,
+            String evidenceRef,
+            String sourceCode,
+            String customerDecisionCode,
+            String captureChannelCode,
+            LocalDateTime declaredAt,
+            LocalDate validTo,
+            String consentTextVersionCode,
+            String scopeText,
+            String scopeLimitationText,
+            long recordVersion
+    ) {
+    }
+
+    public record CommunicationPreferenceRecord(
+            long preferenceId,
+            long partyId,
+            String channelCode,
+            String purposeCode,
+            String allowedFlag,
+            String preferredTimeFrom,
+            String preferredTimeTo,
+            String languageCode,
+            String allowedDaysCode,
+            String timeZoneCode,
+            String marketingOptOutFlag,
+            long recordVersion
+    ) {
+    }
+
+    public record PartyGeneralPreferenceRecord(
+            long preferenceId,
+            long partyId,
+            String preferenceTypeCode,
+            String preferenceValue,
+            LocalDateTime validFrom,
+            LocalDateTime validTo,
+            String sourceCode,
+            long recordVersion
+    ) {
+    }
+
+    public record PartyStatusHistoryRecord(
+            long partyStatusHistoryId,
+            long partyId,
+            String lifecycleStatusCode,
+            String statusReasonCode,
+            LocalDate validFrom,
+            LocalDate validTo,
+            String descriptionText,
+            LocalDateTime createdAt,
+            String createdBy,
+            LocalDateTime updatedAt,
+            String updatedBy,
+            long recordVersion
+    ) {
+    }
+
+    public record PartyMergeHistoryRecord(
+            long partyMergeId,
+            long sourcePartyId,
+            long targetPartyId,
+            String mergeReasonCode,
+            String conflictResolutionCode,
+            LocalDateTime mergedAt,
+            String mergedBy,
+            LocalDateTime createdAt,
+            String createdBy,
+            LocalDateTime updatedAt,
+            String updatedBy,
+            long recordVersion,
+            LocalDateTime createdDate
+    ) {
+    }
+
+    public record Party360SummaryRecord(
+            long partyId,
+            String partyUid,
+            String lifecycleStatusCode,
+            long activeProductCount,
+            long openComplaintCount,
+            LocalDateTime lastInteractionAt,
+            BigDecimal currentValueScore,
+            String currentSegmentCode,
+            long activeRecommendationCount,
+            LocalDateTime asOfTimestamp
+    ) {
+    }
+
+    public record OrganizationOfficer360Record(long organizationOfficerId, long organizationPartyId, long officerPartyId,
+                                                String officerRoleCode, LocalDate validFrom, LocalDate validTo) {
+    }
+
+    public record PartyAlertCase360Record(long alertCaseId, long partyId, String alertTypeCode, String severityCode,
+                                          String statusCode, String sourceSystemCode, String sourceReferenceNo,
+                                          LocalDateTime openedAt, LocalDateTime closedAt, String assignedTo,
+                                          String resolutionCode, String resolutionNote) {
+    }
+
+    public record PartyComplaint360Record(long complaintId, long partyId, String complaintTypeCode, String productTypeCode,
+                                          String severityCode, String statusCode, LocalDateTime openedAt, LocalDateTime dueAt,
+                                          LocalDateTime resolvedAt, String resolutionCode, String assignedUnitCode,
+                                          String complaintDescription) {
+    }
+
+    public record PartyComplaintStatus360Record(long complaintStatusHistoryId, long complaintId, String fromStatusCode,
+                                                String toStatusCode, LocalDateTime changedAt, String changedBy,
+                                                String reasonCode, String commentText) {
+    }
+
+    public record PartyGroupMembership360Record(long groupMemberId, long groupId, String groupTypeCode, String groupName,
+                                                String groupStatusCode, String memberRoleCode, BigDecimal ownershipPercent,
+                                                LocalDate validFrom, LocalDate validTo) {
+    }
+
+    public record PartyInteraction360Record(long interactionId, long partyId, String channelCode, String interactionTypeCode,
+                                            String subject, LocalDateTime occurredAt, String outcomeCode, String employeeId,
+                                            String branchCode, String referenceTypeCode, String referenceId,
+                                            String interactionDetails) {
+    }
+
+    public record PartyJourneyEvent360Record(long journeyEventId, long partyId, String journeyCode, String stageCode,
+                                             String eventCode, LocalDateTime occurredAt, String channelCode,
+                                             String referenceTypeCode, String referenceId) {
+    }
+
+    public record PartyMetricSnapshot360Record(long metricSnapshotId, long partyId, String metricCode, BigDecimal metricValue,
+                                               String metricUnitCode, LocalDate asOfDate, LocalDate periodFrom,
+                                               LocalDate periodTo, String sourceSnapshotId) {
+    }
+
+    public record PartyOperationLimit360Record(long limitId, long partyId, String limitTypeCode, String contextTypeCode,
+                                               String contextId, String currencyCode, BigDecimal limitAmount, String periodCode,
+                                               LocalDate validFrom, LocalDate validTo, String approvalRef) {
+    }
+
+    public record PartyProductHolding360Record(long partyProductHoldingId, long partyId, String productTypeCode,
+                                               String productInstanceId, String relationshipRoleCode, String statusCode,
+                                               LocalDate startDate, LocalDate endDate, String isPrimary) {
+    }
+
+    public record PartyProductRestriction360Record(long restrictionId, long partyId, String productTypeCode,
+                                                   String restrictionTypeCode, String reasonCode, String severityCode,
+                                                   LocalDateTime validFrom, LocalDateTime validTo, String statusCode,
+                                                   String approvalRef) {
+    }
+
+    public record PartyRecommendation360Record(long recommendationId, long partyId, String recommendationTypeCode,
+                                               String offerCode, Long priorityValue, BigDecimal scoreValue,
+                                               LocalDateTime generatedAt, LocalDateTime expiryAt, String statusCode,
+                                               String modelCode) {
+    }
+
+    public record PartyRegistrationRequest360Record(long registrationRequestId, String temporaryKey, String partyTypeCode,
+                                                    String creationSourceCode, LocalDate validFrom, String requestStatusCode,
+                                                    String identityKindCode, LocalDateTime requestedAt, LocalDateTime expiresAt,
+                                                    Long completedPartyId) {
+    }
+
+    public record PartySegmentMembership360Record(long segmentMembershipId, long partyId, String segmentCode,
+                                                  String modelCode, LocalDateTime assignedAt, LocalDateTime validTo,
+                                                  BigDecimal confidenceLevel) {
+    }
+
+    public record PartyValueScore360Record(long valueScoreId, long partyId, String scoreTypeCode, BigDecimal scoreValue,
+                                           String scoreBandCode, String modelCode, String modelVersion, LocalDate asOfDate,
+                                           LocalDate dataPeriodFrom, LocalDate dataPeriodTo, BigDecimal confidenceLevel,
+                                           String explanation) {
+    }
+
+    public record SignatureSpecimen360Record(long signatureId, long partyId, String signatoryId, String specimenTypeCode,
+                                             boolean hasSignatureImage, LocalDate effectiveFrom, LocalDate effectiveTo,
+                                             String statusCode, String signingRuleCode, String verificationStatusCode,
+                                             String captureChannelCode, Long documentId, Long branchId, String capturedBy,
+                                             LocalDate revokedAt, String revocationReason) {
+    }
+
+    public record AuditEvent360Record(long auditEventId, String entityTypeCode, String entityId, String actionCode,
+                                      String actorId, String actorRoleCode, LocalDateTime occurredAt, String channelCode,
+                                      String requestId, String reasonCode, String approvalRef, String clientIp,
+                                      String hashAlgorithmCode) {
+    }
+
+    public record Party360SourceData(
+            List<OrganizationOfficer360Record> organizationOfficers,
+            List<PartyAlertCase360Record> alerts,
+            List<PartyComplaint360Record> complaints,
+            List<PartyComplaintStatus360Record> complaintStatusHistory,
+            List<PartyGroupMembership360Record> groupMemberships,
+            List<PartyInteraction360Record> interactions,
+            List<PartyJourneyEvent360Record> journeyEvents,
+            List<PartyMetricSnapshot360Record> metricSnapshots,
+            List<PartyOperationLimit360Record> operationLimits,
+            List<PartyProductHolding360Record> productHoldings,
+            List<PartyProductRestriction360Record> productRestrictions,
+            List<PartyRecommendation360Record> recommendations,
+            List<PartyRegistrationRequest360Record> registrationRequests,
+            List<PartySegmentMembership360Record> segmentMemberships,
+            List<PartyValueScore360Record> valueScores,
+            List<SignatureSpecimen360Record> signatureSpecimens,
+            List<AuditEvent360Record> auditEvents
+    ) {
+    }
+
+    public record PartyReadinessItem(String code, String label, boolean required, boolean complete, int recordCount,
+                                     String actionPath, String detail) {
+    }
+
+    public record PartyReadinessSummary(boolean customerRole, String customerNo, boolean readyForFinalization,
+                                        int requiredCompleted, int requiredTotal,
+                                        List<PartyReadinessItem> items, List<String> blockers) {
+    }
+
     public record Party360Response(
             PartyCore party,
+            Party360SummaryRecord summary,
+            Party360SourceData source360,
             PersonProfile person,
             OrganizationProfile organization,
             List<PartyNameRecord> names,
@@ -399,10 +744,22 @@ public final class CifModels {
             List<PartyIncomeSourceRecord> incomeSources,
             List<PartyAssetLiabilityRecord> assetLiabilities,
             List<PartyLicenseRecord> licenses,
+            List<PartyClassificationRecord> classifications,
+            List<PartyRelationshipRecord> relationships,
+            List<BeneficialOwnershipRecord> beneficialOwnerships,
+            List<PartyAuthorityRecord> authorities,
+            List<PartyRoleRecord> roles,
+            List<PartyCustomerRecord> customers,
             List<KycCaseRecord> kycCases,
             List<PartyDocumentRecord> documents,
             List<RiskAssessmentRecord> riskAssessments,
-            List<ScreeningResultRecord> screenings
+            List<ScreeningResultRecord> screenings,
+            List<ExternalInquiryRecord> externalInquiries,
+            List<PartyConsentRecord> consents,
+            List<CommunicationPreferenceRecord> communicationPreferences,
+            List<PartyGeneralPreferenceRecord> generalPreferences,
+            List<PartyStatusHistoryRecord> statusHistory,
+            List<PartyMergeHistoryRecord> mergeHistory
     ) {
     }
 
@@ -682,6 +1039,80 @@ public final class CifModels {
     ) {
     }
 
+    public record PartyClassificationRequest(
+            @NotBlank @Size(max = 40) String classificationTypeCode,
+            @NotBlank @Size(max = 60) String classificationValueCode,
+            @NotBlank @Size(max = 40) String assignmentReasonCode,
+            @NotNull LocalDate validFrom,
+            LocalDate validTo,
+            @Size(max = 1000) String descriptionText,
+            Long recordVersion
+    ) {
+    }
+
+
+    public record PartyRelationshipRequest(
+            @NotNull Long relatedPartyId,
+            @NotBlank @Size(max = 30) String relationshipTypeCode,
+            @DecimalMin("0") @DecimalMax("100") BigDecimal ownershipPercent,
+            @Size(max = 100) String positionTitle,
+            @Size(max = 30) String signingRightCode,
+            @DecimalMin("0") BigDecimal authorityLimitAmount,
+            @NotNull LocalDate startDate,
+            LocalDate endDate,
+            Long evidenceDocumentId,
+            @Size(max = 30) String verificationStatusCode,
+            Long recordVersion
+    ) {
+    }
+
+    public record BeneficialOwnershipRequest(
+            @NotNull Long beneficialOwnerPartyId,
+            @DecimalMin("0") @DecimalMax("100") BigDecimal directOwnershipPercent,
+            @DecimalMin("0") @DecimalMax("100") BigDecimal indirectOwnershipPercent,
+            @DecimalMin("0") @DecimalMax("100") BigDecimal controlPercent,
+            @Size(max = 50) String controlBasisCode,
+            @NotBlank @Size(max = 1) String isUltimateOwner,
+            @Size(max = 2000) String ownershipPath,
+            @NotNull LocalDate validFrom,
+            LocalDate validTo,
+            @Size(max = 200) String evidenceRef,
+            Long recordVersion
+    ) {
+    }
+
+    public record PartyAuthorityRequest(
+            @NotNull Long authorizedPartyId,
+            @NotBlank @Size(max = 40) String authorityTypeCode,
+            @NotBlank @Size(max = 60) String scopeCode,
+            @DecimalMin("0") BigDecimal maxAmount,
+            @Size(max = 3) String currencyCode,
+            @NotNull LocalDate validFrom,
+            LocalDate validTo,
+            @NotBlank @Size(max = 500) String documentRef,
+            Long recordVersion
+    ) {
+    }
+
+    public record PartyRoleRequest(
+            @NotBlank @Size(max = 40) String roleTypeCode,
+            @Size(max = 40) String contextTypeCode,
+            @Size(max = 100) String contextId,
+            @NotNull LocalDate validFrom,
+            LocalDate validTo,
+            @NotBlank @Size(max = 30) String statusCode,
+            Long principalPartyId,
+            @Size(max = 30) String relationshipTypeCode,
+            @Size(max = 30) String authorityBasisCode,
+            @Size(max = 100) String authorityDocumentNo,
+            @Size(max = 200) String authorityIssuer,
+            @Size(max = 500) String authorityScopeText,
+            @Size(max = 500) String assignmentReasonText,
+            @Size(max = 500) String descriptionText,
+            Long recordVersion
+    ) {
+    }
+
     public record KycCaseRequest(
             @NotBlank @Size(max = 30) String kycTypeCode,
             @NotBlank @Size(max = 30) String dueDiligenceLevelCode,
@@ -694,6 +1125,15 @@ public final class CifModels {
             @Size(max = 30) String decisionCode,
             @Size(max = 1000) String decisionReason,
             @Size(max = 100) String approvedBy,
+            @Size(max = 30) String relationPurposeCode,
+            @Size(max = 30) String expectedActivityLevelCode,
+            @Size(max = 30) String geographicScopeCode,
+            @Size(max = 500) String activityCountriesText,
+            @Size(max = 500) String requestedProductsText,
+            @Size(max = 30) String preferredServiceChannelCode,
+            @Size(max = 30) String pepStatusCode,
+            @Size(max = 1) String highRiskCountryFlag,
+            @Size(max = 1) String eddRequiredFlag,
             Long recordVersion
     ) {
     }
@@ -748,6 +1188,77 @@ public final class CifModels {
             @Size(max = 100) String reviewedBy,
             @Size(max = 1000) String payloadRef,
             Long recordVersion
+    ) {
+    }
+
+    public record ExternalInquiryRequest(
+            @NotBlank @Size(max = 50) String inquiryTypeCode,
+            @NotBlank @Size(max = 50) String providerCode,
+            @NotBlank @Size(max = 100) String referenceNo,
+            @Size(max = 50) String inquiryResultCode,
+            LocalDateTime requestedAt,
+            LocalDateTime respondedAt,
+            LocalDateTime expiryAt,
+            @Size(max = 1000) String payloadRef,
+            @Size(max = 100) String payloadHash,
+            Long recordVersion
+    ) {
+    }
+
+    public record PartyConsentRequest(
+            @NotBlank @Size(max = 50) String consentTypeCode,
+            @NotBlank @Size(max = 40) String purposeCode,
+            @NotBlank @Size(max = 30) String customerDecisionCode,
+            @NotBlank @Size(max = 30) String captureChannelCode,
+            @NotNull LocalDateTime declaredAt,
+            LocalDate validTo,
+            @NotBlank @Size(max = 50) String consentTextVersionCode,
+            @Size(max = 1000) String scopeText,
+            @Size(max = 1000) String scopeLimitationText,
+            @Size(max = 200) String evidenceRef,
+            @NotBlank @Size(max = 30) String sourceCode,
+            Long recordVersion
+    ) {
+    }
+
+    public record CommunicationPreferenceRequest(
+            @NotBlank @Size(max = 30) String channelCode,
+            @NotBlank @Size(max = 40) String purposeCode,
+            @NotBlank @Size(max = 1) String allowedFlag,
+            @Size(max = 5) String preferredTimeFrom,
+            @Size(max = 5) String preferredTimeTo,
+            @Size(max = 10) String languageCode,
+            @Size(max = 30) String allowedDaysCode,
+            @Size(max = 50) String timeZoneCode,
+            @Size(max = 1) String marketingOptOutFlag,
+            Long recordVersion
+    ) {
+    }
+
+    public record PartyGeneralPreferenceRequest(
+            @NotBlank @Size(max = 50) String preferenceTypeCode,
+            @NotBlank @Size(max = 500) String preferenceValue,
+            @NotNull LocalDateTime validFrom,
+            LocalDateTime validTo,
+            @NotBlank @Size(max = 30) String sourceCode,
+            Long recordVersion
+    ) {
+    }
+
+    public record PartyStatusChangeRequest(
+            @NotBlank @Size(max = 30) String lifecycleStatusCode,
+            @NotBlank @Size(max = 30) String statusReasonCode,
+            @NotNull LocalDate effectiveDate,
+            @Size(max = 1000) String descriptionText,
+            @NotNull Long partyRecordVersion
+    ) {
+    }
+
+    public record PartyMergeRequest(
+            @NotNull Long targetPartyId,
+            @NotBlank @Size(max = 30) String mergeReasonCode,
+            @Size(max = 30) String conflictResolutionCode,
+            @NotNull Long partyRecordVersion
     ) {
     }
 }

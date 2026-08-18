@@ -1,0 +1,28 @@
+# CIF Party Operations — Phase 5
+
+نسخه: `0.3.16-prototype`
+
+## دامنه
+این فاز مدیریت عملیاتی `CIF.PARTY_CLASSIFICATION` را اضافه می‌کند. داده‌های مرجع رسمی این فرم عبارت‌اند از:
+
+- `CIF.REF_CLASSIFICATION_TYPE`
+- `CIF.REF_CLASSIFICATION_VALUE`
+- `CIF.REF_ASSIGNMENT_REASON`
+
+## قواعد
+- مقدار طبقه‌بندی وابسته به نوع طبقه‌بندی است.
+- فقط Reference Data فعال پذیرفته می‌شود.
+- `VALID_TO` نمی‌تواند قبل از `VALID_FROM` باشد.
+- ترکیب Party + نوع + مقدار + تاریخ شروع تکراری مجاز نیست.
+- ویرایش با `RECORD_VERSION` و Optimistic Lock انجام می‌شود.
+
+## Searchable Combo
+کامپوننت reusable `SearchableComboComponent` اضافه شده است. جست‌وجو با debounce به API Lookup ارسال می‌شود و برای داده‌های مرجع بزرگ لازم نیست همه گزینه‌ها یکجا به Browser منتقل شوند. Endpoint موجود Reference Data از پارامتر `text` استفاده می‌کند. برای `REF_CLASSIFICATION_VALUE` نیز endpoint وابسته به نوع طبقه‌بندی اضافه شده است:
+
+`GET /api/v1/cif/classification-values?typeCode=...&text=...&limit=50`
+
+## جریان
+Party → نشانی و تماس → مالی و شغلی → شناسه و مدارک → طبقه‌بندی → روابط و ذی‌نفعان
+
+## Migration
+`database/oracle/cif/migrations/0.3.16-party-classification-alignment.sql` ستون `DESCRIPTION_TEXT` را برای محیط‌های موجود به‌صورت idempotent اضافه می‌کند.
