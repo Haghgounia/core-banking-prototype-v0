@@ -2,7 +2,7 @@
 
 مدل منبع شامل 104 تعریف Reference Data است. پس از Phase 6 تمام آن‌ها تعیین تکلیف شده‌اند:
 
-- 96 جدول/فرم Reference Data در Schema `CIF`
+- 97 جدول/فرم Reference Data فعال در Schema `CIF` (96 مورد از مدل مرجع اصلی + `REF_TENURE_TYPE` افزوده‌شده برای وضعیت تصرف نشانی)
 - 6 مورد استفاده مجدد از `GEO`
 - 2 مورد استفاده مجدد از `DPS`
 - 0 مورد Deferred

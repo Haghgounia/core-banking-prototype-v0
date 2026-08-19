@@ -50,6 +50,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CifValidationException.class)
     ProblemDetail handleCifValidation(CifValidationException exception) {
+        log.warn("CIF validation failed: {} fields={}", exception.getMessage(), exception.fieldErrors());
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
         problem.setType(URI.create("urn:cif:problem:validation"));
         problem.setTitle("اطلاعات مشتری معتبر نیست");
@@ -74,6 +75,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     ProblemDetail handleIntegrity(DataIntegrityViolationException exception) {
+        log.warn("Database integrity violation: {}", rootMessage(exception));
         String message = rootMessage(exception).toUpperCase(Locale.ROOT);
         boolean dependent = message.contains("ORA-02292");
         boolean duplicate = message.contains("ORA-00001");

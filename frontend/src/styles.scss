@@ -157,3 +157,25 @@ mat-icon.mat-icon {
   font-feature-settings: 'liga';
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+
+/* Shared business-date field. Operational Party forms display Persian calendar dates
+   while the form value remains ISO/Gregorian for the API and Oracle. */
+.persian-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+.persian-date-field > span {
+  color: var(--app-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.persian-date-field .date-hint {
+  color: var(--app-muted);
+  font-size: 9px;
+  line-height: 1.6;
+}
+.persian-date-field.span-two { grid-column: span 2; }
+@media (max-width: 720px) { .persian-date-field.span-two { grid-column: auto; } }

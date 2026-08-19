@@ -2,7 +2,7 @@
   <header class="page-header">
     <div>
       <h1 class="page-title">مشخصات فنی سیستم</h1>
-      <p class="muted">نمای کلی معماری، ابزارها، فناوری‌ها و ماژول فعال اطلاعات پایه در Core Banking Prototype</p>
+      <p class="muted">نمای جاری معماری، فناوری‌ها، پوشش CIF/Party و دامنه‌های فعال اطلاعات پایه در Core Banking Prototype</p>
     </div>
     <div class="release-badge" aria-label="مشخصات نسخه">
       <mat-icon>verified</mat-icon>
@@ -15,24 +15,28 @@
 
   <div class="summary-grid">
     <article class="summary-card card">
-      <mat-icon>table_view</mat-icon>
-      <span>فرم فعال</span>
-      <strong>{{ release.activeForms }}</strong>
+      <mat-icon>dataset</mat-icon>
+      <span>فرم اطلاعات پایه</span>
+      <strong>{{ release.referenceForms }}</strong>
+      <small>{{ release.generalReferenceForms }} عمومی + {{ release.partyReferenceForms }} Party + {{ release.depositReferenceForms }} سپرده</small>
     </article>
     <article class="summary-card card">
-      <mat-icon>account_tree</mat-icon>
-      <span>الگوی پیاده‌سازی</span>
-      <strong>Descriptor-driven</strong>
+      <mat-icon>account_circle</mat-icon>
+      <span>صفحه عملیاتی Party</span>
+      <strong>{{ release.partyOperationalScreens }}</strong>
+      <small>از جست‌وجو و ایجاد تا ۳۶۰ و Merge</small>
+    </article>
+    <article class="summary-card card">
+      <mat-icon>table_view</mat-icon>
+      <span>پوشش جدول CIF</span>
+      <strong>{{ release.cifTableCoverage }}</strong>
+      <small>{{ release.cifOperationalTables }} Workflow + {{ release.cifReadOnly360Tables }} Read-only 360</small>
     </article>
     <article class="summary-card card">
       <mat-icon>database</mat-icon>
-      <span>Schema Oracle</span>
+      <span>Schemaهای Oracle</span>
       <strong>{{ release.databaseSchema }}</strong>
-    </article>
-    <article class="summary-card card">
-      <mat-icon>package_2</mat-icon>
-      <span>بسته استقرار</span>
-      <strong>Executable JAR</strong>
+      <small>سه دامنه فعال</small>
     </article>
   </div>
 
@@ -102,7 +106,7 @@
     <mat-icon>update</mat-icon>
     <div>
       <strong>قاعده نگهداری این صفحه</strong>
-      <p>در هر نسخه، شماره Release، نسخه فناوری‌ها، تعداد فرم‌های فعال و قابلیت‌های جدید در همین صفحه و فایل Changelog به‌روزرسانی می‌شوند.</p>
+      <p>در هر نسخه، Release و نسخه فناوری‌ها از فایل‌های پروژه همگام می‌شوند و آمار فرم‌ها، پوشش جدول‌های CIF و قابلیت‌های عملیاتی باید با Build جاری بازبینی شوند.</p>
     </div>
   </aside>
 </section>

@@ -1,0 +1,18 @@
+Core Banking Prototype 0.3.22-prototype-fix2 QA
+
+Scope: Party Address reference alignment
+
+1. SOURCE_CODE UI lookup -> CIF.REF_DATA_SOURCE: PASS
+2. TENURE_TYPE_CODE UI lookup -> CIF.REF_TENURE_TYPE: PASS
+3. REF_TENURE_TYPE JSON metadata and 4 seed rows: PASS
+4. Existing-install Oracle migration present/idempotent table creation + MERGE seed: PASS
+5. Address source/tenure/verification/address-type server-side active-reference validation: PASS
+6. Reference lookup filters IS_ACTIVE + VALID_FROM/VALID_TO: PASS
+7. Independent ADDRESS_LINE2 control removed from UI: PASS
+8. ADDRESS_LINE2 model/control value retained internally for existing-row compatibility: PASS
+9. VALID_FROM/VALID_TO labels clarified as address validity interval: PASS
+10. Relative TypeScript imports/template/style references missing: 0
+11. TypeScript parser-oriented syntax diagnostics: 0
+12. Java parser-oriented syntax diagnostics in changed backend files: 0
+
+Environment limitation: full Angular/Maven build was not run in this container because local Angular dependencies/Maven are unavailable. User Windows build-production.cmd remains the authoritative full build check.

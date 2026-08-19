@@ -15,13 +15,13 @@
 ## کنترل منبع مدل
 
 - فایل EA/XMI پیوست برای `PARTY_ROLE` تعداد ۲۱ ویژگی کسب‌وکاری تعریف می‌کند.
-- `CIF-tables3.xlsx` همان مدل را با سه ستون Audit سازگاری (`CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) در مجموع به ۲۴ ستون می‌رساند. این سه ستون حذف نشده‌اند تا DDL تاریخی و داده موجود شکسته نشود.
+- در نسخه‌های قدیمی Metadata سه ستون Audit سازگاری (`CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) نیز دیده می‌شد؛ طبق اصلاح Schema جاری در 2026-08-18 این سه ستون از `PARTY_ROLE` حذف شده‌اند و Runtime از `CREATED_AT/CREATED_BY/UPDATED_AT/UPDATED_BY` استفاده می‌کند.
 - فایل EA/XMI برای `PARTY_CUSTOMER` تعداد ۱۳ ویژگی تعریف می‌کند و Excel نیز همان ۱۳ ستون را دارد.
 - در XMI پیوست، بخش Constraintهای زیر کلاس `PARTY_CUSTOMER` ظاهراً متن‌هایی از `PARTY_CLASSIFICATION` را تکرار می‌کند، در حالی که Association موجود به Party و معنای `PARTY_ROLE_ID` رابطه Customer Role را نشان می‌دهد. این ناسازگاری منبع به‌عنوان Model-QA ثبت شده و در Prototype از ساختار فیلدها و معنای فرم عملیاتی استفاده شده است.
 
 ## مدل PARTY_ROLE
 
-نسخه جاری فایل `CIF-tables3.xlsx` برای `PARTY_ROLE` ۲۴ ستون دارد. هشت ستون جدید نسبت به DDL تاریخی عبارت‌اند از: `PRINCIPAL_PARTY_ID`, `RELATIONSHIP_TYPE_CODE`, `AUTHORITY_BASIS_CODE`, `AUTHORITY_DOCUMENT_NO`, `AUTHORITY_ISSUER`, `AUTHORITY_SCOPE_TEXT`, `ASSIGNMENT_REASON_TEXT`, `DESCRIPTION_TEXT`.
+مدل کسب‌وکاری جاری `PARTY_ROLE` پس از حذف سه Audit legacy دارای ۲۱ ستون است. هشت ستون توسعه Phase 7 عبارت‌اند از: `PRINCIPAL_PARTY_ID`, `RELATIONSHIP_TYPE_CODE`, `AUTHORITY_BASIS_CODE`, `AUTHORITY_DOCUMENT_NO`, `AUTHORITY_ISSUER`, `AUTHORITY_SCOPE_TEXT`, `ASSIGNMENT_REASON_TEXT`, `DESCRIPTION_TEXT`.
 
 ## مدل PARTY_CUSTOMER
 

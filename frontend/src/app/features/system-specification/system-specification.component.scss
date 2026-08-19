@@ -9,7 +9,8 @@
 .summary-card { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 4px 12px; padding: 18px; }
 .summary-card > mat-icon { grid-row: 1 / span 2; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; background: var(--app-primary-soft); color: var(--app-primary); }
 .summary-card span { color: var(--app-muted); font-size: .82rem; }
-.summary-card strong { overflow-wrap: anywhere; }
+.summary-card strong { overflow-wrap: anywhere; font-size: 1.15rem; }
+.summary-card small { grid-column: 2; color: var(--app-muted); font-size: .72rem; line-height: 1.7; }
 .section-card { padding: 22px; }
 .section-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
 .section-heading > mat-icon { color: var(--app-primary); }

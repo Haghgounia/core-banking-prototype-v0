@@ -26,10 +26,13 @@ if not exist "%JAR%" (
 
 set "CONFIG_PATH=%ROOT%\config\application.yml"
 set "CONFIG_URI=%CONFIG_PATH:\=/%"
+if not exist "%ROOT%\logs" mkdir "%ROOT%\logs"
+set "LOG_FILE=%ROOT%\logs\core-banking-prototype.log"
 
 echo Starting Core Banking Prototype %APP_VERSION%...
 echo JAR: %JAR%
 echo Configuration: %CONFIG_PATH%
+echo Log file: %LOG_FILE%
 java -jar "%JAR%" "--spring.config.additional-location=optional:file:/%CONFIG_URI%"
 set "EXIT_CODE=%ERRORLEVEL%"
 echo.

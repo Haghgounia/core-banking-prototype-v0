@@ -1,3 +1,36 @@
+## 0.3.22-prototype-fix6
+- Refreshed the System Specification page to the actual final CIF/Party scope instead of the old GEO/DPS-only snapshot.
+- Updated live scope metrics to 167 Reference Data forms (20 general/GEO + 97 CIF Party/Customer + 50 DPS), 12 Party operational screens, and 48 covered CIF operational tables (30 workflow + 18 read-only 360 sources).
+- Updated Oracle scope to the three active schemas CIF / GEO / DPS and refreshed architecture, technology and capability descriptions for Party onboarding, Customer role, KYC/Risk, Consent, Lifecycle/Merge, Persian dates, runtime logging and Party/Customer 360.
+- Updated the page review date to 2026-08-18. No database migration is required.
+
+## 0.3.22-prototype-fix5
+- PARTY_ROLE runtime schema correction: removed legacy `CREATED_DATE`, `LAST_MODIFIED_BY`, and `LAST_MODIFIED_DATE` from role INSERT/UPDATE SQL because these columns have been removed from the current Oracle schema.
+- Updated the bundled CIF DDL snapshot and Phase 7 documentation so new environments do not recreate the removed PARTY_ROLE audit columns.
+- No database migration is required for this fix; existing databases that still contain the legacy columns remain compatible because the application no longer references them.
+
+## 0.3.22-prototype-fix4
+- Synchronized `PartyReferenceMetadataRegistryTest` with the new `REF_TENURE_TYPE` reference table introduced by Address Fix 2/3.
+- Updated the Party reference catalog runtime count from 96 to 97 while preserving the original 104-source-definition accounting (96 source CIF references + 8 GEO/DPS mappings, plus the local tenure extension).
+- Added explicit test coverage for `ref-tenure-type`.
+
+## 0.3.22-prototype-fix3
+
+- Party Address UI realigned with the operational reference form: structured address fields are shown in the same two sections (address details / status and validity).
+- Removed user-facing ADDRESS_LINE1/ADDRESS_LINE2 fields; ADDRESS_LINE1 is derived from structured street/plaque/floor/unit fields and ADDRESS_LINE2 remains compatibility-only.
+- SOURCE_CODE remains database-backed via CIF.REF_DATA_SOURCE and TENURE_TYPE_CODE via CIF.REF_TENURE_TYPE.
+- Postal code, main street and plaque are now required in the UI; Iranian addresses also require province/county/city selections.
+- Persian valid-from/valid-to fields are kept and explicitly labeled as address validity, not verification timestamps.
+
+## 0.3.22-prototype-fix2
+
+- Party Address: `SOURCE_CODE` is now selected from `CIF.REF_DATA_SOURCE` instead of free text.
+- Party Address: added database-backed `CIF.REF_TENURE_TYPE` for `TENURE_TYPE_CODE` with Owner/Tenant/Organizational/Other seed values per the operational form.
+- Party Address: removed the independent `ADDRESS_LINE2` control from the operational UI; the physical optional column remains preserved for compatibility while `ADDRESS_DETAIL` is the single supplementary-address field shown to the user.
+- Party Address: clarified `VALID_FROM/VALID_TO` labels as the address-validity interval; no unsupported verification timestamp range was invented.
+- Reference lookups now honor `IS_ACTIVE`, `VALID_FROM` and `VALID_TO`; address reference codes are also validated server-side.
+- Added idempotent Oracle migration `0.3.22-fix2-address-reference-alignment.sql`.
+
 ## 0.3.22-prototype
 
 - Completed Party Operations Phase 11 as the final Party / Customer 360 and end-to-end hardening slice; no new source-domain CRUD was introduced.
@@ -173,7 +206,7 @@
 - Completed the Party/Customer reference catalog with Phase 6 Analytics and Recommendation.
 - Added 7 CIF reference tables and 24 reviewed seed rows for metrics, metric units, analytics models, recommendations and score metadata.
 - Reused `DPS.REF_CUSTOMER_SEGMENT_CODE` instead of creating duplicate `CIF.REF_CUSTOMER_SEGMENT`.
-- Party Reference catalog now exposes 96 CIF-owned forms; all 104 source definitions are resolved with 8 GEO/DPS mappings and no deferred items.
+- Original Party Reference source catalog exposes 96 CIF-owned forms; all 104 source definitions are resolved with 8 GEO/DPS mappings and no deferred items. Runtime catalog is 97 after the local `REF_TENURE_TYPE` extension.
 - Added completion mapping/documentation for the entire Party/Customer reference catalog.
 
 ## 0.3.6-prototype

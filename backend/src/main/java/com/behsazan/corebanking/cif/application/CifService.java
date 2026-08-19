@@ -41,6 +41,8 @@ import com.behsazan.corebanking.cif.error.CifValidationException;
 import com.behsazan.corebanking.cif.oracle.CifRepository;
 import com.behsazan.corebanking.cif.reference.domain.PartyReferenceModels.LookupOption;
 import com.behsazan.corebanking.shared.model.PageResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +56,7 @@ import java.util.Set;
 
 @Service
 public class CifService {
+    private static final Logger log = LoggerFactory.getLogger(CifService.class);
     private static final Set<String> PARTY_TYPES = Set.of("PERSON", "ORGANIZATION");
     private static final Set<String> YES_NO = Set.of("Y", "N");
     private static final Set<String> DUE_DILIGENCE = Set.of("SDD", "CDD", "EDD");
@@ -249,6 +252,7 @@ public class CifService {
     @Transactional
     public Party360Response onboardParty(PartyOnboardingRequest raw, String actor) {
         String partyType = upper(raw.party().partyTypeCode());
+        log.info("Party onboarding started: type={}, actor={}", partyType, actor);
         Map<String, String> errors = new LinkedHashMap<>();
         if (!PARTY_TYPES.contains(partyType)) {
             errors.put("party.partyTypeCode", "نوع پارتی فقط PERSON یا ORGANIZATION است.");
@@ -327,7 +331,9 @@ public class CifService {
                 identifier.validTo(), null
         ), actor);
 
-        return find(partyId);
+        Party360Response result = find(partyId);
+        log.info("Party onboarding completed: partyId={}, type={}", partyId, partyType);
+        return result;
     }
 
     @Transactional
@@ -1249,10 +1255,22 @@ public class CifService {
         );
     }
 
-    private static void validateAddress(PartyAddressRequest r) {
+    private void validateAddress(PartyAddressRequest r) {
         Map<String, String> errors = new LinkedHashMap<>();
         checkFlag("isPrimary", r.isPrimary(), errors);
         checkDateOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
+        if (!repository.activeReferenceCodeExists("REF_ADDRESS_TYPE", "ADDRESS_TYPE_CODE", r.addressTypeCode())) {
+            errors.put("addressTypeCode", "نوع نشانی در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(r.tenureTypeCode()) && !repository.activeReferenceCodeExists("REF_TENURE_TYPE", "TENURE_TYPE_CODE", r.tenureTypeCode())) {
+            errors.put("tenureTypeCode", "وضعیت تصرف در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(r.verificationStatusCode()) && !repository.activeReferenceCodeExists("REF_VERIFICATION_STATUS", "VERIFICATION_STATUS_CODE", r.verificationStatusCode())) {
+            errors.put("verificationStatusCode", "وضعیت تأیید در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(r.sourceCode()) && !repository.activeReferenceCodeExists("REF_DATA_SOURCE", "DATA_SOURCE_CODE", r.sourceCode())) {
+            errors.put("sourceCode", "منبع نشانی در داده مرجع فعال یافت نشد.");
+        }
         reject(errors);
     }
 

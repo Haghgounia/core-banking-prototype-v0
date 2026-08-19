@@ -1967,14 +1967,12 @@ public class CifRepository {
                 INSERT INTO %s (
                     PARTY_ROLE_ID, PARTY_ID, ROLE_TYPE_CODE, CONTEXT_TYPE_CODE, CONTEXT_ID, VALID_FROM, VALID_TO,
                     STATUS_CODE, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY, RECORD_VERSION,
-                    CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, PRINCIPAL_PARTY_ID, RELATIONSHIP_TYPE_CODE,
-                    AUTHORITY_BASIS_CODE, AUTHORITY_DOCUMENT_NO, AUTHORITY_ISSUER, AUTHORITY_SCOPE_TEXT,
-                    ASSIGNMENT_REASON_TEXT, DESCRIPTION_TEXT
+                    PRINCIPAL_PARTY_ID, RELATIONSHIP_TYPE_CODE, AUTHORITY_BASIS_CODE, AUTHORITY_DOCUMENT_NO,
+                    AUTHORITY_ISSUER, AUTHORITY_SCOPE_TEXT, ASSIGNMENT_REASON_TEXT, DESCRIPTION_TEXT
                 ) VALUES (
                     :id, :partyId, :roleType, :contextType, :contextId, :validFrom, :validTo, :statusCode,
-                    SYSTIMESTAMP, :actor, NULL, NULL, 1, SYSTIMESTAMP, :actor, SYSTIMESTAMP, :principalPartyId,
-                    :relationshipType, :authorityBasis, :authorityDocumentNo, :authorityIssuer, :authorityScope,
-                    :assignmentReason, :description
+                    SYSTIMESTAMP, :actor, NULL, NULL, 1, :principalPartyId, :relationshipType, :authorityBasis,
+                    :authorityDocumentNo, :authorityIssuer, :authorityScope, :assignmentReason, :description
                 )
                 """.formatted(table("PARTY_ROLE"));
         bindRole(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor).update();
@@ -1989,7 +1987,7 @@ public class CifRepository {
                     AUTHORITY_DOCUMENT_NO=:authorityDocumentNo, AUTHORITY_ISSUER=:authorityIssuer,
                     AUTHORITY_SCOPE_TEXT=:authorityScope, ASSIGNMENT_REASON_TEXT=:assignmentReason,
                     DESCRIPTION_TEXT=:description, UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor,
-                    LAST_MODIFIED_BY=:actor, LAST_MODIFIED_DATE=SYSTIMESTAMP, RECORD_VERSION=RECORD_VERSION+1
+                    RECORD_VERSION=RECORD_VERSION+1
                 WHERE PARTY_ROLE_ID=:roleId AND PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
                 """.formatted(table("PARTY_ROLE"));
         return bindRole(jdbc.sql(sql).param("roleId", roleId).param("partyId", partyId), r, actor)
@@ -2606,7 +2604,10 @@ public class CifRepository {
         if (!SQL_NAME.matcher(tableName).matches() || !SQL_NAME.matcher(codeColumn).matches()) {
             throw new IllegalArgumentException("Invalid reference metadata name");
         }
-        return jdbc.sql("SELECT COUNT(*) FROM " + table(tableName) + " WHERE " + codeColumn + "=:code AND IS_ACTIVE=1")
+        return jdbc.sql("SELECT COUNT(*) FROM " + table(tableName)
+                        + " WHERE " + codeColumn + "=:code AND IS_ACTIVE=1"
+                        + " AND (VALID_FROM IS NULL OR VALID_FROM <= TRUNC(SYSDATE))"
+                        + " AND (VALID_TO IS NULL OR VALID_TO >= TRUNC(SYSDATE))")
                 .param("code", code).query(Long.class).single() > 0;
     }
 

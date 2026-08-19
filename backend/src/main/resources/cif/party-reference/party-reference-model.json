@@ -78,6 +78,7 @@
         "REF_RESIDENCE_STATUS",
         "REF_ROLE_TYPE",
         "REF_SIGNING_RULE",
+        "REF_TENURE_TYPE",
         "REF_SOURCE_SYSTEM",
         "REF_SPECIMEN_TYPE"
       ]
@@ -17447,6 +17448,185 @@
         }
       ],
       "relation": null
+    },
+    "REF_TENURE_TYPE": {
+      "name": "REF_TENURE_TYPE",
+      "title": "وضعیت تصرف نشانی",
+      "package": "Identity and Party",
+      "packageFa": "هویت و Party",
+      "documentation": "جدول مرجع وضعیت تصرف نشانی؛ افزوده‌شده در 0.3.22-fix2 طبق الزام عملیاتی کاربر. این جدول در XMI/CIF-tables4 اولیه وجود نداشت.",
+      "columns": [
+        {
+          "name": "TENURE_TYPE_CODE",
+          "label": "کد وضعیت تصرف",
+          "type": "VARCHAR2",
+          "length": "50",
+          "precision": "0",
+          "scale": "0",
+          "required": true,
+          "default": null,
+          "description": "کلید کد مرجع TENURE_TYPE_CODE"
+        },
+        {
+          "name": "NAME_FA",
+          "label": "عنوان فارسی",
+          "type": "VARCHAR2",
+          "length": "200",
+          "precision": "0",
+          "scale": "0",
+          "required": true,
+          "default": null,
+          "description": "عنوان فارسی"
+        },
+        {
+          "name": "NAME_EN",
+          "label": "عنوان انگلیسی",
+          "type": "VARCHAR2",
+          "length": "200",
+          "precision": "0",
+          "scale": "0",
+          "required": false,
+          "default": null,
+          "description": "عنوان انگلیسی"
+        },
+        {
+          "name": "DESCRIPTION_FA",
+          "label": "توضیحات فارسی",
+          "type": "VARCHAR2",
+          "length": "1000",
+          "precision": "0",
+          "scale": "0",
+          "required": false,
+          "default": null,
+          "description": "شرح فارسی"
+        },
+        {
+          "name": "SORT_ORDER",
+          "label": "ترتیب نمایش",
+          "type": "NUMBER",
+          "length": "0",
+          "precision": "10",
+          "scale": "0",
+          "required": true,
+          "default": "10",
+          "description": "ترتیب نمایش"
+        },
+        {
+          "name": "IS_ACTIVE",
+          "label": "فعال است؟",
+          "type": "NUMBER",
+          "length": "0",
+          "precision": "1",
+          "scale": "0",
+          "required": true,
+          "default": "1",
+          "description": "وضعیت فعال بودن"
+        },
+        {
+          "name": "PARENT_CODE",
+          "label": "کد والد",
+          "type": "VARCHAR2",
+          "length": "50",
+          "precision": "0",
+          "scale": "0",
+          "required": false,
+          "default": null,
+          "description": "کد والد اختیاری؛ فقط در صورت تعریف رابطه سلسله‌مراتبی استفاده شود"
+        },
+        {
+          "name": "VALID_FROM",
+          "label": "شروع اعتبار",
+          "type": "DATE",
+          "length": "0",
+          "precision": "0",
+          "scale": "0",
+          "required": false,
+          "default": null,
+          "description": "تاریخ شروع اعتبار"
+        },
+        {
+          "name": "VALID_TO",
+          "label": "پایان اعتبار",
+          "type": "DATE",
+          "length": "0",
+          "precision": "0",
+          "scale": "0",
+          "required": false,
+          "default": null,
+          "description": "تاریخ پایان اعتبار"
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "نسخه رکورد",
+          "type": "NUMBER",
+          "length": "0",
+          "precision": "10",
+          "scale": "0",
+          "required": true,
+          "default": "1",
+          "description": "نسخه رکورد"
+        }
+      ],
+      "pk": [
+        "TENURE_TYPE_CODE"
+      ],
+      "checks": [
+        "IS_ACTIVE IN (0,1)",
+        "VALID_TO IS NULL OR VALID_FROM IS NULL OR VALID_TO >= VALID_FROM",
+        "SORT_ORDER >= 0",
+        "RECORD_VERSION >= 1"
+      ],
+      "seedRows": [
+        {
+          "TENURE_TYPE_CODE": "OWNER",
+          "NAME_FA": "مالک",
+          "NAME_EN": "Owner",
+          "DESCRIPTION_FA": null,
+          "SORT_ORDER": 10,
+          "IS_ACTIVE": 1,
+          "PARENT_CODE": null,
+          "VALID_FROM": null,
+          "VALID_TO": null,
+          "RECORD_VERSION": 1
+        },
+        {
+          "TENURE_TYPE_CODE": "TENANT",
+          "NAME_FA": "مستأجر",
+          "NAME_EN": "Tenant",
+          "DESCRIPTION_FA": null,
+          "SORT_ORDER": 20,
+          "IS_ACTIVE": 1,
+          "PARENT_CODE": null,
+          "VALID_FROM": null,
+          "VALID_TO": null,
+          "RECORD_VERSION": 1
+        },
+        {
+          "TENURE_TYPE_CODE": "ORGANIZATIONAL",
+          "NAME_FA": "سازمانی",
+          "NAME_EN": "Organizational",
+          "DESCRIPTION_FA": null,
+          "SORT_ORDER": 30,
+          "IS_ACTIVE": 1,
+          "PARENT_CODE": null,
+          "VALID_FROM": null,
+          "VALID_TO": null,
+          "RECORD_VERSION": 1
+        },
+        {
+          "TENURE_TYPE_CODE": "OTHER",
+          "NAME_FA": "سایر",
+          "NAME_EN": "Other",
+          "DESCRIPTION_FA": null,
+          "SORT_ORDER": 40,
+          "IS_ACTIVE": 1,
+          "PARENT_CODE": null,
+          "VALID_FROM": null,
+          "VALID_TO": null,
+          "RECORD_VERSION": 1
+        }
+      ],
+      "relation": null
     }
   },
   "relations": {
@@ -17468,7 +17648,7 @@
   },
   "sourceStats": {
     "sourceTableCount": 104,
-    "enabledTableCount": 96,
+    "enabledTableCount": 97,
     "mappedExternalTableCount": 8,
     "phase": "Phase 6 - Analytics and Recommendation (Reference Catalog Complete)"
   }

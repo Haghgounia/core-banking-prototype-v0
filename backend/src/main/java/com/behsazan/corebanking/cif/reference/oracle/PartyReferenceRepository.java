@@ -141,6 +141,8 @@ public class PartyReferenceRepository {
         List<String> where = new ArrayList<>();
         Map<String, Object> params = new LinkedHashMap<>();
         if (table.hasColumn("IS_ACTIVE")) where.add("T.IS_ACTIVE = 1");
+        if (table.hasColumn("VALID_FROM")) where.add("(T.VALID_FROM IS NULL OR T.VALID_FROM <= TRUNC(SYSDATE))");
+        if (table.hasColumn("VALID_TO")) where.add("(T.VALID_TO IS NULL OR T.VALID_TO >= TRUNC(SYSDATE))");
         if (text != null && !text.isBlank()) {
             where.add("(UPPER(T." + id(codeColumn) + ") LIKE :text OR UPPER(T." + id(labelColumn) + ") LIKE :text)");
             params.put("text", "%" + text.trim().toUpperCase() + "%");

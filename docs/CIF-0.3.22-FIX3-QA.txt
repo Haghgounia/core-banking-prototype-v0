@@ -1,0 +1,19 @@
+Core Banking Prototype 0.3.22-prototype-fix3 QA
+
+Party Address form:
+- Visible form aligned with Party-Operation_Froms-1.html address page.
+- Address detail fields present: type, country, province, county, city, district, neighborhood, main street, side street, plaque, floor, unit, postal code, address detail.
+- Status/validity fields present: primary, tenure, valid from, valid to, verification status, source.
+- User-facing ADDRESS_LINE1 / ADDRESS_LINE2 fields removed.
+- ADDRESS_LINE1 derived from structured address fields before API submit.
+- SOURCE_CODE control is database-backed: CIF.REF_DATA_SOURCE.
+- TENURE_TYPE_CODE control is database-backed: CIF.REF_TENURE_TYPE.
+- Persian date controls retained for VALID_FROM / VALID_TO.
+- Iranian geography requires province/county/city selections.
+- Postal code is 10 digits; main street and plaque are required.
+
+Static QA:
+- Relative TypeScript imports: 91, missing 0.
+- Template/style references: 40, missing 0.
+- TypeScript parser diagnostics: none.
+- party-contact-address template form/section/article/div tags balanced.

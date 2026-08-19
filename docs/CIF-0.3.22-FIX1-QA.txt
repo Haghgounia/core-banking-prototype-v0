@@ -1,0 +1,26 @@
+Core Banking Prototype 0.3.22-prototype-fix1 QA
+
+Party onboarding submit
+- Root cause: party-create outer <form> listened for ngSubmit without owning a FormGroup/NgForm directive.
+- Browser native submit could therefore reload the page before the Angular onboarding method was called.
+- Fix: native submit is intercepted explicitly and preventDefault() is called before async onboarding.
+- Audit: 0 ngSubmit forms without [formGroup] remain in frontend/src/app.
+
+Persian/Jalali business dates
+- Reusable ControlValueAccessor: shared/ui/persian-date-input.component.ts
+- 61 date/date-time controls across 11 CIF operational templates use the Persian calendar control.
+- 0 native date/datetime-local controls remain in CIF operational templates.
+- API values remain ISO Gregorian for Java/Oracle compatibility.
+- Spot checks: 1405/01/01 -> 2026-03-21; 1405/05/27 -> 2026-08-18; invalid 1404/12/30 is rejected.
+
+Logging
+- Runtime log: logs/core-banking-prototype.log
+- Rolling policy: 10 MB/file, 10 history files, 200 MB total cap.
+- start.cmd prints the resolved log path.
+- Onboarding logs type/ID only; no name/identifier PII is logged.
+
+Static checks
+- Relative TypeScript imports: 91, missing: 0
+- Template/style references: 40, missing: 0
+- TypeScript syntax-oriented diagnostics: 0
+- Java parser-like syntax signals: 0 (full dependency compile not available in this sandbox)

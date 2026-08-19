@@ -21,12 +21,13 @@ frontend/src/app/features/system-specification/system-specification.component.sc
 
 1. `release.version`
 2. `release.lastUpdated`
-3. `release.activeForms`
-4. `release.databaseSchema`
-5. نسخه Dependencyهای `backend/pom.xml`
-6. نسخه Dependencyهای `frontend/package.json`
-7. فهرست قابلیت‌های نسخه جاری
-8. `VERSION` و `CHANGELOG.md`
+3. آمار `referenceForms` و تفکیک عمومی / Party / سپرده
+4. آمار `partyOperationalScreens` و پوشش `cifTableCoverage`
+5. `release.databaseSchema`
+6. نسخه Dependencyهای `backend/pom.xml`
+7. نسخه Dependencyهای `frontend/package.json`
+8. فهرست قابلیت‌های نسخه جاری
+9. `VERSION` و `CHANGELOG.md`
 
 این صفحه باید فقط قابلیت‌های واقعاً موجود در Build جاری را نمایش دهد.
 
@@ -44,4 +45,4 @@ tools/sync-system-specification.mjs
 frontend/src/app/features/system-specification/system-version.generated.ts
 ```
 
-تاریخ بازنگری، تعداد فرم‌ها و فهرست قابلیت‌ها همچنان باید در هر Release به‌صورت آگاهانه بررسی شوند.
+تاریخ بازنگری، تعداد فرم‌های Reference، تعداد صفحات عملیاتی Party، پوشش جدول‌های CIF و فهرست قابلیت‌ها همچنان باید در هر Release به‌صورت آگاهانه بررسی شوند. در نسخه 0.3.22-fix6 مقادیر جاری 167 فرم Reference، 12 صفحه عملیاتی Party و 48 جدول CIF است.

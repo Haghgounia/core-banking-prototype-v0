@@ -12,7 +12,7 @@ deposit-product reference-data    -> Schema DPS
 customer-information-file (CIF)   -> Schema CIF
 ```
 
-در این نسخه ۱۲۳ فرم اطلاعات پایه فعال هستند: ۲۰ فرم GEO، ۵۰ فرم `DPS.REF_*` و ۵۳ فرم اطلاعات پایه Party/Customer در CIF. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
+در این نسخه ۱۶۷ فرم اطلاعات پایه فعال هستند: ۲۰ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*` و ۹۷ فرم اطلاعات پایه Party/Customer در CIF. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
 
 برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. مسیر عملیاتی CIF از ایجاد Party تا اطلاعات Person/Organization، تماس و نشانی، مالی، شناسه و مدرک، طبقه‌بندی، روابط/UBO، Role/Customer، KYC/Risk/Screening، Consent/Preference، Lifecycle و Merge تکمیل شده است. در نسخه 0.3.22 تمام ۴۸ جدول عملیاتی موجود در `CIF-tables4.xlsx` در Backend پوشش داده می‌شوند: ۳۰ جدول در Workflowهای CIF استفاده/نگهداری می‌شوند و ۱۸ جدول تکمیلی بدون CRUD در CIF به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند؛ محصولات/تعاملات/شکایات و مشابه آن از سامانه‌های مبدأ می‌آیند و Registration/Audit صرفاً Trace خواندنی هستند.
 
@@ -116,9 +116,9 @@ DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون ب
 
 ## قابلیت‌های ماژول اطلاعات پایه
 
-- ۱۲۳ فرم فعال اطلاعات پایه؛ شامل ۲۰ فرم GEO، ۵۰ فرم مرجع محصول سپرده در DPS و ۵۳ فرم Party/Customer در CIF
+- ۱۶۷ فرم فعال اطلاعات پایه؛ شامل ۲۰ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS و ۹۷ فرم Party/Customer در CIF
 - فهرست Party و پرونده جامع Customer 360 در ماژول CIF
-- CRUD عملیاتی CIF برای ۲۸ جدول: ۱۲ جدول پایه، `CONTACT_POINT_ADDRESS` در فاز ۲، پنج جدول مالی/شغلی/مجوز در فاز ۳، `PARTY_CLASSIFICATION` در فاز ۵ و سه جدول روابط/UBO/اختیار در فاز ۶ و دو جدول نقش/مشتری در فاز ۷؛ فاز ۸ نیز KYC/Risk/Screening موجود را به Workflow عملیاتی کامل ارتقا داده و `EXTERNAL_INQUIRY_RESULT` را به‌عنوان جدول عملیاتی جدید اضافه می‌کند؛ فاز ۹ `PARTY_CONSENT`، `COMMUNICATION_PREFERENCE` و `PARTY_GENERAL_PREFERENCE` را اضافه می‌کند؛ فاز ۴ نیز Workflow اختصاصی `PARTY_IDENTIFIER` و `PARTY_DOCUMENT` را تکمیل می‌کند
+- پوشش کامل ۴۸ جدول عملیاتی CIF مطابق `CIF-tables4.xlsx`: ۳۰ جدول در Workflowهای ایجاد/نگهداری Party استفاده می‌شوند و ۱۸ جدول تکمیلی به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند
 - Runtime عمومی Descriptor-driven
 - جست‌وجو، مرتب‌سازی و صفحه‌بندی سمت سرور
 - ComboBox جست‌وجویی reusable با debounce و جست‌وجوی سمت سرور برای Reference Data
@@ -267,3 +267,13 @@ tools/sync-system-specification.mjs
 راهنمای فاز ۱۰ چرخه عمر و ادغام: `docs/CIF-PARTY-OPERATIONS-PHASE10-FA.md`
 
 راهنمای فاز ۱۱ Party / Customer 360 نهایی و Hardening: `docs/CIF-PARTY-OPERATIONS-PHASE11-FA.md`
+
+### اصلاح نشانی Party در 0.3.22-fix2
+
+در این Fix، `PARTY_ADDRESS.SOURCE_CODE` از `CIF.REF_DATA_SOURCE` و `TENURE_TYPE_CODE` از جدول مرجع جدید `CIF.REF_TENURE_TYPE` خوانده می‌شود. برای دیتابیس موجود قبل از اجرای Backend، اسکریپت زیر اجرا شود:
+
+```text
+database/oracle/cif/migrations/0.3.22-fix2-address-reference-alignment.sql
+```
+
+`VALID_FROM/VALID_TO` در فرم نشانی بازه اعتبار نشانی برای Party هستند؛ زمان تأیید مستقل در مدل `PARTY_ADDRESS` وجود ندارد. فیلد مستقل «سطر تکمیلی نشانی» نیز از UI حذف شده و `ADDRESS_DETAIL` برای شرح تکمیلی استفاده می‌شود.
