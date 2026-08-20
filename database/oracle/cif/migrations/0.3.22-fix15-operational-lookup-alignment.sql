@@ -1,0 +1,91 @@
+PROMPT =====================================================================
+PROMPT Core Banking Prototype 0.3.22-fix15 - operational lookup alignment
+PROMPT =====================================================================
+
+-- Ensure operational source-of-funds ComboBoxes are populated even when an
+-- earlier reference-data seed package was not executed on an existing schema.
+MERGE INTO CIF.REF_SOURCE_OF_FUNDS T
+USING (
+  SELECT 'SALARY' SOURCE_OF_FUNDS_CODE, 'حقوق و دستمزد' NAME_FA, 'Salary' NAME_EN, 10 SORT_ORDER FROM DUAL UNION ALL
+  SELECT 'BUSINESS_INCOME', 'درآمد کسب‌وکار', 'Business Income', 20 FROM DUAL UNION ALL
+  SELECT 'SAVINGS', 'پس‌انداز', 'Savings', 30 FROM DUAL UNION ALL
+  SELECT 'INVESTMENT', 'سرمایه‌گذاری', 'Investment', 40 FROM DUAL UNION ALL
+  SELECT 'INHERITANCE', 'ارث', 'Inheritance', 50 FROM DUAL
+) S
+ON (T.SOURCE_OF_FUNDS_CODE = S.SOURCE_OF_FUNDS_CODE)
+WHEN MATCHED THEN UPDATE SET
+  T.NAME_FA = S.NAME_FA, T.NAME_EN = S.NAME_EN, T.SORT_ORDER = S.SORT_ORDER, T.IS_ACTIVE = 1
+WHEN NOT MATCHED THEN INSERT (
+  SOURCE_OF_FUNDS_CODE, NAME_FA, NAME_EN, DESCRIPTION_FA, SORT_ORDER,
+  IS_ACTIVE, PARENT_CODE, VALID_FROM, VALID_TO, RECORD_VERSION
+) VALUES (
+  S.SOURCE_OF_FUNDS_CODE, S.NAME_FA, S.NAME_EN, NULL, S.SORT_ORDER,
+  1, NULL, NULL, NULL, 1
+);
+
+-- Fix the prototype ISIC catalog so the operational UI never receives numeric
+-- codes as the Persian display title for the seeded activities.
+MERGE INTO CIF.REF_ISIC_ACTIVITY T
+USING (
+  SELECT '6419' ISIC_CODE, 'سایر واسطه‌گری‌های پولی' NAME_FA, 'Other monetary intermediation' NAME_EN, 10 SORT_ORDER FROM DUAL UNION ALL
+  SELECT '6201', 'فعالیت‌های برنامه‌نویسی رایانه‌ای', 'Computer programming activities', 20 FROM DUAL UNION ALL
+  SELECT '4690', 'عمده‌فروشی غیرتخصصی', 'Non-specialized wholesale trade', 30 FROM DUAL UNION ALL
+  SELECT '0111', 'کشت غلات (به‌جز برنج)، حبوبات و دانه‌های روغنی', 'Growing of cereals, leguminous crops and oil seeds', 40 FROM DUAL
+) S
+ON (T.ISIC_CODE = S.ISIC_CODE)
+WHEN MATCHED THEN UPDATE SET
+  T.NAME_FA = S.NAME_FA, T.NAME_EN = S.NAME_EN, T.SORT_ORDER = S.SORT_ORDER, T.IS_ACTIVE = 1
+WHEN NOT MATCHED THEN INSERT (
+  ISIC_CODE, NAME_FA, NAME_EN, DESCRIPTION_FA, SORT_ORDER,
+  IS_ACTIVE, PARENT_CODE, VALID_FROM, VALID_TO, RECORD_VERSION
+) VALUES (
+  S.ISIC_CODE, S.NAME_FA, S.NAME_EN, NULL, S.SORT_ORDER,
+  1, NULL, NULL, NULL, 1
+);
+
+-- Reuse the shared workflow-status reference for operational STATUS_CODE fields.
+MERGE INTO CIF.REF_WORKFLOW_STATUS T
+USING (
+  SELECT 'ACTIVE' STATUS_CODE, 'فعال' NAME_FA, 'Active' NAME_EN, 10 SORT_ORDER FROM DUAL UNION ALL
+  SELECT 'INACTIVE', 'غیرفعال', 'Inactive', 20 FROM DUAL UNION ALL
+  SELECT 'SUSPENDED', 'تعلیق‌شده', 'Suspended', 30 FROM DUAL UNION ALL
+  SELECT 'UNDER_REVIEW', 'در حال بررسی', 'Under Review', 40 FROM DUAL UNION ALL
+  SELECT 'PENDING_APPROVAL', 'در انتظار تأیید', 'Pending Approval', 50 FROM DUAL UNION ALL
+  SELECT 'COMPLETED', 'تکمیل‌شده', 'Completed', 60 FROM DUAL UNION ALL
+  SELECT 'REJECTED', 'ردشده', 'Rejected', 70 FROM DUAL UNION ALL
+  SELECT 'REVOKED', 'لغوشده', 'Revoked', 80 FROM DUAL UNION ALL
+  SELECT 'EXPIRED', 'منقضی', 'Expired', 90 FROM DUAL
+) S
+ON (T.STATUS_CODE = S.STATUS_CODE)
+WHEN MATCHED THEN UPDATE SET
+  T.NAME_FA = S.NAME_FA, T.NAME_EN = S.NAME_EN, T.SORT_ORDER = S.SORT_ORDER, T.IS_ACTIVE = 1
+WHEN NOT MATCHED THEN INSERT (
+  STATUS_CODE, NAME_FA, NAME_EN, DESCRIPTION_FA, SORT_ORDER,
+  IS_ACTIVE, PARENT_CODE, VALID_FROM, VALID_TO, RECORD_VERSION
+) VALUES (
+  S.STATUS_CODE, S.NAME_FA, S.NAME_EN, NULL, S.SORT_ORDER,
+  1, NULL, NULL, NULL, 1
+);
+
+COMMIT;
+
+DECLARE
+  V_BAD NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO V_BAD FROM CIF.REF_SOURCE_OF_FUNDS
+   WHERE SOURCE_OF_FUNDS_CODE IN ('SALARY','BUSINESS_INCOME','SAVINGS','INVESTMENT','INHERITANCE')
+     AND (NAME_FA IS NULL OR TRIM(NAME_FA) = SOURCE_OF_FUNDS_CODE);
+  IF V_BAD <> 0 THEN RAISE_APPLICATION_ERROR(-20115, 'REF_SOURCE_OF_FUNDS alignment failed.'); END IF;
+
+  SELECT COUNT(*) INTO V_BAD FROM CIF.REF_ISIC_ACTIVITY
+   WHERE ISIC_CODE IN ('6419','6201','4690','0111')
+     AND (NAME_FA IS NULL OR TRIM(NAME_FA) = ISIC_CODE OR REGEXP_LIKE(TRIM(NAME_FA), '^[0-9]+$'));
+  IF V_BAD <> 0 THEN RAISE_APPLICATION_ERROR(-20116, 'REF_ISIC_ACTIVITY Persian-title alignment failed.'); END IF;
+
+  SELECT COUNT(*) INTO V_BAD FROM CIF.REF_WORKFLOW_STATUS
+   WHERE STATUS_CODE IN ('ACTIVE','INACTIVE','UNDER_REVIEW') AND IS_ACTIVE <> 1;
+  IF V_BAD <> 0 THEN RAISE_APPLICATION_ERROR(-20117, 'REF_WORKFLOW_STATUS alignment failed.'); END IF;
+END;
+/
+
+PROMPT 0.3.22-fix15 operational lookup alignment completed.

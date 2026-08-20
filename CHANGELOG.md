@@ -1,3 +1,13 @@
+## 0.3.22-prototype-fix15
+
+- Fixed external-employer entry with an explicit internal/external employer mode; the business user can now either select an existing CIF Party employer or enter an external employer name/identifier, while the existing backend XOR invariant remains enforced.
+- Hardened economic-activity display so Persian ISIC titles are shown instead of numeric codes; aligned runtime metadata, fresh-install seeds and an idempotent migration.
+- Populated income/source-of-funds and operational status ComboBoxes from Reference Data with controlled fallbacks; income rows now show type, amount/currency, status and documentation state instead of an ambiguous single title.
+- Replaced raw asset/liability `ITEM_TYPE_CODE` with a 13-value Persian business selector, populated asset/liability status from shared workflow statuses, and added matching backend validation.
+- Corrected post-save UX for additional identifiers and Party documents by resetting Angular submitted state and clearing residual focus after successful persistence.
+- Reworked Party-document handling: `CONTENT_HASH` and `STORAGE_REF` are system-owned and no longer user inputs. Added PDF/JPEG/PNG/TIFF upload (20 MB), server-side SHA-256, private file storage with opaque `cif-doc:` references, and document-file retrieval. Scanner output files are supported; direct hardware scanning is explicitly reserved for an approved local scanner Agent/middleware.
+- Added migration `0.3.22-fix15-operational-lookup-alignment.sql` and QA report `CIF-0.3.22-FIX15-OPERATIONAL-FORMS-QA.md`.
+
 ## 0.3.22-prototype-fix14
 
 - Financial/employment operational UI now shows meaningful Persian economic-activity titles instead of raw ISIC codes; the existing REF_ISIC_ACTIVITY seed values and runtime metadata are corrected and an idempotent migration updates existing databases.

@@ -292,3 +292,15 @@ database/oracle/cif/migrations/0.3.22-fix9-contact-date-address-source.sql
 ### اصلاح Fix 12
 - در فرم شناسه، کاربر فقط «مرجع صادرکننده» را انتخاب می‌کند و کد فنی `ISSUER_CODE` در پشت‌صحنه از همان انتخاب تولید می‌شود.
 - پیام‌های اعتبارسنجی CIF از `ProblemDetail.fieldErrors` به‌صورت مستقیم در فرم نمایش داده می‌شوند.
+
+### اصلاح Fix 15 — Lookupهای عملیاتی و مدیریت فایل مدارک
+
+در `0.3.22-prototype-fix15` نمایش و ورود کدهای فنی در فرم‌های مالی/شغلی و مدارک بازبینی شده است. فعالیت اقتصادی و انواع/وضعیت‌های عملیاتی با عنوان فارسی نمایش داده می‌شوند، کارفرمای خارج از سامانه مسیر ورود مستقل دارد، Grid منابع درآمد اطلاعات کامل رکورد را نشان می‌دهد و وضعیت‌های منابع درآمد/دارایی از `CIF.REF_WORKFLOW_STATUS` استفاده می‌کنند.
+
+برای دیتابیس موجود Migration زیر اجرا شود:
+
+```text
+database/oracle/cif/migrations/0.3.22-fix15-operational-lookup-alignment.sql
+```
+
+در فرم مدارک، `CONTENT_HASH` و `STORAGE_REF` دیگر ورودی کاربر نیستند. فایل PDF/JPEG/PNG/TIFF از UI بارگذاری می‌شود، SHA-256 و مرجع `cif-doc:` توسط Backend تولید می‌شوند و فایل در Repository خصوصی تنظیم‌شده با `DOCUMENT_STORAGE_ROOT` نگهداری می‌شود. اتصال مستقیم سخت‌افزاری Scanner در نسخه وب نیازمند Agent/Middleware مورد تأیید بانک است؛ فایل خروجی Scanner از همین Upload Flow پشتیبانی می‌شود.

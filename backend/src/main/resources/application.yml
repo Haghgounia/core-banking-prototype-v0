@@ -14,6 +14,10 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
 
 server:
   port: ${SERVER_PORT:8091}
@@ -41,6 +45,9 @@ core-banking:
     schema: DPS
     table-prefix: REF_
     output-directory: database/oracle/exports
+  document-storage:
+    root: ${DOCUMENT_STORAGE_ROOT:./data/document-storage}
+    max-file-size-bytes: ${DOCUMENT_STORAGE_MAX_BYTES:20971520}
 logging:
   file:
     name: logs/core-banking-prototype.log

@@ -16,6 +16,10 @@ app/
 # Generated database exports
 database/oracle/exports/
 
+# Runtime secure document storage
+data/document-storage/
+backend/data/document-storage/
+
 # Logs and runtime files
 *.log
 *.pid

@@ -2,6 +2,9 @@ package com.behsazan.corebanking.cif.web;
 
 import com.behsazan.corebanking.cif.application.CifService;
 import com.behsazan.corebanking.cif.domain.CifModels.*;
+import com.behsazan.corebanking.cif.document.DocumentStorageService;
+import com.behsazan.corebanking.cif.document.DocumentStorageService.DocumentUploadResponse;
+import com.behsazan.corebanking.cif.error.CifNotFoundException;
 import com.behsazan.corebanking.cif.domain.CifModels.CifDashboardSummary;
 import com.behsazan.corebanking.cif.domain.CifModels.ExternalInquiryRequest;
 import com.behsazan.corebanking.cif.domain.CifModels.PartyConsentRequest;
@@ -38,7 +41,10 @@ import com.behsazan.corebanking.cif.domain.CifModels.UpdatePartyRequest;
 import com.behsazan.corebanking.cif.reference.domain.PartyReferenceModels.LookupOption;
 import com.behsazan.corebanking.shared.model.PageResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,6 +55,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
@@ -57,9 +64,11 @@ import java.util.List;
 @RequestMapping("/api/v1/cif")
 public class CifController {
     private final CifService service;
+    private final DocumentStorageService documentStorage;
 
-    public CifController(CifService service) {
+    public CifController(CifService service, DocumentStorageService documentStorage) {
         this.service = service;
+        this.documentStorage = documentStorage;
     }
 
     @GetMapping("/parties")
@@ -424,6 +433,32 @@ public class CifController {
     @DeleteMapping("/parties/{partyId}/kyc-cases/{id}")
     Party360Response deleteKyc(@PathVariable long partyId, @PathVariable long id) {
         return service.deleteKycCase(partyId, id);
+    }
+
+    @PostMapping(value = "/parties/{partyId}/document-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    DocumentUploadResponse uploadDocumentFile(@PathVariable long partyId, @RequestParam("file") MultipartFile file) {
+        service.find(partyId);
+        return documentStorage.store(partyId, file);
+    }
+
+    @GetMapping("/parties/{partyId}/documents/{documentId}/file")
+    ResponseEntity<Resource> downloadDocumentFile(@PathVariable long partyId, @PathVariable long documentId) {
+        PartyDocumentRecord document = service.find(partyId).documents().stream()
+                .filter(item -> item.documentId() == documentId)
+                .findFirst()
+                .orElseThrow(() -> new CifNotFoundException("مدرک در پرونده Party یافت نشد."));
+        var stored = documentStorage.load(partyId, document.storageRef(), document.mimeType());
+        String extension = switch (stored.mimeType()) {
+            case "application/pdf" -> ".pdf";
+            case "image/jpeg" -> ".jpg";
+            case "image/png" -> ".png";
+            case "image/tiff" -> ".tiff";
+            default -> "";
+        };
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(stored.mimeType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=party-document-" + documentId + extension)
+                .body(stored.resource());
     }
 
     @PostMapping("/parties/{partyId}/documents")

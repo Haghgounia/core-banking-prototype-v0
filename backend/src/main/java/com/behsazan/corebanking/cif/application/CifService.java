@@ -61,6 +61,10 @@ public class CifService {
     private static final Set<String> YES_NO = Set.of("Y", "N");
     private static final Set<String> CONTACT_OWNER_TYPES = Set.of("CUSTOMER", "REPRESENTATIVE", "COMPANY");
     private static final Set<String> EMPLOYMENT_STATUSES = Set.of("EMPLOYED", "SELF_EMPLOYED", "RETIRED", "HOMEMAKER", "STUDENT", "UNEMPLOYED");
+    private static final Set<String> ASSET_LIABILITY_TYPES = Set.of(
+            "CASH", "DEPOSIT", "REAL_ESTATE", "VEHICLE", "INVESTMENT", "BUSINESS_OWNERSHIP", "RECEIVABLE", "OTHER_ASSET",
+            "LOAN", "CREDIT_FACILITY", "INSTALLMENT", "GUARANTEE", "OTHER_LIABILITY"
+    );
     private static final Set<String> DUE_DILIGENCE = Set.of("SDD", "CDD", "EDD");
     private static final Set<String> RELATIONSHIP_TYPES = Set.of(
             "SPOUSE", "PARENT", "CHILD", "LEGAL_REPRESENTATIVE", "GUARDIAN",
@@ -692,6 +696,7 @@ public class CifService {
     public Party360Response createAssetLiability(long partyId, PartyAssetLiabilityRequest raw, String actor) {
         find(partyId);
         PartyAssetLiabilityRequest request = normalizeAssetLiability(raw);
+        validateAssetLiability(request);
         repository.insertAssetLiability(partyId, request, actor);
         return find(partyId);
     }
@@ -701,6 +706,7 @@ public class CifService {
         find(partyId);
         requireVersion(raw.recordVersion());
         PartyAssetLiabilityRequest request = normalizeAssetLiability(raw);
+        validateAssetLiability(request);
         ensureUpdated(repository.updateAssetLiability(partyId, id, request, actor));
         return find(partyId);
     }
@@ -1475,15 +1481,32 @@ public class CifService {
                 upper(raw.documentedFlag()), upper(raw.statusCode()), raw.recordVersion());
     }
 
-    private static void validateIncomeSource(PartyIncomeSourceRequest r) {
+    private void validateIncomeSource(PartyIncomeSourceRequest r) {
         Map<String, String> errors = new LinkedHashMap<>();
         checkFlag("documentedFlag", r.documentedFlag(), errors);
+        if (!repository.activeReferenceCodeExists("REF_SOURCE_OF_FUNDS", "SOURCE_OF_FUNDS_CODE", r.sourceTypeCode())) {
+            errors.put("sourceTypeCode", "نوع منبع درآمد/وجوه در اطلاعات پایه فعال نیست.");
+        }
+        if (!repository.activeReferenceCodeExists("REF_WORKFLOW_STATUS", "STATUS_CODE", r.statusCode())) {
+            errors.put("statusCode", "وضعیت منبع درآمد/وجوه در اطلاعات پایه فعال نیست.");
+        }
         reject(errors);
     }
 
     private static PartyAssetLiabilityRequest normalizeAssetLiability(PartyAssetLiabilityRequest raw) {
         return new PartyAssetLiabilityRequest(upper(raw.itemTypeCode()), trimToNull(raw.descriptionText()), raw.amount(),
                 upper(raw.currencyCode()), raw.assessmentDate(), upper(raw.statusCode()), raw.recordVersion());
+    }
+
+    private void validateAssetLiability(PartyAssetLiabilityRequest r) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        if (!ASSET_LIABILITY_TYPES.contains(r.itemTypeCode())) {
+            errors.put("itemTypeCode", "نوع دارایی/تعهد باید از فهرست عملیاتی انتخاب شود.");
+        }
+        if (!repository.activeReferenceCodeExists("REF_WORKFLOW_STATUS", "STATUS_CODE", r.statusCode())) {
+            errors.put("statusCode", "وضعیت دارایی/تعهد در اطلاعات پایه فعال نیست.");
+        }
+        reject(errors);
     }
 
     private static PartyLicenseRequest normalizeLicense(PartyLicenseRequest raw) {

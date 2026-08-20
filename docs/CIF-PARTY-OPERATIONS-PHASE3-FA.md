@@ -63,3 +63,13 @@ Lookup فقط برای روابطی استفاده شده است که Source of 
 
 ## مرحله بعد
 فاز ۴ فرم عملیاتی روی شناسه‌های تکمیلی و مدارک Party متمرکز خواهد بود.
+
+## تکمیل Fix15 — الگوی UI و Reference Data
+
+از `0.3.22-prototype-fix15` قواعد زیر در فرم فاز ۳ اعمال شده است:
+
+- کارفرما به دو حالت صریح «ثبت‌شده در CIF» و «خارج از سامانه / محل فعالیت» تفکیک شده است؛ در حالت خارج سامانه، `EMPLOYER_NAME` قابل ورود و الزامی است و `EMPLOYER_PARTY_ID` غیرفعال می‌شود.
+- `ISIC_CODE` در UI به‌صورت کد عددی نمایش داده نمی‌شود؛ `NAME_FA` فعالیت نمایش و Code فقط Persist می‌شود.
+- `PARTY_INCOME_SOURCE.SOURCE_TYPE_CODE` از `REF_SOURCE_OF_FUNDS` و `STATUS_CODE` منابع درآمد و دارایی/تعهد از `REF_WORKFLOW_STATUS` تغذیه می‌شوند. برای تاب‌آوری Prototype، Fallback کنترل‌شده هم‌ارز Seed رسمی وجود دارد، ولی Database Migration همچنان Source of Truth محیط موجود را اصلاح می‌کند.
+- `PARTY_ASSET_LIABILITY.ITEM_TYPE_CODE` چون در مدل فیزیکی جاری Reference Table مستقل ندارد، از Vocabulary عملیاتی کنترل‌شده استفاده می‌کند؛ عنوان فارسی نمایش داده می‌شود و Code ذخیره و در Backend نیز Validate می‌شود.
+- قاعده عمومی فرم‌های بعدی: **Title در UI / Code یا ID در Persistence**؛ از ورود مستقیم کد فنی توسط کاربر فقط در مواردی استفاده شود که خود کد یک شناسه کسب‌وکاری قابل فهم باشد (مانند کد مالیاتی).
