@@ -24,4 +24,4 @@
 database\oracle\cif\reference-data\analytics-recommendation\install.sql
 ```
 
-پس از این فاز هر 104 تعریف منبع اصلی تعیین تکلیف شده است: 96 فرم CIF و 8 مورد Reuse از GEO/DPS. جدول `REF_TENURE_TYPE` بعداً به‌عنوان Extension محلی برای وضعیت تصرف نشانی افزوده شده و در شمارش Runtime، Catalog را به 97 Reference می‌رساند.
+پس از این فاز هر 104 تعریف منبع اصلی تعیین تکلیف شده است: 96 فرم CIF و 8 مورد Reuse از GEO/DPS. دو Extension عملیاتی بعداً افزوده شدند: `REF_TENURE_TYPE` برای وضعیت تصرف و `REF_ADDRESS_SOURCE` برای منبع نشانی؛ در نتیجه شمارش Runtime Catalog به 98 Reference می‌رسد.

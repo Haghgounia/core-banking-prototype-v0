@@ -14,10 +14,10 @@ export interface TechnologyGroup {
 
 export const SYSTEM_RELEASE = {
   version: GENERATED_SYSTEM_VERSIONS.release,
-  lastUpdated: '2026-08-18',
-  referenceForms: 167,
+  lastUpdated: '2026-08-20',
+  referenceForms: 168,
   generalReferenceForms: 20,
-  partyReferenceForms: 97,
+  partyReferenceForms: 98,
   depositReferenceForms: 50,
   partyOperationalScreens: 12,
   cifTableCoverage: 48,
@@ -45,7 +45,7 @@ export const SYSTEM_ARCHITECTURE = [
   {
     title: 'پایگاه داده',
     icon: 'storage',
-    description: 'Oracle Database با سه Schema فعال CIF، GEO و DPS؛ پوشش ۴۸ جدول عملیاتی CIF و ۱۶۷ فرم Reference Data در سه دامنه.'
+    description: 'Oracle Database با سه Schema فعال CIF، GEO و DPS؛ پوشش ۴۸ جدول عملیاتی CIF و ۱۶۸ فرم Reference Data در سه دامنه.'
   }
 ] as const;
 
@@ -80,7 +80,7 @@ export const SYSTEM_TECHNOLOGY_GROUPS: readonly TechnologyGroup[] = [
     icon: 'storage',
     items: [
       {name: 'Oracle Database', version: 'Service: FREEPDB1', purpose: 'ذخیره داده‌های عملیاتی و Reference Data'},
-      {name: 'CIF Schema', version: 'CIF', purpose: 'Party/Customer، KYC/Risk، Consent، Lifecycle و ۹۷ جدول مرجع Party'},
+      {name: 'CIF Schema', version: 'CIF', purpose: 'Party/Customer، KYC/Risk، Consent، Lifecycle و ۹۸ جدول مرجع Party'},
       {name: 'General Reference Schema', version: 'GEO', purpose: '۲۰ فرم اطلاعات پایه عمومی، جغرافیا، اشتغال و تحصیلات'},
       {name: 'Deposit Reference Schema', version: 'DPS', purpose: '۵۰ جدول مرجع فعال محصول‌ساز سپرده'},
       {name: 'CIF Operational Coverage', version: '48 tables', purpose: '۳۰ جدول Workflow و ۱۸ منبع Read-only در Party / Customer 360'},
@@ -101,7 +101,7 @@ export const SYSTEM_TECHNOLOGY_GROUPS: readonly TechnologyGroup[] = [
 ];
 
 export const SYSTEM_CAPABILITIES = [
-  '۱۶۷ فرم فعال اطلاعات پایه: ۲۰ فرم عمومی/GEO، ۹۷ فرم Party/Customer در CIF و ۵۰ فرم مرجع محصول سپرده در DPS',
+  '۱۶۸ فرم فعال اطلاعات پایه: ۲۰ فرم عمومی/GEO، ۹۸ فرم Party/Customer در CIF و ۵۰ فرم مرجع محصول سپرده در DPS',
   '۱۲ صفحه عملیاتی CIF شامل جست‌وجو، ایجاد Party، مراحل Onboarding، عملیات Lifecycle/Merge و Party / Customer 360',
   'Workflow انتهابه‌انتها برای Person و Organization از ایجاد Party تا Role/Customer، KYC، Consent و کنترل نهایی آمادگی',
   'تفکیک Party از Customer و ایجاد شماره مشتری فقط در نقش بانکی Customer',

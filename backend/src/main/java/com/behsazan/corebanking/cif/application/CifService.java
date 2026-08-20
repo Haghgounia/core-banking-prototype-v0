@@ -59,6 +59,8 @@ public class CifService {
     private static final Logger log = LoggerFactory.getLogger(CifService.class);
     private static final Set<String> PARTY_TYPES = Set.of("PERSON", "ORGANIZATION");
     private static final Set<String> YES_NO = Set.of("Y", "N");
+    private static final Set<String> CONTACT_OWNER_TYPES = Set.of("CUSTOMER", "REPRESENTATIVE", "COMPANY");
+    private static final Set<String> EMPLOYMENT_STATUSES = Set.of("EMPLOYED", "SELF_EMPLOYED", "RETIRED", "HOMEMAKER", "STUDENT", "UNEMPLOYED");
     private static final Set<String> DUE_DILIGENCE = Set.of("SDD", "CDD", "EDD");
     private static final Set<String> RELATIONSHIP_TYPES = Set.of(
             "SPOUSE", "PARENT", "CHILD", "LEGAL_REPRESENTATIVE", "GUARDIAN",
@@ -377,6 +379,13 @@ public class CifService {
         }
         Map<String, String> errors = new LinkedHashMap<>();
         checkDateOrder("birthDate", raw.birthDate(), "deathDate", raw.deathDate(), errors);
+        if (raw.birthDate() == null) {
+            errors.put("birthDate", "تاریخ تولد الزامی است.");
+        } else if (!raw.birthDate().isBefore(LocalDate.now())) {
+            errors.put("birthDate", raw.birthDate().isEqual(LocalDate.now())
+                    ? "تاریخ تولد نمی‌تواند با تاریخ روز سیستم برابر باشد؛ تاریخ تولد باید قبل از امروز باشد."
+                    : "تاریخ تولد نمی‌تواند بعد از تاریخ روز سیستم باشد.");
+        }
         reject(errors);
         PersonRequest request = new PersonRequest(
                 raw.birthDate(), trimToNull(raw.genderCode()), upperOrNull(raw.birthCountryCode()), raw.birthPlaceId(),
@@ -456,11 +465,11 @@ public class CifService {
 
     @Transactional
     public Party360Response createIdentifier(long partyId, PartyIdentifierRequest raw, String actor) {
-        find(partyId);
+        Party360Response current = find(partyId);
         PartyIdentifierRequest request = normalizeIdentifier(raw);
-        validateIdentifier(request);
+        validateIdentifier(request, current.person());
         if (repository.identifierExists(request.identifierTypeCode(), request.identifierValue(), request.issuerCode(), request.validFrom(), null)) {
-            throw validation("identifierValue", "این شناسه با نوع، صادرکننده و تاریخ شروع اعتبار یکسان قبلاً ثبت شده است.");
+            throw validation("identifierValue", "این شناسه با نوع، مرجع صادرکننده و تاریخ شروع اعتبار یکسان قبلاً ثبت شده است.");
         }
         if ("Y".equals(request.isPrimary()) && repository.hasPrimaryIdentifier(partyId, null)) {
             throw validation("isPrimary", "شناسه اصلی Party قبلاً ایجاد شده است؛ شناسه جدید فقط می‌تواند تکمیلی باشد.");
@@ -472,10 +481,10 @@ public class CifService {
 
     @Transactional
     public Party360Response updateIdentifier(long partyId, long id, PartyIdentifierRequest raw, String actor) {
-        find(partyId);
+        Party360Response current = find(partyId);
         requireVersion(raw.recordVersion());
         PartyIdentifierRequest request = normalizeIdentifier(raw);
-        validateIdentifier(request);
+        validateIdentifier(request, current.person());
         boolean currentPrimary = repository.identifierIsPrimary(partyId, id);
         if (currentPrimary && !"Y".equals(request.isPrimary())) {
             throw validation("isPrimary", "شناسه اصلی از این API قابل تنزل به شناسه تکمیلی نیست.");
@@ -484,7 +493,7 @@ public class CifService {
             throw validation("isPrimary", "برای جایگزینی شناسه اصلی باید فرایند اصلاح هویت جداگانه اجرا شود.");
         }
         if (repository.identifierExists(request.identifierTypeCode(), request.identifierValue(), request.issuerCode(), request.validFrom(), id)) {
-            throw validation("identifierValue", "این شناسه با نوع، صادرکننده و تاریخ شروع اعتبار یکسان قبلاً ثبت شده است.");
+            throw validation("identifierValue", "این شناسه با نوع، مرجع صادرکننده و تاریخ شروع اعتبار یکسان قبلاً ثبت شده است.");
         }
         if ("Y".equals(request.isPrimary())) repository.clearPrimaryIdentifiers(partyId, id, actor);
         ensureUpdated(repository.updateIdentifier(partyId, id, request, actor));
@@ -505,7 +514,7 @@ public class CifService {
     public Party360Response createAddress(long partyId, PartyAddressRequest raw, String actor) {
         find(partyId);
         PartyAddressRequest request = normalizeAddress(raw);
-        validateAddress(request);
+        validateAddress(request, null);
         if ("Y".equals(request.isPrimary())) repository.clearPrimaryAddresses(partyId, request.addressTypeCode(), null, actor);
         repository.insertAddress(partyId, request, actor);
         return find(partyId);
@@ -517,8 +526,12 @@ public class CifService {
         if (raw.partyAddressRecordVersion() == null || raw.addressRecordVersion() == null) {
             throw validation("recordVersion", "نسخه رکورد نشانی الزامی است.");
         }
+        PartyAddressRecord existing = repository.findAddresses(partyId).stream()
+                .filter(row -> row.partyAddressId() == id)
+                .findFirst()
+                .orElseThrow(() -> new CifNotFoundException("نشانی انتخاب‌شده یافت نشد."));
         PartyAddressRequest request = normalizeAddress(raw);
-        validateAddress(request);
+        validateAddress(request, existing);
         if ("Y".equals(request.isPrimary())) repository.clearPrimaryAddresses(partyId, request.addressTypeCode(), id, actor);
         ensureUpdated(repository.updateAddress(partyId, id, request, actor));
         return find(partyId);
@@ -534,8 +547,8 @@ public class CifService {
     @Transactional
     public Party360Response createContact(long partyId, ContactPointRequest raw, String actor) {
         find(partyId);
-        ContactPointRequest request = normalizeContact(raw);
-        validateContact(request);
+        ContactPointRequest request = withSystemContactVerificationTime(normalizeContact(raw), null);
+        validateContact(request, null);
         if ("Y".equals(request.isPrimary())) repository.clearPrimaryContacts(partyId, request.contactTypeCode(), null, actor);
         repository.insertContact(partyId, request, actor);
         return find(partyId);
@@ -545,8 +558,12 @@ public class CifService {
     public Party360Response updateContact(long partyId, long id, ContactPointRequest raw, String actor) {
         find(partyId);
         requireVersion(raw.recordVersion());
-        ContactPointRequest request = normalizeContact(raw);
-        validateContact(request);
+        ContactPointRecord existing = repository.findContacts(partyId).stream()
+                .filter(row -> row.contactPointId() == id)
+                .findFirst()
+                .orElseThrow(() -> new CifNotFoundException("راه تماس انتخاب‌شده یافت نشد."));
+        ContactPointRequest request = withSystemContactVerificationTime(normalizeContact(raw), existing);
+        validateContact(request, existing);
         if ("Y".equals(request.isPrimary())) repository.clearPrimaryContacts(partyId, request.contactTypeCode(), id, actor);
         ensureUpdated(repository.updateContact(partyId, id, request, actor));
         return find(partyId);
@@ -1223,21 +1240,33 @@ public class CifService {
     private static PartyIdentifierRequest normalizeIdentifier(PartyIdentifierRequest raw) {
         String value = raw.identifierValue().trim();
         String normalized = blank(raw.normalizedIdentifierValue()) ? normalizeIdentifierValue(value) : raw.normalizedIdentifierValue().trim();
+        String issuingAuthorityCode = upperOrNull(raw.issuingAuthorityCode());
+        String issuerCode = issuingAuthorityCode != null ? issuingAuthorityCode : upperOrNull(raw.issuerCode());
         return new PartyIdentifierRequest(
                 upper(raw.identifierTypeCode()), value, normalized, upperOrNull(raw.issuingCountryCode()),
-                trimToNull(raw.issuingAuthorityCode()), trimToNull(raw.issuerCode()), raw.issueDate(), raw.expiryDate(),
+                issuingAuthorityCode, issuerCode, raw.issueDate(), raw.expiryDate(),
                 upper(raw.isPrimary()), upper(raw.isActive()), upper(raw.verificationStatusCode()),
                 trimToNull(raw.verificationSourceCode()), trimToNull(raw.verificationMethodCode()), raw.verifiedAt(),
                 raw.validFrom() == null ? LocalDate.now() : raw.validFrom(), raw.validTo(), raw.recordVersion()
         );
     }
 
-    private static void validateIdentifier(PartyIdentifierRequest r) {
+    private void validateIdentifier(PartyIdentifierRequest r, PersonProfile person) {
         Map<String, String> errors = new LinkedHashMap<>();
         checkFlag("isPrimary", r.isPrimary(), errors);
         checkFlag("isActive", r.isActive(), errors);
         checkDateOrder("issueDate", r.issueDate(), "expiryDate", r.expiryDate(), errors);
         checkDateOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
+        if (r.issueDate() != null && r.issueDate().isAfter(LocalDate.now())) {
+            errors.put("issueDate", "تاریخ صدور شناسه نمی‌تواند بعد از تاریخ روز سیستم باشد.");
+        }
+        if (person != null && person.birthDate() != null && r.issueDate() != null && r.issueDate().isBefore(person.birthDate())) {
+            errors.put("issueDate", "تاریخ صدور شناسه نمی‌تواند قبل از تاریخ تولد باشد.");
+        }
+        if (!blank(r.issuerCode()) && !repository.activeReferenceCodeExists(
+                "REF_ISSUING_AUTHORITY", "ISSUING_AUTHORITY_CODE", r.issuerCode())) {
+            errors.put("issuingAuthorityCode", "مرجع صادرکننده در داده مرجع فعال یافت نشد.");
+        }
         reject(errors);
     }
 
@@ -1255,7 +1284,7 @@ public class CifService {
         );
     }
 
-    private void validateAddress(PartyAddressRequest r) {
+    private void validateAddress(PartyAddressRequest r, PartyAddressRecord existing) {
         Map<String, String> errors = new LinkedHashMap<>();
         checkFlag("isPrimary", r.isPrimary(), errors);
         checkDateOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
@@ -1268,8 +1297,12 @@ public class CifService {
         if (!blank(r.verificationStatusCode()) && !repository.activeReferenceCodeExists("REF_VERIFICATION_STATUS", "VERIFICATION_STATUS_CODE", r.verificationStatusCode())) {
             errors.put("verificationStatusCode", "وضعیت تأیید در داده مرجع فعال یافت نشد.");
         }
-        if (!blank(r.sourceCode()) && !repository.activeReferenceCodeExists("REF_DATA_SOURCE", "DATA_SOURCE_CODE", r.sourceCode())) {
-            errors.put("sourceCode", "منبع نشانی در داده مرجع فعال یافت نشد.");
+        if (!blank(r.sourceCode())) {
+            boolean activeAddressSource = repository.activeReferenceCodeExists("REF_ADDRESS_SOURCE", "ADDRESS_SOURCE_CODE", r.sourceCode());
+            boolean unchangedLegacySource = existing != null && java.util.Objects.equals(existing.sourceCode(), r.sourceCode()) && !activeAddressSource;
+            if (!activeAddressSource && !unchangedLegacySource) {
+                errors.put("sourceCode", "منبع نشانی در داده مرجع اختصاصی نشانی فعال یافت نشد.");
+            }
         }
         reject(errors);
     }
@@ -1289,13 +1322,70 @@ public class CifService {
         );
     }
 
-    private static void validateContact(ContactPointRequest r) {
+    private static ContactPointRequest withSystemContactVerificationTime(ContactPointRequest request, ContactPointRecord existing) {
+        LocalDateTime verifiedAt = null;
+        if ("Y".equals(request.isVerified())) {
+            boolean alreadyVerified = existing != null && "Y".equalsIgnoreCase(existing.isVerified()) && existing.verifiedAt() != null;
+            verifiedAt = alreadyVerified ? existing.verifiedAt() : LocalDateTime.now();
+        }
+        return new ContactPointRequest(
+                request.contactTypeCode(), request.contactValue(), request.normalizedValue(), request.purposeCode(),
+                request.isPrimary(), request.isVerified(), verifiedAt, request.validFrom(), request.validTo(),
+                request.countryDialCode(), request.areaCode(), request.extensionNo(), request.ownerTypeCode(),
+                request.verificationStatusCode(), request.verificationMethodCode(), request.recordVersion()
+        );
+    }
+
+    private void validateContact(ContactPointRequest r, ContactPointRecord existing) {
         Map<String, String> errors = new LinkedHashMap<>();
         checkFlag("isPrimary", r.isPrimary(), errors);
         checkFlag("isVerified", r.isVerified(), errors);
         checkDateOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
-        if ("Y".equals(r.isVerified()) && r.verifiedAt() == null) errors.put("verifiedAt", "برای راه تماس تأییدشده زمان تأیید الزامی است.");
-        if ("N".equals(r.isVerified()) && r.verifiedAt() != null) errors.put("verifiedAt", "برای راه تماس تأییدنشده زمان تأیید باید خالی باشد.");
+        if (r.validTo() != null && r.validTo().isBefore(LocalDate.now())) {
+            errors.put("validTo", "پایان اعتبار راه تماس باید برابر با تاریخ روز سیستم یا بعد از آن باشد.");
+        }
+        if (!repository.activeReferenceCodeExists("REF_CONTACT_TYPE", "CONTACT_TYPE_CODE", r.contactTypeCode())) {
+            errors.put("contactTypeCode", "نوع تماس در داده مرجع فعال یافت نشد.");
+        }
+        if (!repository.activeReferenceCodeExists("REF_CONTACT_PURPOSE", "CONTACT_PURPOSE_CODE", r.purposeCode())) {
+            errors.put("purposeCode", "کاربرد تماس در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(r.ownerTypeCode())) {
+            boolean unchangedLegacyOwner = existing != null && java.util.Objects.equals(existing.ownerTypeCode(), r.ownerTypeCode());
+            if (!CONTACT_OWNER_TYPES.contains(r.ownerTypeCode()) && !unchangedLegacyOwner) {
+                errors.put("ownerTypeCode", "مالک تماس باید یکی از گزینه‌های «خود مشتری»، «نماینده» یا «شرکت» باشد.");
+            }
+        }
+        if (!blank(r.verificationStatusCode()) && !repository.activeReferenceCodeExists("REF_VERIFICATION_STATUS", "VERIFICATION_STATUS_CODE", r.verificationStatusCode())) {
+            errors.put("verificationStatusCode", "وضعیت تأیید در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(r.verificationMethodCode()) && !repository.activeReferenceCodeExists("REF_VERIFICATION_METHOD", "VERIFICATION_METHOD_CODE", r.verificationMethodCode())) {
+            errors.put("verificationMethodCode", "روش تأیید در داده مرجع فعال یافت نشد.");
+        }
+        if ("Y".equals(r.isVerified())) {
+            if (r.verifiedAt() == null) {
+                errors.put("verifiedAt", "برای راه تماس تأییدشده زمان تأیید سیستمی الزامی است.");
+            } else {
+                LocalDateTime previous = existing == null ? null : existing.verifiedAt();
+                boolean unchangedHistoricalValue = previous != null
+                        && previous.truncatedTo(java.time.temporal.ChronoUnit.MINUTES)
+                        .equals(r.verifiedAt().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+                if (!unchangedHistoricalValue && !r.verifiedAt().toLocalDate().isEqual(LocalDate.now())) {
+                    errors.put("verifiedAt", "تاریخ تأیید راه تماس فقط می‌تواند تاریخ روز سیستم باشد.");
+                }
+                if (!unchangedHistoricalValue && r.verifiedAt().isAfter(LocalDateTime.now().plusMinutes(5))) {
+                    errors.put("verifiedAt", "زمان تأیید راه تماس نمی‌تواند در آینده باشد.");
+                }
+            }
+            if (!blank(r.verificationStatusCode()) && !"VERIFIED".equals(r.verificationStatusCode())) {
+                errors.put("verificationStatusCode", "برای راه تماس تأییدشده، وضعیت تأیید باید «تأییدشده» باشد.");
+            }
+        } else {
+            if (r.verifiedAt() != null) errors.put("verifiedAt", "برای راه تماس تأییدنشده زمان تأیید باید خالی باشد.");
+            if ("VERIFIED".equals(r.verificationStatusCode())) {
+                errors.put("verificationStatusCode", "راه تماس تأییدنشده نمی‌تواند وضعیت «تأییدشده» داشته باشد.");
+            }
+        }
         reject(errors);
     }
 
@@ -1345,7 +1435,7 @@ public class CifService {
                 raw.employerPartyId(), trimToNull(raw.employerName()), upper(raw.occupationCode()), trimToNull(raw.jobTitle()),
                 upperOrNull(raw.economicSectorCode()), upperOrNull(raw.isicCode()), raw.monthlyIncome(),
                 upperOrNull(raw.incomeCurrencyCode()), trimToNull(raw.familyRange()), status, trimToNull(raw.employeeRange()),
-                raw.validFrom(), raw.validTo(), blank(raw.employmentStatusCode()) ? status : upper(raw.employmentStatusCode()),
+                raw.validFrom(), raw.validTo(), status,
                 upperOrNull(raw.occupationGroupCode()), trimToNull(raw.employerIdentifier()), upperOrNull(raw.contractTypeCode()),
                 trimToNull(raw.insuranceNo()), trimToNull(raw.taxCode()), raw.recordVersion()
         );
@@ -1364,6 +1454,12 @@ public class CifService {
         }
         if (r.employerPartyId() != null && r.employerPartyId() == partyId) {
             errors.put("employerPartyId", "Party نمی‌تواند کارفرمای خودش باشد.");
+        }
+        if (!EMPLOYMENT_STATUSES.contains(r.jobStatus())) {
+            errors.put("jobStatus", "وضعیت اشتغال باید یکی از گزینه‌های شاغل، خویش‌فرما، بازنشسته، خانه‌دار، دانشجو یا بیکار باشد.");
+        }
+        if (!EMPLOYMENT_STATUSES.contains(r.employmentStatusCode())) {
+            errors.put("employmentStatusCode", "کد وضعیت اشتغال معتبر نیست.");
         }
         reject(errors);
     }

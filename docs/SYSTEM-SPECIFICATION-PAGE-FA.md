@@ -45,4 +45,4 @@ tools/sync-system-specification.mjs
 frontend/src/app/features/system-specification/system-version.generated.ts
 ```
 
-تاریخ بازنگری، تعداد فرم‌های Reference، تعداد صفحات عملیاتی Party، پوشش جدول‌های CIF و فهرست قابلیت‌ها همچنان باید در هر Release به‌صورت آگاهانه بررسی شوند. در نسخه 0.3.22-fix6 مقادیر جاری 167 فرم Reference، 12 صفحه عملیاتی Party و 48 جدول CIF است.
+تاریخ بازنگری، تعداد فرم‌های Reference، تعداد صفحات عملیاتی Party، پوشش جدول‌های CIF و فهرست قابلیت‌ها همچنان باید در هر Release به‌صورت آگاهانه بررسی شوند. در نسخه 0.3.22-fix9 مقادیر جاری 168 فرم Reference (20 عمومی/GEO + 98 CIF Party/Customer + 50 DPS)، 12 صفحه عملیاتی Party و 48 جدول CIF است.

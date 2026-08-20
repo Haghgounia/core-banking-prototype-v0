@@ -1,3 +1,50 @@
+## 0.3.22-prototype-fix12
+
+- Party identifier UI now uses a single issuing-authority selector; the duplicate issuer-code selector was removed.
+- `ISSUER_CODE` is derived from the selected issuing authority for compatibility with the current `UQ_IDENTIFIER` key.
+- CIF validation responses preserve `HttpErrorResponse`, so field-level `ProblemDetail.fieldErrors` are shown instead of a generic log-only message.
+- Duplicate identifier validation wording now refers to the issuing authority selected by the user.
+
+## 0.3.22-prototype-fix11
+
+- `CIF-tables5.xlsx` به‌عنوان آخرین Schema اجرایی Oracle مبنا قرار گرفت: 146 جدول، 1795 ستون، 98 جدول مرجع و 48 جدول عملیاتی.
+- SQLهای `PARTY_RISK_ASSESSMENT` با Schema جاری همگام شدند و ارجاع به `CREATED_DATE / LAST_MODIFIED_BY / LAST_MODIFIED_DATE` حذف شد.
+- SQL ثبت `SCREENING_RESULT` با Schema جاری همگام شد و ارجاع به `CREATED_DATE` حذف شد.
+- DDL snapshot از comment/ALTERهای مربوط به ستون‌های حذف‌شده پاک شد.
+- نمایش کد لاتین از Comboها و Searchable Comboهای فرم‌های CIF حذف شد؛ کد همچنان فقط در API/Database نگهداری می‌شود.
+- 242 عنوان Material، 126 عنوان فیلد Native، 191 گزینه Material و 43 Searchable Combo از نظر نمایش پیش‌فرض فارسی بازبینی شدند.
+- پیام fallback ثبت Party فارسی و تفکیک خطای عدم ارتباط با سرویس اصلاح شد.
+
+## 0.3.22-prototype-fix10
+
+- Fixed backend compilation regression in CIF identifier date validation: `validateIdentifier` now uses the existing `CifModels.PersonProfile` type returned by Party 360/current Party data instead of the nonexistent `PersonRecord` type.
+- No database migration is required for this patch.
+
+## 0.3.22-prototype-fix9
+- Hardened identity dates end-to-end: a person's birth date is required and must be strictly before the system date; identifier issue date cannot be in the future and cannot precede the person's birth date; identifier expiry date cannot precede issue date. Equal-to-today birth dates receive a dedicated Persian validation message instead of the generic required-fields message.
+- Contact validity hardened: `VALID_TO` accepts the system date or later and must not precede `VALID_FROM`.
+- Contact verification time is system-controlled in the UI; new/re-verified contact points receive the current system date/time and cannot be back-dated. Historical verification timestamps remain edit-safe when unchanged.
+- `CONTACT_POINT.OWNER_TYPE_CODE` is now a Persian ComboBox using the operational-form values `CUSTOMER / REPRESENTATIVE / COMPANY` (خود مشتری / نماینده / شرکت), with server-side validation.
+- Contact verification-status and verification-method choices now display Persian labels only; persisted reference codes remain unchanged.
+- Employment status is now selectable from the operational-form vocabulary (شاغل، خویش‌فرما، بازنشسته، خانه‌دار، دانشجو، بیکار); `JOB_STATUS` and `EMPLOYMENT_STATUS_CODE` are normalized to the same selected code and validated server-side.
+- Added dedicated database-backed `CIF.REF_ADDRESS_SOURCE` because the Party address operational form has its own source vocabulary distinct from generic `REF_DATA_SOURCE`: `CUSTOMER_DECLARATION` (اظهار مشتری), `POSTAL_SYSTEM` (سامانه پست), `RESIDENCE_DOCUMENT` (مدرک سکونت).
+- Added idempotent migration `0.3.22-fix9-contact-date-address-source.sql` and synchronized the CIF reference catalog to 98 runtime forms / 168 total reference forms.
+
+## 0.3.22-prototype-fix8
+- Party creation: localized the system display values `UNVERIFIED` and `INCOMPLETE` to Persian while keeping the persisted/API codes unchanged.
+- `PARTY_IDENTIFIER.ISSUER_CODE` is no longer free text; it is selected from `CIF.REF_ISSUING_AUTHORITY`, matching the current model/index metadata.
+- Server-side identifier validation now checks both `ISSUING_AUTHORITY_CODE` and `ISSUER_CODE` against active `REF_ISSUING_AUTHORITY` rows and normalizes both codes to uppercase.
+- No database migration is required.
+
+## 0.3.22-prototype-fix7
+- Party creation: replaced free/manual birth-place entry with cascading Province -> County -> City selection for Iranian birth locations.
+- City choices are reduced to the selected county; the application resolves its districts internally and shows only their cities. The city ComboBox is searchable by city name/code and returns at most the first 100 unfiltered options.
+- The selected GEO.CITIES.CITY_ID is persisted in CIF.PERSON.BIRTH_PLACE_ID; the previous onboarding payload bug that always sent birthPlaceId=null is removed.
+- Persian is ordered first in language lookups and remains the default for both name language and preferred language.
+- PERSON.PHYSICAL_ABILITY is now a ComboBox with the two operational-form values: NORMAL / ACCESS_NEEDED.
+- Primary/Active labels in the initial identifier section are localized to Persian; issuer-code wording is clarified.
+- No database migration is required.
+
 ## 0.3.22-prototype-fix6
 - Refreshed the System Specification page to the actual final CIF/Party scope instead of the old GEO/DPS-only snapshot.
 - Updated live scope metrics to 167 Reference Data forms (20 general/GEO + 97 CIF Party/Customer + 50 DPS), 12 Party operational screens, and 48 covered CIF operational tables (30 workflow + 18 read-only 360 sources).

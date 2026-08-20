@@ -810,7 +810,7 @@ public final class CifModels {
     }
 
     public record PersonRequest(
-            LocalDate birthDate,
+            @NotNull LocalDate birthDate,
             @Size(max = 20) String genderCode,
             @Size(max = 3) String birthCountryCode,
             Long birthPlaceId,
