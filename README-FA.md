@@ -12,9 +12,9 @@ deposit-product reference-data    -> Schema DPS
 customer-information-file (CIF)   -> Schema CIF
 ```
 
-در این نسخه ۱۶۸ فرم اطلاعات پایه فعال هستند: ۲۰ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*` و ۹۸ فرم اطلاعات پایه Party/Customer در CIF. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
+در این نسخه ۱۶۹ فرم اطلاعات پایه فعال هستند: ۲۰ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*` و ۹۹ فرم اطلاعات پایه Party/Customer در CIF. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
 
-برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. مسیر عملیاتی CIF از ایجاد Party تا اطلاعات Person/Organization، تماس و نشانی، مالی، شناسه و مدرک، طبقه‌بندی، روابط/UBO، Role/Customer، KYC/Risk/Screening، Consent/Preference، Lifecycle و Merge تکمیل شده است. در نسخه 0.3.22 تمام ۴۸ جدول عملیاتی موجود در `CIF-tables4.xlsx` در Backend پوشش داده می‌شوند: ۳۰ جدول در Workflowهای CIF استفاده/نگهداری می‌شوند و ۱۸ جدول تکمیلی بدون CRUD در CIF به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند؛ محصولات/تعاملات/شکایات و مشابه آن از سامانه‌های مبدأ می‌آیند و Registration/Audit صرفاً Trace خواندنی هستند.
+برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. مسیر عملیاتی CIF از ایجاد Party تا اطلاعات Person/Organization، تماس و نشانی، مالی، شناسه و مدرک، طبقه‌بندی، روابط/UBO، Role/Customer، KYC/Risk/Screening، Consent/Preference، Lifecycle و Merge تکمیل شده است. در نسخه 0.3.22 تمام ۴۸ جدول عملیاتی موجود در `CIF-tables5.xlsx` در Backend پوشش داده می‌شوند: ۳۰ جدول در Workflowهای CIF استفاده/نگهداری می‌شوند و ۱۸ جدول تکمیلی بدون CRUD در CIF به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند؛ محصولات/تعاملات/شکایات و مشابه آن از سامانه‌های مبدأ می‌آیند و Registration/Audit صرفاً Trace خواندنی هستند.
 
 ## معماری فعلی
 
@@ -118,7 +118,7 @@ DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون ب
 
 - ۱۶۸ فرم فعال اطلاعات پایه؛ شامل ۲۰ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS و ۹۸ فرم Party/Customer در CIF
 - فهرست Party و پرونده جامع Customer 360 در ماژول CIF
-- پوشش کامل ۴۸ جدول عملیاتی CIF مطابق `CIF-tables4.xlsx`: ۳۰ جدول در Workflowهای ایجاد/نگهداری Party استفاده می‌شوند و ۱۸ جدول تکمیلی به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند
+- پوشش کامل ۴۸ جدول عملیاتی CIF مطابق `CIF-tables5.xlsx`: ۳۰ جدول در Workflowهای ایجاد/نگهداری Party استفاده می‌شوند و ۱۸ جدول تکمیلی به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند
 - Runtime عمومی Descriptor-driven
 - جست‌وجو، مرتب‌سازی و صفحه‌بندی سمت سرور
 - ComboBox جست‌وجویی reusable با debounce و جست‌وجوی سمت سرور برای Reference Data
@@ -248,7 +248,7 @@ tools/sync-system-specification.mjs
 
 ## مدیریت مشتری / CIF
 
-فاز اول CIF بر اساس DDL واقعی `database/oracle/cif/ddl/CIF-050517.sql` پیاده‌سازی شده است. از نسخه 0.3.12 به بعد، مدل اجرایی Party با Metadata تحویلی همگام شده است؛ از فاز ۸ به بعد `CIF-tables4.xlsx` مرجع فیزیکی جاری Oracle است و XML/HTML تحویلی به‌ترتیب مرجع مدل EA و Workflow عملیاتی هستند. Snapshot قدیمی DDL داخل Repository فقط برای نصب پایه نگهداری و با Migrationهای هر فاز همگام می‌شود. راهنمای فاز اول در `docs/CIF-CUSTOMER-360-PHASE1-FA.md` و راهنمای فرم عملیاتی فاز ۲ در `docs/CIF-PARTY-OPERATIONS-PHASE2-FA.md` قرار دارد.
+فاز اول CIF بر اساس DDL واقعی `database/oracle/cif/ddl/CIF-050517.sql` پیاده‌سازی شده است. از نسخه 0.3.12 به بعد، مدل اجرایی Party با Metadata تحویلی همگام شده است؛ از فاز ۸ به بعد `CIF-tables5.xlsx` مرجع فیزیکی جاری Oracle است و XML/HTML تحویلی به‌ترتیب مرجع مدل EA و Workflow عملیاتی هستند. Snapshot قدیمی DDL داخل Repository فقط برای نصب پایه نگهداری و با Migrationهای هر فاز همگام می‌شود. راهنمای فاز اول در `docs/CIF-CUSTOMER-360-PHASE1-FA.md` و راهنمای فرم عملیاتی فاز ۲ در `docs/CIF-PARTY-OPERATIONS-PHASE2-FA.md` قرار دارد.
 
 
 ## ساختار ناوبری اطلاعات پایه از نسخه 0.3.11

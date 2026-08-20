@@ -11677,8 +11677,8 @@
       "seedRows": [
         {
           "ISIC_CODE": "6419",
-          "NAME_FA": "6419",
-          "NAME_EN": "6419",
+          "NAME_FA": "سایر واسطه‌گری‌های پولی",
+          "NAME_EN": "Other monetary intermediation",
           "DESCRIPTION_FA": null,
           "SORT_ORDER": 10,
           "IS_ACTIVE": 1,
@@ -11689,8 +11689,8 @@
         },
         {
           "ISIC_CODE": "6201",
-          "NAME_FA": "6201",
-          "NAME_EN": "6201",
+          "NAME_FA": "فعالیت‌های برنامه‌نویسی رایانه‌ای",
+          "NAME_EN": "Computer programming activities",
           "DESCRIPTION_FA": null,
           "SORT_ORDER": 20,
           "IS_ACTIVE": 1,
@@ -11701,8 +11701,8 @@
         },
         {
           "ISIC_CODE": "4690",
-          "NAME_FA": "4690",
-          "NAME_EN": "4690",
+          "NAME_FA": "عمده‌فروشی غیرتخصصی",
+          "NAME_EN": "Non-specialized wholesale trade",
           "DESCRIPTION_FA": null,
           "SORT_ORDER": 30,
           "IS_ACTIVE": 1,
@@ -11713,8 +11713,8 @@
         },
         {
           "ISIC_CODE": "0111",
-          "NAME_FA": "0111",
-          "NAME_EN": "0111",
+          "NAME_FA": "کشت غلات (به‌جز برنج)، حبوبات و دانه‌های روغنی",
+          "NAME_EN": "Growing of cereals (except rice), leguminous crops and oil seeds",
           "DESCRIPTION_FA": null,
           "SORT_ORDER": 40,
           "IS_ACTIVE": 1,
@@ -17795,6 +17795,185 @@
         }
       ],
       "relation": null
+    },
+    "REF_CONTRACT_TYPE": {
+      "name": "REF_CONTRACT_TYPE",
+      "title": "نوع قرارداد اشتغال",
+      "package": "Organization and Product",
+      "packageFa": "سازمان و محصول",
+      "documentation": "جدول مرجع نوع قرارداد اشتغال؛ افزوده‌شده در 0.3.22-fix13 براساس Vocabulary فرم عملیاتی Party و الزام انتخاب از بانک اطلاعاتی.",
+      "columns": [
+        {
+          "name": "CONTRACT_TYPE_CODE",
+          "label": "کد نوع قرارداد",
+          "type": "VARCHAR2",
+          "length": "50",
+          "precision": "0",
+          "scale": "0",
+          "required": true,
+          "default": null,
+          "description": "کلید کد مرجع CONTRACT_TYPE_CODE"
+        },
+        {
+          "name": "NAME_FA",
+          "label": "عنوان فارسی",
+          "type": "VARCHAR2",
+          "length": "200",
+          "precision": "0",
+          "scale": "0",
+          "required": true,
+          "default": null,
+          "description": "عنوان فارسی"
+        },
+        {
+          "name": "NAME_EN",
+          "label": "عنوان انگلیسی",
+          "type": "VARCHAR2",
+          "length": "200",
+          "precision": "0",
+          "scale": "0",
+          "required": false,
+          "default": null,
+          "description": "عنوان انگلیسی"
+        },
+        {
+          "name": "DESCRIPTION_FA",
+          "label": "توضیحات فارسی",
+          "type": "VARCHAR2",
+          "length": "1000",
+          "precision": "0",
+          "scale": "0",
+          "required": false,
+          "default": null,
+          "description": "شرح فارسی"
+        },
+        {
+          "name": "SORT_ORDER",
+          "label": "ترتیب نمایش",
+          "type": "NUMBER",
+          "length": "0",
+          "precision": "10",
+          "scale": "0",
+          "required": true,
+          "default": "10",
+          "description": "ترتیب نمایش"
+        },
+        {
+          "name": "IS_ACTIVE",
+          "label": "فعال است؟",
+          "type": "NUMBER",
+          "length": "0",
+          "precision": "1",
+          "scale": "0",
+          "required": true,
+          "default": "1",
+          "description": "وضعیت فعال بودن"
+        },
+        {
+          "name": "PARENT_CODE",
+          "label": "کد والد",
+          "type": "VARCHAR2",
+          "length": "50",
+          "precision": "0",
+          "scale": "0",
+          "required": false,
+          "default": null,
+          "description": "کد والد اختیاری؛ فقط در صورت تعریف رابطه سلسله‌مراتبی استفاده شود"
+        },
+        {
+          "name": "VALID_FROM",
+          "label": "شروع اعتبار",
+          "type": "DATE",
+          "length": "0",
+          "precision": "0",
+          "scale": "0",
+          "required": false,
+          "default": null,
+          "description": "تاریخ شروع اعتبار"
+        },
+        {
+          "name": "VALID_TO",
+          "label": "پایان اعتبار",
+          "type": "DATE",
+          "length": "0",
+          "precision": "0",
+          "scale": "0",
+          "required": false,
+          "default": null,
+          "description": "تاریخ پایان اعتبار"
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "نسخه رکورد",
+          "type": "NUMBER",
+          "length": "0",
+          "precision": "10",
+          "scale": "0",
+          "required": true,
+          "default": "1",
+          "description": "نسخه رکورد"
+        }
+      ],
+      "pk": [
+        "CONTRACT_TYPE_CODE"
+      ],
+      "checks": [
+        "IS_ACTIVE IN (0,1)",
+        "VALID_TO IS NULL OR VALID_FROM IS NULL OR VALID_TO >= VALID_FROM",
+        "SORT_ORDER >= 0",
+        "RECORD_VERSION >= 1"
+      ],
+      "seedRows": [
+        {
+          "CONTRACT_TYPE_CODE": "PERMANENT",
+          "NAME_FA": "دائم",
+          "NAME_EN": "Permanent",
+          "DESCRIPTION_FA": null,
+          "SORT_ORDER": 10,
+          "IS_ACTIVE": 1,
+          "PARENT_CODE": null,
+          "VALID_FROM": null,
+          "VALID_TO": null,
+          "RECORD_VERSION": 1
+        },
+        {
+          "CONTRACT_TYPE_CODE": "TEMPORARY",
+          "NAME_FA": "موقت",
+          "NAME_EN": "Temporary",
+          "DESCRIPTION_FA": null,
+          "SORT_ORDER": 20,
+          "IS_ACTIVE": 1,
+          "PARENT_CODE": null,
+          "VALID_FROM": null,
+          "VALID_TO": null,
+          "RECORD_VERSION": 1
+        },
+        {
+          "CONTRACT_TYPE_CODE": "CONTRACTOR",
+          "NAME_FA": "پیمانکاری",
+          "NAME_EN": "Contractor",
+          "DESCRIPTION_FA": null,
+          "SORT_ORDER": 30,
+          "IS_ACTIVE": 1,
+          "PARENT_CODE": null,
+          "VALID_FROM": null,
+          "VALID_TO": null,
+          "RECORD_VERSION": 1
+        },
+        {
+          "CONTRACT_TYPE_CODE": "SELF_EMPLOYED",
+          "NAME_FA": "خویش‌فرما",
+          "NAME_EN": "Self Employed",
+          "DESCRIPTION_FA": null,
+          "SORT_ORDER": 40,
+          "IS_ACTIVE": 1,
+          "PARENT_CODE": null,
+          "VALID_FROM": null,
+          "VALID_TO": null,
+          "RECORD_VERSION": 1
+        }
+      ],
+      "relation": null
     }
   },
   "relations": {
@@ -17816,7 +17995,7 @@
   },
   "sourceStats": {
     "sourceTableCount": 104,
-    "enabledTableCount": 98,
+    "enabledTableCount": 99,
     "mappedExternalTableCount": 8,
     "phase": "Phase 6 - Analytics and Recommendation (Reference Catalog Complete)"
   }

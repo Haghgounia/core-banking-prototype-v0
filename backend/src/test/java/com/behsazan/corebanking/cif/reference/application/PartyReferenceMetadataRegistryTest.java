@@ -11,7 +11,7 @@ class PartyReferenceMetadataRegistryTest {
     @Test
     void loadsCompletedReferenceCatalogIncludingOperationalExtensions() {
         var catalog = registry.catalog();
-        assertThat(catalog.tableCount()).isEqualTo(98);
+        assertThat(catalog.tableCount()).isEqualTo(99);
         assertThat(catalog.packages()).extracting("name")
                 .contains("Identity and Party", "Contact and Geography", "Compliance and Risk", "Organization and Product", "Workflow and Interaction", "Analytics and Recommendation");
     }
@@ -40,6 +40,7 @@ class PartyReferenceMetadataRegistryTest {
         assertThat(registry.descriptor("ref-screening-provider").tableName()).isEqualTo("REF_SCREENING_PROVIDER");
         assertThat(registry.descriptor("ref-tenure-type").tableName()).isEqualTo("REF_TENURE_TYPE");
         assertThat(registry.descriptor("ref-address-source").tableName()).isEqualTo("REF_ADDRESS_SOURCE");
+        assertThat(registry.descriptor("ref-contract-type").tableName()).isEqualTo("REF_CONTRACT_TYPE");
     }
 
     @Test

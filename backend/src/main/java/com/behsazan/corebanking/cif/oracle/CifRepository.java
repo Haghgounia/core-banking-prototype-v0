@@ -2253,10 +2253,10 @@ public class CifRepository {
                 INSERT INTO %s (
                     RISK_ASSESSMENT_ID, PARTY_ID, KYC_CASE_ID, RISK_TYPE_CODE, SCORE_VALUE, RATING_CODE,
                     DECISION_CODE, MODEL_CODE, MODEL_VERSION, ASSESSMENT_DATE, VALID_TO, EXPLANATION,
-                    CREATED_AT, CREATED_BY, RECORD_VERSION, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE
+                    CREATED_AT, CREATED_BY, RECORD_VERSION
                 ) VALUES (
                     :id, :partyId, :kycCaseId, :riskType, :score, :rating, :decision, :model, :modelVersion,
-                    :assessmentDate, :validTo, :explanation, SYSTIMESTAMP, :actor, 1, SYSTIMESTAMP, :actor, SYSTIMESTAMP
+                    :assessmentDate, :validTo, :explanation, SYSTIMESTAMP, :actor, 1
                 )
                 """.formatted(table("PARTY_RISK_ASSESSMENT"));
         bindRisk(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor).update();
@@ -2268,8 +2268,7 @@ public class CifRepository {
                 UPDATE %s SET KYC_CASE_ID=:kycCaseId, RISK_TYPE_CODE=:riskType, SCORE_VALUE=:score,
                     RATING_CODE=:rating, DECISION_CODE=:decision, MODEL_CODE=:model, MODEL_VERSION=:modelVersion,
                     ASSESSMENT_DATE=:assessmentDate, VALID_TO=:validTo, EXPLANATION=:explanation,
-                    UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, LAST_MODIFIED_BY=:actor,
-                    LAST_MODIFIED_DATE=SYSTIMESTAMP, RECORD_VERSION=RECORD_VERSION+1
+                    UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1
                 WHERE RISK_ASSESSMENT_ID=:id AND PARTY_ID=:partyId AND RECORD_VERSION=:recordVersion
                 """.formatted(table("PARTY_RISK_ASSESSMENT"));
         return bindRisk(jdbc.sql(sql).param("id", id).param("partyId", partyId), r, actor)
@@ -2290,11 +2289,11 @@ public class CifRepository {
                     SCREENING_RESULT_ID, PARTY_ID, KYC_CASE_ID, SCREENING_TYPE_CODE, SOURCE_LIST_CODE,
                     PROVIDER_CODE, PROVIDER_REFERENCE_NO, MATCHED_NAME, MATCH_SCORE, INITIAL_DECISION_CODE,
                     FINAL_DECISION_CODE, FALSE_POSITIVE_FLAG, SCREENED_AT, REVIEWED_AT, REVIEWED_BY,
-                    PAYLOAD_REF, CREATED_AT, CREATED_DATE, RECORD_VERSION
+                    PAYLOAD_REF, CREATED_AT, RECORD_VERSION
                 ) VALUES (
                     :id, :partyId, :kycCaseId, :type, :sourceList, :provider, :providerRef, :matchedName,
                     :matchScore, :initialDecision, :finalDecision, :falsePositive, :screenedAt,
-                    :reviewedAt, :reviewedBy, :payloadRef, SYSTIMESTAMP, SYSTIMESTAMP, 1
+                    :reviewedAt, :reviewedBy, :payloadRef, SYSTIMESTAMP, 1
                 )
                 """.formatted(table("SCREENING_RESULT"));
         bindScreening(jdbc.sql(sql).param("id", id).param("partyId", partyId), r).update();

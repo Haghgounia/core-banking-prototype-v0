@@ -11,9 +11,8 @@ export interface ApiProblem {
 export const apiErrorInterceptor: HttpInterceptorFn = (request, next) =>
   next(request).pipe(
     catchError((error: HttpErrorResponse) => {
-      const problem = (error.error ?? {}) as ApiProblem;
-      const normalized = new Error(problem.detail ?? problem.title ?? error.message ?? 'خطای ارتباط با سرور');
-      Object.assign(normalized, {problem, status: error.status});
-      return throwError(() => normalized);
+      // Preserve HttpErrorResponse. CIF forms inspect ProblemDetail.fieldErrors and status directly;
+      // converting the response to a plain Error hid actionable validation messages from users.
+      return throwError(() => error);
     })
   );

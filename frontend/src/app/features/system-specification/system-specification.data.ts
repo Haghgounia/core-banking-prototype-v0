@@ -15,9 +15,9 @@ export interface TechnologyGroup {
 export const SYSTEM_RELEASE = {
   version: GENERATED_SYSTEM_VERSIONS.release,
   lastUpdated: '2026-08-20',
-  referenceForms: 168,
+  referenceForms: 169,
   generalReferenceForms: 20,
-  partyReferenceForms: 98,
+  partyReferenceForms: 99,
   depositReferenceForms: 50,
   partyOperationalScreens: 12,
   cifTableCoverage: 48,

@@ -1,3 +1,23 @@
+## 0.3.22-prototype-fix14
+
+- Financial/employment operational UI now shows meaningful Persian economic-activity titles instead of raw ISIC codes; the existing REF_ISIC_ACTIVITY seed values and runtime metadata are corrected and an idempotent migration updates existing databases.
+- Household size is captured as an actual positive integer (`FAMILY_RANGE` remains schema-compatible text), while employer employee range is a controlled ComboBox with predefined operational ranges.
+- Added one reusable formatted-amount ControlValueAccessor and applied thousands separators to employment monthly income, financial monthly/other/annual income, expected turnover, assets, liabilities, real estate, investments, installments, estimated net worth, income-source amount, and asset/liability amount. Persian/Arabic digits and separators are normalized before persistence.
+- Financial capacity and financial relationship purpose are now title-based selectors; controlled codes remain persisted in `FINANCIAL_PROFILE`.
+- Funds origin/destination countries are populated from the existing GEO countries Reference Data and selected through a multi-select; country codes are serialized into the existing `FUNDS_COUNTRIES_TEXT` column without a schema change.
+- Added migration `0.3.22-fix14-financial-employment-ui.sql`; no new synthetic Reference Data tables were introduced for fields that have no physical REF table in the supplied CIF model.
+- Reset submitted state after successful saves across financial profile, income source, asset/liability, and license forms to prevent false Required/error highlighting after form reset.
+
+## 0.3.22-prototype-fix13
+
+- Address geography flow no longer requires district/region before city: Province -> County enables city selection; city options are aggregated from all districts of the selected county and the selected CITY_CODE is still persisted.
+- Fixed Angular Material post-submit error state for address, contact, and employment forms by resetting the FormGroupDirective submitted state after successful persistence.
+- Employer Party is selected by searchable Persian Party lookup; raw EMPLOYER_PARTY_ID is not shown to the user but is persisted. External employer name/identifier remain available only when no CIF employer Party is selected.
+- Employment job group and job now use GEO.JOB_GROUPS and GEO.JOBS; users select Persian titles while JOB_GROUP_CODE/JOB_CODE are persisted.
+- Economic activity and currency selectors display Persian titles only; employment income defaults to Iranian Rial and monthly income displays thousands separators.
+- Added database-backed CIF.REF_CONTRACT_TYPE with Permanent/Temporary/Contractor/Self-employed operational values and server-side validation of CONTRACT_TYPE_CODE.
+- Added migration `0.3.22-fix13-employment-reference-ui.sql`; CIF reference catalog is now 99 forms / 169 total reference forms.
+
 ## 0.3.22-prototype-fix12
 
 - Party identifier UI now uses a single issuing-authority selector; the duplicate issuer-code selector was removed.

@@ -1455,11 +1455,17 @@ public class CifService {
         if (r.employerPartyId() != null && r.employerPartyId() == partyId) {
             errors.put("employerPartyId", "Party نمی‌تواند کارفرمای خودش باشد.");
         }
+        if (r.employerPartyId() != null && !blank(r.employerIdentifier())) {
+            errors.put("employerIdentifier", "برای کارفرمای ثبت‌شده در CIF، شناسه کارفرما از پرونده Party بازیابی می‌شود و نباید جداگانه وارد شود.");
+        }
         if (!EMPLOYMENT_STATUSES.contains(r.jobStatus())) {
             errors.put("jobStatus", "وضعیت اشتغال باید یکی از گزینه‌های شاغل، خویش‌فرما، بازنشسته، خانه‌دار، دانشجو یا بیکار باشد.");
         }
         if (!EMPLOYMENT_STATUSES.contains(r.employmentStatusCode())) {
-            errors.put("employmentStatusCode", "کد وضعیت اشتغال معتبر نیست.");
+            errors.put("employmentStatusCode", "وضعیت اشتغال معتبر نیست.");
+        }
+        if (!blank(r.contractTypeCode()) && !repository.activeReferenceCodeExists("REF_CONTRACT_TYPE", "CONTRACT_TYPE_CODE", r.contractTypeCode())) {
+            errors.put("contractTypeCode", "نوع قرارداد انتخاب‌شده در اطلاعات پایه فعال نیست.");
         }
         reject(errors);
     }
