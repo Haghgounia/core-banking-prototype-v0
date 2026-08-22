@@ -428,14 +428,38 @@ public class CifService {
         if (raw.employeeCount() != null && raw.employeeCount() < 0) {
             errors.put("employeeCount", "تعداد کارکنان نمی‌تواند منفی باشد.");
         }
+        String legalFormCode = upper(raw.legalFormCode());
+        String economicSectorCode = upperOrNull(raw.economicSectorCode());
+        String isicCode = upperOrNull(raw.isicCode());
+        String activityStatusCode = upperOrNull(raw.activityStatusCode());
+        String enterpriseSizeCode = upperOrNull(raw.enterpriseSizeCode());
+        String ownershipTypeCode = upperOrNull(raw.ownershipTypeCode());
+        if (!repository.activeReferenceCodeExists("REF_LEGAL_FORM", "LEGAL_FORM_CODE", legalFormCode)) {
+            errors.put("legalFormCode", "نوع شخصیت حقوقی در اطلاعات پایه فعال یافت نشد.");
+        }
+        if (economicSectorCode != null && !repository.activeReferenceCodeExists("REF_ECONOMIC_SECTOR", "ECONOMIC_SECTOR_CODE", economicSectorCode)) {
+            errors.put("economicSectorCode", "بخش اقتصادی در اطلاعات پایه فعال یافت نشد.");
+        }
+        if (isicCode != null && !repository.activeReferenceCodeExists("REF_ISIC_ACTIVITY", "ISIC_CODE", isicCode)) {
+            errors.put("isicCode", "فعالیت اقتصادی ISIC در اطلاعات پایه فعال یافت نشد.");
+        }
+        if (activityStatusCode != null && !repository.activeReferenceCodeExists("REF_ORGANIZATION_ACTIVITY_STATUS", "ACTIVITY_STATUS_CODE", activityStatusCode)) {
+            errors.put("activityStatusCode", "وضعیت فعالیت اقتصادی در اطلاعات پایه فعال یافت نشد.");
+        }
+        if (enterpriseSizeCode != null && !repository.activeReferenceCodeExists("REF_ENTERPRISE_SIZE", "ENTERPRISE_SIZE_CODE", enterpriseSizeCode)) {
+            errors.put("enterpriseSizeCode", "اندازه بنگاه در اطلاعات پایه فعال یافت نشد.");
+        }
+        if (ownershipTypeCode != null && !repository.activeReferenceCodeExists("REF_OWNERSHIP_TYPE", "OWNERSHIP_TYPE_CODE", ownershipTypeCode)) {
+            errors.put("ownershipTypeCode", "نوع مالکیت سازمان در اطلاعات پایه فعال یافت نشد.");
+        }
         reject(errors);
         OrganizationRequest request = new OrganizationRequest(
-                raw.registeredName().trim(), trimToNull(raw.tradeName()), upper(raw.legalFormCode()),
+                raw.registeredName().trim(), trimToNull(raw.tradeName()), legalFormCode,
                 trimToNull(raw.registrationNo()), trimToNull(raw.registrationPlaceCode()), raw.incorporationDate(),
-                raw.dissolutionDate(), trimToNull(raw.economicSectorCode()), trimToNull(raw.isicCode()), listed,
-                upperOrNull(raw.registrationCountryCode()), upperOrNull(raw.activityStatusCode()),
-                trimToNull(raw.mainActivityDescription()), raw.employeeCount(), upperOrNull(raw.enterpriseSizeCode()),
-                upperOrNull(raw.ownershipTypeCode()), raw.recordVersion()
+                raw.dissolutionDate(), economicSectorCode, isicCode, listed,
+                upperOrNull(raw.registrationCountryCode()), activityStatusCode,
+                trimToNull(raw.mainActivityDescription()), raw.employeeCount(), enterpriseSizeCode,
+                ownershipTypeCode, raw.recordVersion()
         );
         if (current.organization() == null) {
             repository.insertOrganization(partyId, request, actor);
@@ -1674,9 +1698,12 @@ public class CifService {
     }
 
     private static PartyAuthorityRequest normalizeAuthority(PartyAuthorityRequest raw) {
+        String currencyCode = raw.maxAmount() == null
+                ? null
+                : (blank(raw.currencyCode()) ? "IRR" : upper(raw.currencyCode()));
         return new PartyAuthorityRequest(
                 raw.authorizedPartyId(), upper(raw.authorityTypeCode()), upper(raw.scopeCode()), raw.maxAmount(),
-                upperOrNull(raw.currencyCode()), raw.validFrom(), raw.validTo(), raw.documentRef().trim(), raw.recordVersion()
+                currencyCode, raw.validFrom(), raw.validTo(), upper(raw.documentRef()), raw.recordVersion()
         );
     }
 
@@ -1685,8 +1712,19 @@ public class CifService {
         if (r.authorizedPartyId() == null) errors.put("authorizedPartyId", "Party دارنده اختیار الزامی است.");
         else if (r.authorizedPartyId() == partyId) errors.put("authorizedPartyId", "اعطاکننده و دارنده اختیار نمی‌توانند یک Party باشند.");
         else if (!repository.partyExists(r.authorizedPartyId())) errors.put("authorizedPartyId", "Party دارنده اختیار در CIF یافت نشد.");
+        if (!repository.activeReferenceCodeExists("REF_AUTHORITY_TYPE", "AUTHORITY_TYPE_CODE", r.authorityTypeCode())) {
+            errors.put("authorityTypeCode", "نوع اختیار در اطلاعات پایه فعال یافت نشد.");
+        }
+        if (!repository.activeReferenceCodeExists("REF_AUTHORITY_SCOPE", "AUTHORITY_SCOPE_CODE", r.scopeCode())) {
+            errors.put("scopeCode", "دامنه اختیار در اطلاعات پایه فعال یافت نشد.");
+        }
+        if (!repository.activeReferenceCodeExists("REF_AUTHORITY_DOCUMENT_TYPE", "AUTHORITY_DOCUMENT_TYPE_CODE", r.documentRef())) {
+            errors.put("documentRef", "مرجع سند اختیار در اطلاعات پایه فعال یافت نشد.");
+        }
         if ((r.maxAmount() == null) != (r.currencyCode() == null)) {
             errors.put("maxAmount", "سقف مبلغ و کد ارز باید همزمان ثبت یا هر دو خالی باشند.");
+        } else if (r.currencyCode() != null && !repository.activeCurrencyCodeExists(r.currencyCode())) {
+            errors.put("currencyCode", "ارز حد اختیار در اطلاعات پایه عمومی فعال یافت نشد.");
         }
         checkDateOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
         if (r.authorizedPartyId() != null && r.validFrom() != null
@@ -1792,8 +1830,17 @@ public class CifService {
         );
     }
 
-    private static void validateExternalInquiry(ExternalInquiryRequest r) {
+    private void validateExternalInquiry(ExternalInquiryRequest r) {
         Map<String, String> errors = new LinkedHashMap<>();
+        if (!repository.activeReferenceCodeExists("REF_INQUIRY_TYPE", "INQUIRY_TYPE_CODE", r.inquiryTypeCode())) {
+            errors.put("inquiryTypeCode", "نوع استعلام در داده مرجع فعال یافت نشد.");
+        }
+        if (!repository.activeReferenceCodeExists("REF_EXTERNAL_PROVIDER", "EXTERNAL_PROVIDER_CODE", r.providerCode())) {
+            errors.put("providerCode", "ارائه‌دهنده استعلام در اطلاعات پایه فعال یافت نشد.");
+        }
+        if (r.inquiryResultCode() != null && !repository.activeReferenceCodeExists("REF_INQUIRY_RESULT", "INQUIRY_RESULT_CODE", r.inquiryResultCode())) {
+            errors.put("inquiryResultCode", "نتیجه استعلام در داده مرجع فعال یافت نشد.");
+        }
         if ((r.respondedAt() == null) != (r.inquiryResultCode() == null)) {
             errors.put("respondedAt", "زمان پاسخ و نتیجه استعلام باید همزمان ثبت یا هر دو خالی باشند.");
         }
@@ -1869,7 +1916,7 @@ public class CifService {
 
     private static PartyGeneralPreferenceRequest normalizeGeneralPreference(PartyGeneralPreferenceRequest raw) {
         return new PartyGeneralPreferenceRequest(
-                upper(raw.preferenceTypeCode()), raw.preferenceValue().trim(), raw.validFrom(), raw.validTo(),
+                upper(raw.preferenceTypeCode()), upper(raw.preferenceValue()), raw.validFrom(), raw.validTo(),
                 upper(raw.sourceCode()), raw.recordVersion()
         );
     }
@@ -1878,6 +1925,16 @@ public class CifService {
         Map<String, String> errors = new LinkedHashMap<>();
         checkDateTimeOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
         if (!repository.activeReferenceCodeExists("REF_PREFERENCE_TYPE", "PREFERENCE_TYPE_CODE", r.preferenceTypeCode())) errors.put("preferenceTypeCode", "نوع ترجیح در داده مرجع فعال یافت نشد.");
+        if ("LANGUAGE".equals(r.preferenceTypeCode()) && !Set.of("FA", "EN", "AR").contains(r.preferenceValue())) {
+            errors.put("preferenceValue", "زبان ترجیحی باید یکی از FA، EN یا AR باشد.");
+        }
+        if ("CONTACT_TIME".equals(r.preferenceTypeCode()) && !r.preferenceValue().matches("(?:[01]\\d|2[0-3]):[0-5]\\d")) {
+            errors.put("preferenceValue", "زمان ترجیحی باید با قالب HH:mm ثبت شود.");
+        }
+        if ("STATEMENT_DELIVERY".equals(r.preferenceTypeCode())
+                && !repository.activeReferenceCodeExists("REF_CHANNEL", "CHANNEL_CODE", r.preferenceValue())) {
+            errors.put("preferenceValue", "کانال دریافت صورتحساب در اطلاعات پایه فعال یافت نشد.");
+        }
         if (!repository.activeReferenceCodeExists("REF_SOURCE_SYSTEM", "SOURCE_SYSTEM_CODE", r.sourceCode())) errors.put("sourceCode", "منبع ترجیح در داده مرجع فعال یافت نشد.");
         if (repository.generalPreferenceOverlapExists(partyId, r.preferenceTypeCode(), r.validFrom(), r.validTo(), exceptId)) errors.put("validFrom", "برای این نوع ترجیح یک بازه زمانی همپوشان وجود دارد.");
         reject(errors);

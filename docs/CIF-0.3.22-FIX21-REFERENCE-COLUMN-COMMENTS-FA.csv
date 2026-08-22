@@ -1,0 +1,995 @@
+﻿table,table_title,column,column_label,comment_fa,package,from_user_missing_list
+REF_ACTOR_ROLE,نقش عامل عملیات,ACTOR_ROLE_CODE,کد نقش عامل عملیات,کد نقش عامل عملیات,Workflow and Interaction,Y
+REF_ACTOR_ROLE,نقش عامل عملیات,NAME_FA,عنوان فارسی,عنوان فارسی نقش عامل عملیات,Workflow and Interaction,Y
+REF_ACTOR_ROLE,نقش عامل عملیات,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نقش عامل عملیات,Workflow and Interaction,Y
+REF_ACTOR_ROLE,نقش عامل عملیات,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نقش عامل عملیات,Workflow and Interaction,Y
+REF_ACTOR_ROLE,نقش عامل عملیات,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نقش عامل عملیات در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_ACTOR_ROLE,نقش عامل عملیات,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نقش عامل عملیات؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_ACTOR_ROLE,نقش عامل عملیات,PARENT_CODE,کد والد,کد والد نقش عامل عملیات در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_ACTOR_ROLE,نقش عامل عملیات,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نقش عامل عملیات,Workflow and Interaction,Y
+REF_ACTOR_ROLE,نقش عامل عملیات,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نقش عامل عملیات,Workflow and Interaction,Y
+REF_ACTOR_ROLE,نقش عامل عملیات,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نقش عامل عملیات برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_ADDRESS_SOURCE,منبع نشانی,ADDRESS_SOURCE_CODE,کد منبع نشانی,کد منبع نشانی,Contact and Geography,Y
+REF_ADDRESS_SOURCE,منبع نشانی,NAME_FA,عنوان فارسی,عنوان فارسی منبع نشانی,Contact and Geography,Y
+REF_ADDRESS_SOURCE,منبع نشانی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی منبع نشانی,Contact and Geography,Y
+REF_ADDRESS_SOURCE,منبع نشانی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی منبع نشانی,Contact and Geography,Y
+REF_ADDRESS_SOURCE,منبع نشانی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش منبع نشانی در فهرست‌های مرجع,Contact and Geography,Y
+REF_ADDRESS_SOURCE,منبع نشانی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن منبع نشانی؛ 1 فعال و 0 غیرفعال,Contact and Geography,Y
+REF_ADDRESS_SOURCE,منبع نشانی,PARENT_CODE,کد والد,کد والد منبع نشانی در ساختار سلسله‌مراتبی، در صورت کاربرد,Contact and Geography,Y
+REF_ADDRESS_SOURCE,منبع نشانی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار منبع نشانی,Contact and Geography,Y
+REF_ADDRESS_SOURCE,منبع نشانی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار منبع نشانی,Contact and Geography,Y
+REF_ADDRESS_SOURCE,منبع نشانی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد منبع نشانی برای کنترل هم‌زمانی,Contact and Geography,Y
+REF_ADDRESS_TYPE,نوع نشانی,ADDRESS_TYPE_CODE,کد نوع نشانی,کد نوع نشانی,Contact and Geography,Y
+REF_ADDRESS_TYPE,نوع نشانی,NAME_FA,عنوان فارسی,عنوان فارسی نوع نشانی,Contact and Geography,Y
+REF_ADDRESS_TYPE,نوع نشانی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع نشانی,Contact and Geography,Y
+REF_ADDRESS_TYPE,نوع نشانی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع نشانی,Contact and Geography,Y
+REF_ADDRESS_TYPE,نوع نشانی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع نشانی در فهرست‌های مرجع,Contact and Geography,Y
+REF_ADDRESS_TYPE,نوع نشانی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع نشانی؛ 1 فعال و 0 غیرفعال,Contact and Geography,Y
+REF_ADDRESS_TYPE,نوع نشانی,PARENT_CODE,کد والد,کد والد نوع نشانی در ساختار سلسله‌مراتبی، در صورت کاربرد,Contact and Geography,Y
+REF_ADDRESS_TYPE,نوع نشانی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع نشانی,Contact and Geography,Y
+REF_ADDRESS_TYPE,نوع نشانی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع نشانی,Contact and Geography,Y
+REF_ADDRESS_TYPE,نوع نشانی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع نشانی برای کنترل هم‌زمانی,Contact and Geography,Y
+REF_ALERT_RESOLUTION,نتیجه رسیدگی به هشدار,RESOLUTION_CODE,کد نتیجه رسیدگی به هشدار,کد نتیجه رسیدگی به هشدار,Compliance and Risk,Y
+REF_ALERT_RESOLUTION,نتیجه رسیدگی به هشدار,NAME_FA,عنوان فارسی,عنوان فارسی نتیجه رسیدگی به هشدار,Compliance and Risk,Y
+REF_ALERT_RESOLUTION,نتیجه رسیدگی به هشدار,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نتیجه رسیدگی به هشدار,Compliance and Risk,Y
+REF_ALERT_RESOLUTION,نتیجه رسیدگی به هشدار,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نتیجه رسیدگی به هشدار,Compliance and Risk,Y
+REF_ALERT_RESOLUTION,نتیجه رسیدگی به هشدار,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نتیجه رسیدگی به هشدار در فهرست‌های مرجع,Compliance and Risk,Y
+REF_ALERT_RESOLUTION,نتیجه رسیدگی به هشدار,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نتیجه رسیدگی به هشدار؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_ALERT_RESOLUTION,نتیجه رسیدگی به هشدار,PARENT_CODE,کد والد,کد والد نتیجه رسیدگی به هشدار در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_ALERT_RESOLUTION,نتیجه رسیدگی به هشدار,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نتیجه رسیدگی به هشدار,Compliance and Risk,Y
+REF_ALERT_RESOLUTION,نتیجه رسیدگی به هشدار,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نتیجه رسیدگی به هشدار,Compliance and Risk,Y
+REF_ALERT_RESOLUTION,نتیجه رسیدگی به هشدار,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نتیجه رسیدگی به هشدار برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_ALERT_TYPE,نوع هشدار,ALERT_TYPE_CODE,کد نوع هشدار,کد نوع هشدار,Compliance and Risk,Y
+REF_ALERT_TYPE,نوع هشدار,NAME_FA,عنوان فارسی,عنوان فارسی نوع هشدار,Compliance and Risk,Y
+REF_ALERT_TYPE,نوع هشدار,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع هشدار,Compliance and Risk,Y
+REF_ALERT_TYPE,نوع هشدار,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع هشدار,Compliance and Risk,Y
+REF_ALERT_TYPE,نوع هشدار,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع هشدار در فهرست‌های مرجع,Compliance and Risk,Y
+REF_ALERT_TYPE,نوع هشدار,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع هشدار؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_ALERT_TYPE,نوع هشدار,PARENT_CODE,کد والد,کد والد نوع هشدار در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_ALERT_TYPE,نوع هشدار,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع هشدار,Compliance and Risk,Y
+REF_ALERT_TYPE,نوع هشدار,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع هشدار,Compliance and Risk,Y
+REF_ALERT_TYPE,نوع هشدار,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع هشدار برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_ASSIGNMENT_REASON,دلیل تخصیص,ASSIGNMENT_REASON_CODE,کد دلیل تخصیص,کد دلیل تخصیص,Identity and Party,Y
+REF_ASSIGNMENT_REASON,دلیل تخصیص,NAME_FA,عنوان فارسی,عنوان فارسی دلیل تخصیص,Identity and Party,Y
+REF_ASSIGNMENT_REASON,دلیل تخصیص,NAME_EN,عنوان انگلیسی,عنوان انگلیسی دلیل تخصیص,Identity and Party,Y
+REF_ASSIGNMENT_REASON,دلیل تخصیص,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی دلیل تخصیص,Identity and Party,Y
+REF_ASSIGNMENT_REASON,دلیل تخصیص,SORT_ORDER,ترتیب نمایش,ترتیب نمایش دلیل تخصیص در فهرست‌های مرجع,Identity and Party,Y
+REF_ASSIGNMENT_REASON,دلیل تخصیص,IS_ACTIVE,فعال است؟,نشانگر فعال بودن دلیل تخصیص؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_ASSIGNMENT_REASON,دلیل تخصیص,PARENT_CODE,کد والد,کد والد دلیل تخصیص در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_ASSIGNMENT_REASON,دلیل تخصیص,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار دلیل تخصیص,Identity and Party,Y
+REF_ASSIGNMENT_REASON,دلیل تخصیص,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار دلیل تخصیص,Identity and Party,Y
+REF_ASSIGNMENT_REASON,دلیل تخصیص,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد دلیل تخصیص برای کنترل هم‌زمانی,Identity and Party,Y
+REF_AUDIT_ACTION,نوع عملیات ممیزی,AUDIT_ACTION_CODE,کد نوع عملیات ممیزی,کد نوع عملیات ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ACTION,نوع عملیات ممیزی,NAME_FA,عنوان فارسی,عنوان فارسی نوع عملیات ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ACTION,نوع عملیات ممیزی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع عملیات ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ACTION,نوع عملیات ممیزی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع عملیات ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ACTION,نوع عملیات ممیزی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع عملیات ممیزی در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_AUDIT_ACTION,نوع عملیات ممیزی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع عملیات ممیزی؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_AUDIT_ACTION,نوع عملیات ممیزی,PARENT_CODE,کد والد,کد والد نوع عملیات ممیزی در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_AUDIT_ACTION,نوع عملیات ممیزی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع عملیات ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ACTION,نوع عملیات ممیزی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع عملیات ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ACTION,نوع عملیات ممیزی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع عملیات ممیزی برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_AUDIT_ENTITY_TYPE,نوع موجودیت ممیزی,AUDIT_ENTITY_TYPE_CODE,کد نوع موجودیت ممیزی,کد نوع موجودیت ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ENTITY_TYPE,نوع موجودیت ممیزی,NAME_FA,عنوان فارسی,عنوان فارسی نوع موجودیت ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ENTITY_TYPE,نوع موجودیت ممیزی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع موجودیت ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ENTITY_TYPE,نوع موجودیت ممیزی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع موجودیت ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ENTITY_TYPE,نوع موجودیت ممیزی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع موجودیت ممیزی در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_AUDIT_ENTITY_TYPE,نوع موجودیت ممیزی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع موجودیت ممیزی؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_AUDIT_ENTITY_TYPE,نوع موجودیت ممیزی,PARENT_CODE,کد والد,کد والد نوع موجودیت ممیزی در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_AUDIT_ENTITY_TYPE,نوع موجودیت ممیزی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع موجودیت ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ENTITY_TYPE,نوع موجودیت ممیزی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع موجودیت ممیزی,Workflow and Interaction,Y
+REF_AUDIT_ENTITY_TYPE,نوع موجودیت ممیزی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع موجودیت ممیزی برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_AUDIT_REASON,دلیل ممیزی,AUDIT_REASON_CODE,کد دلیل ممیزی,کد دلیل ممیزی,Workflow and Interaction,Y
+REF_AUDIT_REASON,دلیل ممیزی,NAME_FA,عنوان فارسی,عنوان فارسی دلیل ممیزی,Workflow and Interaction,Y
+REF_AUDIT_REASON,دلیل ممیزی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی دلیل ممیزی,Workflow and Interaction,Y
+REF_AUDIT_REASON,دلیل ممیزی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی دلیل ممیزی,Workflow and Interaction,Y
+REF_AUDIT_REASON,دلیل ممیزی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش دلیل ممیزی در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_AUDIT_REASON,دلیل ممیزی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن دلیل ممیزی؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_AUDIT_REASON,دلیل ممیزی,PARENT_CODE,کد والد,کد والد دلیل ممیزی در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_AUDIT_REASON,دلیل ممیزی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار دلیل ممیزی,Workflow and Interaction,Y
+REF_AUDIT_REASON,دلیل ممیزی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار دلیل ممیزی,Workflow and Interaction,Y
+REF_AUDIT_REASON,دلیل ممیزی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد دلیل ممیزی برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_AUTHORITY_SCOPE,دامنه اختیار,AUTHORITY_SCOPE_CODE,کد دامنه اختیار,کد دامنه اختیار,Identity and Party,Y
+REF_AUTHORITY_SCOPE,دامنه اختیار,NAME_FA,عنوان فارسی,عنوان فارسی دامنه اختیار,Identity and Party,Y
+REF_AUTHORITY_SCOPE,دامنه اختیار,NAME_EN,عنوان انگلیسی,عنوان انگلیسی دامنه اختیار,Identity and Party,Y
+REF_AUTHORITY_SCOPE,دامنه اختیار,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی دامنه اختیار,Identity and Party,Y
+REF_AUTHORITY_SCOPE,دامنه اختیار,SORT_ORDER,ترتیب نمایش,ترتیب نمایش دامنه اختیار در فهرست‌های مرجع,Identity and Party,Y
+REF_AUTHORITY_SCOPE,دامنه اختیار,IS_ACTIVE,فعال است؟,نشانگر فعال بودن دامنه اختیار؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_AUTHORITY_SCOPE,دامنه اختیار,PARENT_CODE,کد والد,کد والد دامنه اختیار در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_AUTHORITY_SCOPE,دامنه اختیار,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار دامنه اختیار,Identity and Party,Y
+REF_AUTHORITY_SCOPE,دامنه اختیار,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار دامنه اختیار,Identity and Party,Y
+REF_AUTHORITY_SCOPE,دامنه اختیار,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد دامنه اختیار برای کنترل هم‌زمانی,Identity and Party,Y
+REF_AUTHORITY_TYPE,نوع اختیار,AUTHORITY_TYPE_CODE,کد نوع اختیار,کد نوع اختیار,Identity and Party,Y
+REF_AUTHORITY_TYPE,نوع اختیار,NAME_FA,عنوان فارسی,عنوان فارسی نوع اختیار,Identity and Party,Y
+REF_AUTHORITY_TYPE,نوع اختیار,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع اختیار,Identity and Party,Y
+REF_AUTHORITY_TYPE,نوع اختیار,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع اختیار,Identity and Party,Y
+REF_AUTHORITY_TYPE,نوع اختیار,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع اختیار در فهرست‌های مرجع,Identity and Party,Y
+REF_AUTHORITY_TYPE,نوع اختیار,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع اختیار؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_AUTHORITY_TYPE,نوع اختیار,PARENT_CODE,کد والد,کد والد نوع اختیار در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_AUTHORITY_TYPE,نوع اختیار,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع اختیار,Identity and Party,Y
+REF_AUTHORITY_TYPE,نوع اختیار,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع اختیار,Identity and Party,Y
+REF_AUTHORITY_TYPE,نوع اختیار,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع اختیار برای کنترل هم‌زمانی,Identity and Party,Y
+REF_BRANCH,شعبه,BRANCH_CODE,کد شعبه,کد شعبه,Contact and Geography,Y
+REF_BRANCH,شعبه,NAME_FA,عنوان فارسی,عنوان فارسی شعبه,Contact and Geography,Y
+REF_BRANCH,شعبه,NAME_EN,عنوان انگلیسی,عنوان انگلیسی شعبه,Contact and Geography,Y
+REF_BRANCH,شعبه,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی شعبه,Contact and Geography,Y
+REF_BRANCH,شعبه,SORT_ORDER,ترتیب نمایش,ترتیب نمایش شعبه در فهرست‌های مرجع,Contact and Geography,Y
+REF_BRANCH,شعبه,IS_ACTIVE,فعال است؟,نشانگر فعال بودن شعبه؛ 1 فعال و 0 غیرفعال,Contact and Geography,Y
+REF_BRANCH,شعبه,PARENT_CODE,کد والد,کد والد شعبه در ساختار سلسله‌مراتبی، در صورت کاربرد,Contact and Geography,Y
+REF_BRANCH,شعبه,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار شعبه,Contact and Geography,Y
+REF_BRANCH,شعبه,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار شعبه,Contact and Geography,Y
+REF_BRANCH,شعبه,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد شعبه برای کنترل هم‌زمانی,Contact and Geography,Y
+REF_CHANNEL,کانال ارتباطی,CHANNEL_CODE,کد کانال ارتباطی,کد کانال ارتباطی,Contact and Geography,Y
+REF_CHANNEL,کانال ارتباطی,NAME_FA,عنوان فارسی,عنوان فارسی کانال ارتباطی,Contact and Geography,Y
+REF_CHANNEL,کانال ارتباطی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی کانال ارتباطی,Contact and Geography,Y
+REF_CHANNEL,کانال ارتباطی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی کانال ارتباطی,Contact and Geography,Y
+REF_CHANNEL,کانال ارتباطی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش کانال ارتباطی در فهرست‌های مرجع,Contact and Geography,Y
+REF_CHANNEL,کانال ارتباطی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن کانال ارتباطی؛ 1 فعال و 0 غیرفعال,Contact and Geography,Y
+REF_CHANNEL,کانال ارتباطی,PARENT_CODE,کد والد,کد والد کانال ارتباطی در ساختار سلسله‌مراتبی، در صورت کاربرد,Contact and Geography,Y
+REF_CHANNEL,کانال ارتباطی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار کانال ارتباطی,Contact and Geography,Y
+REF_CHANNEL,کانال ارتباطی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار کانال ارتباطی,Contact and Geography,Y
+REF_CHANNEL,کانال ارتباطی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد کانال ارتباطی برای کنترل هم‌زمانی,Contact and Geography,Y
+REF_CLASSIFICATION_TYPE,نوع طبقه‌بندی,CLASSIFICATION_TYPE_CODE,کد نوع طبقه‌بندی,کد نوع طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_TYPE,نوع طبقه‌بندی,NAME_FA,عنوان فارسی,عنوان فارسی نوع طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_TYPE,نوع طبقه‌بندی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_TYPE,نوع طبقه‌بندی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_TYPE,نوع طبقه‌بندی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع طبقه‌بندی در فهرست‌های مرجع,Identity and Party,Y
+REF_CLASSIFICATION_TYPE,نوع طبقه‌بندی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع طبقه‌بندی؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_CLASSIFICATION_TYPE,نوع طبقه‌بندی,PARENT_CODE,کد والد,کد والد نوع طبقه‌بندی در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_CLASSIFICATION_TYPE,نوع طبقه‌بندی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_TYPE,نوع طبقه‌بندی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_TYPE,نوع طبقه‌بندی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع طبقه‌بندی برای کنترل هم‌زمانی,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,CLASSIFICATION_TYPE_CODE,نوع طبقه‌بندی,نوع طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,CLASSIFICATION_VALUE_CODE,کد مقدار طبقه‌بندی,کد مقدار طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,NAME_FA,عنوان فارسی,عنوان فارسی مقادیر طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی مقادیر طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی مقادیر طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش مقادیر طبقه‌بندی در فهرست‌های مرجع,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن مقادیر طبقه‌بندی؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,PARENT_CODE,کد والد,کد والد مقادیر طبقه‌بندی در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار مقادیر طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار مقادیر طبقه‌بندی,Identity and Party,Y
+REF_CLASSIFICATION_VALUE,مقادیر طبقه‌بندی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد مقادیر طبقه‌بندی برای کنترل هم‌زمانی,Identity and Party,Y
+REF_COMMUNICATION_PURPOSE,هدف ارتباطات,COMMUNICATION_PURPOSE_CODE,کد هدف ارتباطات,کد هدف ارتباطات,Contact and Geography,Y
+REF_COMMUNICATION_PURPOSE,هدف ارتباطات,NAME_FA,عنوان فارسی,عنوان فارسی هدف ارتباطات,Contact and Geography,Y
+REF_COMMUNICATION_PURPOSE,هدف ارتباطات,NAME_EN,عنوان انگلیسی,عنوان انگلیسی هدف ارتباطات,Contact and Geography,Y
+REF_COMMUNICATION_PURPOSE,هدف ارتباطات,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی هدف ارتباطات,Contact and Geography,Y
+REF_COMMUNICATION_PURPOSE,هدف ارتباطات,SORT_ORDER,ترتیب نمایش,ترتیب نمایش هدف ارتباطات در فهرست‌های مرجع,Contact and Geography,Y
+REF_COMMUNICATION_PURPOSE,هدف ارتباطات,IS_ACTIVE,فعال است؟,نشانگر فعال بودن هدف ارتباطات؛ 1 فعال و 0 غیرفعال,Contact and Geography,Y
+REF_COMMUNICATION_PURPOSE,هدف ارتباطات,PARENT_CODE,کد والد,کد والد هدف ارتباطات در ساختار سلسله‌مراتبی، در صورت کاربرد,Contact and Geography,Y
+REF_COMMUNICATION_PURPOSE,هدف ارتباطات,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار هدف ارتباطات,Contact and Geography,Y
+REF_COMMUNICATION_PURPOSE,هدف ارتباطات,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار هدف ارتباطات,Contact and Geography,Y
+REF_COMMUNICATION_PURPOSE,هدف ارتباطات,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد هدف ارتباطات برای کنترل هم‌زمانی,Contact and Geography,Y
+REF_COMPLAINT_RESOLUTION,نتیجه رسیدگی به شکایت,COMPLAINT_RESOLUTION_CODE,کد نتیجه رسیدگی به شکایت,کد نتیجه رسیدگی به شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_RESOLUTION,نتیجه رسیدگی به شکایت,NAME_FA,عنوان فارسی,عنوان فارسی نتیجه رسیدگی به شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_RESOLUTION,نتیجه رسیدگی به شکایت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نتیجه رسیدگی به شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_RESOLUTION,نتیجه رسیدگی به شکایت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نتیجه رسیدگی به شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_RESOLUTION,نتیجه رسیدگی به شکایت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نتیجه رسیدگی به شکایت در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_COMPLAINT_RESOLUTION,نتیجه رسیدگی به شکایت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نتیجه رسیدگی به شکایت؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_COMPLAINT_RESOLUTION,نتیجه رسیدگی به شکایت,PARENT_CODE,کد والد,کد والد نتیجه رسیدگی به شکایت در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_COMPLAINT_RESOLUTION,نتیجه رسیدگی به شکایت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نتیجه رسیدگی به شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_RESOLUTION,نتیجه رسیدگی به شکایت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نتیجه رسیدگی به شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_RESOLUTION,نتیجه رسیدگی به شکایت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نتیجه رسیدگی به شکایت برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS,وضعیت شکایت,COMPLAINT_STATUS_CODE,کد وضعیت شکایت,کد وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS,وضعیت شکایت,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS,وضعیت شکایت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS,وضعیت شکایت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS,وضعیت شکایت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت شکایت در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS,وضعیت شکایت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت شکایت؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS,وضعیت شکایت,PARENT_CODE,کد والد,کد والد وضعیت شکایت در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS,وضعیت شکایت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS,وضعیت شکایت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS,وضعیت شکایت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت شکایت برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS_REASON,دلیل تغییر وضعیت شکایت,COMPLAINT_STATUS_REASON_CODE,کد دلیل تغییر وضعیت شکایت,کد دلیل تغییر وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS_REASON,دلیل تغییر وضعیت شکایت,NAME_FA,عنوان فارسی,عنوان فارسی دلیل تغییر وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS_REASON,دلیل تغییر وضعیت شکایت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی دلیل تغییر وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS_REASON,دلیل تغییر وضعیت شکایت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی دلیل تغییر وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS_REASON,دلیل تغییر وضعیت شکایت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش دلیل تغییر وضعیت شکایت در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS_REASON,دلیل تغییر وضعیت شکایت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن دلیل تغییر وضعیت شکایت؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS_REASON,دلیل تغییر وضعیت شکایت,PARENT_CODE,کد والد,کد والد دلیل تغییر وضعیت شکایت در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS_REASON,دلیل تغییر وضعیت شکایت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار دلیل تغییر وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS_REASON,دلیل تغییر وضعیت شکایت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار دلیل تغییر وضعیت شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_STATUS_REASON,دلیل تغییر وضعیت شکایت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد دلیل تغییر وضعیت شکایت برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_COMPLAINT_TYPE,نوع شکایت,COMPLAINT_TYPE_CODE,کد نوع شکایت,کد نوع شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_TYPE,نوع شکایت,NAME_FA,عنوان فارسی,عنوان فارسی نوع شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_TYPE,نوع شکایت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_TYPE,نوع شکایت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_TYPE,نوع شکایت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع شکایت در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_COMPLAINT_TYPE,نوع شکایت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع شکایت؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_COMPLAINT_TYPE,نوع شکایت,PARENT_CODE,کد والد,کد والد نوع شکایت در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_COMPLAINT_TYPE,نوع شکایت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_TYPE,نوع شکایت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع شکایت,Workflow and Interaction,Y
+REF_COMPLAINT_TYPE,نوع شکایت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع شکایت برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_CONTACT_ASSOCIATION_TYPE,نوع ارتباط اطلاعات تماس,ASSOCIATION_TYPE_CODE,کد نوع ارتباط اطلاعات تماس,کد نوع ارتباط اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_ASSOCIATION_TYPE,نوع ارتباط اطلاعات تماس,NAME_FA,عنوان فارسی,عنوان فارسی نوع ارتباط اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_ASSOCIATION_TYPE,نوع ارتباط اطلاعات تماس,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع ارتباط اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_ASSOCIATION_TYPE,نوع ارتباط اطلاعات تماس,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع ارتباط اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_ASSOCIATION_TYPE,نوع ارتباط اطلاعات تماس,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع ارتباط اطلاعات تماس در فهرست‌های مرجع,Contact and Geography,Y
+REF_CONTACT_ASSOCIATION_TYPE,نوع ارتباط اطلاعات تماس,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع ارتباط اطلاعات تماس؛ 1 فعال و 0 غیرفعال,Contact and Geography,Y
+REF_CONTACT_ASSOCIATION_TYPE,نوع ارتباط اطلاعات تماس,PARENT_CODE,کد والد,کد والد نوع ارتباط اطلاعات تماس در ساختار سلسله‌مراتبی، در صورت کاربرد,Contact and Geography,Y
+REF_CONTACT_ASSOCIATION_TYPE,نوع ارتباط اطلاعات تماس,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع ارتباط اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_ASSOCIATION_TYPE,نوع ارتباط اطلاعات تماس,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع ارتباط اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_ASSOCIATION_TYPE,نوع ارتباط اطلاعات تماس,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع ارتباط اطلاعات تماس برای کنترل هم‌زمانی,Contact and Geography,Y
+REF_CONTACT_PURPOSE,کاربرد اطلاعات تماس,CONTACT_PURPOSE_CODE,کد کاربرد اطلاعات تماس,کد کاربرد اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_PURPOSE,کاربرد اطلاعات تماس,NAME_FA,عنوان فارسی,عنوان فارسی کاربرد اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_PURPOSE,کاربرد اطلاعات تماس,NAME_EN,عنوان انگلیسی,عنوان انگلیسی کاربرد اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_PURPOSE,کاربرد اطلاعات تماس,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی کاربرد اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_PURPOSE,کاربرد اطلاعات تماس,SORT_ORDER,ترتیب نمایش,ترتیب نمایش کاربرد اطلاعات تماس در فهرست‌های مرجع,Contact and Geography,Y
+REF_CONTACT_PURPOSE,کاربرد اطلاعات تماس,IS_ACTIVE,فعال است؟,نشانگر فعال بودن کاربرد اطلاعات تماس؛ 1 فعال و 0 غیرفعال,Contact and Geography,Y
+REF_CONTACT_PURPOSE,کاربرد اطلاعات تماس,PARENT_CODE,کد والد,کد والد کاربرد اطلاعات تماس در ساختار سلسله‌مراتبی، در صورت کاربرد,Contact and Geography,Y
+REF_CONTACT_PURPOSE,کاربرد اطلاعات تماس,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار کاربرد اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_PURPOSE,کاربرد اطلاعات تماس,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار کاربرد اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_PURPOSE,کاربرد اطلاعات تماس,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد کاربرد اطلاعات تماس برای کنترل هم‌زمانی,Contact and Geography,Y
+REF_CONTACT_TYPE,نوع اطلاعات تماس,CONTACT_TYPE_CODE,کد نوع اطلاعات تماس,کد نوع اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_TYPE,نوع اطلاعات تماس,NAME_FA,عنوان فارسی,عنوان فارسی نوع اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_TYPE,نوع اطلاعات تماس,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_TYPE,نوع اطلاعات تماس,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_TYPE,نوع اطلاعات تماس,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع اطلاعات تماس در فهرست‌های مرجع,Contact and Geography,Y
+REF_CONTACT_TYPE,نوع اطلاعات تماس,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع اطلاعات تماس؛ 1 فعال و 0 غیرفعال,Contact and Geography,Y
+REF_CONTACT_TYPE,نوع اطلاعات تماس,PARENT_CODE,کد والد,کد والد نوع اطلاعات تماس در ساختار سلسله‌مراتبی، در صورت کاربرد,Contact and Geography,Y
+REF_CONTACT_TYPE,نوع اطلاعات تماس,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_TYPE,نوع اطلاعات تماس,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع اطلاعات تماس,Contact and Geography,Y
+REF_CONTACT_TYPE,نوع اطلاعات تماس,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع اطلاعات تماس برای کنترل هم‌زمانی,Contact and Geography,Y
+REF_CONTEXT_TYPE,نوع زمینه,CONTEXT_TYPE_CODE,کد نوع زمینه,کد نوع زمینه,Identity and Party,Y
+REF_CONTEXT_TYPE,نوع زمینه,NAME_FA,عنوان فارسی,عنوان فارسی نوع زمینه,Identity and Party,Y
+REF_CONTEXT_TYPE,نوع زمینه,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع زمینه,Identity and Party,Y
+REF_CONTEXT_TYPE,نوع زمینه,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع زمینه,Identity and Party,Y
+REF_CONTEXT_TYPE,نوع زمینه,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع زمینه در فهرست‌های مرجع,Identity and Party,Y
+REF_CONTEXT_TYPE,نوع زمینه,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع زمینه؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_CONTEXT_TYPE,نوع زمینه,PARENT_CODE,کد والد,کد والد نوع زمینه در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_CONTEXT_TYPE,نوع زمینه,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع زمینه,Identity and Party,Y
+REF_CONTEXT_TYPE,نوع زمینه,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع زمینه,Identity and Party,Y
+REF_CONTEXT_TYPE,نوع زمینه,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع زمینه برای کنترل هم‌زمانی,Identity and Party,Y
+REF_CONTRACT_TYPE,نوع قرارداد اشتغال,CONTRACT_TYPE_CODE,کد نوع قرارداد,کد نوع قرارداد,Organization and Product,Y
+REF_CONTRACT_TYPE,نوع قرارداد اشتغال,NAME_FA,عنوان فارسی,عنوان فارسی نوع قرارداد اشتغال,Organization and Product,Y
+REF_CONTRACT_TYPE,نوع قرارداد اشتغال,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع قرارداد اشتغال,Organization and Product,Y
+REF_CONTRACT_TYPE,نوع قرارداد اشتغال,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع قرارداد اشتغال,Organization and Product,Y
+REF_CONTRACT_TYPE,نوع قرارداد اشتغال,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع قرارداد اشتغال در فهرست‌های مرجع,Organization and Product,Y
+REF_CONTRACT_TYPE,نوع قرارداد اشتغال,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع قرارداد اشتغال؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_CONTRACT_TYPE,نوع قرارداد اشتغال,PARENT_CODE,کد والد,کد والد نوع قرارداد اشتغال در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_CONTRACT_TYPE,نوع قرارداد اشتغال,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع قرارداد اشتغال,Organization and Product,Y
+REF_CONTRACT_TYPE,نوع قرارداد اشتغال,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع قرارداد اشتغال,Organization and Product,Y
+REF_CONTRACT_TYPE,نوع قرارداد اشتغال,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع قرارداد اشتغال برای کنترل هم‌زمانی,Organization and Product,Y
+REF_CONTROL_BASIS,مبنای کنترل,CONTROL_BASIS_CODE,کد مبنای کنترل,کد مبنای کنترل,Identity and Party,Y
+REF_CONTROL_BASIS,مبنای کنترل,NAME_FA,عنوان فارسی,عنوان فارسی مبنای کنترل,Identity and Party,Y
+REF_CONTROL_BASIS,مبنای کنترل,NAME_EN,عنوان انگلیسی,عنوان انگلیسی مبنای کنترل,Identity and Party,Y
+REF_CONTROL_BASIS,مبنای کنترل,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی مبنای کنترل,Identity and Party,Y
+REF_CONTROL_BASIS,مبنای کنترل,SORT_ORDER,ترتیب نمایش,ترتیب نمایش مبنای کنترل در فهرست‌های مرجع,Identity and Party,Y
+REF_CONTROL_BASIS,مبنای کنترل,IS_ACTIVE,فعال است؟,نشانگر فعال بودن مبنای کنترل؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_CONTROL_BASIS,مبنای کنترل,PARENT_CODE,کد والد,کد والد مبنای کنترل در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_CONTROL_BASIS,مبنای کنترل,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار مبنای کنترل,Identity and Party,Y
+REF_CONTROL_BASIS,مبنای کنترل,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار مبنای کنترل,Identity and Party,Y
+REF_CONTROL_BASIS,مبنای کنترل,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد مبنای کنترل برای کنترل هم‌زمانی,Identity and Party,Y
+REF_DATA_QUALITY_STATUS,وضعیت کیفیت داده,DATA_QUALITY_STATUS_CODE,کد وضعیت کیفیت داده,کد وضعیت کیفیت داده,Identity and Party,Y
+REF_DATA_QUALITY_STATUS,وضعیت کیفیت داده,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت کیفیت داده,Identity and Party,Y
+REF_DATA_QUALITY_STATUS,وضعیت کیفیت داده,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت کیفیت داده,Identity and Party,Y
+REF_DATA_QUALITY_STATUS,وضعیت کیفیت داده,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت کیفیت داده,Identity and Party,Y
+REF_DATA_QUALITY_STATUS,وضعیت کیفیت داده,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت کیفیت داده در فهرست‌های مرجع,Identity and Party,Y
+REF_DATA_QUALITY_STATUS,وضعیت کیفیت داده,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت کیفیت داده؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_DATA_QUALITY_STATUS,وضعیت کیفیت داده,PARENT_CODE,کد والد,کد والد وضعیت کیفیت داده در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_DATA_QUALITY_STATUS,وضعیت کیفیت داده,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت کیفیت داده,Identity and Party,Y
+REF_DATA_QUALITY_STATUS,وضعیت کیفیت داده,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت کیفیت داده,Identity and Party,Y
+REF_DATA_QUALITY_STATUS,وضعیت کیفیت داده,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت کیفیت داده برای کنترل هم‌زمانی,Identity and Party,Y
+REF_DATA_SOURCE,منبع داده,DATA_SOURCE_CODE,کد منبع داده,کد منبع داده,Identity and Party,Y
+REF_DATA_SOURCE,منبع داده,NAME_FA,عنوان فارسی,عنوان فارسی منبع داده,Identity and Party,Y
+REF_DATA_SOURCE,منبع داده,NAME_EN,عنوان انگلیسی,عنوان انگلیسی منبع داده,Identity and Party,Y
+REF_DATA_SOURCE,منبع داده,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی منبع داده,Identity and Party,Y
+REF_DATA_SOURCE,منبع داده,SORT_ORDER,ترتیب نمایش,ترتیب نمایش منبع داده در فهرست‌های مرجع,Identity and Party,Y
+REF_DATA_SOURCE,منبع داده,IS_ACTIVE,فعال است؟,نشانگر فعال بودن منبع داده؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_DATA_SOURCE,منبع داده,PARENT_CODE,کد والد,کد والد منبع داده در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_DATA_SOURCE,منبع داده,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار منبع داده,Identity and Party,Y
+REF_DATA_SOURCE,منبع داده,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار منبع داده,Identity and Party,Y
+REF_DATA_SOURCE,منبع داده,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد منبع داده برای کنترل هم‌زمانی,Identity and Party,Y
+REF_DECISION,تصمیم,DECISION_CODE,کد تصمیم,کد تصمیم,Compliance and Risk,Y
+REF_DECISION,تصمیم,NAME_FA,عنوان فارسی,عنوان فارسی تصمیم,Compliance and Risk,Y
+REF_DECISION,تصمیم,NAME_EN,عنوان انگلیسی,عنوان انگلیسی تصمیم,Compliance and Risk,Y
+REF_DECISION,تصمیم,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی تصمیم,Compliance and Risk,Y
+REF_DECISION,تصمیم,SORT_ORDER,ترتیب نمایش,ترتیب نمایش تصمیم در فهرست‌های مرجع,Compliance and Risk,Y
+REF_DECISION,تصمیم,IS_ACTIVE,فعال است؟,نشانگر فعال بودن تصمیم؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_DECISION,تصمیم,PARENT_CODE,کد والد,کد والد تصمیم در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_DECISION,تصمیم,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار تصمیم,Compliance and Risk,Y
+REF_DECISION,تصمیم,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار تصمیم,Compliance and Risk,Y
+REF_DECISION,تصمیم,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد تصمیم برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_DOCUMENT_TYPE,نوع مدرک,DOCUMENT_TYPE_CODE,کد نوع مدرک,کد نوع مدرک,Identity and Party,Y
+REF_DOCUMENT_TYPE,نوع مدرک,NAME_FA,عنوان فارسی,عنوان فارسی نوع مدرک,Identity and Party,Y
+REF_DOCUMENT_TYPE,نوع مدرک,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع مدرک,Identity and Party,Y
+REF_DOCUMENT_TYPE,نوع مدرک,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع مدرک,Identity and Party,Y
+REF_DOCUMENT_TYPE,نوع مدرک,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع مدرک در فهرست‌های مرجع,Identity and Party,Y
+REF_DOCUMENT_TYPE,نوع مدرک,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع مدرک؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_DOCUMENT_TYPE,نوع مدرک,PARENT_CODE,کد والد,کد والد نوع مدرک در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_DOCUMENT_TYPE,نوع مدرک,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع مدرک,Identity and Party,Y
+REF_DOCUMENT_TYPE,نوع مدرک,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع مدرک,Identity and Party,Y
+REF_DOCUMENT_TYPE,نوع مدرک,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع مدرک برای کنترل هم‌زمانی,Identity and Party,Y
+REF_DUE_DILIGENCE_LEVEL,سطح بررسی مشتری,DUE_DILIGENCE_LEVEL_CODE,کد سطح بررسی مشتری,کد سطح بررسی مشتری,Compliance and Risk,Y
+REF_DUE_DILIGENCE_LEVEL,سطح بررسی مشتری,NAME_FA,عنوان فارسی,عنوان فارسی سطح بررسی مشتری,Compliance and Risk,Y
+REF_DUE_DILIGENCE_LEVEL,سطح بررسی مشتری,NAME_EN,عنوان انگلیسی,عنوان انگلیسی سطح بررسی مشتری,Compliance and Risk,Y
+REF_DUE_DILIGENCE_LEVEL,سطح بررسی مشتری,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی سطح بررسی مشتری,Compliance and Risk,Y
+REF_DUE_DILIGENCE_LEVEL,سطح بررسی مشتری,SORT_ORDER,ترتیب نمایش,ترتیب نمایش سطح بررسی مشتری در فهرست‌های مرجع,Compliance and Risk,Y
+REF_DUE_DILIGENCE_LEVEL,سطح بررسی مشتری,IS_ACTIVE,فعال است؟,نشانگر فعال بودن سطح بررسی مشتری؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_DUE_DILIGENCE_LEVEL,سطح بررسی مشتری,PARENT_CODE,کد والد,کد والد سطح بررسی مشتری در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_DUE_DILIGENCE_LEVEL,سطح بررسی مشتری,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار سطح بررسی مشتری,Compliance and Risk,Y
+REF_DUE_DILIGENCE_LEVEL,سطح بررسی مشتری,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار سطح بررسی مشتری,Compliance and Risk,Y
+REF_DUE_DILIGENCE_LEVEL,سطح بررسی مشتری,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد سطح بررسی مشتری برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_ECONOMIC_SECTOR,بخش اقتصادی,ECONOMIC_SECTOR_CODE,کد بخش اقتصادی,کد بخش اقتصادی,Organization and Product,Y
+REF_ECONOMIC_SECTOR,بخش اقتصادی,NAME_FA,عنوان فارسی,عنوان فارسی بخش اقتصادی,Organization and Product,Y
+REF_ECONOMIC_SECTOR,بخش اقتصادی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی بخش اقتصادی,Organization and Product,Y
+REF_ECONOMIC_SECTOR,بخش اقتصادی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی بخش اقتصادی,Organization and Product,Y
+REF_ECONOMIC_SECTOR,بخش اقتصادی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش بخش اقتصادی در فهرست‌های مرجع,Organization and Product,Y
+REF_ECONOMIC_SECTOR,بخش اقتصادی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن بخش اقتصادی؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_ECONOMIC_SECTOR,بخش اقتصادی,PARENT_CODE,کد والد,کد والد بخش اقتصادی در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_ECONOMIC_SECTOR,بخش اقتصادی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار بخش اقتصادی,Organization and Product,Y
+REF_ECONOMIC_SECTOR,بخش اقتصادی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار بخش اقتصادی,Organization and Product,Y
+REF_ECONOMIC_SECTOR,بخش اقتصادی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد بخش اقتصادی برای کنترل هم‌زمانی,Organization and Product,Y
+REF_EXTERNAL_PROVIDER,ارائه‌دهنده خارجی,EXTERNAL_PROVIDER_CODE,کد ارائه‌دهنده خارجی,کد ارائه‌دهنده خارجی,Identity and Party,Y
+REF_EXTERNAL_PROVIDER,ارائه‌دهنده خارجی,NAME_FA,عنوان فارسی,عنوان فارسی ارائه‌دهنده خارجی,Identity and Party,Y
+REF_EXTERNAL_PROVIDER,ارائه‌دهنده خارجی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی ارائه‌دهنده خارجی,Identity and Party,Y
+REF_EXTERNAL_PROVIDER,ارائه‌دهنده خارجی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی ارائه‌دهنده خارجی,Identity and Party,Y
+REF_EXTERNAL_PROVIDER,ارائه‌دهنده خارجی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش ارائه‌دهنده خارجی در فهرست‌های مرجع,Identity and Party,Y
+REF_EXTERNAL_PROVIDER,ارائه‌دهنده خارجی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن ارائه‌دهنده خارجی؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_EXTERNAL_PROVIDER,ارائه‌دهنده خارجی,PARENT_CODE,کد والد,کد والد ارائه‌دهنده خارجی در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_EXTERNAL_PROVIDER,ارائه‌دهنده خارجی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار ارائه‌دهنده خارجی,Identity and Party,Y
+REF_EXTERNAL_PROVIDER,ارائه‌دهنده خارجی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار ارائه‌دهنده خارجی,Identity and Party,Y
+REF_EXTERNAL_PROVIDER,ارائه‌دهنده خارجی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد ارائه‌دهنده خارجی برای کنترل هم‌زمانی,Identity and Party,Y
+REF_GENDER,جنسیت,GENDER_CODE,کد جنسیت,کد جنسیت,Identity and Party,Y
+REF_GENDER,جنسیت,NAME_FA,عنوان فارسی,عنوان فارسی جنسیت,Identity and Party,Y
+REF_GENDER,جنسیت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی جنسیت,Identity and Party,Y
+REF_GENDER,جنسیت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی جنسیت,Identity and Party,Y
+REF_GENDER,جنسیت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش جنسیت در فهرست‌های مرجع,Identity and Party,Y
+REF_GENDER,جنسیت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن جنسیت؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_GENDER,جنسیت,PARENT_CODE,کد والد,کد والد جنسیت در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_GENDER,جنسیت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار جنسیت,Identity and Party,Y
+REF_GENDER,جنسیت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار جنسیت,Identity and Party,Y
+REF_GENDER,جنسیت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد جنسیت برای کنترل هم‌زمانی,Identity and Party,Y
+REF_GROUP_MEMBER_ROLE,نقش عضو گروه,MEMBER_ROLE_CODE,کد نقش عضو گروه,کد نقش عضو گروه,Identity and Party,Y
+REF_GROUP_MEMBER_ROLE,نقش عضو گروه,NAME_FA,عنوان فارسی,عنوان فارسی نقش عضو گروه,Identity and Party,Y
+REF_GROUP_MEMBER_ROLE,نقش عضو گروه,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نقش عضو گروه,Identity and Party,Y
+REF_GROUP_MEMBER_ROLE,نقش عضو گروه,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نقش عضو گروه,Identity and Party,Y
+REF_GROUP_MEMBER_ROLE,نقش عضو گروه,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نقش عضو گروه در فهرست‌های مرجع,Identity and Party,Y
+REF_GROUP_MEMBER_ROLE,نقش عضو گروه,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نقش عضو گروه؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_GROUP_MEMBER_ROLE,نقش عضو گروه,PARENT_CODE,کد والد,کد والد نقش عضو گروه در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_GROUP_MEMBER_ROLE,نقش عضو گروه,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نقش عضو گروه,Identity and Party,Y
+REF_GROUP_MEMBER_ROLE,نقش عضو گروه,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نقش عضو گروه,Identity and Party,Y
+REF_GROUP_MEMBER_ROLE,نقش عضو گروه,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نقش عضو گروه برای کنترل هم‌زمانی,Identity and Party,Y
+REF_GROUP_TYPE,نوع گروه,GROUP_TYPE_CODE,کد نوع گروه,کد نوع گروه,Identity and Party,Y
+REF_GROUP_TYPE,نوع گروه,NAME_FA,عنوان فارسی,عنوان فارسی نوع گروه,Identity and Party,Y
+REF_GROUP_TYPE,نوع گروه,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع گروه,Identity and Party,Y
+REF_GROUP_TYPE,نوع گروه,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع گروه,Identity and Party,Y
+REF_GROUP_TYPE,نوع گروه,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع گروه در فهرست‌های مرجع,Identity and Party,Y
+REF_GROUP_TYPE,نوع گروه,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع گروه؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_GROUP_TYPE,نوع گروه,PARENT_CODE,کد والد,کد والد نوع گروه در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_GROUP_TYPE,نوع گروه,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع گروه,Identity and Party,Y
+REF_GROUP_TYPE,نوع گروه,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع گروه,Identity and Party,Y
+REF_GROUP_TYPE,نوع گروه,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع گروه برای کنترل هم‌زمانی,Identity and Party,Y
+REF_HASH_ALGORITHM,الگوریتم هش,HASH_ALGORITHM_CODE,کد الگوریتم هش,کد الگوریتم هش,Workflow and Interaction,Y
+REF_HASH_ALGORITHM,الگوریتم هش,NAME_FA,عنوان فارسی,عنوان فارسی الگوریتم هش,Workflow and Interaction,Y
+REF_HASH_ALGORITHM,الگوریتم هش,NAME_EN,عنوان انگلیسی,عنوان انگلیسی الگوریتم هش,Workflow and Interaction,Y
+REF_HASH_ALGORITHM,الگوریتم هش,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی الگوریتم هش,Workflow and Interaction,Y
+REF_HASH_ALGORITHM,الگوریتم هش,SORT_ORDER,ترتیب نمایش,ترتیب نمایش الگوریتم هش در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_HASH_ALGORITHM,الگوریتم هش,IS_ACTIVE,فعال است؟,نشانگر فعال بودن الگوریتم هش؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_HASH_ALGORITHM,الگوریتم هش,PARENT_CODE,کد والد,کد والد الگوریتم هش در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_HASH_ALGORITHM,الگوریتم هش,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار الگوریتم هش,Workflow and Interaction,Y
+REF_HASH_ALGORITHM,الگوریتم هش,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار الگوریتم هش,Workflow and Interaction,Y
+REF_HASH_ALGORITHM,الگوریتم هش,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد الگوریتم هش برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_IDENTIFIER_TYPE,نوع شناسه,IDENTIFIER_TYPE_CODE,کد نوع شناسه,کد نوع شناسه,Identity and Party,Y
+REF_IDENTIFIER_TYPE,نوع شناسه,NAME_FA,عنوان فارسی,عنوان فارسی نوع شناسه,Identity and Party,Y
+REF_IDENTIFIER_TYPE,نوع شناسه,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع شناسه,Identity and Party,Y
+REF_IDENTIFIER_TYPE,نوع شناسه,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع شناسه,Identity and Party,Y
+REF_IDENTIFIER_TYPE,نوع شناسه,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع شناسه در فهرست‌های مرجع,Identity and Party,Y
+REF_IDENTIFIER_TYPE,نوع شناسه,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع شناسه؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_IDENTIFIER_TYPE,نوع شناسه,PARENT_CODE,کد والد,کد والد نوع شناسه در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_IDENTIFIER_TYPE,نوع شناسه,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع شناسه,Identity and Party,Y
+REF_IDENTIFIER_TYPE,نوع شناسه,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع شناسه,Identity and Party,Y
+REF_IDENTIFIER_TYPE,نوع شناسه,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع شناسه برای کنترل هم‌زمانی,Identity and Party,Y
+REF_INQUIRY_RESULT,نتیجه استعلام,INQUIRY_RESULT_CODE,کد نتیجه استعلام,کد نتیجه استعلام,Compliance and Risk,Y
+REF_INQUIRY_RESULT,نتیجه استعلام,NAME_FA,عنوان فارسی,عنوان فارسی نتیجه استعلام,Compliance and Risk,Y
+REF_INQUIRY_RESULT,نتیجه استعلام,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نتیجه استعلام,Compliance and Risk,Y
+REF_INQUIRY_RESULT,نتیجه استعلام,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نتیجه استعلام,Compliance and Risk,Y
+REF_INQUIRY_RESULT,نتیجه استعلام,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نتیجه استعلام در فهرست‌های مرجع,Compliance and Risk,Y
+REF_INQUIRY_RESULT,نتیجه استعلام,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نتیجه استعلام؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_INQUIRY_RESULT,نتیجه استعلام,PARENT_CODE,کد والد,کد والد نتیجه استعلام در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_INQUIRY_RESULT,نتیجه استعلام,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نتیجه استعلام,Compliance and Risk,Y
+REF_INQUIRY_RESULT,نتیجه استعلام,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نتیجه استعلام,Compliance and Risk,Y
+REF_INQUIRY_RESULT,نتیجه استعلام,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نتیجه استعلام برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_INQUIRY_TYPE,نوع استعلام,INQUIRY_TYPE_CODE,کد نوع استعلام,کد نوع استعلام,Compliance and Risk,Y
+REF_INQUIRY_TYPE,نوع استعلام,NAME_FA,عنوان فارسی,عنوان فارسی نوع استعلام,Compliance and Risk,Y
+REF_INQUIRY_TYPE,نوع استعلام,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع استعلام,Compliance and Risk,Y
+REF_INQUIRY_TYPE,نوع استعلام,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع استعلام,Compliance and Risk,Y
+REF_INQUIRY_TYPE,نوع استعلام,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع استعلام در فهرست‌های مرجع,Compliance and Risk,Y
+REF_INQUIRY_TYPE,نوع استعلام,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع استعلام؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_INQUIRY_TYPE,نوع استعلام,PARENT_CODE,کد والد,کد والد نوع استعلام در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_INQUIRY_TYPE,نوع استعلام,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع استعلام,Compliance and Risk,Y
+REF_INQUIRY_TYPE,نوع استعلام,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع استعلام,Compliance and Risk,Y
+REF_INQUIRY_TYPE,نوع استعلام,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع استعلام برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_INTERACTION_OUTCOME,نتیجه تعامل,INTERACTION_OUTCOME_CODE,کد نتیجه تعامل,کد نتیجه تعامل,Workflow and Interaction,Y
+REF_INTERACTION_OUTCOME,نتیجه تعامل,NAME_FA,عنوان فارسی,عنوان فارسی نتیجه تعامل,Workflow and Interaction,Y
+REF_INTERACTION_OUTCOME,نتیجه تعامل,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نتیجه تعامل,Workflow and Interaction,Y
+REF_INTERACTION_OUTCOME,نتیجه تعامل,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نتیجه تعامل,Workflow and Interaction,Y
+REF_INTERACTION_OUTCOME,نتیجه تعامل,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نتیجه تعامل در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_INTERACTION_OUTCOME,نتیجه تعامل,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نتیجه تعامل؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_INTERACTION_OUTCOME,نتیجه تعامل,PARENT_CODE,کد والد,کد والد نتیجه تعامل در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_INTERACTION_OUTCOME,نتیجه تعامل,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نتیجه تعامل,Workflow and Interaction,Y
+REF_INTERACTION_OUTCOME,نتیجه تعامل,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نتیجه تعامل,Workflow and Interaction,Y
+REF_INTERACTION_OUTCOME,نتیجه تعامل,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نتیجه تعامل برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_INTERACTION_TYPE,نوع تعامل,INTERACTION_TYPE_CODE,کد نوع تعامل,کد نوع تعامل,Workflow and Interaction,Y
+REF_INTERACTION_TYPE,نوع تعامل,NAME_FA,عنوان فارسی,عنوان فارسی نوع تعامل,Workflow and Interaction,Y
+REF_INTERACTION_TYPE,نوع تعامل,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع تعامل,Workflow and Interaction,Y
+REF_INTERACTION_TYPE,نوع تعامل,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع تعامل,Workflow and Interaction,Y
+REF_INTERACTION_TYPE,نوع تعامل,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع تعامل در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_INTERACTION_TYPE,نوع تعامل,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع تعامل؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_INTERACTION_TYPE,نوع تعامل,PARENT_CODE,کد والد,کد والد نوع تعامل در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_INTERACTION_TYPE,نوع تعامل,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع تعامل,Workflow and Interaction,Y
+REF_INTERACTION_TYPE,نوع تعامل,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع تعامل,Workflow and Interaction,Y
+REF_INTERACTION_TYPE,نوع تعامل,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع تعامل برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_ISIC_ACTIVITY,فعالیت اقتصادی (ISIC),ISIC_CODE,کد ISIC,کد ISIC,Organization and Product,Y
+REF_ISIC_ACTIVITY,فعالیت اقتصادی (ISIC),NAME_FA,عنوان فارسی,عنوان فارسی فعالیت اقتصادی (ISIC),Organization and Product,Y
+REF_ISIC_ACTIVITY,فعالیت اقتصادی (ISIC),NAME_EN,عنوان انگلیسی,عنوان انگلیسی فعالیت اقتصادی (ISIC),Organization and Product,Y
+REF_ISIC_ACTIVITY,فعالیت اقتصادی (ISIC),DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی فعالیت اقتصادی (ISIC),Organization and Product,Y
+REF_ISIC_ACTIVITY,فعالیت اقتصادی (ISIC),SORT_ORDER,ترتیب نمایش,ترتیب نمایش فعالیت اقتصادی (ISIC) در فهرست‌های مرجع,Organization and Product,Y
+REF_ISIC_ACTIVITY,فعالیت اقتصادی (ISIC),IS_ACTIVE,فعال است؟,نشانگر فعال بودن فعالیت اقتصادی (ISIC)؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_ISIC_ACTIVITY,فعالیت اقتصادی (ISIC),PARENT_CODE,کد والد,کد والد فعالیت اقتصادی (ISIC) در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_ISIC_ACTIVITY,فعالیت اقتصادی (ISIC),VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار فعالیت اقتصادی (ISIC),Organization and Product,Y
+REF_ISIC_ACTIVITY,فعالیت اقتصادی (ISIC),VALID_TO,پایان اعتبار,تاریخ پایان اعتبار فعالیت اقتصادی (ISIC),Organization and Product,Y
+REF_ISIC_ACTIVITY,فعالیت اقتصادی (ISIC),RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد فعالیت اقتصادی (ISIC) برای کنترل هم‌زمانی,Organization and Product,Y
+REF_ISSUING_AUTHORITY,مرجع صادرکننده,ISSUING_AUTHORITY_CODE,کد مرجع صادرکننده,کد مرجع صادرکننده,Identity and Party,Y
+REF_ISSUING_AUTHORITY,مرجع صادرکننده,NAME_FA,عنوان فارسی,عنوان فارسی مرجع صادرکننده,Identity and Party,Y
+REF_ISSUING_AUTHORITY,مرجع صادرکننده,NAME_EN,عنوان انگلیسی,عنوان انگلیسی مرجع صادرکننده,Identity and Party,Y
+REF_ISSUING_AUTHORITY,مرجع صادرکننده,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی مرجع صادرکننده,Identity and Party,Y
+REF_ISSUING_AUTHORITY,مرجع صادرکننده,SORT_ORDER,ترتیب نمایش,ترتیب نمایش مرجع صادرکننده در فهرست‌های مرجع,Identity and Party,Y
+REF_ISSUING_AUTHORITY,مرجع صادرکننده,IS_ACTIVE,فعال است؟,نشانگر فعال بودن مرجع صادرکننده؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_ISSUING_AUTHORITY,مرجع صادرکننده,PARENT_CODE,کد والد,کد والد مرجع صادرکننده در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_ISSUING_AUTHORITY,مرجع صادرکننده,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار مرجع صادرکننده,Identity and Party,Y
+REF_ISSUING_AUTHORITY,مرجع صادرکننده,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار مرجع صادرکننده,Identity and Party,Y
+REF_ISSUING_AUTHORITY,مرجع صادرکننده,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد مرجع صادرکننده برای کنترل هم‌زمانی,Identity and Party,Y
+REF_JOURNEY,سفر مشتری,JOURNEY_CODE,کد سفر مشتری,کد سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY,سفر مشتری,NAME_FA,عنوان فارسی,عنوان فارسی سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY,سفر مشتری,NAME_EN,عنوان انگلیسی,عنوان انگلیسی سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY,سفر مشتری,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY,سفر مشتری,SORT_ORDER,ترتیب نمایش,ترتیب نمایش سفر مشتری در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_JOURNEY,سفر مشتری,IS_ACTIVE,فعال است؟,نشانگر فعال بودن سفر مشتری؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_JOURNEY,سفر مشتری,PARENT_CODE,کد والد,کد والد سفر مشتری در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_JOURNEY,سفر مشتری,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY,سفر مشتری,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY,سفر مشتری,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد سفر مشتری برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_JOURNEY_EVENT_TYPE,نوع رویداد سفر مشتری,JOURNEY_EVENT_TYPE_CODE,کد نوع رویداد سفر مشتری,کد نوع رویداد سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_EVENT_TYPE,نوع رویداد سفر مشتری,NAME_FA,عنوان فارسی,عنوان فارسی نوع رویداد سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_EVENT_TYPE,نوع رویداد سفر مشتری,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع رویداد سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_EVENT_TYPE,نوع رویداد سفر مشتری,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع رویداد سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_EVENT_TYPE,نوع رویداد سفر مشتری,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع رویداد سفر مشتری در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_JOURNEY_EVENT_TYPE,نوع رویداد سفر مشتری,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع رویداد سفر مشتری؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_JOURNEY_EVENT_TYPE,نوع رویداد سفر مشتری,PARENT_CODE,کد والد,کد والد نوع رویداد سفر مشتری در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_JOURNEY_EVENT_TYPE,نوع رویداد سفر مشتری,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع رویداد سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_EVENT_TYPE,نوع رویداد سفر مشتری,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع رویداد سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_EVENT_TYPE,نوع رویداد سفر مشتری,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع رویداد سفر مشتری برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_JOURNEY_STAGE,مرحله سفر مشتری,JOURNEY_STAGE_CODE,کد مرحله سفر مشتری,کد مرحله سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_STAGE,مرحله سفر مشتری,NAME_FA,عنوان فارسی,عنوان فارسی مرحله سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_STAGE,مرحله سفر مشتری,NAME_EN,عنوان انگلیسی,عنوان انگلیسی مرحله سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_STAGE,مرحله سفر مشتری,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی مرحله سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_STAGE,مرحله سفر مشتری,SORT_ORDER,ترتیب نمایش,ترتیب نمایش مرحله سفر مشتری در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_JOURNEY_STAGE,مرحله سفر مشتری,IS_ACTIVE,فعال است؟,نشانگر فعال بودن مرحله سفر مشتری؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_JOURNEY_STAGE,مرحله سفر مشتری,PARENT_CODE,کد والد,کد والد مرحله سفر مشتری در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_JOURNEY_STAGE,مرحله سفر مشتری,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار مرحله سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_STAGE,مرحله سفر مشتری,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار مرحله سفر مشتری,Workflow and Interaction,Y
+REF_JOURNEY_STAGE,مرحله سفر مشتری,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد مرحله سفر مشتری برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_KYC_TYPE,نوع KYC,KYC_TYPE_CODE,کد نوع KYC,کد نوع KYC,Compliance and Risk,Y
+REF_KYC_TYPE,نوع KYC,NAME_FA,عنوان فارسی,عنوان فارسی نوع KYC,Compliance and Risk,Y
+REF_KYC_TYPE,نوع KYC,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع KYC,Compliance and Risk,Y
+REF_KYC_TYPE,نوع KYC,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع KYC,Compliance and Risk,Y
+REF_KYC_TYPE,نوع KYC,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع KYC در فهرست‌های مرجع,Compliance and Risk,Y
+REF_KYC_TYPE,نوع KYC,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع KYC؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_KYC_TYPE,نوع KYC,PARENT_CODE,کد والد,کد والد نوع KYC در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_KYC_TYPE,نوع KYC,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع KYC,Compliance and Risk,Y
+REF_KYC_TYPE,نوع KYC,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع KYC,Compliance and Risk,Y
+REF_KYC_TYPE,نوع KYC,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع KYC برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_LEGAL_CAPACITY,اهلیت قانونی,LEGAL_CAPACITY_CODE,کد اهلیت قانونی,کد اهلیت قانونی,Contact and Geography,Y
+REF_LEGAL_CAPACITY,اهلیت قانونی,NAME_FA,عنوان فارسی,عنوان فارسی اهلیت قانونی,Contact and Geography,Y
+REF_LEGAL_CAPACITY,اهلیت قانونی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی اهلیت قانونی,Contact and Geography,Y
+REF_LEGAL_CAPACITY,اهلیت قانونی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی اهلیت قانونی,Contact and Geography,Y
+REF_LEGAL_CAPACITY,اهلیت قانونی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش اهلیت قانونی در فهرست‌های مرجع,Contact and Geography,Y
+REF_LEGAL_CAPACITY,اهلیت قانونی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن اهلیت قانونی؛ 1 فعال و 0 غیرفعال,Contact and Geography,Y
+REF_LEGAL_CAPACITY,اهلیت قانونی,PARENT_CODE,کد والد,کد والد اهلیت قانونی در ساختار سلسله‌مراتبی، در صورت کاربرد,Contact and Geography,Y
+REF_LEGAL_CAPACITY,اهلیت قانونی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار اهلیت قانونی,Contact and Geography,Y
+REF_LEGAL_CAPACITY,اهلیت قانونی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار اهلیت قانونی,Contact and Geography,Y
+REF_LEGAL_CAPACITY,اهلیت قانونی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد اهلیت قانونی برای کنترل هم‌زمانی,Contact and Geography,Y
+REF_LEGAL_FORM,نوع شخصیت حقوقی,LEGAL_FORM_CODE,کد نوع شخصیت حقوقی,کد نوع شخصیت حقوقی,Organization and Product,Y
+REF_LEGAL_FORM,نوع شخصیت حقوقی,NAME_FA,عنوان فارسی,عنوان فارسی نوع شخصیت حقوقی,Organization and Product,Y
+REF_LEGAL_FORM,نوع شخصیت حقوقی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع شخصیت حقوقی,Organization and Product,Y
+REF_LEGAL_FORM,نوع شخصیت حقوقی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع شخصیت حقوقی,Organization and Product,Y
+REF_LEGAL_FORM,نوع شخصیت حقوقی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع شخصیت حقوقی در فهرست‌های مرجع,Organization and Product,Y
+REF_LEGAL_FORM,نوع شخصیت حقوقی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع شخصیت حقوقی؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_LEGAL_FORM,نوع شخصیت حقوقی,PARENT_CODE,کد والد,کد والد نوع شخصیت حقوقی در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_LEGAL_FORM,نوع شخصیت حقوقی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع شخصیت حقوقی,Organization and Product,Y
+REF_LEGAL_FORM,نوع شخصیت حقوقی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع شخصیت حقوقی,Organization and Product,Y
+REF_LEGAL_FORM,نوع شخصیت حقوقی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع شخصیت حقوقی برای کنترل هم‌زمانی,Organization and Product,Y
+REF_LICENSE_TYPE,نوع مجوز,LICENSE_TYPE_CODE,کد نوع مجوز,کد نوع مجوز,Organization and Product,Y
+REF_LICENSE_TYPE,نوع مجوز,NAME_FA,عنوان فارسی,عنوان فارسی نوع مجوز,Organization and Product,Y
+REF_LICENSE_TYPE,نوع مجوز,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع مجوز,Organization and Product,Y
+REF_LICENSE_TYPE,نوع مجوز,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع مجوز,Organization and Product,Y
+REF_LICENSE_TYPE,نوع مجوز,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع مجوز در فهرست‌های مرجع,Organization and Product,Y
+REF_LICENSE_TYPE,نوع مجوز,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع مجوز؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_LICENSE_TYPE,نوع مجوز,PARENT_CODE,کد والد,کد والد نوع مجوز در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_LICENSE_TYPE,نوع مجوز,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع مجوز,Organization and Product,Y
+REF_LICENSE_TYPE,نوع مجوز,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع مجوز,Organization and Product,Y
+REF_LICENSE_TYPE,نوع مجوز,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع مجوز برای کنترل هم‌زمانی,Organization and Product,Y
+REF_LIFE_STATUS,وضعیت حیات,LIFE_STATUS_CODE,کد وضعیت حیات,کد وضعیت حیات,Identity and Party,Y
+REF_LIFE_STATUS,وضعیت حیات,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت حیات,Identity and Party,Y
+REF_LIFE_STATUS,وضعیت حیات,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت حیات,Identity and Party,Y
+REF_LIFE_STATUS,وضعیت حیات,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت حیات,Identity and Party,Y
+REF_LIFE_STATUS,وضعیت حیات,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت حیات در فهرست‌های مرجع,Identity and Party,Y
+REF_LIFE_STATUS,وضعیت حیات,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت حیات؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_LIFE_STATUS,وضعیت حیات,PARENT_CODE,کد والد,کد والد وضعیت حیات در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_LIFE_STATUS,وضعیت حیات,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت حیات,Identity and Party,Y
+REF_LIFE_STATUS,وضعیت حیات,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت حیات,Identity and Party,Y
+REF_LIFE_STATUS,وضعیت حیات,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت حیات برای کنترل هم‌زمانی,Identity and Party,Y
+REF_LIMIT_TYPE,نوع حد,LIMIT_TYPE_CODE,کد نوع حد,کد نوع حد,Identity and Party,Y
+REF_LIMIT_TYPE,نوع حد,NAME_FA,عنوان فارسی,عنوان فارسی نوع حد,Identity and Party,Y
+REF_LIMIT_TYPE,نوع حد,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع حد,Identity and Party,Y
+REF_LIMIT_TYPE,نوع حد,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع حد,Identity and Party,Y
+REF_LIMIT_TYPE,نوع حد,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع حد در فهرست‌های مرجع,Identity and Party,Y
+REF_LIMIT_TYPE,نوع حد,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع حد؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_LIMIT_TYPE,نوع حد,PARENT_CODE,کد والد,کد والد نوع حد در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_LIMIT_TYPE,نوع حد,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع حد,Identity and Party,Y
+REF_LIMIT_TYPE,نوع حد,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع حد,Identity and Party,Y
+REF_LIMIT_TYPE,نوع حد,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع حد برای کنترل هم‌زمانی,Identity and Party,Y
+REF_MARITAL_STATUS,وضعیت تأهل,MARITAL_STATUS_CODE,کد وضعیت تأهل,کد وضعیت تأهل,Identity and Party,Y
+REF_MARITAL_STATUS,وضعیت تأهل,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت تأهل,Identity and Party,Y
+REF_MARITAL_STATUS,وضعیت تأهل,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت تأهل,Identity and Party,Y
+REF_MARITAL_STATUS,وضعیت تأهل,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت تأهل,Identity and Party,Y
+REF_MARITAL_STATUS,وضعیت تأهل,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت تأهل در فهرست‌های مرجع,Identity and Party,Y
+REF_MARITAL_STATUS,وضعیت تأهل,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت تأهل؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_MARITAL_STATUS,وضعیت تأهل,PARENT_CODE,کد والد,کد والد وضعیت تأهل در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_MARITAL_STATUS,وضعیت تأهل,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت تأهل,Identity and Party,Y
+REF_MARITAL_STATUS,وضعیت تأهل,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت تأهل,Identity and Party,Y
+REF_MARITAL_STATUS,وضعیت تأهل,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت تأهل برای کنترل هم‌زمانی,Identity and Party,Y
+REF_METRIC,شاخص تحلیلی مشتری,METRIC_CODE,کد شاخص,کد شاخص,Analytics and Recommendation,Y
+REF_METRIC,شاخص تحلیلی مشتری,NAME_FA,عنوان فارسی,عنوان فارسی شاخص تحلیلی مشتری,Analytics and Recommendation,Y
+REF_METRIC,شاخص تحلیلی مشتری,NAME_EN,عنوان انگلیسی,عنوان انگلیسی شاخص تحلیلی مشتری,Analytics and Recommendation,Y
+REF_METRIC,شاخص تحلیلی مشتری,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی شاخص تحلیلی مشتری,Analytics and Recommendation,Y
+REF_METRIC,شاخص تحلیلی مشتری,SORT_ORDER,ترتیب نمایش,ترتیب نمایش شاخص تحلیلی مشتری در فهرست‌های مرجع,Analytics and Recommendation,Y
+REF_METRIC,شاخص تحلیلی مشتری,IS_ACTIVE,فعال است؟,نشانگر فعال بودن شاخص تحلیلی مشتری؛ 1 فعال و 0 غیرفعال,Analytics and Recommendation,Y
+REF_METRIC,شاخص تحلیلی مشتری,PARENT_CODE,کد والد,کد والد شاخص تحلیلی مشتری در ساختار سلسله‌مراتبی، در صورت کاربرد,Analytics and Recommendation,Y
+REF_METRIC,شاخص تحلیلی مشتری,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار شاخص تحلیلی مشتری,Analytics and Recommendation,Y
+REF_METRIC,شاخص تحلیلی مشتری,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار شاخص تحلیلی مشتری,Analytics and Recommendation,Y
+REF_METRIC,شاخص تحلیلی مشتری,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد شاخص تحلیلی مشتری برای کنترل هم‌زمانی,Analytics and Recommendation,Y
+REF_METRIC_UNIT,واحد اندازه‌گیری شاخص,METRIC_UNIT_CODE,کد واحد اندازه‌گیری,کد واحد اندازه‌گیری,Analytics and Recommendation,Y
+REF_METRIC_UNIT,واحد اندازه‌گیری شاخص,NAME_FA,عنوان فارسی,عنوان فارسی واحد اندازه‌گیری شاخص,Analytics and Recommendation,Y
+REF_METRIC_UNIT,واحد اندازه‌گیری شاخص,NAME_EN,عنوان انگلیسی,عنوان انگلیسی واحد اندازه‌گیری شاخص,Analytics and Recommendation,Y
+REF_METRIC_UNIT,واحد اندازه‌گیری شاخص,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی واحد اندازه‌گیری شاخص,Analytics and Recommendation,Y
+REF_METRIC_UNIT,واحد اندازه‌گیری شاخص,SORT_ORDER,ترتیب نمایش,ترتیب نمایش واحد اندازه‌گیری شاخص در فهرست‌های مرجع,Analytics and Recommendation,Y
+REF_METRIC_UNIT,واحد اندازه‌گیری شاخص,IS_ACTIVE,فعال است؟,نشانگر فعال بودن واحد اندازه‌گیری شاخص؛ 1 فعال و 0 غیرفعال,Analytics and Recommendation,Y
+REF_METRIC_UNIT,واحد اندازه‌گیری شاخص,PARENT_CODE,کد والد,کد والد واحد اندازه‌گیری شاخص در ساختار سلسله‌مراتبی، در صورت کاربرد,Analytics and Recommendation,Y
+REF_METRIC_UNIT,واحد اندازه‌گیری شاخص,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار واحد اندازه‌گیری شاخص,Analytics and Recommendation,Y
+REF_METRIC_UNIT,واحد اندازه‌گیری شاخص,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار واحد اندازه‌گیری شاخص,Analytics and Recommendation,Y
+REF_METRIC_UNIT,واحد اندازه‌گیری شاخص,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد واحد اندازه‌گیری شاخص برای کنترل هم‌زمانی,Analytics and Recommendation,Y
+REF_MODEL,مدل تحلیلی,MODEL_CODE,کد مدل تحلیلی,کد مدل تحلیلی,Analytics and Recommendation,Y
+REF_MODEL,مدل تحلیلی,NAME_FA,عنوان فارسی,عنوان فارسی مدل تحلیلی,Analytics and Recommendation,Y
+REF_MODEL,مدل تحلیلی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی مدل تحلیلی,Analytics and Recommendation,Y
+REF_MODEL,مدل تحلیلی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی مدل تحلیلی,Analytics and Recommendation,Y
+REF_MODEL,مدل تحلیلی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش مدل تحلیلی در فهرست‌های مرجع,Analytics and Recommendation,Y
+REF_MODEL,مدل تحلیلی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن مدل تحلیلی؛ 1 فعال و 0 غیرفعال,Analytics and Recommendation,Y
+REF_MODEL,مدل تحلیلی,PARENT_CODE,کد والد,کد والد مدل تحلیلی در ساختار سلسله‌مراتبی، در صورت کاربرد,Analytics and Recommendation,Y
+REF_MODEL,مدل تحلیلی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار مدل تحلیلی,Analytics and Recommendation,Y
+REF_MODEL,مدل تحلیلی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار مدل تحلیلی,Analytics and Recommendation,Y
+REF_MODEL,مدل تحلیلی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد مدل تحلیلی برای کنترل هم‌زمانی,Analytics and Recommendation,Y
+REF_NAME_TYPE,نوع نام,NAME_TYPE_CODE,کد نوع نام,کد نوع نام,Identity and Party,Y
+REF_NAME_TYPE,نوع نام,NAME_FA,عنوان فارسی,عنوان فارسی نوع نام,Identity and Party,Y
+REF_NAME_TYPE,نوع نام,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع نام,Identity and Party,Y
+REF_NAME_TYPE,نوع نام,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع نام,Identity and Party,Y
+REF_NAME_TYPE,نوع نام,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع نام در فهرست‌های مرجع,Identity and Party,Y
+REF_NAME_TYPE,نوع نام,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع نام؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_NAME_TYPE,نوع نام,PARENT_CODE,کد والد,کد والد نوع نام در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_NAME_TYPE,نوع نام,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع نام,Identity and Party,Y
+REF_NAME_TYPE,نوع نام,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع نام,Identity and Party,Y
+REF_NAME_TYPE,نوع نام,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع نام برای کنترل هم‌زمانی,Identity and Party,Y
+REF_OCCUPATION,شغل,OCCUPATION_CODE,کد شغل,کد شغل,Organization and Product,Y
+REF_OCCUPATION,شغل,NAME_FA,عنوان فارسی,عنوان فارسی شغل,Organization and Product,Y
+REF_OCCUPATION,شغل,NAME_EN,عنوان انگلیسی,عنوان انگلیسی شغل,Organization and Product,Y
+REF_OCCUPATION,شغل,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی شغل,Organization and Product,Y
+REF_OCCUPATION,شغل,SORT_ORDER,ترتیب نمایش,ترتیب نمایش شغل در فهرست‌های مرجع,Organization and Product,Y
+REF_OCCUPATION,شغل,IS_ACTIVE,فعال است؟,نشانگر فعال بودن شغل؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_OCCUPATION,شغل,PARENT_CODE,کد والد,کد والد شغل در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_OCCUPATION,شغل,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار شغل,Organization and Product,Y
+REF_OCCUPATION,شغل,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار شغل,Organization and Product,Y
+REF_OCCUPATION,شغل,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد شغل برای کنترل هم‌زمانی,Organization and Product,Y
+REF_OFFER,پیشنهاد محصول/خدمت,OFFER_CODE,کد پیشنهاد,کد پیشنهاد,Organization and Product,Y
+REF_OFFER,پیشنهاد محصول/خدمت,NAME_FA,عنوان فارسی,عنوان فارسی پیشنهاد محصول/خدمت,Organization and Product,Y
+REF_OFFER,پیشنهاد محصول/خدمت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی پیشنهاد محصول/خدمت,Organization and Product,Y
+REF_OFFER,پیشنهاد محصول/خدمت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی پیشنهاد محصول/خدمت,Organization and Product,Y
+REF_OFFER,پیشنهاد محصول/خدمت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش پیشنهاد محصول/خدمت در فهرست‌های مرجع,Organization and Product,Y
+REF_OFFER,پیشنهاد محصول/خدمت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن پیشنهاد محصول/خدمت؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_OFFER,پیشنهاد محصول/خدمت,PARENT_CODE,کد والد,کد والد پیشنهاد محصول/خدمت در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_OFFER,پیشنهاد محصول/خدمت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار پیشنهاد محصول/خدمت,Organization and Product,Y
+REF_OFFER,پیشنهاد محصول/خدمت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار پیشنهاد محصول/خدمت,Organization and Product,Y
+REF_OFFER,پیشنهاد محصول/خدمت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد پیشنهاد محصول/خدمت برای کنترل هم‌زمانی,Organization and Product,Y
+REF_OFFICER_ROLE,سمت/نقش سازمانی,OFFICER_ROLE_CODE,کد سمت/نقش,کد سمت/نقش,Organization and Product,Y
+REF_OFFICER_ROLE,سمت/نقش سازمانی,NAME_FA,عنوان فارسی,عنوان فارسی سمت/نقش سازمانی,Organization and Product,Y
+REF_OFFICER_ROLE,سمت/نقش سازمانی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی سمت/نقش سازمانی,Organization and Product,Y
+REF_OFFICER_ROLE,سمت/نقش سازمانی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی سمت/نقش سازمانی,Organization and Product,Y
+REF_OFFICER_ROLE,سمت/نقش سازمانی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش سمت/نقش سازمانی در فهرست‌های مرجع,Organization and Product,Y
+REF_OFFICER_ROLE,سمت/نقش سازمانی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن سمت/نقش سازمانی؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_OFFICER_ROLE,سمت/نقش سازمانی,PARENT_CODE,کد والد,کد والد سمت/نقش سازمانی در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_OFFICER_ROLE,سمت/نقش سازمانی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار سمت/نقش سازمانی,Organization and Product,Y
+REF_OFFICER_ROLE,سمت/نقش سازمانی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار سمت/نقش سازمانی,Organization and Product,Y
+REF_OFFICER_ROLE,سمت/نقش سازمانی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد سمت/نقش سازمانی برای کنترل هم‌زمانی,Organization and Product,Y
+REF_PARTY_CONSENT_PURPOSE,هدف رضایت Party,PARTY_CONSENT_PURPOSE_CODE,کد هدف رضایت Party,کد هدف رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_PURPOSE,هدف رضایت Party,NAME_FA,عنوان فارسی,عنوان فارسی هدف رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_PURPOSE,هدف رضایت Party,NAME_EN,عنوان انگلیسی,عنوان انگلیسی هدف رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_PURPOSE,هدف رضایت Party,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی هدف رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_PURPOSE,هدف رضایت Party,SORT_ORDER,ترتیب نمایش,ترتیب نمایش هدف رضایت Party در فهرست‌های مرجع,Identity and Party,Y
+REF_PARTY_CONSENT_PURPOSE,هدف رضایت Party,IS_ACTIVE,فعال است؟,نشانگر فعال بودن هدف رضایت Party؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_PARTY_CONSENT_PURPOSE,هدف رضایت Party,PARENT_CODE,کد والد,کد والد هدف رضایت Party در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_PARTY_CONSENT_PURPOSE,هدف رضایت Party,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار هدف رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_PURPOSE,هدف رضایت Party,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار هدف رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_PURPOSE,هدف رضایت Party,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد هدف رضایت Party برای کنترل هم‌زمانی,Identity and Party,Y
+REF_PARTY_CONSENT_STATUS,وضعیت رضایت Party,CONSENT_STATUS_CODE,کد وضعیت رضایت Party,کد وضعیت رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_STATUS,وضعیت رضایت Party,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_STATUS,وضعیت رضایت Party,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_STATUS,وضعیت رضایت Party,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_STATUS,وضعیت رضایت Party,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت رضایت Party در فهرست‌های مرجع,Identity and Party,Y
+REF_PARTY_CONSENT_STATUS,وضعیت رضایت Party,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت رضایت Party؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_PARTY_CONSENT_STATUS,وضعیت رضایت Party,PARENT_CODE,کد والد,کد والد وضعیت رضایت Party در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_PARTY_CONSENT_STATUS,وضعیت رضایت Party,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_STATUS,وضعیت رضایت Party,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_STATUS,وضعیت رضایت Party,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت رضایت Party برای کنترل هم‌زمانی,Identity and Party,Y
+REF_PARTY_CONSENT_TYPE,نوع رضایت Party,CONSENT_TYPE_CODE,کد نوع رضایت Party,کد نوع رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_TYPE,نوع رضایت Party,NAME_FA,عنوان فارسی,عنوان فارسی نوع رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_TYPE,نوع رضایت Party,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_TYPE,نوع رضایت Party,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_TYPE,نوع رضایت Party,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع رضایت Party در فهرست‌های مرجع,Identity and Party,Y
+REF_PARTY_CONSENT_TYPE,نوع رضایت Party,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع رضایت Party؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_PARTY_CONSENT_TYPE,نوع رضایت Party,PARENT_CODE,کد والد,کد والد نوع رضایت Party در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_PARTY_CONSENT_TYPE,نوع رضایت Party,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_TYPE,نوع رضایت Party,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع رضایت Party,Identity and Party,Y
+REF_PARTY_CONSENT_TYPE,نوع رضایت Party,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع رضایت Party برای کنترل هم‌زمانی,Identity and Party,Y
+REF_PARTY_LIFECYCLE_STATUS,وضعیت چرخه‌حیات Party,LIFECYCLE_STATUS_CODE,کد وضعیت چرخه‌حیات Party,کد وضعیت چرخه‌حیات Party,Identity and Party,Y
+REF_PARTY_LIFECYCLE_STATUS,وضعیت چرخه‌حیات Party,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت چرخه‌حیات Party,Identity and Party,Y
+REF_PARTY_LIFECYCLE_STATUS,وضعیت چرخه‌حیات Party,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت چرخه‌حیات Party,Identity and Party,Y
+REF_PARTY_LIFECYCLE_STATUS,وضعیت چرخه‌حیات Party,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت چرخه‌حیات Party,Identity and Party,Y
+REF_PARTY_LIFECYCLE_STATUS,وضعیت چرخه‌حیات Party,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت چرخه‌حیات Party در فهرست‌های مرجع,Identity and Party,Y
+REF_PARTY_LIFECYCLE_STATUS,وضعیت چرخه‌حیات Party,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت چرخه‌حیات Party؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_PARTY_LIFECYCLE_STATUS,وضعیت چرخه‌حیات Party,PARENT_CODE,کد والد,کد والد وضعیت چرخه‌حیات Party در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_PARTY_LIFECYCLE_STATUS,وضعیت چرخه‌حیات Party,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت چرخه‌حیات Party,Identity and Party,Y
+REF_PARTY_LIFECYCLE_STATUS,وضعیت چرخه‌حیات Party,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت چرخه‌حیات Party,Identity and Party,Y
+REF_PARTY_LIFECYCLE_STATUS,وضعیت چرخه‌حیات Party,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت چرخه‌حیات Party برای کنترل هم‌زمانی,Identity and Party,Y
+REF_PARTY_STATUS_REASON,دلیل وضعیت Party,REASON_CODE,کد دلیل وضعیت Party,کد دلیل وضعیت Party,Identity and Party,Y
+REF_PARTY_STATUS_REASON,دلیل وضعیت Party,NAME_FA,عنوان فارسی,عنوان فارسی دلیل وضعیت Party,Identity and Party,Y
+REF_PARTY_STATUS_REASON,دلیل وضعیت Party,NAME_EN,عنوان انگلیسی,عنوان انگلیسی دلیل وضعیت Party,Identity and Party,Y
+REF_PARTY_STATUS_REASON,دلیل وضعیت Party,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی دلیل وضعیت Party,Identity and Party,Y
+REF_PARTY_STATUS_REASON,دلیل وضعیت Party,SORT_ORDER,ترتیب نمایش,ترتیب نمایش دلیل وضعیت Party در فهرست‌های مرجع,Identity and Party,Y
+REF_PARTY_STATUS_REASON,دلیل وضعیت Party,IS_ACTIVE,فعال است؟,نشانگر فعال بودن دلیل وضعیت Party؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_PARTY_STATUS_REASON,دلیل وضعیت Party,PARENT_CODE,کد والد,کد والد دلیل وضعیت Party در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_PARTY_STATUS_REASON,دلیل وضعیت Party,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار دلیل وضعیت Party,Identity and Party,Y
+REF_PARTY_STATUS_REASON,دلیل وضعیت Party,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار دلیل وضعیت Party,Identity and Party,Y
+REF_PARTY_STATUS_REASON,دلیل وضعیت Party,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد دلیل وضعیت Party برای کنترل هم‌زمانی,Identity and Party,Y
+REF_PARTY_TYPE,نوع Party,PARTY_TYPE_CODE,کد نوع Party,کد نوع Party,Identity and Party,Y
+REF_PARTY_TYPE,نوع Party,NAME_FA,عنوان فارسی,عنوان فارسی نوع Party,Identity and Party,Y
+REF_PARTY_TYPE,نوع Party,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع Party,Identity and Party,Y
+REF_PARTY_TYPE,نوع Party,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع Party,Identity and Party,Y
+REF_PARTY_TYPE,نوع Party,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع Party در فهرست‌های مرجع,Identity and Party,Y
+REF_PARTY_TYPE,نوع Party,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع Party؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_PARTY_TYPE,نوع Party,PARENT_CODE,کد والد,کد والد نوع Party در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_PARTY_TYPE,نوع Party,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع Party,Identity and Party,Y
+REF_PARTY_TYPE,نوع Party,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع Party,Identity and Party,Y
+REF_PARTY_TYPE,نوع Party,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع Party برای کنترل هم‌زمانی,Identity and Party,Y
+REF_PERIOD,دوره زمانی,PERIOD_CODE,کد دوره,کد دوره,Organization and Product,Y
+REF_PERIOD,دوره زمانی,NAME_FA,عنوان فارسی,عنوان فارسی دوره زمانی,Organization and Product,Y
+REF_PERIOD,دوره زمانی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی دوره زمانی,Organization and Product,Y
+REF_PERIOD,دوره زمانی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی دوره زمانی,Organization and Product,Y
+REF_PERIOD,دوره زمانی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش دوره زمانی در فهرست‌های مرجع,Organization and Product,Y
+REF_PERIOD,دوره زمانی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن دوره زمانی؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_PERIOD,دوره زمانی,PARENT_CODE,کد والد,کد والد دوره زمانی در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_PERIOD,دوره زمانی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار دوره زمانی,Organization and Product,Y
+REF_PERIOD,دوره زمانی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار دوره زمانی,Organization and Product,Y
+REF_PERIOD,دوره زمانی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد دوره زمانی برای کنترل هم‌زمانی,Organization and Product,Y
+REF_PREFERENCE_TYPE,نوع ترجیح مشتری,PREFERENCE_TYPE_CODE,کد نوع ترجیح مشتری,کد نوع ترجیح مشتری,Workflow and Interaction,Y
+REF_PREFERENCE_TYPE,نوع ترجیح مشتری,NAME_FA,عنوان فارسی,عنوان فارسی نوع ترجیح مشتری,Workflow and Interaction,Y
+REF_PREFERENCE_TYPE,نوع ترجیح مشتری,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع ترجیح مشتری,Workflow and Interaction,Y
+REF_PREFERENCE_TYPE,نوع ترجیح مشتری,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع ترجیح مشتری,Workflow and Interaction,Y
+REF_PREFERENCE_TYPE,نوع ترجیح مشتری,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع ترجیح مشتری در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_PREFERENCE_TYPE,نوع ترجیح مشتری,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع ترجیح مشتری؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_PREFERENCE_TYPE,نوع ترجیح مشتری,PARENT_CODE,کد والد,کد والد نوع ترجیح مشتری در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_PREFERENCE_TYPE,نوع ترجیح مشتری,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع ترجیح مشتری,Workflow and Interaction,Y
+REF_PREFERENCE_TYPE,نوع ترجیح مشتری,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع ترجیح مشتری,Workflow and Interaction,Y
+REF_PREFERENCE_TYPE,نوع ترجیح مشتری,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع ترجیح مشتری برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_PRODUCT_HOLDING_STATUS,وضعیت رابطه محصولی,PRODUCT_HOLDING_STATUS_CODE,کد وضعیت رابطه محصولی,کد وضعیت رابطه محصولی,Organization and Product,Y
+REF_PRODUCT_HOLDING_STATUS,وضعیت رابطه محصولی,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت رابطه محصولی,Organization and Product,Y
+REF_PRODUCT_HOLDING_STATUS,وضعیت رابطه محصولی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت رابطه محصولی,Organization and Product,Y
+REF_PRODUCT_HOLDING_STATUS,وضعیت رابطه محصولی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت رابطه محصولی,Organization and Product,Y
+REF_PRODUCT_HOLDING_STATUS,وضعیت رابطه محصولی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت رابطه محصولی در فهرست‌های مرجع,Organization and Product,Y
+REF_PRODUCT_HOLDING_STATUS,وضعیت رابطه محصولی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت رابطه محصولی؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_PRODUCT_HOLDING_STATUS,وضعیت رابطه محصولی,PARENT_CODE,کد والد,کد والد وضعیت رابطه محصولی در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_PRODUCT_HOLDING_STATUS,وضعیت رابطه محصولی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت رابطه محصولی,Organization and Product,Y
+REF_PRODUCT_HOLDING_STATUS,وضعیت رابطه محصولی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت رابطه محصولی,Organization and Product,Y
+REF_PRODUCT_HOLDING_STATUS,وضعیت رابطه محصولی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت رابطه محصولی برای کنترل هم‌زمانی,Organization and Product,Y
+REF_PRODUCT_RELATIONSHIP_ROLE,نقش مشتری نسبت به محصول,PRODUCT_RELATIONSHIP_ROLE_CODE,کد نقش مشتری نسبت به محصول,کد نقش مشتری نسبت به محصول,Organization and Product,Y
+REF_PRODUCT_RELATIONSHIP_ROLE,نقش مشتری نسبت به محصول,NAME_FA,عنوان فارسی,عنوان فارسی نقش مشتری نسبت به محصول,Organization and Product,Y
+REF_PRODUCT_RELATIONSHIP_ROLE,نقش مشتری نسبت به محصول,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نقش مشتری نسبت به محصول,Organization and Product,Y
+REF_PRODUCT_RELATIONSHIP_ROLE,نقش مشتری نسبت به محصول,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نقش مشتری نسبت به محصول,Organization and Product,Y
+REF_PRODUCT_RELATIONSHIP_ROLE,نقش مشتری نسبت به محصول,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نقش مشتری نسبت به محصول در فهرست‌های مرجع,Organization and Product,Y
+REF_PRODUCT_RELATIONSHIP_ROLE,نقش مشتری نسبت به محصول,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نقش مشتری نسبت به محصول؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_PRODUCT_RELATIONSHIP_ROLE,نقش مشتری نسبت به محصول,PARENT_CODE,کد والد,کد والد نقش مشتری نسبت به محصول در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_PRODUCT_RELATIONSHIP_ROLE,نقش مشتری نسبت به محصول,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نقش مشتری نسبت به محصول,Organization and Product,Y
+REF_PRODUCT_RELATIONSHIP_ROLE,نقش مشتری نسبت به محصول,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نقش مشتری نسبت به محصول,Organization and Product,Y
+REF_PRODUCT_RELATIONSHIP_ROLE,نقش مشتری نسبت به محصول,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نقش مشتری نسبت به محصول برای کنترل هم‌زمانی,Organization and Product,Y
+REF_PRODUCT_TYPE,نوع محصول/خدمت بانکی,PRODUCT_TYPE_CODE,کد نوع محصول/خدمت,کد نوع محصول/خدمت,Organization and Product,Y
+REF_PRODUCT_TYPE,نوع محصول/خدمت بانکی,NAME_FA,عنوان فارسی,عنوان فارسی نوع محصول/خدمت بانکی,Organization and Product,Y
+REF_PRODUCT_TYPE,نوع محصول/خدمت بانکی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع محصول/خدمت بانکی,Organization and Product,Y
+REF_PRODUCT_TYPE,نوع محصول/خدمت بانکی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع محصول/خدمت بانکی,Organization and Product,Y
+REF_PRODUCT_TYPE,نوع محصول/خدمت بانکی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع محصول/خدمت بانکی در فهرست‌های مرجع,Organization and Product,Y
+REF_PRODUCT_TYPE,نوع محصول/خدمت بانکی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع محصول/خدمت بانکی؛ 1 فعال و 0 غیرفعال,Organization and Product,Y
+REF_PRODUCT_TYPE,نوع محصول/خدمت بانکی,PARENT_CODE,کد والد,کد والد نوع محصول/خدمت بانکی در ساختار سلسله‌مراتبی، در صورت کاربرد,Organization and Product,Y
+REF_PRODUCT_TYPE,نوع محصول/خدمت بانکی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع محصول/خدمت بانکی,Organization and Product,Y
+REF_PRODUCT_TYPE,نوع محصول/خدمت بانکی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع محصول/خدمت بانکی,Organization and Product,Y
+REF_PRODUCT_TYPE,نوع محصول/خدمت بانکی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع محصول/خدمت بانکی برای کنترل هم‌زمانی,Organization and Product,Y
+REF_RECOMMENDATION_STATUS,وضعیت پیشنهاد,RECOMMENDATION_STATUS_CODE,کد وضعیت پیشنهاد,کد وضعیت پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_STATUS,وضعیت پیشنهاد,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_STATUS,وضعیت پیشنهاد,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_STATUS,وضعیت پیشنهاد,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_STATUS,وضعیت پیشنهاد,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت پیشنهاد در فهرست‌های مرجع,Analytics and Recommendation,Y
+REF_RECOMMENDATION_STATUS,وضعیت پیشنهاد,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت پیشنهاد؛ 1 فعال و 0 غیرفعال,Analytics and Recommendation,Y
+REF_RECOMMENDATION_STATUS,وضعیت پیشنهاد,PARENT_CODE,کد والد,کد والد وضعیت پیشنهاد در ساختار سلسله‌مراتبی، در صورت کاربرد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_STATUS,وضعیت پیشنهاد,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_STATUS,وضعیت پیشنهاد,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_STATUS,وضعیت پیشنهاد,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت پیشنهاد برای کنترل هم‌زمانی,Analytics and Recommendation,Y
+REF_RECOMMENDATION_TYPE,نوع پیشنهاد,RECOMMENDATION_TYPE_CODE,کد نوع پیشنهاد,کد نوع پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_TYPE,نوع پیشنهاد,NAME_FA,عنوان فارسی,عنوان فارسی نوع پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_TYPE,نوع پیشنهاد,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_TYPE,نوع پیشنهاد,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_TYPE,نوع پیشنهاد,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع پیشنهاد در فهرست‌های مرجع,Analytics and Recommendation,Y
+REF_RECOMMENDATION_TYPE,نوع پیشنهاد,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع پیشنهاد؛ 1 فعال و 0 غیرفعال,Analytics and Recommendation,Y
+REF_RECOMMENDATION_TYPE,نوع پیشنهاد,PARENT_CODE,کد والد,کد والد نوع پیشنهاد در ساختار سلسله‌مراتبی، در صورت کاربرد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_TYPE,نوع پیشنهاد,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_TYPE,نوع پیشنهاد,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع پیشنهاد,Analytics and Recommendation,Y
+REF_RECOMMENDATION_TYPE,نوع پیشنهاد,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع پیشنهاد برای کنترل هم‌زمانی,Analytics and Recommendation,Y
+REF_REFERENCE_TYPE,نوع مرجع مرتبط,REFERENCE_TYPE_CODE,کد نوع مرجع مرتبط,کد نوع مرجع مرتبط,Workflow and Interaction,Y
+REF_REFERENCE_TYPE,نوع مرجع مرتبط,NAME_FA,عنوان فارسی,عنوان فارسی نوع مرجع مرتبط,Workflow and Interaction,Y
+REF_REFERENCE_TYPE,نوع مرجع مرتبط,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع مرجع مرتبط,Workflow and Interaction,Y
+REF_REFERENCE_TYPE,نوع مرجع مرتبط,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع مرجع مرتبط,Workflow and Interaction,Y
+REF_REFERENCE_TYPE,نوع مرجع مرتبط,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع مرجع مرتبط در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_REFERENCE_TYPE,نوع مرجع مرتبط,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع مرجع مرتبط؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_REFERENCE_TYPE,نوع مرجع مرتبط,PARENT_CODE,کد والد,کد والد نوع مرجع مرتبط در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_REFERENCE_TYPE,نوع مرجع مرتبط,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع مرجع مرتبط,Workflow and Interaction,Y
+REF_REFERENCE_TYPE,نوع مرجع مرتبط,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع مرجع مرتبط,Workflow and Interaction,Y
+REF_REFERENCE_TYPE,نوع مرجع مرتبط,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع مرجع مرتبط برای کنترل هم‌زمانی,Workflow and Interaction,Y
+REF_RESIDENCE_STATUS,وضعیت اقامت,RESIDENCE_STATUS_CODE,کد وضعیت اقامت,کد وضعیت اقامت,Identity and Party,Y
+REF_RESIDENCE_STATUS,وضعیت اقامت,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت اقامت,Identity and Party,Y
+REF_RESIDENCE_STATUS,وضعیت اقامت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت اقامت,Identity and Party,Y
+REF_RESIDENCE_STATUS,وضعیت اقامت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت اقامت,Identity and Party,Y
+REF_RESIDENCE_STATUS,وضعیت اقامت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت اقامت در فهرست‌های مرجع,Identity and Party,Y
+REF_RESIDENCE_STATUS,وضعیت اقامت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت اقامت؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_RESIDENCE_STATUS,وضعیت اقامت,PARENT_CODE,کد والد,کد والد وضعیت اقامت در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_RESIDENCE_STATUS,وضعیت اقامت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت اقامت,Identity and Party,Y
+REF_RESIDENCE_STATUS,وضعیت اقامت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت اقامت,Identity and Party,Y
+REF_RESIDENCE_STATUS,وضعیت اقامت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت اقامت برای کنترل هم‌زمانی,Identity and Party,Y
+REF_RESTRICTION_REASON,دلیل محدودیت,REASON_CODE,کد دلیل محدودیت,کد دلیل محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_REASON,دلیل محدودیت,NAME_FA,عنوان فارسی,عنوان فارسی دلیل محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_REASON,دلیل محدودیت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی دلیل محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_REASON,دلیل محدودیت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی دلیل محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_REASON,دلیل محدودیت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش دلیل محدودیت در فهرست‌های مرجع,Compliance and Risk,Y
+REF_RESTRICTION_REASON,دلیل محدودیت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن دلیل محدودیت؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_RESTRICTION_REASON,دلیل محدودیت,PARENT_CODE,کد والد,کد والد دلیل محدودیت در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_RESTRICTION_REASON,دلیل محدودیت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار دلیل محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_REASON,دلیل محدودیت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار دلیل محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_REASON,دلیل محدودیت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد دلیل محدودیت برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_RESTRICTION_TYPE,نوع محدودیت,RESTRICTION_TYPE_CODE,کد نوع محدودیت,کد نوع محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_TYPE,نوع محدودیت,NAME_FA,عنوان فارسی,عنوان فارسی نوع محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_TYPE,نوع محدودیت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_TYPE,نوع محدودیت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_TYPE,نوع محدودیت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع محدودیت در فهرست‌های مرجع,Compliance and Risk,Y
+REF_RESTRICTION_TYPE,نوع محدودیت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع محدودیت؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_RESTRICTION_TYPE,نوع محدودیت,PARENT_CODE,کد والد,کد والد نوع محدودیت در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_RESTRICTION_TYPE,نوع محدودیت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_TYPE,نوع محدودیت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع محدودیت,Compliance and Risk,Y
+REF_RESTRICTION_TYPE,نوع محدودیت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع محدودیت برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_RISK_LEVEL,سطح ریسک,RISK_LEVEL_CODE,کد سطح ریسک,کد سطح ریسک,Compliance and Risk,Y
+REF_RISK_LEVEL,سطح ریسک,NAME_FA,عنوان فارسی,عنوان فارسی سطح ریسک,Compliance and Risk,Y
+REF_RISK_LEVEL,سطح ریسک,NAME_EN,عنوان انگلیسی,عنوان انگلیسی سطح ریسک,Compliance and Risk,Y
+REF_RISK_LEVEL,سطح ریسک,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی سطح ریسک,Compliance and Risk,Y
+REF_RISK_LEVEL,سطح ریسک,SORT_ORDER,ترتیب نمایش,ترتیب نمایش سطح ریسک در فهرست‌های مرجع,Compliance and Risk,Y
+REF_RISK_LEVEL,سطح ریسک,IS_ACTIVE,فعال است؟,نشانگر فعال بودن سطح ریسک؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_RISK_LEVEL,سطح ریسک,PARENT_CODE,کد والد,کد والد سطح ریسک در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_RISK_LEVEL,سطح ریسک,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار سطح ریسک,Compliance and Risk,Y
+REF_RISK_LEVEL,سطح ریسک,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار سطح ریسک,Compliance and Risk,Y
+REF_RISK_LEVEL,سطح ریسک,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد سطح ریسک برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_RISK_MODEL,مدل ریسک,MODEL_CODE,کد مدل ریسک,کد مدل ریسک,Compliance and Risk,Y
+REF_RISK_MODEL,مدل ریسک,NAME_FA,عنوان فارسی,عنوان فارسی مدل ریسک,Compliance and Risk,Y
+REF_RISK_MODEL,مدل ریسک,NAME_EN,عنوان انگلیسی,عنوان انگلیسی مدل ریسک,Compliance and Risk,Y
+REF_RISK_MODEL,مدل ریسک,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی مدل ریسک,Compliance and Risk,Y
+REF_RISK_MODEL,مدل ریسک,MODEL_VERSION,نسخه مدل,نسخه فعال مدل ریسک که هنگام ثبت ارزیابی ریسک توسط سامانه استفاده می‌شود,Compliance and Risk,N
+REF_RISK_MODEL,مدل ریسک,MIN_SCORE,حداقل امتیاز,حداقل امتیاز مجاز برای ارزیابی با این مدل ریسک,Compliance and Risk,N
+REF_RISK_MODEL,مدل ریسک,MAX_SCORE,حداکثر امتیاز,حداکثر امتیاز مجاز برای ارزیابی با این مدل ریسک,Compliance and Risk,N
+REF_RISK_MODEL,مدل ریسک,SORT_ORDER,ترتیب نمایش,ترتیب نمایش مدل ریسک در فهرست‌های مرجع,Compliance and Risk,Y
+REF_RISK_MODEL,مدل ریسک,IS_ACTIVE,فعال است؟,نشانگر فعال بودن مدل ریسک؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_RISK_MODEL,مدل ریسک,PARENT_CODE,کد والد,کد والد مدل ریسک در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_RISK_MODEL,مدل ریسک,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار مدل ریسک,Compliance and Risk,Y
+REF_RISK_MODEL,مدل ریسک,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار مدل ریسک,Compliance and Risk,Y
+REF_RISK_MODEL,مدل ریسک,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد مدل ریسک برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_RISK_TYPE,نوع ریسک,RISK_TYPE_CODE,کد نوع ریسک,کد نوع ریسک,Compliance and Risk,Y
+REF_RISK_TYPE,نوع ریسک,NAME_FA,عنوان فارسی,عنوان فارسی نوع ریسک,Compliance and Risk,Y
+REF_RISK_TYPE,نوع ریسک,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع ریسک,Compliance and Risk,Y
+REF_RISK_TYPE,نوع ریسک,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع ریسک,Compliance and Risk,Y
+REF_RISK_TYPE,نوع ریسک,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع ریسک در فهرست‌های مرجع,Compliance and Risk,Y
+REF_RISK_TYPE,نوع ریسک,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع ریسک؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_RISK_TYPE,نوع ریسک,PARENT_CODE,کد والد,کد والد نوع ریسک در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_RISK_TYPE,نوع ریسک,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع ریسک,Compliance and Risk,Y
+REF_RISK_TYPE,نوع ریسک,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع ریسک,Compliance and Risk,Y
+REF_RISK_TYPE,نوع ریسک,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع ریسک برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_ROLE_TYPE,نوع نقش,ROLE_TYPE_CODE,کد نوع نقش,کد نوع نقش,Identity and Party,Y
+REF_ROLE_TYPE,نوع نقش,NAME_FA,عنوان فارسی,عنوان فارسی نوع نقش,Identity and Party,Y
+REF_ROLE_TYPE,نوع نقش,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع نقش,Identity and Party,Y
+REF_ROLE_TYPE,نوع نقش,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع نقش,Identity and Party,Y
+REF_ROLE_TYPE,نوع نقش,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع نقش در فهرست‌های مرجع,Identity and Party,Y
+REF_ROLE_TYPE,نوع نقش,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع نقش؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_ROLE_TYPE,نوع نقش,PARENT_CODE,کد والد,کد والد نوع نقش در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_ROLE_TYPE,نوع نقش,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع نقش,Identity and Party,Y
+REF_ROLE_TYPE,نوع نقش,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع نقش,Identity and Party,Y
+REF_ROLE_TYPE,نوع نقش,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع نقش برای کنترل هم‌زمانی,Identity and Party,Y
+REF_SCORE_BAND,طبقه امتیاز,SCORE_BAND_CODE,کد طبقه امتیاز,کد طبقه امتیاز,Analytics and Recommendation,Y
+REF_SCORE_BAND,طبقه امتیاز,NAME_FA,عنوان فارسی,عنوان فارسی طبقه امتیاز,Analytics and Recommendation,Y
+REF_SCORE_BAND,طبقه امتیاز,NAME_EN,عنوان انگلیسی,عنوان انگلیسی طبقه امتیاز,Analytics and Recommendation,Y
+REF_SCORE_BAND,طبقه امتیاز,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی طبقه امتیاز,Analytics and Recommendation,Y
+REF_SCORE_BAND,طبقه امتیاز,SORT_ORDER,ترتیب نمایش,ترتیب نمایش طبقه امتیاز در فهرست‌های مرجع,Analytics and Recommendation,Y
+REF_SCORE_BAND,طبقه امتیاز,IS_ACTIVE,فعال است؟,نشانگر فعال بودن طبقه امتیاز؛ 1 فعال و 0 غیرفعال,Analytics and Recommendation,Y
+REF_SCORE_BAND,طبقه امتیاز,PARENT_CODE,کد والد,کد والد طبقه امتیاز در ساختار سلسله‌مراتبی، در صورت کاربرد,Analytics and Recommendation,Y
+REF_SCORE_BAND,طبقه امتیاز,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار طبقه امتیاز,Analytics and Recommendation,Y
+REF_SCORE_BAND,طبقه امتیاز,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار طبقه امتیاز,Analytics and Recommendation,Y
+REF_SCORE_BAND,طبقه امتیاز,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد طبقه امتیاز برای کنترل هم‌زمانی,Analytics and Recommendation,Y
+REF_SCORE_TYPE,نوع امتیاز,SCORE_TYPE_CODE,کد نوع امتیاز,کد نوع امتیاز,Analytics and Recommendation,Y
+REF_SCORE_TYPE,نوع امتیاز,NAME_FA,عنوان فارسی,عنوان فارسی نوع امتیاز,Analytics and Recommendation,Y
+REF_SCORE_TYPE,نوع امتیاز,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع امتیاز,Analytics and Recommendation,Y
+REF_SCORE_TYPE,نوع امتیاز,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع امتیاز,Analytics and Recommendation,Y
+REF_SCORE_TYPE,نوع امتیاز,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع امتیاز در فهرست‌های مرجع,Analytics and Recommendation,Y
+REF_SCORE_TYPE,نوع امتیاز,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع امتیاز؛ 1 فعال و 0 غیرفعال,Analytics and Recommendation,Y
+REF_SCORE_TYPE,نوع امتیاز,PARENT_CODE,کد والد,کد والد نوع امتیاز در ساختار سلسله‌مراتبی، در صورت کاربرد,Analytics and Recommendation,Y
+REF_SCORE_TYPE,نوع امتیاز,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع امتیاز,Analytics and Recommendation,Y
+REF_SCORE_TYPE,نوع امتیاز,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع امتیاز,Analytics and Recommendation,Y
+REF_SCORE_TYPE,نوع امتیاز,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع امتیاز برای کنترل هم‌زمانی,Analytics and Recommendation,Y
+REF_SCREENING_LIST,فهرست پایش و تحریم,SOURCE_LIST_CODE,کد فهرست پایش و تحریم,کد فهرست پایش و تحریم,Compliance and Risk,Y
+REF_SCREENING_LIST,فهرست پایش و تحریم,NAME_FA,عنوان فارسی,عنوان فارسی فهرست پایش و تحریم,Compliance and Risk,Y
+REF_SCREENING_LIST,فهرست پایش و تحریم,NAME_EN,عنوان انگلیسی,عنوان انگلیسی فهرست پایش و تحریم,Compliance and Risk,Y
+REF_SCREENING_LIST,فهرست پایش و تحریم,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی فهرست پایش و تحریم,Compliance and Risk,Y
+REF_SCREENING_LIST,فهرست پایش و تحریم,SORT_ORDER,ترتیب نمایش,ترتیب نمایش فهرست پایش و تحریم در فهرست‌های مرجع,Compliance and Risk,Y
+REF_SCREENING_LIST,فهرست پایش و تحریم,IS_ACTIVE,فعال است؟,نشانگر فعال بودن فهرست پایش و تحریم؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_SCREENING_LIST,فهرست پایش و تحریم,PARENT_CODE,کد والد,کد والد فهرست پایش و تحریم در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_SCREENING_LIST,فهرست پایش و تحریم,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار فهرست پایش و تحریم,Compliance and Risk,Y
+REF_SCREENING_LIST,فهرست پایش و تحریم,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار فهرست پایش و تحریم,Compliance and Risk,Y
+REF_SCREENING_LIST,فهرست پایش و تحریم,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد فهرست پایش و تحریم برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_SCREENING_PROVIDER,ارائه‌دهنده سرویس پایش,PROVIDER_CODE,کد ارائه‌دهنده سرویس پایش,کد ارائه‌دهنده سرویس پایش,Compliance and Risk,Y
+REF_SCREENING_PROVIDER,ارائه‌دهنده سرویس پایش,NAME_FA,عنوان فارسی,عنوان فارسی ارائه‌دهنده سرویس پایش,Compliance and Risk,Y
+REF_SCREENING_PROVIDER,ارائه‌دهنده سرویس پایش,NAME_EN,عنوان انگلیسی,عنوان انگلیسی ارائه‌دهنده سرویس پایش,Compliance and Risk,Y
+REF_SCREENING_PROVIDER,ارائه‌دهنده سرویس پایش,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی ارائه‌دهنده سرویس پایش,Compliance and Risk,Y
+REF_SCREENING_PROVIDER,ارائه‌دهنده سرویس پایش,SORT_ORDER,ترتیب نمایش,ترتیب نمایش ارائه‌دهنده سرویس پایش در فهرست‌های مرجع,Compliance and Risk,Y
+REF_SCREENING_PROVIDER,ارائه‌دهنده سرویس پایش,IS_ACTIVE,فعال است؟,نشانگر فعال بودن ارائه‌دهنده سرویس پایش؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_SCREENING_PROVIDER,ارائه‌دهنده سرویس پایش,PARENT_CODE,کد والد,کد والد ارائه‌دهنده سرویس پایش در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_SCREENING_PROVIDER,ارائه‌دهنده سرویس پایش,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار ارائه‌دهنده سرویس پایش,Compliance and Risk,Y
+REF_SCREENING_PROVIDER,ارائه‌دهنده سرویس پایش,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار ارائه‌دهنده سرویس پایش,Compliance and Risk,Y
+REF_SCREENING_PROVIDER,ارائه‌دهنده سرویس پایش,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد ارائه‌دهنده سرویس پایش برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_SCREENING_TYPE,نوع پایش,SCREENING_TYPE_CODE,کد نوع پایش,کد نوع پایش,Compliance and Risk,Y
+REF_SCREENING_TYPE,نوع پایش,NAME_FA,عنوان فارسی,عنوان فارسی نوع پایش,Compliance and Risk,Y
+REF_SCREENING_TYPE,نوع پایش,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع پایش,Compliance and Risk,Y
+REF_SCREENING_TYPE,نوع پایش,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع پایش,Compliance and Risk,Y
+REF_SCREENING_TYPE,نوع پایش,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع پایش در فهرست‌های مرجع,Compliance and Risk,Y
+REF_SCREENING_TYPE,نوع پایش,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع پایش؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_SCREENING_TYPE,نوع پایش,PARENT_CODE,کد والد,کد والد نوع پایش در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_SCREENING_TYPE,نوع پایش,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع پایش,Compliance and Risk,Y
+REF_SCREENING_TYPE,نوع پایش,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع پایش,Compliance and Risk,Y
+REF_SCREENING_TYPE,نوع پایش,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع پایش برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_SCRIPT,خط نوشتاری,SCRIPT_CODE,کد خط نوشتاری,کد خط نوشتاری,Contact and Geography,Y
+REF_SCRIPT,خط نوشتاری,NAME_FA,عنوان فارسی,عنوان فارسی خط نوشتاری,Contact and Geography,Y
+REF_SCRIPT,خط نوشتاری,NAME_EN,عنوان انگلیسی,عنوان انگلیسی خط نوشتاری,Contact and Geography,Y
+REF_SCRIPT,خط نوشتاری,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی خط نوشتاری,Contact and Geography,Y
+REF_SCRIPT,خط نوشتاری,SORT_ORDER,ترتیب نمایش,ترتیب نمایش خط نوشتاری در فهرست‌های مرجع,Contact and Geography,Y
+REF_SCRIPT,خط نوشتاری,IS_ACTIVE,فعال است؟,نشانگر فعال بودن خط نوشتاری؛ 1 فعال و 0 غیرفعال,Contact and Geography,Y
+REF_SCRIPT,خط نوشتاری,PARENT_CODE,کد والد,کد والد خط نوشتاری در ساختار سلسله‌مراتبی، در صورت کاربرد,Contact and Geography,Y
+REF_SCRIPT,خط نوشتاری,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار خط نوشتاری,Contact and Geography,Y
+REF_SCRIPT,خط نوشتاری,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار خط نوشتاری,Contact and Geography,Y
+REF_SCRIPT,خط نوشتاری,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد خط نوشتاری برای کنترل هم‌زمانی,Contact and Geography,Y
+REF_SEVERITY,شدت,SEVERITY_CODE,کد شدت,کد شدت,Compliance and Risk,Y
+REF_SEVERITY,شدت,NAME_FA,عنوان فارسی,عنوان فارسی شدت,Compliance and Risk,Y
+REF_SEVERITY,شدت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی شدت,Compliance and Risk,Y
+REF_SEVERITY,شدت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی شدت,Compliance and Risk,Y
+REF_SEVERITY,شدت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش شدت در فهرست‌های مرجع,Compliance and Risk,Y
+REF_SEVERITY,شدت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن شدت؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_SEVERITY,شدت,PARENT_CODE,کد والد,کد والد شدت در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_SEVERITY,شدت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار شدت,Compliance and Risk,Y
+REF_SEVERITY,شدت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار شدت,Compliance and Risk,Y
+REF_SEVERITY,شدت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد شدت برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_SIGNING_RULE,قاعده امضا,SIGNING_RULE_CODE,کد قاعده امضا,کد قاعده امضا,Identity and Party,Y
+REF_SIGNING_RULE,قاعده امضا,NAME_FA,عنوان فارسی,عنوان فارسی قاعده امضا,Identity and Party,Y
+REF_SIGNING_RULE,قاعده امضا,NAME_EN,عنوان انگلیسی,عنوان انگلیسی قاعده امضا,Identity and Party,Y
+REF_SIGNING_RULE,قاعده امضا,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی قاعده امضا,Identity and Party,Y
+REF_SIGNING_RULE,قاعده امضا,SORT_ORDER,ترتیب نمایش,ترتیب نمایش قاعده امضا در فهرست‌های مرجع,Identity and Party,Y
+REF_SIGNING_RULE,قاعده امضا,IS_ACTIVE,فعال است؟,نشانگر فعال بودن قاعده امضا؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_SIGNING_RULE,قاعده امضا,PARENT_CODE,کد والد,کد والد قاعده امضا در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_SIGNING_RULE,قاعده امضا,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار قاعده امضا,Identity and Party,Y
+REF_SIGNING_RULE,قاعده امضا,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار قاعده امضا,Identity and Party,Y
+REF_SIGNING_RULE,قاعده امضا,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد قاعده امضا برای کنترل هم‌زمانی,Identity and Party,Y
+REF_SOURCE_OF_FUNDS,منبع وجوه,SOURCE_OF_FUNDS_CODE,کد منبع وجوه,کد منبع وجوه,Compliance and Risk,Y
+REF_SOURCE_OF_FUNDS,منبع وجوه,NAME_FA,عنوان فارسی,عنوان فارسی منبع وجوه,Compliance and Risk,Y
+REF_SOURCE_OF_FUNDS,منبع وجوه,NAME_EN,عنوان انگلیسی,عنوان انگلیسی منبع وجوه,Compliance and Risk,Y
+REF_SOURCE_OF_FUNDS,منبع وجوه,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی منبع وجوه,Compliance and Risk,Y
+REF_SOURCE_OF_FUNDS,منبع وجوه,SORT_ORDER,ترتیب نمایش,ترتیب نمایش منبع وجوه در فهرست‌های مرجع,Compliance and Risk,Y
+REF_SOURCE_OF_FUNDS,منبع وجوه,IS_ACTIVE,فعال است؟,نشانگر فعال بودن منبع وجوه؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_SOURCE_OF_FUNDS,منبع وجوه,PARENT_CODE,کد والد,کد والد منبع وجوه در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_SOURCE_OF_FUNDS,منبع وجوه,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار منبع وجوه,Compliance and Risk,Y
+REF_SOURCE_OF_FUNDS,منبع وجوه,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار منبع وجوه,Compliance and Risk,Y
+REF_SOURCE_OF_FUNDS,منبع وجوه,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد منبع وجوه برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_SOURCE_OF_WEALTH,منبع ثروت,SOURCE_OF_WEALTH_CODE,کد منبع ثروت,کد منبع ثروت,Compliance and Risk,Y
+REF_SOURCE_OF_WEALTH,منبع ثروت,NAME_FA,عنوان فارسی,عنوان فارسی منبع ثروت,Compliance and Risk,Y
+REF_SOURCE_OF_WEALTH,منبع ثروت,NAME_EN,عنوان انگلیسی,عنوان انگلیسی منبع ثروت,Compliance and Risk,Y
+REF_SOURCE_OF_WEALTH,منبع ثروت,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی منبع ثروت,Compliance and Risk,Y
+REF_SOURCE_OF_WEALTH,منبع ثروت,SORT_ORDER,ترتیب نمایش,ترتیب نمایش منبع ثروت در فهرست‌های مرجع,Compliance and Risk,Y
+REF_SOURCE_OF_WEALTH,منبع ثروت,IS_ACTIVE,فعال است؟,نشانگر فعال بودن منبع ثروت؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_SOURCE_OF_WEALTH,منبع ثروت,PARENT_CODE,کد والد,کد والد منبع ثروت در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_SOURCE_OF_WEALTH,منبع ثروت,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار منبع ثروت,Compliance and Risk,Y
+REF_SOURCE_OF_WEALTH,منبع ثروت,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار منبع ثروت,Compliance and Risk,Y
+REF_SOURCE_OF_WEALTH,منبع ثروت,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد منبع ثروت برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_SOURCE_SYSTEM,سامانه مبدأ,SOURCE_SYSTEM_CODE,کد سامانه مبدأ,کد سامانه مبدأ,Identity and Party,Y
+REF_SOURCE_SYSTEM,سامانه مبدأ,NAME_FA,عنوان فارسی,عنوان فارسی سامانه مبدأ,Identity and Party,Y
+REF_SOURCE_SYSTEM,سامانه مبدأ,NAME_EN,عنوان انگلیسی,عنوان انگلیسی سامانه مبدأ,Identity and Party,Y
+REF_SOURCE_SYSTEM,سامانه مبدأ,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی سامانه مبدأ,Identity and Party,Y
+REF_SOURCE_SYSTEM,سامانه مبدأ,SORT_ORDER,ترتیب نمایش,ترتیب نمایش سامانه مبدأ در فهرست‌های مرجع,Identity and Party,Y
+REF_SOURCE_SYSTEM,سامانه مبدأ,IS_ACTIVE,فعال است؟,نشانگر فعال بودن سامانه مبدأ؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_SOURCE_SYSTEM,سامانه مبدأ,PARENT_CODE,کد والد,کد والد سامانه مبدأ در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_SOURCE_SYSTEM,سامانه مبدأ,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار سامانه مبدأ,Identity and Party,Y
+REF_SOURCE_SYSTEM,سامانه مبدأ,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار سامانه مبدأ,Identity and Party,Y
+REF_SOURCE_SYSTEM,سامانه مبدأ,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد سامانه مبدأ برای کنترل هم‌زمانی,Identity and Party,Y
+REF_SPECIMEN_TYPE,نوع نمونه امضا,SPECIMEN_TYPE_CODE,کد نوع نمونه امضا,کد نوع نمونه امضا,Identity and Party,Y
+REF_SPECIMEN_TYPE,نوع نمونه امضا,NAME_FA,عنوان فارسی,عنوان فارسی نوع نمونه امضا,Identity and Party,Y
+REF_SPECIMEN_TYPE,نوع نمونه امضا,NAME_EN,عنوان انگلیسی,عنوان انگلیسی نوع نمونه امضا,Identity and Party,Y
+REF_SPECIMEN_TYPE,نوع نمونه امضا,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی نوع نمونه امضا,Identity and Party,Y
+REF_SPECIMEN_TYPE,نوع نمونه امضا,SORT_ORDER,ترتیب نمایش,ترتیب نمایش نوع نمونه امضا در فهرست‌های مرجع,Identity and Party,Y
+REF_SPECIMEN_TYPE,نوع نمونه امضا,IS_ACTIVE,فعال است؟,نشانگر فعال بودن نوع نمونه امضا؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_SPECIMEN_TYPE,نوع نمونه امضا,PARENT_CODE,کد والد,کد والد نوع نمونه امضا در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_SPECIMEN_TYPE,نوع نمونه امضا,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار نوع نمونه امضا,Identity and Party,Y
+REF_SPECIMEN_TYPE,نوع نمونه امضا,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار نوع نمونه امضا,Identity and Party,Y
+REF_SPECIMEN_TYPE,نوع نمونه امضا,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد نوع نمونه امضا برای کنترل هم‌زمانی,Identity and Party,Y
+REF_TAX_STATUS,وضعیت مالیاتی,TAX_STATUS_CODE,کد وضعیت مالیاتی,کد وضعیت مالیاتی,Compliance and Risk,Y
+REF_TAX_STATUS,وضعیت مالیاتی,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت مالیاتی,Compliance and Risk,Y
+REF_TAX_STATUS,وضعیت مالیاتی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت مالیاتی,Compliance and Risk,Y
+REF_TAX_STATUS,وضعیت مالیاتی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت مالیاتی,Compliance and Risk,Y
+REF_TAX_STATUS,وضعیت مالیاتی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت مالیاتی در فهرست‌های مرجع,Compliance and Risk,Y
+REF_TAX_STATUS,وضعیت مالیاتی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت مالیاتی؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_TAX_STATUS,وضعیت مالیاتی,PARENT_CODE,کد والد,کد والد وضعیت مالیاتی در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_TAX_STATUS,وضعیت مالیاتی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت مالیاتی,Compliance and Risk,Y
+REF_TAX_STATUS,وضعیت مالیاتی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت مالیاتی,Compliance and Risk,Y
+REF_TAX_STATUS,وضعیت مالیاتی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت مالیاتی برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_TENURE_TYPE,وضعیت تصرف نشانی,TENURE_TYPE_CODE,کد وضعیت تصرف,کد وضعیت تصرف,Identity and Party,Y
+REF_TENURE_TYPE,وضعیت تصرف نشانی,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت تصرف نشانی,Identity and Party,Y
+REF_TENURE_TYPE,وضعیت تصرف نشانی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت تصرف نشانی,Identity and Party,Y
+REF_TENURE_TYPE,وضعیت تصرف نشانی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت تصرف نشانی,Identity and Party,Y
+REF_TENURE_TYPE,وضعیت تصرف نشانی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت تصرف نشانی در فهرست‌های مرجع,Identity and Party,Y
+REF_TENURE_TYPE,وضعیت تصرف نشانی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت تصرف نشانی؛ 1 فعال و 0 غیرفعال,Identity and Party,Y
+REF_TENURE_TYPE,وضعیت تصرف نشانی,PARENT_CODE,کد والد,کد والد وضعیت تصرف نشانی در ساختار سلسله‌مراتبی، در صورت کاربرد,Identity and Party,Y
+REF_TENURE_TYPE,وضعیت تصرف نشانی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت تصرف نشانی,Identity and Party,Y
+REF_TENURE_TYPE,وضعیت تصرف نشانی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت تصرف نشانی,Identity and Party,Y
+REF_TENURE_TYPE,وضعیت تصرف نشانی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت تصرف نشانی برای کنترل هم‌زمانی,Identity and Party,Y
+REF_VERIFICATION_METHOD,روش اعتبارسنجی,VERIFICATION_METHOD_CODE,کد روش اعتبارسنجی,کد روش اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_METHOD,روش اعتبارسنجی,NAME_FA,عنوان فارسی,عنوان فارسی روش اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_METHOD,روش اعتبارسنجی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی روش اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_METHOD,روش اعتبارسنجی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی روش اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_METHOD,روش اعتبارسنجی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش روش اعتبارسنجی در فهرست‌های مرجع,Compliance and Risk,Y
+REF_VERIFICATION_METHOD,روش اعتبارسنجی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن روش اعتبارسنجی؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_VERIFICATION_METHOD,روش اعتبارسنجی,PARENT_CODE,کد والد,کد والد روش اعتبارسنجی در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_VERIFICATION_METHOD,روش اعتبارسنجی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار روش اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_METHOD,روش اعتبارسنجی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار روش اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_METHOD,روش اعتبارسنجی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد روش اعتبارسنجی برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_VERIFICATION_STATUS,وضعیت اعتبارسنجی,VERIFICATION_STATUS_CODE,کد وضعیت اعتبارسنجی,کد وضعیت اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_STATUS,وضعیت اعتبارسنجی,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_STATUS,وضعیت اعتبارسنجی,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_STATUS,وضعیت اعتبارسنجی,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_STATUS,وضعیت اعتبارسنجی,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت اعتبارسنجی در فهرست‌های مرجع,Compliance and Risk,Y
+REF_VERIFICATION_STATUS,وضعیت اعتبارسنجی,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت اعتبارسنجی؛ 1 فعال و 0 غیرفعال,Compliance and Risk,Y
+REF_VERIFICATION_STATUS,وضعیت اعتبارسنجی,PARENT_CODE,کد والد,کد والد وضعیت اعتبارسنجی در ساختار سلسله‌مراتبی، در صورت کاربرد,Compliance and Risk,Y
+REF_VERIFICATION_STATUS,وضعیت اعتبارسنجی,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_STATUS,وضعیت اعتبارسنجی,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت اعتبارسنجی,Compliance and Risk,Y
+REF_VERIFICATION_STATUS,وضعیت اعتبارسنجی,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت اعتبارسنجی برای کنترل هم‌زمانی,Compliance and Risk,Y
+REF_WORKFLOW_STATUS,وضعیت گردش‌کار,STATUS_CODE,کد وضعیت گردش‌کار,کد وضعیت گردش‌کار,Workflow and Interaction,Y
+REF_WORKFLOW_STATUS,وضعیت گردش‌کار,NAME_FA,عنوان فارسی,عنوان فارسی وضعیت گردش‌کار,Workflow and Interaction,Y
+REF_WORKFLOW_STATUS,وضعیت گردش‌کار,NAME_EN,عنوان انگلیسی,عنوان انگلیسی وضعیت گردش‌کار,Workflow and Interaction,Y
+REF_WORKFLOW_STATUS,وضعیت گردش‌کار,DESCRIPTION_FA,توضیحات فارسی,توضیحات فارسی وضعیت گردش‌کار,Workflow and Interaction,Y
+REF_WORKFLOW_STATUS,وضعیت گردش‌کار,SORT_ORDER,ترتیب نمایش,ترتیب نمایش وضعیت گردش‌کار در فهرست‌های مرجع,Workflow and Interaction,Y
+REF_WORKFLOW_STATUS,وضعیت گردش‌کار,IS_ACTIVE,فعال است؟,نشانگر فعال بودن وضعیت گردش‌کار؛ 1 فعال و 0 غیرفعال,Workflow and Interaction,Y
+REF_WORKFLOW_STATUS,وضعیت گردش‌کار,PARENT_CODE,کد والد,کد والد وضعیت گردش‌کار در ساختار سلسله‌مراتبی، در صورت کاربرد,Workflow and Interaction,Y
+REF_WORKFLOW_STATUS,وضعیت گردش‌کار,VALID_FROM,شروع اعتبار,تاریخ شروع اعتبار وضعیت گردش‌کار,Workflow and Interaction,Y
+REF_WORKFLOW_STATUS,وضعیت گردش‌کار,VALID_TO,پایان اعتبار,تاریخ پایان اعتبار وضعیت گردش‌کار,Workflow and Interaction,Y
+REF_WORKFLOW_STATUS,وضعیت گردش‌کار,RECORD_VERSION,نسخه رکورد,شماره نسخه رکورد وضعیت گردش‌کار برای کنترل هم‌زمانی,Workflow and Interaction,Y

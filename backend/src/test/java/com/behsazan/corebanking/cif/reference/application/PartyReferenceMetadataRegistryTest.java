@@ -11,7 +11,7 @@ class PartyReferenceMetadataRegistryTest {
     @Test
     void loadsCompletedReferenceCatalogIncludingOperationalExtensions() {
         var catalog = registry.catalog();
-        assertThat(catalog.tableCount()).isEqualTo(99);
+        assertThat(catalog.tableCount()).isEqualTo(103);
         assertThat(catalog.packages()).extracting("name")
                 .contains("Identity and Party", "Contact and Geography", "Compliance and Risk", "Organization and Product", "Workflow and Interaction", "Analytics and Recommendation");
     }
@@ -48,6 +48,9 @@ class PartyReferenceMetadataRegistryTest {
         assertThat(registry.descriptor("ref-legal-form").tableName()).isEqualTo("REF_LEGAL_FORM");
         assertThat(registry.descriptor("ref-economic-sector").tableName()).isEqualTo("REF_ECONOMIC_SECTOR");
         assertThat(registry.descriptor("ref-isic-activity").tableName()).isEqualTo("REF_ISIC_ACTIVITY");
+        assertThat(registry.descriptor("ref-organization-activity-status").tableName()).isEqualTo("REF_ORGANIZATION_ACTIVITY_STATUS");
+        assertThat(registry.descriptor("ref-enterprise-size").tableName()).isEqualTo("REF_ENTERPRISE_SIZE");
+        assertThat(registry.descriptor("ref-ownership-type").tableName()).isEqualTo("REF_OWNERSHIP_TYPE");
         assertThat(registry.descriptor("ref-product-type").tableName()).isEqualTo("REF_PRODUCT_TYPE");
         assertThat(registry.descriptor("ref-product-relationship-role").tableName()).isEqualTo("REF_PRODUCT_RELATIONSHIP_ROLE");
     }

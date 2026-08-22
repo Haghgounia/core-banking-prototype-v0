@@ -12,7 +12,7 @@ deposit-product reference-data    -> Schema DPS
 customer-information-file (CIF)   -> Schema CIF
 ```
 
-در این نسخه ۱۶۹ فرم اطلاعات پایه فعال هستند: ۲۰ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*` و ۹۹ فرم اطلاعات پایه Party/Customer در CIF. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
+در این نسخه ۱۷۳ فرم اطلاعات پایه فعال هستند: ۲۰ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*` و ۱۰۳ فرم اطلاعات پایه Party/Customer در CIF. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
 
 برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. مسیر عملیاتی CIF از ایجاد Party تا اطلاعات Person/Organization، تماس و نشانی، مالی، شناسه و مدرک، طبقه‌بندی، روابط/UBO، Role/Customer، KYC/Risk/Screening، Consent/Preference، Lifecycle و Merge تکمیل شده است. در نسخه 0.3.22 تمام ۴۸ جدول عملیاتی موجود در `CIF-tables5.xlsx` در Backend پوشش داده می‌شوند: ۳۰ جدول در Workflowهای CIF استفاده/نگهداری می‌شوند و ۱۸ جدول تکمیلی بدون CRUD در CIF به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند؛ محصولات/تعاملات/شکایات و مشابه آن از سامانه‌های مبدأ می‌آیند و Registration/Audit صرفاً Trace خواندنی هستند.
 
@@ -327,3 +327,26 @@ database/oracle/cif/migrations/0.3.22-fix17-party-document-classification-date.s
 در `0.3.22-prototype-fix19` تمام Gridهای اصلی عملیات Party از منظر حداقل Business Context بازبینی شده‌اند. راه‌های تماس، پروفایل مالی، منابع درآمد، دارایی/تعهد، شناسه‌ها، طبقه‌بندی‌ها، نقش‌ها، KYC/Risk و سایر تاریخچه‌های عملیاتی علاوه بر مقدار اصلی، نوع/وضعیت/تاریخ یا Context لازم برای تشخیص رکورد را نمایش می‌دهند. `PARTY_ROLE.CONTEXT_TYPE_CODE/CONTEXT_ID` نیز در فرم نقش به‌صورت صریح مدیریت می‌شود.
 
 در `0.3.22-prototype-fix20` ارزیابی ریسک به داده مرجع مدل متصل شده است. `REF_RISK_MODEL` علاوه بر کد/عنوان، نسخه مدل و دامنه مجاز امتیاز (`MODEL_VERSION`, `MIN_SCORE`, `MAX_SCORE`) را نگهداری می‌کند. با انتخاب مدل در فرم Risk Assessment، نسخه و حداقل/حداکثر خودکار واکشی می‌شوند و Backend نیز قبل از ذخیره همان دامنه و تطبیق نسخه را کنترل می‌کند. دکمه ثبت به‌دلیل Invalid بودن خاموش نمی‌ماند و در صورت نقص، پیام دقیق فیلدهای لازم نمایش داده می‌شود.
+
+## 0.3.22-prototype-fix21 - Persian Reference Column Comments
+
+در Fix21 برای تمام ستون‌های ۹۹ جدول مرجع Party/CIF، Comment فارسی Oracle اضافه شده است. فهرست گزارش‌شده از دیتابیس شامل ۹۹۱ ستون بود؛ سه ستون افزوده‌شده در Fix20 برای مدل ریسک نیز پوشش داده شده‌اند و در مجموع ۹۹۴ ستون دارای Comment فارسی governed هستند. برای دیتابیس موجود، migration `database/oracle/cif/migrations/0.3.22-fix21-reference-column-comments-fa.sql` اجرا شود.
+## 0.3.22-prototype-fix22 - Legal Entity Economic Profile
+
+در Fix22 فقط مسیر شخص حقوقی بازبینی شده است. `ORGANIZATION.ISIC_CODE` با عنوان فارسی و جست‌وجوی ISIC انتخاب می‌شود و کد در دیتابیس باقی می‌ماند. سه دامنه مستقل `CIF.REF_ORGANIZATION_ACTIVITY_STATUS`، `CIF.REF_ENTERPRISE_SIZE` و `CIF.REF_OWNERSHIP_TYPE` برای وضعیت فعالیت اقتصادی، اندازه بنگاه و نوع مالکیت اضافه شده‌اند. `EMPLOYEE_COUNT` مقدار عددی است و فقط در هویت شخص حقوقی اخذ می‌شود؛ ورود تکراری آن از بخش ۳.۱ حذف شده است. فرم‌های هویت شخص حقیقی و نگاشت `PERSON` در این Fix تغییر نکرده‌اند. برای دیتابیس موجود migration `database/oracle/cif/migrations/0.3.22-fix22-organization-economic-profile.sql` اجرا شود.
+
+
+
+
+## 0.3.22-prototype-fix25 - Party Authority Reference & Currency UX
+
+- مرجع سند اختیار در بخش C از `CIF.REF_AUTHORITY_DOCUMENT_TYPE` انتخاب می‌شود و کد آن در `PARTY_AUTHORITY.DOCUMENT_REF` ذخیره می‌گردد.
+- حداکثر مبلغ با جداکننده هزارگان نمایش داده می‌شود و مقدار عددی بدون قالب‌بندی ذخیره می‌شود.
+- ارز حد اختیار به‌صورت پیش‌فرض «ریال ایران / IRR» است؛ اگر سقف مبلغ خالی باشد ارز در رکورد ذخیره نمی‌شود تا قید موجود دیتابیس حفظ شود.
+- Backend نوع اختیار، دامنه اختیار، مرجع سند و ارز را قبل از Persistence با داده‌های مرجع معتبر می‌کند.
+
+## 0.3.22-prototype-fix23 - Build Correction
+
+- رفع خطای Angular مربوط به `workflowStatuses()` در `Party360Component`.
+- بارگذاری `REF_WORKFLOW_STATUS` برای وضعیت پرونده KYC در نمای Party 360.
+- این نسخه تغییر دیتابیسی جدیدی نسبت به Fix22 ندارد.

@@ -1,3 +1,49 @@
+## 0.3.22-prototype-fix25
+
+- UX guidance: low-contrast placeholder styling plus contextual examples in touched operational edit boxes.
+- Risk Assessment 8.2 reordered as model -> version/min/max -> score -> rating/decision; score remains dynamically validated by model range.
+- External Inquiry 8.4 provider changed from free text to REF_EXTERNAL_PROVIDER searchable combo; backend validates inquiry type/provider/result references.
+- General Preference 9.3 now uses type-appropriate controls: language selection, HH:mm contact time, and REF_CHANNEL for statement delivery; backend validates type/value compatibility.
+- Additional identifier types already registered for a Party are removed from the add list (current edit type remains available).
+- Classification types already registered for a Party are removed from the add list (current edit type remains available).
+- Fix24 authority document combo, formatted max amount, and IRR default behavior preserved unchanged.
+
+## 0.3.22-prototype-fix24
+
+- Reworked Party Authority section C: mandatory authority-document reference is now selected by Persian title from governed `CIF.REF_AUTHORITY_DOCUMENT_TYPE`; its code is persisted in `PARTY_AUTHORITY.DOCUMENT_REF` and validated server-side.
+- Added eight operational authority-document reference values (official power of attorney, board resolution, court order, guardianship, executorship, articles of association, official delegation, other official document) with Persian Oracle comments and reference-catalog metadata.
+- `MAX_AMOUNT` now uses the shared thousands-separated amount input while preserving numeric API/database persistence.
+- Authority-limit currency now defaults to `IRR` / «ریال ایران» in the UI; when no amount is entered the display default is not persisted, preserving the existing `CK_AUTH_AMOUNT_CURRENCY` invariant.
+- Backend defaults a missing currency to IRR only when a maximum amount exists, validates the currency against active `GEO.CURRENCIES`, and validates authority type/scope/document codes against active Reference Data.
+- Authority history rows now display Persian authority type, scope, document reference and currency titles instead of raw codes where lookup data is available.
+- Added idempotent migration `0.3.22-fix24-party-authority-reference-currency.sql`; no Person/Organization identity model changes are introduced.
+
+## 0.3.22-prototype-fix23
+
+- Fixed Angular compile error in `Party360Component`: added the missing `workflowStatuses` signal used by the KYC status selector.
+- Added loading of `CIF.REF_WORKFLOW_STATUS` to Party 360 lookup initialization.
+- No database schema or migration change is required for Fix23.
+- Fix22 legal-entity behavior is otherwise unchanged.
+
+## 0.3.22-prototype-fix22
+
+- Legal-entity-only UX/data alignment: Organization economic-profile fields now use business titles in UI while persisting governed codes in `CIF.ORGANIZATION`; Person identity forms and Person model mappings remain unchanged.
+- `ISIC_CODE` is selected through a searchable Persian-title selector backed by `CIF.REF_ISIC_ACTIVITY`; known opaque prototype seeds are re-aligned to Persian titles.
+- Added dedicated Reference Data tables `REF_ORGANIZATION_ACTIVITY_STATUS`, `REF_ENTERPRISE_SIZE`, and `REF_OWNERSHIP_TYPE` instead of overloading workflow/classification vocabularies.
+- `ACTIVITY_STATUS_CODE`, `ENTERPRISE_SIZE_CODE`, and `OWNERSHIP_TYPE_CODE` are validated against their dedicated active Reference Data domains before persistence.
+- `EMPLOYEE_COUNT` is explicitly numeric/non-coded and is captured once in Legal Entity Identity; the duplicate employee-count field was removed from section 3.1 while the existing value is preserved on activity-profile updates.
+- Reworked Organization form layout: main-activity description spans the full form width; enterprise size and ownership are Persian ComboBoxes; section 3.1 explains ownership of employee count.
+- Existing Fix19 multi-record business-context grids (address, contact, identifiers, classifications, financial profile, income sources, assets/liabilities and other Party histories) are retained without regression.
+- Added idempotent migration `0.3.22-fix22-organization-economic-profile.sql` and expanded the governed Party Reference catalog from 99 to 102 active tables.
+
+## 0.3.22-prototype-fix21
+
+- Added governed Persian Oracle `COMMENT ON COLUMN` metadata for all 99 CIF Party reference tables.
+- Covered all 991 columns reported by the database missing-comment inventory and all 994 columns in the current governed metadata, including Fix20 `REF_RISK_MODEL.MODEL_VERSION`, `MIN_SCORE`, and `MAX_SCORE`.
+- Added safe/idempotent migration `0.3.22-fix21-reference-column-comments-fa.sql`; missing tables/columns are skipped with DBMS_OUTPUT instead of failing the migration.
+- Added the same Persian comments to all six reference-data phase DDLs for clean/fresh installations.
+- Added `CIF-0.3.22-FIX21-REFERENCE-COLUMN-COMMENTS-FA.csv` and QA report for traceability.
+
 ## 0.3.22-prototype-fix20
 
 - Risk Assessment UX and reference-governance alignment: risk model version and permitted score range are now system-owned Reference Data rather than manual user inputs.

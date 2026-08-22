@@ -22,6 +22,7 @@ html.theme-light {
   --app-divider: #edf0f5;
   --app-text: #172033;
   --app-muted: #68758c;
+  --app-placeholder: #9aa6b7;
   --app-primary: #2874d0;
   --app-primary-strong: #1358b0;
   --app-primary-soft: #eaf2ff;
@@ -60,6 +61,7 @@ html.theme-dark {
   --app-divider: #26364b;
   --app-text: #eef4ff;
   --app-muted: #aab7ca;
+  --app-placeholder: #7f8fa6;
   --app-primary: #7bb4ff;
   --app-primary-strong: #a8ccff;
   --app-primary-soft: #203b5f;
@@ -113,6 +115,13 @@ mat-card, mat-toolbar, mat-sidenav, mat-expansion-panel,
 
 code, pre, kbd, samp {
   font-family: Consolas, "Courier New", monospace !important;
+}
+
+/* Fix25: guidance inside edit boxes is intentionally secondary to entered values. */
+input::placeholder,
+textarea::placeholder {
+  color: var(--app-placeholder) !important;
+  opacity: .72;
 }
 .mat-mdc-form-field { width: 100%; }
 .material-symbols-rounded { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }

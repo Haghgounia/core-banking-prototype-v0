@@ -87,14 +87,24 @@ public class CifRepository {
 
     private final JdbcClient jdbc;
     private final String schema;
+    private final String referenceDataSchema;
 
-    public CifRepository(JdbcClient jdbc, @Value("${core-banking.schemas.cif:CIF}") String schema) {
+    public CifRepository(
+            JdbcClient jdbc,
+            @Value("${core-banking.schemas.cif:CIF}") String schema,
+            @Value("${core-banking.schemas.reference-data:GEO}") String referenceDataSchema
+    ) {
         this.jdbc = jdbc;
         String normalized = schema == null ? "CIF" : schema.trim().toUpperCase(Locale.ROOT);
         if (!SQL_NAME.matcher(normalized).matches()) {
             throw new IllegalArgumentException("Invalid CIF schema name: " + schema);
         }
         this.schema = normalized;
+        String normalizedReferenceData = referenceDataSchema == null ? "GEO" : referenceDataSchema.trim().toUpperCase(Locale.ROOT);
+        if (!SQL_NAME.matcher(normalizedReferenceData).matches()) {
+            throw new IllegalArgumentException("Invalid reference-data schema name: " + referenceDataSchema);
+        }
+        this.referenceDataSchema = normalizedReferenceData;
     }
 
     public PageResponse<PartySummary> searchParties(
@@ -2622,6 +2632,15 @@ public class CifRepository {
                         + " AND (VALID_FROM IS NULL OR VALID_FROM <= TRUNC(SYSDATE))"
                         + " AND (VALID_TO IS NULL OR VALID_TO >= TRUNC(SYSDATE))")
                 .param("code", code).query(Long.class).single() > 0;
+    }
+
+
+    public boolean activeCurrencyCodeExists(String currencyCode) {
+        if (currencyCode == null || currencyCode.isBlank()) return false;
+        return jdbc.sql("SELECT COUNT(*) FROM " + referenceDataSchema + ".CURRENCIES"
+                        + " WHERE CURRENCY_ALPHABETIC_ISO=:code AND IS_ACTIVE=1")
+                .param("code", currencyCode.trim().toUpperCase(Locale.ROOT))
+                .query(Long.class).single() > 0;
     }
 
     public boolean kycCaseHasDependents(long partyId, long id) {

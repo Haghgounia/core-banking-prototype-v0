@@ -1092,7 +1092,7 @@ public final class CifModels {
             @Size(max = 3) String currencyCode,
             @NotNull LocalDate validFrom,
             LocalDate validTo,
-            @NotBlank @Size(max = 500) String documentRef,
+            @NotBlank @Size(max = 50) String documentRef,
             Long recordVersion
     ) {
     }

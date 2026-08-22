@@ -1,6 +1,6 @@
 # CIF Party Reference Data - Phase 4: Organization and Product
 
-این فاز ۱۱ جدول مرجع جدید در Schema `CIF` ایجاد می‌کند و 44 رکورد Seed دارد.
+این فاز ۱۴ جدول مرجع در Schema `CIF` ایجاد می‌کند و 58 رکورد Seed دارد. سه دامنه مستقل `REF_ORGANIZATION_ACTIVITY_STATUS`، `REF_ENTERPRISE_SIZE` و `REF_OWNERSHIP_TYPE` در Fix22 برای فیلدهای اقتصادی شخص حقوقی افزوده شده‌اند.
 
 دو جدول از مدل منبع عمداً در CIF تکرار نشده‌اند:
 
