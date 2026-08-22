@@ -1663,6 +1663,21 @@ public class CifRepository {
                 .param("id", id).param("partyId", partyId).update();
     }
 
+    public boolean contactAddressAssociationExists(long contactPointId, long partyAddressId, String associationTypeCode,
+                                                   LocalDate validFrom, Long exceptId) {
+        String sql = "SELECT COUNT(*) FROM " + table("CONTACT_POINT_ADDRESS")
+                + " WHERE CONTACT_POINT_ID=:contactPointId AND PARTY_ADDRESS_ID=:partyAddressId"
+                + " AND ASSOCIATION_TYPE_CODE=:associationType AND VALID_FROM=:validFrom"
+                + (exceptId == null ? "" : " AND CONTACT_POINT_ADDRESS_ID<>:exceptId");
+        JdbcClient.StatementSpec spec = jdbc.sql(sql)
+                .param("contactPointId", contactPointId)
+                .param("partyAddressId", partyAddressId)
+                .param("associationType", associationTypeCode)
+                .param("validFrom", sqlDate(validFrom));
+        if (exceptId != null) spec = spec.param("exceptId", exceptId);
+        return spec.query(Long.class).single() > 0;
+    }
+
     public boolean contactBelongsToParty(long partyId, long contactPointId) {
         return jdbc.sql("SELECT COUNT(*) FROM " + table("CONTACT_POINT") + " WHERE CONTACT_POINT_ID=:id AND PARTY_ID=:partyId")
                 .param("id", contactPointId).param("partyId", partyId).query(Long.class).single() > 0;
@@ -2640,6 +2655,39 @@ public class CifRepository {
         return jdbc.sql("SELECT COUNT(*) FROM " + referenceDataSchema + ".CURRENCIES"
                         + " WHERE CURRENCY_ALPHABETIC_ISO=:code AND IS_ACTIVE=1")
                 .param("code", currencyCode.trim().toUpperCase(Locale.ROOT))
+                .query(Long.class).single() > 0;
+    }
+
+    public boolean activeCountryCodeExists(String countryCode) {
+        if (countryCode == null || countryCode.isBlank()) return false;
+        return jdbc.sql("SELECT COUNT(*) FROM " + referenceDataSchema + ".COUNTRIES"
+                        + " WHERE COUNTRY_ISO_CODE=:code AND IS_ACTIVE=1")
+                .param("code", countryCode.trim().toUpperCase(Locale.ROOT))
+                .query(Long.class).single() > 0;
+    }
+
+    public boolean registrationPlaceBelongsToCountry(String countryCode, String placeCode) {
+        if (countryCode == null || countryCode.isBlank() || placeCode == null || placeCode.isBlank()) return false;
+        String sql = """
+                SELECT COUNT(*) FROM (
+                    SELECT C.CITY_CODE AS PLACE_CODE, CO.COUNTRY_ISO_CODE AS COUNTRY_CODE
+                    FROM %1$s.CITIES C
+                    JOIN %1$s.DISTRICTS D ON D.DISTRICT_ID=C.DISTRICT_ID
+                    JOIN %1$s.COUNTIES CNT ON CNT.COUNTY_ID=D.COUNTY_ID
+                    JOIN %1$s.PROVINCES P ON P.PROVINCE_ID=CNT.PROVINCE_ID
+                    JOIN %1$s.COUNTRIES CO ON CO.COUNTRY_ID=P.COUNTRY_ID
+                    WHERE C.IS_ACTIVE=1 AND D.IS_ACTIVE=1 AND CNT.IS_ACTIVE=1 AND P.IS_ACTIVE=1 AND CO.IS_ACTIVE=1
+                    UNION ALL
+                    SELECT FC.FOREIGN_CITY_CODE AS PLACE_CODE, CO.COUNTRY_ISO_CODE AS COUNTRY_CODE
+                    FROM %1$s.FOREIGN_CITIES FC
+                    JOIN %1$s.COUNTRIES CO ON CO.COUNTRY_ID=FC.COUNTRY_ID
+                    WHERE FC.IS_ACTIVE=1 AND CO.IS_ACTIVE=1
+                ) X
+                WHERE X.COUNTRY_CODE=:countryCode AND X.PLACE_CODE=:placeCode
+                """.formatted(referenceDataSchema);
+        return jdbc.sql(sql)
+                .param("countryCode", countryCode.trim().toUpperCase(Locale.ROOT))
+                .param("placeCode", placeCode.trim().toUpperCase(Locale.ROOT))
                 .query(Long.class).single() > 0;
     }
 

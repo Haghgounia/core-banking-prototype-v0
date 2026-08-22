@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatSidenavModule} from '@angular/material/sidenav';
@@ -25,6 +25,21 @@ export class AppShellComponent {
   readonly theme = inject(ThemeService);
   private readonly router = inject(Router);
   readonly version = GENERATED_SYSTEM_VERSIONS.release;
+  readonly sidebarCollapsed = signal(this.readSidebarPreference());
+
+
+  toggleSidebar(): void {
+    const collapsed = !this.sidebarCollapsed();
+    this.sidebarCollapsed.set(collapsed);
+    try { localStorage.setItem('core-banking.sidebar.collapsed', collapsed ? '1' : '0'); } catch { /* ignore storage restrictions */ }
+  }
+
+  private readSidebarPreference(): boolean {
+    try {
+      const stored = localStorage.getItem('core-banking.sidebar.collapsed');
+      return stored === null ? true : stored === '1';
+    } catch { return true; }
+  }
 
   isReferenceSection(): boolean {
     const url = this.router.url;

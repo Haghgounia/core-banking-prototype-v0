@@ -137,7 +137,26 @@ public class CifService {
         boolean contactComplete = !response.contacts().isEmpty();
         boolean financialComplete = !response.financialProfiles().isEmpty();
         boolean customerRelationshipComplete = !customerRole || (currentCustomer != null && !blank(customerNo));
-        boolean kycComplete = response.kycCases().stream().anyMatch(k -> !blank(k.finalRiskLevelCode()) && !blank(k.decisionCode()));
+        KycCaseRecord completeKyc = response.kycCases().stream()
+                .filter(k -> !blank(k.finalRiskLevelCode()) && !blank(k.decisionCode()))
+                .findFirst().orElse(null);
+        boolean kycComplete = completeKyc != null;
+        String kycDetail;
+        if (kycComplete) {
+            kycDetail = "\u067e\u0631\u0648\u0646\u062f\u0647 KYC #" + completeKyc.kycCaseId() + " \u062f\u0627\u0631\u0627\u06cc \u0633\u0637\u062d \u0631\u06cc\u0633\u06a9 \u0646\u0647\u0627\u06cc\u06cc \u0648 \u062a\u0635\u0645\u06cc\u0645 \u0646\u0647\u0627\u06cc\u06cc \u0627\u0633\u062a.";
+        } else if (response.kycCases().isEmpty()) {
+            kycDetail = "\u0647\u0646\u0648\u0632 \u067e\u0631\u0648\u0646\u062f\u0647 KYC/KYB \u062b\u0628\u062a \u0646\u0634\u062f\u0647 \u0627\u0633\u062a.";
+        } else {
+            KycCaseRecord latestKyc = response.kycCases().get(0);
+            List<String> missingKyc = new java.util.ArrayList<>();
+            if (blank(latestKyc.finalRiskLevelCode())) missingKyc.add("\u0633\u0637\u062d \u0631\u06cc\u0633\u06a9 \u0646\u0647\u0627\u06cc\u06cc");
+            if (blank(latestKyc.decisionCode())) missingKyc.add("\u062a\u0635\u0645\u06cc\u0645 \u0646\u0647\u0627\u06cc\u06cc/\u067e\u0630\u06cc\u0631\u0634");
+            boolean linkedRiskExists = response.riskAssessments().stream()
+                    .anyMatch(r -> r.kycCaseId() != null && r.kycCaseId().longValue() == latestKyc.kycCaseId());
+            kycDetail = "\u067e\u0631\u0648\u0646\u062f\u0647 KYC #" + latestKyc.kycCaseId() + " \u062b\u0628\u062a \u0634\u062f\u0647 \u0627\u0645\u0627 "
+                    + String.join(" \u0648 ", missingKyc) + " \u062a\u06a9\u0645\u06cc\u0644 \u0646\u06cc\u0633\u062a."
+                    + (linkedRiskExists ? " \u0627\u0631\u0632\u06cc\u0627\u0628\u06cc \u0631\u06cc\u0633\u06a9 \u0645\u0631\u062a\u0628\u0637 \u0648\u062c\u0648\u062f \u062f\u0627\u0631\u062f\u061b \u0646\u062a\u06cc\u062c\u0647 \u0646\u0647\u0627\u06cc\u06cc \u0628\u0627\u06cc\u062f \u062f\u0631 \u0628\u062e\u0634 8.1 \u0631\u0648\u06cc \u062e\u0648\u062f \u067e\u0631\u0648\u0646\u062f\u0647 KYC \u062b\u0628\u062a \u0634\u0648\u062f." : "");
+        }
         boolean consentComplete = response.consents().stream().anyMatch(c -> "GRANT".equals(c.customerDecisionCode())
                 && "GRANTED".equals(c.consentStatusCode()) && (c.validTo() == null || !c.validTo().isBefore(today)));
 
@@ -156,7 +175,7 @@ public class CifService {
                         customerRole ? "Customer Role باید رابطه جاری و شماره مشتری داشته باشد." : "این Party نقش مشتری بانک ندارد و شماره مشتری برای آن الزامی نیست."),
                 readinessItem("KYC", "KYC، ریسک و تصمیم", customerRole, kycComplete,
                         response.kycCases().size(), "/cif/parties/" + partyId + "/onboarding/kyc-risk",
-                        "برای مشتری بانک حداقل یک KYC دارای سطح ریسک نهایی و تصمیم لازم است."),
+                        kycDetail),
                 readinessItem("CONSENT", "رضایت معتبر", customerRole, consentComplete,
                         response.consents().size(), "/cif/parties/" + partyId + "/onboarding/consents-preferences",
                         "برای مشتری بانک حداقل یک رضایت اعطاشده و معتبر لازم است.")
@@ -167,7 +186,7 @@ public class CifService {
             blockers.add("Party ادغام شده است و پرونده مبدأ قابل Finalize مجدد نیست.");
         }
         for (PartyReadinessItem item : items) {
-            if (item.required() && !item.complete()) blockers.add(item.label());
+            if (item.required() && !item.complete()) blockers.add(item.label() + " - " + item.detail());
         }
         int requiredTotal = (int) items.stream().filter(PartyReadinessItem::required).count();
         int requiredCompleted = (int) items.stream().filter(i -> i.required() && i.complete()).count();
@@ -432,6 +451,8 @@ public class CifService {
         String economicSectorCode = upperOrNull(raw.economicSectorCode());
         String isicCode = upperOrNull(raw.isicCode());
         String activityStatusCode = upperOrNull(raw.activityStatusCode());
+        String registrationCountryCode = upperOrNull(raw.registrationCountryCode());
+        String registrationPlaceCode = upperOrNull(raw.registrationPlaceCode());
         String enterpriseSizeCode = upperOrNull(raw.enterpriseSizeCode());
         String ownershipTypeCode = upperOrNull(raw.ownershipTypeCode());
         if (!repository.activeReferenceCodeExists("REF_LEGAL_FORM", "LEGAL_FORM_CODE", legalFormCode)) {
@@ -446,6 +467,15 @@ public class CifService {
         if (activityStatusCode != null && !repository.activeReferenceCodeExists("REF_ORGANIZATION_ACTIVITY_STATUS", "ACTIVITY_STATUS_CODE", activityStatusCode)) {
             errors.put("activityStatusCode", "وضعیت فعالیت اقتصادی در اطلاعات پایه فعال یافت نشد.");
         }
+        if (registrationCountryCode != null && !repository.activeCountryCodeExists(registrationCountryCode)) {
+            errors.put("registrationCountryCode", "کشور ثبت در اطلاعات پایه جغرافیایی فعال یافت نشد.");
+        }
+        if (registrationPlaceCode != null && registrationCountryCode == null) {
+            errors.put("registrationCountryCode", "برای ثبت شهر محل ثبت، انتخاب کشور ثبت الزامی است.");
+        } else if (registrationPlaceCode != null && registrationCountryCode != null
+                && !repository.registrationPlaceBelongsToCountry(registrationCountryCode, registrationPlaceCode)) {
+            errors.put("registrationPlaceCode", "شهر محل ثبت به کشور انتخاب‌شده تعلق ندارد یا در اطلاعات پایه فعال نیست.");
+        }
         if (enterpriseSizeCode != null && !repository.activeReferenceCodeExists("REF_ENTERPRISE_SIZE", "ENTERPRISE_SIZE_CODE", enterpriseSizeCode)) {
             errors.put("enterpriseSizeCode", "اندازه بنگاه در اطلاعات پایه فعال یافت نشد.");
         }
@@ -455,9 +485,9 @@ public class CifService {
         reject(errors);
         OrganizationRequest request = new OrganizationRequest(
                 raw.registeredName().trim(), trimToNull(raw.tradeName()), legalFormCode,
-                trimToNull(raw.registrationNo()), trimToNull(raw.registrationPlaceCode()), raw.incorporationDate(),
+                trimToNull(raw.registrationNo()), registrationPlaceCode, raw.incorporationDate(),
                 raw.dissolutionDate(), economicSectorCode, isicCode, listed,
-                upperOrNull(raw.registrationCountryCode()), activityStatusCode,
+                registrationCountryCode, activityStatusCode,
                 trimToNull(raw.mainActivityDescription()), raw.employeeCount(), enterpriseSizeCode,
                 ownershipTypeCode, raw.recordVersion()
         );
@@ -615,7 +645,7 @@ public class CifService {
     public Party360Response createContactAddressAssociation(long partyId, ContactPointAddressRequest raw, String actor) {
         find(partyId);
         ContactPointAddressRequest request = normalizeContactAddressAssociation(raw);
-        validateContactAddressAssociation(partyId, request);
+        validateContactAddressAssociation(partyId, request, null);
         repository.insertContactAddressAssociation(partyId, request, actor);
         return find(partyId);
     }
@@ -625,7 +655,7 @@ public class CifService {
         find(partyId);
         requireVersion(raw.recordVersion());
         ContactPointAddressRequest request = normalizeContactAddressAssociation(raw);
-        validateContactAddressAssociation(partyId, request);
+        validateContactAddressAssociation(partyId, request, id);
         ensureUpdated(repository.updateContactAddressAssociation(partyId, id, request, actor));
         return find(partyId);
     }
@@ -1434,7 +1464,7 @@ public class CifService {
         );
     }
 
-    private void validateContactAddressAssociation(long partyId, ContactPointAddressRequest r) {
+    private void validateContactAddressAssociation(long partyId, ContactPointAddressRequest r, Long exceptId) {
         Map<String, String> errors = new LinkedHashMap<>();
         checkFlag("isPrimaryForAddress", r.isPrimaryForAddress(), errors);
         checkDateOrder("validFrom", r.validFrom(), "validTo", r.validTo(), errors);
@@ -1443,6 +1473,10 @@ public class CifService {
         }
         if (!repository.partyAddressBelongsToParty(partyId, r.partyAddressId())) {
             errors.put("partyAddressId", "نشانی انتخاب‌شده متعلق به این Party نیست.");
+        }
+        if (errors.isEmpty() && repository.contactAddressAssociationExists(
+                r.contactPointId(), r.partyAddressId(), r.associationTypeCode(), r.validFrom(), exceptId)) {
+            errors.put("contactPointId", "این ارتباط راه تماس، نشانی، نوع ارتباط و تاریخ شروع قبلاً ثبت شده است.");
         }
         reject(errors);
     }

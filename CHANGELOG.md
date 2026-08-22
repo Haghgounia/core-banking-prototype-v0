@@ -1,3 +1,38 @@
+## 0.3.22-prototype-fix29
+
+- Fixed Windows path resolution in `tools/verify-cif-persisted-grids.mjs`.
+- The verifier now uses Node `fileURLToPath(import.meta.url)` instead of URL pathname + `path.resolve`, preventing duplicated drive paths such as `D:\\D:\\Projects\...`.
+- Fix28 persisted-grid and dockable-sidebar behavior is unchanged.
+- No database migration is required.
+
+## 0.3.22-prototype-fix28
+
+- Converted every persisted multi-record collection in CIF operational forms to explicit column tables; no stream/card-style saved-record renderer remains in `frontend/src/app/features/cif`.
+- Extended the same grid rule to Party / Customer 360, including operational histories and read-only source-system collections (products, limits, interactions, complaints, alerts, analytics, groups, signatures, registration and audit).
+- Added shared responsive `db-grid`/`record-table` styling: fixed-layout, wrapped cells and no horizontal scrolling on desktop; small-screen horizontal scrolling is retained only as a responsive fallback.
+- Added a dockable/collapsible left sidebar (RTL `position=end`) with controls in both the rail and top bar. The compact 76px rail preserves icon navigation/tooltips and its state is persisted in localStorage; first use defaults to compact mode for maximum form width.
+- Kept all Fix19-Fix27 data rules, validations, reference lookups and database mappings unchanged; Fix28 is a presentation/layout-only release and requires no new database migration.
+- Added static QA checks for stream renderers, table tag balance, table coverage, sidebar bindings and generated version synchronization.
+
+## 0.3.22-prototype-fix27
+
+- Fixed false red validation state in Contact Point-to-Address association after successful save by resetting the native FormGroupDirective submitted state as well as the reactive form state.
+- Replaced stream/card-style saved records on the Address & Contact page with explicit column grids for addresses, contact points, and contact-address associations.
+- Association grid now separates contact, address, association type, primary status, validity dates, and actions into dedicated columns.
+- Contact/address labels in association history resolve Persian business titles instead of displaying raw reference codes when lookup data is available.
+- Added application-level duplicate validation for CONTACT_POINT_ADDRESS before Oracle UQ_CPA_CONTACT_ADDRESS is reached; users now receive a clear Persian validation message.
+- Clarified Party Role context semantics in the UI: context is an optional scope for a role and is normally left blank for a bank-wide CUSTOMER role.
+- No database schema migration is required for Fix27. Existing Fix24 migration remains required wherever REF_AUTHORITY_DOCUMENT_TYPE has not yet been created.
+
+## 0.3.22-prototype-fix26
+
+- Legal entity registration now follows Country -> Registration City; city is selected from GEO.CITIES for Iran or GEO.FOREIGN_CITIES filtered by the selected country.
+- Backend rejects a registration city that does not belong to the selected registration country.
+- Employee-count hint states the onboarding provenance rule: customer declaration first, verified documentary value when available.
+- End-to-End readiness now shows the detail/reason of every requirement instead of only the section title.
+- KYC readiness explains exactly which finalization fields are missing and points to section 8.1 when a linked risk assessment already exists.
+- Final KYC risk level is now required consistently in the full KYC form and the Party 360 quick form.
+
 ## 0.3.22-prototype-fix25
 
 - UX guidance: low-contrast placeholder styling plus contextual examples in touched operational edit boxes.

@@ -39,3 +39,50 @@
 @media (max-width: 900px) {
   .technical-link span, .theme-trigger span { display: none; }
 }
+
+/* Fix28: dockable left rail. In RTL the end-position sidenav is rendered on the left. */
+.sidebar {
+  transition: width .18s ease;
+  overflow-x: hidden;
+}
+.sidebar.collapsed { width: 76px; }
+.brand { position: relative; min-height: 86px; }
+.brand-copy { min-width: 0; transition: opacity .12s ease; }
+.sidebar-dock {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+}
+.sidebar.collapsed .brand {
+  justify-content: center;
+  padding-inline: 10px;
+}
+.sidebar.collapsed .brand-copy,
+.sidebar.collapsed .menu-section-label,
+.sidebar.collapsed .section-list [matListItemTitle] {
+  display: none !important;
+}
+.sidebar.collapsed .brand-icon { width: 42px; height: 42px; }
+.sidebar.collapsed .sidebar-dock {
+  position: absolute;
+  inset-inline-end: 2px;
+  inset-block-end: 2px;
+  transform: scale(.82);
+}
+.sidebar.collapsed .section-list a[mat-list-item] {
+  width: 56px;
+  margin: 4px auto;
+  border-radius: 12px;
+}
+.sidebar.collapsed .section-list mat-icon[matListItemIcon] {
+  margin-inline: auto !important;
+}
+.sidebar.collapsed .active-link { border-right-width: 0; box-shadow: inset 0 0 0 1px var(--app-primary); }
+.topbar-sidebar-toggle { margin-inline-end: 4px; color: #fff !important; }
+
+/* More usable width for data-heavy forms. */
+.content { max-width: 100%; overflow-x: clip; }
+
+/* Keep Material sidenav content measurement aligned with the docked rail width. */
+.shell .mat-drawer-content { min-width: 0; }
+.sidebar.collapsed .section-list span[matListItemTitle],
+.sidebar.collapsed .section-list .mdc-list-item__primary-text { display: none !important; }

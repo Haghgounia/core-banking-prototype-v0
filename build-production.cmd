@@ -27,6 +27,9 @@ if not exist "%ROOT%backend\src\main\resources\cif\party-reference\party-referen
   exit /b 1
 )
 
+rem Fix29 static UI regression guard: persisted CIF records must remain column grids and sidebar docking must stay wired.
+node "%ROOT%tools\verify-cif-persisted-grids.mjs" || exit /b 1
+
 rem Remove stale packages first. A failed build must never leave an older JAR looking current.
 if exist "%ROOT%app\core-banking-prototype.jar" del /q "%ROOT%app\core-banking-prototype.jar"
 if exist "%ROOT%backend\target\core-banking-prototype.jar" del /q "%ROOT%backend\target\core-banking-prototype.jar"

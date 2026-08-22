@@ -1,24 +1,29 @@
-<mat-sidenav-container class="shell" dir="rtl">
-  <mat-sidenav class="sidebar" mode="side" opened position="end">
+<mat-sidenav-container class="shell" dir="rtl" autosize>
+  <mat-sidenav class="sidebar" [class.collapsed]="sidebarCollapsed()" mode="side" opened position="end">
     <div class="brand">
       <div class="brand-icon"><mat-icon>hub</mat-icon></div>
-      <div>
+      <div class="brand-copy">
         <strong>سامانه دموی بانکداری متمرکز</strong>
         <small>Core Banking Prototype</small>
       </div>
+      <button mat-icon-button class="sidebar-dock" type="button" (click)="toggleSidebar()"
+              [matTooltip]="sidebarCollapsed() ? 'باز کردن نوار کناری' : 'جمع کردن نوار کناری'"
+              aria-label="باز و بسته کردن نوار کناری">
+        <mat-icon>{{ sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      </button>
     </div>
 
     <div class="menu-section-label">عملیات</div>
     <mat-nav-list class="section-list">
-      <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
+      <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link" matTooltip="داشبورد" matTooltipPosition="before">
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <span matListItemTitle>داشبورد</span>
       </a>
-      <a mat-list-item routerLink="/cif/parties" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
+      <a mat-list-item routerLink="/cif/parties" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" matTooltip="جست‌وجو و پرونده Party" matTooltipPosition="before">
         <mat-icon matListItemIcon>group</mat-icon>
         <span matListItemTitle>جست‌وجو و پرونده Party</span>
       </a>
-      <a mat-list-item routerLink="/cif/parties/new" routerLinkActive="active-link">
+      <a mat-list-item routerLink="/cif/parties/new" routerLinkActive="active-link" matTooltip="ایجاد Party جدید" matTooltipPosition="before">
         <mat-icon matListItemIcon>person_add</mat-icon>
         <span matListItemTitle>ایجاد Party جدید</span>
       </a>
@@ -26,7 +31,7 @@
 
     <div class="menu-section-label">داده‌های مرجع</div>
     <mat-nav-list class="section-list reference-root-menu">
-      <a mat-list-item routerLink="/reference-data" [class.active-link]="isReferenceSection()">
+      <a mat-list-item routerLink="/reference-data" [class.active-link]="isReferenceSection()" matTooltip="اطلاعات پایه" matTooltipPosition="before">
         <mat-icon matListItemIcon>dataset</mat-icon>
         <span matListItemTitle>اطلاعات پایه</span>
       </a>
@@ -34,7 +39,7 @@
 
     <div class="menu-section-label">مدیریت و سیستم</div>
     <mat-nav-list class="section-list">
-      <a mat-list-item routerLink="/system-specification" routerLinkActive="active-link">
+      <a mat-list-item routerLink="/system-specification" routerLinkActive="active-link" matTooltip="مشخصات فنی سیستم" matTooltipPosition="before">
         <mat-icon matListItemIcon>info</mat-icon>
         <span matListItemTitle>مشخصات فنی سیستم</span>
       </a>
@@ -43,6 +48,10 @@
 
   <mat-sidenav-content>
     <mat-toolbar class="topbar">
+      <button mat-icon-button class="topbar-sidebar-toggle" type="button" (click)="toggleSidebar()"
+              [matTooltip]="sidebarCollapsed() ? 'باز کردن نوار کناری' : 'جمع کردن نوار کناری'">
+        <mat-icon>{{ sidebarCollapsed() ? 'dock_to_right' : 'dock_to_left' }}</mat-icon>
+      </button>
       <span class="title">سامانه دموی بانکداری متمرکز</span>
       <span class="spacer"></span>
 

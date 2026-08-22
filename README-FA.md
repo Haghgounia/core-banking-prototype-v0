@@ -338,7 +338,7 @@ database/oracle/cif/migrations/0.3.22-fix17-party-document-classification-date.s
 
 
 
-## 0.3.22-prototype-fix25 - Party Authority Reference & Currency UX
+## 0.3.22-prototype-fix24 - Party Authority Reference & Currency UX
 
 - مرجع سند اختیار در بخش C از `CIF.REF_AUTHORITY_DOCUMENT_TYPE` انتخاب می‌شود و کد آن در `PARTY_AUTHORITY.DOCUMENT_REF` ذخیره می‌گردد.
 - حداکثر مبلغ با جداکننده هزارگان نمایش داده می‌شود و مقدار عددی بدون قالب‌بندی ذخیره می‌شود.
@@ -350,3 +350,38 @@ database/oracle/cif/migrations/0.3.22-fix17-party-document-classification-date.s
 - رفع خطای Angular مربوط به `workflowStatuses()` در `Party360Component`.
 - بارگذاری `REF_WORKFLOW_STATUS` برای وضعیت پرونده KYC در نمای Party 360.
 - این نسخه تغییر دیتابیسی جدیدی نسبت به Fix22 ندارد.
+
+
+## 0.3.22-prototype-fix26 - Registration Geography & KYC Readiness
+
+- در هویت شخص حقوقی، ابتدا کشور ثبت انتخاب می‌شود و سپس شهر محل ثبت فقط از زیرمجموعه همان کشور قابل انتخاب است.
+- برای ایران `GEO.CITIES` و برای سایر کشورها `GEO.FOREIGN_CITIES` مبناست؛ Backend نیز تطابق کشور/شهر را کنترل می‌کند.
+- آمادگی End-to-End به‌جای اعلام کلی «KYC ناقص»، فیلد دقیق ناقص را نمایش می‌دهد.
+
+## 0.3.22-prototype-fix27 - Contact/Address Grid & Role Context UX
+
+- پس از ثبت موفق «ارتباط راه تماس با نشانی»، وضعیت Submitted فرم نیز Reset می‌شود و فیلدهای اجباری خالی دیگر به اشتباه قرمز نمایش داده نمی‌شوند.
+- رکوردهای ذخیره‌شده نشانی، راه تماس و ارتباط راه تماس/نشانی از نمایش خطی به Grid ستونی تفکیک‌شده تبدیل شدند.
+- قبل از Insert/Update ارتباط تماس و نشانی، Duplicate در سرویس کنترل می‌شود و به‌جای ORA-00001 پیام فارسی قابل فهم نمایش داده می‌شود.
+- در فرم نقش Party توضیح روشن اضافه شد که «نوع زمینه» دامنه اعتبار نقش است؛ برای نقش عمومی CUSTOMER معمولاً خالی است و برای نقش محدود به حساب/محصول/شعبه/قرارداد/پرونده استفاده می‌شود.
+- Fix27 تغییر Schema جدید ندارد.
+
+## 0.3.22-prototype-fix25 - UX / Risk / Preference
+
+- نمایش راهنمای کم‌رنگ در ورودی‌های عملیاتی، بازچینی ارزیابی ریسک، Combo ارائه‌دهنده استعلام، روشن‌سازی مقدار ترجیح و جلوگیری از انتخاب مجدد نوع شناسه/طبقه‌بندی اعمال شده است.
+
+## 0.3.22-prototype-fix28 - Persisted Data Grids & Dockable Sidebar
+
+- تمام مجموعه‌های چندرکوردی ذخیره‌شده در فرم‌های عملیاتی CIF و نمای Party/Customer 360 به جدول ستونی واقعی تبدیل شده‌اند؛ نمایش Stream/Card برای رکوردهای دیتابیس باقی نمانده است.
+- Gridهای مشترک در Desktop داخل عرض فرم جا می‌گیرند، متن سلول‌ها Wrap می‌شود و Scroll افقی اجباری حذف شده است؛ فقط در نمایشگرهای کوچک‌تر از 820px Scroll افقی به‌عنوان fallback واکنش‌گرا مجاز است.
+- Sidebar سمت چپ در محیط RTL قابل Dock/Collapse است: حالت کامل 290px و حالت جمع‌شده 76px. وضعیت انتخاب کاربر در `localStorage` نگهداری می‌شود و در اولین اجرا برای بیشترین فضای فرم، حالت جمع‌شده پیش‌فرض است.
+- Fix28 تغییر دیتابیسی ندارد و تمام اصلاحات Fix19 تا Fix27 را حفظ می‌کند.
+
+
+
+## 0.3.22-prototype-fix29 - Windows Build Verifier Path Fix
+
+- اصلاح مسیر‌یابی `tools/verify-cif-persisted-grids.mjs` در Windows با `fileURLToPath(import.meta.url)`.
+- جلوگیری از ساخته‌شدن مسیر نادرست `D:\\D:\\...` هنگام اجرای `build-production.cmd`.
+- تمامی Gridها و Dockable Sidebar نسخه Fix28 بدون تغییر حفظ شده‌اند.
+- Migration جدیدی لازم نیست.
