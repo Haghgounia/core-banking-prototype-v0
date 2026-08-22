@@ -454,6 +454,9 @@ public final class CifModels {
     ) {
     }
 
+    public record RiskModelProfile(String modelCode, String modelVersion, BigDecimal minScore, BigDecimal maxScore) {
+    }
+
     public record RiskAssessmentRecord(
             long riskAssessmentId,
             long partyId,

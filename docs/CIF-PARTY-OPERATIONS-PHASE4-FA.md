@@ -57,3 +57,11 @@ Phase 5: طبقه‌بندی Party و مدیریت `PARTY_CLASSIFICATION`.
 - اتصال مستقیم Scanner از Browser عمداً شبیه‌سازی نشده است؛ برای TWAIN/WIA/SANE در محیط شعبه به Scanner Agent/Middleware مورد تأیید بانک نیاز است.
 - پس از ثبت موفق شناسه تکمیلی یا مدرک، `FormGroupDirective` Reset و Focus فعال Blur می‌شود تا فیلد ثبت‌شده به‌اشتباه در وضعیت Error/Required باقی نماند.
 - در Production، File Repository نمونه باید با DMS/Object Storage مورد تأیید بانک، رمزنگاری، Malware Scan، Retention/Legal Hold و Audit یکپارچه شود.
+
+## تکمیل Fix17 — ثبت قابل اتکا و پیام نتیجه
+
+- فایل مدرک/خروجی اسکنر به‌صورت صریح جزء الزامات ثبت رکورد `PARTY_DOCUMENT` است؛ تا قبل از Upload، پیام محلی دقیق کنار همان فرم نمایش داده می‌شود.
+- پس از Upload، پیام جداگانه اعلام می‌کند که فایل فقط در مخزن امن قرار گرفته و برای ایجاد رکورد `PARTY_DOCUMENT` باید دکمه «ثبت مدرک» نیز زده شود.
+- نتیجه Save/Update (موفق یا ناموفق) در همان بخش مدارک نمایش داده می‌شود و `ProblemDetail.fieldErrors/detail` از Backend به پیام فارسی قابل مشاهده تبدیل می‌شود.
+- Constraint قدیمی `CK_DOC_VERIFY_DATE` حذف شده است؛ `VERIFIED_AT` زمان رخداد اعتبارسنجی است و می‌تواند قبل از زمان ایجاد فیزیکی رکورد در DB باشد.
+- برای دیتابیس موجود Migration `database/oracle/cif/migrations/0.3.22-fix17-party-document-classification-date.sql` اجرا شود.

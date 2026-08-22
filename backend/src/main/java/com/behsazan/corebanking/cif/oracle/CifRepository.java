@@ -2599,6 +2599,20 @@ public class CifRepository {
         return deleteChild("PARTY_GENERAL_PREFERENCE", "PREFERENCE_ID", partyId, id);
     }
 
+    public Optional<RiskModelProfile> riskModelProfile(String modelCode) {
+        String sql = """
+                SELECT MODEL_CODE, MODEL_VERSION, MIN_SCORE, MAX_SCORE
+                FROM %s
+                WHERE MODEL_CODE=:modelCode AND IS_ACTIVE=1
+                  AND (VALID_FROM IS NULL OR VALID_FROM <= TRUNC(SYSDATE))
+                  AND (VALID_TO IS NULL OR VALID_TO >= TRUNC(SYSDATE))
+                """.formatted(table("REF_RISK_MODEL"));
+        return jdbc.sql(sql).param("modelCode", modelCode).query((rs, rowNum) -> new RiskModelProfile(
+                rs.getString("MODEL_CODE"), rs.getString("MODEL_VERSION"),
+                rs.getBigDecimal("MIN_SCORE"), rs.getBigDecimal("MAX_SCORE")
+        )).optional();
+    }
+
     public boolean activeReferenceCodeExists(String tableName, String codeColumn, String code) {
         if (!SQL_NAME.matcher(tableName).matches() || !SQL_NAME.matcher(codeColumn).matches()) {
             throw new IllegalArgumentException("Invalid reference metadata name");

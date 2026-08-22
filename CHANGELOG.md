@@ -1,3 +1,39 @@
+## 0.3.22-prototype-fix20
+
+- Risk Assessment UX and reference-governance alignment: risk model version and permitted score range are now system-owned Reference Data rather than manual user inputs.
+- Extended `CIF.REF_RISK_MODEL` with `MODEL_VERSION`, `MIN_SCORE`, and `MAX_SCORE`; added idempotent migration `0.3.22-fix20-risk-model-profile.sql`.
+- Selecting a risk model now automatically loads its version and score domain; model version is read-only and the score input shows/enforces the configured minimum/maximum.
+- Risk submit is no longer silently disabled by generic form invalidity; invalid submissions produce a field-specific Persian message. The button remains disabled only during model-profile loading or save operations.
+- Backend validates KYC ownership, risk type, risk level, decision, model/version consistency and score bounds before persistence.
+- Added `GET /api/v1/cif/risk-models/{modelCode}/profile` for governed model metadata.
+
+## 0.3.22-prototype-fix19
+
+- مبنای Schema این Fix، Metadata تحویلی `CIF-tables-2026-08-22-1200.xlsx` است.
+- بازطراحی نمایش رکوردهای ذخیره‌شده در فرم‌های عملیاتی Party با حداقل Business Context؛ Gridها دیگر صرفاً ID/Code/شماره تماس نمایش نمی‌دهند.
+- تکمیل Grid راه‌های تماس با نوع/کاربرد تماس، اصلی/تأییدشده، وضعیت تأیید و دوره اعتبار.
+- تکمیل تاریخچه پروفایل مالی با درآمد ماهانه/سالانه، گردش مورد انتظار، دارایی، بدهی، خالص ثروت، توان مالی و وضعیت احراز.
+- تکمیل Grid منابع درآمد/وجوه، دارایی‌ها و تعهدات، شناسه‌های تکمیلی و طبقه‌بندی‌ها.
+- تکمیل Party Role Context: نوع زمینه از REF_CONTEXT_TYPE؛ شناسه زمینه برای PRODUCT و CASE از داده موجود قابل انتخاب است و مقدار در PARTY_ROLE.CONTEXT_ID ذخیره می‌شود؛ برای Contextهای Domainهای آتی شناسه مرجع سامانه مبدا قابل ثبت است.
+- تکمیل Gridهای KYC/Risk/Screening، روابط، رضایت‌ها/ترجیحات و چرخه عمر برای نمایش حداقل داده گویا.
+- اصلاح نام فنی نمایش داده‌شده CIF.PARTY_IDENTIFIER در نمای 360 و حذف *ngIf باقی‌مانده در KYC برای جلوگیری از Angular standalone warning.
+- Migration جدید `0.3.22-fix19-party-grid-role-context.sql` عناوین فارسی و مقادیر GLOBAL/ACCOUNT/PRODUCT/BRANCH/CONTRACT/CASE را در REF_CONTEXT_TYPE همگام می‌کند.
+- ابزار `package-release.cmd` برای تولید ZIP تمیز بدون node_modules/dist/target/cache/log/runtime artifacts اضافه شد.
+
+## 0.3.22-prototype-fix17
+
+- Fixed Party-document persistence UX: the file attachment is now explicitly marked mandatory, save/upload success and failure messages are shown inside the document section, and invalid save attempts list the exact missing fields instead of failing silently/out of view.
+- Removed the invalid `CK_DOC_VERIFY_DATE` rule (`VERIFIED_AT >= CREATED_AT`), because a business verification timestamp may legitimately precede the database-row creation timestamp; an idempotent migration drops it on existing schemas.
+- Fixed the shared Persian date picker so clicking `امروز` immediately writes the selected Gregorian ISO value back to the Angular FormControl and displays the Persian date, without requiring a second click on `انتخاب`.
+- Reworked Party classification UX: type, value and assignment reason are explicitly reference-data-backed searchable ComboBoxes; the value Combo is filtered by classification type; submit is no longer silently disabled by invalid state and instead reports missing fields.
+- Expanded and corrected classification Reference Data: 4 classification types, 20 type-specific values and 4 Persian assignment reasons are seeded; fresh-install metadata and existing-database migration are aligned.
+- Resets the Angular submitted state after successful classification persistence to prevent false validation highlighting.
+
+## 0.3.22-prototype-fix16
+
+- Fixed Angular strict-template/TypeScript build failure in `party-financial-employment.component.ts` by allowing the shared lookup `label()` helper to accept `undefined`, matching optional lookup codes used by workflow status and asset/liability rows.
+- No business behavior, database schema, or API contract changed from Fix15.
+
 ## 0.3.22-prototype-fix15
 
 - Fixed external-employer entry with an explicit internal/external employer mode; the business user can now either select an existing CIF Party employer or enter an external employer name/identifier, while the existing backend XOR invariant remains enforced.
@@ -477,3 +513,4 @@
 - حذف JAR قدیمی در ابتدای Build تا Build ناموفق با نسخه قبلی اشتباه نشود.
 - کنترل اشغال‌بودن پورت 8091 پیش از اجرا و نمایش PID نسخه قبلی.
 - اضافه‌شدن `bin/stop.cmd` برای توقف کنترل‌شده سرویس روی پورت 8091.
+

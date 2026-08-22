@@ -186,6 +186,13 @@ public class CifService {
     }
 
     @Transactional(readOnly = true)
+    public RiskModelProfile riskModelProfile(String modelCode) {
+        if (blank(modelCode)) throw new CifNotFoundException("مدل ریسک مشخص نشده است.");
+        return repository.riskModelProfile(upper(modelCode))
+                .orElseThrow(() -> new CifNotFoundException("مدل ریسک فعال یا مشخصات نسخه/دامنه امتیاز آن یافت نشد."));
+    }
+
+    @Transactional(readOnly = true)
     public CifDashboardSummary dashboardSummary() {
         return repository.dashboardSummary();
     }
@@ -1742,6 +1749,19 @@ public class CifService {
         Map<String, String> errors = new LinkedHashMap<>();
         checkDateTimeOrder("assessmentDate", r.assessmentDate(), "validTo", r.validTo(), errors);
         if (!repository.kycCaseBelongsToParty(partyId, r.kycCaseId())) errors.put("kycCaseId", "پرونده KYC انتخاب‌شده متعلق به این پارتی نیست.");
+        if (!repository.activeReferenceCodeExists("REF_RISK_TYPE", "RISK_TYPE_CODE", r.riskTypeCode())) errors.put("riskTypeCode", "نوع ریسک در داده مرجع فعال یافت نشد.");
+        if (!repository.activeReferenceCodeExists("REF_RISK_LEVEL", "RISK_LEVEL_CODE", r.ratingCode())) errors.put("ratingCode", "سطح ریسک در داده مرجع فعال یافت نشد.");
+        if (!repository.activeReferenceCodeExists("REF_DECISION", "DECISION_CODE", r.decisionCode())) errors.put("decisionCode", "تصمیم در داده مرجع فعال یافت نشد.");
+        var profile = repository.riskModelProfile(r.modelCode()).orElse(null);
+        if (profile == null) {
+            errors.put("modelCode", "مدل ریسک فعال یا تنظیمات نسخه/دامنه امتیاز آن یافت نشد.");
+        } else {
+            if (!profile.modelVersion().equals(r.modelVersion())) errors.put("modelVersion", "نسخه مدل با نسخه فعال داده مرجع مطابقت ندارد.");
+            if (r.scoreValue().compareTo(profile.minScore()) < 0 || r.scoreValue().compareTo(profile.maxScore()) > 0) {
+                errors.put("scoreValue", "امتیاز باید در دامنه " + profile.minScore().stripTrailingZeros().toPlainString()
+                        + " تا " + profile.maxScore().stripTrailingZeros().toPlainString() + " باشد.");
+            }
+        }
         reject(errors);
     }
 

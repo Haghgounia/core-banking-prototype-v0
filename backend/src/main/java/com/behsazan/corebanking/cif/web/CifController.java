@@ -71,6 +71,11 @@ public class CifController {
         this.documentStorage = documentStorage;
     }
 
+    @GetMapping("/risk-models/{modelCode}/profile")
+    RiskModelProfile riskModelProfile(@PathVariable String modelCode) {
+        return service.riskModelProfile(modelCode);
+    }
+
     @GetMapping("/parties")
     PageResponse<PartySummary> search(
             @RequestParam(required = false) String text,
