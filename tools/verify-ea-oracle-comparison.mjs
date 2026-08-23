@@ -17,6 +17,7 @@ const service = read('backend', 'src', 'main', 'java', 'com', 'behsazan', 'coreb
 const parser = read('backend', 'src', 'main', 'java', 'com', 'behsazan', 'corebanking', 'system', 'modelcomparison', 'EaXmiModelParser.java');
 const inspector = read('backend', 'src', 'main', 'java', 'com', 'behsazan', 'corebanking', 'system', 'modelcomparison', 'OracleSchemaInspector.java');
 const snapshot = read('backend', 'src', 'main', 'java', 'com', 'behsazan', 'corebanking', 'system', 'modelcomparison', 'OracleSchemaSnapshot.java');
+const models = read('backend', 'src', 'main', 'java', 'com', 'behsazan', 'corebanking', 'system', 'modelcomparison', 'EaOracleComparisonModels.java');
 const schemas = read('backend', 'src', 'main', 'java', 'com', 'behsazan', 'corebanking', 'system', 'modelcomparison', 'ConfiguredDatabaseSchemas.java');
 
 const required = [
@@ -28,17 +29,30 @@ const required = [
   [inspector, 'SELECT COUNT(*) FROM ', 'exact table row count query missing'],
   [inspector, 'ALL_TAB_COLUMNS', 'Oracle column metadata comparison missing'],
   [inspector, 'ALL_CONSTRAINTS', 'Oracle primary-key metadata comparison missing'],
+  [inspector, 'ALL_TAB_COMMENTS', 'Oracle table comments comparison missing'],
+  [inspector, 'ALL_COL_COMMENTS', 'Oracle column comments comparison missing'],
   [schemas, 'core-banking.schemas.cif', 'configured CIF schema mapping missing'],
   [schemas, 'core-banking.schemas.reference-data', 'configured GEO schema mapping missing'],
   [schemas, 'core-banking.schemas.deposit-product-factory', 'configured DPS schema mapping missing'],
   [parser, 'disallow-doctype-decl', 'XXE/DOCTYPE hardening missing'],
   [parser, 'definitions.size()', 'EA duplicate table-definition merge missing'],
   [parser, 'enrichSelectedColumns', 'EA duplicate column metadata enrichment missing'],
+  [parser, 'tableTags.get("alias")', 'EA table alias extraction missing'],
+  [parser, 'tableTags.get("documentation")', 'EA table documentation extraction missing'],
+  [parser, 'tags.get("description")', 'EA column description extraction missing'],
   [service, 'db.displayType(ea.lengthSemantics() != null)', 'implicit length-semantics display normalization missing'],
   [snapshot, 'displayType(boolean includeLengthSemantics)', 'Oracle comparison display normalization missing'],
+  [service, 'compareTablePersianMetadata', 'Persian table metadata comparison missing'],
+  [service, 'COMMENT فارسی ستون', 'Persian column comment comparison missing'],
+  [models, 'persianMetadataMatch', 'Persian metadata result fields missing'],
   [template, 'تعداد رکورد', 'row-count UI missing'],
   [template, 'نتیجه جدول‌ها', 'table comparison grid missing'],
   [template, 'شرح اختلاف', 'column difference grid missing'],
+  [template, 'متادیتای فارسی', 'Persian metadata status column missing'],
+  [template, 'عنوان فارسی جدول در EA (Alias)', 'EA Persian table title detail missing'],
+  [template, 'COMMENT جدول در Oracle', 'Oracle table comment detail missing'],
+  [template, 'شرح فارسی EA', 'EA column comment detail missing'],
+  [template, 'COMMENT Oracle', 'Oracle column comment detail missing'],
   [component, 'exportCsv()', 'CSV report export missing'],
   [component, 'showDifferences(table: TableComparison, event: Event)', 'difference detail action handler missing'],
   [template, 'جزئیات اختلاف', 'difference detail row link missing'],
@@ -53,8 +67,8 @@ for (const tag of ['table', 'thead', 'tbody', 'tr', 'th', 'td']) {
 }
 
 if (failures.length) {
-  console.error('Fix32 EA/Oracle comparison verification FAILED:');
+  console.error('Fix33 EA/Oracle comparison verification FAILED:');
   failures.forEach(item => console.error(` - ${item}`));
   process.exit(1);
 }
-console.log('Fix32 EA/Oracle comparison verification OK: route, secure/enriched EA parser, normalized length semantics, configured-schema Oracle metadata, row counts, report grids and per-row difference detail link verified.');
+console.log('Fix33 EA/Oracle comparison verification OK: EA alias/documentation/column descriptions, Oracle table/column comments, Persian metadata comparison, normalized length semantics, row counts and difference-detail UI verified.');

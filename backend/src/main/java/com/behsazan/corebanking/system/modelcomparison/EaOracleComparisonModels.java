@@ -77,6 +77,11 @@ public final class EaOracleComparisonModels {
             String tableName,
             TableStatus status,
             int sourceDefinitionCount,
+            String eaPersianTitle,
+            String eaTableComment,
+            String databaseTableComment,
+            boolean persianMetadataMatch,
+            List<String> tableMetadataDifferences,
             int eaColumnCount,
             int databaseColumnCount,
             Long rowCount,
@@ -99,10 +104,12 @@ public final class EaOracleComparisonModels {
             String databaseDefinition,
             Boolean eaNullable,
             Boolean databaseNullable,
+            String eaComment,
+            String databaseComment,
             List<String> differences
     ) {
     }
 
-    public record DatabaseOnlyTable(String tableName) {
+    public record DatabaseOnlyTable(String tableName, String databaseComment) {
     }
 }

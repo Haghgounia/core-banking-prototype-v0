@@ -12,11 +12,18 @@ record OracleSchemaSnapshot(
 
 record OracleTableDefinition(
         String tableName,
+        String comment,
         List<OracleColumnDefinition> columns,
         List<String> primaryKeyColumns,
         Long rowCount,
         String rowCountNote
 ) {
+    OracleTableDefinition(
+            String tableName, List<OracleColumnDefinition> columns, List<String> primaryKeyColumns,
+            Long rowCount, String rowCountNote
+    ) {
+        this(tableName, null, columns, primaryKeyColumns, rowCount, rowCountNote);
+    }
 }
 
 record OracleColumnDefinition(
@@ -28,8 +35,16 @@ record OracleColumnDefinition(
         Integer precision,
         Integer scale,
         boolean nullable,
-        int position
+        int position,
+        String comment
 ) {
+    OracleColumnDefinition(
+            String columnName, String dataType, Integer dataLength, Integer charLength, String charUsed,
+            Integer precision, Integer scale, boolean nullable, int position
+    ) {
+        this(columnName, dataType, dataLength, charLength, charUsed, precision, scale, nullable, position, null);
+    }
+
     String normalizedDataType() {
         if (dataType == null) return null;
         return dataType.toUpperCase(Locale.ROOT)

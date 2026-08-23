@@ -1,3 +1,14 @@
+## 0.3.22-prototype-fix33
+
+- Extended EA/Oracle model comparison to include Persian metadata, not only physical structure.
+- EA table `alias` (Persian title) and `documentation` are extracted from XMI; EA column `description` is extracted as the column Persian comment.
+- Oracle table/column comments are read from `ALL_TAB_COMMENTS` and `ALL_COL_COMMENTS`.
+- Column COMMENT differences now contribute to column/table `DIFFERENT` status; table title/documentation differences also contribute to table status and appear in the per-table difference detail.
+- Persian/Arabic character variants, whitespace, ZWNJ/directional marks and punctuation are normalized before comment comparison to avoid cosmetic false positives.
+- Because Oracle has no separate native table alias, EA `alias` is checked against the Oracle table COMMENT using normalized containment, while EA `documentation` is compared with the Oracle table COMMENT using normalized text equality.
+- The supplied EA sample parses with Persian metadata on all 48 unique tables and all 816 parsed columns.
+- No database migration is required.
+
 ## 0.3.22-prototype-fix32
 
 - Corrected EA/Oracle character-length comparison so an EA `VARCHAR2(30)` with unspecified length semantics is not visually presented as different from Oracle `VARCHAR2(30 CHAR)` when semantics are not modeled in EA.

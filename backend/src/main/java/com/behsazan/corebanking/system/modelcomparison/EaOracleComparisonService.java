@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -67,10 +68,10 @@ class EaOracleComparisonService {
         }
         tables.sort(Comparator.comparing(TableComparison::tableName));
 
-        List<DatabaseOnlyTable> databaseOnly = database.tables().keySet().stream()
-                .filter(tableName -> !eaTableNames.contains(tableName))
-                .sorted()
-                .map(DatabaseOnlyTable::new)
+        List<DatabaseOnlyTable> databaseOnly = database.tables().entrySet().stream()
+                .filter(entry -> !eaTableNames.contains(entry.getKey()))
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> new DatabaseOnlyTable(entry.getKey(), entry.getValue().comment()))
                 .toList();
 
         int eaColumnCount = model.tables().stream().mapToInt(table -> table.columns().size()).sum();
@@ -129,6 +130,8 @@ class EaOracleComparisonService {
                             null,
                             column.nullable(),
                             null,
+                            column.comment(),
+                            null,
                             List.of("ستون در Oracle وجود ندارد.")
                     ))
                     .toList();
@@ -136,6 +139,11 @@ class EaOracleComparisonService {
                     ea.tableName(),
                     TableStatus.MISSING_IN_DATABASE,
                     ea.sourceDefinitionCount(),
+                    ea.persianTitle(),
+                    ea.documentation(),
+                    null,
+                    false,
+                    List.of("جدول در Oracle وجود ندارد؛ عنوان و Comment فارسی قابل مقایسه نیست."),
                     ea.columns().size(),
                     0,
                     null,
@@ -172,16 +180,22 @@ class EaOracleComparisonService {
                     dbColumn.displayType(),
                     null,
                     dbColumn.nullable(),
+                    null,
+                    dbColumn.comment(),
                     List.of("ستون در Oracle وجود دارد اما در مدل EA تعریف نشده است.")
             ));
         }
+
+        List<String> tableMetadataDifferences = compareTablePersianMetadata(ea, db);
+        boolean persianMetadataMatch = tableMetadataDifferences.isEmpty();
 
         int matches = (int) comparisons.stream().filter(column -> column.status() == ColumnStatus.MATCH).count();
         int differences = (int) comparisons.stream().filter(column -> column.status() == ColumnStatus.DIFFERENT).count();
         int missing = (int) comparisons.stream().filter(column -> column.status() == ColumnStatus.MISSING_IN_DATABASE).count();
         int extra = (int) comparisons.stream().filter(column -> column.status() == ColumnStatus.EXTRA_IN_DATABASE).count();
         PrimaryKeyStatus pkStatus = primaryKeyStatus(ea.primaryKeyColumns(), db.primaryKeyColumns());
-        TableStatus status = differences == 0 && missing == 0 && extra == 0 && pkStatus != PrimaryKeyStatus.DIFFERENT
+        TableStatus status = differences == 0 && missing == 0 && extra == 0
+                && pkStatus != PrimaryKeyStatus.DIFFERENT && persianMetadataMatch
                 ? TableStatus.MATCH
                 : TableStatus.DIFFERENT;
 
@@ -189,6 +203,11 @@ class EaOracleComparisonService {
                 ea.tableName(),
                 status,
                 ea.sourceDefinitionCount(),
+                ea.persianTitle(),
+                ea.documentation(),
+                db.comment(),
+                persianMetadataMatch,
+                List.copyOf(tableMetadataDifferences),
                 ea.columns().size(),
                 db.columns().size(),
                 db.rowCount(),
@@ -213,6 +232,8 @@ class EaOracleComparisonService {
                     null,
                     ea.nullable(),
                     null,
+                    ea.comment(),
+                    null,
                     List.of("ستون در Oracle وجود ندارد.")
             );
         }
@@ -228,6 +249,7 @@ class EaOracleComparisonService {
         if (ea.nullable() != null && ea.nullable() != db.nullable()) {
             differences.add("Nullable: EA=" + nullableLabel(ea.nullable()) + "، Oracle=" + nullableLabel(db.nullable()));
         }
+        compareTextMetadata("COMMENT فارسی ستون", ea.comment(), db.comment(), differences);
 
         return new ColumnComparison(
                 ea.columnName(),
@@ -236,8 +258,64 @@ class EaOracleComparisonService {
                 db.displayType(ea.lengthSemantics() != null),
                 ea.nullable(),
                 db.nullable(),
+                ea.comment(),
+                db.comment(),
                 List.copyOf(differences)
         );
+    }
+
+
+    private static List<String> compareTablePersianMetadata(EaTableDefinition ea, OracleTableDefinition db) {
+        List<String> differences = new ArrayList<>();
+        String eaTitle = ea.persianTitle();
+        String eaDocumentation = ea.documentation();
+        String dbComment = db.comment();
+
+        if (eaTitle != null) {
+            if (dbComment == null) {
+                differences.add("عنوان فارسی جدول در EA='" + eaTitle + "' است ولی COMMENT جدول در Oracle ثبت نشده است.");
+            } else if (!normalizedContains(dbComment, eaTitle)) {
+                differences.add("عنوان فارسی جدول: EA='" + eaTitle + "'، Oracle COMMENT='" + dbComment + "'.");
+            }
+        } else if (dbComment != null) {
+            differences.add("عنوان فارسی جدول (alias) در EA تعریف نشده است؛ Oracle COMMENT='" + dbComment + "'.");
+        }
+
+        compareTextMetadata("COMMENT/Documentation جدول", eaDocumentation, dbComment, differences);
+        return differences;
+    }
+
+    private static void compareTextMetadata(String label, String eaText, String dbText, List<String> differences) {
+        if (eaText == null && dbText == null) return;
+        if (eaText == null) {
+            differences.add(label + ": در EA تعریف نشده است؛ Oracle='" + dbText + "'.");
+            return;
+        }
+        if (dbText == null) {
+            differences.add(label + ": EA='" + eaText + "'؛ در Oracle ثبت نشده است.");
+            return;
+        }
+        if (!normalizePersianMetadata(eaText).equals(normalizePersianMetadata(dbText))) {
+            differences.add(label + ": EA='" + eaText + "'، Oracle='" + dbText + "'.");
+        }
+    }
+
+    private static boolean normalizedContains(String container, String value) {
+        String normalizedContainer = normalizePersianMetadata(container);
+        String normalizedValue = normalizePersianMetadata(value);
+        return !normalizedValue.isEmpty() && normalizedContainer.contains(normalizedValue);
+    }
+
+    private static String normalizePersianMetadata(String value) {
+        if (value == null) return "";
+        String normalized = Normalizer.normalize(value, Normalizer.Form.NFKC)
+                .replace('ي', 'ی')
+                .replace('ى', 'ی')
+                .replace('ك', 'ک')
+                .replace('ة', 'ه')
+                .replace('ۀ', 'ه')
+                .toLowerCase(Locale.ROOT);
+        return normalized.replaceAll("[\\s\\p{P}\\p{Cf}]+", "");
     }
 
     private static void compareShape(EaColumnDefinition ea, OracleColumnDefinition db, List<String> differences) {

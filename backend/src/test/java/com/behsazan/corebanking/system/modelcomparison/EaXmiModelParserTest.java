@@ -68,6 +68,35 @@ class EaXmiModelParserTest {
     }
 
     @Test
+    void parsesPersianAliasDocumentationAndColumnDescription() {
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <XMI xmlns:UML="omg.org/UML1.3"><XMI.content><UML:Model name="EA Model"><UML:Namespace.ownedElement>
+                  <UML:Class name="PARTY_CLASSIFICATION">
+                    <UML:ModelElement.stereotype><UML:Stereotype name="table"/></UML:ModelElement.stereotype>
+                    <UML:ModelElement.taggedValue>
+                      <UML:TaggedValue tag="alias" value="طبقه‌بندی پارتی"/>
+                      <UML:TaggedValue tag="documentation" value="&lt;span dir=&quot;rtl&quot;&gt;اطلاعات مربوط به طبقه‌بندی پارتی را نگهداری می‌کند.&lt;/span&gt;"/>
+                    </UML:ModelElement.taggedValue>
+                    <UML:Classifier.feature>
+                      <UML:Attribute name="PARTY_ID"><UML:ModelElement.taggedValue>
+                        <UML:TaggedValue tag="description" value="&lt;span dir=&quot;rtl&quot;&gt;شناسه پارتی&lt;/span&gt;"/>
+                        <UML:TaggedValue tag="type" value="NUMBER"/><UML:TaggedValue tag="precision" value="19"/><UML:TaggedValue tag="scale" value="0"/><UML:TaggedValue tag="lowerBound" value="1"/>
+                      </UML:ModelElement.taggedValue></UML:Attribute>
+                    </UML:Classifier.feature>
+                  </UML:Class>
+                </UML:Namespace.ownedElement></UML:Model></XMI.content></XMI>
+                """;
+
+        EaXmiModel model = parser.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        EaTableDefinition table = model.tables().getFirst();
+
+        assertThat(table.persianTitle()).isEqualTo("طبقه‌بندی پارتی");
+        assertThat(table.documentation()).isEqualTo("اطلاعات مربوط به طبقه‌بندی پارتی را نگهداری می‌کند.");
+        assertThat(table.columns().getFirst().comment()).isEqualTo("شناسه پارتی");
+    }
+
+    @Test
     void rejectsDocumentsWithDoctype() {
         String xml = """
                 <?xml version="1.0"?>

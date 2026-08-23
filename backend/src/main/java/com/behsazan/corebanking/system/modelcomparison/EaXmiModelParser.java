@@ -84,6 +84,8 @@ class EaXmiModelParser {
             tables.add(new EaTableDefinition(
                     selected.tableName(),
                     definitions.size(),
+                    firstPresent(definitions, EaTableDefinition::persianTitle, selected.persianTitle()),
+                    firstPresent(definitions, EaTableDefinition::documentation, selected.documentation()),
                     enrichedColumns,
                     selected.primaryKeyColumns()
             ));
@@ -102,6 +104,9 @@ class EaXmiModelParser {
     }
 
     private static EaTableDefinition parseTable(Element tableElement, String tableName) {
+        Map<String, String> tableTags = directTaggedValues(tableElement);
+        String persianTitle = cleanEaText(tableTags.get("alias"));
+        String documentation = cleanEaText(tableTags.get("documentation"));
         Element feature = directChild(tableElement, UML_NAMESPACE, "Classifier.feature");
         List<EaColumnDefinition> columns = new ArrayList<>();
         List<String> primaryKey = new ArrayList<>();
@@ -125,7 +130,7 @@ class EaXmiModelParser {
             primaryKey = primaryKeyFromConstraint(tableElement);
         }
 
-        return new EaTableDefinition(tableName, 1, List.copyOf(columns), List.copyOf(primaryKey));
+        return new EaTableDefinition(tableName, 1, persianTitle, documentation, List.copyOf(columns), List.copyOf(primaryKey));
     }
 
     private static EaColumnDefinition parseColumn(Element attribute, String columnName) {
@@ -137,6 +142,7 @@ class EaXmiModelParser {
         String lowerBound = trimToNull(tags.get("lowerBound"));
         Boolean nullable = lowerBound == null ? null : "0".equals(lowerBound);
         String lengthSemantics = normalizeLengthSemantics(tags.get("LengthType"));
+        String comment = cleanEaText(tags.get("description"));
         String defaultValue = null;
         Element initialValue = directChild(attribute, UML_NAMESPACE, "Attribute.initialValue");
         if (initialValue != null) {
@@ -145,7 +151,7 @@ class EaXmiModelParser {
                 defaultValue = trimToNull(expression.getAttribute("body"));
             }
         }
-        return new EaColumnDefinition(columnName, dataType, length, precision, scale, nullable, lengthSemantics, defaultValue);
+        return new EaColumnDefinition(columnName, dataType, length, precision, scale, nullable, lengthSemantics, defaultValue, comment);
     }
 
     private static List<String> operationParameterNames(Element operation) {
@@ -213,9 +219,39 @@ class EaXmiModelParser {
         Boolean nullable = primary.nullable() != null ? primary.nullable() : fallback.nullable();
         String lengthSemantics = primary.lengthSemantics() != null ? primary.lengthSemantics() : fallback.lengthSemantics();
         String defaultValue = primary.defaultValue() != null ? primary.defaultValue() : fallback.defaultValue();
+        String comment = primary.comment() != null ? primary.comment() : fallback.comment();
         return new EaColumnDefinition(
-                primary.columnName(), dataType, length, precision, scale, nullable, lengthSemantics, defaultValue
+                primary.columnName(), dataType, length, precision, scale, nullable, lengthSemantics, defaultValue, comment
         );
+    }
+
+
+    private static String firstPresent(
+            List<EaTableDefinition> definitions,
+            java.util.function.Function<EaTableDefinition, String> getter,
+            String preferred
+    ) {
+        if (preferred != null && !preferred.isBlank()) return preferred;
+        for (EaTableDefinition definition : definitions) {
+            String value = getter.apply(definition);
+            if (value != null && !value.isBlank()) return value;
+        }
+        return null;
+    }
+
+    private static String cleanEaText(String value) {
+        String text = trimToNull(value);
+        if (text == null) return null;
+        text = text.replaceAll("(?i)<br\s*/?>", " ")
+                .replaceAll("<[^>]+>", " ");
+        text = text.replace('\u00A0', ' ')
+                .replace('\u200E', ' ')
+                .replace('\u200F', ' ')
+                .replace('\u202A', ' ')
+                .replace('\u202B', ' ')
+                .replace('\u202C', ' ');
+        text = text.replaceAll("\s+", " ").trim();
+        return text.isEmpty() ? null : text;
     }
 
     private static boolean usefulNumber(Integer value) {
@@ -223,7 +259,24 @@ class EaXmiModelParser {
     }
 
     private static boolean sameStructure(EaTableDefinition left, EaTableDefinition right) {
-        return left.columns().equals(right.columns()) && left.primaryKeyColumns().equals(right.primaryKeyColumns());
+        if (!left.primaryKeyColumns().equals(right.primaryKeyColumns()) || left.columns().size() != right.columns().size()) {
+            return false;
+        }
+        for (int index = 0; index < left.columns().size(); index++) {
+            EaColumnDefinition a = left.columns().get(index);
+            EaColumnDefinition b = right.columns().get(index);
+            if (!java.util.Objects.equals(a.columnName(), b.columnName())
+                    || !java.util.Objects.equals(a.dataType(), b.dataType())
+                    || !java.util.Objects.equals(a.length(), b.length())
+                    || !java.util.Objects.equals(a.precision(), b.precision())
+                    || !java.util.Objects.equals(a.scale(), b.scale())
+                    || !java.util.Objects.equals(a.nullable(), b.nullable())
+                    || !java.util.Objects.equals(a.lengthSemantics(), b.lengthSemantics())
+                    || !java.util.Objects.equals(a.defaultValue(), b.defaultValue())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean hasDirectStereotype(Element element, String expected) {

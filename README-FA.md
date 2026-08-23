@@ -387,6 +387,17 @@ database/oracle/cif/migrations/0.3.22-fix17-party-document-classification-date.s
 - Migration جدیدی لازم نیست.
 
 
+## 0.3.22-prototype-fix33 - مقایسه عنوان و Comment فارسی EA / Oracle
+
+- مقایسه EA/Oracle علاوه بر ساختار فیزیکی، متادیتای فارسی را نیز کنترل می‌کند.
+- در XMI خروجی EA، `alias` به‌عنوان عنوان فارسی جدول، `documentation` به‌عنوان توضیح جدول و `description` هر Attribute به‌عنوان شرح/Comment فارسی ستون خوانده می‌شود.
+- در Oracle، `ALL_TAB_COMMENTS.COMMENTS` برای Comment جدول و `ALL_COL_COMMENTS.COMMENTS` برای Comment ستون خوانده می‌شود.
+- اختلاف Comment ستون باعث `DIFFERENT` شدن همان ستون و جدول می‌شود؛ اختلاف عنوان/Documentation جدول نیز وضعیت جدول را `DIFFERENT` می‌کند و در «جزئیات اختلاف» نمایش داده می‌شود.
+- Oracle فیلد Alias مستقل برای جدول ندارد؛ بنابراین Alias فارسی EA با متن Comment جدول Oracle از نظر وجود عنوان مقایسه می‌شود و Documentation EA نیز به‌صورت متن نرمال‌شده با Comment جدول Oracle تطبیق داده می‌شود.
+- برای جلوگیری از اختلاف کاذب، تفاوت‌های `ي/ی`، `ك/ک`، فاصله/نیم‌فاصله، علائم جهت متن و نشانه‌گذاری هنگام مقایسه نرمال می‌شوند.
+- در فایل نمونه EA، هر ۴۸ جدول یکتا Alias و Documentation دارند و هر ۸۱۶ ستون استخراج‌شده دارای Description است.
+- Migration دیتابیس لازم نیست.
+
 ## 0.3.22-prototype-fix32 - اصلاح Length Semantics در مقایسه EA / Oracle
 
 - اگر EA فقط `VARCHAR2(30)` را تعریف کرده و `LengthType` را مشخص نکرده باشد، Oracle `VARCHAR2(30 CHAR)` صرفاً به‌خاطر پسوند `CHAR` اختلاف محسوب یا به‌صورت اختلاف ظاهری نمایش داده نمی‌شود؛ هر دو در نمای مقایسه به `VARCHAR2(30)` نرمال می‌شوند.

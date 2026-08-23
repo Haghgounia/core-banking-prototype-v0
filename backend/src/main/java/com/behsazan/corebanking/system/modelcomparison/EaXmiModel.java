@@ -16,9 +16,14 @@ record EaXmiModel(
 record EaTableDefinition(
         String tableName,
         int sourceDefinitionCount,
+        String persianTitle,
+        String documentation,
         List<EaColumnDefinition> columns,
         List<String> primaryKeyColumns
 ) {
+    EaTableDefinition(String tableName, int sourceDefinitionCount, List<EaColumnDefinition> columns, List<String> primaryKeyColumns) {
+        this(tableName, sourceDefinitionCount, null, null, columns, primaryKeyColumns);
+    }
 }
 
 record EaColumnDefinition(
@@ -29,8 +34,16 @@ record EaColumnDefinition(
         Integer scale,
         Boolean nullable,
         String lengthSemantics,
-        String defaultValue
+        String defaultValue,
+        String comment
 ) {
+    EaColumnDefinition(
+            String columnName, String dataType, Integer length, Integer precision, Integer scale,
+            Boolean nullable, String lengthSemantics, String defaultValue
+    ) {
+        this(columnName, dataType, length, precision, scale, nullable, lengthSemantics, defaultValue, null);
+    }
+
     String displayType() {
         String normalized = dataType == null ? "?" : dataType;
         if ("NUMBER".equals(normalized) && precision != null && precision > 0) {

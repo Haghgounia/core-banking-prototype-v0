@@ -60,13 +60,29 @@ class OracleSchemaInspector {
                 .query(String.class)
                 .list();
 
+        Map<String, String> tableComments = new LinkedHashMap<>();
+        jdbcClient.sql("""
+                SELECT TABLE_NAME, COMMENTS
+                  FROM ALL_TAB_COMMENTS
+                 WHERE OWNER = :schema
+                   AND TABLE_TYPE = 'TABLE'
+                """)
+                .param("schema", schema)
+                .query((rs, rowNum) -> new NamedComment(rs.getString("TABLE_NAME"), rs.getString("COMMENTS")))
+                .list()
+                .forEach(value -> tableComments.put(value.name(), value.comment()));
+
         Map<String, List<OracleColumnDefinition>> columnsByTable = new LinkedHashMap<>();
         jdbcClient.sql("""
-                SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH, CHAR_LENGTH, CHAR_USED,
-                       DATA_PRECISION, DATA_SCALE, NULLABLE, COLUMN_ID
-                  FROM ALL_TAB_COLUMNS
-                 WHERE OWNER = :schema
-                 ORDER BY TABLE_NAME, COLUMN_ID
+                SELECT C.TABLE_NAME, C.COLUMN_NAME, C.DATA_TYPE, C.DATA_LENGTH, C.CHAR_LENGTH, C.CHAR_USED,
+                       C.DATA_PRECISION, C.DATA_SCALE, C.NULLABLE, C.COLUMN_ID, CC.COMMENTS AS COLUMN_COMMENT
+                  FROM ALL_TAB_COLUMNS C
+                  LEFT JOIN ALL_COL_COMMENTS CC
+                    ON CC.OWNER = C.OWNER
+                   AND CC.TABLE_NAME = C.TABLE_NAME
+                   AND CC.COLUMN_NAME = C.COLUMN_NAME
+                 WHERE C.OWNER = :schema
+                 ORDER BY C.TABLE_NAME, C.COLUMN_ID
                 """)
                 .param("schema", schema)
                 .query((rs, rowNum) -> new ColumnWithTable(
@@ -80,7 +96,8 @@ class OracleSchemaInspector {
                                 nullableInteger(rs.getObject("DATA_PRECISION")),
                                 nullableInteger(rs.getObject("DATA_SCALE")),
                                 "Y".equalsIgnoreCase(rs.getString("NULLABLE")),
-                                rs.getInt("COLUMN_ID")
+                                rs.getInt("COLUMN_ID"),
+                                rs.getString("COLUMN_COMMENT")
                         )
                 ))
                 .list()
@@ -122,6 +139,7 @@ class OracleSchemaInspector {
             }
             tables.put(tableName, new OracleTableDefinition(
                     tableName,
+                    tableComments.get(rawName),
                     columns,
                     List.copyOf(primaryKeys.getOrDefault(rawName, List.of())),
                     rowCount,
@@ -153,5 +171,8 @@ class OracleSchemaInspector {
     }
 
     private record PrimaryKeyColumn(String tableName, String columnName, int position) {
+    }
+
+    private record NamedComment(String name, String comment) {
     }
 }

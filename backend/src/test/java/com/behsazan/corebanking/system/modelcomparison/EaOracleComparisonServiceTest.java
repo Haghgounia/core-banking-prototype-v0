@@ -110,4 +110,51 @@ class EaOracleComparisonServiceTest {
         assertThat(result.columns().getFirst().differences()).anyMatch(value -> value.contains("Length semantics"));
     }
 
+    @Test
+    void includesPersianTableAndColumnCommentsInMatchDecision() {
+        var ea = new EaTableDefinition(
+                "SAMPLE", 1, "نمونه", "جدول نمونه برای آزمون",
+                List.of(new EaColumnDefinition("CODE", "VARCHAR2", 30, 0, 0, false, "CHAR", null, "کد نمونه")),
+                List.of()
+        );
+        var matchingDb = new OracleTableDefinition(
+                "SAMPLE", "جدول نمونه برای آزمون",
+                List.of(new OracleColumnDefinition("CODE", "VARCHAR2", 120, 30, "C", null, null, false, 1, "کد نمونه")),
+                List.of(), 1L, null
+        );
+
+        var match = EaOracleComparisonService.compareTable(ea, matchingDb);
+        assertThat(match.status()).isEqualTo(EaOracleComparisonModels.TableStatus.MATCH);
+        assertThat(match.persianMetadataMatch()).isTrue();
+        assertThat(match.columns().getFirst().status()).isEqualTo(EaOracleComparisonModels.ColumnStatus.MATCH);
+
+        var differentDb = new OracleTableDefinition(
+                "SAMPLE", "شرح متفاوت جدول",
+                List.of(new OracleColumnDefinition("CODE", "VARCHAR2", 120, 30, "C", null, null, false, 1, "شرح متفاوت ستون")),
+                List.of(), 1L, null
+        );
+        var different = EaOracleComparisonService.compareTable(ea, differentDb);
+        assertThat(different.status()).isEqualTo(EaOracleComparisonModels.TableStatus.DIFFERENT);
+        assertThat(different.persianMetadataMatch()).isFalse();
+        assertThat(different.tableMetadataDifferences()).isNotEmpty();
+        assertThat(different.columns().getFirst().differences()).anyMatch(value -> value.contains("COMMENT فارسی ستون"));
+    }
+
+    @Test
+    void normalizesCommonPersianArabicVariantsAndSpacingInComments() {
+        var ea = new EaTableDefinition(
+                "SAMPLE", 1, "طبقه‌بندی پارتی", "اطلاعات طبقه‌بندی پارتی",
+                List.of(new EaColumnDefinition("CODE", "VARCHAR2", 30, 0, 0, false, null, null, "كد پارتي")),
+                List.of()
+        );
+        var db = new OracleTableDefinition(
+                "SAMPLE", "اطلاعات طبقه بندی پارتی",
+                List.of(new OracleColumnDefinition("CODE", "VARCHAR2", 120, 30, "C", null, null, false, 1, "کد پارتی")),
+                List.of(), 1L, null
+        );
+
+        var result = EaOracleComparisonService.compareTable(ea, db);
+        assertThat(result.status()).isEqualTo(EaOracleComparisonModels.TableStatus.MATCH);
+    }
+
 }
