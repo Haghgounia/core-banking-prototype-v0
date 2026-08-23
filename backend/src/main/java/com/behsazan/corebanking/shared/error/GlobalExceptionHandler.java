@@ -2,6 +2,7 @@ package com.behsazan.corebanking.shared.error;
 
 import com.behsazan.corebanking.cif.error.CifNotFoundException;
 import com.behsazan.corebanking.cif.error.CifValidationException;
+import com.behsazan.corebanking.system.modelcomparison.ModelComparisonValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -56,6 +57,16 @@ public class GlobalExceptionHandler {
         problem.setTitle("اطلاعات مشتری معتبر نیست");
         problem.setProperty("errorCode", "CIF_VALIDATION_FAILED");
         problem.setProperty("fieldErrors", exception.fieldErrors());
+        return problem;
+    }
+
+    @ExceptionHandler(ModelComparisonValidationException.class)
+    ProblemDetail handleModelComparisonValidation(ModelComparisonValidationException exception) {
+        log.warn("EA/Oracle comparison validation failed: {}", exception.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
+        problem.setType(URI.create("urn:core-banking:problem:model-comparison-validation"));
+        problem.setTitle("فایل یا تنظیمات مقایسه معتبر نیست");
+        problem.setProperty("errorCode", "MODEL_COMPARISON_VALIDATION_FAILED");
         return problem;
     }
 

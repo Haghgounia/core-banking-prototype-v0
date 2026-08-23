@@ -32,6 +32,7 @@ export const routes: Routes = [
 
       {path: 'geography-tree', loadComponent: () => import('./features/geography-tree/geography-tree.component').then(m => m.GeographyTreeComponent)},
       {path: 'system-specification', loadComponent: () => import('./features/system-specification/system-specification.component').then(m => m.SystemSpecificationComponent)},
+      {path: 'system/database-model-comparison', loadComponent: () => import('./features/database-model-comparison/database-model-comparison.component').then(m => m.DatabaseModelComparisonComponent)},
       {path: 'reference/:resource', redirectTo: 'reference-data/:resource'},
       {path: 'planned/:resource', loadComponent: () => import('./features/planned/planned.component').then(m => m.PlannedComponent)},
       {path: '', pathMatch: 'full', redirectTo: 'dashboard'}

@@ -14,7 +14,7 @@ export interface TechnologyGroup {
 
 export const SYSTEM_RELEASE = {
   version: GENERATED_SYSTEM_VERSIONS.release,
-  lastUpdated: '2026-08-20',
+  lastUpdated: '2026-08-22',
   referenceForms: 169,
   generalReferenceForms: 20,
   partyReferenceForms: 99,
@@ -113,5 +113,6 @@ export const SYSTEM_CAPABILITIES = [
   'تقویم شمسی پیش‌فرض در فرم‌های عملیاتی با تبدیل استاندارد به تاریخ ISO برای Java/Oracle',
   'Validation قواعد کسب‌وکار، Optimistic Lock با RECORD_VERSION و پاسخ خطای استاندارد ProblemDetail',
   'لاگ Runtime در فایل logs/core-banking-prototype.log با Rolling Policy و Health endpointهای Actuator',
-  'Theme روشن، تیره و هماهنگ با سیستم با نگهداری انتخاب کاربر'
+  'Theme روشن، تیره و هماهنگ با سیستم با نگهداری انتخاب کاربر',
+  'مقایسه فایل XML/XMI خروجی Enterprise Architect با Schemaهای Oracle تنظیم‌شده در برنامه، شامل ساختار جدول/ستون، Primary Key و تعداد رکورد'
 ] as const;

@@ -104,9 +104,9 @@ if (!styles.includes('@media (max-width: 820px)')) failures.push('Small-screen g
 if (!generated.includes(`release: "${version}"`)) failures.push(`Generated system version does not match VERSION (${version})`);
 
 if (failures.length) {
-  console.error('Fix29 persisted-grid verification FAILED:');
+  console.error('CIF persisted-grid verification FAILED:');
   for (const failure of failures) console.error(` - ${failure}`);
   process.exit(1);
 }
 
-console.log(`Fix29 persisted-grid verification OK: ${tableCount} CIF grids, no stream/card record renderers, dockable sidebar verified.`);
+console.log(`CIF persisted-grid verification OK: ${tableCount} CIF grids, no stream/card record renderers, dockable sidebar verified.`);

@@ -1,3 +1,30 @@
+## 0.3.22-prototype-fix32
+
+- Corrected EA/Oracle character-length comparison so an EA `VARCHAR2(30)` with unspecified length semantics is not visually presented as different from Oracle `VARCHAR2(30 CHAR)` when semantics are not modeled in EA.
+- Oracle `CHAR/BYTE` suffix remains visible and is compared when EA explicitly declares `LengthType=CHAR` or `LengthType=BYTE`.
+- Duplicate EA table definitions now enrich missing column metadata from their sibling definitions, including `LengthType`, instead of discarding richer metadata when the selected definition omits it.
+- Added regression coverage for implicit semantics normalization and explicit `BYTE` vs `CHAR` mismatch detection.
+- No database migration is required.
+
+## 0.3.22-prototype-fix31
+
+- Added an explicit «جزئیات اختلاف» action in each EA/Oracle comparison row whose table status is `DIFFERENT`.
+- The action selects that table and scrolls directly to the existing per-column difference grid; matching rows do not show the action.
+- No backend, comparison algorithm, Oracle query or database migration change is introduced.
+
+## 0.3.22-prototype-fix30
+
+- Added a new Management/System screen **EA / Oracle Model Comparison** at `/system/database-model-comparison`.
+- Users can upload Enterprise Architect XML/XMI exports and compare table definitions with the Oracle schemas already configured under `core-banking.schemas` in the running application.
+- The EA parser reads UML table classes, columns, Oracle data types/length/precision/scale/nullability and declared primary keys; duplicate EA table definitions are merged by table name with warnings when duplicates exist.
+- Oracle comparison uses `ALL_TABLES`, `ALL_TAB_COLUMNS`, `ALL_CONSTRAINTS` and `ALL_CONS_COLUMNS` for the selected configured schema; arbitrary unconfigured schema names are rejected.
+- The report shows table status, EA/Oracle column counts, exact `COUNT(*)` row count for each compared table, PK status, missing/extra/changed columns, detailed per-column differences and database-only tables.
+- Added CSV export of the table-level report and connection metadata display without exposing credentials.
+- XML parsing is hardened against DTD/external-entity expansion (XXE).
+- Added backend parser/comparison unit tests and `tools/verify-ea-oracle-comparison.mjs`, executed by `build-production.cmd`.
+- The supplied EA sample was parser-smoke-tested as 53 raw table definitions -> 48 unique tables -> 816 columns, with the repeated PARTY definitions merged.
+- No database migration is required for Fix30.
+
 ## 0.3.22-prototype-fix29
 
 - Fixed Windows path resolution in `tools/verify-cif-persisted-grids.mjs`.
