@@ -757,7 +757,7 @@ public class CifRepository {
     public List<PartyMergeHistoryRecord> findMergeHistory(long partyId) {
         String sql = """
                 SELECT PARTY_MERGE_ID, SOURCE_PARTY_ID, TARGET_PARTY_ID, MERGE_REASON_CODE, CONFLICT_RESOLUTION_CODE,
-                       MERGED_AT, MERGED_BY, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY, RECORD_VERSION, CREATED_DATE
+                       MERGED_AT, MERGED_BY, CREATED_AT, CREATED_BY, UPDATED_AT, UPDATED_BY, RECORD_VERSION
                 FROM %s WHERE SOURCE_PARTY_ID=:partyId OR TARGET_PARTY_ID=:partyId
                 ORDER BY MERGED_AT DESC, PARTY_MERGE_ID DESC
                 """.formatted(table("PARTY_MERGE_HISTORY"));
@@ -766,7 +766,7 @@ public class CifRepository {
                 rs.getString("MERGE_REASON_CODE"), rs.getString("CONFLICT_RESOLUTION_CODE"),
                 localDateTime(rs, "MERGED_AT"), rs.getString("MERGED_BY"), localDateTime(rs, "CREATED_AT"),
                 rs.getString("CREATED_BY"), localDateTime(rs, "UPDATED_AT"), rs.getString("UPDATED_BY"),
-                rs.getLong("RECORD_VERSION"), localDateTime(rs, "CREATED_DATE")
+                rs.getLong("RECORD_VERSION")
         )).list();
     }
 
@@ -1137,10 +1137,10 @@ public class CifRepository {
         String sql = """
                 INSERT INTO %s (
                     PARTY_MERGE_ID, SOURCE_PARTY_ID, TARGET_PARTY_ID, MERGE_REASON_CODE, CONFLICT_RESOLUTION_CODE,
-                    MERGED_AT, MERGED_BY, CREATED_AT, CREATED_BY, RECORD_VERSION, CREATED_DATE
+                    MERGED_AT, MERGED_BY, CREATED_AT, CREATED_BY, RECORD_VERSION
                 ) VALUES (
                     :id, :sourcePartyId, :targetPartyId, :mergeReason, :conflictResolution,
-                    SYSTIMESTAMP, :actor, SYSTIMESTAMP, :actor, 1, SYSTIMESTAMP
+                    SYSTIMESTAMP, :actor, SYSTIMESTAMP, :actor, 1
                 )
                 """.formatted(table("PARTY_MERGE_HISTORY"));
         jdbc.sql(sql).param("id", id).param("sourcePartyId", sourcePartyId).param("targetPartyId", targetPartyId)
@@ -2307,21 +2307,22 @@ public class CifRepository {
                 .param("validTo", sqlTimestamp(r.validTo())).param("explanation", r.explanation()).param("actor", actor);
     }
 
-    public long insertScreening(long partyId, ScreeningResultRequest r) {
+    public long insertScreening(long partyId, ScreeningResultRequest r, String actor) {
         long id = nextVal("SEQ_SCREENING_RESULT");
         String sql = """
                 INSERT INTO %s (
                     SCREENING_RESULT_ID, PARTY_ID, KYC_CASE_ID, SCREENING_TYPE_CODE, SOURCE_LIST_CODE,
                     PROVIDER_CODE, PROVIDER_REFERENCE_NO, MATCHED_NAME, MATCH_SCORE, INITIAL_DECISION_CODE,
                     FINAL_DECISION_CODE, FALSE_POSITIVE_FLAG, SCREENED_AT, REVIEWED_AT, REVIEWED_BY,
-                    PAYLOAD_REF, CREATED_AT, RECORD_VERSION
+                    PAYLOAD_REF, CREATED_AT, RECORD_VERSION, CREATED_BY
                 ) VALUES (
                     :id, :partyId, :kycCaseId, :type, :sourceList, :provider, :providerRef, :matchedName,
                     :matchScore, :initialDecision, :finalDecision, :falsePositive, :screenedAt,
-                    :reviewedAt, :reviewedBy, :payloadRef, SYSTIMESTAMP, 1
+                    :reviewedAt, :reviewedBy, :payloadRef, SYSTIMESTAMP, 1, :actor
                 )
                 """.formatted(table("SCREENING_RESULT"));
-        bindScreening(jdbc.sql(sql).param("id", id).param("partyId", partyId), r).update();
+        bindScreening(jdbc.sql(sql).param("id", id).param("partyId", partyId), r)
+                .param("actor", actor).update();
         return id;
     }
 
@@ -2649,6 +2650,34 @@ public class CifRepository {
                 .param("code", code).query(Long.class).single() > 0;
     }
 
+
+    public boolean activeEmploymentJobExists(String jobCode) {
+        if (jobCode == null || jobCode.isBlank()) return false;
+        return jdbc.sql("SELECT COUNT(*) FROM " + referenceDataSchema + ".JOBS"
+                        + " WHERE JOB_CODE=:code AND IS_ACTIVE=1")
+                .param("code", jobCode.trim().toUpperCase(Locale.ROOT))
+                .query(Long.class).single() > 0;
+    }
+
+    public boolean activeEmploymentJobGroupExists(String groupCode) {
+        if (groupCode == null || groupCode.isBlank()) return false;
+        return jdbc.sql("SELECT COUNT(*) FROM " + referenceDataSchema + ".JOB_GROUPS"
+                        + " WHERE JOB_GROUP_CODE=:code AND IS_ACTIVE=1")
+                .param("code", groupCode.trim().toUpperCase(Locale.ROOT))
+                .query(Long.class).single() > 0;
+    }
+
+    public boolean employmentJobBelongsToGroup(String jobCode, String groupCode) {
+        if (jobCode == null || jobCode.isBlank() || groupCode == null || groupCode.isBlank()) return false;
+        String sql = "SELECT COUNT(*) FROM " + referenceDataSchema + ".JOBS J "
+                + "JOIN " + referenceDataSchema + ".JOB_GROUPS G ON G.JOB_GROUP_ID=J.JOB_GROUP_ID "
+                + "WHERE J.JOB_CODE=:jobCode AND G.JOB_GROUP_CODE=:groupCode "
+                + "AND J.IS_ACTIVE=1 AND G.IS_ACTIVE=1";
+        return jdbc.sql(sql)
+                .param("jobCode", jobCode.trim().toUpperCase(Locale.ROOT))
+                .param("groupCode", groupCode.trim().toUpperCase(Locale.ROOT))
+                .query(Long.class).single() > 0;
+    }
 
     public boolean activeCurrencyCodeExists(String currencyCode) {
         if (currencyCode == null || currencyCode.isBlank()) return false;

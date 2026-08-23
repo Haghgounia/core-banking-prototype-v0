@@ -1,3 +1,69 @@
+# 0.3.31-prototype-fee-p1
+
+- FIX42: corrected the FIX41 cross-schema FK migration after Oracle returned ORA-00942 while adding `REFERENCES GEO.JOBS`.
+- Root cause: parent GEO tables exist and their PK/UK metadata is visible, but the CIF schema needs a **direct REFERENCES object privilege** for cross-schema referential constraints; SELECT/catalog visibility is not sufficient.
+- FIX42 no longer drops the old CIF occupation FK before validating parent objects. It supports the user's current partial state where FIX41 already dropped the old FK.
+- Added separate diagnostic, DBA grant, and repair scripts. The old FIX41 migration is retained as a safe no-op deprecation marker so it cannot repeat the partial migration.
+- Runtime application behavior from FIX41 is unchanged: job/group validation still uses the configured reference-data schema.
+
+# 0.3.30-prototype-fee-p1
+
+- FIX41: corrected the employment reference-data design after FIX40 SQL failure. The invalid `ACTIVE_FLAG` / `DISPLAY_ORDER` assumptions are removed.
+- Detailed job/group UI remains sourced from `GEO.JOBS` and `GEO.JOB_GROUPS`, matching the operator-facing job catalog.
+- Physical FK alignment migration replaces `PARTY_EMPLOYMENT.OCCUPATION_CODE -> CIF.REF_OCCUPATION` with `PARTY_EMPLOYMENT.OCCUPATION_CODE -> GEO.JOBS.JOB_CODE` and adds `OCCUPATION_GROUP_CODE -> GEO.JOB_GROUPS.JOB_GROUP_CODE` using `ENABLE NOVALIDATE` for existing legacy rows.
+- Backend validates that the selected job and group are active in GEO and that the selected job belongs to the selected group before persistence.
+- Keeps FIX40 Persian lifecycle status and unified nested onboarding stepper.
+
+# 0.3.29-prototype-fee-p1
+
+- FIX40: Party search grid now also resolves `LIFECYCLE_STATUS_CODE` to Persian business labels, alongside the earlier Persian rendering for verification and data-quality status.
+- Unified Party onboarding navigation into one consistent nested stepper with 6 phases and 10 substeps; the operator now sees both macro phase and exact substep (`گام X از ۱۰`) in a single place instead of competing 9/12-item trackers.
+- Replaced the inconsistent per-page hard-coded trackers on create/contact/financial/identifier/classification/relationship pages and added the same shared stepper to roles, KYC, consent and lifecycle pages.
+- Corrected employment occupation selection so persistence aligns with `CIF.REF_OCCUPATION`; this removes the FK/runtime error that occurred when GEO job catalog values were being saved into `PARTY_EMPLOYMENT.OCCUPATION_CODE`.
+- Extended `REF_OCCUPATION` seed with `HOMEMAKER` and `UNEMPLOYED` to cover the active operational vocabulary used by the employment form.
+
+# 0.3.28-prototype-fee-p1
+
+- FIX39: Party search grid now resolves `VERIFICATION_STATUS_CODE` and `DATA_QUALITY_STATUS_CODE` to governed Persian Reference Data labels; technical codes remain available as hover titles and Persian fallbacks cover lookup outages.
+- Party creation progress header redesigned as a live four-step tracker: base Party data, person/legal-entity identity, primary identifier, then submit/continue to address and contact.
+- Tracker distinguishes completed/current/upcoming steps, shows `گام X از ۴`, completed count, and a live percentage so the operator can understand progress at a glance.
+- No database or backend persistence contract change is introduced.
+
+# 0.3.27-prototype-fee-p1
+
+- FIX38: `SCREENING_RESULT.CREATED_BY` is now populated from `X-User-Id` during screening creation.
+- `CifService.createScreening` now passes the actor to `CifRepository.insertScreening`.
+- Oracle insert for `SCREENING_RESULT` now includes `CREATED_BY`.
+- Added QA note for the runtime `ORA-01400` found after successful Party onboarding.
+
+# 0.3.26-prototype-fee-p1
+
+- FIX37: هم‌راستاسازی `PARTY_MERGE_HISTORY` با Oracle 16:24؛ حذف ستون منسوخ `CREATED_DATE` از SELECT/INSERT و مدل API.
+- رفع `ORA-00904: CREATED_DATE invalid identifier` در انتهای `loadParty360()` که باعث Rollback شدن تراکنش ایجاد Party می‌شد.
+- حفظ `CREATED_AT` به‌عنوان زمان ایجاد canonical مطابق مدل فیزیکی Oracle.
+
+# 0.3.25-prototype-fee-p1
+
+- FIX36: aligned runtime/build version metadata across VERSION, backend Maven POM, and frontend package metadata.
+- Added explicit Party onboarding diagnostics for organization registration country and bootstrap insert values.
+- Keeps FIX35 required-column contract: ORGANIZATION.REGISTRATION_COUNTRY_CODE is validated and passed to the initial INSERT.
+
+# 0.3.24-prototype-fee-p1
+
+- Fixed remaining legal-entity Party onboarding rollback after reference-FK hardening: the intermediate `ORGANIZATION` insert now receives the required `REGISTRATION_COUNTRY_CODE` instead of sending NULL against the current Oracle NOT NULL contract.
+- Added pre-persistence validation for Party base reference codes and the remaining primary-identifier FK-backed codes, so invalid reference values are reported as field validation errors before Oracle FK enforcement.
+- Legal-entity onboarding selectors no longer invent missing ISIC/activity-status/enterprise-size/ownership codes that are absent from the active database Reference Data.
+- `ORA-01400` now maps to `REQUIRED_DATABASE_VALUE_MISSING` and surfaces the missing Oracle column when available.
+- Visible release version bumped so a stale 0.3.23 JAR can be distinguished immediately after restart.
+
+# 0.3.23-prototype-fee-p1
+
+- Added standalone FEE module entry point and Angular management workspace.
+- Added comprehensive fee input UI covering catalog, versioning, applicability, calculation/tiering, currency, timing/collection, discount/waiver, allocation, posting, arrangement, simulator and reversal shell.
+- Added `/api/v1/fees/prototype-metadata` and `/api/v1/fees/calculate` prototype endpoints.
+- Added Oracle FEE schema physical-model baseline with configuration/runtime separation.
+- Added FEE as a selectable schema in EA/Oracle model comparison.
+
 ## 0.3.22-prototype-fix33
 
 - Extended EA/Oracle model comparison to include Persian metadata, not only physical structure.
@@ -477,6 +543,8 @@
 - Party Reference catalog now exposes 53 active forms.
 
 ## Unreleased
+- Fixed CIF Party onboarding after enabling reference foreign keys: normalized `PARTY_NAME.SCRIPT_CODE` to `ARAB`/`LATN`, normalized reference-backed name/source codes before persistence, validated primary-name reference codes before insert, and changed Party creation source lookup from `REF_SOURCE_SYSTEM` to the FK-backed `REF_DATA_SOURCE`.
+- Added a specific `ORA-02291` response (`REFERENCE_VALUE_NOT_FOUND`) instead of the generic database-constraint message.
 - Build fix for Spring Boot 4.1 / Jackson 3: migrated Party reference metadata loading from `com.fasterxml.jackson.databind.ObjectMapper` to `tools.jackson.databind.json.JsonMapper`; retained Jackson annotations and corrected Angular lookup typing to remove NG8102.
 
 ## 0.3.2-prototype

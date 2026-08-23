@@ -13,9 +13,9 @@
 
     <groupId>com.behsazan.corebanking</groupId>
     <artifactId>core-banking-prototype</artifactId>
-    <version>0.3.22-SNAPSHOT</version>
+    <version>0.3.30-SNAPSHOT</version>
     <name>core-banking-prototype</name>
-    <description>Core banking prototype with reference data and deposit product factory roadmap</description>
+    <description>Core banking prototype with reference data, CIF and standalone fee management prototype</description>
 
     <properties>
         <java.version>21</java.version>

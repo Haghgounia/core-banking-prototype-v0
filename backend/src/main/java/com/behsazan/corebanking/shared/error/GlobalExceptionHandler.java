@@ -89,16 +89,31 @@ public class GlobalExceptionHandler {
         log.warn("Database integrity violation: {}", rootMessage(exception));
         String message = rootMessage(exception).toUpperCase(Locale.ROOT);
         boolean dependent = message.contains("ORA-02292");
+        boolean parentMissing = message.contains("ORA-02291");
         boolean duplicate = message.contains("ORA-00001");
+        boolean requiredMissing = message.contains("ORA-01400");
+        String requiredColumn = requiredMissing ? oracleColumnFromNotNullViolation(rootMessage(exception)) : null;
 
         HttpStatus status = HttpStatus.CONFLICT;
-        String title = dependent ? "امکان حذف وجود ندارد" : "تعارض اطلاعات";
+        String title = dependent ? "امکان حذف وجود ندارد"
+                : parentMissing ? "مقدار مرجع نامعتبر است"
+                : requiredMissing ? "مقدار اجباری ثبت نشده است"
+                : "تعارض اطلاعات";
         String detail = dependent
                 ? "برای این رکورد، اطلاعات وابسته ثبت شده است."
+                : parentMissing
+                ? "یکی از کدهای مرجع ارسالی در جدول مرجع متناظر وجود ندارد."
                 : duplicate
                 ? "کد یا مقدار یکتای واردشده قبلاً ثبت شده است."
+                : requiredMissing
+                ? (requiredColumn == null
+                    ? "یکی از فیلدهای اجباری پایگاه داده بدون مقدار ارسال شده است."
+                    : "فیلد اجباری پایگاه داده «" + requiredColumn + "» بدون مقدار ارسال شده است.")
                 : "عملیات با محدودیت‌های پایگاه داده سازگار نیست.";
-        String code = dependent ? "DEPENDENT_RECORDS_EXIST" : duplicate ? "DUPLICATE_VALUE" : "DATA_CONFLICT";
+        String code = dependent ? "DEPENDENT_RECORDS_EXIST"
+                : parentMissing ? "REFERENCE_VALUE_NOT_FOUND"
+                : duplicate ? "DUPLICATE_VALUE"
+                : requiredMissing ? "REQUIRED_DATABASE_VALUE_MISSING" : "DATA_CONFLICT";
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
         problem.setType(URI.create("urn:reference-data:problem:data-conflict"));
@@ -144,6 +159,15 @@ public class GlobalExceptionHandler {
         problem.setTitle("خطای سرویس");
         problem.setProperty("errorCode", "UNEXPECTED_ERROR");
         return problem;
+    }
+
+    private static String oracleColumnFromNotNullViolation(String message) {
+        if (message == null) return null;
+        int lastQuote = message.lastIndexOf('"');
+        if (lastQuote <= 0) return null;
+        int previousQuote = message.lastIndexOf('"', lastQuote - 1);
+        if (previousQuote < 0 || previousQuote + 1 >= lastQuote) return null;
+        return message.substring(previousQuote + 1, lastQuote);
     }
 
     private static String rootMessage(Throwable throwable) {

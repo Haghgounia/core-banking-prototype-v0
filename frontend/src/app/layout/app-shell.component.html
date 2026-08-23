@@ -29,6 +29,14 @@
       </a>
     </mat-nav-list>
 
+    <div class="menu-section-label">محصولات و قیمت‌گذاری</div>
+    <mat-nav-list class="section-list">
+      <a mat-list-item routerLink="/fee" routerLinkActive="active-link" matTooltip="مدیریت کارمزد" matTooltipPosition="before">
+        <mat-icon matListItemIcon>price_check</mat-icon>
+        <span matListItemTitle>مدیریت کارمزد</span>
+      </a>
+    </mat-nav-list>
+
     <div class="menu-section-label">داده‌های مرجع</div>
     <mat-nav-list class="section-list reference-root-menu">
       <a mat-list-item routerLink="/reference-data" [class.active-link]="isReferenceSection()" matTooltip="اطلاعات پایه" matTooltipPosition="before">

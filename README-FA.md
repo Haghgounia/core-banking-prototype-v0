@@ -416,3 +416,15 @@ database/oracle/cif/migrations/0.3.22-fix17-party-document-classification-date.s
 گزارش شامل وجود/عدم وجود جدول، تعداد ستون‌های EA و Oracle، نوع داده، طول، Precision/Scale، Nullable، Primary Key، ستون‌های مفقود/اضافی/متفاوت و `COUNT(*)` دقیق رکوردهای جدول‌های مقایسه‌شده است. تعریف‌های تکراری یک Table در Packageهای مختلف EA با نام جدول ادغام می‌شوند و هشدار مربوطه در گزارش نشان داده می‌شود. خروجی CSV سطح جدول نیز قابل دریافت است.
 
 Parser XML در برابر DTD/External Entity غیرفعال و سخت‌سازی شده است. این قابلیت Schema دیتابیس جدیدی ایجاد نمی‌کند و Migration لازم ندارد؛ مقایسه در Runtime با همان DataSource Oracle برنامه انجام می‌شود.
+
+## ماژول مستقل مدیریت کارمزد (FEE) — Prototype P1
+
+از نسخه `0.3.23-prototype-fee-p1` یک Bounded Module مستقل برای Fee Management اضافه شده است.
+
+- مسیر UI: `#/fee`
+- API پایه: `/api/v1/fees`
+- مدل Oracle: `database/oracle/fee`
+- Schema پیشنهادی: `FEE`
+- وابستگی Runtime به CIF/DPS/Account/Accounting: ندارد
+
+فرم P1 تعریف Fee، Versioning، Applicability، Calculation/Tier، Currency، Timing/Collection، Discount/Waiver، Allocation، Posting، Fee Arrangement، Simulator و Transaction/Reversal را پوشش می‌دهد.

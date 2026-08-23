@@ -226,6 +226,9 @@ public class CifService {
         if ("ORGANIZATION".equals(partyType) && blank(raw.legalFormCode())) {
             errors.put("legalFormCode", "نوع شخصیت حقوقی الزامی است.");
         }
+        if ("ORGANIZATION".equals(partyType) && blank(raw.registrationCountryCode())) {
+            errors.put("registrationCountryCode", "کشور ثبت شخص حقوقی الزامی است.");
+        }
         if ("ORGANIZATION".equals(partyType) && blank(raw.registeredName())
                 && raw.primaryName() != null && raw.primaryName().trim().length() > 300) {
             errors.put("registeredName", "نام ثبتی شخص حقوقی حداکثر ۳۰۰ کاراکتر است.");
@@ -235,11 +238,31 @@ public class CifService {
 
         String lifecycleStatus = defaultText(raw.lifecycleStatusCode(), "ACTIVE");
         String statusReason = defaultText(raw.statusReasonCode(), "NEW_REGISTRATION");
+        String verificationStatus = defaultText(raw.verificationStatusCode(), "UNVERIFIED");
+        String dataQualityStatus = defaultText(raw.dataQualityStatusCode(), "INCOMPLETE");
+        String creationSource = upperOrNull(raw.creationSourceCode());
+        String registrationCountry = upperOrNull(raw.registrationCountryCode());
+        if (!repository.activeReferenceCodeExists("REF_PARTY_TYPE", "PARTY_TYPE_CODE", partyType)) {
+            errors.put("partyTypeCode", "نوع Party در داده مرجع فعال یافت نشد.");
+        }
         if (!repository.activeReferenceCodeExists("REF_PARTY_LIFECYCLE_STATUS", "LIFECYCLE_STATUS_CODE", lifecycleStatus)) {
             errors.put("lifecycleStatusCode", "وضعیت چرخه عمر در داده مرجع فعال یافت نشد.");
         }
         if (!repository.activeStatusReasonExists(statusReason)) {
             errors.put("statusReasonCode", "دلیل وضعیت در داده مرجع فعال یافت نشد.");
+        }
+        if (!repository.activeReferenceCodeExists("REF_VERIFICATION_STATUS", "VERIFICATION_STATUS_CODE", verificationStatus)) {
+            errors.put("verificationStatusCode", "وضعیت اعتبارسنجی Party در داده مرجع فعال یافت نشد.");
+        }
+        if (!repository.activeReferenceCodeExists("REF_DATA_QUALITY_STATUS", "DATA_QUALITY_STATUS_CODE", dataQualityStatus)) {
+            errors.put("dataQualityStatusCode", "وضعیت کیفیت داده Party در داده مرجع فعال یافت نشد.");
+        }
+        if (creationSource != null && !repository.activeReferenceCodeExists("REF_DATA_SOURCE", "DATA_SOURCE_CODE", creationSource)) {
+            errors.put("creationSourceCode", "منبع ایجاد Party در داده مرجع فعال یافت نشد.");
+        }
+        if ("ORGANIZATION".equals(partyType) && registrationCountry != null
+                && !repository.activeCountryCodeExists(registrationCountry)) {
+            errors.put("registrationCountryCode", "کشور ثبت در اطلاعات پایه جغرافیایی فعال یافت نشد.");
         }
         reject(errors);
 
@@ -248,24 +271,26 @@ public class CifService {
                 raw.primaryName().trim(),
                 lifecycleStatus,
                 statusReason,
-                defaultText(raw.verificationStatusCode(), "UNVERIFIED"),
-                defaultText(raw.dataQualityStatusCode(), "INCOMPLETE"),
-                trimToNull(raw.creationSourceCode()),
+                verificationStatus,
+                dataQualityStatus,
+                creationSource,
                 raw.validFrom() == null ? LocalDate.now() : raw.validFrom(),
                 raw.validTo(),
-                trimToNull(raw.legalFormCode()),
-                trimToNull(raw.registeredName())
+                upperOrNull(raw.legalFormCode()),
+                trimToNull(raw.registeredName()),
+                registrationCountry
         );
 
         long partyId = repository.insertParty(request, actor);
         repository.insertStatusHistory(partyId, request.lifecycleStatusCode(), request.statusReasonCode(),
                 request.validFrom(), null, "وضعیت اولیه Party", actor);
         PartyNameRequest primaryName = normalizeName(new PartyNameRequest(
-                "LEGAL", "fa", "Arab", null, null, null, null, null,
+                "LEGAL", "fa", "ARAB", null, null, null, null, null,
                 request.primaryName(), request.primaryName(), request.primaryName(), request.primaryName(),
                 null, "Y", request.validFrom(), request.validTo(), request.verificationStatusCode(),
                 request.creationSourceCode(), null, null
         ));
+        validateName(primaryName);
         repository.insertName(partyId, primaryName, actor);
 
         if ("PERSON".equals(partyType)) {
@@ -274,8 +299,10 @@ public class CifService {
             String registeredName = blank(request.registeredName()) ? request.primaryName() : request.registeredName();
             OrganizationRequest organization = new OrganizationRequest(
                     registeredName, null, upper(request.legalFormCode()), null, null,
-                    null, null, null, null, "N", null, null, null, null, null, null, null
+                    null, null, null, null, "N", request.registrationCountryCode(), null, null, null, null, null, null
             );
+            log.info("Organization bootstrap insert: partyId={}, registrationCountryCode={}, legalFormCode={}",
+                    partyId, organization.registrationCountryCode(), organization.legalFormCode());
             repository.insertOrganization(partyId, organization, actor);
         }
         return find(partyId);
@@ -297,6 +324,10 @@ public class CifService {
 
         CreatePartyRequest source = raw.party();
         OrganizationRequest organization = raw.organization();
+        if (organization != null) {
+            log.info("Party onboarding organization input: registrationCountryCode={}, legalFormCode={}, registeredNamePresent={}",
+                    organization.registrationCountryCode(), organization.legalFormCode(), !blank(organization.registeredName()));
+        }
         CreatePartyRequest createRequest = new CreatePartyRequest(
                 source.partyTypeCode(), source.primaryName(), source.lifecycleStatusCode(), source.statusReasonCode(),
                 source.verificationStatusCode(), source.dataQualityStatusCode(), source.creationSourceCode(),
@@ -306,7 +337,10 @@ public class CifService {
                         : source.legalFormCode(),
                 "ORGANIZATION".equals(partyType)
                         ? (blank(source.registeredName()) ? organization.registeredName() : source.registeredName())
-                        : source.registeredName()
+                        : source.registeredName(),
+                "ORGANIZATION".equals(partyType)
+                        ? organization.registrationCountryCode()
+                        : source.registrationCountryCode()
         );
 
         Party360Response created = createParty(createRequest, actor);
@@ -454,6 +488,9 @@ public class CifService {
         String registrationCountryCode = upperOrNull(raw.registrationCountryCode());
         String registrationPlaceCode = upperOrNull(raw.registrationPlaceCode());
         String enterpriseSizeCode = upperOrNull(raw.enterpriseSizeCode());
+        if (registrationCountryCode == null) {
+            errors.put("registrationCountryCode", "کشور ثبت شخص حقوقی الزامی است.");
+        }
         String ownershipTypeCode = upperOrNull(raw.ownershipTypeCode());
         if (!repository.activeReferenceCodeExists("REF_LEGAL_FORM", "LEGAL_FORM_CODE", legalFormCode)) {
             errors.put("legalFormCode", "نوع شخصیت حقوقی در اطلاعات پایه فعال یافت نشد.");
@@ -1042,7 +1079,7 @@ public class CifService {
         find(partyId);
         ScreeningResultRequest request = normalizeScreening(raw);
         validateScreening(partyId, request);
-        repository.insertScreening(partyId, request);
+        repository.insertScreening(partyId, request, actor);
         return find(partyId);
     }
 
@@ -1287,20 +1324,36 @@ public class CifService {
         String sort = blank(raw.sortName()) ? display : raw.sortName().trim();
         String normalized = blank(raw.normalizedName()) ? normalizeText(full) : raw.normalizedName().trim();
         return new PartyNameRequest(
-                upper(raw.nameTypeCode()), trimToNull(raw.languageCode()), trimToNull(raw.scriptCode()),
+                upper(raw.nameTypeCode()), trimToNull(raw.languageCode()), upperOrNull(raw.scriptCode()),
                 trimToNull(raw.prefixText()), trimToNull(raw.givenName()), trimToNull(raw.middleName()),
                 trimToNull(raw.familyName()), trimToNull(raw.suffixText()), full, display, sort, normalized,
                 trimToNull(raw.phoneticKey()), upper(raw.isPrimary()),
                 raw.validFrom() == null ? LocalDate.now() : raw.validFrom(), raw.validTo(),
-                upper(raw.verificationStatusCode()), trimToNull(raw.sourceCode()), trimToNull(raw.sourceReference()),
+                upper(raw.verificationStatusCode()), upperOrNull(raw.sourceCode()), trimToNull(raw.sourceReference()),
                 raw.recordVersion()
         );
     }
 
-    private static void validateName(PartyNameRequest request) {
+    private void validateName(PartyNameRequest request) {
         Map<String, String> errors = new LinkedHashMap<>();
         checkFlag("isPrimary", request.isPrimary(), errors);
         checkDateOrder("validFrom", request.validFrom(), "validTo", request.validTo(), errors);
+        if (!blank(request.nameTypeCode()) && !repository.activeReferenceCodeExists(
+                "REF_NAME_TYPE", "NAME_TYPE_CODE", request.nameTypeCode())) {
+            errors.put("nameTypeCode", "نوع نام در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(request.scriptCode()) && !repository.activeReferenceCodeExists(
+                "REF_SCRIPT", "SCRIPT_CODE", request.scriptCode())) {
+            errors.put("scriptCode", "خط نوشتاری در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(request.verificationStatusCode()) && !repository.activeReferenceCodeExists(
+                "REF_VERIFICATION_STATUS", "VERIFICATION_STATUS_CODE", request.verificationStatusCode())) {
+            errors.put("verificationStatusCode", "وضعیت اعتبارسنجی در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(request.sourceCode()) && !repository.activeReferenceCodeExists(
+                "REF_DATA_SOURCE", "DATA_SOURCE_CODE", request.sourceCode())) {
+            errors.put("sourceCode", "منبع داده در داده مرجع فعال یافت نشد.");
+        }
         reject(errors);
     }
 
@@ -1330,9 +1383,28 @@ public class CifService {
         if (person != null && person.birthDate() != null && r.issueDate() != null && r.issueDate().isBefore(person.birthDate())) {
             errors.put("issueDate", "تاریخ صدور شناسه نمی‌تواند قبل از تاریخ تولد باشد.");
         }
+        if (!blank(r.identifierTypeCode()) && !repository.activeReferenceCodeExists(
+                "REF_IDENTIFIER_TYPE", "IDENTIFIER_TYPE_CODE", r.identifierTypeCode())) {
+            errors.put("identifierTypeCode", "نوع شناسه در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(r.issuingCountryCode()) && !repository.activeCountryCodeExists(r.issuingCountryCode())) {
+            errors.put("issuingCountryCode", "کشور صادرکننده در اطلاعات پایه جغرافیایی فعال یافت نشد.");
+        }
         if (!blank(r.issuerCode()) && !repository.activeReferenceCodeExists(
                 "REF_ISSUING_AUTHORITY", "ISSUING_AUTHORITY_CODE", r.issuerCode())) {
             errors.put("issuingAuthorityCode", "مرجع صادرکننده در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(r.verificationStatusCode()) && !repository.activeReferenceCodeExists(
+                "REF_VERIFICATION_STATUS", "VERIFICATION_STATUS_CODE", r.verificationStatusCode())) {
+            errors.put("verificationStatusCode", "وضعیت اعتبارسنجی شناسه در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(r.verificationSourceCode()) && !repository.activeReferenceCodeExists(
+                "REF_DATA_SOURCE", "DATA_SOURCE_CODE", r.verificationSourceCode())) {
+            errors.put("verificationSourceCode", "منبع اعتبارسنجی شناسه در داده مرجع فعال یافت نشد.");
+        }
+        if (!blank(r.verificationMethodCode()) && !repository.activeReferenceCodeExists(
+                "REF_VERIFICATION_METHOD", "VERIFICATION_METHOD_CODE", r.verificationMethodCode())) {
+            errors.put("verificationMethodCode", "روش اعتبارسنجی شناسه در داده مرجع فعال یافت نشد.");
         }
         reject(errors);
     }
@@ -1534,6 +1606,18 @@ public class CifService {
         }
         if (!EMPLOYMENT_STATUSES.contains(r.employmentStatusCode())) {
             errors.put("employmentStatusCode", "وضعیت اشتغال معتبر نیست.");
+        }
+        if (!repository.activeEmploymentJobExists(r.occupationCode())) {
+            errors.put("occupationCode", "شغل انتخاب‌شده در اطلاعات پایه مشاغل فعال نیست.");
+        }
+        if (!blank(r.occupationGroupCode()) && !repository.activeEmploymentJobGroupExists(r.occupationGroupCode())) {
+            errors.put("occupationGroupCode", "گروه شغلی انتخاب‌شده در اطلاعات پایه فعال نیست.");
+        }
+        if (!blank(r.occupationGroupCode())
+                && repository.activeEmploymentJobExists(r.occupationCode())
+                && repository.activeEmploymentJobGroupExists(r.occupationGroupCode())
+                && !repository.employmentJobBelongsToGroup(r.occupationCode(), r.occupationGroupCode())) {
+            errors.put("occupationCode", "شغل انتخاب‌شده متعلق به گروه شغلی انتخاب‌شده نیست.");
         }
         if (!blank(r.contractTypeCode()) && !repository.activeReferenceCodeExists("REF_CONTRACT_TYPE", "CONTRACT_TYPE_CODE", r.contractTypeCode())) {
             errors.put("contractTypeCode", "نوع قرارداد انتخاب‌شده در اطلاعات پایه فعال نیست.");

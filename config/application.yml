@@ -36,6 +36,7 @@ core-banking:
     deposit-product-factory: DPS
     cif: CIF
     party-reference: CIF
+    fee: FEE
   database-export:
     enabled: false
     schema: DPS

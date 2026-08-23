@@ -588,8 +588,7 @@ public final class CifModels {
             String createdBy,
             LocalDateTime updatedAt,
             String updatedBy,
-            long recordVersion,
-            LocalDateTime createdDate
+            long recordVersion
     ) {
     }
 
@@ -785,7 +784,8 @@ public final class CifModels {
             LocalDate validFrom,
             LocalDate validTo,
             @Size(max = 30) String legalFormCode,
-            @Size(max = 300) String registeredName
+            @Size(max = 300) String registeredName,
+            @Size(max = 3) String registrationCountryCode
     ) {
     }
 
@@ -845,7 +845,7 @@ public final class CifModels {
             @Size(max = 30) String economicSectorCode,
             @Size(max = 20) String isicCode,
             @NotBlank @Size(max = 1) String listedCompanyFlag,
-            @Size(max = 3) String registrationCountryCode,
+            @NotBlank @Size(max = 3) String registrationCountryCode,
             @Size(max = 30) String activityStatusCode,
             @Size(max = 1000) String mainActivityDescription,
             Long employeeCount,

@@ -6,6 +6,7 @@ export const routes: Routes = [
     loadComponent: () => import('./layout/app-shell.component').then(m => m.AppShellComponent),
     children: [
       {path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)},
+      {path: 'fee', loadComponent: () => import('./features/fee/fee-management.component').then(m => m.FeeManagementComponent)},
       {path: 'cif/parties', loadComponent: () => import('./features/cif/party-list.component').then(m => m.PartyListComponent)},
       {path: 'cif/parties/new', loadComponent: () => import('./features/cif/party-create.component').then(m => m.PartyCreateComponent)},
       {path: 'cif/parties/:partyId/onboarding/contact-address', loadComponent: () => import('./features/cif/party-contact-address.component').then(m => m.PartyContactAddressComponent)},
