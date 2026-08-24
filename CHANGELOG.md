@@ -1,3 +1,29 @@
+# 0.3.34-prototype-fee-p1
+
+- FIX45: corrected the regression test introduced with FIX44. The runtime SQL was already correct (`TC.VIRTUAL_COLUMN` from `ALL_TAB_COLS`), but the JUnit assertion incorrectly searched for the substring `C.VIRTUAL_COLUMN`, which is also contained inside `TC.VIRTUAL_COLUMN`.
+- Replaced the ambiguous substring assertion with an alias-aware regular expression that rejects only a standalone `C.VIRTUAL_COLUMN` reference while allowing `TC.VIRTUAL_COLUMN`.
+- Added positive/negative regression cases so the test proves both conditions explicitly.
+- No database migration or runtime Oracle query change is required in this fix.
+
+# 0.3.33-prototype-fee-p1
+
+- FIX44: Oracle → EA XMI exporter no longer queries `ALL_TAB_COLUMNS.VIRTUAL_COLUMN`; Oracle exposes this flag through `ALL_TAB_COLS`.
+- Column metadata keeps `ALL_TAB_COLUMNS` as the visible-column source and joins `ALL_TAB_COLS` only for `VIRTUAL_COLUMN`, including external-reference stub loading.
+- Added a regression test that rejects reintroduction of `C.VIRTUAL_COLUMN` in both exporter metadata queries.
+- Removed automatic full-metadata preview when the export page opens; selecting a Schema is now lightweight and metadata is read only after the user presses «پیش‌نمایش Metadata» or Export.
+- No database migration is required.
+
+# 0.3.32-prototype-fee-p1
+
+- FIX43: added an Oracle -> Enterprise Architect physical-model exporter form under Management/System.
+- Exporter reads the configured Oracle DataSource directly; no database credentials are accepted or exposed in the browser.
+- Supports schema selection and table-name patterns (`%`, `_`, `*`, `?`) with a metadata preview before export.
+- Generated file is EA-compatible XMI 1.1 / UML 1.3 and includes tables, columns, Oracle datatypes/length/precision/scale, nullability, defaults/identity, PK, UK, FK operations, FK associations, non-constraint indexes, check constraints, table/column comments, owner and tablespace metadata.
+- Optional referenced-table stubs preserve relationships when an FK targets another schema or a table outside the selected pattern.
+- Stable deterministic EA/XMI IDs are derived from owner/table/constraint names so repeated exports do not produce random object identities.
+- Export output is parsed again by the existing EA XMI parser before download as a structural safety check.
+- Added a dedicated backend writer unit test and `tools/verify-oracle-ea-xmi-export.mjs`; exporter static QA and the existing EA/Oracle and persisted-grid verifiers pass.
+
 # 0.3.31-prototype-fee-p1
 
 - FIX42: corrected the FIX41 cross-schema FK migration after Oracle returned ORA-00942 while adding `REFERENCES GEO.JOBS`.

@@ -428,3 +428,11 @@ Parser XML در برابر DTD/External Entity غیرفعال و سخت‌ساز
 - وابستگی Runtime به CIF/DPS/Account/Accounting: ندارد
 
 فرم P1 تعریف Fee، Versioning، Applicability، Calculation/Tier، Currency، Timing/Collection، Discount/Waiver، Allocation، Posting، Fee Arrangement، Simulator و Transaction/Reversal را پوشش می‌دهد.
+
+## استخراج Oracle به Enterprise Architect — FIX43
+
+از نسخه `0.3.32-prototype-fee-p1` مسیر زیر در بخش مدیریت و سیستم در دسترس است:
+
+`/system/oracle-ea-xmi-export`
+
+این فرم از اتصال Oracle موجود در Backend استفاده می‌کند و Metadata فیزیکی Schema انتخاب‌شده را به XMI 1.1 / UML 1.3 سازگار با Enterprise Architect تبدیل می‌کند. جداول، ستون‌ها، PK/UK، روابط FK، Index، Check Constraint، Comment، Default، Owner و Tablespace پوشش داده می‌شوند. برای FKهای خارج از محدوده Export نیز امکان افزودن Reference Stub وجود دارد.
