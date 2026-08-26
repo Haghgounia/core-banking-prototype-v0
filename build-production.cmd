@@ -36,6 +36,9 @@ node "%ROOT%tools\verify-ea-oracle-comparison.mjs" || exit /b 1
 rem FIX46 static guard: CAL enterprise calendar forms and separate Reference Data menu.
 node "%ROOT%tools\verify-calendar-reference.mjs" || exit /b 1
 
+rem FIX47 static guard: transactional CAL dataset CSV import over JDBC; no SQL*Loader dependency.
+node "%ROOT%tools\verify-calendar-dataset-import.mjs" || exit /b 1
+
 rem Remove stale packages first. A failed build must never leave an older JAR looking current.
 if exist "%ROOT%app\core-banking-prototype.jar" del /q "%ROOT%app\core-banking-prototype.jar"
 if exist "%ROOT%backend\target\core-banking-prototype.jar" del /q "%ROOT%backend\target\core-banking-prototype.jar"

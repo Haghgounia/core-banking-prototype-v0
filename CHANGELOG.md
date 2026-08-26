@@ -1,3 +1,25 @@
+# 0.3.38-prototype-fee-p1
+
+- FIX49: Calendar CSV JDBC import now binds CANONICAL_DATE as ISO text and converts it inside Oracle with `TO_DATE(..., 'YYYY-MM-DD')`, preventing timezone-sensitive JDBC `setDate` values from violating `CAL.CK_CAL_DAY_MIDNIGHT`.
+- No database migration is required.
+
+# 0.3.38-prototype-fee-p1
+
+- FIX48: resolve Spring JdbcTemplate execute() overload ambiguity in calendar JDBC dataset importer by explicitly selecting ConnectionCallback<Long>.
+- Restores Java 21 / Spring Boot 4.1 compilation of CalendarDatasetImportRepository.
+
+# 0.3.36-prototype-fee-p1
+
+- FIX47: added browser-based import of `calendar_day.csv` and `calendar_date.csv` directly into Oracle through the configured JDBC DataSource; SQL*Loader and Oracle Client are no longer required for the enterprise-calendar dataset.
+- Added `/calendar/reference-data/import` under the separate calendar Reference Data menu and `/api/v1/calendar/dataset-import/*` backend endpoints.
+- Import is transactional, locks both target tables against concurrent loads, requires the CAL seed contract, and refuses append when `CALENDAR_DAY` or `CALENDAR_DATE` already contains data.
+- CSV headers and values are validated while streaming; Oracle inserts run in 1,000-row batches without materializing the 585k-row dataset in memory.
+- Post-load validation checks the 3:1 representation contract, contiguous canonical dates/DAY_ID, JDN, ISO weekday, three calendar-system counts, and unknown system codes before commit.
+- SHA-256 is calculated for both files; the supplied enterprise-calendar v1.0.0 dataset is identified by its published hashes.
+- Multipart limits were raised to 64MB per file / 96MB per request in both packaged and external runtime configuration.
+- Added a friendly HTTP 413 response for oversized uploads, CSV parser regression tests, and a FIX47 static build guard.
+- No Oracle DDL migration is required.
+
 # 0.3.35-prototype-fee-p1
 
 - FIX46: Added a separate «اطلاعات پایه تقویم سازمانی» domain under Reference Data for the physical Oracle `CAL` schema supplied in the enterprise-calendar v1.0 package.

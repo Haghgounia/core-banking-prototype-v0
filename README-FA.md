@@ -54,7 +54,12 @@ com.behsazan.corebanking
 │   └── productfactory
 │       └── reference
 ├── calendar
-│   └── reference
+│   ├── reference
+│   │   ├── application
+│   │   ├── domain
+│   │   ├── oracle
+│   │   └── web
+│   └── datasetimport
 │       ├── application
 │       ├── domain
 │       ├── oracle
@@ -92,6 +97,10 @@ core-banking:
 - `party-reference`: مالک منطقی Reference Data جدید Party/Customer و در این فاز برابر Schema `CIF` است.
 - `CAL`: مالک مدل تقویم سازمانی شامل تقویم سه‌گانه، روز کاری، مناسبت و اصلاح رسمی قمری است.
 
+### Import Dataset تقویم بدون SQL*Loader
+
+از مسیر `/calendar/reference-data/import` دو فایل `calendar_day.csv` و `calendar_date.csv` انتخاب می‌شوند. Backend با همان DataSource برنامه فایل‌ها را به‌صورت Streaming/JDBC Batch ثبت می‌کند. Import فقط روی Dataset خالی و پس از تکمیل Seedهای `CALENDAR_SYSTEM`، `CALENDAR_ALGORITHM`، `WEEKDAY` و `CALENDAR_MONTH` مجاز است و در صورت هر خطا کل تراکنش Rollback می‌شود.
+
 ### Reference Data جدید Party / Customer
 
 Reference Data جدید Party/Customer در دو فاز فعال شده است: ۳۲ فرم Identity/Party در فاز اول و ۲۱ فرم Compliance/Risk/KYC در فاز دوم. برای ارتقا از نسخه 0.3.2 فقط اسکریپت فاز دوم اجرا شود:
@@ -126,6 +135,7 @@ DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون ب
 ## قابلیت‌های ماژول اطلاعات پایه
 
 - ۱۸۵ فرم فعال اطلاعات پایه/تقویم؛ شامل ۲۰ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS، ۹۹ فرم Party/Customer در CIF و ۱۶ فرم تقویم سازمانی در CAL
+- Import مستقیم Dataset چهارصدساله CAL از `calendar_day.csv` و `calendar_date.csv` با JDBC Batch و تراکنش واحد؛ بدون SQL*Loader/Oracle Client
 - فهرست Party و پرونده جامع Customer 360 در ماژول CIF
 - پوشش کامل ۴۸ جدول عملیاتی CIF مطابق `CIF-tables5.xlsx`: ۳۰ جدول در Workflowهای ایجاد/نگهداری Party استفاده می‌شوند و ۱۸ جدول تکمیلی به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند
 - Runtime عمومی Descriptor-driven

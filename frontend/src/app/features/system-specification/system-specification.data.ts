@@ -36,7 +36,7 @@ export const SYSTEM_ARCHITECTURE = [
   {
     title: 'لایه سرویس',
     icon: 'dns',
-    description: 'REST API مبتنی بر Spring MVC برای Workflowهای CIF، Reference Data و ماژول مدیریت تقویم CAL، همراه با Validation، Lookup سمت سرور و ProblemDetail.'
+    description: 'REST API مبتنی بر Spring MVC برای Workflowهای CIF، Reference Data و ماژول مدیریت تقویم CAL، همراه با Validation، Lookup سمت سرور، Import تراکنشی Dataset تقویم با JDBC Batch و ProblemDetail.'
   },
   {
     title: 'دسترسی داده',
@@ -114,6 +114,7 @@ export const SYSTEM_CAPABILITIES = [
   'Searchable Combo سمت سرور، Lookupهای مرجع، جست‌وجو، مرتب‌سازی و صفحه‌بندی سمت سرور',
   'تقویم شمسی پیش‌فرض در فرم‌های عملیاتی با تبدیل استاندارد به تاریخ ISO برای Java/Oracle',
   'ماژول تقویم سازمانی CAL با ۱۶ فرم مستقل: سیستم‌های تقویم، الگوریتم، ماه/هفته، Dataset چهارصدساله سه‌تقویمی، تقویم کاری، استثناها، مناسبت‌ها و اصلاح رسمی قمری',
+  'Import مستقیم Dataset چهارصدساله تقویم از calendar_day.csv و calendar_date.csv با JDBC Batch، کنترل Seed، SHA-256، اعتبارسنجی سه‌تقویمی و Rollback تراکنشی بدون وابستگی به SQL*Loader',
   'Validation قواعد کسب‌وکار، Optimistic Lock با RECORD_VERSION و پاسخ خطای استاندارد ProblemDetail',
   'لاگ Runtime در فایل logs/core-banking-prototype.log با Rolling Policy و Health endpointهای Actuator',
   'Theme روشن، تیره و هماهنگ با سیستم با نگهداری انتخاب کاربر',

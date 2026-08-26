@@ -11,6 +11,11 @@ spring:
       connection-timeout: 15000
       validation-timeout: 5000
 
+  servlet:
+    multipart:
+      max-file-size: 64MB
+      max-request-size: 96MB
+
   mvc:
     problemdetails:
       enabled: true

@@ -12,6 +12,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.net.URI;
 import java.util.Locale;
@@ -81,6 +82,18 @@ public class GlobalExceptionHandler {
         problem.setTitle("اطلاعات ورودی معتبر نیست");
         problem.setProperty("errorCode", "VALIDATION_FAILED");
         problem.setProperty("fieldErrors", fieldErrors);
+        return problem;
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    ProblemDetail handleUploadTooLarge(MaxUploadSizeExceededException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.PAYLOAD_TOO_LARGE,
+                "حجم فایل ارسالی بیش از حد مجاز سرویس است. برای Import تقویم حداکثر حجم هر فایل 64MB است."
+        );
+        problem.setType(URI.create("urn:core-banking:problem:upload-too-large"));
+        problem.setTitle("حجم فایل بیش از حد مجاز است");
+        problem.setProperty("errorCode", "UPLOAD_TOO_LARGE");
         return problem;
     }
 

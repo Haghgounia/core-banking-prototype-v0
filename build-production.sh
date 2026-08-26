@@ -2,6 +2,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 node "$ROOT/tools/verify-calendar-reference.mjs"
+node "$ROOT/tools/verify-calendar-dataset-import.mjs"
 cd "$ROOT/frontend"
 npm install
 npm run build
