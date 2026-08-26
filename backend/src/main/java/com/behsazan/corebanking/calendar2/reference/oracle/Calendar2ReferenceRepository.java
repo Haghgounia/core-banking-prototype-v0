@@ -126,6 +126,7 @@ public class Calendar2ReferenceRepository {
     }
 
     public List<LookupOption> lookup(String resource, String text, int limit) {
+        if ("calendar-variants".equals(resource)) return calendarVariantLookup(text, limit);
         TableDescriptor descriptor = registry.require(resource);
         if (descriptor.keyFields().size() != 1) return List.of();
         FieldDescriptor valueField = descriptor.keyFields().getFirst();
@@ -151,6 +152,25 @@ public class Calendar2ReferenceRepository {
                 + " ORDER BY " + nameSelect + " FETCH FIRST :limit ROWS ONLY";
         return jdbcClient.sql(sql).params(params).query((rs, rowNum) -> new LookupOption(
                 readKeyValue(rs, "VALUE_COL", valueField), rs.getString("CODE_COL"), rs.getString("LABEL_COL")
+        )).list();
+    }
+
+    private List<LookupOption> calendarVariantLookup(String text, int limit) {
+        int safeLimit = Math.min(Math.max(limit, 1), 500);
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("limit", safeLimit);
+        String where = " WHERE V.ACTIVE_FLAG = 'Y'";
+        if (text != null && !text.isBlank()) {
+            where += " AND (UPPER(V.VARIANT_CODE) LIKE :text OR UPPER(S.NAME_FA) LIKE :text OR UPPER(S.CALENDAR_CODE) LIKE :text)";
+            params.put("text", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        String sql = "SELECT V.CALENDAR_VARIANT_ID AS VALUE_COL, V.VARIANT_CODE AS CODE_COL, "
+                + "S.NAME_FA AS LABEL_COL FROM " + Calendar2SqlNames.qualified(registry.require("calendar-variants").schemaName(), "CALENDAR_VARIANT") + " V"
+                + " JOIN " + Calendar2SqlNames.qualified(registry.require("calendar-systems").schemaName(), "CALENDAR_SYSTEM") + " S"
+                + " ON S.CALENDAR_SYSTEM_ID = V.CALENDAR_SYSTEM_ID"
+                + where + " ORDER BY S.NAME_FA, V.VARIANT_CODE FETCH FIRST :limit ROWS ONLY";
+        return jdbcClient.sql(sql).params(params).query((rs, rowNum) -> new LookupOption(
+                rs.getBigDecimal("VALUE_COL"), rs.getString("CODE_COL"), rs.getString("LABEL_COL")
         )).list();
     }
 

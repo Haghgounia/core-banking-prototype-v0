@@ -23,6 +23,29 @@ public final class Calendar2EventRecurrenceModels {
             boolean defaultHoliday
     ) {}
 
+
+    public record RuleSummary(
+            long eventRuleId,
+            long eventId,
+            String eventCode,
+            String eventName,
+            String ruleType,
+            long calendarVariantId,
+            String variantCode,
+            String calendarCode,
+            String calendarName,
+            String monthName,
+            Integer yearNo,
+            int monthNo,
+            int dayNo,
+            Integer startYearNo,
+            Integer endYearNo,
+            boolean active,
+            int generatedOccurrences
+    ) {}
+
+    public record CalendarMonthOption(int monthNo, String nameFa) {}
+
     public record GenerationResult(
             long eventRuleId,
             long eventId,

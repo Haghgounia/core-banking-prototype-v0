@@ -39,13 +39,13 @@ const checks = [
   [controller.includes('/api/v1/calendar2/reference'), 'CAL2 reference API'],
   [registry.includes('event-recurrence-rules') && registry.includes('ANNUAL_FIXED_DATE') && registry.includes('ONE_TIME_DATE'), 'recurrence-rule descriptor'],
   [referenceService.includes('validateEventRecurrenceRule') && referenceService.includes('rebuildRecurrenceRuleIfNeeded'), 'recurrence-rule validation and automatic materialization on save'],
-  [recurrenceController.includes('/api/v1/calendar2/event-recurrence') && recurrenceController.includes('/rebuild-all'), 'recurrence generation API'],
+  [recurrenceController.includes('/api/v1/calendar2/event-recurrence') && recurrenceController.includes('/rebuild-all') && recurrenceController.includes('/rules') && recurrenceController.includes('/months'), 'recurrence generation and business-summary API'],
   [recurrenceService.includes('@Transactional') && recurrenceService.includes('deleteGenerated') && recurrenceService.includes('insertGenerated'), 'transactional recurrence rebuild'],
-  [recurrenceRepository.includes("OCCURRENCE_SOURCE = 'GENERATED'") && recurrenceRepository.includes('NOT EXISTS') && recurrenceRepository.includes('CALENDAR_VARIANT_ID'), 'generated occurrence materialization without overwriting existing occurrence'],
+  [recurrenceRepository.includes("OCCURRENCE_SOURCE = 'GENERATED'") && recurrenceRepository.includes('NOT EXISTS') && recurrenceRepository.includes('CALENDAR_VARIANT_ID') && recurrenceRepository.includes('GENERATED_OCCURRENCES') && recurrenceRepository.includes('MONTH_NAME'), 'generated occurrence materialization and business summary'],
   [ddl.includes('EVENT_RULE_ID') && ddl.includes('OCCURRENCE_SOURCE') && ddl.includes('CK_CAL2_EO_SOURCE'), 'occurrence provenance columns'],
   [exists('database/oracle/cal2/migrations/0.3.45-fix56-event-recurrence-rule.sql'), 'existing-CAL2 migration'],
-  [page.includes('rebuildEventOccurrences') && page.includes('normalizedPayload') && pageHtml.includes('بازسازی همه قواعد فعال'), 'automatic rule generation UI'],
-  [uiService.includes('/api/v1/calendar2/event-recurrence/rebuild'), 'frontend recurrence API client'],
+  [page.includes('rebuildEventOccurrences') && page.includes('normalizedPayload') && page.includes('ruleDate') && page.includes('ruleRange') && pageHtml.includes('بازسازی رخدادهای مناسبت‌ها') && pageHtml.includes('رخدادهای تولیدشده') && pageHtml.includes('تعریف مناسبت'), 'business-oriented recurrence UI'],
+  [uiService.includes('/api/v1/calendar2/event-recurrence/rebuild') && uiService.includes('/api/v1/calendar2/event-recurrence/rules') && uiService.includes('/api/v1/calendar2/event-recurrence/months'), 'frontend recurrence API client'],
   [importController.includes('/api/v1/calendar2/dataset') && importController.includes('MULTIPART_FORM_DATA_VALUE'), 'CAL2 ZIP import API'],
   [importService.includes('@Transactional'), 'single CAL2 import transaction'],
   [importService.includes('01_calendar_system.csv') && importService.includes('15_validation_result.csv'), '15-file dataset package contract'],
@@ -63,4 +63,4 @@ const checks = [
 
 const failed = checks.filter(([ok]) => !ok).map(([, label]) => label);
 if (failed.length) throw new Error(`CAL2 verification failed: ${failed.join(', ')}`);
-console.log(`CAL2 verification OK: ${expectedTables.length} independent tables/forms, recurring-event materialization, ZIP JDBC import, separate CAL2 schema and routes.`);
+console.log(`CAL2 verification OK: ${expectedTables.length} independent tables/forms, business-oriented recurring-event UI, materialization, ZIP JDBC import, separate CAL2 schema and routes.`);

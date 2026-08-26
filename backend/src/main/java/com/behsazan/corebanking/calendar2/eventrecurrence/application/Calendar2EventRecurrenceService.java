@@ -1,8 +1,11 @@
 package com.behsazan.corebanking.calendar2.eventrecurrence.application;
 
+import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.CalendarMonthOption;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.GenerateAllResult;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.GenerationResult;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.RuleDefinition;
+import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.RuleSummary;
+import com.behsazan.corebanking.shared.model.PageResponse;
 import com.behsazan.corebanking.calendar2.eventrecurrence.oracle.Calendar2EventRecurrenceRepository;
 import com.behsazan.corebanking.shared.error.ReferenceNotFoundException;
 import com.behsazan.corebanking.shared.error.ReferenceValidationException;
@@ -19,6 +22,16 @@ public class Calendar2EventRecurrenceService {
 
     public Calendar2EventRecurrenceService(Calendar2EventRecurrenceRepository repository) {
         this.repository = repository;
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<RuleSummary> searchRules(String text, int page, int size, String sortBy, String direction) {
+        return repository.searchRuleSummaries(text, page, size, sortBy, direction);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CalendarMonthOption> monthsForVariant(long variantId) {
+        return repository.monthsForVariant(variantId);
     }
 
     @Transactional

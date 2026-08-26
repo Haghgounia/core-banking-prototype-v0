@@ -1,6 +1,9 @@
 package com.behsazan.corebanking.calendar2.eventrecurrence.oracle;
 
+import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.CalendarMonthOption;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.RuleDefinition;
+import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.RuleSummary;
+import com.behsazan.corebanking.shared.model.PageResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -10,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -27,6 +31,77 @@ public class Calendar2EventRecurrenceRepository {
     ) {
         this.jdbcClient = jdbcClient;
         this.schema = safeIdentifier(schemaName == null ? null : schemaName.trim().toUpperCase());
+    }
+
+    public PageResponse<RuleSummary> searchRuleSummaries(String text, int page, int size, String sortBy, String direction) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        String search = text == null ? "" : text.trim();
+        Map<String, Object> params = new LinkedHashMap<>();
+        String where = "";
+        if (!search.isBlank()) {
+            where = """
+                     WHERE (UPPER(E.EVENT_CODE) LIKE :text
+                        OR UPPER(E.NAME_FA) LIKE :text
+                        OR UPPER(NVL(E.NAME_EN, '')) LIKE :text
+                        OR UPPER(V.VARIANT_CODE) LIKE :text
+                        OR UPPER(S.CALENDAR_CODE) LIKE :text
+                        OR UPPER(S.NAME_FA) LIKE :text
+                        OR UPPER(NVL(M.NAME_FA, '')) LIKE :text
+                        OR UPPER(R.RULE_TYPE) LIKE :text
+                        OR TO_CHAR(R.MONTH_NO) LIKE :textRaw
+                        OR TO_CHAR(R.DAY_NO) LIKE :textRaw
+                        OR TO_CHAR(R.YEAR_NO) LIKE :textRaw)
+                    """;
+            params.put("text", "%" + search.toUpperCase(Locale.ROOT) + "%");
+            params.put("textRaw", "%" + search + "%");
+        }
+
+        String from = " FROM " + table("EVENT_RECURRENCE_RULE") + " R"
+                + " JOIN " + table("EVENT") + " E ON E.EVENT_ID = R.EVENT_ID"
+                + " JOIN " + table("CALENDAR_VARIANT") + " V ON V.CALENDAR_VARIANT_ID = R.CALENDAR_VARIANT_ID"
+                + " JOIN " + table("CALENDAR_SYSTEM") + " S ON S.CALENDAR_SYSTEM_ID = V.CALENDAR_SYSTEM_ID"
+                + " LEFT JOIN " + table("CALENDAR_MONTH") + " M ON M.CALENDAR_SYSTEM_ID = S.CALENDAR_SYSTEM_ID AND M.MONTH_NO = R.MONTH_NO";
+
+        long total = jdbcClient.sql("SELECT COUNT(*)" + from + where).params(params).query(Long.class).single();
+
+        String occurrenceCount = "NVL(O.GENERATED_OCCURRENCES, 0)";
+        String sql = """
+                SELECT R.EVENT_RULE_ID, R.EVENT_ID, E.EVENT_CODE, E.NAME_FA AS EVENT_NAME,
+                       R.RULE_TYPE, R.CALENDAR_VARIANT_ID, V.VARIANT_CODE,
+                       S.CALENDAR_CODE, S.NAME_FA AS CALENDAR_NAME, M.NAME_FA AS MONTH_NAME,
+                       R.YEAR_NO, R.MONTH_NO, R.DAY_NO, R.START_YEAR_NO, R.END_YEAR_NO,
+                       R.ACTIVE_FLAG, %s AS GENERATED_OCCURRENCES
+                %s
+                LEFT JOIN (
+                    SELECT EVENT_RULE_ID, COUNT(*) AS GENERATED_OCCURRENCES
+                      FROM %s
+                     WHERE OCCURRENCE_SOURCE = 'GENERATED'
+                     GROUP BY EVENT_RULE_ID
+                ) O ON O.EVENT_RULE_ID = R.EVENT_RULE_ID
+                %s
+                ORDER BY %s %s
+                OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY
+                """.formatted(
+                occurrenceCount, from, table("EVENT_OCCURRENCE"), where,
+                summarySort(sortBy, occurrenceCount), normalizedDirection(direction)
+        );
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+        List<RuleSummary> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> mapRuleSummary(rs)).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public List<CalendarMonthOption> monthsForVariant(long variantId) {
+        String sql = """
+                SELECT M.MONTH_NO, M.NAME_FA
+                  FROM %s V
+                  JOIN %s M ON M.CALENDAR_SYSTEM_ID = V.CALENDAR_SYSTEM_ID
+                 WHERE V.CALENDAR_VARIANT_ID = :variantId
+                 ORDER BY M.DISPLAY_ORDER NULLS LAST, M.MONTH_NO
+                """.formatted(table("CALENDAR_VARIANT"), table("CALENDAR_MONTH"));
+        return jdbcClient.sql(sql).param("variantId", variantId)
+                .query((rs, rowNum) -> new CalendarMonthOption(rs.getInt("MONTH_NO"), rs.getString("NAME_FA"))).list();
     }
 
     public Optional<RuleDefinition> findRule(long ruleId) {
@@ -126,6 +201,46 @@ public class Calendar2EventRecurrenceRepository {
             }
         }
         return new RuleFilter(where.toString(), params);
+    }
+
+    private RuleSummary mapRuleSummary(ResultSet rs) throws SQLException {
+        return new RuleSummary(
+                rs.getLong("EVENT_RULE_ID"),
+                rs.getLong("EVENT_ID"),
+                rs.getString("EVENT_CODE"),
+                rs.getString("EVENT_NAME"),
+                rs.getString("RULE_TYPE"),
+                rs.getLong("CALENDAR_VARIANT_ID"),
+                rs.getString("VARIANT_CODE"),
+                rs.getString("CALENDAR_CODE"),
+                rs.getString("CALENDAR_NAME"),
+                rs.getString("MONTH_NAME"),
+                nullableInteger(rs, "YEAR_NO"),
+                rs.getInt("MONTH_NO"),
+                rs.getInt("DAY_NO"),
+                nullableInteger(rs, "START_YEAR_NO"),
+                nullableInteger(rs, "END_YEAR_NO"),
+                "Y".equalsIgnoreCase(rs.getString("ACTIVE_FLAG")),
+                rs.getInt("GENERATED_OCCURRENCES")
+        );
+    }
+
+    private static String summarySort(String requested, String occurrenceCount) {
+        if (requested == null || requested.isBlank()) return "E.NAME_FA";
+        return switch (requested) {
+            case "eventName" -> "E.NAME_FA";
+            case "calendarName" -> "S.NAME_FA";
+            case "dateLabel" -> "R.MONTH_NO, R.DAY_NO";
+            case "ruleType" -> "R.RULE_TYPE";
+            case "rangeLabel" -> "NVL(R.START_YEAR_NO, -999999), NVL(R.END_YEAR_NO, 999999)";
+            case "generatedOccurrences" -> occurrenceCount;
+            case "active" -> "R.ACTIVE_FLAG";
+            default -> "E.NAME_FA";
+        };
+    }
+
+    private static String normalizedDirection(String direction) {
+        return "DESC".equalsIgnoreCase(direction) ? "DESC" : "ASC";
     }
 
     private RuleDefinition mapRule(ResultSet rs) throws SQLException {

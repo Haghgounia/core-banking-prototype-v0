@@ -214,22 +214,22 @@ public class Calendar2ReferenceRegistry {
     }
 
     private TableDescriptor eventRecurrenceRule() {
-        return table("event-recurrence-rules", "EVENT", "تعریف مناسبت و قاعده تکرار",
-                "تعریف یک‌باره قاعده وقوع بر اساس Calendar Variant؛ پس از ذخیره رخدادهای سال‌ها به‌صورت خودکار تولید می‌شوند",
+        return table("event-recurrence-rules", "EVENT", "مناسبت‌های تقویم",
+                "تعریف مناسبت‌های سالانه و یک‌باره و تولید خودکار رخدادها در تقویم",
                 "event_repeat", "EVENT_RECURRENCE_RULE", true, true, false, true, "eventRuleId", "eventRuleId", List.of(
-                        autoKey("eventRuleId", "EVENT_RULE_ID", "شناسه قاعده", true),
+                        autoKey("eventRuleId", "EVENT_RULE_ID", "شناسه قاعده", false),
                         lookupNumber("eventId", "EVENT_ID", "مناسبت", "events", true, true),
-                        select("ruleType", "RULE_TYPE", "نوع قاعده", true, true, "ANNUAL_FIXED_DATE",
+                        select("ruleType", "RULE_TYPE", "نحوه وقوع", true, true, "ANNUAL_FIXED_DATE",
                                 option("ANNUAL_FIXED_DATE", "سالانه در تاریخ ثابت"),
                                 option("ONE_TIME_DATE", "یک‌باره در تاریخ مشخص")),
-                        lookupNumber("calendarVariantId", "CALENDAR_VARIANT_ID", "گونه تقویم مبنا", "calendar-variants", true, true),
+                        lookupNumber("calendarVariantId", "CALENDAR_VARIANT_ID", "تقویم مبنا", "calendar-variants", true, true),
                         number("yearNo", "YEAR_NO", "سال وقوع (فقط یک‌باره)", false, true, true),
                         number("monthNo", "MONTH_NO", "ماه", true, true, true),
                         number("dayNo", "DAY_NO", "روز", true, true, true),
                         number("startYearNo", "START_YEAR_NO", "سال شروع (اختیاری)", false, false, true),
                         number("endYearNo", "END_YEAR_NO", "سال پایان (اختیاری)", false, false, true),
-                        lookupNumber("sourceId", "SOURCE_ID", "مرجع تعریف قاعده", "source-authorities", false, false),
-                        text("description", "DESCRIPTION", "توضیحات قاعده", false, 1000, false, true),
+                        lookupNumber("sourceId", "SOURCE_ID", "منبع/مرجع مناسبت", "source-authorities", false, false),
+                        text("description", "DESCRIPTION", "توضیحات", false, 1000, false, true),
                         bool("activeFlag", "ACTIVE_FLAG", "فعال", true, true, true)
                 ));
     }
