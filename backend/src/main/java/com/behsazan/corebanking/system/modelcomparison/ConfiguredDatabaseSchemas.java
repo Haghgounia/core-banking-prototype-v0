@@ -20,6 +20,7 @@ class ConfiguredDatabaseSchemas {
         add(configured, environment.getProperty("core-banking.schemas.reference-data"), "اطلاعات پایه عمومی (GEO)");
         add(configured, environment.getProperty("core-banking.schemas.deposit-product-factory"), "محصول‌ساز سپرده (DPS)");
         add(configured, environment.getProperty("core-banking.schemas.fee"), "مدیریت کارمزد (FEE)");
+        add(configured, environment.getProperty("core-banking.schemas.calendar"), "تقویم سازمانی (CAL)");
         add(configured, environment.getProperty("core-banking.schemas.party-reference"), "اطلاعات پایه Party");
         if (configured.isEmpty()) {
             throw new IllegalStateException("No configured Oracle schemas found under core-banking.schemas");

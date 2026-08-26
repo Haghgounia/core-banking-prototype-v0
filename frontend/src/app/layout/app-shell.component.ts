@@ -47,6 +47,7 @@ export class AppShellComponent {
       || url.startsWith('/cif/reference')
       || url.startsWith('/deposit/reference-data')
       || url.startsWith('/geography-tree')
+      || url.startsWith('/calendar/reference-data')
       || url.startsWith('/planned/');
   }
 

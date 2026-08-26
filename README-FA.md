@@ -4,15 +4,16 @@
 
 ## وضعیت این نسخه
 
-در وضعیت فعلی سه دامنه اصلی فعال هستند:
+در وضعیت فعلی چهار دامنه اطلاعات پایه/مرجع اصلی فعال هستند:
 
 ```text
 reference-data                    -> Schema GEO
 deposit-product reference-data    -> Schema DPS
 customer-information-file (CIF)   -> Schema CIF
+enterprise-calendar                -> Schema CAL
 ```
 
-در این نسخه ۱۷۳ فرم اطلاعات پایه فعال هستند: ۲۰ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*` و ۱۰۳ فرم اطلاعات پایه Party/Customer در CIF. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
+در این نسخه ۱۸۵ فرم اطلاعات پایه/تقویم فعال هستند: ۲۰ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*`، ۹۹ فرم اطلاعات پایه Party/Customer در CIF و ۱۶ فرم تقویم سازمانی در CAL. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
 
 برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. مسیر عملیاتی CIF از ایجاد Party تا اطلاعات Person/Organization، تماس و نشانی، مالی، شناسه و مدرک، طبقه‌بندی، روابط/UBO، Role/Customer، KYC/Risk/Screening، Consent/Preference، Lifecycle و Merge تکمیل شده است. در نسخه 0.3.22 تمام ۴۸ جدول عملیاتی موجود در `CIF-tables5.xlsx` در Backend پوشش داده می‌شوند: ۳۰ جدول در Workflowهای CIF استفاده/نگهداری می‌شوند و ۱۸ جدول تکمیلی بدون CRUD در CIF به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند؛ محصولات/تعاملات/شکایات و مشابه آن از سامانه‌های مبدأ می‌آیند و Registration/Audit صرفاً Trace خواندنی هستند.
 
@@ -52,6 +53,12 @@ com.behsazan.corebanking
 ├── deposit
 │   └── productfactory
 │       └── reference
+├── calendar
+│   └── reference
+│       ├── application
+│       ├── domain
+│       ├── oracle
+│       └── web
 └── cif
     ├── application
     ├── domain
@@ -76,12 +83,14 @@ core-banking:
     deposit-product-factory: DPS
     cif: CIF
     party-reference: CIF
+    calendar: CAL
 ```
 
 - `GEO`: مالک فیزیکی فعلی جداول اطلاعات پایه. جداسازی منطقی ماژول در کد انجام شده است، اما جداول فعلاً در همین Schema باقی می‌مانند.
 - `DPS`: مالک جداول مرجع محصول‌ساز سپرده و اسکریپت‌های Oracle مربوط به آن‌ها.
 - `CIF`: مالک جداول مدیریت Party، Person/Organization، KYC، نشانی، تماس، ریسک و غربالگری.
 - `party-reference`: مالک منطقی Reference Data جدید Party/Customer و در این فاز برابر Schema `CIF` است.
+- `CAL`: مالک مدل تقویم سازمانی شامل تقویم سه‌گانه، روز کاری، مناسبت و اصلاح رسمی قمری است.
 
 ### Reference Data جدید Party / Customer
 
@@ -116,7 +125,7 @@ DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون ب
 
 ## قابلیت‌های ماژول اطلاعات پایه
 
-- ۱۶۸ فرم فعال اطلاعات پایه؛ شامل ۲۰ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS و ۹۸ فرم Party/Customer در CIF
+- ۱۸۵ فرم فعال اطلاعات پایه/تقویم؛ شامل ۲۰ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS، ۹۹ فرم Party/Customer در CIF و ۱۶ فرم تقویم سازمانی در CAL
 - فهرست Party و پرونده جامع Customer 360 در ماژول CIF
 - پوشش کامل ۴۸ جدول عملیاتی CIF مطابق `CIF-tables5.xlsx`: ۳۰ جدول در Workflowهای ایجاد/نگهداری Party استفاده می‌شوند و ۱۸ جدول تکمیلی به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند
 - Runtime عمومی Descriptor-driven
@@ -253,7 +262,7 @@ tools/sync-system-specification.mjs
 
 ## ساختار ناوبری اطلاعات پایه از نسخه 0.3.11
 
-منوی اصلی فقط یک گزینه «اطلاعات پایه» دارد. این گزینه به صفحه انتخاب دامنه هدایت می‌شود و سه دامنه مستقل «اطلاعات پایه عمومی»، «اطلاعات پایه مشتری / Party» و «اطلاعات پایه محصول سپرده» را نمایش می‌دهد. «درخت جغرافیایی» نیز به بخش «اطلاعات پایه عمومی / اطلاعات جغرافیایی» منتقل شده است و دیگر گزینه سطح اول Sidebar نیست.
+منوی اصلی فقط یک گزینه «اطلاعات پایه» دارد. این گزینه به صفحه انتخاب دامنه هدایت می‌شود و چهار دامنه مستقل «اطلاعات پایه عمومی»، «اطلاعات پایه مشتری / Party»، «اطلاعات پایه محصول سپرده» و «اطلاعات پایه تقویم سازمانی» را نمایش می‌دهد. «درخت جغرافیایی» نیز به بخش «اطلاعات پایه عمومی / اطلاعات جغرافیایی» منتقل شده است و دیگر گزینه سطح اول Sidebar نیست.
 
 
 راهنمای فاز ۶ روابط و ذی‌نفعان: `docs/CIF-PARTY-OPERATIONS-PHASE6-FA.md`
@@ -411,7 +420,7 @@ database/oracle/cif/migrations/0.3.22-fix17-party-document-classification-date.s
 
 ## 0.3.22-prototype-fix30 - مقایسه مدل EA با Oracle
 
-در Fix30 یک فرم مدیریتی جدید در مسیر `مدیریت و سیستم > مقایسه مدل EA / Oracle` اضافه شده است. کاربر فایل XML/XMI خروجی Enterprise Architect را انتخاب می‌کند، Schema مقصد را فقط از Schemaهای Oracle تنظیم‌شده در خود برنامه (`CIF / GEO / DPS`) برمی‌گزیند و مقایسه را اجرا می‌کند.
+در Fix30 یک فرم مدیریتی جدید در مسیر `مدیریت و سیستم > مقایسه مدل EA / Oracle` اضافه شده است. کاربر فایل XML/XMI خروجی Enterprise Architect را انتخاب می‌کند، Schema مقصد را فقط از Schemaهای Oracle تنظیم‌شده در خود برنامه (`CIF / GEO / DPS / CAL / FEE`) برمی‌گزیند و مقایسه را اجرا می‌کند.
 
 گزارش شامل وجود/عدم وجود جدول، تعداد ستون‌های EA و Oracle، نوع داده، طول، Precision/Scale، Nullable، Primary Key، ستون‌های مفقود/اضافی/متفاوت و `COUNT(*)` دقیق رکوردهای جدول‌های مقایسه‌شده است. تعریف‌های تکراری یک Table در Packageهای مختلف EA با نام جدول ادغام می‌شوند و هشدار مربوطه در گزارش نشان داده می‌شود. خروجی CSV سطح جدول نیز قابل دریافت است.
 
@@ -436,3 +445,10 @@ Parser XML در برابر DTD/External Entity غیرفعال و سخت‌ساز
 `/system/oracle-ea-xmi-export`
 
 این فرم از اتصال Oracle موجود در Backend استفاده می‌کند و Metadata فیزیکی Schema انتخاب‌شده را به XMI 1.1 / UML 1.3 سازگار با Enterprise Architect تبدیل می‌کند. جداول، ستون‌ها، PK/UK، روابط FK، Index، Check Constraint، Comment، Default، Owner و Tablespace پوشش داده می‌شوند. برای FKهای خارج از محدوده Export نیز امکان افزودن Reference Stub وجود دارد.
+
+
+## اطلاعات پایه تقویم سازمانی — FIX46
+
+از نسخه `0.3.35-prototype-fee-p1` دامنه مستقل «اطلاعات پایه تقویم سازمانی» در صفحه اطلاعات پایه اضافه شده است. این دامنه مستقیماً از Schema `CAL` استفاده می‌کند و ۱۶ جدول مدل Enterprise Calendar را در چهار گروه «ساختار و داده تقویم»، «تقویم کاری و بانکی»، «مناسبت‌ها و رویدادها» و «اصلاحات رسمی تقویم قمری» پوشش می‌دهد.
+
+دو جدول `CALENDAR_DAY` و `CALENDAR_DATE` به دلیل ماهیت Dataset چهارصدساله فقط‌خواندنی هستند. سایر جداول متناسب با Contract فیزیکی Oracle قابلیت ایجاد/ویرایش/حذف دارند. برای فیلدهای مبتنی بر `DAY_ID` Lookup جست‌وجویی سه‌تقویمی ارائه شده است تا کاربر به‌جای وارد کردن شناسه فنی، روز را با تاریخ میلادی/شمسی/قمری جست‌وجو کند.

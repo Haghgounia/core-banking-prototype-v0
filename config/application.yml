@@ -37,6 +37,7 @@ core-banking:
     cif: CIF
     party-reference: CIF
     fee: FEE
+    calendar: CAL
   database-export:
     enabled: false
     schema: DPS

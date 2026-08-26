@@ -1,0 +1,52 @@
+SET PAGESIZE 200
+SET LINESIZE 220
+SET VERIFY OFF
+
+PROMPT ================================================================
+PROMPT CAL enterprise calendar UI contract verification (read-only)
+PROMPT ================================================================
+
+PROMPT Missing physical tables (expected: no rows):
+WITH expected(table_name) AS (
+    SELECT 'CALENDAR_SYSTEM' FROM dual UNION ALL
+    SELECT 'CALENDAR_ALGORITHM' FROM dual UNION ALL
+    SELECT 'WEEKDAY' FROM dual UNION ALL
+    SELECT 'CALENDAR_MONTH' FROM dual UNION ALL
+    SELECT 'CALENDAR_DAY' FROM dual UNION ALL
+    SELECT 'CALENDAR_DATE' FROM dual UNION ALL
+    SELECT 'HIJRI_DATE_OVERRIDE' FROM dual UNION ALL
+    SELECT 'BUSINESS_CALENDAR' FROM dual UNION ALL
+    SELECT 'BUSINESS_CALENDAR_DAY' FROM dual UNION ALL
+    SELECT 'CALENDAR_EXCEPTION' FROM dual UNION ALL
+    SELECT 'BUSINESS_DAY_CONVENTION' FROM dual UNION ALL
+    SELECT 'OCCASION_CATEGORY' FROM dual UNION ALL
+    SELECT 'OCCASION' FROM dual UNION ALL
+    SELECT 'OCCASION_RULE' FROM dual UNION ALL
+    SELECT 'OCCASION_OCCURRENCE' FROM dual UNION ALL
+    SELECT 'CALENDAR_DAY_OCCASION' FROM dual
+)
+SELECT e.table_name
+  FROM expected e
+ WHERE NOT EXISTS (
+       SELECT 1 FROM all_tables t WHERE t.owner='CAL' AND t.table_name=e.table_name
+ );
+
+PROMPT Table row counts (informational):
+SELECT table_name,
+       TO_NUMBER(EXTRACTVALUE(XMLTYPE(DBMS_XMLGEN.GETXML(
+           'SELECT COUNT(*) C FROM CAL.' || table_name)), '/ROWSET/ROW/C')) AS row_count
+  FROM all_tables
+ WHERE owner='CAL'
+   AND table_name IN (
+       'CALENDAR_SYSTEM','CALENDAR_ALGORITHM','WEEKDAY','CALENDAR_MONTH','CALENDAR_DAY','CALENDAR_DATE',
+       'HIJRI_DATE_OVERRIDE','BUSINESS_CALENDAR','BUSINESS_CALENDAR_DAY','CALENDAR_EXCEPTION',
+       'BUSINESS_DAY_CONVENTION','OCCASION_CATEGORY','OCCASION','OCCASION_RULE','OCCASION_OCCURRENCE','CALENDAR_DAY_OCCASION'
+   )
+ ORDER BY table_name;
+
+PROMPT Core dataset expected baseline for supplied v1.0 package:
+SELECT (SELECT COUNT(*) FROM CAL.CALENDAR_DAY) AS calendar_day_rows,
+       (SELECT COUNT(*) FROM CAL.CALENDAR_DATE) AS calendar_date_rows
+  FROM dual;
+
+PROMPT Expected supplied-v1.0 baseline: CALENDAR_DAY=146462, CALENDAR_DATE=439386.

@@ -1,3 +1,13 @@
+# 0.3.35-prototype-fee-p1
+
+- FIX46: Added a separate «اطلاعات پایه تقویم سازمانی» domain under Reference Data for the physical Oracle `CAL` schema supplied in the enterprise-calendar v1.0 package.
+- Added 16 calendar forms grouped into core chronology, business calendar, occasions, and official Hijri override sections.
+- `CALENDAR_DAY` and `CALENDAR_DATE` are intentionally read-only to protect the verified 400-year canonical dataset; other maintenance tables use parameterized Oracle CRUD.
+- Added three-calendar `DAY_ID` lookup so operational calendar/occasion forms search by canonical Gregorian, Solar Hijri or Hijri Civil date instead of requiring technical IDs.
+- Added CAL to configured Oracle schemas, so EA/Oracle comparison and Oracle-to-EA XMI export can target the calendar schema.
+- Updated system-specification counts and architecture to include 16 CAL forms and the CAL schema.
+- No Oracle migration is required; CAL physical tables are assumed to have already been installed.
+
 # 0.3.34-prototype-fee-p1
 
 - FIX45: corrected the regression test introduced with FIX44. The runtime SQL was already correct (`TC.VIRTUAL_COLUMN` from `ALL_TAB_COLS`), but the JUnit assertion incorrectly searched for the substring `C.VIRTUAL_COLUMN`, which is also contained inside `TC.VIRTUAL_COLUMN`.

@@ -22,6 +22,8 @@ export const routes: Routes = [
 
       {path: 'reference-data', loadComponent: () => import('./features/reference-hub/reference-hub.component').then(m => m.ReferenceHubComponent)},
       {path: 'reference-data/general', data: {scope: 'GENERAL'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},
+      {path: 'calendar/reference-data', loadComponent: () => import('./features/calendar-reference/calendar-reference-menu.component').then(m => m.CalendarReferenceMenuComponent)},
+      {path: 'calendar/reference-data/:resource', loadComponent: () => import('./features/calendar-reference/calendar-reference-page.component').then(m => m.CalendarReferencePageComponent)},
       {path: 'reference-data/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
 
       {path: 'deposit/reference-data', data: {scope: 'DEPOSIT'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},
