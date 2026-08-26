@@ -4,16 +4,17 @@
 
 ## وضعیت این نسخه
 
-در وضعیت فعلی چهار دامنه اطلاعات پایه/مرجع اصلی فعال هستند:
+در وضعیت فعلی پنج دامنه اطلاعات پایه/مرجع اصلی فعال هستند:
 
 ```text
 reference-data                    -> Schema GEO
 deposit-product reference-data    -> Schema DPS
 customer-information-file (CIF)   -> Schema CIF
 enterprise-calendar                -> Schema CAL
+bian-400y-calendar                 -> Schema CAL2
 ```
 
-در این نسخه ۱۸۵ فرم اطلاعات پایه/تقویم فعال هستند: ۲۰ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*`، ۹۹ فرم اطلاعات پایه Party/Customer در CIF و ۱۶ فرم تقویم سازمانی در CAL. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
+در این نسخه ۲۰۱ فرم اطلاعات پایه/تقویم فعال هستند: ۲۰ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*`، ۹۹ فرم اطلاعات پایه Party/Customer در CIF، ۱۶ فرم تقویم یک در CAL و ۱۶ فرم مستقل تقویم دو در CAL2. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
 
 برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. مسیر عملیاتی CIF از ایجاد Party تا اطلاعات Person/Organization، تماس و نشانی، مالی، شناسه و مدرک، طبقه‌بندی، روابط/UBO، Role/Customer، KYC/Risk/Screening، Consent/Preference، Lifecycle و Merge تکمیل شده است. در نسخه 0.3.22 تمام ۴۸ جدول عملیاتی موجود در `CIF-tables5.xlsx` در Backend پوشش داده می‌شوند: ۳۰ جدول در Workflowهای CIF استفاده/نگهداری می‌شوند و ۱۸ جدول تکمیلی بدون CRUD در CIF به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند؛ محصولات/تعاملات/شکایات و مشابه آن از سامانه‌های مبدأ می‌آیند و Registration/Audit صرفاً Trace خواندنی هستند.
 
@@ -64,6 +65,17 @@ com.behsazan.corebanking
 │       ├── domain
 │       ├── oracle
 │       └── web
+├── calendar2
+│   ├── reference
+│   │   ├── application
+│   │   ├── domain
+│   │   ├── oracle
+│   │   └── web
+│   └── datasetimport
+│       ├── application
+│       ├── domain
+│       ├── oracle
+│       └── web
 └── cif
     ├── application
     ├── domain
@@ -89,17 +101,19 @@ core-banking:
     cif: CIF
     party-reference: CIF
     calendar: CAL
+    calendar2: CAL2
 ```
 
 - `GEO`: مالک فیزیکی فعلی جداول اطلاعات پایه. جداسازی منطقی ماژول در کد انجام شده است، اما جداول فعلاً در همین Schema باقی می‌مانند.
 - `DPS`: مالک جداول مرجع محصول‌ساز سپرده و اسکریپت‌های Oracle مربوط به آن‌ها.
 - `CIF`: مالک جداول مدیریت Party، Person/Organization، KYC، نشانی، تماس، ریسک و غربالگری.
 - `party-reference`: مالک منطقی Reference Data جدید Party/Customer و در این فاز برابر Schema `CIF` است.
-- `CAL`: مالک مدل تقویم سازمانی شامل تقویم سه‌گانه، روز کاری، مناسبت و اصلاح رسمی قمری است.
+- `CAL`: مالک مدل تقویم یک شامل تقویم سه‌گانه، روز کاری، مناسبت و اصلاح رسمی قمری است.
+- `CAL2`: مالک مدل مستقل BIAN-aligned چهارصدساله شامل Calendar Variant، Source Authority، Dataset Version، Canonical Day، Event، Business Calendar و Validation Evidence است و هیچ جدول/FK مشترکی با `CAL` ندارد.
 
 ### Import Dataset تقویم بدون SQL*Loader
 
-از مسیر `/calendar/reference-data/import` دو فایل `calendar_day.csv` و `calendar_date.csv` انتخاب می‌شوند. Backend با همان DataSource برنامه فایل‌ها را به‌صورت Streaming/JDBC Batch ثبت می‌کند. Import فقط روی Dataset خالی و پس از تکمیل Seedهای `CALENDAR_SYSTEM`، `CALENDAR_ALGORITHM`، `WEEKDAY` و `CALENDAR_MONTH` مجاز است و در صورت هر خطا کل تراکنش Rollback می‌شود.
+از مسیر `/calendar/reference-data/import` دو فایل `calendar_day.csv` و `calendar_date.csv` انتخاب می‌شوند. Backend با همان DataSource برنامه فایل‌ها را به‌صورت Streaming/JDBC Batch ثبت می‌کند. مطابق تصمیم اجرایی FIX50 هیچ کنترل معنایی/تعداد رکورد Dataset در مسیر Import انجام نمی‌شود؛ هر دو فایل در یک تراکنش درج و پس از پایان موفق Insertها Commit می‌شوند و خطای واقعی Insert/JDBC باعث Rollback می‌شود.
 
 ### Reference Data جدید Party / Customer
 
@@ -123,6 +137,13 @@ database/oracle/
 ├── dps/
 │   ├── ddl/
 │   └── data/
+├── cal/
+│   └── ...
+├── cal2/
+│   ├── 00-create-cal2-schema.sql
+│   ├── 01-create-cal2-tables.sql
+│   ├── 02-grant-cal2-to-application-user.sql
+│   └── 99-verify-cal2-schema.sql
 └── cif/
     ├── ddl/
     └── reference-data/
@@ -134,8 +155,9 @@ DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون ب
 
 ## قابلیت‌های ماژول اطلاعات پایه
 
-- ۱۸۵ فرم فعال اطلاعات پایه/تقویم؛ شامل ۲۰ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS، ۹۹ فرم Party/Customer در CIF و ۱۶ فرم تقویم سازمانی در CAL
-- Import مستقیم Dataset چهارصدساله CAL از `calendar_day.csv` و `calendar_date.csv` با JDBC Batch و تراکنش واحد؛ بدون SQL*Loader/Oracle Client
+- ۲۰۱ فرم فعال اطلاعات پایه/تقویم؛ شامل ۲۰ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS، ۹۹ فرم Party/Customer در CIF، ۱۶ فرم تقویم یک در CAL و ۱۶ فرم تقویم دو/CAL2
+- Import مستقیم Dataset تقویم یک/CAL از `calendar_day.csv` و `calendar_date.csv` با JDBC Batch و تراکنش واحد؛ بدون SQL*Loader/Oracle Client
+- Import مستقیم بسته ZIP مدل BIAN شامل ۱۵ CSV به Schema مستقل `CAL2` با ترتیب FK، JDBC Batch و یک تراکنش
 - فهرست Party و پرونده جامع Customer 360 در ماژول CIF
 - پوشش کامل ۴۸ جدول عملیاتی CIF مطابق `CIF-tables5.xlsx`: ۳۰ جدول در Workflowهای ایجاد/نگهداری Party استفاده می‌شوند و ۱۸ جدول تکمیلی به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند
 - Runtime عمومی Descriptor-driven
@@ -272,7 +294,7 @@ tools/sync-system-specification.mjs
 
 ## ساختار ناوبری اطلاعات پایه از نسخه 0.3.11
 
-منوی اصلی فقط یک گزینه «اطلاعات پایه» دارد. این گزینه به صفحه انتخاب دامنه هدایت می‌شود و چهار دامنه مستقل «اطلاعات پایه عمومی»، «اطلاعات پایه مشتری / Party»، «اطلاعات پایه محصول سپرده» و «اطلاعات پایه تقویم سازمانی» را نمایش می‌دهد. «درخت جغرافیایی» نیز به بخش «اطلاعات پایه عمومی / اطلاعات جغرافیایی» منتقل شده است و دیگر گزینه سطح اول Sidebar نیست.
+منوی اصلی فقط یک گزینه «اطلاعات پایه» دارد. این گزینه به صفحه انتخاب دامنه هدایت می‌شود و پنج دامنه مستقل «اطلاعات پایه عمومی»، «اطلاعات پایه مشتری / Party»، «اطلاعات پایه محصول سپرده»، «تقویم یک / CAL» و «تقویم دو / CAL2» را نمایش می‌دهد. «درخت جغرافیایی» نیز به بخش «اطلاعات پایه عمومی / اطلاعات جغرافیایی» منتقل شده است و دیگر گزینه سطح اول Sidebar نیست.
 
 
 راهنمای فاز ۶ روابط و ذی‌نفعان: `docs/CIF-PARTY-OPERATIONS-PHASE6-FA.md`
@@ -430,7 +452,7 @@ database/oracle/cif/migrations/0.3.22-fix17-party-document-classification-date.s
 
 ## 0.3.22-prototype-fix30 - مقایسه مدل EA با Oracle
 
-در Fix30 یک فرم مدیریتی جدید در مسیر `مدیریت و سیستم > مقایسه مدل EA / Oracle` اضافه شده است. کاربر فایل XML/XMI خروجی Enterprise Architect را انتخاب می‌کند، Schema مقصد را فقط از Schemaهای Oracle تنظیم‌شده در خود برنامه (`CIF / GEO / DPS / CAL / FEE`) برمی‌گزیند و مقایسه را اجرا می‌کند.
+در Fix30 یک فرم مدیریتی جدید در مسیر `مدیریت و سیستم > مقایسه مدل EA / Oracle` اضافه شده است. کاربر فایل XML/XMI خروجی Enterprise Architect را انتخاب می‌کند، Schema مقصد را فقط از Schemaهای Oracle تنظیم‌شده در خود برنامه (`CIF / GEO / DPS / CAL / CAL2 / FEE`) برمی‌گزیند و مقایسه را اجرا می‌کند.
 
 گزارش شامل وجود/عدم وجود جدول، تعداد ستون‌های EA و Oracle، نوع داده، طول، Precision/Scale، Nullable، Primary Key، ستون‌های مفقود/اضافی/متفاوت و `COUNT(*)` دقیق رکوردهای جدول‌های مقایسه‌شده است. تعریف‌های تکراری یک Table در Packageهای مختلف EA با نام جدول ادغام می‌شوند و هشدار مربوطه در گزارش نشان داده می‌شود. خروجی CSV سطح جدول نیز قابل دریافت است.
 
@@ -457,8 +479,25 @@ Parser XML در برابر DTD/External Entity غیرفعال و سخت‌ساز
 این فرم از اتصال Oracle موجود در Backend استفاده می‌کند و Metadata فیزیکی Schema انتخاب‌شده را به XMI 1.1 / UML 1.3 سازگار با Enterprise Architect تبدیل می‌کند. جداول، ستون‌ها، PK/UK، روابط FK، Index، Check Constraint، Comment، Default، Owner و Tablespace پوشش داده می‌شوند. برای FKهای خارج از محدوده Export نیز امکان افزودن Reference Stub وجود دارد.
 
 
-## اطلاعات پایه تقویم سازمانی — FIX46
+## تقویم یک / CAL — FIX46
 
-از نسخه `0.3.35-prototype-fee-p1` دامنه مستقل «اطلاعات پایه تقویم سازمانی» در صفحه اطلاعات پایه اضافه شده است. این دامنه مستقیماً از Schema `CAL` استفاده می‌کند و ۱۶ جدول مدل Enterprise Calendar را در چهار گروه «ساختار و داده تقویم»، «تقویم کاری و بانکی»، «مناسبت‌ها و رویدادها» و «اصلاحات رسمی تقویم قمری» پوشش می‌دهد.
+از نسخه `0.3.35-prototype-fee-p1` دامنه مستقل «تقویم یک» در صفحه اطلاعات پایه اضافه شده است. این دامنه مستقیماً از Schema `CAL` استفاده می‌کند و ۱۶ جدول مدل Enterprise Calendar را در چهار گروه «ساختار و داده تقویم»، «تقویم کاری و بانکی»، «مناسبت‌ها و رویدادها» و «اصلاحات رسمی تقویم قمری» پوشش می‌دهد.
 
-دو جدول `CALENDAR_DAY` و `CALENDAR_DATE` به دلیل ماهیت Dataset چهارصدساله فقط‌خواندنی هستند. سایر جداول متناسب با Contract فیزیکی Oracle قابلیت ایجاد/ویرایش/حذف دارند. برای فیلدهای مبتنی بر `DAY_ID` Lookup جست‌وجویی سه‌تقویمی ارائه شده است تا کاربر به‌جای وارد کردن شناسه فنی، روز را با تاریخ میلادی/شمسی/قمری جست‌وجو کند.
+دو جدول `CALENDAR_DAY` و `CALENDAR_DATE` به دلیل ماهیت Dataset تقویم فقط‌خواندنی هستند. سایر جداول متناسب با Contract فیزیکی Oracle قابلیت ایجاد/ویرایش/حذف دارند. برای فیلدهای مبتنی بر `DAY_ID` Lookup جست‌وجویی سه‌تقویمی ارائه شده است تا کاربر به‌جای وارد کردن شناسه فنی، روز را با تاریخ میلادی/شمسی/قمری جست‌وجو کند.
+
+
+## تقویم دو / CAL2 — FIX54
+
+از نسخه `0.3.43-prototype-fee-p1` مدل دوم تقویم به‌صورت کاملاً مستقل در Schema `CAL2` اضافه شده است. این مدل از بسته `BIAN_Calendar_400Y_Oracle_Import` استخراج شده و با جدول قواعد مناسبت در FIX56 اکنون ۱۶ جدول دارد. بازه Dataset مبنا `1826-01-01` تا `2225-12-31`، شامل ۱۴۶٬۰۹۷ روز Canonical و ۴۳۸٬۲۹۱ نگاشت تاریخ برای سه Variant است.
+
+منوی مستقل «تقویم دو» زیر «اطلاعات پایه» قرار دارد و فرم‌ها در شش گروه تعاریف تقویم، منبع/نسخه Dataset، Dataset تقویم، مناسبت‌ها، تقویم کاری و کنترل/ممیزی ارائه می‌شوند. `CANONICAL_DAY`، `CALENDAR_DATE`، `DATASET_VERSION`، `VALIDATION_RUN` و `VALIDATION_RESULT` در UI فقط‌خواندنی هستند؛ فرم‌های Event و Business Calendar قابل نگهداری‌اند.
+
+برای نصب Schema جدید ابتدا به‌ترتیب `database/oracle/cal2/00-create-cal2-schema.sql` و `01-create-cal2-tables.sql` اجرا شود. اگر برنامه با User دیگری به Oracle متصل می‌شود، `02-grant-cal2-to-application-user.sql` نیز اجرا شود. پس از ایجاد ساختار، فایل ZIP اصلی ۱۵-CSV از مسیر `/calendar2/reference-data/import` با JDBC Batch و یک تراکنش Import می‌شود؛ SQL*Loader لازم نیست. این مدل هیچ FK یا وابستگی فیزیکی به Schema `CAL` ندارد.
+
+### قواعد مناسبت تکرارشونده — FIX56
+
+از نسخه `0.3.45-prototype-fee-p1` جدول `CAL2.EVENT_RECURRENCE_RULE` و عملیات Materialize مناسبت‌ها اضافه شده است. کاربر یک مناسبت را در `EVENT` و قاعده آن را یک‌بار در فرم «تعریف مناسبت و قاعده تکرار» ثبت می‌کند. قواعد `ANNUAL_FIXED_DATE` با ماه/روز و Calendar Variant مبنا برای تمام سال‌های موجود در `CALENDAR_DATE` رخداد تولید می‌کنند؛ قواعد `ONE_TIME_DATE` فقط یک سال مشخص را Materialize می‌کنند. ذخیره یا ویرایش قاعده در همان Transaction رخدادهای `GENERATED` آن قاعده را حذف و بازسازی می‌کند؛ رخدادهای `MANUAL` و `OFFICIAL` بازنویسی نمی‌شوند.
+
+برای Schemaهای CAL2 موجود، Migration زیر اجرا شود:
+
+`database/oracle/cal2/migrations/0.3.45-fix56-event-recurrence-rule.sql`

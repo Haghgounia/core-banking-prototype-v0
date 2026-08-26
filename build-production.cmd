@@ -42,6 +42,12 @@ node "%ROOT%tools\verify-calendar-reference.mjs" || exit /b 1
 rem FIX47 static guard: transactional CAL dataset CSV import over JDBC; no SQL*Loader dependency.
 node "%ROOT%tools\verify-calendar-dataset-import.mjs" || exit /b 1
 
+rem CAL2 static guard: independent forms/DDL, recurring events and ZIP JDBC import.
+node "%ROOT%tools\verify-calendar2-reference.mjs" || exit /b 1
+
+rem FIX55 static guard: user-facing calendar labels must stay simple and distinct.
+node "%ROOT%tools\verify-calendar-display-labels.mjs" || exit /b 1
+
 rem Remove stale packages first. A failed build must never leave an older JAR looking current.
 if exist "%ROOT%app\core-banking-prototype.jar" del /q "%ROOT%app\core-banking-prototype.jar"
 if exist "%ROOT%backend\target\core-banking-prototype.jar" del /q "%ROOT%backend\target\core-banking-prototype.jar"

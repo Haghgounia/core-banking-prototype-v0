@@ -45,4 +45,4 @@ tools/sync-system-specification.mjs
 frontend/src/app/features/system-specification/system-version.generated.ts
 ```
 
-تاریخ بازنگری، تعداد فرم‌های Reference، تعداد صفحات عملیاتی Party، پوشش جدول‌های CIF و فهرست قابلیت‌ها همچنان باید در هر Release به‌صورت آگاهانه بررسی شوند. در نسخه 0.3.22-prototype-fix30 مقادیر جاری 169 فرم Reference (20 عمومی/GEO + 99 CIF Party/Customer + 50 DPS)، 12 صفحه عملیاتی Party و 48 جدول CIF است. علاوه بر آن یک صفحه مدیریتی مستقل برای مقایسه XML/XMI مدل Enterprise Architect با Schemaهای Oracle تنظیم‌شده در برنامه فعال است.
+تاریخ بازنگری، تعداد فرم‌های Reference، تعداد صفحات عملیاتی Party، پوشش جدول‌های CIF و فهرست قابلیت‌ها همچنان باید در هر Release به‌صورت آگاهانه بررسی شوند. در نسخه 0.3.45-prototype-fee-p1 مقادیر جاری ۲۰۱ فرم اطلاعات پایه/تقویم (۲۰ عمومی/GEO + ۹۹ CIF Party/Customer + ۵۰ DPS + ۱۶ CAL + ۱۶ CAL2)، ۱۲ صفحه عملیاتی Party و ۴۸ جدول CIF است. CAL2 شامل فرم قواعد مناسبت و تولید/بازسازی Materialized Occurrence بر اساس Calendar Variant است. ابزارهای مقایسه EA/Oracle و Oracle→EA XMI نیز برای Schemaهای تنظیم‌شده فعال هستند.

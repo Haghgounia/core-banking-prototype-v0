@@ -15,28 +15,29 @@ export interface TechnologyGroup {
 export const SYSTEM_RELEASE = {
   version: GENERATED_SYSTEM_VERSIONS.release,
   lastUpdated: '2026-08-26',
-  referenceForms: 185,
+  referenceForms: 201,
   generalReferenceForms: 20,
   partyReferenceForms: 99,
   depositReferenceForms: 50,
   calendarReferenceForms: 16,
+  calendar2ReferenceForms: 16,
   partyOperationalScreens: 12,
   cifTableCoverage: 48,
   cifOperationalTables: 30,
   cifReadOnly360Tables: 18,
-  databaseSchema: 'CIF / GEO / DPS / CAL / FEE'
+  databaseSchema: 'CIF / GEO / DPS / CAL / CAL2 / FEE'
 } as const;
 
 export const SYSTEM_ARCHITECTURE = [
   {
     title: 'رابط کاربری',
     icon: 'web',
-    description: 'Angular SPA با فرم‌های عملیاتی Party/Customer، نمای ۳۶۰، تقویم شمسی و Runtimeهای مستقل اطلاعات پایه عمومی، Party، سپرده و تقویم سازمانی.'
+    description: 'Angular SPA با فرم‌های عملیاتی Party/Customer، نمای ۳۶۰، تقویم شمسی و Runtimeهای مستقل اطلاعات پایه عمومی، Party، سپرده، تقویم یک در CAL و تقویم دو در CAL2.'
   },
   {
     title: 'لایه سرویس',
     icon: 'dns',
-    description: 'REST API مبتنی بر Spring MVC برای Workflowهای CIF، Reference Data و ماژول مدیریت تقویم CAL، همراه با Validation، Lookup سمت سرور، Import تراکنشی Dataset تقویم با JDBC Batch و ProblemDetail.'
+    description: 'REST API مبتنی بر Spring MVC برای Workflowهای CIF، Reference Data و دو ماژول مستقل تقویم CAL/CAL2، همراه با Lookup سمت سرور، Import تراکنشی JDBC Batch و ProblemDetail.'
   },
   {
     title: 'دسترسی داده',
@@ -46,7 +47,7 @@ export const SYSTEM_ARCHITECTURE = [
   {
     title: 'پایگاه داده',
     icon: 'storage',
-    description: 'Oracle Database با Schemaهای CIF، GEO، DPS، CAL و FEE؛ پوشش ۴۸ جدول عملیاتی CIF و ۱۸۵ فرم اطلاعات پایه/تقویم در چهار دامنه مرجع.'
+    description: 'Oracle Database با Schemaهای CIF، GEO، DPS، CAL، CAL2 و FEE؛ پوشش ۴۸ جدول عملیاتی CIF و ۲۰۱ فرم اطلاعات پایه/تقویم در پنج دامنه مرجع.'
   }
 ] as const;
 
@@ -84,7 +85,8 @@ export const SYSTEM_TECHNOLOGY_GROUPS: readonly TechnologyGroup[] = [
       {name: 'CIF Schema', version: 'CIF', purpose: 'Party/Customer، KYC/Risk، Consent، Lifecycle و ۹۹ جدول مرجع Party'},
       {name: 'General Reference Schema', version: 'GEO', purpose: '۲۰ فرم اطلاعات پایه عمومی، جغرافیا، اشتغال و تحصیلات'},
       {name: 'Deposit Reference Schema', version: 'DPS', purpose: '۵۰ جدول مرجع فعال محصول‌ساز سپرده'},
-      {name: 'Enterprise Calendar Schema', version: 'CAL', purpose: '۱۶ جدول تقویم سه‌گانه، روز کاری، مناسبت و اصلاح رسمی قمری؛ شامل Dataset چهارصدساله'},
+      {name: 'تقویم یک', version: 'CAL', purpose: '۱۶ جدول تقویم سه‌گانه، روز کاری، مناسبت، اصلاح رسمی قمری و Dataset تقویم'},
+      {name: 'تقویم دو', version: 'CAL2', purpose: '۱۶ جدول مستقل شامل Calendar Variant، Source Authority، Dataset Version، Canonical Day، Event Rule/Occurrence، Business Calendar و Validation Evidence'},
       {name: 'CIF Operational Coverage', version: '48 tables', purpose: '۳۰ جدول Workflow و ۱۸ منبع Read-only در Party / Customer 360'},
       {name: 'Server-side Pagination', version: 'Oracle OFFSET/FETCH', purpose: 'نمایش کارآمد جداول حجیم و Lookupهای جست‌وجویی'}
     ]
@@ -103,7 +105,7 @@ export const SYSTEM_TECHNOLOGY_GROUPS: readonly TechnologyGroup[] = [
 ];
 
 export const SYSTEM_CAPABILITIES = [
-  '۱۸۵ فرم فعال اطلاعات پایه/تقویم: ۲۰ فرم عمومی/GEO، ۹۹ فرم Party/Customer در CIF، ۵۰ فرم سپرده/DPS و ۱۶ فرم تقویم/CAL',
+  '۲۰۱ فرم فعال اطلاعات پایه/تقویم: ۲۰ فرم عمومی/GEO، ۹۹ فرم Party/Customer در CIF، ۵۰ فرم سپرده/DPS، ۱۶ فرم تقویم یک/CAL و ۱۶ فرم تقویم دو/CAL2',
   '۱۲ صفحه عملیاتی CIF شامل جست‌وجو، ایجاد Party، مراحل Onboarding، عملیات Lifecycle/Merge و Party / Customer 360',
   'Workflow انتهابه‌انتها برای Person و Organization از ایجاد Party تا Role/Customer، KYC، Consent و کنترل نهایی آمادگی',
   'تفکیک Party از Customer و ایجاد شماره مشتری فقط در نقش بانکی Customer',
@@ -113,11 +115,14 @@ export const SYSTEM_CAPABILITIES = [
   'Party / Customer 360 با پوشش همه ۴۸ جدول عملیاتی CIF؛ ۳۰ جدول Workflow و ۱۸ منبع تکمیلی Read-only',
   'Searchable Combo سمت سرور، Lookupهای مرجع، جست‌وجو، مرتب‌سازی و صفحه‌بندی سمت سرور',
   'تقویم شمسی پیش‌فرض در فرم‌های عملیاتی با تبدیل استاندارد به تاریخ ISO برای Java/Oracle',
-  'ماژول تقویم سازمانی CAL با ۱۶ فرم مستقل: سیستم‌های تقویم، الگوریتم، ماه/هفته، Dataset چهارصدساله سه‌تقویمی، تقویم کاری، استثناها، مناسبت‌ها و اصلاح رسمی قمری',
-  'Import مستقیم Dataset چهارصدساله تقویم از calendar_day.csv و calendar_date.csv با JDBC Batch، کنترل Seed، SHA-256، اعتبارسنجی سه‌تقویمی و Rollback تراکنشی بدون وابستگی به SQL*Loader',
+  'ماژول تقویم یک/CAL با ۱۶ فرم مستقل: سیستم‌های تقویم، الگوریتم، ماه/هفته، Dataset سه‌تقویمی، تقویم کاری، استثناها، مناسبت‌ها و اصلاح رسمی قمری',
+  'ماژول مستقل تقویم دو/CAL2 با ۱۶ فرم: Calendar System/Variant، Source Authority، Dataset Version، Canonical Day/Calendar Date، Event، قاعده تکرار مناسبت و Materialized Occurrence، Business Calendar و Validation Evidence',
+  'تعریف یک‌باره مناسبت‌های سالانه/یک‌باره در CAL2 بر مبنای Calendar Variant و تولید/بازسازی خودکار EVENT_OCCURRENCE برای سال‌های Dataset، بدون بازنویسی رخدادهای دستی/رسمی',
+  'Import مستقیم بسته ZIP تقویم دو شامل ۱۵ CSV به CAL2 با JDBC Batch ترتیبی و یک تراکنش، بدون نیاز به Oracle Client/SQL*Loader',
+  'Import مستقیم Dataset تقویم CAL از calendar_day.csv و calendar_date.csv با JDBC Batch خام و Commit پس از پایان هر دو stream، بدون وابستگی به SQL*Loader',
   'Validation قواعد کسب‌وکار، Optimistic Lock با RECORD_VERSION و پاسخ خطای استاندارد ProblemDetail',
   'لاگ Runtime در فایل logs/core-banking-prototype.log با Rolling Policy و Health endpointهای Actuator',
   'Theme روشن، تیره و هماهنگ با سیستم با نگهداری انتخاب کاربر',
   'مقایسه فایل XML/XMI خروجی Enterprise Architect با Schemaهای Oracle تنظیم‌شده در برنامه، شامل ساختار جدول/ستون، کلیدها، Metadata و Comment',
-  'استخراج مستقیم Schemaهای Oracle از جمله CAL به XML/XMI استاندارد Enterprise Architect همراه با Table، Column، PK/FK، Index و Constraint'
+  'استخراج مستقیم Schemaهای Oracle از جمله CAL و CAL2 به XML/XMI استاندارد Enterprise Architect همراه با Table، Column، PK/FK، Index و Constraint'
 ] as const;

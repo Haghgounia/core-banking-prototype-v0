@@ -1,0 +1,14 @@
+-- Optional grants when the application connects with a user other than SYSTEM/CAL2.
+-- Run as CAL2 or a privileged account.
+SET DEFINE ON
+WHENEVER SQLERROR EXIT SQL.SQLCODE
+ACCEPT APP_USER CHAR PROMPT 'Application Oracle user: '
+
+BEGIN
+  FOR R IN (SELECT TABLE_NAME FROM ALL_TABLES WHERE OWNER = 'CAL2') LOOP
+    EXECUTE IMMEDIATE 'GRANT SELECT, INSERT, UPDATE, DELETE ON CAL2.' || DBMS_ASSERT.SIMPLE_SQL_NAME(R.TABLE_NAME) || ' TO ' || DBMS_ASSERT.SIMPLE_SQL_NAME(UPPER('&APP_USER'));
+  END LOOP;
+END;
+/
+
+PROMPT CAL2 table grants completed.

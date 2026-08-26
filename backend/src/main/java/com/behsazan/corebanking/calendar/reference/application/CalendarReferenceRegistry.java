@@ -42,7 +42,7 @@ public class CalendarReferenceRegistry {
 
     public CatalogResponse catalog() {
         List<CatalogGroup> groups = List.of(
-                group("CORE", "ساختار و داده تقویم", "تعریف سیستم‌های تقویم، الگوریتم، روز هفته، ماه و Dataset چهارصدساله", "calendar_month"),
+                group("CORE", "ساختار و داده تقویم", "تعریف سیستم‌های تقویم، الگوریتم، روز هفته، ماه و Dataset تقویم", "calendar_month"),
                 group("BUSINESS", "تقویم کاری و بانکی", "تقویم کاری بانک، وضعیت روز کاری، استثناها و قواعد تعدیل روز کاری", "event_available"),
                 group("OCCASION", "مناسبت‌ها و رویدادها", "دسته‌بندی، تعریف، قواعد تکرار و رخداد واقعی مناسبت‌ها", "celebration"),
                 group("HIJRI", "اصلاحات رسمی تقویم قمری", "ثبت اصلاحات رؤیتی/اعلام رسمی بدون تغییر Dataset محاسباتی", "verified")
@@ -125,7 +125,7 @@ public class CalendarReferenceRegistry {
     }
 
     private TableDescriptor calendarDay() {
-        return table("calendar-days", "CORE", "روزهای Canonical", "محور مطلق روز؛ Dataset چهارصدساله و فقط‌خواندنی", "today",
+        return table("calendar-days", "CORE", "روزهای Canonical", "محور مطلق روز؛ Dataset تقویم و فقط‌خواندنی", "today",
                 "CALENDAR_DAY", false, false, false, false, "dayId", "canonicalDate",
                 List.of(
                         readKeyNumber("dayId", "DAY_ID", "شناسه روز", true),

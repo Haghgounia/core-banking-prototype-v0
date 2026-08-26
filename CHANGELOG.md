@@ -1,3 +1,33 @@
+# 0.3.45-prototype-fee-p1 - FIX56
+
+- افزودن جدول `CAL2.EVENT_RECURRENCE_RULE` به‌عنوان فرم شانزدهم CAL2 برای تعریف یک‌باره قواعد مناسبت سالانه/یک‌باره بر مبنای Calendar Variant.
+- توسعه `CAL2.EVENT_OCCURRENCE` با `EVENT_RULE_ID` و `OCCURRENCE_SOURCE` برای تفکیک رخدادهای `GENERATED / MANUAL / OFFICIAL`.
+- Materialize خودکار رخدادهای Rule در همان Transaction ذخیره/ویرایش؛ Generatedهای قبلی همان Rule بازسازی می‌شوند و رخدادهای دستی/رسمی بازنویسی نمی‌شوند.
+- پشتیبانی از `ANNUAL_FIXED_DATE` با بازه سال اختیاری و `ONE_TIME_DATE` با سال مشخص.
+- افزودن عملیات «تولید/بازسازی رخدادها» برای هر Rule و «بازسازی همه قواعد فعال» در UI تقویم دو.
+- افزودن Migration قابل اجرای مجدد `database/oracle/cal2/migrations/0.3.45-fix56-event-recurrence-rule.sql` برای Schemaهای CAL2 موجود.
+- به‌روزرسانی System Specification به ۲۰۱ فرم: ۲۰ GEO + ۹۹ CIF + ۵۰ DPS + ۱۶ CAL + ۱۶ CAL2.
+
+# 0.3.44-prototype-fee-p1 - FIX55
+
+- ساده‌سازی نام‌گذاری دو دامنه تقویم در تمام فرم‌های فعال: `CAL` با عنوان «تقویم یک» و `CAL2` با عنوان «تقویم دو».
+- حذف عبارت «چهارصدساله»، «تقویم سازمانی» و عنوان نمایشی «تقویم BIAN» از منوها، Breadcrumbها، فرم‌های Dataset/Import، پیام‌های UI و System Specification.
+- تغییر گروه Dataset هر دو تقویم به عنوان خنثی «Dataset تقویم»؛ Schemaها، Routeها، APIها، DDL و ساختار فیزیکی Oracle بدون تغییر باقی مانده‌اند.
+- افزودن Guard ساخت `verify-calendar-display-labels.mjs` برای جلوگیری از بازگشت عنوان‌های قبلی در فرم‌های زنده.
+- بدون Migration یا DDL جدید.
+
+# 0.3.43-prototype-fee-p1 - FIX54
+
+- افزودن Schema مستقل `CAL2` برای مدل BIAN-aligned چهارصدساله؛ بدون FK یا اشتراک فیزیکی با `CAL`.
+- افزودن DDL کامل ۱۵ جدول `CAL2` شامل PK/UQ/FK/Check/Index، Comment جدول و ۱۴۴ Comment فارسی ستون.
+- افزودن ۱۵ فرم مستقل CAL2 در شش گروه: تعاریف، منبع/نسخه Dataset، Dataset، مناسبت، تقویم کاری و Validation Evidence.
+- `DATASET_VERSION`، `CANONICAL_DAY`، `CALENDAR_DATE`، `VALIDATION_RUN` و `VALIDATION_RESULT` از UI فقط‌خواندنی هستند؛ Event/Business Calendar برای نگهداری داده رسمی/عملیاتی قابل ویرایش‌اند.
+- افزودن Import مستقیم ZIP اصلی شامل ۱۵ CSV به `/api/v1/calendar2/dataset/import` با JDBC Batch 1000، ترتیب وابستگی FK و Transaction واحد؛ بدون SQL*Loader/Oracle Client.
+- رفع compile-time IOException در loop خواندن CSV که در compile harness پیش از بسته‌بندی شناسایی شد.
+- افزودن مسیرهای `/calendar2/reference-data` و `/calendar2/reference-data/import` و کارت مستقل «تقویم BIAN / CAL2» زیر اطلاعات پایه.
+- افزودن `CAL2` به Schemaهای قابل انتخاب در ابزارهای EA/Oracle comparison و Oracle → EA XMI export.
+- به‌روزرسانی System Specification: مجموع ۲۰۰ فرم اطلاعات پایه/تقویم = ۲۰ GEO + ۹۹ CIF + ۵۰ DPS + ۱۶ CAL + ۱۵ CAL2.
+
 # 0.3.42-prototype-fee-p1 - FIX53
 
 - رفع خطای کامپایل Java در `CalendarDatasetImportRepository`: متد `toIso(Date value)` از `java.sql.Date` استفاده می‌کرد اما import آن در FIX52 حذف شده بود.

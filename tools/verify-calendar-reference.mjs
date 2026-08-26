@@ -20,7 +20,7 @@ if (missing.length) throw new Error(`Calendar descriptor missing physical tables
 if (!registry.includes('calendar-days') || !registry.includes('calendar-dates')) throw new Error('Generated chronology resources missing.');
 if (!routes.includes("path: 'calendar/reference-data'")) throw new Error('Calendar reference menu route missing.');
 if (!routes.includes("path: 'calendar/reference-data/:resource'")) throw new Error('Calendar reference page route missing.');
-if (!hub.includes('اطلاعات پایه تقویم سازمانی')) throw new Error('Calendar domain card missing from Reference Data hub.');
+if (!hub.includes('تقویم یک')) throw new Error('Calendar domain card missing from Reference Data hub.');
 if (!config.includes('calendar: CAL')) throw new Error('CAL schema configuration missing.');
 if (!page.includes('Dataset محاسباتی/Canonical')) throw new Error('Read-only chronology protection notice missing.');
 console.log(`Calendar reference verification OK: ${expectedTables.length} CAL tables, separate Reference Data menu, protected generated dataset.`);

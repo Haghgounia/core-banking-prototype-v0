@@ -30,7 +30,7 @@ const checks = [
   [repository.includes('reader.readLine(); // header is intentionally skipped; no header validation'), 'header skipped without validation'],
   [repository.includes('INSERT INTO ') && repository.includes('CALENDAR_DAY') && repository.includes('CALENDAR_DATE'), 'calendar day/date inserts'],
   [routes.includes("path: 'calendar/reference-data/import'"), 'frontend import route'],
-  [menu.includes('Import Dataset چهارصدساله از CSV'), 'calendar menu import card'],
+  [menu.includes('Import Dataset تقویم از CSV'), 'calendar menu import card'],
   [page.includes('بدون اعتبارسنجی Dataset') && page.includes('پس از پایان موفق هر دو Insert، تراکنش Commit می‌شود'), 'raw import UI'],
   [!component.includes('refreshStatus()') && !component.includes('seedReady') && !component.includes('datasetEmpty'), 'UI does not count/block before import'],
   [config.includes('max-file-size: 64MB') && config.includes('max-request-size: 96MB'), 'runtime multipart technical limits'],
