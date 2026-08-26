@@ -53,13 +53,7 @@ public final class CalendarDatasetModels {
             String calendarDateFileName,
             long calendarDayRows,
             long calendarDateRows,
-            String minimumCanonicalDate,
-            String maximumCanonicalDate,
-            String calendarDaySha256,
-            String calendarDateSha256,
-            boolean enterpriseCalendarV100Dataset,
-            long elapsedMillis,
-            DatasetVerification verification
+            long elapsedMillis
     ) {}
 
     public record CalendarDayCsvRow(

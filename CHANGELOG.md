@@ -1,3 +1,30 @@
+# 0.3.42-prototype-fee-p1 - FIX53
+
+- رفع خطای کامپایل Java در `CalendarDatasetImportRepository`: متد `toIso(Date value)` از `java.sql.Date` استفاده می‌کرد اما import آن در FIX52 حذف شده بود.
+- `import java.sql.Date;` بازگردانده شد؛ منطق Raw Transactional Import و عدم اجرای کنترل Dataset بدون تغییر باقی مانده است.
+- هیچ Migration یا DDL جدیدی ندارد.
+
+# 0.3.41-prototype-fee-p1 - FIX52
+
+- رفع خطای Angular TS2339 در فرم Import تقویم: حذف ارجاع Template به `minimumCanonicalDate` و `maximumCanonicalDate` که در قرارداد `CalendarDatasetImportResult` وجود نداشتند.
+- نتیجه Import اکنون فقط از فیلدهای واقعی قرارداد API استفاده می‌کند: تعداد رکوردهای Insert شده، نام دو فایل و زمان اجرا.
+- هیچ Dataset/count validation به مسیر Import اضافه نشده است؛ رفتار Raw Transactional Import نسخه FIX50 حفظ شده است.
+
+# 0.3.40-prototype-fee-p1 - FIX51
+
+- Fixed production build ordering: `tools/sync-system-specification.mjs` now runs before static verifiers.
+- Prevents false build failure when `system-version.generated.ts` still contains the prior release.
+- Package generated system version synchronized to `0.3.40-prototype-fee-p1`.
+- No database migration.
+
+# 0.3.39 - FIX50
+
+- Calendar CSV import switched to raw transactional JDBC mode.
+- Removed seed/empty-table checks, row-count checks, 3x ratio check, DB count verification, SHA comparison and final dataset verification.
+- CSV headers are skipped without validation.
+- CALENDAR_DAY is inserted first, then CALENDAR_DATE; Spring commits only after both insert streams finish successfully.
+- Existing Oracle constraints are not altered by the application.
+
 # 0.3.38-prototype-fee-p1
 
 - FIX49: Calendar CSV JDBC import now binds CANONICAL_DATE as ISO text and converts it inside Oracle with `TO_DATE(..., 'YYYY-MM-DD')`, preventing timezone-sensitive JDBC `setDate` values from violating `CAL.CK_CAL_DAY_MIDNIGHT`.

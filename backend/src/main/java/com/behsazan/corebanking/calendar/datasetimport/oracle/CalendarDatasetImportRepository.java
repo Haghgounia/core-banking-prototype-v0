@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class CalendarDatasetImportRepository {
                 + " (DAY_ID, CANONICAL_DATE, EPOCH_DAY, JULIAN_DAY_NUMBER, WEEKDAY_ID, ISO_WEEKDAY_NO, IR_WEEKDAY_NO)"
                 + " VALUES (?, TO_DATE(?, 'YYYY-MM-DD'), ?, ?, ?, ?, ?)";
         try (BufferedReader reader = reader(file)) {
-            CalendarDatasetCsvParser.requireHeader(reader.readLine(), CalendarDatasetCsvParser.DAY_HEADER, "calendar_day.csv");
+            reader.readLine(); // header is intentionally skipped; no header validation in raw import mode
             return jdbcTemplate.execute((ConnectionCallback<Long>) connection -> {
                 try (PreparedStatement statement = connection.prepareStatement(sql)) {
                     String line;
@@ -107,7 +108,7 @@ public class CalendarDatasetImportRepository {
                 + " (CALENDAR_DATE_ID, DAY_ID, CALENDAR_SYSTEM_CODE, YEAR_NO, MONTH_NO, DAY_NO, DAY_OF_YEAR, FORMATTED_DATE, IS_LEAP_YEAR, ALGORITHM_CODE)"
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (BufferedReader reader = reader(file)) {
-            CalendarDatasetCsvParser.requireHeader(reader.readLine(), CalendarDatasetCsvParser.DATE_HEADER, "calendar_date.csv");
+            reader.readLine(); // header is intentionally skipped; no header validation in raw import mode
             return jdbcTemplate.execute((ConnectionCallback<Long>) connection -> {
                 try (PreparedStatement statement = connection.prepareStatement(sql)) {
                     String line;
@@ -172,6 +173,8 @@ public class CalendarDatasetImportRepository {
         return jdbcTemplate.queryForObject("SELECT MIN(CANONICAL_DATE) MIN_DATE, MAX(CANONICAL_DATE) MAX_DATE FROM " + table("CALENDAR_DAY"),
                 (rs, rowNum) -> new String[]{toIso(rs.getDate("MIN_DATE")), toIso(rs.getDate("MAX_DATE"))});
     }
+
+    public String schemaName() { return schemaName; }
 
     public long countDays() { return count("CALENDAR_DAY"); }
     public long countDates() { return count("CALENDAR_DATE"); }

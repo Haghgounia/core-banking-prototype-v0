@@ -5,6 +5,9 @@ set "ROOT=%~dp0"
 for /f "usebackq delims=" %%V in ("%ROOT%VERSION") do set "APP_VERSION=%%V"
 echo Building Core Banking Prototype %APP_VERSION%...
 
+rem Synchronize generated system specification before any verifier reads it.
+node "%ROOT%tools\sync-system-specification.mjs" || exit /b 1
+
 rem Fail fast when the source package is incomplete.
 if not exist "%ROOT%frontend\src\app\app.component.ts" (
   echo ERROR: frontend\src\app is incomplete. app.component.ts was not found.

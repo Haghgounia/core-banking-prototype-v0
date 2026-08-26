@@ -3,7 +3,6 @@ package com.behsazan.corebanking.calendar.datasetimport.application;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CalendarDatasetCsvParserTest {
 
@@ -37,8 +36,9 @@ class CalendarDatasetCsvParserTest {
     }
 
     @Test
-    void rejectsUnknownCalendarSystem() {
-        assertThrows(IllegalArgumentException.class, () -> CalendarDatasetCsvParser.parseDate(
-                "1,1,UNKNOWN,2026,1,1,1,2026/01/01,N,ALGORITHM", 2));
+    void rawModeDoesNotValidateCalendarSystemVocabulary() {
+        var row = CalendarDatasetCsvParser.parseDate(
+                "1,1,UNKNOWN,2026,1,1,1,2026/01/01,N,ALGORITHM", 2);
+        assertEquals("UNKNOWN", row.calendarSystemCode());
     }
 }

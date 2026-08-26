@@ -32,43 +32,39 @@ public final class CalendarDatasetCsvParser {
 
     public static CalendarDayCsvRow parseDay(String line, long lineNumber) {
         List<String> values = requireColumnCount(line, DAY_HEADER.size(), "calendar_day.csv", lineNumber);
-        long dayId = positiveLong(values.get(0), "DAY_ID", lineNumber);
-        LocalDate canonicalDate;
         try {
-            canonicalDate = LocalDate.parse(values.get(1));
-        } catch (DateTimeParseException exception) {
-            throw lineError(lineNumber, "CANONICAL_DATE باید با قالب YYYY-MM-DD باشد.");
+            return new CalendarDayCsvRow(
+                    Long.parseLong(values.get(0).trim()),
+                    LocalDate.parse(values.get(1).trim()),
+                    Long.parseLong(values.get(2).trim()),
+                    Long.parseLong(values.get(3).trim()),
+                    Integer.parseInt(values.get(4).trim()),
+                    Integer.parseInt(values.get(5).trim()),
+                    Integer.parseInt(values.get(6).trim())
+            );
+        } catch (RuntimeException exception) {
+            throw lineError(lineNumber, "مقادیر سطر برای تبدیل فنی به نوع داده مقصد قابل خواندن نیستند: " + exception.getMessage());
         }
-        long epochDay = longValue(values.get(2), "EPOCH_DAY", lineNumber);
-        long jdn = longValue(values.get(3), "JULIAN_DAY_NUMBER", lineNumber);
-        int weekdayId = rangeInt(values.get(4), "WEEKDAY_ID", 1, 7, lineNumber);
-        int iso = rangeInt(values.get(5), "ISO_WEEKDAY_NO", 1, 7, lineNumber);
-        int ir = rangeInt(values.get(6), "IR_WEEKDAY_NO", 1, 7, lineNumber);
-        return new CalendarDayCsvRow(dayId, canonicalDate, epochDay, jdn, weekdayId, iso, ir);
     }
 
     public static CalendarDateCsvRow parseDate(String line, long lineNumber) {
         List<String> values = requireColumnCount(line, DATE_HEADER.size(), "calendar_date.csv", lineNumber);
-        long id = positiveLong(values.get(0), "CALENDAR_DATE_ID", lineNumber);
-        long dayId = positiveLong(values.get(1), "DAY_ID", lineNumber);
-        String system = required(values.get(2), "CALENDAR_SYSTEM_CODE", lineNumber);
-        if (!CALENDAR_SYSTEMS.contains(system)) {
-            throw lineError(lineNumber, "CALENDAR_SYSTEM_CODE نامعتبر است: " + system);
+        try {
+            return new CalendarDateCsvRow(
+                    Long.parseLong(values.get(0).trim()),
+                    Long.parseLong(values.get(1).trim()),
+                    values.get(2).trim(),
+                    Integer.parseInt(values.get(3).trim()),
+                    Integer.parseInt(values.get(4).trim()),
+                    Integer.parseInt(values.get(5).trim()),
+                    Integer.parseInt(values.get(6).trim()),
+                    values.get(7).trim(),
+                    values.get(8).trim(),
+                    values.get(9).trim()
+            );
+        } catch (RuntimeException exception) {
+            throw lineError(lineNumber, "مقادیر سطر برای تبدیل فنی به نوع داده مقصد قابل خواندن نیستند: " + exception.getMessage());
         }
-        int year = intValue(values.get(3), "YEAR_NO", lineNumber);
-        int month = rangeInt(values.get(4), "MONTH_NO", 1, 12, lineNumber);
-        int day = rangeInt(values.get(5), "DAY_NO", 1, 31, lineNumber);
-        int dayOfYear = rangeInt(values.get(6), "DAY_OF_YEAR", 1, 366, lineNumber);
-        String formattedDate = required(values.get(7), "FORMATTED_DATE", lineNumber);
-        if (!formattedDate.matches("-?\\d{1,6}/\\d{2}/\\d{2}")) {
-            throw lineError(lineNumber, "FORMATTED_DATE باید با قالب YYYY/MM/DD باشد.");
-        }
-        String leap = required(values.get(8), "IS_LEAP_YEAR", lineNumber);
-        if (!"Y".equals(leap) && !"N".equals(leap)) {
-            throw lineError(lineNumber, "IS_LEAP_YEAR فقط می‌تواند Y یا N باشد.");
-        }
-        String algorithm = required(values.get(9), "ALGORITHM_CODE", lineNumber);
-        return new CalendarDateCsvRow(id, dayId, system, year, month, day, dayOfYear, formattedDate, leap, algorithm);
     }
 
     public static List<String> split(String line) {
