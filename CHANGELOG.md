@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.58-prototype-fee-p1 — FIX69: Lookup کشور و منطقه زمانی در تقویم کاری
+
+- در فرم `CAL2.BUSINESS_CALENDAR` فیلد کشور از حالت Text آزاد به Lookup جستجوپذیر تبدیل شد و داده مستقیماً از `GEO.COUNTRIES` خوانده می‌شود.
+- با توجه به ساختار واقعی `CAL2.BUSINESS_CALENDAR.COUNTRY_CODE VARCHAR2(3)`، مقدار ذخیره‌شده `COUNTRY_ISO_CODE` سه‌حرفی است؛ نام فارسی کشور برای کاربر نمایش داده می‌شود و `COUNTRY_ISO_CODE2` نیز در کد گزینه دیده می‌شود.
+- فقط کشورهای فعال (`IS_ACTIVE=1`) در Lookup قابل انتخاب‌اند و کشور پیش‌فرض مرجع در ابتدای فهرست قرار می‌گیرد.
+- فیلد منطقه زمانی از حالت Text آزاد به Lookup استاندارد IANA بر پایه `ZoneId.getAvailableZoneIds()` تبدیل شد؛ `Asia/Tehran` در ابتدای فهرست قرار می‌گیرد و جستجو پشتیبانی می‌شود.
+- Backend علاوه بر UI، معتبر بودن `COUNTRY_CODE` در `GEO.COUNTRIES` و معتبر بودن شناسه IANA منطقه زمانی را پیش از Insert/Update کنترل می‌کند.
+- طبق تصمیم پروژه، `ORGANIZATION_ID` در این نسخه همچنان Text آزاد باقی مانده و هیچ وابستگی به CIF/Party ایجاد نشده است.
+- هیچ DDL یا Migration دیتابیسی ندارد.
+
 ## 0.3.57-prototype-fee-p1 — FIX68: اصلاح Test Compile در مقایسه EA/Oracle
 
 - خطای `testCompile` در `EaOracleXmiWriterTest` ناشی از تداخل نام متغیر محلی `fk` با پارامتر Lambda هم‌نام اصلاح شد.

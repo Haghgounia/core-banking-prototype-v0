@@ -262,8 +262,8 @@ public class Calendar2ReferenceRegistry {
                         text("calendarCode", "CALENDAR_CODE", "کد تقویم کاری", true, 80, true, true),
                         text("nameFa", "NAME_FA", "نام فارسی", true, 200, true, true),
                         text("nameEn", "NAME_EN", "نام انگلیسی", false, 200, true, true),
-                        text("countryCode", "COUNTRY_CODE", "کد کشور", false, 3, true, true),
-                        text("timeZone", "TIME_ZONE", "منطقه زمانی", false, 80, true, true),
+                        lookupText("countryCode", "COUNTRY_CODE", "کشور", "geo-countries", false, true, 3),
+                        lookupText("timeZone", "TIME_ZONE", "منطقه زمانی", "iana-time-zones", false, true, 80),
                         text("organizationId", "ORGANIZATION_ID", "شناسه سازمان", false, 80, true, true),
                         date("validFrom", "VALID_FROM", "اعتبار از", false, true),
                         date("validTo", "VALID_TO", "اعتبار تا", false, true),
@@ -356,6 +356,9 @@ public class Calendar2ReferenceRegistry {
     }
     private static FieldDescriptor lookupNumber(String api, String col, String label, String lookup, boolean req, boolean grid) {
         return f(api, col, label, FieldType.LOOKUP, req, false, false, grid, true, null, null, lookup);
+    }
+    private static FieldDescriptor lookupText(String api, String col, String label, String lookup, boolean req, boolean grid, int max) {
+        return f(api, col, label, FieldType.LOOKUP, req, false, false, grid, true, max, null, lookup);
     }
     private static FieldDescriptor readKeyNumber(String api, String col, String label, boolean grid) {
         return f(api, col, label, FieldType.NUMBER, true, true, true, grid, true, null, null, null);

@@ -17,6 +17,8 @@ import com.behsazan.corebanking.shared.model.PageResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +72,9 @@ public class Calendar2ReferenceService {
     }
 
     public List<LookupOption> lookup(String resource, String text, int limit) {
-        registry.require(resource);
+        if (!"geo-countries".equals(resource) && !"iana-time-zones".equals(resource)) {
+            registry.require(resource);
+        }
         return repository.lookup(resource, text, limit);
     }
 
@@ -79,6 +83,7 @@ public class Calendar2ReferenceService {
         TableDescriptor descriptor = registry.require(resource);
         if (!descriptor.allowCreate()) throw validation("این جدول CAL2 فقط‌خواندنی است.", "_form");
         validate(descriptor, values, true);
+        validateBusinessCalendar(descriptor, values);
         validateEventOccurrenceCreate(descriptor, values);
         RecordResponse saved = repository.insert(descriptor, values);
         rebuildRecurrenceRuleIfNeeded(descriptor, saved);
@@ -91,6 +96,7 @@ public class Calendar2ReferenceService {
         if (!descriptor.allowUpdate()) throw validation("ویرایش این جدول CAL2 مجاز نیست.", "_form");
         validateEventOccurrenceMutation(descriptor, key, false, values);
         validate(descriptor, values, false);
+        validateBusinessCalendar(descriptor, values);
         validateEventOccurrenceCreate(descriptor, values);
         RecordResponse saved = repository.update(descriptor, key, values)
                 .orElseThrow(() -> new ReferenceNotFoundException("رکورد CAL2 برای ویرایش یافت نشد."));
@@ -104,6 +110,22 @@ public class Calendar2ReferenceService {
         if (!descriptor.allowDelete()) throw validation("حذف رکورد از این جدول CAL2 مجاز نیست.", "_form");
         validateEventOccurrenceMutation(descriptor, key, true, null);
         if (!repository.delete(descriptor, key)) throw new ReferenceNotFoundException("رکورد CAL2 برای حذف یافت نشد.");
+    }
+
+    private void validateBusinessCalendar(TableDescriptor descriptor, Map<String, Object> values) {
+        if (!"business-calendars".equals(descriptor.resource()) || values == null) return;
+        String countryCode = text(values.get("countryCode"));
+        if (countryCode != null && !countryCode.isBlank() && !repository.activeCountryCodeExists(countryCode)) {
+            throw validation("کشور انتخاب‌شده در GEO.COUNTRIES معتبر یا فعال نیست.", "countryCode");
+        }
+        String timeZone = text(values.get("timeZone"));
+        if (timeZone != null && !timeZone.isBlank()) {
+            try {
+                ZoneId.of(timeZone);
+            } catch (DateTimeException ex) {
+                throw validation("منطقه زمانی باید یک شناسه معتبر IANA مانند Asia/Tehran باشد.", "timeZone");
+            }
+        }
     }
 
     private void validateEventOccurrenceCreate(TableDescriptor descriptor, Map<String, Object> values) {

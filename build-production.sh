@@ -11,6 +11,7 @@ node "$ROOT/tools/verify-calendar-reference.mjs"
 node "$ROOT/tools/verify-calendar-dataset-import.mjs"
 node "$ROOT/tools/verify-calendar2-reference.mjs"
 node "$ROOT/tools/verify-calendar2-month-view.mjs"
+node "$ROOT/tools/verify-calendar2-business-calendar-lookups.mjs"
 node "$ROOT/tools/verify-calendar-display-labels.mjs"
 node "$ROOT/tools/verify-runtime-artifact-contract.mjs"
 

@@ -10,6 +10,7 @@ import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceMod
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.RecordResponse;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.TableDescriptor;
 import com.behsazan.corebanking.shared.model.PageResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -22,6 +23,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,10 +36,13 @@ import java.util.StringJoiner;
 public class Calendar2ReferenceRepository {
     private final JdbcClient jdbcClient;
     private final Calendar2ReferenceRegistry registry;
+    private final String referenceDataSchema;
 
-    public Calendar2ReferenceRepository(JdbcClient jdbcClient, Calendar2ReferenceRegistry registry) {
+    public Calendar2ReferenceRepository(JdbcClient jdbcClient, Calendar2ReferenceRegistry registry,
+                                        @Value("${core-banking.schemas.reference-data:GEO}") String referenceDataSchema) {
         this.jdbcClient = jdbcClient;
         this.registry = registry;
+        this.referenceDataSchema = Calendar2SqlNames.identifier(referenceDataSchema.trim().toUpperCase(Locale.ROOT));
     }
 
     public PageResponse<Map<String, Object>> search(TableDescriptor descriptor, String text, int page, int size,
@@ -316,6 +321,8 @@ public class Calendar2ReferenceRepository {
     }
 
     public List<LookupOption> lookup(String resource, String text, int limit) {
+        if ("geo-countries".equals(resource)) return geoCountryLookup(text, limit);
+        if ("iana-time-zones".equals(resource)) return ianaTimeZoneLookup(text, limit);
         if ("calendar-variants".equals(resource)) return calendarVariantLookup(text, limit);
         TableDescriptor descriptor = registry.require(resource);
         if (descriptor.keyFields().size() != 1) return List.of();
@@ -343,6 +350,51 @@ public class Calendar2ReferenceRepository {
         return jdbcClient.sql(sql).params(params).query((rs, rowNum) -> new LookupOption(
                 readKeyValue(rs, "VALUE_COL", valueField), rs.getString("CODE_COL"), rs.getString("LABEL_COL")
         )).list();
+    }
+
+    public boolean activeCountryCodeExists(String countryCode) {
+        if (countryCode == null || countryCode.isBlank()) return false;
+        String sql = "SELECT COUNT(*) FROM " + Calendar2SqlNames.qualified(referenceDataSchema, "COUNTRIES")
+                + " WHERE IS_ACTIVE = 1 AND COUNTRY_ISO_CODE = :countryCode";
+        Long count = jdbcClient.sql(sql).param("countryCode", countryCode.trim()).query(Long.class).single();
+        return count != null && count > 0;
+    }
+
+    private List<LookupOption> geoCountryLookup(String text, int limit) {
+        int safeLimit = Math.min(Math.max(limit, 1), 500);
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("limit", safeLimit);
+        StringBuilder where = new StringBuilder(" WHERE IS_ACTIVE = 1");
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(COUNTRY_ISO_CODE) LIKE :text")
+                    .append(" OR UPPER(COUNTRY_ISO_CODE2) LIKE :text")
+                    .append(" OR UPPER(COUNTRY_NAME) LIKE :text")
+                    .append(" OR UPPER(COUNTRY_ENGLISH_NAME) LIKE :text)");
+            params.put("text", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        String sql = "SELECT COUNTRY_ISO_CODE AS VALUE_COL, "
+                + "COUNTRY_ISO_CODE || ' / ' || COUNTRY_ISO_CODE2 AS CODE_COL, COUNTRY_NAME AS LABEL_COL "
+                + "FROM " + Calendar2SqlNames.qualified(referenceDataSchema, "COUNTRIES")
+                + where
+                + " ORDER BY IS_DEFAULT_COUNTRY DESC, SORT_ORDER, COUNTRY_NAME FETCH FIRST :limit ROWS ONLY";
+        return jdbcClient.sql(sql).params(params).query((rs, rowNum) -> new LookupOption(
+                rs.getString("VALUE_COL"), rs.getString("CODE_COL"), rs.getString("LABEL_COL")
+        )).list();
+    }
+
+    private List<LookupOption> ianaTimeZoneLookup(String text, int limit) {
+        int safeLimit = Math.min(Math.max(limit, 1), 500);
+        String filter = text == null ? "" : text.trim().toUpperCase(Locale.ROOT);
+        return ZoneId.getAvailableZoneIds().stream()
+                .filter(zone -> filter.isBlank() || zone.toUpperCase(Locale.ROOT).contains(filter))
+                .sorted((left, right) -> {
+                    if (left.equals("Asia/Tehran")) return right.equals("Asia/Tehran") ? 0 : -1;
+                    if (right.equals("Asia/Tehran")) return 1;
+                    return left.compareTo(right);
+                })
+                .limit(safeLimit)
+                .map(zone -> new LookupOption(zone, zone, zone))
+                .toList();
     }
 
     private List<LookupOption> calendarVariantLookup(String text, int limit) {
