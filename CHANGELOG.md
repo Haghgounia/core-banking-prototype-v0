@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.3.51-prototype-fee-p1 — FIX62: اصلاح خطای Generic در CAL2 و Backend Compile Preflight
+
+- رفع خطای Java compilation در `Calendar2ReferenceRepository` برای دو RowMapper جدید `CALENDAR_DATE` و `EVENT`؛ متغیر RowMapper به `Map<String,Object>` تایپ شد تا خروجی `List<Map<String,Object>>` با Generic invariance سازگار باشد.
+- افزودن Backend compile preflight به `build-production.cmd` پیش از Angular build تا خطاهای Java قبل از صرف زمان برای build فرانت‌اند شناسایی شوند.
+- همگام‌سازی نسخه Release، Frontend و Backend روی 0.3.51.
+- تمام تغییرات UI تقویم دو از FIX59/FIX60 بدون تغییر حفظ شده‌اند.
+
+## 0.3.50-prototype-fee-p1 — FIX61: جلوگیری از اجرای UI قدیمی پس از ارتقا
+
+- تثبیت تغییرات UI تقویم دو از FIX60 در نسخه 0.3.50 و همگام‌سازی VERSION، نسخه Angular و نسخه Backend.
+- افزودن `bin/rebuild-and-start.cmd` برای Stop، Build کامل Frontend/Backend و Start فقط پس از Build موفق.
+- `build-production.cmd` قبل از Build هر JAR و `frontend/dist` قدیمی را حذف می‌کند تا Artifact نسخه قبلی قابل اجرا باقی نماند.
+- Build در صورت نبود Sourceهای کلیدی، شکست Verifierها، شکست Angular Build یا شکست Maven متوقف می‌شود و برنامه Start نخواهد شد.
+- Guard ایستا CAL2 وجود فیلترهای نگاشت تاریخ، فیلترهای رویداد، نمایش عنوان فارسی نوع رویداد و دیاگرام روابط ۱۶ جدول را کنترل می‌کند.
+- این Fix تغییری در DDL یا داده‌های CAL2 ایجاد نمی‌کند؛ Seed مناسبت‌های ثابت قمری FIX60 حفظ شده است.
+
+## 0.3.49-prototype-fee-p1 — CAL2 FIX60
+
+- بازنگری نگاشت تاریخ‌های تقویمی با فیلتر نوع تقویم، قرن و سال و پیش‌فرض سال جاری شمسی.
+- نمایش عنوان فارسی نوع رویداد و فیلتر نوع رویداد/تقویم در فرم رویدادها.
+- افزودن دیاگرام روابط ۱۶ جدول CAL2 به صفحه اصلی تقویم دو.
+- افزودن Seed idempotent مناسبت‌های ثابت هجری قمری مورد استفاده در تقویم ایران.
+
+
 ## 0.3.48-prototype-fee-p1 — FIX59: فیلتر شمسی و تکمیل نمایش روزهای مرجع تقویم دو
 
 - عنوان فرم `CAL2.CANONICAL_DAY` از «روزهای Canonical» به عنوان کاملاً فارسی «روزهای مرجع تقویم» تغییر کرد؛ نام فیزیکی جدول و قرارداد Dataset بدون تغییر باقی مانده است.

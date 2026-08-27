@@ -52,6 +52,10 @@ const checks = [
   [page.includes('canonicalDayPage') && page.includes('canonicalCenturyControl') && page.includes('canonicalYearControl') && page.includes('canonicalDayFilterMeta') && pageHtml.includes('قرن شمسی') && pageHtml.includes('سال شمسی') && pageHtml.includes('نام روز هفته') && pageHtml.includes('نام ماه شمسی'), 'canonical-day current-Solar-year filters and localized grid'],
   [referenceService.includes('validateEventOccurrenceMutation') && referenceService.includes('رخدادهای تولیدشده قابل ویرایش یا حذف مستقیم نیستند') && referenceService.includes('رخداد رسمی از این فرم حذف نمی‌شود'), 'generated/official occurrence mutation protection'],
   [uiService.includes('/canonical-days/explorer') && uiService.includes('/canonical-days/filter-meta'), 'frontend canonical-day explorer API client'],
+  [controller.includes('/calendar-dates/explorer') && controller.includes('/calendar-dates/filter-meta') && referenceRepository.includes('searchCalendarDates') && pageHtml.includes('نوع تقویم') && pageHtml.includes('calendar-date-filters'), 'calendar-date current-year/century/calendar filters'],
+  [controller.includes('/events/explorer') && referenceRepository.includes('EVENT_TYPE_NAME') && page.includes('eventTypeControl') && page.includes('eventCalendarControl') && pageHtml.includes('event-filters'), 'event Persian type labels and event/calendar filters'],
+  [menu.includes('دیاگرام روابط جداول CAL2') && menu.includes('EVENT_RECURRENCE_RULE') && menu.includes('BUSINESS_CALENDAR_DAY'), 'CAL2 relationship diagram'],
+  [exists('database/oracle/cal2/migrations/0.3.49-fix60-iran-islamic-fixed-events.sql'), 'Iran fixed Islamic-event seed migration'],
   [uiService.includes('/api/v1/calendar2/event-recurrence/rebuild') && uiService.includes('/api/v1/calendar2/event-recurrence/rules') && uiService.includes('/api/v1/calendar2/event-recurrence/months') && uiService.includes('/api/v1/calendar2/event-recurrence/occurrences') && uiService.includes('/api/v1/calendar2/event-recurrence/occurrence-meta'), 'frontend recurrence and occurrence API client'],
   [importController.includes('/api/v1/calendar2/dataset') && importController.includes('MULTIPART_FORM_DATA_VALUE'), 'CAL2 ZIP import API'],
   [importService.includes('@Transactional'), 'single CAL2 import transaction'],
@@ -70,4 +74,4 @@ const checks = [
 
 const failed = checks.filter(([ok]) => !ok).map(([, label]) => label);
 if (failed.length) throw new Error(`CAL2 verification failed: ${failed.join(', ')}`);
-console.log(`CAL2 verification OK: ${expectedTables.length} independent tables/forms, business-oriented rules/occurrences plus canonical-day Solar filters, protected generated rows, materialization, ZIP JDBC import, separate CAL2 schema and routes.`);
+console.log(`CAL2 verification OK: ${expectedTables.length} independent tables/forms, business-oriented rules/occurrences plus canonical/calendar/event filters and schema diagram, protected generated rows, materialization, ZIP JDBC import, separate CAL2 schema and routes.`);

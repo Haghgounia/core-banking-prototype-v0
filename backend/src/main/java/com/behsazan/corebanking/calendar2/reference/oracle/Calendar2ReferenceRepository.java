@@ -3,6 +3,7 @@ package com.behsazan.corebanking.calendar2.reference.oracle;
 import com.behsazan.corebanking.calendar2.reference.application.Calendar2ReferenceRegistry;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDayFilterMeta;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDaySummary;
+import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CalendarDateFilterMeta;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.FieldDescriptor;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.FieldType;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.LookupOption;
@@ -133,6 +134,125 @@ public class Calendar2ReferenceRepository {
                 nullableInteger(rs, "MIN_SOLAR_YEAR"),
                 nullableInteger(rs, "MAX_SOLAR_YEAR")
         )).single();
+    }
+
+    public PageResponse<Map<String, Object>> searchCalendarDates(String text, String calendarCode, Integer yearNo, Integer century,
+                                                                      int page, int size, String sortBy, String direction) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1 = 1");
+        if (calendarCode != null && !calendarCode.isBlank()) {
+            where.append(" AND S.CALENDAR_CODE = :calendarCode");
+            params.put("calendarCode", calendarCode.trim().toUpperCase(Locale.ROOT));
+        }
+        if (yearNo != null) {
+            where.append(" AND CD.YEAR_NO = :yearNo");
+            params.put("yearNo", yearNo);
+        }
+        if (century != null && century > 0) {
+            where.append(" AND CD.YEAR_NO BETWEEN :centuryStart AND :centuryEnd");
+            params.put("centuryStart", (century - 1) * 100 + 1);
+            params.put("centuryEnd", century * 100);
+        }
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(TO_CHAR(CD.CALENDAR_DATE_ID)) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(CD.DAY_ID)) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(CD.YEAR_NO)) LIKE :searchText")
+                    .append(" OR UPPER(S.NAME_FA) LIKE :searchText OR UPPER(V.VARIANT_CODE) LIKE :searchText")
+                    .append(" OR UPPER(W.NAME_FA) LIKE :searchText OR UPPER(CD.DATA_STATUS) LIKE :searchText)");
+            params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        String from = " FROM " + cal2Table("CALENDAR_DATE") + " CD"
+                + " JOIN " + cal2Table("CALENDAR_VARIANT") + " V ON V.CALENDAR_VARIANT_ID=CD.CALENDAR_VARIANT_ID"
+                + " JOIN " + cal2Table("CALENDAR_SYSTEM") + " S ON S.CALENDAR_SYSTEM_ID=V.CALENDAR_SYSTEM_ID"
+                + " LEFT JOIN " + cal2Table("WEEKDAY") + " W ON W.WEEKDAY_ID=CD.WEEKDAY_ID";
+        long total = jdbcClient.sql("SELECT COUNT(*)" + from + where).params(params).query(Long.class).single();
+        String order = switch (sortBy == null ? "" : sortBy) {
+            case "calendarDateId" -> "CD.CALENDAR_DATE_ID";
+            case "dayId" -> "CD.DAY_ID";
+            case "calendarVariantId" -> "S.NAME_FA";
+            case "yearNo" -> "CD.YEAR_NO";
+            case "monthNo" -> "CD.MONTH_NO";
+            case "dayNo" -> "CD.DAY_NO";
+            case "dayOfYear" -> "CD.DAY_OF_YEAR";
+            case "weekdayId" -> "W.IR_DISPLAY_ORDER";
+            case "dataStatus" -> "CD.DATA_STATUS";
+            default -> "CD.YEAR_NO, CD.MONTH_NO, CD.DAY_NO";
+        };
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+        String sql = "SELECT CD.CALENDAR_DATE_ID, CD.DAY_ID, S.NAME_FA || ' / ' || V.VARIANT_CODE AS CALENDAR_LABEL, "
+                + "CD.YEAR_NO, CD.MONTH_NO, CD.DAY_NO, CD.DAY_OF_YEAR, W.NAME_FA AS WEEKDAY_NAME, "
+                + "CD.IS_LEAP_YEAR, CD.IS_LEAP_MONTH, CD.MONTH_LENGTH, CD.DATA_STATUS, CD.DATASET_VERSION_ID"
+                + from + where + " ORDER BY " + order + " " + normalizedDirection(direction)
+                + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+        List<Map<String, Object>> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> {
+            Map<String,Object> row = new LinkedHashMap<>();
+            row.put("calendarDateId", rs.getBigDecimal("CALENDAR_DATE_ID"));
+            row.put("dayId", rs.getBigDecimal("DAY_ID"));
+            row.put("calendarVariantId", rs.getString("CALENDAR_LABEL"));
+            row.put("yearNo", nullableInteger(rs,"YEAR_NO")); row.put("monthNo", nullableInteger(rs,"MONTH_NO"));
+            row.put("dayNo", nullableInteger(rs,"DAY_NO")); row.put("dayOfYear", nullableInteger(rs,"DAY_OF_YEAR"));
+            row.put("weekdayId", rs.getString("WEEKDAY_NAME"));
+            row.put("isLeapYear", "Y".equalsIgnoreCase(rs.getString("IS_LEAP_YEAR")));
+            row.put("isLeapMonth", "Y".equalsIgnoreCase(rs.getString("IS_LEAP_MONTH")));
+            row.put("monthLength", nullableInteger(rs,"MONTH_LENGTH")); row.put("dataStatus", rs.getString("DATA_STATUS"));
+            row.put("datasetVersionId", rs.getBigDecimal("DATASET_VERSION_ID")); row.put("_key", rs.getString("CALENDAR_DATE_ID"));
+            return row;
+        }).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public CalendarDateFilterMeta calendarDateFilterMeta() {
+        String sql = "SELECT "
+                + "MAX(CASE WHEN D.CANONICAL_DATE=TRUNC(SYSDATE) AND S.CALENDAR_CODE='PERSIAN' THEN CD.YEAR_NO END) CPY, "
+                + "MIN(CASE WHEN S.CALENDAR_CODE='PERSIAN' THEN CD.YEAR_NO END) NPY, MAX(CASE WHEN S.CALENDAR_CODE='PERSIAN' THEN CD.YEAR_NO END) XPY, "
+                + "MAX(CASE WHEN D.CANONICAL_DATE=TRUNC(SYSDATE) AND S.CALENDAR_CODE='GREGORIAN' THEN CD.YEAR_NO END) CGY, "
+                + "MIN(CASE WHEN S.CALENDAR_CODE='GREGORIAN' THEN CD.YEAR_NO END) NGY, MAX(CASE WHEN S.CALENDAR_CODE='GREGORIAN' THEN CD.YEAR_NO END) XGY, "
+                + "MAX(CASE WHEN D.CANONICAL_DATE=TRUNC(SYSDATE) AND S.CALENDAR_CODE='ISLAMIC' THEN CD.YEAR_NO END) CIY, "
+                + "MIN(CASE WHEN S.CALENDAR_CODE='ISLAMIC' THEN CD.YEAR_NO END) NIY, MAX(CASE WHEN S.CALENDAR_CODE='ISLAMIC' THEN CD.YEAR_NO END) XIY "
+                + "FROM " + cal2Table("CALENDAR_DATE") + " CD JOIN " + cal2Table("CANONICAL_DAY") + " D ON D.DAY_ID=CD.DAY_ID "
+                + "JOIN " + cal2Table("CALENDAR_VARIANT") + " V ON V.CALENDAR_VARIANT_ID=CD.CALENDAR_VARIANT_ID "
+                + "JOIN " + cal2Table("CALENDAR_SYSTEM") + " S ON S.CALENDAR_SYSTEM_ID=V.CALENDAR_SYSTEM_ID";
+        return jdbcClient.sql(sql).query((rs,rowNum) -> new CalendarDateFilterMeta(
+                nullableInteger(rs,"CPY"), nullableInteger(rs,"NPY"), nullableInteger(rs,"XPY"),
+                nullableInteger(rs,"CGY"), nullableInteger(rs,"NGY"), nullableInteger(rs,"XGY"),
+                nullableInteger(rs,"CIY"), nullableInteger(rs,"NIY"), nullableInteger(rs,"XIY")
+        )).single();
+    }
+
+    public PageResponse<Map<String,Object>> searchEvents(String text, Long eventTypeId, String calendarCode,
+                                                          int page, int size, String sortBy, String direction) {
+        int safePage=Math.max(page,0), safeSize=Math.min(Math.max(size,1),100);
+        Map<String,Object> params=new LinkedHashMap<>();
+        StringBuilder where=new StringBuilder(" WHERE 1=1");
+        if (eventTypeId != null) { where.append(" AND E.EVENT_TYPE_ID=:eventTypeId"); params.put("eventTypeId",eventTypeId); }
+        if (calendarCode != null && !calendarCode.isBlank()) {
+            where.append(" AND EXISTS (SELECT 1 FROM ").append(cal2Table("EVENT_RECURRENCE_RULE")).append(" R JOIN ")
+                    .append(cal2Table("CALENDAR_VARIANT")).append(" V ON V.CALENDAR_VARIANT_ID=R.CALENDAR_VARIANT_ID JOIN ")
+                    .append(cal2Table("CALENDAR_SYSTEM")).append(" S ON S.CALENDAR_SYSTEM_ID=V.CALENDAR_SYSTEM_ID WHERE R.EVENT_ID=E.EVENT_ID AND S.CALENDAR_CODE=:calendarCode)");
+            params.put("calendarCode",calendarCode.trim().toUpperCase(Locale.ROOT));
+        }
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(E.EVENT_CODE) LIKE :searchText OR UPPER(E.NAME_FA) LIKE :searchText OR UPPER(E.NAME_EN) LIKE :searchText OR UPPER(ET.NAME_FA) LIKE :searchText)");
+            params.put("searchText","%"+text.trim().toUpperCase(Locale.ROOT)+"%");
+        }
+        String from=" FROM "+cal2Table("EVENT")+" E JOIN "+cal2Table("EVENT_TYPE")+" ET ON ET.EVENT_TYPE_ID=E.EVENT_TYPE_ID";
+        long total=jdbcClient.sql("SELECT COUNT(*)"+from+where).params(params).query(Long.class).single();
+        String order=switch(sortBy==null?"":sortBy){case "eventCode"->"E.EVENT_CODE";case "eventTypeId"->"ET.NAME_FA";case "nameFa"->"E.NAME_FA";case "nameEn"->"E.NAME_EN";default->"E.EVENT_ID";};
+        params.put("offset",safePage*safeSize); params.put("pageSize",safeSize);
+        String sql="SELECT E.EVENT_ID,E.EVENT_CODE,ET.NAME_FA EVENT_TYPE_NAME,E.NAME_FA,E.NAME_EN,E.DESCRIPTION,E.OFFICIAL_FLAG,E.DEFAULT_HOLIDAY_FLAG,E.ACTIVE_FLAG"+from+where
+                +" ORDER BY "+order+" "+normalizedDirection(direction)+" OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+        List<Map<String,Object>> rows=jdbcClient.sql(sql).params(params).query((rs,rowNum)->{
+            Map<String,Object> row=new LinkedHashMap<>();
+            row.put("eventId",rs.getBigDecimal("EVENT_ID")); row.put("eventCode",rs.getString("EVENT_CODE"));
+            row.put("eventTypeId",rs.getString("EVENT_TYPE_NAME")); row.put("nameFa",rs.getString("NAME_FA")); row.put("nameEn",rs.getString("NAME_EN"));
+            row.put("description",rs.getString("DESCRIPTION")); row.put("officialFlag","Y".equalsIgnoreCase(rs.getString("OFFICIAL_FLAG")));
+            row.put("defaultHolidayFlag","Y".equalsIgnoreCase(rs.getString("DEFAULT_HOLIDAY_FLAG"))); row.put("activeFlag","Y".equalsIgnoreCase(rs.getString("ACTIVE_FLAG")));
+            row.put("_key",rs.getString("EVENT_ID")); return row;
+        }).list();
+        return new PageResponse<>(rows,total,safePage,safeSize);
     }
 
     public Optional<RecordResponse> find(TableDescriptor descriptor, String encodedKey) {

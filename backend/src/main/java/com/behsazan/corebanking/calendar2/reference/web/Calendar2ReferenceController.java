@@ -3,6 +3,7 @@ package com.behsazan.corebanking.calendar2.reference.web;
 import com.behsazan.corebanking.calendar2.reference.application.Calendar2ReferenceService;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDayFilterMeta;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDaySummary;
+import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CalendarDateFilterMeta;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CatalogResponse;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.LookupOption;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.RecordResponse;
@@ -50,6 +51,25 @@ public class Calendar2ReferenceController {
                                                      @RequestParam(required = false) String sortBy,
                                                      @RequestParam(defaultValue = "asc") String direction) {
         return service.searchCanonicalDays(text, solarYear, solarCentury, page, size, sortBy, direction);
+    }
+
+    @GetMapping("/calendar-dates/filter-meta")
+    CalendarDateFilterMeta calendarDateFilterMeta() { return service.calendarDateFilterMeta(); }
+
+    @GetMapping("/calendar-dates/explorer")
+    PageResponse<Map<String,Object>> calendarDates(@RequestParam(required=false) String text, @RequestParam(required=false) String calendarCode,
+                                                    @RequestParam(required=false) Integer yearNo, @RequestParam(required=false) Integer century,
+                                                    @RequestParam(defaultValue="0") int page, @RequestParam(defaultValue="20") int size,
+                                                    @RequestParam(required=false) String sortBy, @RequestParam(defaultValue="asc") String direction) {
+        return service.searchCalendarDates(text, calendarCode, yearNo, century, page, size, sortBy, direction);
+    }
+
+    @GetMapping("/events/explorer")
+    PageResponse<Map<String,Object>> events(@RequestParam(required=false) String text, @RequestParam(required=false) Long eventTypeId,
+                                            @RequestParam(required=false) String calendarCode, @RequestParam(defaultValue="0") int page,
+                                            @RequestParam(defaultValue="20") int size, @RequestParam(required=false) String sortBy,
+                                            @RequestParam(defaultValue="asc") String direction) {
+        return service.searchEvents(text, eventTypeId, calendarCode, page, size, sortBy, direction);
     }
 
     @GetMapping("/{resource}")

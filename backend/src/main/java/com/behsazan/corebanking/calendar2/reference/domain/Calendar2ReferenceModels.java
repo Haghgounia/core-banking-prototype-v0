@@ -95,4 +95,10 @@ public final class Calendar2ReferenceModels {
             Integer minimumSolarYear,
             Integer maximumSolarYear
     ) {}
+
+    public record CalendarDateFilterMeta(
+            Integer currentPersianYear, Integer minimumPersianYear, Integer maximumPersianYear,
+            Integer currentGregorianYear, Integer minimumGregorianYear, Integer maximumGregorianYear,
+            Integer currentIslamicYear, Integer minimumIslamicYear, Integer maximumIslamicYear
+    ) {}
 }

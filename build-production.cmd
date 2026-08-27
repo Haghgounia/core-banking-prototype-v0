@@ -48,6 +48,11 @@ node "%ROOT%tools\verify-calendar2-reference.mjs" || exit /b 1
 rem FIX55 static guard: user-facing calendar labels must stay simple and distinct.
 node "%ROOT%tools\verify-calendar-display-labels.mjs" || exit /b 1
 
+rem FIX62 fail-fast: compile Java before the Angular production build so type errors are caught early.
+cd /d "%ROOT%backend"
+call mvnw.cmd -DskipTests compile || exit /b 1
+cd /d "%ROOT%"
+
 rem Remove stale packages first. A failed build must never leave an older JAR looking current.
 if exist "%ROOT%app\core-banking-prototype.jar" del /q "%ROOT%app\core-banking-prototype.jar"
 if exist "%ROOT%backend\target\core-banking-prototype.jar" del /q "%ROOT%backend\target\core-banking-prototype.jar"

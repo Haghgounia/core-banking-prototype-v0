@@ -15,11 +15,17 @@ if defined RUNNING_PID (
   exit /b 1
 )
 
-set "JAR=%ROOT%\app\core-banking-prototype.jar"
-if not exist "%JAR%" set "JAR=%ROOT%\backend\target\core-banking-prototype.jar"
+rem FIX61: always start the executable that belongs to the VERSION file.
+rem A source ZIP extracted over an older installation must never silently reuse an old JAR.
+set "JAR=%ROOT%\app\core-banking-prototype-%APP_VERSION%.jar"
 if not exist "%JAR%" (
-  echo ERROR: core-banking-prototype.jar was not found.
-  echo Run build-production.cmd first.
+  echo ERROR: Executable JAR for version %APP_VERSION% was not found.
+  echo Expected: %JAR%
+  echo.
+  echo This usually means a new source package was extracted over an older installation
+  echo without rebuilding the Angular UI and Spring Boot JAR.
+  echo Run: build-production.cmd
+  echo Then run: bin\start.cmd
   pause
   exit /b 1
 )

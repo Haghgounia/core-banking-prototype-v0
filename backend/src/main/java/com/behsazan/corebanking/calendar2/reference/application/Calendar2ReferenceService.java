@@ -3,6 +3,7 @@ package com.behsazan.corebanking.calendar2.reference.application;
 import com.behsazan.corebanking.calendar2.eventrecurrence.application.Calendar2EventRecurrenceService;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDayFilterMeta;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDaySummary;
+import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CalendarDateFilterMeta;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CatalogResponse;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.FieldDescriptor;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.FieldType;
@@ -49,6 +50,18 @@ public class Calendar2ReferenceService {
     public CanonicalDayFilterMeta canonicalDayFilterMeta() {
         registry.require("canonical-days");
         return repository.canonicalDayFilterMeta();
+    }
+
+    public PageResponse<Map<String,Object>> searchCalendarDates(String text, String calendarCode, Integer yearNo, Integer century, int page, int size, String sortBy, String direction) {
+        registry.require("calendar-dates");
+        return repository.searchCalendarDates(text, calendarCode, yearNo, century, page, size, sortBy, direction);
+    }
+
+    public CalendarDateFilterMeta calendarDateFilterMeta() { registry.require("calendar-dates"); return repository.calendarDateFilterMeta(); }
+
+    public PageResponse<Map<String,Object>> searchEvents(String text, Long eventTypeId, String calendarCode, int page, int size, String sortBy, String direction) {
+        registry.require("events");
+        return repository.searchEvents(text, eventTypeId, calendarCode, page, size, sortBy, direction);
     }
 
     public RecordResponse find(String resource, String key) {
