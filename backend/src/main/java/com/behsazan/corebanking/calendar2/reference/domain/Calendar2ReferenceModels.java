@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
 
 public final class Calendar2ReferenceModels {
     private Calendar2ReferenceModels() {}
@@ -73,4 +74,25 @@ public final class Calendar2ReferenceModels {
     }
 
     public record LookupOption(Object value, String code, String label) {}
+
+    public record CanonicalDaySummary(
+            long dayId,
+            long epochDay,
+            LocalDate canonicalDate,
+            String isoDateText,
+            long weekdayId,
+            String weekdayName,
+            Integer solarYear,
+            Integer solarMonthNo,
+            Integer solarDayNo,
+            String solarMonthName,
+            Integer isoWeekNo,
+            Integer isoWeekYear
+    ) {}
+
+    public record CanonicalDayFilterMeta(
+            Integer currentSolarYear,
+            Integer minimumSolarYear,
+            Integer maximumSolarYear
+    ) {}
 }

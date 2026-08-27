@@ -8,6 +8,7 @@ const exists = rel => fs.existsSync(path.join(root, rel));
 
 const registry = read('backend/src/main/java/com/behsazan/corebanking/calendar2/reference/application/Calendar2ReferenceRegistry.java');
 const referenceService = read('backend/src/main/java/com/behsazan/corebanking/calendar2/reference/application/Calendar2ReferenceService.java');
+const referenceRepository = read('backend/src/main/java/com/behsazan/corebanking/calendar2/reference/oracle/Calendar2ReferenceRepository.java');
 const controller = read('backend/src/main/java/com/behsazan/corebanking/calendar2/reference/web/Calendar2ReferenceController.java');
 const recurrenceController = read('backend/src/main/java/com/behsazan/corebanking/calendar2/eventrecurrence/web/Calendar2EventRecurrenceController.java');
 const recurrenceService = read('backend/src/main/java/com/behsazan/corebanking/calendar2/eventrecurrence/application/Calendar2EventRecurrenceService.java');
@@ -37,15 +38,21 @@ const checks = [
   [expectedTables.every(t => registry.includes(`\"${t}\"`)), '16 CAL2 descriptors'],
   [expectedTables.every(t => ddl.includes(`CAL2.${t}`)), '16 CAL2 DDL tables'],
   [controller.includes('/api/v1/calendar2/reference'), 'CAL2 reference API'],
+  [registry.includes('روزهای مرجع تقویم') && registry.includes('تاریخ مرجع') && !registry.includes('روزهای Canonical'), 'Persian canonical-day form naming'],
+  [controller.includes('/canonical-days/explorer') && controller.includes('/canonical-days/filter-meta') && referenceService.includes('searchCanonicalDays') && referenceRepository.includes('searchCanonicalDays') && referenceRepository.includes('solarCentury') && referenceRepository.includes('W.NAME_FA AS WEEKDAY_NAME') && referenceRepository.includes('PM.NAME_FA AS SOLAR_MONTH_NAME'), 'canonical-day Persian year/century explorer API'],
   [registry.includes('event-recurrence-rules') && registry.includes('ANNUAL_FIXED_DATE') && registry.includes('ONE_TIME_DATE'), 'recurrence-rule descriptor'],
   [referenceService.includes('validateEventRecurrenceRule') && referenceService.includes('rebuildRecurrenceRuleIfNeeded'), 'recurrence-rule validation and automatic materialization on save'],
-  [recurrenceController.includes('/api/v1/calendar2/event-recurrence') && recurrenceController.includes('/rebuild-all') && recurrenceController.includes('/rules') && recurrenceController.includes('/months'), 'recurrence generation and business-summary API'],
+  [recurrenceController.includes('/api/v1/calendar2/event-recurrence') && recurrenceController.includes('/rebuild-all') && recurrenceController.includes('/rules') && recurrenceController.includes('/months') && recurrenceController.includes('/occurrences') && recurrenceController.includes('/occurrence-meta'), 'recurrence generation plus business rule/occurrence summary API'],
   [recurrenceService.includes('@Transactional') && recurrenceService.includes('deleteGenerated') && recurrenceService.includes('insertGenerated'), 'transactional recurrence rebuild'],
-  [recurrenceRepository.includes("OCCURRENCE_SOURCE = 'GENERATED'") && recurrenceRepository.includes('NOT EXISTS') && recurrenceRepository.includes('CALENDAR_VARIANT_ID') && recurrenceRepository.includes('GENERATED_OCCURRENCES') && recurrenceRepository.includes('MONTH_NAME'), 'generated occurrence materialization and business summary'],
+  [recurrenceRepository.includes("OCCURRENCE_SOURCE = 'GENERATED'") && recurrenceRepository.includes('NOT EXISTS') && recurrenceRepository.includes('CALENDAR_VARIANT_ID') && recurrenceRepository.includes('GENERATED_OCCURRENCES') && recurrenceRepository.includes('searchOccurrenceSummaries') && recurrenceRepository.includes('PERSIAN_VARIANT_ID') && recurrenceRepository.includes('GREGORIAN_VARIANT_ID') && recurrenceRepository.includes('ISLAMIC_VARIANT_ID'), 'generated materialization plus three-calendar occurrence summary'],
   [ddl.includes('EVENT_RULE_ID') && ddl.includes('OCCURRENCE_SOURCE') && ddl.includes('CK_CAL2_EO_SOURCE'), 'occurrence provenance columns'],
   [exists('database/oracle/cal2/migrations/0.3.45-fix56-event-recurrence-rule.sql'), 'existing-CAL2 migration'],
   [page.includes('rebuildEventOccurrences') && page.includes('normalizedPayload') && page.includes('ruleDate') && page.includes('ruleRange') && pageHtml.includes('بازسازی رخدادهای مناسبت‌ها') && pageHtml.includes('رخدادهای تولیدشده') && pageHtml.includes('تعریف مناسبت'), 'business-oriented recurrence UI'],
-  [uiService.includes('/api/v1/calendar2/event-recurrence/rebuild') && uiService.includes('/api/v1/calendar2/event-recurrence/rules') && uiService.includes('/api/v1/calendar2/event-recurrence/months'), 'frontend recurrence API client'],
+  [page.includes('occurrencePage') && page.includes('occurrenceDate') && page.includes('canEditOccurrence') && page.includes('occurrenceDetail') && pageHtml.includes('ثبت رخداد دستی') && pageHtml.includes('تاریخ شمسی') && pageHtml.includes('تاریخ میلادی') && pageHtml.includes('تاریخ قمری') && pageHtml.includes('نمایش همه سال‌ها') && pageHtml.includes('مشاهده جزئیات'), 'business-oriented occurrence explorer UI'],
+  [page.includes('canonicalDayPage') && page.includes('canonicalCenturyControl') && page.includes('canonicalYearControl') && page.includes('canonicalDayFilterMeta') && pageHtml.includes('قرن شمسی') && pageHtml.includes('سال شمسی') && pageHtml.includes('نام روز هفته') && pageHtml.includes('نام ماه شمسی'), 'canonical-day current-Solar-year filters and localized grid'],
+  [referenceService.includes('validateEventOccurrenceMutation') && referenceService.includes('رخدادهای تولیدشده قابل ویرایش یا حذف مستقیم نیستند') && referenceService.includes('رخداد رسمی از این فرم حذف نمی‌شود'), 'generated/official occurrence mutation protection'],
+  [uiService.includes('/canonical-days/explorer') && uiService.includes('/canonical-days/filter-meta'), 'frontend canonical-day explorer API client'],
+  [uiService.includes('/api/v1/calendar2/event-recurrence/rebuild') && uiService.includes('/api/v1/calendar2/event-recurrence/rules') && uiService.includes('/api/v1/calendar2/event-recurrence/months') && uiService.includes('/api/v1/calendar2/event-recurrence/occurrences') && uiService.includes('/api/v1/calendar2/event-recurrence/occurrence-meta'), 'frontend recurrence and occurrence API client'],
   [importController.includes('/api/v1/calendar2/dataset') && importController.includes('MULTIPART_FORM_DATA_VALUE'), 'CAL2 ZIP import API'],
   [importService.includes('@Transactional'), 'single CAL2 import transaction'],
   [importService.includes('01_calendar_system.csv') && importService.includes('15_validation_result.csv'), '15-file dataset package contract'],
@@ -63,4 +70,4 @@ const checks = [
 
 const failed = checks.filter(([ok]) => !ok).map(([, label]) => label);
 if (failed.length) throw new Error(`CAL2 verification failed: ${failed.join(', ')}`);
-console.log(`CAL2 verification OK: ${expectedTables.length} independent tables/forms, business-oriented recurring-event UI, materialization, ZIP JDBC import, separate CAL2 schema and routes.`);
+console.log(`CAL2 verification OK: ${expectedTables.length} independent tables/forms, business-oriented rules/occurrences plus canonical-day Solar filters, protected generated rows, materialization, ZIP JDBC import, separate CAL2 schema and routes.`);

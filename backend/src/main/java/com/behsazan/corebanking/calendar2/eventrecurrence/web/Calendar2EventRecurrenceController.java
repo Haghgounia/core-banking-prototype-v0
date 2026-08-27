@@ -4,6 +4,8 @@ import com.behsazan.corebanking.calendar2.eventrecurrence.application.Calendar2E
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.CalendarMonthOption;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.GenerateAllResult;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.GenerationResult;
+import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.OccurrenceFilterMeta;
+import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.OccurrenceSummary;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.RuleSummary;
 import com.behsazan.corebanking.shared.model.PageResponse;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +32,26 @@ public class Calendar2EventRecurrenceController {
             @RequestParam(defaultValue = "asc") String direction
     ) {
         return service.searchRules(text, page, size, sortBy, direction);
+    }
+
+    @GetMapping("/occurrences")
+    PageResponse<OccurrenceSummary> occurrences(
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) Integer solarYear,
+            @RequestParam(required = false) Long eventId,
+            @RequestParam(required = false) String occurrenceSource,
+            @RequestParam(required = false) Boolean holiday,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        return service.searchOccurrences(text, solarYear, eventId, occurrenceSource, holiday, page, size, sortBy, direction);
+    }
+
+    @GetMapping("/occurrence-meta")
+    OccurrenceFilterMeta occurrenceMeta() {
+        return service.occurrenceFilterMeta();
     }
 
     @GetMapping("/months")

@@ -3,6 +3,8 @@ package com.behsazan.corebanking.calendar2.eventrecurrence.application;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.CalendarMonthOption;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.GenerateAllResult;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.GenerationResult;
+import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.OccurrenceFilterMeta;
+import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.OccurrenceSummary;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.RuleDefinition;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.RuleSummary;
 import com.behsazan.corebanking.shared.model.PageResponse;
@@ -15,9 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class Calendar2EventRecurrenceService {
+    private static final Set<String> OCCURRENCE_SOURCES = Set.of("GENERATED", "MANUAL", "OFFICIAL");
     private final Calendar2EventRecurrenceRepository repository;
 
     public Calendar2EventRecurrenceService(Calendar2EventRecurrenceRepository repository) {
@@ -27,6 +31,24 @@ public class Calendar2EventRecurrenceService {
     @Transactional(readOnly = true)
     public PageResponse<RuleSummary> searchRules(String text, int page, int size, String sortBy, String direction) {
         return repository.searchRuleSummaries(text, page, size, sortBy, direction);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<OccurrenceSummary> searchOccurrences(String text, Integer solarYear, Long eventId,
+                                                              String occurrenceSource, Boolean holiday,
+                                                              int page, int size, String sortBy, String direction) {
+        String normalizedSource = occurrenceSource == null || occurrenceSource.isBlank()
+                ? null : occurrenceSource.trim().toUpperCase();
+        if (normalizedSource != null && !OCCURRENCE_SOURCES.contains(normalizedSource)) {
+            throw validation("منشأ رخداد معتبر نیست.", "occurrenceSource");
+        }
+        return repository.searchOccurrenceSummaries(text, solarYear, eventId, normalizedSource, holiday,
+                page, size, sortBy, direction);
+    }
+
+    @Transactional(readOnly = true)
+    public OccurrenceFilterMeta occurrenceFilterMeta() {
+        return repository.occurrenceFilterMeta();
     }
 
     @Transactional(readOnly = true)

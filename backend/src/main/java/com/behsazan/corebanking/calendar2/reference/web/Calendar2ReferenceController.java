@@ -1,6 +1,8 @@
 package com.behsazan.corebanking.calendar2.reference.web;
 
 import com.behsazan.corebanking.calendar2.reference.application.Calendar2ReferenceService;
+import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDayFilterMeta;
+import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDaySummary;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CatalogResponse;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.LookupOption;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.RecordResponse;
@@ -34,6 +36,20 @@ public class Calendar2ReferenceController {
     List<LookupOption> lookup(@PathVariable String resource, @RequestParam(required = false) String text,
                               @RequestParam(defaultValue = "50") int limit) {
         return service.lookup(resource, text, limit);
+    }
+
+    @GetMapping("/canonical-days/filter-meta")
+    CanonicalDayFilterMeta canonicalDayFilterMeta() { return service.canonicalDayFilterMeta(); }
+
+    @GetMapping("/canonical-days/explorer")
+    PageResponse<CanonicalDaySummary> canonicalDays(@RequestParam(required = false) String text,
+                                                     @RequestParam(required = false) Integer solarYear,
+                                                     @RequestParam(required = false) Integer solarCentury,
+                                                     @RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "20") int size,
+                                                     @RequestParam(required = false) String sortBy,
+                                                     @RequestParam(defaultValue = "asc") String direction) {
+        return service.searchCanonicalDays(text, solarYear, solarCentury, page, size, sortBy, direction);
     }
 
     @GetMapping("/{resource}")

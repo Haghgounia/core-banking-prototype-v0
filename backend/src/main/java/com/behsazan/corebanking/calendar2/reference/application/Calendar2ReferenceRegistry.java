@@ -40,7 +40,7 @@ public class Calendar2ReferenceRegistry {
         return new CatalogResponse(schemaName, descriptors.size(), List.of(
                 group("DEFINITION", "تعاریف تقویم", "سیستم تقویم، Variant، ماه و روز هفته", "calendar_month"),
                 group("SOURCE", "منبع و نسخه Dataset", "مراجع داده و شناسنامه نسخه Dataset", "fact_check"),
-                group("DATASET", "Dataset تقویم", "روز Canonical و نگاشت تاریخ در سه Variant؛ فقط‌خواندنی", "date_range"),
+                group("DATASET", "Dataset تقویم", "روز مرجع تقویم و نگاشت تاریخ در سه Variant؛ فقط‌خواندنی", "date_range"),
                 group("EVENT", "مناسبت‌ها و رویدادها", "تعریف مناسبت، قاعده تکرار و رخدادهای واقعی/تولیدشده", "celebration"),
                 group("BUSINESS", "تقویم کاری و بانکی", "تعریف تقویم کاری و وضعیت عملیاتی هر روز", "business_center"),
                 group("VALIDATION", "کنترل و ممیزی Dataset", "اجرای اعتبارسنجی و شواهد نتیجه؛ فقط‌خواندنی", "verified")
@@ -155,11 +155,11 @@ public class Calendar2ReferenceRegistry {
     }
 
     private TableDescriptor canonicalDay() {
-        return table("canonical-days", "DATASET", "روزهای Canonical", "محور روز مستقل از تقویم؛ Dataset تقویم و فقط‌خواندنی", "today",
+        return table("canonical-days", "DATASET", "روزهای مرجع تقویم", "محور روز مستقل از نوع تقویم؛ Dataset تقویم و فقط‌خواندنی", "today",
                 "CANONICAL_DAY", false, false, false, false, "dayId", "isoDateText", List.of(
                         readKeyNumber("dayId", "DAY_ID", "شناسه روز", true),
                         readNumber("epochDay", "EPOCH_DAY", "Epoch Day", true),
-                        readDate("canonicalDate", "CANONICAL_DATE", "تاریخ Canonical", true, true),
+                        readDate("canonicalDate", "CANONICAL_DATE", "تاریخ مرجع", true, true),
                         readText("isoDateText", "ISO_DATE_TEXT", "تاریخ ISO", true, true),
                         readNumber("weekdayId", "WEEKDAY_ID", "شناسه روز هفته", true),
                         readNumber("isoWeekNo", "ISO_WEEK_NO", "هفته ISO", true),
@@ -169,7 +169,7 @@ public class Calendar2ReferenceRegistry {
     }
 
     private TableDescriptor calendarDate() {
-        return table("calendar-dates", "DATASET", "نگاشت تاریخ‌های تقویمی", "نگاشت هر روز Canonical به Gregorian/Persian/Islamic Variant", "event_note",
+        return table("calendar-dates", "DATASET", "نگاشت تاریخ‌های تقویمی", "نگاشت هر روز مرجع تقویم به Gregorian/Persian/Islamic Variant", "event_note",
                 "CALENDAR_DATE", false, false, false, false, "calendarDateId", "calendarDateId", List.of(
                         readKeyNumber("calendarDateId", "CALENDAR_DATE_ID", "شناسه نگاشت", true),
                         readNumber("dayId", "DAY_ID", "شناسه روز", true),
@@ -235,12 +235,12 @@ public class Calendar2ReferenceRegistry {
     }
 
     private TableDescriptor eventOccurrence() {
-        return table("event-occurrences", "EVENT", "رخدادهای رویداد", "وقوع یک مناسبت در یک روز Canonical همراه منبع و وضعیت داده", "event",
+        return table("event-occurrences", "EVENT", "رخدادهای مناسبت‌ها", "مشاهده وقوع مناسبت‌ها در تاریخ‌های واقعی تقویم؛ رخدادهای تولیدشده فقط‌خواندنی هستند", "event",
                 "EVENT_OCCURRENCE", true, true, true, true, "eventOccurrenceId", "eventOccurrenceId", List.of(
                         autoKey("eventOccurrenceId", "EVENT_OCCURRENCE_ID", "شناسه رخداد", true),
                         lookupNumber("eventId", "EVENT_ID", "رویداد", "events", true, true),
                         lookupNumber("eventRuleId", "EVENT_RULE_ID", "قاعده مولد", "event-recurrence-rules", false, true),
-                        lookupNumber("dayId", "DAY_ID", "روز Canonical", "canonical-days", true, true),
+                        lookupNumber("dayId", "DAY_ID", "روز مرجع تقویم", "canonical-days", true, true),
                         lookupNumber("sourceId", "SOURCE_ID", "منبع", "source-authorities", false, true),
                         select("occurrenceSource", "OCCURRENCE_SOURCE", "منشأ رخداد", true, true, "MANUAL",
                                 option("GENERATED", "تولیدشده"), option("MANUAL", "دستی"), option("OFFICIAL", "رسمی")),
@@ -276,7 +276,7 @@ public class Calendar2ReferenceRegistry {
                 "BUSINESS_CALENDAR_DAY", true, true, true, true, "businessCalendarDayId", "businessCalendarDayId", List.of(
                         autoKey("businessCalendarDayId", "BUSINESS_CALENDAR_DAY_ID", "شناسه", true),
                         lookupNumber("businessCalendarId", "BUSINESS_CALENDAR_ID", "تقویم کاری", "business-calendars", true, true),
-                        lookupNumber("dayId", "DAY_ID", "روز Canonical", "canonical-days", true, true),
+                        lookupNumber("dayId", "DAY_ID", "روز مرجع تقویم", "canonical-days", true, true),
                         select("dayStatus", "DAY_STATUS", "وضعیت روز", false, true, null,
                                 option("OPEN", "باز"), option("CLOSED", "بسته"), option("PARTIAL", "نیمه‌وقت")),
                         timestamp("openTime", "OPEN_TIME", "زمان بازشدن", false, true, false),

@@ -23,7 +23,6 @@ public final class Calendar2EventRecurrenceModels {
             boolean defaultHoliday
     ) {}
 
-
     public record RuleSummary(
             long eventRuleId,
             long eventId,
@@ -43,6 +42,47 @@ public final class Calendar2EventRecurrenceModels {
             boolean active,
             int generatedOccurrences
     ) {}
+
+    public record OccurrenceSummary(
+            long eventOccurrenceId,
+            long eventId,
+            Long eventRuleId,
+            String eventCode,
+            String eventName,
+            String eventTypeName,
+            long dayId,
+            String canonicalIsoDate,
+            String weekdayName,
+            Integer solarYear,
+            Integer solarMonthNo,
+            Integer solarDayNo,
+            String solarMonthName,
+            Integer gregorianYear,
+            Integer gregorianMonthNo,
+            Integer gregorianDayNo,
+            String gregorianMonthName,
+            Integer hijriYear,
+            Integer hijriMonthNo,
+            Integer hijriDayNo,
+            String hijriMonthName,
+            String ruleType,
+            String ruleCalendarName,
+            String ruleVariantCode,
+            String ruleMonthName,
+            Integer ruleYearNo,
+            Integer ruleMonthNo,
+            Integer ruleDayNo,
+            String occurrenceSource,
+            String dataStatus,
+            boolean holiday,
+            Long sourceId,
+            String sourceCode,
+            String sourceName,
+            String datasetVersionCode,
+            String description
+    ) {}
+
+    public record OccurrenceFilterMeta(Integer currentSolarYear, Integer minimumSolarYear, Integer maximumSolarYear) {}
 
     public record CalendarMonthOption(int monthNo, String nameFa) {}
 

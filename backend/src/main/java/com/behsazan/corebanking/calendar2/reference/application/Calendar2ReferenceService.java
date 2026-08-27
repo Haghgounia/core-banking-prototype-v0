@@ -1,6 +1,8 @@
 package com.behsazan.corebanking.calendar2.reference.application;
 
 import com.behsazan.corebanking.calendar2.eventrecurrence.application.Calendar2EventRecurrenceService;
+import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDayFilterMeta;
+import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDaySummary;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CatalogResponse;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.FieldDescriptor;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.FieldType;
@@ -38,6 +40,17 @@ public class Calendar2ReferenceService {
         return repository.search(registry.require(resource), text, page, size, sortBy, direction);
     }
 
+    public PageResponse<CanonicalDaySummary> searchCanonicalDays(String text, Integer solarYear, Integer solarCentury,
+                                                                    int page, int size, String sortBy, String direction) {
+        registry.require("canonical-days");
+        return repository.searchCanonicalDays(text, solarYear, solarCentury, page, size, sortBy, direction);
+    }
+
+    public CanonicalDayFilterMeta canonicalDayFilterMeta() {
+        registry.require("canonical-days");
+        return repository.canonicalDayFilterMeta();
+    }
+
     public RecordResponse find(String resource, String key) {
         return repository.find(registry.require(resource), key)
                 .orElseThrow(() -> new ReferenceNotFoundException("رکورد CAL2 یافت نشد."));
@@ -53,6 +66,7 @@ public class Calendar2ReferenceService {
         TableDescriptor descriptor = registry.require(resource);
         if (!descriptor.allowCreate()) throw validation("این جدول CAL2 فقط‌خواندنی است.", "_form");
         validate(descriptor, values, true);
+        validateEventOccurrenceCreate(descriptor, values);
         RecordResponse saved = repository.insert(descriptor, values);
         rebuildRecurrenceRuleIfNeeded(descriptor, saved);
         return saved;
@@ -62,7 +76,9 @@ public class Calendar2ReferenceService {
     public RecordResponse update(String resource, String key, Map<String, Object> values) {
         TableDescriptor descriptor = registry.require(resource);
         if (!descriptor.allowUpdate()) throw validation("ویرایش این جدول CAL2 مجاز نیست.", "_form");
+        validateEventOccurrenceMutation(descriptor, key, false, values);
         validate(descriptor, values, false);
+        validateEventOccurrenceCreate(descriptor, values);
         RecordResponse saved = repository.update(descriptor, key, values)
                 .orElseThrow(() -> new ReferenceNotFoundException("رکورد CAL2 برای ویرایش یافت نشد."));
         rebuildRecurrenceRuleIfNeeded(descriptor, saved);
@@ -73,7 +89,35 @@ public class Calendar2ReferenceService {
     public void delete(String resource, String key) {
         TableDescriptor descriptor = registry.require(resource);
         if (!descriptor.allowDelete()) throw validation("حذف رکورد از این جدول CAL2 مجاز نیست.", "_form");
+        validateEventOccurrenceMutation(descriptor, key, true, null);
         if (!repository.delete(descriptor, key)) throw new ReferenceNotFoundException("رکورد CAL2 برای حذف یافت نشد.");
+    }
+
+    private void validateEventOccurrenceCreate(TableDescriptor descriptor, Map<String, Object> values) {
+        if (!"event-occurrences".equals(descriptor.resource())) return;
+        String source = text(values.get("occurrenceSource"));
+        if ("GENERATED".equalsIgnoreCase(source)) {
+            throw validation("رخداد تولیدشده فقط توسط موتور قواعد مناسبت ساخته می‌شود.", "occurrenceSource");
+        }
+    }
+
+    private void validateEventOccurrenceMutation(TableDescriptor descriptor, String key, boolean delete, Map<String, Object> values) {
+        if (!"event-occurrences".equals(descriptor.resource())) return;
+        RecordResponse existing = repository.find(descriptor, key)
+                .orElseThrow(() -> new ReferenceNotFoundException("رخداد مناسبت یافت نشد."));
+        String source = text(existing.values().get("occurrenceSource"));
+        if ("GENERATED".equalsIgnoreCase(source)) {
+            throw validation("رخدادهای تولیدشده قابل ویرایش یا حذف مستقیم نیستند؛ قاعده مناسبت را ویرایش یا بازسازی کنید.", "_form");
+        }
+        if ("OFFICIAL".equalsIgnoreCase(source)) {
+            if (delete) {
+                throw validation("رخداد رسمی از این فرم حذف نمی‌شود؛ در صورت نیاز وضعیت آن را اصلاح کنید.", "_form");
+            }
+            String requestedSource = values == null ? null : text(values.get("occurrenceSource"));
+            if (requestedSource != null && !"OFFICIAL".equalsIgnoreCase(requestedSource)) {
+                throw validation("منشأ رخداد رسمی قابل تنزل به دستی نیست.", "occurrenceSource");
+            }
+        }
     }
 
     private void rebuildRecurrenceRuleIfNeeded(TableDescriptor descriptor, RecordResponse saved) {

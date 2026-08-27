@@ -1,6 +1,8 @@
 package com.behsazan.corebanking.calendar2.reference.oracle;
 
 import com.behsazan.corebanking.calendar2.reference.application.Calendar2ReferenceRegistry;
+import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDayFilterMeta;
+import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.CanonicalDaySummary;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.FieldDescriptor;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.FieldType;
 import com.behsazan.corebanking.calendar2.reference.domain.Calendar2ReferenceModels.LookupOption;
@@ -63,6 +65,74 @@ public class Calendar2ReferenceRepository {
             return row;
         }).list();
         return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public PageResponse<CanonicalDaySummary> searchCanonicalDays(String text, Integer solarYear, Integer solarCentury,
+                                                                    int page, int size, String sortBy, String direction) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1 = 1");
+
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(TO_CHAR(D.DAY_ID)) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(D.EPOCH_DAY)) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(D.CANONICAL_DATE,'YYYY-MM-DD')) LIKE :searchText")
+                    .append(" OR UPPER(D.ISO_DATE_TEXT) LIKE :searchText")
+                    .append(" OR UPPER(W.NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(PM.NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(PCD.YEAR_NO)) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(PCD.MONTH_NO)) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(PCD.DAY_NO)) LIKE :searchText)");
+            params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        if (solarYear != null) {
+            where.append(" AND PCD.YEAR_NO = :solarYear");
+            params.put("solarYear", solarYear);
+        }
+        if (solarCentury != null && solarCentury > 0) {
+            int startYear = (solarCentury - 1) * 100 + 1;
+            int endYear = solarCentury * 100;
+            where.append(" AND PCD.YEAR_NO BETWEEN :centuryStartYear AND :centuryEndYear");
+            params.put("centuryStartYear", startYear);
+            params.put("centuryEndYear", endYear);
+        }
+
+        String cte = canonicalDayContextCte();
+        String from = canonicalDayFrom();
+        long total = jdbcClient.sql(cte + " SELECT COUNT(*) " + from + where)
+                .params(params).query(Long.class).single();
+
+        String sql = cte + """
+                SELECT D.DAY_ID, D.EPOCH_DAY, D.CANONICAL_DATE, D.ISO_DATE_TEXT,
+                       D.WEEKDAY_ID, W.NAME_FA AS WEEKDAY_NAME,
+                       PCD.YEAR_NO AS SOLAR_YEAR, PCD.MONTH_NO AS SOLAR_MONTH_NO, PCD.DAY_NO AS SOLAR_DAY_NO,
+                       PM.NAME_FA AS SOLAR_MONTH_NAME,
+                       D.ISO_WEEK_NO, D.ISO_WEEK_YEAR
+                """ + from + where + " ORDER BY " + canonicalDaySort(sortBy) + " " + normalizedDirection(direction)
+                + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+        List<CanonicalDaySummary> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> new CanonicalDaySummary(
+                rs.getLong("DAY_ID"), rs.getLong("EPOCH_DAY"), rs.getDate("CANONICAL_DATE").toLocalDate(),
+                rs.getString("ISO_DATE_TEXT"), rs.getLong("WEEKDAY_ID"), rs.getString("WEEKDAY_NAME"),
+                nullableInteger(rs, "SOLAR_YEAR"), nullableInteger(rs, "SOLAR_MONTH_NO"), nullableInteger(rs, "SOLAR_DAY_NO"),
+                rs.getString("SOLAR_MONTH_NAME"), nullableInteger(rs, "ISO_WEEK_NO"), nullableInteger(rs, "ISO_WEEK_YEAR")
+        )).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public CanonicalDayFilterMeta canonicalDayFilterMeta() {
+        String sql = canonicalDayContextCte() + """
+                SELECT MAX(CASE WHEN D.CANONICAL_DATE = TRUNC(SYSDATE) THEN PCD.YEAR_NO END) AS CURRENT_SOLAR_YEAR,
+                       MIN(PCD.YEAR_NO) AS MIN_SOLAR_YEAR,
+                       MAX(PCD.YEAR_NO) AS MAX_SOLAR_YEAR
+                """ + canonicalDayFrom();
+        return jdbcClient.sql(sql).query((rs, rowNum) -> new CanonicalDayFilterMeta(
+                nullableInteger(rs, "CURRENT_SOLAR_YEAR"),
+                nullableInteger(rs, "MIN_SOLAR_YEAR"),
+                nullableInteger(rs, "MAX_SOLAR_YEAR")
+        )).single();
     }
 
     public Optional<RecordResponse> find(TableDescriptor descriptor, String encodedKey) {
@@ -174,6 +244,43 @@ public class Calendar2ReferenceRepository {
         )).list();
     }
 
+    private String canonicalDayContextCte() {
+        return """
+                WITH PERSIAN_CONTEXT AS (
+                    SELECT MAX(CASE WHEN S.CALENDAR_CODE = 'PERSIAN' AND V.IS_DEFAULT = 'Y' THEN V.CALENDAR_VARIANT_ID END) AS PERSIAN_VARIANT_ID,
+                           MAX(CASE WHEN S.CALENDAR_CODE = 'PERSIAN' THEN S.CALENDAR_SYSTEM_ID END) AS PERSIAN_SYSTEM_ID
+                      FROM %s V
+                      JOIN %s S ON S.CALENDAR_SYSTEM_ID = V.CALENDAR_SYSTEM_ID
+                )
+                """.formatted(cal2Table("CALENDAR_VARIANT"), cal2Table("CALENDAR_SYSTEM"));
+    }
+
+    private String canonicalDayFrom() {
+        return " FROM " + cal2Table("CANONICAL_DAY") + " D"
+                + " CROSS JOIN PERSIAN_CONTEXT PX"
+                + " JOIN " + cal2Table("CALENDAR_DATE") + " PCD ON PCD.DAY_ID = D.DAY_ID AND PCD.CALENDAR_VARIANT_ID = PX.PERSIAN_VARIANT_ID"
+                + " LEFT JOIN " + cal2Table("WEEKDAY") + " W ON W.WEEKDAY_ID = D.WEEKDAY_ID"
+                + " LEFT JOIN " + cal2Table("CALENDAR_MONTH") + " PM ON PM.CALENDAR_SYSTEM_ID = PX.PERSIAN_SYSTEM_ID AND PM.MONTH_NO = PCD.MONTH_NO";
+    }
+
+    private static String canonicalDaySort(String requested) {
+        if (requested == null || requested.isBlank()) return "D.CANONICAL_DATE";
+        return switch (requested) {
+            case "dayId" -> "D.DAY_ID";
+            case "epochDay" -> "D.EPOCH_DAY";
+            case "canonicalDate", "isoDateText" -> "D.CANONICAL_DATE";
+            case "weekdayName" -> "W.IR_DISPLAY_ORDER";
+            case "solarMonthName" -> "PCD.MONTH_NO";
+            case "isoWeekNo" -> "D.ISO_WEEK_NO";
+            case "isoWeekYear" -> "D.ISO_WEEK_YEAR";
+            default -> "D.CANONICAL_DATE";
+        };
+    }
+
+    private String cal2Table(String tableName) {
+        return Calendar2SqlNames.qualified(registry.schemaName(), tableName);
+    }
+
     private String searchWhere(TableDescriptor descriptor, String text) {
         if (text == null || text.isBlank() || descriptor.searchableFields().isEmpty()) return "";
         StringJoiner joiner = new StringJoiner(" OR ", " WHERE (", ")");
@@ -233,6 +340,11 @@ public class Calendar2ReferenceRepository {
             case LOOKUP -> isNumericLookup(field) ? rs.getBigDecimal(field.apiName()) : rs.getString(field.apiName());
             case TEXT, SELECT -> rs.getString(field.apiName());
         };
+    }
+
+    private static Integer nullableInteger(ResultSet rs, String column) throws SQLException {
+        int value = rs.getInt(column);
+        return rs.wasNull() ? null : value;
     }
 
     private static Object readKeyValue(ResultSet rs, String columnAlias, FieldDescriptor field) throws SQLException {

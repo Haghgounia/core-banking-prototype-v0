@@ -1,6 +1,8 @@
 package com.behsazan.corebanking.calendar2.eventrecurrence.oracle;
 
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.CalendarMonthOption;
+import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.OccurrenceFilterMeta;
+import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.OccurrenceSummary;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.RuleDefinition;
 import com.behsazan.corebanking.calendar2.eventrecurrence.domain.Calendar2EventRecurrenceModels.RuleSummary;
 import com.behsazan.corebanking.shared.model.PageResponse;
@@ -90,6 +92,160 @@ public class Calendar2EventRecurrenceRepository {
         params.put("pageSize", safeSize);
         List<RuleSummary> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> mapRuleSummary(rs)).list();
         return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public PageResponse<OccurrenceSummary> searchOccurrenceSummaries(
+            String text, Integer solarYear, Long eventId, String occurrenceSource, Boolean holiday,
+            int page, int size, String sortBy, String direction
+    ) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        String search = text == null ? "" : text.trim();
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1=1");
+
+        if (!search.isBlank()) {
+            where.append("""
+                     AND (UPPER(E.EVENT_CODE) LIKE :text
+                       OR UPPER(E.NAME_FA) LIKE :text
+                       OR UPPER(NVL(E.NAME_EN, '')) LIKE :text
+                       OR UPPER(NVL(ET.NAME_FA, '')) LIKE :text
+                       OR UPPER(NVL(SA.NAME_FA, '')) LIKE :text
+                       OR UPPER(NVL(SA.SOURCE_CODE, '')) LIKE :text
+                       OR UPPER(NVL(DV.VERSION_CODE, '')) LIKE :text
+                       OR UPPER(NVL(D.ISO_DATE_TEXT, '')) LIKE :text
+                       OR UPPER(NVL(PM.NAME_FA, '')) LIKE :text
+                       OR UPPER(NVL(GM.NAME_FA, '')) LIKE :text
+                       OR UPPER(NVL(IM.NAME_FA, '')) LIKE :text
+                       OR TO_CHAR(PCD.YEAR_NO) LIKE :textRaw
+                       OR TO_CHAR(GCD.YEAR_NO) LIKE :textRaw
+                       OR TO_CHAR(ICD.YEAR_NO) LIKE :textRaw)
+                    """);
+            params.put("text", "%" + search.toUpperCase(Locale.ROOT) + "%");
+            params.put("textRaw", "%" + search + "%");
+        }
+        if (solarYear != null) {
+            where.append(" AND PCD.YEAR_NO = :solarYear");
+            params.put("solarYear", solarYear);
+        }
+        if (eventId != null) {
+            where.append(" AND EO.EVENT_ID = :eventId");
+            params.put("eventId", eventId);
+        }
+        if (occurrenceSource != null && !occurrenceSource.isBlank()) {
+            where.append(" AND EO.OCCURRENCE_SOURCE = :occurrenceSource");
+            params.put("occurrenceSource", occurrenceSource);
+        }
+        if (holiday != null) {
+            where.append(" AND EO.HOLIDAY_FLAG = :holidayFlag");
+            params.put("holidayFlag", holiday ? "Y" : "N");
+        }
+
+        String variantsCte = defaultVariantsCte();
+        String from = occurrenceSummaryFrom();
+        long total = jdbcClient.sql(variantsCte + " SELECT COUNT(*) " + from + where)
+                .params(params).query(Long.class).single();
+
+        String sql = variantsCte + """
+                SELECT EO.EVENT_OCCURRENCE_ID, EO.EVENT_ID, EO.EVENT_RULE_ID,
+                       E.EVENT_CODE, E.NAME_FA AS EVENT_NAME, ET.NAME_FA AS EVENT_TYPE_NAME,
+                       EO.DAY_ID, D.ISO_DATE_TEXT AS CANONICAL_ISO_DATE, W.NAME_FA AS WEEKDAY_NAME,
+                       PCD.YEAR_NO AS SOLAR_YEAR, PCD.MONTH_NO AS SOLAR_MONTH_NO, PCD.DAY_NO AS SOLAR_DAY_NO, PM.NAME_FA AS SOLAR_MONTH_NAME,
+                       GCD.YEAR_NO AS GREGORIAN_YEAR, GCD.MONTH_NO AS GREGORIAN_MONTH_NO, GCD.DAY_NO AS GREGORIAN_DAY_NO, GM.NAME_FA AS GREGORIAN_MONTH_NAME,
+                       ICD.YEAR_NO AS HIJRI_YEAR, ICD.MONTH_NO AS HIJRI_MONTH_NO, ICD.DAY_NO AS HIJRI_DAY_NO, IM.NAME_FA AS HIJRI_MONTH_NAME,
+                       R.RULE_TYPE, RS.NAME_FA AS RULE_CALENDAR_NAME, RV.VARIANT_CODE AS RULE_VARIANT_CODE,
+                       RM.NAME_FA AS RULE_MONTH_NAME, R.YEAR_NO AS RULE_YEAR_NO, R.MONTH_NO AS RULE_MONTH_NO, R.DAY_NO AS RULE_DAY_NO,
+                       EO.OCCURRENCE_SOURCE, EO.DATA_STATUS, EO.HOLIDAY_FLAG,
+                       EO.SOURCE_ID, SA.SOURCE_CODE, SA.NAME_FA AS SOURCE_NAME,
+                       DV.VERSION_CODE AS DATASET_VERSION_CODE, EO.DESCRIPTION
+                """ + from + where + " ORDER BY " + occurrenceSort(sortBy) + " " + normalizedDirection(direction)
+                + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+        List<OccurrenceSummary> rows = jdbcClient.sql(sql).params(params)
+                .query((rs, rowNum) -> mapOccurrenceSummary(rs)).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public OccurrenceFilterMeta occurrenceFilterMeta() {
+        String sql = defaultVariantsCte() + """
+                SELECT MAX(CASE WHEN D.CANONICAL_DATE = TRUNC(SYSDATE) THEN PCD.YEAR_NO END) AS CURRENT_SOLAR_YEAR,
+                       MIN(PCD.YEAR_NO) AS MIN_SOLAR_YEAR,
+                       MAX(PCD.YEAR_NO) AS MAX_SOLAR_YEAR
+                  FROM %s D
+                  CROSS JOIN DEFAULT_VARIANTS VX
+                  JOIN %s PCD ON PCD.DAY_ID = D.DAY_ID AND PCD.CALENDAR_VARIANT_ID = VX.PERSIAN_VARIANT_ID
+                """.formatted(table("CANONICAL_DAY"), table("CALENDAR_DATE"));
+        return jdbcClient.sql(sql).query((rs, rowNum) -> new OccurrenceFilterMeta(
+                nullableInteger(rs, "CURRENT_SOLAR_YEAR"),
+                nullableInteger(rs, "MIN_SOLAR_YEAR"),
+                nullableInteger(rs, "MAX_SOLAR_YEAR")
+        )).single();
+    }
+
+    private String defaultVariantsCte() {
+        return """
+                WITH DEFAULT_VARIANTS AS (
+                    SELECT MAX(CASE WHEN S.CALENDAR_CODE = 'PERSIAN' AND V.IS_DEFAULT = 'Y' THEN V.CALENDAR_VARIANT_ID END) AS PERSIAN_VARIANT_ID,
+                           MAX(CASE WHEN S.CALENDAR_CODE = 'GREGORIAN' AND V.IS_DEFAULT = 'Y' THEN V.CALENDAR_VARIANT_ID END) AS GREGORIAN_VARIANT_ID,
+                           MAX(CASE WHEN S.CALENDAR_CODE = 'ISLAMIC' AND V.IS_DEFAULT = 'Y' THEN V.CALENDAR_VARIANT_ID END) AS ISLAMIC_VARIANT_ID,
+                           MAX(CASE WHEN S.CALENDAR_CODE = 'PERSIAN' THEN S.CALENDAR_SYSTEM_ID END) AS PERSIAN_SYSTEM_ID,
+                           MAX(CASE WHEN S.CALENDAR_CODE = 'GREGORIAN' THEN S.CALENDAR_SYSTEM_ID END) AS GREGORIAN_SYSTEM_ID,
+                           MAX(CASE WHEN S.CALENDAR_CODE = 'ISLAMIC' THEN S.CALENDAR_SYSTEM_ID END) AS ISLAMIC_SYSTEM_ID
+                      FROM %s V
+                      JOIN %s S ON S.CALENDAR_SYSTEM_ID = V.CALENDAR_SYSTEM_ID
+                )
+                """.formatted(table("CALENDAR_VARIANT"), table("CALENDAR_SYSTEM"));
+    }
+
+    private String occurrenceSummaryFrom() {
+        return " FROM " + table("EVENT_OCCURRENCE") + " EO"
+                + " JOIN " + table("EVENT") + " E ON E.EVENT_ID = EO.EVENT_ID"
+                + " LEFT JOIN " + table("EVENT_TYPE") + " ET ON ET.EVENT_TYPE_ID = E.EVENT_TYPE_ID"
+                + " JOIN " + table("CANONICAL_DAY") + " D ON D.DAY_ID = EO.DAY_ID"
+                + " LEFT JOIN " + table("WEEKDAY") + " W ON W.WEEKDAY_ID = D.WEEKDAY_ID"
+                + " LEFT JOIN " + table("SOURCE_AUTHORITY") + " SA ON SA.SOURCE_ID = EO.SOURCE_ID"
+                + " LEFT JOIN " + table("DATASET_VERSION") + " DV ON DV.DATASET_VERSION_ID = EO.DATASET_VERSION_ID"
+                + " LEFT JOIN " + table("EVENT_RECURRENCE_RULE") + " R ON R.EVENT_RULE_ID = EO.EVENT_RULE_ID"
+                + " LEFT JOIN " + table("CALENDAR_VARIANT") + " RV ON RV.CALENDAR_VARIANT_ID = R.CALENDAR_VARIANT_ID"
+                + " LEFT JOIN " + table("CALENDAR_SYSTEM") + " RS ON RS.CALENDAR_SYSTEM_ID = RV.CALENDAR_SYSTEM_ID"
+                + " LEFT JOIN " + table("CALENDAR_MONTH") + " RM ON RM.CALENDAR_SYSTEM_ID = RS.CALENDAR_SYSTEM_ID AND RM.MONTH_NO = R.MONTH_NO"
+                + " CROSS JOIN DEFAULT_VARIANTS VX"
+                + " LEFT JOIN " + table("CALENDAR_DATE") + " PCD ON PCD.DAY_ID = EO.DAY_ID AND PCD.CALENDAR_VARIANT_ID = VX.PERSIAN_VARIANT_ID"
+                + " LEFT JOIN " + table("CALENDAR_MONTH") + " PM ON PM.CALENDAR_SYSTEM_ID = VX.PERSIAN_SYSTEM_ID AND PM.MONTH_NO = PCD.MONTH_NO"
+                + " LEFT JOIN " + table("CALENDAR_DATE") + " GCD ON GCD.DAY_ID = EO.DAY_ID AND GCD.CALENDAR_VARIANT_ID = VX.GREGORIAN_VARIANT_ID"
+                + " LEFT JOIN " + table("CALENDAR_MONTH") + " GM ON GM.CALENDAR_SYSTEM_ID = VX.GREGORIAN_SYSTEM_ID AND GM.MONTH_NO = GCD.MONTH_NO"
+                + " LEFT JOIN " + table("CALENDAR_DATE") + " ICD ON ICD.DAY_ID = EO.DAY_ID AND ICD.CALENDAR_VARIANT_ID = VX.ISLAMIC_VARIANT_ID"
+                + " LEFT JOIN " + table("CALENDAR_MONTH") + " IM ON IM.CALENDAR_SYSTEM_ID = VX.ISLAMIC_SYSTEM_ID AND IM.MONTH_NO = ICD.MONTH_NO";
+    }
+
+    private OccurrenceSummary mapOccurrenceSummary(ResultSet rs) throws SQLException {
+        return new OccurrenceSummary(
+                rs.getLong("EVENT_OCCURRENCE_ID"), rs.getLong("EVENT_ID"), nullableLong(rs, "EVENT_RULE_ID"),
+                rs.getString("EVENT_CODE"), rs.getString("EVENT_NAME"), rs.getString("EVENT_TYPE_NAME"),
+                rs.getLong("DAY_ID"), rs.getString("CANONICAL_ISO_DATE"), rs.getString("WEEKDAY_NAME"),
+                nullableInteger(rs, "SOLAR_YEAR"), nullableInteger(rs, "SOLAR_MONTH_NO"), nullableInteger(rs, "SOLAR_DAY_NO"), rs.getString("SOLAR_MONTH_NAME"),
+                nullableInteger(rs, "GREGORIAN_YEAR"), nullableInteger(rs, "GREGORIAN_MONTH_NO"), nullableInteger(rs, "GREGORIAN_DAY_NO"), rs.getString("GREGORIAN_MONTH_NAME"),
+                nullableInteger(rs, "HIJRI_YEAR"), nullableInteger(rs, "HIJRI_MONTH_NO"), nullableInteger(rs, "HIJRI_DAY_NO"), rs.getString("HIJRI_MONTH_NAME"),
+                rs.getString("RULE_TYPE"), rs.getString("RULE_CALENDAR_NAME"), rs.getString("RULE_VARIANT_CODE"), rs.getString("RULE_MONTH_NAME"),
+                nullableInteger(rs, "RULE_YEAR_NO"), nullableInteger(rs, "RULE_MONTH_NO"), nullableInteger(rs, "RULE_DAY_NO"),
+                rs.getString("OCCURRENCE_SOURCE"), rs.getString("DATA_STATUS"), "Y".equalsIgnoreCase(rs.getString("HOLIDAY_FLAG")),
+                nullableLong(rs, "SOURCE_ID"), rs.getString("SOURCE_CODE"), rs.getString("SOURCE_NAME"), rs.getString("DATASET_VERSION_CODE"), rs.getString("DESCRIPTION")
+        );
+    }
+
+    private static String occurrenceSort(String requested) {
+        if (requested == null || requested.isBlank()) return "D.CANONICAL_DATE";
+        return switch (requested) {
+            case "eventName" -> "E.NAME_FA";
+            case "solarDate", "gregorianDate", "hijriDate" -> "D.CANONICAL_DATE";
+            case "ruleType" -> "R.RULE_TYPE";
+            case "occurrenceSource" -> "EO.OCCURRENCE_SOURCE";
+            case "holiday" -> "EO.HOLIDAY_FLAG";
+            case "dataStatus" -> "EO.DATA_STATUS";
+            case "sourceName" -> "SA.NAME_FA";
+            default -> "D.CANONICAL_DATE";
+        };
     }
 
     public List<CalendarMonthOption> monthsForVariant(long variantId) {
