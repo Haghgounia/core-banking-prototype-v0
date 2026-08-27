@@ -7,6 +7,10 @@ export const routes: Routes = [
     children: [
       {path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)},
       {path: 'fee', loadComponent: () => import('./features/fee/fee-management.component').then(m => m.FeeManagementComponent)},
+      {path: 'product-builder', loadComponent: () => import('./features/product-builder/product-builder-home.component').then(m => m.ProductBuilderHomeComponent)},
+      {path: 'product-builder/products', loadComponent: () => import('./features/product-builder/product-list.component').then(m => m.ProductListComponent)},
+      {path: 'product-builder/products/:productId', loadComponent: () => import('./features/product-builder/product-workspace.component').then(m => m.ProductWorkspaceComponent)},
+      {path: 'product-builder/tables/:table', loadComponent: () => import('./features/product-builder/pdl-table.component').then(m => m.PdlTableComponent)},
       {path: 'cif/parties', loadComponent: () => import('./features/cif/party-list.component').then(m => m.PartyListComponent)},
       {path: 'cif/parties/new', loadComponent: () => import('./features/cif/party-create.component').then(m => m.PartyCreateComponent)},
       {path: 'cif/parties/:partyId/onboarding/contact-address', loadComponent: () => import('./features/cif/party-contact-address.component').then(m => m.PartyContactAddressComponent)},

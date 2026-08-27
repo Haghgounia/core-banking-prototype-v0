@@ -3,6 +3,7 @@ package com.behsazan.corebanking.shared.error;
 import com.behsazan.corebanking.cif.error.CifNotFoundException;
 import com.behsazan.corebanking.cif.error.CifValidationException;
 import com.behsazan.corebanking.system.modelcomparison.ModelComparisonValidationException;
+import com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -58,6 +59,16 @@ public class GlobalExceptionHandler {
         problem.setTitle("اطلاعات مشتری معتبر نیست");
         problem.setProperty("errorCode", "CIF_VALIDATION_FAILED");
         problem.setProperty("fieldErrors", exception.fieldErrors());
+        return problem;
+    }
+
+    @ExceptionHandler(ProductBuilderValidationException.class)
+    ProblemDetail handleProductBuilderValidation(ProductBuilderValidationException exception) {
+        log.warn("Product builder validation failed: {}", exception.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
+        problem.setType(URI.create("urn:core-banking:problem:product-builder-validation"));
+        problem.setTitle("Product builder validation failed");
+        problem.setProperty("errorCode", "PRODUCT_BUILDER_VALIDATION_FAILED");
         return problem;
     }
 

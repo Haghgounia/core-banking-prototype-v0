@@ -51,6 +51,9 @@ node "%ROOT%tools\verify-calendar2-month-view.mjs" || exit /b 1
 rem FIX69 static guard: BUSINESS_CALENDAR country/time-zone lookups; organization remains free text.
 node "%ROOT%tools\verify-calendar2-business-calendar-lookups.mjs" || exit /b 1
 
+rem FIX70 static guard: PDL unified product builder menu, metadata CRUD and product workspace.
+node "%ROOT%tools\verify-pdl-product-builder.mjs" || exit /b 1
+
 rem FIX55 static guard: user-facing calendar labels must stay simple and distinct.
 node "%ROOT%tools\verify-calendar-display-labels.mjs" || exit /b 1
 

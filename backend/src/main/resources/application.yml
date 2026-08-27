@@ -43,6 +43,7 @@ core-banking:
     fee: FEE
     calendar: CAL
     calendar2: CAL2
+    product-definition: PDL
   database-export:
     enabled: false
     schema: DPS
