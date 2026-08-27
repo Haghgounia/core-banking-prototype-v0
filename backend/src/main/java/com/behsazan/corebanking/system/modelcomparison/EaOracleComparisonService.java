@@ -5,6 +5,8 @@ import com.behsazan.corebanking.system.modelcomparison.EaOracleComparisonModels.
 import com.behsazan.corebanking.system.modelcomparison.EaOracleComparisonModels.ComparisonConfiguration;
 import com.behsazan.corebanking.system.modelcomparison.EaOracleComparisonModels.ComparisonReport;
 import com.behsazan.corebanking.system.modelcomparison.EaOracleComparisonModels.ComparisonSummary;
+import com.behsazan.corebanking.system.modelcomparison.EaOracleComparisonModels.ConstraintComparison;
+import com.behsazan.corebanking.system.modelcomparison.EaOracleComparisonModels.ConstraintStatus;
 import com.behsazan.corebanking.system.modelcomparison.EaOracleComparisonModels.DatabaseOnlyTable;
 import com.behsazan.corebanking.system.modelcomparison.EaOracleComparisonModels.PrimaryKeyStatus;
 import com.behsazan.corebanking.system.modelcomparison.EaOracleComparisonModels.TableComparison;
@@ -151,6 +153,20 @@ class EaOracleComparisonService {
                     ea.primaryKeyColumns().isEmpty() ? PrimaryKeyStatus.NOT_DEFINED_IN_EA : PrimaryKeyStatus.DIFFERENT,
                     ea.primaryKeyColumns(),
                     List.of(),
+                    ea.foreignKeys().isEmpty(),
+                    ea.foreignKeys().size(),
+                    0,
+                    ea.foreignKeys().stream().map(fk -> new ConstraintComparison(
+                            fk.constraintName(), "FK", ConstraintStatus.MISSING_IN_DATABASE,
+                            fk.displayDefinition(), null, List.of("Foreign Key در Oracle وجود ندارد.")
+                    )).toList(),
+                    ea.checkConstraints().isEmpty(),
+                    ea.checkConstraints().size(),
+                    0,
+                    ea.checkConstraints().stream().map(check -> new ConstraintComparison(
+                            check.constraintName(), "CHECK", ConstraintStatus.MISSING_IN_DATABASE,
+                            check.displayDefinition(), null, List.of("Check Constraint در Oracle وجود ندارد.")
+                    )).toList(),
                     0,
                     0,
                     missingColumns.size(),
@@ -194,8 +210,15 @@ class EaOracleComparisonService {
         int missing = (int) comparisons.stream().filter(column -> column.status() == ColumnStatus.MISSING_IN_DATABASE).count();
         int extra = (int) comparisons.stream().filter(column -> column.status() == ColumnStatus.EXTRA_IN_DATABASE).count();
         PrimaryKeyStatus pkStatus = primaryKeyStatus(ea.primaryKeyColumns(), db.primaryKeyColumns());
+        List<ConstraintComparison> foreignKeyComparisons = compareForeignKeys(ea.foreignKeys(), db.foreignKeys());
+        List<ConstraintComparison> checkComparisons = compareChecks(ea.checkConstraints(), db.checkConstraints());
+        boolean foreignKeysMatch = constraintsMatch(foreignKeyComparisons);
+        boolean checksMatch = constraintsMatch(checkComparisons);
         TableStatus status = differences == 0 && missing == 0 && extra == 0
-                && pkStatus != PrimaryKeyStatus.DIFFERENT && persianMetadataMatch
+                && pkStatus == PrimaryKeyStatus.MATCH
+                && foreignKeysMatch
+                && checksMatch
+                && persianMetadataMatch
                 ? TableStatus.MATCH
                 : TableStatus.DIFFERENT;
 
@@ -215,6 +238,14 @@ class EaOracleComparisonService {
                 pkStatus,
                 ea.primaryKeyColumns(),
                 db.primaryKeyColumns(),
+                foreignKeysMatch,
+                ea.foreignKeys().size(),
+                db.foreignKeys().size(),
+                List.copyOf(foreignKeyComparisons),
+                checksMatch,
+                ea.checkConstraints().size(),
+                db.checkConstraints().size(),
+                List.copyOf(checkComparisons),
                 matches,
                 differences,
                 missing,
@@ -268,7 +299,6 @@ class EaOracleComparisonService {
     private static List<String> compareTablePersianMetadata(EaTableDefinition ea, OracleTableDefinition db) {
         List<String> differences = new ArrayList<>();
         String eaTitle = ea.persianTitle();
-        String eaDocumentation = ea.documentation();
         String dbComment = db.comment();
 
         if (eaTitle != null) {
@@ -281,7 +311,8 @@ class EaOracleComparisonService {
             differences.add("عنوان فارسی جدول (alias) در EA تعریف نشده است؛ Oracle COMMENT='" + dbComment + "'.");
         }
 
-        compareTextMetadata("COMMENT/Documentation جدول", eaDocumentation, dbComment, differences);
+        // EA Documentation is a semantic/technical description, not the Persian display title.
+        // Table-level Persian metadata compares EA Alias with Oracle TABLE COMMENT only.
         return differences;
     }
 
@@ -349,16 +380,205 @@ class EaOracleComparisonService {
             return;
         }
         if ("TIMESTAMP".equals(type) || "TIMESTAMP WITH TIME ZONE".equals(type) || "TIMESTAMP WITH LOCAL TIME ZONE".equals(type)) {
-            if (ea.length() != null && db.scale() != null && !sameNumber(ea.length(), db.scale())) {
+            if (ea.length() != null && db.scale() != null && !sameNumber(ea.length(), db.scale())
+                    && !timestampZeroSixCompatibility(ea.length(), db.scale())) {
                 differences.add("Fractional seconds: EA=" + ea.length() + "، Oracle=" + db.scale());
             }
         }
     }
 
+
+    private static boolean timestampZeroSixCompatibility(Integer eaFractionalSeconds, Integer oracleFractionalSeconds) {
+        return Integer.valueOf(0).equals(eaFractionalSeconds) && Integer.valueOf(6).equals(oracleFractionalSeconds);
+    }
+
+    private static List<ConstraintComparison> compareForeignKeys(
+            List<EaForeignKeyDefinition> eaForeignKeys,
+            List<OracleEaForeignKey> databaseForeignKeys
+    ) {
+        Map<String, OracleEaForeignKey> databaseByName = new LinkedHashMap<>();
+        for (OracleEaForeignKey fk : databaseForeignKeys) {
+            if (fk.constraintName() != null) databaseByName.put(fk.constraintName().toUpperCase(Locale.ROOT), fk);
+        }
+        Set<String> visited = new HashSet<>();
+        List<ConstraintComparison> comparisons = new ArrayList<>();
+        for (EaForeignKeyDefinition ea : eaForeignKeys) {
+            String name = ea.constraintName() == null ? "?" : ea.constraintName().toUpperCase(Locale.ROOT);
+            OracleEaForeignKey db = databaseByName.get(name);
+            visited.add(name);
+            if (db == null) {
+                comparisons.add(new ConstraintComparison(
+                        ea.constraintName(), "FK", ConstraintStatus.MISSING_IN_DATABASE,
+                        ea.displayDefinition(), null,
+                        List.of("Foreign Key در Oracle وجود ندارد.")
+                ));
+                continue;
+            }
+            List<String> differences = new ArrayList<>();
+            List<String> dbChildColumns = db.columns().stream()
+                    .sorted(Comparator.comparingInt(OracleEaForeignKeyColumn::position))
+                    .map(OracleEaForeignKeyColumn::childColumn)
+                    .toList();
+            List<String> dbParentColumns = db.columns().stream()
+                    .sorted(Comparator.comparingInt(OracleEaForeignKeyColumn::position))
+                    .map(OracleEaForeignKeyColumn::parentColumn)
+                    .toList();
+            if (!identifierListsEqual(ea.childColumns(), dbChildColumns)) {
+                differences.add("ستون‌های FK: EA=" + joinIdentifiers(ea.childColumns()) + "، Oracle=" + joinIdentifiers(dbChildColumns));
+            }
+            if (ea.parentTable() == null || !ea.parentTable().equalsIgnoreCase(db.parentTable())) {
+                differences.add("جدول مرجع FK: EA=" + value(ea.parentTable()) + "، Oracle=" + value(db.parentTable()));
+            }
+            if (!identifierListsEqual(ea.parentColumns(), dbParentColumns)) {
+                differences.add("ستون‌های مرجع FK: EA=" + joinIdentifiers(ea.parentColumns()) + "، Oracle=" + joinIdentifiers(dbParentColumns));
+            }
+            comparisons.add(new ConstraintComparison(
+                    ea.constraintName(), "FK",
+                    differences.isEmpty() ? ConstraintStatus.MATCH : ConstraintStatus.DIFFERENT,
+                    ea.displayDefinition(), oracleForeignKeyDefinition(db), List.copyOf(differences)
+            ));
+        }
+        for (OracleEaForeignKey db : databaseForeignKeys) {
+            String name = db.constraintName() == null ? "?" : db.constraintName().toUpperCase(Locale.ROOT);
+            if (visited.contains(name)) continue;
+            comparisons.add(new ConstraintComparison(
+                    db.constraintName(), "FK", ConstraintStatus.EXTRA_IN_DATABASE,
+                    null, oracleForeignKeyDefinition(db),
+                    List.of("Foreign Key در Oracle وجود دارد اما در مدل EA تعریف نشده است.")
+            ));
+        }
+        comparisons.sort(Comparator.comparing(ConstraintComparison::constraintName, Comparator.nullsLast(String::compareTo)));
+        return List.copyOf(comparisons);
+    }
+
+    private static List<ConstraintComparison> compareChecks(
+            List<EaCheckConstraintDefinition> eaChecks,
+            List<OracleEaCheckConstraint> databaseChecks
+    ) {
+        Map<String, OracleEaCheckConstraint> databaseByName = new LinkedHashMap<>();
+        for (OracleEaCheckConstraint check : databaseChecks) {
+            if (check.constraintName() != null) databaseByName.put(check.constraintName().toUpperCase(Locale.ROOT), check);
+        }
+        Set<String> visited = new HashSet<>();
+        List<ConstraintComparison> comparisons = new ArrayList<>();
+        for (EaCheckConstraintDefinition ea : eaChecks) {
+            String name = ea.constraintName() == null ? "?" : ea.constraintName().toUpperCase(Locale.ROOT);
+            OracleEaCheckConstraint db = databaseByName.get(name);
+            visited.add(name);
+            if (db == null) {
+                comparisons.add(new ConstraintComparison(
+                        ea.constraintName(), "CHECK", ConstraintStatus.MISSING_IN_DATABASE,
+                        ea.displayDefinition(), null,
+                        List.of("Check Constraint در Oracle وجود ندارد.")
+                ));
+                continue;
+            }
+            List<String> differences = new ArrayList<>();
+            if (!normalizeCheckCondition(ea.condition()).equals(normalizeCheckCondition(db.condition()))) {
+                differences.add("عبارت CHECK متفاوت است.");
+            }
+            comparisons.add(new ConstraintComparison(
+                    ea.constraintName(), "CHECK",
+                    differences.isEmpty() ? ConstraintStatus.MATCH : ConstraintStatus.DIFFERENT,
+                    ea.displayDefinition(), oracleCheckDefinition(db), List.copyOf(differences)
+            ));
+        }
+        for (OracleEaCheckConstraint db : databaseChecks) {
+            String name = db.constraintName() == null ? "?" : db.constraintName().toUpperCase(Locale.ROOT);
+            if (visited.contains(name)) continue;
+            comparisons.add(new ConstraintComparison(
+                    db.constraintName(), "CHECK", ConstraintStatus.EXTRA_IN_DATABASE,
+                    null, oracleCheckDefinition(db),
+                    List.of("Check Constraint در Oracle وجود دارد اما در مدل EA تعریف نشده است.")
+            ));
+        }
+        comparisons.sort(Comparator.comparing(ConstraintComparison::constraintName, Comparator.nullsLast(String::compareTo)));
+        return List.copyOf(comparisons);
+    }
+
+    private static boolean constraintsMatch(List<ConstraintComparison> comparisons) {
+        return comparisons.stream().allMatch(value -> value.status() == ConstraintStatus.MATCH);
+    }
+
+    private static boolean identifierListsEqual(List<String> left, List<String> right) {
+        List<String> a = left == null ? List.of() : left.stream().map(value -> value.toUpperCase(Locale.ROOT)).toList();
+        List<String> b = right == null ? List.of() : right.stream().map(value -> value.toUpperCase(Locale.ROOT)).toList();
+        return a.equals(b);
+    }
+
+    private static String joinIdentifiers(List<String> values) {
+        return values == null || values.isEmpty() ? "—" : String.join(", ", values);
+    }
+
+    private static String oracleForeignKeyDefinition(OracleEaForeignKey fk) {
+        List<OracleEaForeignKeyColumn> columns = fk.columns().stream()
+                .sorted(Comparator.comparingInt(OracleEaForeignKeyColumn::position))
+                .toList();
+        String child = columns.stream().map(OracleEaForeignKeyColumn::childColumn).reduce((a, b) -> a + ", " + b).orElse("?");
+        String parent = columns.stream().map(OracleEaForeignKeyColumn::parentColumn).reduce((a, b) -> a + ", " + b).orElse("?");
+        String owner = fk.parentOwner() == null || fk.parentOwner().isBlank() ? "" : fk.parentOwner() + ".";
+        return "FOREIGN KEY (" + child + ") REFERENCES " + owner + fk.parentTable() + " (" + parent + ")";
+    }
+
+    private static String oracleCheckDefinition(OracleEaCheckConstraint check) {
+        return check.condition() == null || check.condition().isBlank() ? "CHECK (?)" : "CHECK (" + check.condition() + ")";
+    }
+
+    private static String normalizeCheckCondition(String value) {
+        if (value == null) return "";
+        String text = value.trim();
+        while (text.startsWith("(") && text.endsWith(")") && enclosesWholeExpression(text)) {
+            text = text.substring(1, text.length() - 1).trim();
+        }
+        text = text.replaceAll("\\\"([A-Za-z0-9_$#]+)\\\"", "$1");
+        StringBuilder normalized = new StringBuilder(text.length());
+        boolean inString = false;
+        for (int index = 0; index < text.length(); index++) {
+            char ch = text.charAt(index);
+            if (ch == '\'') {
+                normalized.append(ch);
+                if (inString && index + 1 < text.length() && text.charAt(index + 1) == '\'') {
+                    normalized.append(text.charAt(++index));
+                    continue;
+                }
+                inString = !inString;
+            } else if (inString) {
+                normalized.append(ch);
+            } else if (!Character.isWhitespace(ch)) {
+                normalized.append(Character.toUpperCase(ch));
+            }
+        }
+        return normalized.toString();
+    }
+
+    private static boolean enclosesWholeExpression(String text) {
+        int depth = 0;
+        boolean inString = false;
+        for (int index = 0; index < text.length(); index++) {
+            char ch = text.charAt(index);
+            if (ch == '\'') {
+                if (inString && index + 1 < text.length() && text.charAt(index + 1) == '\'') {
+                    index++;
+                    continue;
+                }
+                inString = !inString;
+                continue;
+            }
+            if (inString) continue;
+            if (ch == '(') depth++;
+            else if (ch == ')' && --depth == 0 && index < text.length() - 1) return false;
+        }
+        return depth == 0;
+    }
+
     private static PrimaryKeyStatus primaryKeyStatus(List<String> ea, List<String> db) {
-        if (ea == null || ea.isEmpty()) return PrimaryKeyStatus.NOT_DEFINED_IN_EA;
-        List<String> eaNormalized = ea.stream().map(value -> value.toUpperCase(Locale.ROOT)).toList();
-        List<String> dbNormalized = db.stream().map(value -> value.toUpperCase(Locale.ROOT)).toList();
+        List<String> eaValues = ea == null ? List.of() : ea;
+        List<String> dbValues = db == null ? List.of() : db;
+        if (eaValues.isEmpty()) {
+            return dbValues.isEmpty() ? PrimaryKeyStatus.MATCH : PrimaryKeyStatus.NOT_DEFINED_IN_EA;
+        }
+        List<String> eaNormalized = eaValues.stream().map(value -> value.toUpperCase(Locale.ROOT)).toList();
+        List<String> dbNormalized = dbValues.stream().map(value -> value.toUpperCase(Locale.ROOT)).toList();
         return eaNormalized.equals(dbNormalized) ? PrimaryKeyStatus.MATCH : PrimaryKeyStatus.DIFFERENT;
     }
 

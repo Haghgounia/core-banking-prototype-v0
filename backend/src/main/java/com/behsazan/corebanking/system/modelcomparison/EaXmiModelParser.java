@@ -62,6 +62,8 @@ class EaXmiModelParser {
             throw new ModelComparisonValidationException("در فایل انتخاب‌شده هیچ UML Class با stereotype=table پیدا نشد.");
         }
 
+        Map<String, List<EaForeignKeyDefinition>> associationForeignKeys = parseForeignKeyAssociations(document);
+
         Map<String, List<EaTableDefinition>> grouped = new LinkedHashMap<>();
         for (EaTableDefinition table : rawTables) {
             grouped.computeIfAbsent(table.tableName(), ignored -> new ArrayList<>()).add(table);
@@ -81,13 +83,22 @@ class EaXmiModelParser {
                         : "جدول " + tableName + " در مدل EA چند تعریف متفاوت دارد؛ کامل‌ترین تعریف برای مقایسه انتخاب شد.");
             }
             List<EaColumnDefinition> enrichedColumns = enrichSelectedColumns(selected.columns(), definitions);
+            List<EaForeignKeyDefinition> foreignKeys = mergeForeignKeys(
+                    definitions.stream().flatMap(definition -> definition.foreignKeys().stream()).toList(),
+                    associationForeignKeys.getOrDefault(tableName, List.of())
+            );
+            List<EaCheckConstraintDefinition> checks = mergeChecks(
+                    definitions.stream().flatMap(definition -> definition.checkConstraints().stream()).toList()
+            );
             tables.add(new EaTableDefinition(
                     selected.tableName(),
                     definitions.size(),
                     firstPresent(definitions, EaTableDefinition::persianTitle, selected.persianTitle()),
                     firstPresent(definitions, EaTableDefinition::documentation, selected.documentation()),
                     enrichedColumns,
-                    selected.primaryKeyColumns()
+                    selected.primaryKeyColumns(),
+                    foreignKeys,
+                    checks
             ));
         });
         tables.sort(Comparator.comparing(EaTableDefinition::tableName));
@@ -110,6 +121,8 @@ class EaXmiModelParser {
         Element feature = directChild(tableElement, UML_NAMESPACE, "Classifier.feature");
         List<EaColumnDefinition> columns = new ArrayList<>();
         List<String> primaryKey = new ArrayList<>();
+        List<EaForeignKeyDefinition> foreignKeys = new ArrayList<>();
+        List<EaCheckConstraintDefinition> checks = new ArrayList<>();
         if (feature != null) {
             for (Element child : directElementChildren(feature)) {
                 if (matches(child, UML_NAMESPACE, "Attribute")) {
@@ -122,6 +135,18 @@ class EaXmiModelParser {
                     if (operationColumns.size() > primaryKey.size()) {
                         primaryKey = operationColumns;
                     }
+                } else if (matches(child, UML_NAMESPACE, "Operation") && hasDirectStereotype(child, "FK")) {
+                    String name = normalizeIdentifier(child.getAttribute("name"));
+                    if (name != null) {
+                        foreignKeys.add(new EaForeignKeyDefinition(name, operationParameterNames(child), null, List.of()));
+                    }
+                } else if (matches(child, UML_NAMESPACE, "Operation") && hasDirectStereotype(child, "check")) {
+                    String name = normalizeIdentifier(child.getAttribute("name"));
+                    Map<String, String> tags = directTaggedValues(child);
+                    String condition = checkCondition(tags.get("code"), tags.get("documentation"));
+                    if (name != null) {
+                        checks.add(new EaCheckConstraintDefinition(name, condition));
+                    }
                 }
             }
         }
@@ -129,8 +154,12 @@ class EaXmiModelParser {
         if (primaryKey.isEmpty()) {
             primaryKey = primaryKeyFromConstraint(tableElement);
         }
+        mergeConstraintFallbacks(tableElement, foreignKeys, checks);
 
-        return new EaTableDefinition(tableName, 1, persianTitle, documentation, List.copyOf(columns), List.copyOf(primaryKey));
+        return new EaTableDefinition(
+                tableName, 1, persianTitle, documentation, List.copyOf(columns), List.copyOf(primaryKey),
+                mergeForeignKeys(foreignKeys, List.of()), mergeChecks(checks)
+        );
     }
 
     private static EaColumnDefinition parseColumn(Element attribute, String columnName) {
@@ -190,6 +219,268 @@ class EaXmiModelParser {
         return List.of();
     }
 
+
+
+    private static Map<String, List<EaForeignKeyDefinition>> parseForeignKeyAssociations(Document document) {
+        Map<String, List<EaForeignKeyDefinition>> byChildTable = new LinkedHashMap<>();
+        NodeList associations = document.getElementsByTagNameNS(UML_NAMESPACE, "Association");
+        for (int index = 0; index < associations.getLength(); index++) {
+            Element association = (Element) associations.item(index);
+            if (!hasDirectStereotype(association, "FK")) continue;
+            Map<String, String> tags = directTaggedValues(association);
+            String childTable = normalizeIdentifier(tags.get("ea_sourceName"));
+            String parentTable = normalizeIdentifier(tags.get("ea_targetName"));
+            String constraintName = stripConstraintPrefix(tags.get("lt"));
+            if (constraintName == null) {
+                constraintName = associationEndName(association, "source");
+            }
+            if (childTable == null || constraintName == null) continue;
+
+            String mapping = firstNonBlank(tags.get("mt"), association.getAttribute("name"));
+            List<String> childColumns = new ArrayList<>();
+            List<String> parentColumns = new ArrayList<>();
+            parseForeignKeyMapping(mapping, childColumns, parentColumns);
+            EaForeignKeyDefinition definition = new EaForeignKeyDefinition(
+                    constraintName,
+                    List.copyOf(childColumns),
+                    parentTable,
+                    List.copyOf(parentColumns)
+            );
+            byChildTable.computeIfAbsent(childTable, ignored -> new ArrayList<>()).add(definition);
+        }
+        Map<String, List<EaForeignKeyDefinition>> result = new LinkedHashMap<>();
+        byChildTable.forEach((table, values) -> result.put(table, mergeForeignKeys(values, List.of())));
+        return result;
+    }
+
+    private static String associationEndName(Element association, String expectedEnd) {
+        Element connection = directChild(association, UML_NAMESPACE, "Association.connection");
+        if (connection == null) return null;
+        for (Element end : directElementChildren(connection)) {
+            if (!matches(end, UML_NAMESPACE, "AssociationEnd")) continue;
+            Map<String, String> tags = directTaggedValues(end);
+            if (expectedEnd.equalsIgnoreCase(tags.get("ea_end"))) {
+                return normalizeIdentifier(end.getAttribute("name"));
+            }
+        }
+        return null;
+    }
+
+    private static void parseForeignKeyMapping(String value, List<String> childColumns, List<String> parentColumns) {
+        String text = trimToNull(value);
+        if (text == null) return;
+        text = stripOuterParentheses(text);
+        for (String pair : splitTopLevel(text, ',')) {
+            int equals = pair.indexOf('=');
+            if (equals < 0) continue;
+            String child = normalizeIdentifier(pair.substring(0, equals));
+            String parent = normalizeIdentifier(pair.substring(equals + 1));
+            if (child != null && parent != null) {
+                childColumns.add(child);
+                parentColumns.add(parent);
+            }
+        }
+    }
+
+    private static void mergeConstraintFallbacks(
+            Element tableElement,
+            List<EaForeignKeyDefinition> foreignKeys,
+            List<EaCheckConstraintDefinition> checks
+    ) {
+        Element constraints = directChild(tableElement, UML_NAMESPACE, "ModelElement.constraint");
+        if (constraints == null) return;
+        for (Element constraint : directElementChildren(constraints)) {
+            if (!matches(constraint, UML_NAMESPACE, "Constraint")) continue;
+            String ddl = trimToNull(constraint.getAttribute("name"));
+            if (ddl == null) continue;
+            String upper = ddl.toUpperCase(Locale.ROOT);
+            if (upper.contains(" FOREIGN KEY (")) {
+                EaForeignKeyDefinition parsed = parseForeignKeyConstraint(ddl);
+                if (parsed != null) foreignKeys.add(parsed);
+            } else if (upper.contains(" CHECK (")) {
+                EaCheckConstraintDefinition parsed = parseCheckConstraint(ddl);
+                if (parsed != null) checks.add(parsed);
+            }
+        }
+    }
+
+    private static EaForeignKeyDefinition parseForeignKeyConstraint(String ddl) {
+        String upper = ddl.toUpperCase(Locale.ROOT);
+        int constraintMarker = upper.indexOf("CONSTRAINT ");
+        int fkMarker = upper.indexOf(" FOREIGN KEY (");
+        int referencesMarker = upper.indexOf(" REFERENCES ", fkMarker);
+        if (fkMarker < 0 || referencesMarker < 0) return null;
+        String name = constraintMarker >= 0
+                ? normalizeIdentifier(ddl.substring(constraintMarker + "CONSTRAINT ".length(), fkMarker))
+                : null;
+        if (name == null) return null;
+        int childOpen = ddl.indexOf('(', fkMarker);
+        int childClose = findClosingParenthesis(ddl, childOpen);
+        if (childOpen < 0 || childClose < 0) return null;
+        List<String> childColumns = parseIdentifierList(ddl.substring(childOpen + 1, childClose));
+
+        String afterReferences = ddl.substring(referencesMarker + " REFERENCES ".length()).trim();
+        int parentOpen = afterReferences.indexOf('(');
+        int parentClose = findClosingParenthesis(afterReferences, parentOpen);
+        if (parentOpen < 0 || parentClose < 0) return null;
+        String qualifiedParent = afterReferences.substring(0, parentOpen).trim();
+        String parentTable = normalizeIdentifier(qualifiedParent.contains(".")
+                ? qualifiedParent.substring(qualifiedParent.lastIndexOf('.') + 1)
+                : qualifiedParent);
+        List<String> parentColumns = parseIdentifierList(afterReferences.substring(parentOpen + 1, parentClose));
+        return new EaForeignKeyDefinition(name, childColumns, parentTable, parentColumns);
+    }
+
+    private static EaCheckConstraintDefinition parseCheckConstraint(String ddl) {
+        String upper = ddl.toUpperCase(Locale.ROOT);
+        int constraintMarker = upper.indexOf("CONSTRAINT ");
+        int checkMarker = upper.indexOf(" CHECK (");
+        if (checkMarker < 0) return null;
+        String name = constraintMarker >= 0
+                ? normalizeIdentifier(ddl.substring(constraintMarker + "CONSTRAINT ".length(), checkMarker))
+                : null;
+        int open = ddl.indexOf('(', checkMarker);
+        int close = findClosingParenthesis(ddl, open);
+        String condition = open >= 0 && close > open ? trimToNull(ddl.substring(open + 1, close)) : null;
+        return name == null ? null : new EaCheckConstraintDefinition(name, condition);
+    }
+
+    private static String checkCondition(String code, String documentation) {
+        String condition = trimToNull(code);
+        if (condition != null) return stripOuterParentheses(condition);
+        String text = trimToNull(documentation);
+        if (text == null) return null;
+        String upper = text.toUpperCase(Locale.ROOT);
+        int marker = upper.indexOf("CHECK (");
+        if (marker < 0) return text;
+        int open = text.indexOf('(', marker);
+        int close = findClosingParenthesis(text, open);
+        return open >= 0 && close > open ? trimToNull(text.substring(open + 1, close)) : text;
+    }
+
+    private static List<EaForeignKeyDefinition> mergeForeignKeys(
+            List<EaForeignKeyDefinition> operationOrConstraintDefinitions,
+            List<EaForeignKeyDefinition> associationDefinitions
+    ) {
+        Map<String, EaForeignKeyDefinition> merged = new LinkedHashMap<>();
+        for (EaForeignKeyDefinition definition : operationOrConstraintDefinitions) {
+            if (definition == null || definition.constraintName() == null) continue;
+            merged.merge(definition.constraintName(), definition, EaXmiModelParser::mergeForeignKey);
+        }
+        for (EaForeignKeyDefinition definition : associationDefinitions) {
+            if (definition == null || definition.constraintName() == null) continue;
+            merged.merge(definition.constraintName(), definition, EaXmiModelParser::mergeForeignKey);
+        }
+        return merged.values().stream()
+                .sorted(Comparator.comparing(EaForeignKeyDefinition::constraintName))
+                .toList();
+    }
+
+    private static EaForeignKeyDefinition mergeForeignKey(EaForeignKeyDefinition left, EaForeignKeyDefinition right) {
+        List<String> childColumns = richerList(left.childColumns(), right.childColumns());
+        List<String> parentColumns = richerList(left.parentColumns(), right.parentColumns());
+        String parentTable = firstNonBlank(right.parentTable(), left.parentTable());
+        return new EaForeignKeyDefinition(left.constraintName(), childColumns, parentTable, parentColumns);
+    }
+
+    private static List<EaCheckConstraintDefinition> mergeChecks(List<EaCheckConstraintDefinition> checks) {
+        Map<String, EaCheckConstraintDefinition> merged = new LinkedHashMap<>();
+        for (EaCheckConstraintDefinition check : checks) {
+            if (check == null || check.constraintName() == null) continue;
+            merged.merge(check.constraintName(), check, (left, right) ->
+                    new EaCheckConstraintDefinition(
+                            left.constraintName(),
+                            firstNonBlank(right.condition(), left.condition())
+                    ));
+        }
+        return merged.values().stream()
+                .sorted(Comparator.comparing(EaCheckConstraintDefinition::constraintName))
+                .toList();
+    }
+
+    private static List<String> richerList(List<String> left, List<String> right) {
+        List<String> a = left == null ? List.of() : left;
+        List<String> b = right == null ? List.of() : right;
+        return b.size() > a.size() ? List.copyOf(b) : List.copyOf(a);
+    }
+
+    private static List<String> parseIdentifierList(String value) {
+        List<String> result = new ArrayList<>();
+        for (String item : splitTopLevel(value, ',')) {
+            String normalized = normalizeIdentifier(item);
+            if (normalized != null) result.add(normalized);
+        }
+        return List.copyOf(result);
+    }
+
+    private static List<String> splitTopLevel(String value, char delimiter) {
+        List<String> result = new ArrayList<>();
+        if (value == null) return result;
+        int depth = 0;
+        boolean inString = false;
+        int start = 0;
+        for (int index = 0; index < value.length(); index++) {
+            char ch = value.charAt(index);
+            if (ch == '\'') {
+                if (inString && index + 1 < value.length() && value.charAt(index + 1) == '\'') {
+                    index++;
+                    continue;
+                }
+                inString = !inString;
+            } else if (!inString) {
+                if (ch == '(') depth++;
+                else if (ch == ')') depth = Math.max(0, depth - 1);
+                else if (ch == delimiter && depth == 0) {
+                    result.add(value.substring(start, index).trim());
+                    start = index + 1;
+                }
+            }
+        }
+        result.add(value.substring(start).trim());
+        return result;
+    }
+
+    private static int findClosingParenthesis(String value, int open) {
+        if (value == null || open < 0 || open >= value.length() || value.charAt(open) != '(') return -1;
+        int depth = 0;
+        boolean inString = false;
+        for (int index = open; index < value.length(); index++) {
+            char ch = value.charAt(index);
+            if (ch == '\'') {
+                if (inString && index + 1 < value.length() && value.charAt(index + 1) == '\'') {
+                    index++;
+                    continue;
+                }
+                inString = !inString;
+                continue;
+            }
+            if (inString) continue;
+            if (ch == '(') depth++;
+            else if (ch == ')' && --depth == 0) return index;
+        }
+        return -1;
+    }
+
+    private static String stripOuterParentheses(String value) {
+        String text = trimToNull(value);
+        if (text == null) return null;
+        while (text.startsWith("(") && findClosingParenthesis(text, 0) == text.length() - 1) {
+            text = trimToNull(text.substring(1, text.length() - 1));
+            if (text == null) return null;
+        }
+        return text;
+    }
+
+    private static String stripConstraintPrefix(String value) {
+        String normalized = normalizeIdentifier(value);
+        if (normalized == null) return null;
+        return normalized.startsWith("+") ? normalizeIdentifier(normalized.substring(1)) : normalized;
+    }
+
+    private static String firstNonBlank(String preferred, String fallback) {
+        String value = trimToNull(preferred);
+        return value != null ? value : trimToNull(fallback);
+    }
 
     private static List<EaColumnDefinition> enrichSelectedColumns(
             List<EaColumnDefinition> selectedColumns,
@@ -259,7 +550,10 @@ class EaXmiModelParser {
     }
 
     private static boolean sameStructure(EaTableDefinition left, EaTableDefinition right) {
-        if (!left.primaryKeyColumns().equals(right.primaryKeyColumns()) || left.columns().size() != right.columns().size()) {
+        if (!left.primaryKeyColumns().equals(right.primaryKeyColumns())
+                || !left.foreignKeys().equals(right.foreignKeys())
+                || !left.checkConstraints().equals(right.checkConstraints())
+                || left.columns().size() != right.columns().size()) {
             return false;
         }
         for (int index = 0; index < left.columns().size(); index++) {

@@ -26,6 +26,13 @@ public final class EaOracleComparisonModels {
         NOT_DEFINED_IN_EA
     }
 
+    public enum ConstraintStatus {
+        MATCH,
+        DIFFERENT,
+        MISSING_IN_DATABASE,
+        EXTRA_IN_DATABASE
+    }
+
     public record SchemaOption(String code, String label) {
     }
 
@@ -89,11 +96,29 @@ public final class EaOracleComparisonModels {
             PrimaryKeyStatus primaryKeyStatus,
             List<String> eaPrimaryKey,
             List<String> databasePrimaryKey,
+            boolean foreignKeysMatch,
+            int eaForeignKeyCount,
+            int databaseForeignKeyCount,
+            List<ConstraintComparison> foreignKeys,
+            boolean checkConstraintsMatch,
+            int eaCheckConstraintCount,
+            int databaseCheckConstraintCount,
+            List<ConstraintComparison> checkConstraints,
             int matchingColumnCount,
             int differentColumnCount,
             int missingColumnCount,
             int extraColumnCount,
             List<ColumnComparison> columns
+    ) {
+    }
+
+    public record ConstraintComparison(
+            String constraintName,
+            String constraintType,
+            ConstraintStatus status,
+            String eaDefinition,
+            String databaseDefinition,
+            List<String> differences
     ) {
     }
 

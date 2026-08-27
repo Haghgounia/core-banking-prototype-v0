@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.3.57-prototype-fee-p1 — FIX68: اصلاح Test Compile در مقایسه EA/Oracle
+
+- خطای `testCompile` در `EaOracleXmiWriterTest` ناشی از تداخل نام متغیر محلی `fk` با پارامتر Lambda هم‌نام اصلاح شد.
+- نام پارامتر Lambda به `parsedFk` تغییر کرد؛ رفتار Runtime و منطق مقایسه PK/FK/Check/TIMESTAMP نسخه 0.3.56 بدون تغییر حفظ شده است.
+- هیچ DDL یا Migration دیتابیسی ندارد.
+
+## 0.3.56-prototype-fee-p1 — FIX67: تکمیل مقایسه Constraintهای EA/Oracle و سازگاری TIMESTAMP
+
+- در فرم «مقایسه مدل Enterprise Architect با Oracle»، اختلاف `TIMESTAMP(0)` در EA در برابر `TIMESTAMP(6)` در Oracle به‌تنهایی اختلاف محسوب نمی‌شود؛ سایر Precisionهای متفاوت همچنان گزارش می‌شوند.
+- مقایسه Primary Key اصلاح شد تا نبود PK در EA در حالی که Oracle دارای PK است واقعاً جدول را «دارای اختلاف» کند.
+- مقایسه Foreign Key اضافه شد: نام Constraint، ستون‌های فرزند، جدول مرجع و ستون‌های مرجع از EA XMI و Oracle Data Dictionary مقایسه می‌شوند.
+- مقایسه Check Constraint اضافه شد: Checkهای کاربری بر اساس نام و عبارت نرمال‌شده مقایسه می‌شوند؛ Checkهای سیستمی NOT NULL از این بخش حذف می‌شوند چون Nullable جداگانه کنترل می‌شود.
+- Parser EA اکنون FK را از `UML:Operation`/`UML:Association`/`UML:Constraint` و Check را از `UML:Operation`/`UML:Constraint` استخراج می‌کند.
+- Oracle Inspector برای مقایسه از `ALL_CONSTRAINTS`، `ALL_CONS_COLUMNS` و `SEARCH_CONDITION_VC` استفاده می‌کند.
+- Grid اصلی ستون‌های Foreign Key و Check Constraint را با تعداد EA/Oracle نمایش می‌دهد و در جزئیات هر جدول، اختلاف Constraintها ردیف‌به‌ردیف قابل مشاهده است؛ خروجی CSV نیز شمارنده و وضعیت آنها را دارد.
+- اصلاح متادیتای فارسی جدول: EA `Alias` با Oracle `TABLE COMMENT` مقایسه می‌شود و EA `Documentation` صرفاً اطلاعات توصیفی است و دیگر باعث False Positive نمی‌شود.
+- طبق درخواست ثبت‌شده برای نسخه بعدی، Schemaهای `ORACLE_MAINTAINED` سیستمی از فهرست Schemaهای قابل انتخاب حذف شدند؛ فهرست همچنان Metadata-driven است.
+- هیچ DDL یا Migration دیتابیسی ندارد.
+
+## 0.3.55-prototype-fee-p1 — FIX66: Oracle Metadata-driven Schema Discovery
+
+- فهرست Schemaهای فرم مقایسه EA/Oracle و Oracle→EA XMI از Oracle Data Dictionary و `ALL_TABLES` دریافت می‌شود و دیگر به فهرست Hard-code محدود نیست.
+- Configuration فقط برای Friendly Label و Default ترجیحی استفاده می‌شود؛ تعداد Tableهای قابل مشاهده در Label هر Schema نمایش داده می‌شود.
+- Validation انتخاب Schema نیز بر همان فهرست Metadata-driven اعمال می‌شود.
+- هیچ DDL یا Migration دیتابیسی ندارد.
+
 ## 0.3.54-prototype-fee-p1 — FIX65: نمای ماهانه تقویم CAL2
 
 - افزودن فرم عملیاتی Angular «تقویم ماهانه» با مسیر `/calendar2/month-view` و ورودی مستقیم از صفحه اصلی تقویم دو.
@@ -898,3 +924,11 @@
 - کنترل اشغال‌بودن پورت 8091 پیش از اجرا و نمایش PID نسخه قبلی.
 - اضافه‌شدن `bin/stop.cmd` برای توقف کنترل‌شده سرویس روی پورت 8091.
 
+
+## 0.3.55-prototype-fee-p1 — FIX66 Oracle metadata-driven schema discovery
+
+- فرم «مقایسه مدل Enterprise Architect با Oracle» دیگر لیست Schema را از مجموعه Hard-code/Configuration دریافت نمی‌کند.
+- Source of Truth فهرست Schemaها اکنون Oracle Data Dictionary و `ALL_TABLES` است؛ فقط Ownerهایی که حداقل یک جدول برای کاربر اتصال قابل مشاهده دارند در UI نمایش داده می‌شوند.
+- تعداد جدول‌های قابل مشاهده هر Schema در عنوان گزینه نمایش داده می‌شود.
+- Configurationهای `core-banking.schemas.*` فقط برای Label دوستانه و ترجیح Schema پیش‌فرض باقی مانده‌اند و دیگر تعیین‌کننده فهرست انتخابی نیستند.
+- همین قرارداد برای فرم «استخراج Oracle به EA XMI» نیز یکسان شد تا دو ابزار مدیریت مدل رفتار متفاوت نداشته باشند.

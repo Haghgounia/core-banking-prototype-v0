@@ -43,6 +43,14 @@ class EaOracleXmiWriterTest {
 
         assertEquals(2, parsed.tables().size());
         assertTrue(parsed.tables().stream().anyMatch(t -> t.tableName().equals("CHILD") && t.primaryKeyColumns().equals(List.of("CHILD_ID"))));
+        EaTableDefinition parsedChild = parsed.tables().stream().filter(t -> t.tableName().equals("CHILD")).findFirst().orElseThrow();
+        assertTrue(parsedChild.foreignKeys().stream().anyMatch(parsedFk ->
+                parsedFk.constraintName().equals("FK_CHILD_PARENT")
+                        && parsedFk.childColumns().equals(List.of("PARENT_ID"))
+                        && "PARENT".equals(parsedFk.parentTable())
+                        && parsedFk.parentColumns().equals(List.of("PARENT_ID"))));
+        assertTrue(parsedChild.checkConstraints().stream().anyMatch(check ->
+                check.constraintName().equals("CK_CHILD_ID") && check.condition().contains("CHILD_ID > 0")));
         assertTrue(raw.contains("stereotype=\"FK\"") || raw.contains("name=\"FK\""));
         assertTrue(raw.contains("FK_CHILD_PARENT"));
         assertTrue(raw.contains("IX_CHILD_PARENT"));

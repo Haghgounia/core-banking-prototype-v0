@@ -15,14 +15,27 @@ record OracleTableDefinition(
         String comment,
         List<OracleColumnDefinition> columns,
         List<String> primaryKeyColumns,
+        List<OracleEaForeignKey> foreignKeys,
+        List<OracleEaCheckConstraint> checkConstraints,
         Long rowCount,
         String rowCountNote
 ) {
     OracleTableDefinition(
+            String tableName,
+            String comment,
+            List<OracleColumnDefinition> columns,
+            List<String> primaryKeyColumns,
+            Long rowCount,
+            String rowCountNote
+    ) {
+        this(tableName, comment, columns, primaryKeyColumns, List.of(), List.of(), rowCount, rowCountNote);
+    }
+
+    OracleTableDefinition(
             String tableName, List<OracleColumnDefinition> columns, List<String> primaryKeyColumns,
             Long rowCount, String rowCountNote
     ) {
-        this(tableName, null, columns, primaryKeyColumns, rowCount, rowCountNote);
+        this(tableName, null, columns, primaryKeyColumns, List.of(), List.of(), rowCount, rowCountNote);
     }
 }
 

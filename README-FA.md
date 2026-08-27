@@ -453,9 +453,9 @@ database/oracle/cif/migrations/0.3.22-fix17-party-document-classification-date.s
 
 ## 0.3.22-prototype-fix30 - مقایسه مدل EA با Oracle
 
-در Fix30 یک فرم مدیریتی جدید در مسیر `مدیریت و سیستم > مقایسه مدل EA / Oracle` اضافه شده است. کاربر فایل XML/XMI خروجی Enterprise Architect را انتخاب می‌کند، Schema مقصد را فقط از Schemaهای Oracle تنظیم‌شده در خود برنامه (`CIF / GEO / DPS / CAL / CAL2 / FEE`) برمی‌گزیند و مقایسه را اجرا می‌کند.
+در Fix30 یک فرم مدیریتی جدید در مسیر `مدیریت و سیستم > مقایسه مدل EA / Oracle` اضافه شده است. از FIX66 به بعد، Schema مقصد مستقیماً از Oracle Data Dictionary دریافت می‌شود و از FIX67 Schemaهای `ORACLE_MAINTAINED` سیستمی در فهرست UI نمایش داده نمی‌شوند؛ Configuration فقط برای Friendly Label و Default ترجیحی استفاده می‌شود.
 
-گزارش شامل وجود/عدم وجود جدول، تعداد ستون‌های EA و Oracle، نوع داده، طول، Precision/Scale، Nullable، Primary Key، ستون‌های مفقود/اضافی/متفاوت و `COUNT(*)` دقیق رکوردهای جدول‌های مقایسه‌شده است. تعریف‌های تکراری یک Table در Packageهای مختلف EA با نام جدول ادغام می‌شوند و هشدار مربوطه در گزارش نشان داده می‌شود. خروجی CSV سطح جدول نیز قابل دریافت است.
+گزارش شامل وجود/عدم وجود جدول، تعداد ستون‌های EA و Oracle، نوع داده، طول، Precision/Scale، Nullable، Primary Key، Foreign Key، Check Constraint، ستون‌های مفقود/اضافی/متفاوت و `COUNT(*)` دقیق رکوردهای جدول‌های مقایسه‌شده است. Checkهای سیستمی `NOT NULL` از مقایسه Check Constraint حذف می‌شوند چون همان معنا در Nullable به‌صورت مستقل کنترل می‌شود. بنا بر قرارداد سازگاری پروژه، اختلاف صرفاً `TIMESTAMP(0)` در EA در برابر `TIMESTAMP(6)` در Oracle به‌تنهایی اختلاف محسوب نمی‌شود؛ سایر اختلاف‌های Precision زمانی همچنان گزارش می‌شوند. تعریف‌های تکراری یک Table در Packageهای مختلف EA با نام جدول ادغام می‌شوند و هشدار مربوطه در گزارش نشان داده می‌شود. خروجی CSV سطح جدول نیز قابل دریافت است.
 
 Parser XML در برابر DTD/External Entity غیرفعال و سخت‌سازی شده است. این قابلیت Schema دیتابیس جدیدی ایجاد نمی‌کند و Migration لازم ندارد؛ مقایسه در Runtime با همان DataSource Oracle برنامه انجام می‌شود.
 
