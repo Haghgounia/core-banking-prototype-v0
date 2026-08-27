@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.3.54-prototype-fee-p1 — FIX65: نمای ماهانه تقویم CAL2
+
+- افزودن فرم عملیاتی Angular «تقویم ماهانه» با مسیر `/calendar2/month-view` و ورودی مستقیم از صفحه اصلی تقویم دو.
+- پیش‌فرض نمایش روی تقویم هجری شمسی و ماه جاری است؛ امکان جابه‌جایی ماه قبل/بعد، بازگشت به امروز، انتخاب سال/ماه و تغییر تقویم مبنا بین شمسی، میلادی و قمری فراهم شد.
+- Grid هفت‌ستونه با شروع هفته از شنبه، نمایش جمعه، امروز، مناسبت‌ها، تعداد رخدادهای هر روز و علامت تعطیلی پیاده‌سازی شد.
+- پنل جزئیات روز تاریخ متناظر شمسی/میلادی/قمری، نوع مناسبت، رسمی/تعطیل بودن، منشأ رخداد و توضیحات را نمایش می‌دهد.
+- Read Model مستقل Backend روی `CAL2.CALENDAR_DATE + CANONICAL_DAY + EVENT_OCCURRENCE + EVENT + EVENT_TYPE` ایجاد شد؛ رویدادها از occurrence واقعی خوانده می‌شوند، نه مستقیماً از Rule.
+- API جدید `GET /api/v1/calendar2/month-view` اضافه شد و با Default Calendar Variantهای سه تقویم، تاریخ‌های متناظر را در یک Query Model ارائه می‌کند.
+- هیچ DDL یا Migration جدیدی ندارد؛ ساختار ۱۶ جدول CAL2 بدون تغییر است.
+- Guard جدید `verify-calendar2-month-view.mjs` مسیر API، Route Angular، نمایش سه تقویم، تعطیلی/مناسبت و ساختار Grid هفت‌روزه را کنترل می‌کند.
+
+## 0.3.53-prototype-fee-p1 — FIX64: نام ثابت Runtime JAR
+
+- نام Runtime Artifact در Windows، Linux/macOS، Build، Start، Database Export و مستندات عملیاتی یکسان شد: `app\core-banking-prototype.jar`.
+- نام JAR دیگر شامل شماره نسخه Release نیست.
+- برای حفظ حفاظت در برابر اجرای Artifact قدیمی، Build فایل `app\BUILD-VERSION` را تولید می‌کند و Start آن را با `VERSION` تطبیق می‌دهد.
+- `build-production.cmd` و `build-production.sh` قبل از Build همه JARهای قدیمی پوشه `app` را حذف و فقط `core-banking-prototype.jar` را تولید می‌کنند.
+- Guard `verify-runtime-artifact-contract.mjs` برای قرارداد Canonical JAR + BUILD-VERSION بازنویسی شد.
+- نسخه Release، Frontend و Backend روی 0.3.53 همگام شد؛ هیچ DDL یا Migration جدیدی ندارد.
+
+## 0.3.52-prototype-fee-p1 — FIX63: تقویت Guard اجرای Runtime
+
+- Guard اجرای Artifact قدیمی اضافه شد.
+- این قرارداد در FIX64 ساده‌سازی شد تا نام Runtime Artifact در تمام ابزارها ثابت بماند.
+- هیچ DDL یا Migration جدیدی ندارد.
+
 ## 0.3.51-prototype-fee-p1 — FIX62: اصلاح خطای Generic در CAL2 و Backend Compile Preflight
 
 - رفع خطای Java compilation در `Calendar2ReferenceRepository` برای دو RowMapper جدید `CALENDAR_DATE` و `EVENT`؛ متغیر RowMapper به `Map<String,Object>` تایپ شد تا خروجی `List<Map<String,Object>>` با Generic invariance سازگار باشد.

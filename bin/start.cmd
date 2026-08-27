@@ -15,17 +15,30 @@ if defined RUNNING_PID (
   exit /b 1
 )
 
-rem FIX61: always start the executable that belongs to the VERSION file.
-rem A source ZIP extracted over an older installation must never silently reuse an old JAR.
-set "JAR=%ROOT%\app\core-banking-prototype-%APP_VERSION%.jar"
+rem FIX64: the executable name is always canonical; BUILD-VERSION prevents stale JAR reuse.
+set "JAR=%ROOT%\app\core-banking-prototype.jar"
+set "BUILD_VERSION_FILE=%ROOT%\app\BUILD-VERSION"
 if not exist "%JAR%" (
-  echo ERROR: Executable JAR for version %APP_VERSION% was not found.
+  echo ERROR: Executable JAR was not found.
   echo Expected: %JAR%
-  echo.
-  echo This usually means a new source package was extracted over an older installation
-  echo without rebuilding the Angular UI and Spring Boot JAR.
   echo Run: build-production.cmd
-  echo Then run: bin\start.cmd
+  pause
+  exit /b 1
+)
+if not exist "%BUILD_VERSION_FILE%" (
+  echo ERROR: Build version marker was not found.
+  echo Expected: %BUILD_VERSION_FILE%
+  echo Run: build-production.cmd
+  pause
+  exit /b 1
+)
+set "BUILT_VERSION="
+set /p BUILT_VERSION=<"%BUILD_VERSION_FILE%"
+if /i not "%BUILT_VERSION%"=="%APP_VERSION%" (
+  echo ERROR: Runtime JAR is stale or belongs to another source version.
+  echo Source version : %APP_VERSION%
+  echo Built version  : %BUILT_VERSION%
+  echo Run: build-production.cmd
   pause
   exit /b 1
 )

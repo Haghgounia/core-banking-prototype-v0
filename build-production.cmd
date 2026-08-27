@@ -45,16 +45,23 @@ node "%ROOT%tools\verify-calendar-dataset-import.mjs" || exit /b 1
 rem CAL2 static guard: independent forms/DDL, recurring events and ZIP JDBC import.
 node "%ROOT%tools\verify-calendar2-reference.mjs" || exit /b 1
 
+rem FIX65 static guard: CAL2 monthly calendar read model and Angular month view.
+node "%ROOT%tools\verify-calendar2-month-view.mjs" || exit /b 1
+
 rem FIX55 static guard: user-facing calendar labels must stay simple and distinct.
 node "%ROOT%tools\verify-calendar-display-labels.mjs" || exit /b 1
+
+rem FIX64 guard: all runtime scripts use one canonical executable JAR name plus a build-version marker.
+node "%ROOT%tools\verify-runtime-artifact-contract.mjs" || exit /b 1
 
 rem FIX62 fail-fast: compile Java before the Angular production build so type errors are caught early.
 cd /d "%ROOT%backend"
 call mvnw.cmd -DskipTests compile || exit /b 1
 cd /d "%ROOT%"
 
-rem Remove stale packages first. A failed build must never leave an older JAR looking current.
-if exist "%ROOT%app\core-banking-prototype.jar" del /q "%ROOT%app\core-banking-prototype.jar"
+rem Remove stale runtime artifacts first. A failed build must never leave an older JAR looking current.
+if exist "%ROOT%app\*.jar" del /q "%ROOT%app\*.jar"
+if exist "%ROOT%app\BUILD-VERSION" del /q "%ROOT%app\BUILD-VERSION"
 if exist "%ROOT%backend\target\core-banking-prototype.jar" del /q "%ROOT%backend\target\core-banking-prototype.jar"
 
 if exist "%ROOT%frontend\dist" rmdir /s /q "%ROOT%frontend\dist"
@@ -74,12 +81,19 @@ if exist "%ROOT%frontend\dist\core-banking-ui\browser" (
 cd /d "%ROOT%backend"
 call mvnw.cmd clean package || exit /b 1
 if not exist "%ROOT%app" mkdir "%ROOT%app"
-copy /y "%ROOT%backend\target\core-banking-prototype.jar" "%ROOT%app\core-banking-prototype.jar" >nul
-if not exist "%ROOT%app\core-banking-prototype.jar" (
+set "JAR=%ROOT%app\core-banking-prototype.jar"
+copy /y "%ROOT%backend\target\core-banking-prototype.jar" "%JAR%" >nul
+>"%ROOT%app\BUILD-VERSION" echo %APP_VERSION%
+if not exist "%JAR%" (
   echo ERROR: Packaged JAR was not created.
+  echo Expected: %JAR%
+  exit /b 1
+)
+if not exist "%ROOT%app\BUILD-VERSION" (
+  echo ERROR: Build version marker was not created.
   exit /b 1
 )
 
 echo Built version: %APP_VERSION%
-echo JAR: %ROOT%app\core-banking-prototype.jar
+echo JAR: %JAR%
 endlocal

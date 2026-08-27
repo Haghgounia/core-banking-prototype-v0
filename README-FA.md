@@ -67,11 +67,9 @@ com.behsazan.corebanking
 │       └── web
 ├── calendar2
 │   ├── reference
-│   │   ├── application
-│   │   ├── domain
-│   │   ├── oracle
-│   │   └── web
-│   └── datasetimport
+│   ├── datasetimport
+│   ├── eventrecurrence
+│   └── monthview
 │       ├── application
 │       ├── domain
 │       ├── oracle
@@ -158,6 +156,7 @@ DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون ب
 - ۲۰۱ فرم فعال اطلاعات پایه/تقویم؛ شامل ۲۰ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS، ۹۹ فرم Party/Customer در CIF، ۱۶ فرم تقویم یک در CAL و ۱۶ فرم تقویم دو/CAL2
 - Import مستقیم Dataset تقویم یک/CAL از `calendar_day.csv` و `calendar_date.csv` با JDBC Batch و تراکنش واحد؛ بدون SQL*Loader/Oracle Client
 - Import مستقیم بسته ZIP مدل BIAN شامل ۱۵ CSV به Schema مستقل `CAL2` با ترتیب FK، JDBC Batch و یک تراکنش
+- نمای ماهانه CAL2 با پیش‌فرض هجری شمسی، جابه‌جایی ماه‌به‌ماه، سوئیچ شمسی/میلادی/قمری و نمایش مناسبت‌ها/تعطیلی‌های materialized از `EVENT_OCCURRENCE`
 - فهرست Party و پرونده جامع Customer 360 در ماژول CIF
 - پوشش کامل ۴۸ جدول عملیاتی CIF مطابق `CIF-tables5.xlsx`: ۳۰ جدول در Workflowهای ایجاد/نگهداری Party استفاده می‌شوند و ۱۸ جدول تکمیلی به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند
 - Runtime عمومی Descriptor-driven
@@ -204,6 +203,8 @@ Linux/macOS:
 ```text
 app/core-banking-prototype.jar
 ```
+
+نسخه Build در فایل `app/BUILD-VERSION` ثبت می‌شود. نام فایل اجرایی در همه نسخه‌ها ثابت است و `start` فقط وقتی اجرا می‌شود که مقدار `BUILD-VERSION` با فایل `VERSION` یکسان باشد.
 
 اجرا در Windows:
 

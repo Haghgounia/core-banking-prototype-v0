@@ -26,6 +26,7 @@ export const routes: Routes = [
       {path: 'calendar/reference-data/import', loadComponent: () => import('./features/calendar-reference/calendar-dataset-import.component').then(m => m.CalendarDatasetImportComponent)},
       {path: 'calendar/reference-data/:resource', loadComponent: () => import('./features/calendar-reference/calendar-reference-page.component').then(m => m.CalendarReferencePageComponent)},
       {path: 'calendar2/reference-data', loadComponent: () => import('./features/calendar2-reference/calendar2-reference-menu.component').then(m => m.Calendar2ReferenceMenuComponent)},
+      {path: 'calendar2/month-view', loadComponent: () => import('./features/calendar2-reference/calendar2-month-view.component').then(m => m.Calendar2MonthViewComponent)},
       {path: 'calendar2/reference-data/import', loadComponent: () => import('./features/calendar2-reference/calendar2-dataset-import.component').then(m => m.Calendar2DatasetImportComponent)},
       {path: 'calendar2/reference-data/:resource', loadComponent: () => import('./features/calendar2-reference/calendar2-reference-page.component').then(m => m.Calendar2ReferencePageComponent)},
       {path: 'reference-data/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},

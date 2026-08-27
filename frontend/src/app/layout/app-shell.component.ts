@@ -48,7 +48,7 @@ export class AppShellComponent {
       || url.startsWith('/deposit/reference-data')
       || url.startsWith('/geography-tree')
       || url.startsWith('/calendar/reference-data')
-      || url.startsWith('/calendar2/reference-data')
+      || url.startsWith('/calendar2/')
       || url.startsWith('/planned/');
   }
 

@@ -10,8 +10,15 @@ node "$ROOT/tools/verify-ea-oracle-comparison.mjs"
 node "$ROOT/tools/verify-calendar-reference.mjs"
 node "$ROOT/tools/verify-calendar-dataset-import.mjs"
 node "$ROOT/tools/verify-calendar2-reference.mjs"
+node "$ROOT/tools/verify-calendar2-month-view.mjs"
+node "$ROOT/tools/verify-calendar-display-labels.mjs"
+node "$ROOT/tools/verify-runtime-artifact-contract.mjs"
 
-rm -f "$ROOT/app/core-banking-prototype.jar" "$ROOT/backend/target/core-banking-prototype.jar"
+cd "$ROOT/backend"
+./mvnw -DskipTests compile
+cd "$ROOT"
+
+rm -f "$ROOT/app/"*.jar "$ROOT/app/BUILD-VERSION" "$ROOT/backend/target/core-banking-prototype.jar"
 rm -rf "$ROOT/frontend/dist"
 
 cd "$ROOT/frontend"
@@ -29,5 +36,7 @@ fi
 cd "$ROOT/backend"
 ./mvnw clean package
 mkdir -p "$ROOT/app"
-cp "$ROOT/backend/target/core-banking-prototype.jar" "$ROOT/app/core-banking-prototype.jar"
-printf '\nBuilt version: %s\nJAR: %s\n' "$APP_VERSION" "$ROOT/app/core-banking-prototype.jar"
+JAR="$ROOT/app/core-banking-prototype.jar"
+cp "$ROOT/backend/target/core-banking-prototype.jar" "$JAR"
+printf '%s\n' "$APP_VERSION" > "$ROOT/app/BUILD-VERSION"
+printf '\nBuilt version: %s\nJAR: %s\n' "$APP_VERSION" "$JAR"
