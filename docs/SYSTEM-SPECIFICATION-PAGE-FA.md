@@ -45,4 +45,4 @@ tools/sync-system-specification.mjs
 frontend/src/app/features/system-specification/system-version.generated.ts
 ```
 
-تاریخ بازنگری، تعداد فرم‌های Reference، تعداد صفحات عملیاتی Party، پوشش جدول‌های CIF و فهرست قابلیت‌ها همچنان باید در هر Release به‌صورت آگاهانه بررسی شوند. در نسخه 0.3.64 مقادیر جاری ۲۰۳ فرم اطلاعات پایه/تقویم (۲۰ عمومی/GEO + ۱۰۱ CIF Party/Customer شامل دو فرم مستقل ISIC2 + ۵۰ DPS + ۱۶ CAL + ۱۶ CAL2)، ۱۲ صفحه عملیاتی Party و ۴۸ جدول CIF است. CAL2 شامل فرم قواعد مناسبت و تولید/بازسازی Materialized Occurrence بر اساس Calendar Variant است. ابزارهای مقایسه EA/Oracle و Oracle→EA XMI نیز برای Schemaهای تنظیم‌شده فعال هستند.
+تاریخ بازنگری، تعداد فرم‌های Reference، تعداد صفحات عملیاتی Party، پوشش جدول‌های CIF و فهرست قابلیت‌ها همچنان باید در هر Release به‌صورت آگاهانه بررسی شوند. در نسخه 0.3.65 مقادیر جاری ۲۰۳ فرم اطلاعات پایه/تقویم (۲۰ عمومی/GEO + ۱۰۱ CIF Party/Customer شامل دو فرم مستقل ISIC2 + ۵۰ DPS + ۱۶ CAL + ۱۶ CAL2)، ۱۲ صفحه عملیاتی Party و ۴۸ جدول CIF است. CAL2 شامل فرم قواعد مناسبت و تولید/بازسازی Materialized Occurrence بر اساس Calendar Variant است. ابزارهای مقایسه EA/Oracle و Oracle→EA XMI نیز برای Schemaهای تنظیم‌شده فعال هستند.

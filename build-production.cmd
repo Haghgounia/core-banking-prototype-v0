@@ -8,6 +8,8 @@ echo Building Core Banking Prototype %APP_VERSION%...
 
 rem Synchronize generated system specification before any verifier reads it.
 node "%ROOT%tools\sync-system-specification.mjs" || exit /b 1
+rem FIX76 upgrade guard: clean legacy root INSTALL files left by overlay extraction from older releases.
+node "%ROOT%tools\migrate-release-layout.mjs" || exit /b 1
 node "%ROOT%tools\verify-release-layout.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.

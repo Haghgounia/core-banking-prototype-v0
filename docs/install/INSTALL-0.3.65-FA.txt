@@ -1,0 +1,72 @@
+Core Banking Prototype 0.3.65
+================================
+
+این نسخه دو تغییر مهم دارد:
+1) نسخه‌گذاری از این نسخه فقط به شکل x.y.z است و پسوند prototype-fee-p1 حذف شده است.
+2) فایل‌های INSTALL در docs/install نگهداری می‌شوند.
+3) در Upgrade روی پوشه نسخه‌های قبلی، build-production.cmd فایل‌های INSTALL قدیمی باقی‌مانده در Root را پیش از Verification به‌صورت خودکار پاک‌سازی/منتقل می‌کند.
+
+ISIC / Database
+---------------
+در این نسخه مدل جدید ISIC از CIF.REF_ISIC_ACTIVITY قدیمی کاملاً مستقل است.
+آبجکت‌های جدید:
+- CIF.REF_ISIC_RELEASE
+- CIF.REF_ISIC_ACTIVITY2
+- CIF.REF_ISIC_ACTIVITY_NOTE
+- CIF.V_REF_ISIC_ACTIVITY_LOOKUP2
+
+REF_ISIC_ACTIVITY2 دیگر ستون‌های زیر را ندارد:
+BASE_ISIC_CODE, PARENT_ISIC_CODE, SECTION_CODE,
+DESCRIPTION_FA, DESCRIPTION_EN,
+INCLUSIONS_FA, INCLUSIONS_EN,
+EXCLUSIONS_FA, EXCLUSIONS_EN
+
+سلسله‌مراتب با PARENT_ACTIVITY_ID و LEVEL_NO نگهداری می‌شود.
+متن‌های توضیحی در CIF.REF_ISIC_ACTIVITY_NOTE و با NOTE_TYPE_CODEهای زیر ذخیره می‌شوند:
+EXPLANATORY, INCLUDES, ALSO_INCLUDES, EXCLUDES
+
+مهم: build-production.cmd دیتابیس را تغییر نمی‌دهد.
+پس از جایگزینی Source، اسکریپت زیر را با کاربری دارای دسترسی لازم اجرا کنید:
+
+database\oracle\cif\isic2\CIF_ISIC2_FULL_INSTALL.sql
+
+این اسکریپت فقط آبجکت‌های جدید ISIC را Drop/Recreate می‌کند و CIF.REF_ISIC_ACTIVITY قدیمی را تغییر نمی‌دهد.
+Seed شامل 766 رکورد UNSD ISIC Rev.4 است:
+- 21 SECTION
+- 88 DIVISION
+- 238 GROUP
+- 419 CLASS
+- NAME_FA: 766/766
+- NAME_EN: 766/766
+- selectable: 419
+
+توضیحات تفصیلی Explanatory/Includes/Also Includes/Excludes از فایل Structure-only رسمی قابل استخراج نیست؛ بنابراین داده ساختگی برای Noteها وارد نمی‌شود.
+
+Build برنامه
+------------
+از Root پروژه:
+
+نکته: لازم نیست فایل‌های INSTALL قدیمی Root را دستی حذف کنید؛ Build آنها را قبل از Guard نسخه‌بندی پاک‌سازی می‌کند.
+
+bin\stop.cmd
+rmdir /s /q frontend\dist
+rmdir /s /q backend\src\main\resources\static
+build-production.cmd
+bin\start.cmd
+
+بعد از Build باید این مقدار دیده شود:
+Built version: 0.3.65
+
+کنترل دیتابیس
+-------------
+در پایان Full Install، 04-verify-isic2.sql خودکار اجرا می‌شود.
+انتظار:
+- total=766
+- NAME_FA=766
+- NAME_EN=766
+- selectable=419
+- bad_parent=0
+- bad_level=0
+- bad_selectable=0
+- legacy_activity2_columns=0
+- note_table=1

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.65 — FIX76: پاک‌سازی خودکار INSTALLهای قدیمی در Upgrade
+
+- در سناریوی Extract/Copy نسخه جدید روی پوشه نصب قدیمی، فایل‌های `INSTALL-*.txt` باقی‌مانده در Root دیگر باعث توقف `build-production.cmd` نمی‌شوند.
+- ابزار جدید `tools/migrate-release-layout.mjs` قبل از `verify-release-layout.mjs` اجرا می‌شود؛ فایل Root را اگر مقصد متناظر در `docs/install/` وجود داشته باشد حذف می‌کند و در غیر این صورت به `docs/install/` منتقل می‌کند.
+- همین Migration در `build-production.sh` نیز اعمال شد تا قرارداد Release در Windows/Linux یکسان باشد.
+- Guard `verify-release-layout.mjs` اکنون علاوه بر محل فایل‌ها، وجود Migration و ترتیب اجرای آن پیش از Verification را کنترل می‌کند.
+- `verify-cif-isic2.mjs` از وابستگی سخت به نسخه `0.3.64` خارج شد و فقط قرارداد نسخه‌گذاری `x.y.z` را کنترل می‌کند؛ بنابراین Releaseهای بعدی بدون تغییر مصنوعی Verifier ساخته می‌شوند.
+- هیچ تغییر DDL، Seed یا UI در ISIC نسبت به FIX75 ندارد؛ دیتابیس ISIC نسخه 0.3.64/0.3.65 از نظر Schema و Import یکسان است.
+
 ## 0.3.64 — FIX75: همگام‌سازی واقعی Schema/Import ISIC و نرمال‌سازی Explanatory Notes
 
 - نسخه‌گذاری Release از این نسخه فقط به شکل `x.y.z` است؛ پسوند `prototype-fee-p1` از نسخه جاری و فایل ZIP حذف شد.

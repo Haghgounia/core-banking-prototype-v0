@@ -6,6 +6,7 @@ APP_VERSION="$(cat "$ROOT/VERSION")"
 echo "Building Core Banking Prototype $APP_VERSION..."
 
 node "$ROOT/tools/sync-system-specification.mjs"
+node "$ROOT/tools/migrate-release-layout.mjs"
 node "$ROOT/tools/verify-release-layout.mjs"
 node "$ROOT/tools/verify-cif-persisted-grids.mjs"
 node "$ROOT/tools/verify-ea-oracle-comparison.mjs"

@@ -22,7 +22,7 @@ const backend = read('backend/src/main/java/com/behsazan/corebanking/cif/isic/or
 const service = read('backend/src/main/java/com/behsazan/corebanking/cif/isic/application/IsicService.java');
 const controller = read('backend/src/main/java/com/behsazan/corebanking/cif/isic/web/IsicController.java');
 
-assert(read('VERSION').trim() === '0.3.64', 'VERSION mismatch');
+assert(/^\d+\.\d+\.\d+$/.test(read('VERSION').trim()), 'VERSION must use semantic x.y.z format');
 assert(ddl.includes('CREATE TABLE CIF.REF_ISIC_RELEASE'), 'REF_ISIC_RELEASE DDL missing');
 assert(ddl.includes('CREATE TABLE CIF.REF_ISIC_ACTIVITY2'), 'REF_ISIC_ACTIVITY2 DDL missing');
 assert(ddl.includes('CREATE TABLE CIF.REF_ISIC_ACTIVITY_NOTE'), 'REF_ISIC_ACTIVITY_NOTE DDL missing');
