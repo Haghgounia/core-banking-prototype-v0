@@ -9,6 +9,7 @@ const repo = read('backend','src','main','java','com','behsazan','corebanking','
 const controller = read('backend','src','main','java','com','behsazan','corebanking','fee','admin','web','FeeAdminController.java');
 const routes = read('frontend','src','app','app.routes.ts');
 const home = read('frontend','src','app','features','fee-admin','fee-admin-home.component.html');
+const homeTs = read('frontend','src','app','features','fee-admin','fee-admin-home.component.ts');
 const table = read('frontend','src','app','features','fee-admin','fee-admin-table.component.html');
 const manifest = JSON.parse(read('database','oracle','fee','baseline-1.0','seed','seed_manifest.json'));
 const ddlDir = path.join(root,'database','oracle','fee','baseline-1.0','ddl');
@@ -39,6 +40,7 @@ const checks = [
   [controller.includes('/api/v1/fees/admin'), 'fee admin API base route is missing'],
   [routes.includes("path: 'fee/simulator'") && routes.includes("path: 'fee/tables/:table'"), 'fee admin routes are incomplete'],
   [home.includes('۴۷ فرم کارمزد') && home.includes('Seed پایه'), 'fee admin home coverage labels are missing'],
+  [home.includes('نقشه روال تعریف اطلاعات در فرم‌های کارمزد') && homeTs.includes('FEE_ARRANGEMENT_CALC_TERM') && (home.includes('/fee/simulator') || homeTs.includes("route: ['/fee', 'simulator']")), 'fee admin home flow diagram is missing or incomplete'],
   [table.includes('app-persian-date-input'), 'fee forms must use the shared Persian date picker'],
   [table.includes('Runtime / فقط مشاهده'), 'runtime read-only UI marker is missing'],
   [fs.existsSync(path.join(root,'database','oracle','fee','install-baseline-1.0-ddl.sql')), '47-table DDL installer is missing'],
