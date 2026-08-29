@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.61-prototype-fee-p1 — FIX72: ISIC نسخه‌محور با REF_ISIC_ACTIVITY2 و فرم‌های مستقل
+
+- جدول قدیمی `CIF.REF_ISIC_ACTIVITY` بدون تغییر باقی می‌ماند و مسیرهای عملیاتی فعلی Party همچنان از همان جدول استفاده می‌کنند.
+- بسته Oracle مستقل `database/oracle/cif/isic2` اضافه شد که `CIF.REF_ISIC_RELEASE`، `CIF.REF_ISIC_ACTIVITY2` و `CIF.V_REF_ISIC_ACTIVITY_LOOKUP2` را ایجاد می‌کند.
+- Seed رسمی UNSD ISIC Rev.4 شامل 766 رکورد (21 Section، 88 Division، 238 Group، 419 Class) به `REF_ISIC_ACTIVITY2` Import می‌شود؛ چهار عنوان فارسی بازبینی‌شده با وضعیت `BANK_VERIFIED` حفظ شده‌اند.
+- Release مربوط به `IR-SCI Rev.4` فقط به صورت `DRAFT` و غیرفعال ثبت می‌شود و هیچ داده ساختگی ملی برای ایران تولید نمی‌شود.
+- دو فرم مستقل در «اطلاعات پایه مشتری / Party» اضافه شد: «نسخه‌های ISIC» و «فعالیت‌های ISIC نسخه‌محور».
+- فرم فعالیت‌ها دارای انتخاب Release، جستجوی کد/فارسی/انگلیسی، فیلتر سطح/فعال/قابل انتخاب، نمای سلسله‌مراتبی Lazy، ویرایش CLOBهای شرح/مشمول/مستثنی، وضعیت ترجمه و تاریخ اعتبار شمسی است.
+- Backend اختصاصی `/api/v1/cif/isic` برای CRUD نسخه‌ها و فعالیت‌ها و Lookupهای مربوط ایجاد شد؛ Optimistic Lock با `RECORD_VERSION` حفظ می‌شود.
+- هیچ Migrationای از `ORGANIZATION.ISIC_CODE` یا `PARTY_EMPLOYMENT.ISIC_CODE` به مدل جدید در این نسخه انجام نمی‌شود.
+
 ## 0.3.60-prototype-fee-p1 — FIX71: پیش‌فرض سال/ماه جاری در Date Picker شمسی
 
 - انتخاب‌گر مشترک تاریخ شمسی هنگام خالی بودن مقدار، روی تاریخ جاری شمسی Seed می‌شود بدون اینکه مقدار FormControl به‌صورت خودکار تغییر کند.

@@ -1,0 +1,31 @@
+-- Register Iranian national adaptation as a separate release.
+-- No national activity rows are inserted by this script because the Iranian adaptation
+-- is not a 1:1 copy of UNSD Rev.4 and must be loaded from the authoritative SCI dataset.
+-- Source publication reference:
+-- https://tepbusiness.ir/wp-content/uploads/2019/04/ISIC.4-2008.pdf
+
+MERGE INTO CIF.REF_ISIC_RELEASE T
+USING (SELECT 'ISIC' CLASSIFICATION_CODE, '4' REVISION_CODE, 'IR-SCI' VARIANT_CODE FROM DUAL) S
+ON (T.CLASSIFICATION_CODE=S.CLASSIFICATION_CODE AND T.REVISION_CODE=S.REVISION_CODE AND T.VARIANT_CODE=S.VARIANT_CODE)
+WHEN MATCHED THEN UPDATE SET
+    T.COUNTRY_CODE='IR',
+    T.NAME_FA=UNISTR('\0637\0628\0642\0647\200C\0628\0646\062F\06CC \0641\0639\0627\0644\06CC\062A\200C\0647\0627\06CC \0627\0642\062A\0635\0627\062F\06CC \0627\06CC\0631\0627\0646 \0628\0631 \0627\0633\0627\0633 ISIC Rev.4'),
+    T.NAME_EN='Iran National Classification of Economic Activities based on ISIC Rev.4',
+    T.SOURCE_AUTHORITY='Statistical Center of Iran',
+    T.SOURCE_URI='https://tepbusiness.ir/wp-content/uploads/2019/04/ISIC.4-2008.pdf',
+    T.DATASET_STATUS_CODE='DRAFT',
+    T.IS_CURRENT=0,
+    T.IS_ACTIVE=0,
+    T.LAST_MODIFIED_BY='SEED',
+    T.LAST_MODIFIED_DATE=SYSTIMESTAMP
+WHEN NOT MATCHED THEN INSERT (
+    CLASSIFICATION_CODE,REVISION_CODE,VARIANT_CODE,COUNTRY_CODE,NAME_FA,NAME_EN,
+    SOURCE_AUTHORITY,SOURCE_URI,DATASET_STATUS_CODE,IS_CURRENT,IS_ACTIVE,RECORD_VERSION,CREATED_BY
+) VALUES (
+    'ISIC','4','IR-SCI','IR',
+    UNISTR('\0637\0628\0642\0647\200C\0628\0646\062F\06CC \0641\0639\0627\0644\06CC\062A\200C\0647\0627\06CC \0627\0642\062A\0635\0627\062F\06CC \0627\06CC\0631\0627\0646 \0628\0631 \0627\0633\0627\0633 ISIC Rev.4'),
+    'Iran National Classification of Economic Activities based on ISIC Rev.4',
+    'Statistical Center of Iran','https://tepbusiness.ir/wp-content/uploads/2019/04/ISIC.4-2008.pdf',
+    'DRAFT',0,0,1,'SEED'
+);
+COMMIT;

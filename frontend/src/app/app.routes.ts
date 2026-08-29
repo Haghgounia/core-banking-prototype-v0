@@ -39,6 +39,8 @@ export const routes: Routes = [
       {path: 'deposit/reference-data/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
 
       {path: 'cif/reference-data', data: {scope: 'PARTY'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},
+      {path: 'cif/reference-data/isic-releases', loadComponent: () => import('./features/isic-reference/isic-release-page.component').then(m => m.IsicReleasePageComponent)},
+      {path: 'cif/reference-data/isic-activities', loadComponent: () => import('./features/isic-reference/isic-activity-page.component').then(m => m.IsicActivityPageComponent)},
       {path: 'cif/reference-data/:resource', loadComponent: () => import('./features/cif-reference/party-reference-page.component').then(m => m.PartyReferencePageComponent)},
       {path: 'cif/reference/:resource', redirectTo: 'cif/reference-data/:resource'},
 

@@ -12,3 +12,5 @@
 - فاز Reference Data شماره ۲ در `reference-data/compliance-risk` شامل ۲۱ جدول مرجع تطبیق، ریسک و KYC است.
 - برای ارتقا از 0.3.2، فایل `reference-data/compliance-risk/install.sql` اجرا شود.
 - وضعیت اعتبارسنجی `NOT_VERIFIED` منبع به `UNVERIFIED` نرمال شده است تا با Default جداول عملیاتی CIF همسان باشد.
+
+- FIX72 (`0.3.61`): مدل نسخه‌محور ISIC در `isic2/` قرار دارد. این بسته `REF_ISIC_ACTIVITY2` را ایجاد می‌کند و `REF_ISIC_ACTIVITY` قدیمی را تغییر نمی‌دهد. برای نصب `@isic2/00-install-isic2.sql` اجرا شود.

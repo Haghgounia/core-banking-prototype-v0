@@ -1,0 +1,35 @@
+Core Banking Prototype 0.3.61-prototype-fee-p1 / FIX72
+=========================================================
+
+این نسخه دو فرم مستقل ISIC نسخه‌محور را اضافه می‌کند و جدول قدیمی
+CIF.REF_ISIC_ACTIVITY را تغییر نمی‌دهد.
+
+1) قبل از Build/Run، اسکریپت Oracle زیر را با کاربری که مجوز ایجاد Object در Schema CIF دارد اجرا کنید:
+
+   database\oracle\cif\isic2\00-install-isic2.sql
+
+   ترتیب داخلی:
+   - 01-create-isic2-tables.sql
+   - 02-import-isic-rev4-unsd.sql
+   - 03-register-ir-sci-release.sql
+   - 04-verify-isic2.sql
+
+2) خروجی Validation باید برای UNSD Rev.4 این تعداد را نشان دهد:
+   SECTION=21, DIVISION=88, GROUP=238, CLASS=419, TOTAL=766, SELECTABLE=419, ORPHAN=0
+
+3) سپس build-production.cmd را اجرا کنید.
+
+4) فرم‌ها:
+   اطلاعات پایه > اطلاعات پایه مشتری / Party > طبقه‌بندی فعالیت اقتصادی ISIC
+   - نسخه‌های ISIC
+   - فعالیت‌های ISIC نسخه‌محور
+
+آبجکت‌های جدید:
+- CIF.REF_ISIC_RELEASE
+- CIF.REF_ISIC_ACTIVITY2
+- CIF.V_REF_ISIC_ACTIVITY_LOOKUP2
+
+مهم:
+- CIF.REF_ISIC_ACTIVITY قدیمی Drop/Alter/Truncate/Import نمی‌شود.
+- Lookupهای فعلی Party در این نسخه همچنان به مدل Legacy متصل‌اند.
+- IR-SCI به صورت DRAFT/Inactive ثبت می‌شود تا Dataset رسمی مرکز آمار جداگانه دریافت شود.
