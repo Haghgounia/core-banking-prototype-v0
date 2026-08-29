@@ -19,9 +19,9 @@ bian-400y-calendar                 -> Schema CAL2
 برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. مسیر عملیاتی CIF از ایجاد Party تا اطلاعات Person/Organization، تماس و نشانی، مالی، شناسه و مدرک، طبقه‌بندی، روابط/UBO، Role/Customer، KYC/Risk/Screening، Consent/Preference، Lifecycle و Merge تکمیل شده است. در نسخه 0.3.22 تمام ۴۸ جدول عملیاتی موجود در `CIF-tables5.xlsx` در Backend پوشش داده می‌شوند: ۳۰ جدول در Workflowهای CIF استفاده/نگهداری می‌شوند و ۱۸ جدول تکمیلی بدون CRUD در CIF به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند؛ محصولات/تعاملات/شکایات و مشابه آن از سامانه‌های مبدأ می‌آیند و Registration/Audit صرفاً Trace خواندنی هستند.
 
 
-### ISIC2 نسخه‌محور
+### ISIC نسخه‌محور
 
-در FIX73 دو فرم مستقل «نسخه‌های ISIC» و «فعالیت‌های ISIC نسخه‌محور» بر پایه `CIF.REF_ISIC_RELEASE` و `CIF.REF_ISIC_ACTIVITY2` فعال هستند. ساختار فعالیت‌ها با `PARENT_ACTIVITY_ID` و `LEVEL_NO` نگهداری می‌شود. Seed UNSD Rev.4 شامل 766 رکورد است و `NAME_FA` و `NAME_EN` برای همه رکوردها مقدار دارند؛ عنوان‌های فارسی با وضعیت `BANK_TRANSLATED` ثبت شده‌اند. اسکریپت‌های Oracle در `database/oracle/cif/isic2` قرار دارند.
+از نسخه `0.3.64` مدل جدید ISIC کاملاً مستقل از `CIF.REF_ISIC_ACTIVITY` قدیمی است. دو فرم «نسخه‌های ISIC» و «فعالیت‌های ISIC نسخه‌محور» بر پایه `CIF.REF_ISIC_RELEASE` و `CIF.REF_ISIC_ACTIVITY2` فعال هستند و متن‌های توضیحی طولانی در جدول فرزند `CIF.REF_ISIC_ACTIVITY_NOTE` با نوع‌های `EXPLANATORY / INCLUDES / ALSO_INCLUDES / EXCLUDES` نگهداری می‌شوند. ساختار فعالیت‌ها با `PARENT_ACTIVITY_ID` و `LEVEL_NO` مدل شده است. Seed UNSD Rev.4 شامل 766 رکورد و 419 Class قابل انتخاب است و `NAME_FA` و `NAME_EN` برای همه رکوردها مقدار دارند؛ عنوان‌های فارسی با وضعیت `BANK_TRANSLATED` ثبت شده‌اند. اسکریپت‌های Oracle در `database/oracle/cif/isic2` قرار دارند و باید جدا از Build برنامه اجرا شوند.
 
 ## معماری فعلی
 

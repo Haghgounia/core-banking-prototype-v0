@@ -160,7 +160,8 @@ public class IsicService {
 
         return new ActivityRequest(releaseId, parentId, code, level, levelNo, nameFa, nameEn,
                 text(r.descriptionFa()), text(r.descriptionEn()), text(r.inclusionsFa()), text(r.inclusionsEn()),
-                text(r.exclusionsFa()), text(r.exclusionsEn()), translation, selectable,
+                text(r.alsoInclusionsFa()), text(r.alsoInclusionsEn()), text(r.exclusionsFa()), text(r.exclusionsEn()),
+                translation, selectable,
                 r.active() == null || Boolean.TRUE.equals(r.active()), r.validFrom(), r.validTo(),
                 r.sortOrder() == null ? 0 : r.sortOrder(), r.recordVersion());
     }

@@ -1,0 +1,13 @@
+Core Banking Prototype 0.3.63-prototype-fee-p1 / FIX74
+
+این نسخه برای اصلاح Build در Windows منتشر شده است.
+
+1) نسخه 0.3.63 را جایگزین Source فعلی کنید.
+2) اجرای دیتابیس جدید لازم نیست؛ FIX74 هیچ DDL یا Seed جدید ندارد.
+3) اجرا کنید:
+   bin\stop.cmd
+   build-production.cmd
+4) پس از مشاهده Built version: 0.3.63-prototype-fee-p1 اجرا کنید:
+   bin\start.cmd
+
+اگر ISIC2 هنوز روی دیتابیس نصب نشده است، اسکریپت‌های database\oracle\cif\isic2 نسخه قبلی همچنان معتبر هستند.

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.64 — FIX75: همگام‌سازی واقعی Schema/Import ISIC و نرمال‌سازی Explanatory Notes
+
+- نسخه‌گذاری Release از این نسخه فقط به شکل `x.y.z` است؛ پسوند `prototype-fee-p1` از نسخه جاری و فایل ZIP حذف شد.
+- فایل‌های `INSTALL-*.txt` از Root پروژه به `docs/install/` منتقل شدند و Guard جدید `verify-release-layout.mjs` این قرارداد را کنترل می‌کند.
+- مشخص شد DDL مشاهده‌شده در Oracle مربوط به مدل قدیمی ISIC2 بوده است؛ Installer جدید آبجکت‌های جدید ISIC را Drop/Recreate و Seed را دوباره Import می‌کند، بدون هیچ تغییر در `CIF.REF_ISIC_ACTIVITY` قدیمی.
+- `CIF.REF_ISIC_ACTIVITY2` فقط ساختار طبقه‌بندی را نگه می‌دارد: `PARENT_ACTIVITY_ID`، `LEVEL_CODE/LEVEL_NO`، کد و نام‌های دو‌زبانه و وضعیت‌های عملیاتی. ستون‌های تکراری `BASE_ISIC_CODE/PARENT_ISIC_CODE/SECTION_CODE` و شش CLOB توضیحی از این جدول حذف شدند.
+- جدول جدید `CIF.REF_ISIC_ACTIVITY_NOTE` برای متن‌های طولانی توضیحی اضافه شد؛ نوع‌های `EXPLANATORY`، `INCLUDES`، `ALSO_INCLUDES` و `EXCLUDES` و زبان `fa/en` را مستقل نگه می‌دارد.
+- Backend فرم فعالیت ISIC متن‌های توضیحی را از جدول Note خوانده/در آن ذخیره می‌کند و فیلد «همچنین شامل» فارسی/انگلیسی به UI اضافه شد.
+- Import UNSD Rev.4 همچنان 766 رکورد کامل ساختاری (21/88/238/419) با `NAME_FA` و `NAME_EN` کامل و 419 Class قابل انتخاب وارد می‌کند. هیچ Explanatory Note ساختگی Seed نمی‌شود، چون فایل Structure-only مبنا آن محتوا را ندارد.
+- `04-verify-isic2.sql` علاوه بر شمارش Dataset، نبود ستون‌های Legacy در `REF_ISIC_ACTIVITY2` و وجود `REF_ISIC_ACTIVITY_NOTE` را نیز کنترل می‌کند.
+- Build برنامه عمداً DDL را روی Oracle اجرا نمی‌کند؛ اجرای `database/oracle/cif/isic2/CIF_ISIC2_FULL_INSTALL.sql` برای اعمال تغییرات بانک اطلاعاتی الزامی است.
+
 ## 0.3.63-prototype-fee-p1 — FIX74: اصلاح مسیر Verifierهای Node در Windows و Build Guard
 
 - خطای Windows در `tools/verify-cif-isic2.mjs` که مسیر `file:///D:/...` را با `URL.pathname` به `/D:/...` تبدیل و در نهایت مسیر اشتباه `D:\D:\...` تولید می‌کرد، اصلاح شد.

@@ -1,30 +1,41 @@
-# CIF ISIC2 — مدل مستقل نسخه‌محور ISIC
+# CIF ISIC — مدل مستقل نسخه‌محور و سلسله‌مراتبی
 
-این بسته مدل ISIC را بر پایه دو جدول مستقل نسخه/فعالیت و یک View جستجو نصب می‌کند.
+این بسته مدل ISIC را مستقل از `CIF.REF_ISIC_ACTIVITY` قدیمی نصب می‌کند. جدول قدیمی نه Drop می‌شود، نه خوانده می‌شود و نه در Seed جدید استفاده می‌شود.
 
 ## آبجکت‌ها
 
-- `CIF.REF_ISIC_RELEASE` — نسخه‌ها، Revisionها و Variantهای ISIC
+- `CIF.REF_ISIC_RELEASE` — Registry نسخه‌ها، Revisionها و Variantهای ISIC
 - `CIF.REF_ISIC_ACTIVITY2` — درخت فعالیت‌های اقتصادی با Parent ID، سطح و عنوان دو‌زبانه اجباری
-- `CIF.V_REF_ISIC_ACTIVITY_LOOKUP2` — View مناسب Lookup و نمایش عنوان فارسی
+- `CIF.REF_ISIC_ACTIVITY_NOTE` — یادداشت‌های توضیحی زبان‌محور برای `EXPLANATORY / INCLUDES / ALSO_INCLUDES / EXCLUDES`
+- `CIF.V_REF_ISIC_ACTIVITY_LOOKUP2` — View سبک برای Lookup و نمایش در UI
 
-## طراحی فعالیت
+## طراحی
 
-هر فعالیت به یک Release تعلق دارد. رابطه سلسله‌مراتبی با `PARENT_ACTIVITY_ID` برقرار می‌شود و FK مرکب تضمین می‌کند والد و فرزند در یک Release باشند. سطح‌ها به‌ترتیب `SECTION=1`، `DIVISION=2`، `GROUP=3`، `CLASS=4` و `NATIONAL_SUBCLASS=5` هستند.
+هر Activity به یک Release تعلق دارد. رابطه سلسله‌مراتبی با `PARENT_ACTIVITY_ID` برقرار می‌شود و FK مرکب تضمین می‌کند والد و فرزند در یک Release باشند. سطح‌ها `SECTION=1`، `DIVISION=2`، `GROUP=3`، `CLASS=4` و توسعه اختیاری `NATIONAL_SUBCLASS=5` هستند.
 
-`NAME_FA` و `NAME_EN` اجباری‌اند. Seed اولیه UNSD Rev.4 برای هر 766 رکورد عنوان فارسی و انگلیسی دارد. عنوان انگلیسی بر پایه ساختار مرجع ورودی و عنوان فارسی ترجمه پروژه بانکی است، بنابراین `TRANSLATION_STATUS_CODE='BANK_TRANSLATED'` ثبت می‌شود.
+`NAME_FA` و `NAME_EN` اجباری‌اند. Seed اولیه UNSD Rev.4 شامل 766 رکورد کامل ساختاری است: 21 Section، 88 Division، 238 Group و 419 Class. عنوان انگلیسی بر پایه ساختار رسمی UNSD و عنوان فارسی ترجمه پروژه است؛ بنابراین رکوردهای فارسی با `TRANSLATION_STATUS_CODE='BANK_TRANSLATED'` علامت‌گذاری شده‌اند.
 
-فیلدهای Description/Inclusions/Exclusions فقط در صورت وجود منبع معتبر پر می‌شوند و در Seed ساختاری خالی می‌مانند.
+متن‌های بلند توضیحی دیگر ستون‌های CLOB در `REF_ISIC_ACTIVITY2` نیستند. آن‌ها در `REF_ISIC_ACTIVITY_NOTE` بر اساس نوع یادداشت و زبان نگهداری می‌شوند. این تفکیک از ساختار طبقه‌بندی اصلی جلوگیری از تکرار ستون‌های زبان/نوع می‌کند و امکان افزودن زبان‌های بعدی را می‌دهد.
 
-## نصب
+فایل ساختار رسمی Rev.4 که مبنای Seed است فقط Code/Description ساختار را دارد؛ بنابراین برای Explanatory Notes متن ساختگی وارد نمی‌شود. جدول Note در Seed ساختاری می‌تواند خالی باشد و فقط زمانی پر می‌شود که منبع معتبر توضیحات بارگذاری شود یا کاربر از فرم مدیریتی ثبت کند.
 
-از SQLcl/SQL*Plus و از همین پوشه:
+## نصب/بازطراحی Prototype
+
+Build برنامه **هیچ DDLای را خودکار روی Oracle اجرا نمی‌کند**. پس از جایگزینی Source باید این اسکریپت را جداگانه در SQLcl/SQL*Plus اجرا کنید:
+
+```sql
+@CIF_ISIC2_FULL_INSTALL.sql
+```
+
+یا از همین پوشه:
 
 ```sql
 @00-install-isic2.sql
 ```
 
-نصب Prototype، دو جدول ISIC2 را Drop/Recreate می‌کند. برای اجرای مرحله‌ای:
+این نصب فقط آبجکت‌های جدید ISIC را Drop/Recreate می‌کند و `CIF.REF_ISIC_ACTIVITY` قدیمی دست‌نخورده می‌ماند.
+
+اجرای مرحله‌ای:
 
 ```sql
 @00-reset-isic2-redesign.sql
@@ -34,4 +45,4 @@
 @04-verify-isic2.sql
 ```
 
-Seed شماره 02 شامل 766 رکورد Rev.4 است: 21 Section، 88 Division، 238 Group و 419 Class. اسکریپت شماره 03 فقط Release مربوط به `IR-SCI` را به صورت `DRAFT/Inactive` ثبت می‌کند و هیچ داده ملی ساختگی ایجاد نمی‌کند.
+اسکریپت Verify علاوه بر تعداد 766/419 و کامل بودن `NAME_FA/NAME_EN`، نبود ستون‌های Legacy در `REF_ISIC_ACTIVITY2` و وجود `REF_ISIC_ACTIVITY_NOTE` را نیز کنترل می‌کند.

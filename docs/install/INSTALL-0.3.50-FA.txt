@@ -1,0 +1,10 @@
+Core Banking Prototype 0.3.50-prototype-fee-p1
+
+روش ارتقای مطمئن:
+1) نسخه را در یک پوشه کاملاً جدید Extract کنید.
+2) bin\rebuild-and-start.cmd را اجرا کنید.
+3) منتظر پیام Build موفق و Start برنامه بمانید.
+4) در Header سامانه باید نسخه 0.3.50-prototype-fee-p1 نمایش داده شود.
+
+هشدار:
+فقط Extract روی پوشه نسخه قبلی و اجرای مستقیم start.cmd توصیه نمی‌شود، چون ممکن است JAR نسخه قبلی اجرا شود.

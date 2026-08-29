@@ -38,6 +38,6 @@ database/oracle/
 
 برای CAL2های ایجادشده با FIX54/FIX55، Migration `cal2/migrations/0.3.45-fix56-event-recurrence-rule.sql` جدول قواعد مناسبت و provenance رخدادها را اضافه می‌کند.
 
-### ISIC2 نسخه‌محور
+### ISIC نسخه‌محور
 
-بسته `database/oracle/cif/isic2` مدل مستقل ISIC را با `REF_ISIC_RELEASE` و `REF_ISIC_ACTIVITY2` نگهداری می‌کند. در FIX73 عنوان فارسی/انگلیسی فعالیت اجباری و Seed UNSD Rev.4 شامل 766 عنوان دو‌زبانه است. برای نصب Prototype فایل Standalone `CIF_ISIC2_FULL_INSTALL.sql` قابل اجرا است.
+بسته `database/oracle/cif/isic2` مدل مستقل ISIC را با `REF_ISIC_RELEASE`، `REF_ISIC_ACTIVITY2` و `REF_ISIC_ACTIVITY_NOTE` نگهداری می‌کند. در نسخه 0.3.64 عنوان فارسی/انگلیسی فعالیت اجباری است، ساختار با Parent ID نگهداری می‌شود و Explanatory/Includes/Also Includes/Excludes در جدول Note ذخیره می‌شوند. Seed UNSD Rev.4 شامل 766 عنوان دو‌زبانه است. برای اعمال DDL و Import باید فایل Standalone `CIF_ISIC2_FULL_INSTALL.sql` جدا از Build برنامه اجرا شود.

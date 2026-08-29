@@ -34,7 +34,8 @@ public final class IsicModels {
             Long isicActivityId, Long isicReleaseId, Long parentActivityId, String parentIsicCode,
             String isicCode, String levelCode, Integer levelNo,
             String nameFa, String nameEn,
-            String descriptionFa, String descriptionEn, String inclusionsFa, String inclusionsEn, String exclusionsFa, String exclusionsEn,
+            String descriptionFa, String descriptionEn, String inclusionsFa, String inclusionsEn,
+            String alsoInclusionsFa, String alsoInclusionsEn, String exclusionsFa, String exclusionsEn,
             String translationStatusCode, boolean selectable, boolean active,
             LocalDate validFrom, LocalDate validTo, Integer sortOrder, Integer recordVersion,
             String createdBy, LocalDateTime createdDate, String lastModifiedBy, LocalDateTime lastModifiedDate
@@ -44,7 +45,8 @@ public final class IsicModels {
             Long isicReleaseId, Long parentActivityId,
             String isicCode, String levelCode, Integer levelNo,
             String nameFa, String nameEn,
-            String descriptionFa, String descriptionEn, String inclusionsFa, String inclusionsEn, String exclusionsFa, String exclusionsEn,
+            String descriptionFa, String descriptionEn, String inclusionsFa, String inclusionsEn,
+            String alsoInclusionsFa, String alsoInclusionsEn, String exclusionsFa, String exclusionsEn,
             String translationStatusCode, Boolean selectable, Boolean active,
             LocalDate validFrom, LocalDate validTo, Integer sortOrder, Integer recordVersion
     ) {}

@@ -186,47 +186,60 @@ public class IsicRepository {
     }
 
     public Optional<ActivityDetail> findActivity(long id) {
-        String sql = "SELECT A.*, P.ISIC_CODE PARENT_ISIC_CODE FROM " + table("REF_ISIC_ACTIVITY2") + " A LEFT JOIN "
-                + table("REF_ISIC_ACTIVITY2") + " P ON P.ISIC_ACTIVITY_ID=A.PARENT_ACTIVITY_ID WHERE A.ISIC_ACTIVITY_ID=:id";
+        String sql = activityDetailSelect() + " WHERE A.ISIC_ACTIVITY_ID=:id";
         return jdbc.sql(sql).param("id", id).query((rs, n) -> mapActivityDetail(rs)).optional();
     }
 
     public Optional<ActivityDetail> findActivityInRelease(long releaseId, long id) {
-        String sql = "SELECT A.*, P.ISIC_CODE PARENT_ISIC_CODE FROM " + table("REF_ISIC_ACTIVITY2") + " A LEFT JOIN "
-                + table("REF_ISIC_ACTIVITY2") + " P ON P.ISIC_ACTIVITY_ID=A.PARENT_ACTIVITY_ID "
-                + "WHERE A.ISIC_RELEASE_ID=:releaseId AND A.ISIC_ACTIVITY_ID=:id";
+        String sql = activityDetailSelect() + " WHERE A.ISIC_RELEASE_ID=:releaseId AND A.ISIC_ACTIVITY_ID=:id";
         return jdbc.sql(sql).param("releaseId", releaseId).param("id", id).query((rs, n) -> mapActivityDetail(rs)).optional();
+    }
+
+    private String activityDetailSelect() {
+        String notes = table("REF_ISIC_ACTIVITY_NOTE");
+        return "SELECT A.*, P.ISIC_CODE PARENT_ISIC_CODE, "
+                + "(SELECT N.NOTE_TEXT FROM " + notes + " N WHERE N.ISIC_ACTIVITY_ID=A.ISIC_ACTIVITY_ID AND N.NOTE_TYPE_CODE='EXPLANATORY' AND N.LANGUAGE_CODE='fa') DESCRIPTION_FA, "
+                + "(SELECT N.NOTE_TEXT FROM " + notes + " N WHERE N.ISIC_ACTIVITY_ID=A.ISIC_ACTIVITY_ID AND N.NOTE_TYPE_CODE='EXPLANATORY' AND N.LANGUAGE_CODE='en') DESCRIPTION_EN, "
+                + "(SELECT N.NOTE_TEXT FROM " + notes + " N WHERE N.ISIC_ACTIVITY_ID=A.ISIC_ACTIVITY_ID AND N.NOTE_TYPE_CODE='INCLUDES' AND N.LANGUAGE_CODE='fa') INCLUSIONS_FA, "
+                + "(SELECT N.NOTE_TEXT FROM " + notes + " N WHERE N.ISIC_ACTIVITY_ID=A.ISIC_ACTIVITY_ID AND N.NOTE_TYPE_CODE='INCLUDES' AND N.LANGUAGE_CODE='en') INCLUSIONS_EN, "
+                + "(SELECT N.NOTE_TEXT FROM " + notes + " N WHERE N.ISIC_ACTIVITY_ID=A.ISIC_ACTIVITY_ID AND N.NOTE_TYPE_CODE='ALSO_INCLUDES' AND N.LANGUAGE_CODE='fa') ALSO_INCLUSIONS_FA, "
+                + "(SELECT N.NOTE_TEXT FROM " + notes + " N WHERE N.ISIC_ACTIVITY_ID=A.ISIC_ACTIVITY_ID AND N.NOTE_TYPE_CODE='ALSO_INCLUDES' AND N.LANGUAGE_CODE='en') ALSO_INCLUSIONS_EN, "
+                + "(SELECT N.NOTE_TEXT FROM " + notes + " N WHERE N.ISIC_ACTIVITY_ID=A.ISIC_ACTIVITY_ID AND N.NOTE_TYPE_CODE='EXCLUDES' AND N.LANGUAGE_CODE='fa') EXCLUSIONS_FA, "
+                + "(SELECT N.NOTE_TEXT FROM " + notes + " N WHERE N.ISIC_ACTIVITY_ID=A.ISIC_ACTIVITY_ID AND N.NOTE_TYPE_CODE='EXCLUDES' AND N.LANGUAGE_CODE='en') EXCLUSIONS_EN "
+                + "FROM " + table("REF_ISIC_ACTIVITY2") + " A LEFT JOIN " + table("REF_ISIC_ACTIVITY2")
+                + " P ON P.ISIC_ACTIVITY_ID=A.PARENT_ACTIVITY_ID";
     }
 
     public long insertActivity(ActivityRequest r, String actor) {
         String sql = """
                 INSERT INTO %s (ISIC_RELEASE_ID, PARENT_ACTIVITY_ID, ISIC_CODE, LEVEL_CODE, LEVEL_NO,
-                    NAME_FA, NAME_EN, DESCRIPTION_FA, DESCRIPTION_EN, INCLUSIONS_FA, INCLUSIONS_EN, EXCLUSIONS_FA, EXCLUSIONS_EN,
-                    TRANSLATION_STATUS_CODE, IS_SELECTABLE, IS_ACTIVE, SORT_ORDER, VALID_FROM, VALID_TO,
+                    NAME_FA, NAME_EN, TRANSLATION_STATUS_CODE, IS_SELECTABLE, IS_ACTIVE, SORT_ORDER, VALID_FROM, VALID_TO,
                     RECORD_VERSION, CREATED_BY, CREATED_DATE)
                 VALUES (:releaseId, :parentActivityId, :code, :levelCode, :levelNo,
-                    :nameFa, :nameEn, :descriptionFa, :descriptionEn, :inclusionsFa, :inclusionsEn, :exclusionsFa, :exclusionsEn,
-                    :translationStatusCode, :selectableFlag, :activeFlag, :sortOrder, :validFrom, :validTo,
+                    :nameFa, :nameEn, :translationStatusCode, :selectableFlag, :activeFlag, :sortOrder, :validFrom, :validTo,
                     1, :actor, SYSTIMESTAMP)
                 """.formatted(table("REF_ISIC_ACTIVITY2"));
         jdbc.sql(sql).params(activityParams(r, actor, false)).update();
-        return jdbc.sql("SELECT ISIC_ACTIVITY_ID FROM " + table("REF_ISIC_ACTIVITY2") + " WHERE ISIC_RELEASE_ID=:releaseId AND ISIC_CODE=:code")
+        long id = jdbc.sql("SELECT ISIC_ACTIVITY_ID FROM " + table("REF_ISIC_ACTIVITY2") + " WHERE ISIC_RELEASE_ID=:releaseId AND ISIC_CODE=:code")
                 .param("releaseId", r.isicReleaseId()).param("code", r.isicCode()).query(Long.class).single();
+        syncActivityNotes(id, r, actor);
+        return id;
     }
 
     public boolean updateActivity(long id, ActivityRequest r, String actor) {
         String sql = """
                 UPDATE %s SET ISIC_RELEASE_ID=:releaseId, PARENT_ACTIVITY_ID=:parentActivityId, ISIC_CODE=:code,
                     LEVEL_CODE=:levelCode, LEVEL_NO=:levelNo, NAME_FA=:nameFa, NAME_EN=:nameEn,
-                    DESCRIPTION_FA=:descriptionFa, DESCRIPTION_EN=:descriptionEn, INCLUSIONS_FA=:inclusionsFa, INCLUSIONS_EN=:inclusionsEn,
-                    EXCLUSIONS_FA=:exclusionsFa, EXCLUSIONS_EN=:exclusionsEn, TRANSLATION_STATUS_CODE=:translationStatusCode,
-                    IS_SELECTABLE=:selectableFlag, IS_ACTIVE=:activeFlag, SORT_ORDER=:sortOrder, VALID_FROM=:validFrom, VALID_TO=:validTo,
+                    TRANSLATION_STATUS_CODE=:translationStatusCode, IS_SELECTABLE=:selectableFlag, IS_ACTIVE=:activeFlag,
+                    SORT_ORDER=:sortOrder, VALID_FROM=:validFrom, VALID_TO=:validTo,
                     RECORD_VERSION=RECORD_VERSION+1, LAST_MODIFIED_BY=:actor, LAST_MODIFIED_DATE=SYSTIMESTAMP
                 WHERE ISIC_ACTIVITY_ID=:id AND RECORD_VERSION=:recordVersion
                 """.formatted(table("REF_ISIC_ACTIVITY2"));
         Map<String, Object> params = activityParams(r, actor, true);
         params.put("id", id);
-        return jdbc.sql(sql).params(params).update() == 1;
+        boolean updated = jdbc.sql(sql).params(params).update() == 1;
+        if (updated) syncActivityNotes(id, r, actor);
+        return updated;
     }
 
     public boolean deleteActivity(long id) {
@@ -285,12 +298,6 @@ public class IsicRepository {
         p.put("levelNo", r.levelNo());
         p.put("nameFa", r.nameFa());
         p.put("nameEn", r.nameEn());
-        p.put("descriptionFa", r.descriptionFa());
-        p.put("descriptionEn", r.descriptionEn());
-        p.put("inclusionsFa", r.inclusionsFa());
-        p.put("inclusionsEn", r.inclusionsEn());
-        p.put("exclusionsFa", r.exclusionsFa());
-        p.put("exclusionsEn", r.exclusionsEn());
         p.put("translationStatusCode", r.translationStatusCode());
         p.put("selectableFlag", Boolean.TRUE.equals(r.selectable()) ? 1 : 0);
         p.put("activeFlag", Boolean.TRUE.equals(r.active()) ? 1 : 0);
@@ -330,12 +337,44 @@ public class IsicRepository {
                 rs.getString("ISIC_CODE"), rs.getString("LEVEL_CODE"), rs.getInt("LEVEL_NO"),
                 rs.getString("NAME_FA"), rs.getString("NAME_EN"),
                 clob(rs, "DESCRIPTION_FA"), clob(rs, "DESCRIPTION_EN"), clob(rs, "INCLUSIONS_FA"), clob(rs, "INCLUSIONS_EN"),
-                clob(rs, "EXCLUSIONS_FA"), clob(rs, "EXCLUSIONS_EN"), rs.getString("TRANSLATION_STATUS_CODE"),
-                rs.getInt("IS_SELECTABLE") == 1, rs.getInt("IS_ACTIVE") == 1,
+                clob(rs, "ALSO_INCLUSIONS_FA"), clob(rs, "ALSO_INCLUSIONS_EN"), clob(rs, "EXCLUSIONS_FA"), clob(rs, "EXCLUSIONS_EN"),
+                rs.getString("TRANSLATION_STATUS_CODE"), rs.getInt("IS_SELECTABLE") == 1, rs.getInt("IS_ACTIVE") == 1,
                 localDate(rs.getDate("VALID_FROM")), localDate(rs.getDate("VALID_TO")), rs.getInt("SORT_ORDER"), rs.getInt("RECORD_VERSION"),
                 rs.getString("CREATED_BY"), localDateTime(rs.getTimestamp("CREATED_DATE")), rs.getString("LAST_MODIFIED_BY"),
                 localDateTime(rs.getTimestamp("LAST_MODIFIED_DATE"))
         );
+    }
+
+    private void syncActivityNotes(long activityId, ActivityRequest r, String actor) {
+        syncNote(activityId, "EXPLANATORY", "fa", r.descriptionFa(), 10, actor);
+        syncNote(activityId, "EXPLANATORY", "en", r.descriptionEn(), 20, actor);
+        syncNote(activityId, "INCLUDES", "fa", r.inclusionsFa(), 30, actor);
+        syncNote(activityId, "INCLUDES", "en", r.inclusionsEn(), 40, actor);
+        syncNote(activityId, "ALSO_INCLUDES", "fa", r.alsoInclusionsFa(), 50, actor);
+        syncNote(activityId, "ALSO_INCLUDES", "en", r.alsoInclusionsEn(), 60, actor);
+        syncNote(activityId, "EXCLUDES", "fa", r.exclusionsFa(), 70, actor);
+        syncNote(activityId, "EXCLUDES", "en", r.exclusionsEn(), 80, actor);
+    }
+
+    private void syncNote(long activityId, String type, String language, String text, int sortOrder, String actor) {
+        String value = text == null ? null : text.trim();
+        if (value == null || value.isEmpty()) {
+            jdbc.sql("DELETE FROM " + table("REF_ISIC_ACTIVITY_NOTE")
+                    + " WHERE ISIC_ACTIVITY_ID=:id AND NOTE_TYPE_CODE=:type AND LANGUAGE_CODE=:lang")
+                    .param("id", activityId).param("type", type).param("lang", language).update();
+            return;
+        }
+        String sql = """
+                MERGE INTO %s T
+                USING (SELECT :id ISIC_ACTIVITY_ID, :type NOTE_TYPE_CODE, :lang LANGUAGE_CODE FROM DUAL) S
+                   ON (T.ISIC_ACTIVITY_ID=S.ISIC_ACTIVITY_ID AND T.NOTE_TYPE_CODE=S.NOTE_TYPE_CODE AND T.LANGUAGE_CODE=S.LANGUAGE_CODE)
+                WHEN MATCHED THEN UPDATE SET T.NOTE_TEXT=:text, T.SORT_ORDER=:sortOrder,
+                    T.RECORD_VERSION=T.RECORD_VERSION+1, T.LAST_MODIFIED_BY=:actor, T.LAST_MODIFIED_DATE=SYSTIMESTAMP
+                WHEN NOT MATCHED THEN INSERT (ISIC_ACTIVITY_ID, NOTE_TYPE_CODE, LANGUAGE_CODE, NOTE_TEXT, SORT_ORDER, RECORD_VERSION, CREATED_BY, CREATED_DATE)
+                    VALUES (:id, :type, :lang, :text, :sortOrder, 1, :actor, SYSTIMESTAMP)
+                """.formatted(table("REF_ISIC_ACTIVITY_NOTE"));
+        jdbc.sql(sql).param("id", activityId).param("type", type).param("lang", language)
+                .param("text", value).param("sortOrder", sortOrder).param("actor", actor).update();
     }
 
     private static String clob(ResultSet rs, String column) throws SQLException {
