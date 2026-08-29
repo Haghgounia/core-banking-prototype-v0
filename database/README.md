@@ -37,3 +37,7 @@ database/oracle/
 اسکریپت‌های DDL و Data باید تا حد ممکن همان Contract فیزیکی/CSV تحویلی را حفظ کنند. تغییر دستی فقط برای موارد مستند و ضروری انجام شود.
 
 برای CAL2های ایجادشده با FIX54/FIX55، Migration `cal2/migrations/0.3.45-fix56-event-recurrence-rule.sql` جدول قواعد مناسبت و provenance رخدادها را اضافه می‌کند.
+
+### ISIC2 نسخه‌محور
+
+بسته `database/oracle/cif/isic2` مدل مستقل ISIC را با `REF_ISIC_RELEASE` و `REF_ISIC_ACTIVITY2` نگهداری می‌کند. در FIX73 عنوان فارسی/انگلیسی فعالیت اجباری و Seed UNSD Rev.4 شامل 766 عنوان دو‌زبانه است. برای نصب Prototype فایل Standalone `CIF_ISIC2_FULL_INSTALL.sql` قابل اجرا است.

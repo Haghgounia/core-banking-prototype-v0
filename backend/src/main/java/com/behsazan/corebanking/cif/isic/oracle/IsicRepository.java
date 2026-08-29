@@ -30,8 +30,12 @@ import java.util.regex.Pattern;
 @Repository
 public class IsicRepository {
     private static final Pattern SQL_NAME = Pattern.compile("^[A-Z][A-Z0-9_$#]*$");
-    private static final Set<String> RELEASE_SORTS = Set.of("ISIC_RELEASE_ID", "REVISION_CODE", "VARIANT_CODE", "NAME_FA", "NAME_EN", "DATASET_STATUS_CODE", "IS_ACTIVE");
-    private static final Set<String> ACTIVITY_SORTS = Set.of("ISIC_CODE", "LEVEL_CODE", "SECTION_CODE", "NAME_FA", "NAME_EN", "TRANSLATION_STATUS", "IS_SELECTABLE", "IS_ACTIVE", "SORT_ORDER");
+    private static final Set<String> RELEASE_SORTS = Set.of(
+            "ISIC_RELEASE_ID", "REVISION_CODE", "VARIANT_CODE", "NAME_FA", "NAME_EN", "DATASET_STATUS_CODE", "IS_ACTIVE"
+    );
+    private static final Set<String> ACTIVITY_SORTS = Set.of(
+            "ISIC_CODE", "LEVEL_CODE", "LEVEL_NO", "NAME_FA", "NAME_EN", "TRANSLATION_STATUS_CODE", "IS_SELECTABLE", "IS_ACTIVE", "SORT_ORDER"
+    );
 
     private final JdbcClient jdbc;
     private final String schema;
@@ -49,28 +53,32 @@ public class IsicRepository {
         List<String> where = new ArrayList<>();
         Map<String, Object> params = new LinkedHashMap<>();
         if (text != null && !text.isBlank()) {
-            where.add("(UPPER(CLASSIFICATION_CODE) LIKE :text OR UPPER(REVISION_CODE) LIKE :text OR UPPER(VARIANT_CODE) LIKE :text OR UPPER(NAME_FA) LIKE :text OR UPPER(NAME_EN) LIKE :text OR UPPER(SOURCE_AUTHORITY) LIKE :text)");
+            where.add("(UPPER(CLASSIFICATION_CODE) LIKE :text OR UPPER(REVISION_CODE) LIKE :text OR UPPER(VARIANT_CODE) LIKE :text "
+                    + "OR UPPER(NAME_FA) LIKE :text OR UPPER(NAME_EN) LIKE :text OR UPPER(SOURCE_AUTHORITY) LIKE :text)");
             params.put("text", "%" + text.trim().toUpperCase() + "%");
         }
         if (active != null) {
-            where.add("IS_ACTIVE = :active");
+            where.add("IS_ACTIVE=:active");
             params.put("active", active ? 1 : 0);
         }
         String whereSql = where.isEmpty() ? "" : " WHERE " + String.join(" AND ", where);
-        long total = jdbc.sql("SELECT COUNT(*) FROM " + table("REF_ISIC_RELEASE") + whereSql).params(params).query(Long.class).single();
+        long total = jdbc.sql("SELECT COUNT(*) FROM " + table("REF_ISIC_RELEASE") + whereSql)
+                .params(params).query(Long.class).single();
         String order = RELEASE_SORTS.contains(normalizeSort(sortBy)) ? normalizeSort(sortBy) : "ISIC_RELEASE_ID";
         String dir = "desc".equalsIgnoreCase(direction) ? "DESC" : "ASC";
         Map<String, Object> pageParams = new LinkedHashMap<>(params);
         pageParams.put("offset", safePage * safeSize);
         pageParams.put("size", safeSize);
-        String sql = "SELECT * FROM " + table("REF_ISIC_RELEASE") + whereSql + " ORDER BY " + order + " " + dir + " OFFSET :offset ROWS FETCH NEXT :size ROWS ONLY";
+        String sql = "SELECT * FROM " + table("REF_ISIC_RELEASE") + whereSql
+                + " ORDER BY " + order + " " + dir + " OFFSET :offset ROWS FETCH NEXT :size ROWS ONLY";
         List<ReleaseRow> rows = jdbc.sql(sql).params(pageParams).query((rs, n) -> mapRelease(rs)).list();
         return new PageResponse<>(rows, total, safePage, safeSize);
     }
 
     public List<ReleaseLookup> releaseLookup(boolean includeInactive) {
-        String sql = "SELECT ISIC_RELEASE_ID, REVISION_CODE, VARIANT_CODE, NVL(NAME_FA, NAME_EN) DISPLAY_NAME, IS_ACTIVE, DATASET_STATUS_CODE FROM " + table("REF_ISIC_RELEASE")
-                + (includeInactive ? "" : " WHERE IS_ACTIVE=1") + " ORDER BY CLASSIFICATION_CODE, REVISION_CODE, VARIANT_CODE";
+        String sql = "SELECT ISIC_RELEASE_ID, REVISION_CODE, VARIANT_CODE, NAME_FA DISPLAY_NAME, IS_ACTIVE, DATASET_STATUS_CODE FROM "
+                + table("REF_ISIC_RELEASE") + (includeInactive ? "" : " WHERE IS_ACTIVE=1")
+                + " ORDER BY IS_CURRENT DESC, IS_ACTIVE DESC, CLASSIFICATION_CODE, REVISION_CODE, VARIANT_CODE";
         return jdbc.sql(sql).query((rs, n) -> new ReleaseLookup(
                 rs.getLong("ISIC_RELEASE_ID"),
                 "ISIC Rev." + rs.getString("REVISION_CODE") + " / " + rs.getString("VARIANT_CODE"),
@@ -95,8 +103,9 @@ public class IsicRepository {
                     :validFrom, :validTo, 1, :actor, SYSTIMESTAMP)
                 """.formatted(table("REF_ISIC_RELEASE"));
         jdbc.sql(sql).params(releaseParams(r, actor, false)).update();
-        return jdbc.sql("SELECT ISIC_RELEASE_ID FROM " + table("REF_ISIC_RELEASE") + " WHERE CLASSIFICATION_CODE=:c AND REVISION_CODE=:r AND VARIANT_CODE=:v")
-                .param("c", r.classificationCode()).param("r", r.revisionCode()).param("v", r.variantCode())
+        return jdbc.sql("SELECT ISIC_RELEASE_ID FROM " + table("REF_ISIC_RELEASE")
+                        + " WHERE CLASSIFICATION_CODE=:c AND REVISION_CODE=:r AND VARIANT_CODE=:v AND NVL(COUNTRY_CODE,'~')=NVL(:country,'~')")
+                .param("c", r.classificationCode()).param("r", r.revisionCode()).param("v", r.variantCode()).param("country", r.countryCode())
                 .query(Long.class).single();
     }
 
@@ -115,65 +124,89 @@ public class IsicRepository {
     }
 
     public boolean deleteRelease(long id) {
-        return jdbc.sql("DELETE FROM " + table("REF_ISIC_RELEASE") + " WHERE ISIC_RELEASE_ID=:id").param("id", id).update() == 1;
+        return jdbc.sql("DELETE FROM " + table("REF_ISIC_RELEASE") + " WHERE ISIC_RELEASE_ID=:id")
+                .param("id", id).update() == 1;
     }
 
     public boolean releaseExists(long id) {
-        return jdbc.sql("SELECT COUNT(*) FROM " + table("REF_ISIC_RELEASE") + " WHERE ISIC_RELEASE_ID=:id").param("id", id).query(Long.class).single() > 0;
+        return jdbc.sql("SELECT COUNT(*) FROM " + table("REF_ISIC_RELEASE") + " WHERE ISIC_RELEASE_ID=:id")
+                .param("id", id).query(Long.class).single() > 0;
     }
 
-    public PageResponse<ActivityRow> searchActivities(Long releaseId, String parentCode, String levelCode, String text, Boolean active, Boolean selectable,
-                                                      int page, int size, String sortBy, String direction) {
+    public PageResponse<ActivityRow> searchActivities(Long releaseId, Long parentActivityId, String levelCode, String text,
+                                                      Boolean active, Boolean selectable, int page, int size, String sortBy, String direction) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 500);
         List<String> where = new ArrayList<>();
         Map<String, Object> params = new LinkedHashMap<>();
-        if (releaseId != null) { where.add("A.ISIC_RELEASE_ID=:releaseId"); params.put("releaseId", releaseId); }
-        if (parentCode != null) {
-            if (parentCode.isBlank()) where.add("A.PARENT_ISIC_CODE IS NULL");
-            else { where.add("A.PARENT_ISIC_CODE=:parentCode"); params.put("parentCode", parentCode.trim()); }
+        if (releaseId != null) {
+            where.add("A.ISIC_RELEASE_ID=:releaseId");
+            params.put("releaseId", releaseId);
         }
-        if (levelCode != null && !levelCode.isBlank()) { where.add("A.LEVEL_CODE=:levelCode"); params.put("levelCode", levelCode.trim().toUpperCase()); }
-        if (active != null) { where.add("A.IS_ACTIVE=:active"); params.put("active", active ? 1 : 0); }
-        if (selectable != null) { where.add("A.IS_SELECTABLE=:selectable"); params.put("selectable", selectable ? 1 : 0); }
+        if (parentActivityId != null) {
+            if (parentActivityId == 0L) where.add("A.PARENT_ACTIVITY_ID IS NULL");
+            else {
+                where.add("A.PARENT_ACTIVITY_ID=:parentActivityId");
+                params.put("parentActivityId", parentActivityId);
+            }
+        }
+        if (levelCode != null && !levelCode.isBlank()) {
+            where.add("A.LEVEL_CODE=:levelCode");
+            params.put("levelCode", levelCode.trim().toUpperCase());
+        }
+        if (active != null) {
+            where.add("A.IS_ACTIVE=:active");
+            params.put("active", active ? 1 : 0);
+        }
+        if (selectable != null) {
+            where.add("A.IS_SELECTABLE=:selectable");
+            params.put("selectable", selectable ? 1 : 0);
+        }
         if (text != null && !text.isBlank()) {
             where.add("(UPPER(A.ISIC_CODE) LIKE :text OR UPPER(A.NAME_FA) LIKE :text OR UPPER(A.NAME_EN) LIKE :text)");
             params.put("text", "%" + text.trim().toUpperCase() + "%");
         }
-        String from = " FROM " + table("REF_ISIC_ACTIVITY2") + " A JOIN " + table("REF_ISIC_RELEASE") + " R ON R.ISIC_RELEASE_ID=A.ISIC_RELEASE_ID";
+
+        String from = " FROM " + table("REF_ISIC_ACTIVITY2") + " A"
+                + " JOIN " + table("REF_ISIC_RELEASE") + " R ON R.ISIC_RELEASE_ID=A.ISIC_RELEASE_ID"
+                + " LEFT JOIN " + table("REF_ISIC_ACTIVITY2") + " P ON P.ISIC_ACTIVITY_ID=A.PARENT_ACTIVITY_ID";
         String whereSql = where.isEmpty() ? "" : " WHERE " + String.join(" AND ", where);
         long total = jdbc.sql("SELECT COUNT(*)" + from + whereSql).params(params).query(Long.class).single();
+
         String order = ACTIVITY_SORTS.contains(normalizeSort(sortBy)) ? normalizeSort(sortBy) : "SORT_ORDER";
         String dir = "desc".equalsIgnoreCase(direction) ? "DESC" : "ASC";
         Map<String, Object> pageParams = new LinkedHashMap<>(params);
         pageParams.put("offset", safePage * safeSize);
         pageParams.put("size", safeSize);
-        String sql = "SELECT A.*, NVL(R.NAME_FA,R.NAME_EN) RELEASE_LABEL, NVL(A.NAME_FA,A.NAME_EN) DISPLAY_NAME, "
-                + "CASE WHEN EXISTS (SELECT 1 FROM " + table("REF_ISIC_ACTIVITY2") + " C WHERE C.ISIC_RELEASE_ID=A.ISIC_RELEASE_ID AND C.PARENT_ISIC_CODE=A.ISIC_CODE) THEN 1 ELSE 0 END HAS_CHILDREN"
+        String sql = "SELECT A.*, R.NAME_FA RELEASE_LABEL, P.ISIC_CODE PARENT_ISIC_CODE, A.NAME_FA DISPLAY_NAME, "
+                + "CASE WHEN EXISTS (SELECT 1 FROM " + table("REF_ISIC_ACTIVITY2") + " C WHERE C.PARENT_ACTIVITY_ID=A.ISIC_ACTIVITY_ID) THEN 1 ELSE 0 END HAS_CHILDREN"
                 + from + whereSql + " ORDER BY A." + order + " " + dir + " OFFSET :offset ROWS FETCH NEXT :size ROWS ONLY";
         List<ActivityRow> rows = jdbc.sql(sql).params(pageParams).query((rs, n) -> mapActivityRow(rs)).list();
         return new PageResponse<>(rows, total, safePage, safeSize);
     }
 
     public Optional<ActivityDetail> findActivity(long id) {
-        return jdbc.sql("SELECT * FROM " + table("REF_ISIC_ACTIVITY2") + " WHERE ISIC_ACTIVITY_ID=:id")
-                .param("id", id).query((rs, n) -> mapActivityDetail(rs)).optional();
+        String sql = "SELECT A.*, P.ISIC_CODE PARENT_ISIC_CODE FROM " + table("REF_ISIC_ACTIVITY2") + " A LEFT JOIN "
+                + table("REF_ISIC_ACTIVITY2") + " P ON P.ISIC_ACTIVITY_ID=A.PARENT_ACTIVITY_ID WHERE A.ISIC_ACTIVITY_ID=:id";
+        return jdbc.sql(sql).param("id", id).query((rs, n) -> mapActivityDetail(rs)).optional();
     }
 
-    public Optional<ActivityDetail> findActivity(long releaseId, String code) {
-        return jdbc.sql("SELECT * FROM " + table("REF_ISIC_ACTIVITY2") + " WHERE ISIC_RELEASE_ID=:releaseId AND ISIC_CODE=:code")
-                .param("releaseId", releaseId).param("code", code).query((rs, n) -> mapActivityDetail(rs)).optional();
+    public Optional<ActivityDetail> findActivityInRelease(long releaseId, long id) {
+        String sql = "SELECT A.*, P.ISIC_CODE PARENT_ISIC_CODE FROM " + table("REF_ISIC_ACTIVITY2") + " A LEFT JOIN "
+                + table("REF_ISIC_ACTIVITY2") + " P ON P.ISIC_ACTIVITY_ID=A.PARENT_ACTIVITY_ID "
+                + "WHERE A.ISIC_RELEASE_ID=:releaseId AND A.ISIC_ACTIVITY_ID=:id";
+        return jdbc.sql(sql).param("releaseId", releaseId).param("id", id).query((rs, n) -> mapActivityDetail(rs)).optional();
     }
 
     public long insertActivity(ActivityRequest r, String actor) {
         String sql = """
-                INSERT INTO %s (ISIC_RELEASE_ID, ISIC_CODE, BASE_ISIC_CODE, LEVEL_CODE, PARENT_ISIC_CODE, SECTION_CODE,
+                INSERT INTO %s (ISIC_RELEASE_ID, PARENT_ACTIVITY_ID, ISIC_CODE, LEVEL_CODE, LEVEL_NO,
                     NAME_FA, NAME_EN, DESCRIPTION_FA, DESCRIPTION_EN, INCLUSIONS_FA, INCLUSIONS_EN, EXCLUSIONS_FA, EXCLUSIONS_EN,
-                    TRANSLATION_STATUS, IS_SELECTABLE, IS_ACTIVE, VALID_FROM, VALID_TO, SORT_ORDER,
+                    TRANSLATION_STATUS_CODE, IS_SELECTABLE, IS_ACTIVE, SORT_ORDER, VALID_FROM, VALID_TO,
                     RECORD_VERSION, CREATED_BY, CREATED_DATE)
-                VALUES (:releaseId, :code, :baseCode, :levelCode, :parentCode, :sectionCode,
+                VALUES (:releaseId, :parentActivityId, :code, :levelCode, :levelNo,
                     :nameFa, :nameEn, :descriptionFa, :descriptionEn, :inclusionsFa, :inclusionsEn, :exclusionsFa, :exclusionsEn,
-                    :translationStatus, :selectableFlag, :activeFlag, :validFrom, :validTo, :sortOrder,
+                    :translationStatusCode, :selectableFlag, :activeFlag, :sortOrder, :validFrom, :validTo,
                     1, :actor, SYSTIMESTAMP)
                 """.formatted(table("REF_ISIC_ACTIVITY2"));
         jdbc.sql(sql).params(activityParams(r, actor, false)).update();
@@ -183,11 +216,11 @@ public class IsicRepository {
 
     public boolean updateActivity(long id, ActivityRequest r, String actor) {
         String sql = """
-                UPDATE %s SET ISIC_RELEASE_ID=:releaseId, ISIC_CODE=:code, BASE_ISIC_CODE=:baseCode, LEVEL_CODE=:levelCode,
-                    PARENT_ISIC_CODE=:parentCode, SECTION_CODE=:sectionCode, NAME_FA=:nameFa, NAME_EN=:nameEn,
+                UPDATE %s SET ISIC_RELEASE_ID=:releaseId, PARENT_ACTIVITY_ID=:parentActivityId, ISIC_CODE=:code,
+                    LEVEL_CODE=:levelCode, LEVEL_NO=:levelNo, NAME_FA=:nameFa, NAME_EN=:nameEn,
                     DESCRIPTION_FA=:descriptionFa, DESCRIPTION_EN=:descriptionEn, INCLUSIONS_FA=:inclusionsFa, INCLUSIONS_EN=:inclusionsEn,
-                    EXCLUSIONS_FA=:exclusionsFa, EXCLUSIONS_EN=:exclusionsEn, TRANSLATION_STATUS=:translationStatus,
-                    IS_SELECTABLE=:selectableFlag, IS_ACTIVE=:activeFlag, VALID_FROM=:validFrom, VALID_TO=:validTo, SORT_ORDER=:sortOrder,
+                    EXCLUSIONS_FA=:exclusionsFa, EXCLUSIONS_EN=:exclusionsEn, TRANSLATION_STATUS_CODE=:translationStatusCode,
+                    IS_SELECTABLE=:selectableFlag, IS_ACTIVE=:activeFlag, SORT_ORDER=:sortOrder, VALID_FROM=:validFrom, VALID_TO=:validTo,
                     RECORD_VERSION=RECORD_VERSION+1, LAST_MODIFIED_BY=:actor, LAST_MODIFIED_DATE=SYSTIMESTAMP
                 WHERE ISIC_ACTIVITY_ID=:id AND RECORD_VERSION=:recordVersion
                 """.formatted(table("REF_ISIC_ACTIVITY2"));
@@ -197,78 +230,122 @@ public class IsicRepository {
     }
 
     public boolean deleteActivity(long id) {
-        return jdbc.sql("DELETE FROM " + table("REF_ISIC_ACTIVITY2") + " WHERE ISIC_ACTIVITY_ID=:id").param("id", id).update() == 1;
+        return jdbc.sql("DELETE FROM " + table("REF_ISIC_ACTIVITY2") + " WHERE ISIC_ACTIVITY_ID=:id")
+                .param("id", id).update() == 1;
     }
 
     public List<ActivityLookup> activityLookup(long releaseId, String text, boolean selectableOnly, int limit) {
         List<String> where = new ArrayList<>();
         Map<String, Object> params = new LinkedHashMap<>();
-        where.add("ISIC_RELEASE_ID=:releaseId");
+        where.add("A.ISIC_RELEASE_ID=:releaseId");
         params.put("releaseId", releaseId);
-        where.add("IS_ACTIVE=1");
-        if (selectableOnly) where.add("IS_SELECTABLE=1");
+        where.add("A.IS_ACTIVE=1");
+        if (selectableOnly) where.add("A.IS_SELECTABLE=1");
         if (text != null && !text.isBlank()) {
-            where.add("(UPPER(ISIC_CODE) LIKE :text OR UPPER(NAME_FA) LIKE :text OR UPPER(NAME_EN) LIKE :text)");
+            where.add("(UPPER(A.ISIC_CODE) LIKE :text OR UPPER(A.NAME_FA) LIKE :text OR UPPER(A.NAME_EN) LIKE :text)");
             params.put("text", "%" + text.trim().toUpperCase() + "%");
         }
         params.put("limit", Math.min(Math.max(limit, 1), 5000));
-        String sql = "SELECT ISIC_ACTIVITY_ID, ISIC_CODE, NVL(NAME_FA,NAME_EN) DISPLAY_NAME, LEVEL_CODE, PARENT_ISIC_CODE FROM "
-                + table("REF_ISIC_ACTIVITY2") + " WHERE " + String.join(" AND ", where) + " ORDER BY SORT_ORDER, ISIC_CODE FETCH FIRST :limit ROWS ONLY";
+        String sql = "SELECT A.ISIC_ACTIVITY_ID, A.ISIC_CODE, A.NAME_FA DISPLAY_NAME, A.LEVEL_CODE, A.LEVEL_NO, A.PARENT_ACTIVITY_ID FROM "
+                + table("REF_ISIC_ACTIVITY2") + " A WHERE " + String.join(" AND ", where)
+                + " ORDER BY A.SORT_ORDER, A.ISIC_CODE FETCH FIRST :limit ROWS ONLY";
         return jdbc.sql(sql).params(params).query((rs, n) -> new ActivityLookup(
-                rs.getLong("ISIC_ACTIVITY_ID"), rs.getString("ISIC_CODE"), rs.getString("DISPLAY_NAME"), rs.getString("LEVEL_CODE"), rs.getString("PARENT_ISIC_CODE")
+                rs.getLong("ISIC_ACTIVITY_ID"), rs.getString("ISIC_CODE"), rs.getString("DISPLAY_NAME"),
+                rs.getString("LEVEL_CODE"), rs.getInt("LEVEL_NO"), nullableLong(rs, "PARENT_ACTIVITY_ID")
         )).list();
     }
 
     private Map<String, Object> releaseParams(ReleaseRequest r, String actor, boolean update) {
         Map<String, Object> p = new LinkedHashMap<>();
-        p.put("classificationCode", r.classificationCode()); p.put("revisionCode", r.revisionCode()); p.put("variantCode", r.variantCode());
-        p.put("countryCode", r.countryCode()); p.put("nameFa", r.nameFa()); p.put("nameEn", r.nameEn()); p.put("sourceAuthority", r.sourceAuthority());
-        p.put("sourceUri", r.sourceUri()); p.put("publicationDate", sqlDate(r.publicationDate())); p.put("datasetStatusCode", r.datasetStatusCode());
-        p.put("currentFlag", Boolean.TRUE.equals(r.current()) ? 1 : 0); p.put("activeFlag", Boolean.TRUE.equals(r.active()) ? 1 : 0);
-        p.put("validFrom", sqlDate(r.validFrom())); p.put("validTo", sqlDate(r.validTo())); p.put("actor", actor);
+        p.put("classificationCode", r.classificationCode());
+        p.put("revisionCode", r.revisionCode());
+        p.put("variantCode", r.variantCode());
+        p.put("countryCode", r.countryCode());
+        p.put("nameFa", r.nameFa());
+        p.put("nameEn", r.nameEn());
+        p.put("sourceAuthority", r.sourceAuthority());
+        p.put("sourceUri", r.sourceUri());
+        p.put("publicationDate", sqlDate(r.publicationDate()));
+        p.put("datasetStatusCode", r.datasetStatusCode());
+        p.put("currentFlag", Boolean.TRUE.equals(r.current()) ? 1 : 0);
+        p.put("activeFlag", Boolean.TRUE.equals(r.active()) ? 1 : 0);
+        p.put("validFrom", sqlDate(r.validFrom()));
+        p.put("validTo", sqlDate(r.validTo()));
+        p.put("actor", actor);
         if (update) p.put("recordVersion", r.recordVersion());
         return p;
     }
 
     private Map<String, Object> activityParams(ActivityRequest r, String actor, boolean update) {
         Map<String, Object> p = new LinkedHashMap<>();
-        p.put("releaseId", r.isicReleaseId()); p.put("code", r.isicCode()); p.put("baseCode", r.baseIsicCode()); p.put("levelCode", r.levelCode());
-        p.put("parentCode", r.parentIsicCode()); p.put("sectionCode", r.sectionCode()); p.put("nameFa", r.nameFa()); p.put("nameEn", r.nameEn());
-        p.put("descriptionFa", r.descriptionFa()); p.put("descriptionEn", r.descriptionEn()); p.put("inclusionsFa", r.inclusionsFa());
-        p.put("inclusionsEn", r.inclusionsEn()); p.put("exclusionsFa", r.exclusionsFa()); p.put("exclusionsEn", r.exclusionsEn());
-        p.put("translationStatus", r.translationStatus()); p.put("selectableFlag", Boolean.TRUE.equals(r.selectable()) ? 1 : 0);
-        p.put("activeFlag", Boolean.TRUE.equals(r.active()) ? 1 : 0); p.put("validFrom", sqlDate(r.validFrom())); p.put("validTo", sqlDate(r.validTo()));
-        p.put("sortOrder", r.sortOrder()); p.put("actor", actor); if (update) p.put("recordVersion", r.recordVersion());
+        p.put("releaseId", r.isicReleaseId());
+        p.put("parentActivityId", r.parentActivityId());
+        p.put("code", r.isicCode());
+        p.put("levelCode", r.levelCode());
+        p.put("levelNo", r.levelNo());
+        p.put("nameFa", r.nameFa());
+        p.put("nameEn", r.nameEn());
+        p.put("descriptionFa", r.descriptionFa());
+        p.put("descriptionEn", r.descriptionEn());
+        p.put("inclusionsFa", r.inclusionsFa());
+        p.put("inclusionsEn", r.inclusionsEn());
+        p.put("exclusionsFa", r.exclusionsFa());
+        p.put("exclusionsEn", r.exclusionsEn());
+        p.put("translationStatusCode", r.translationStatusCode());
+        p.put("selectableFlag", Boolean.TRUE.equals(r.selectable()) ? 1 : 0);
+        p.put("activeFlag", Boolean.TRUE.equals(r.active()) ? 1 : 0);
+        p.put("sortOrder", r.sortOrder());
+        p.put("validFrom", sqlDate(r.validFrom()));
+        p.put("validTo", sqlDate(r.validTo()));
+        p.put("actor", actor);
+        if (update) p.put("recordVersion", r.recordVersion());
         return p;
     }
 
     private ReleaseRow mapRelease(ResultSet rs) throws SQLException {
-        return new ReleaseRow(rs.getLong("ISIC_RELEASE_ID"), rs.getString("CLASSIFICATION_CODE"), rs.getString("REVISION_CODE"), rs.getString("VARIANT_CODE"),
+        return new ReleaseRow(
+                rs.getLong("ISIC_RELEASE_ID"), rs.getString("CLASSIFICATION_CODE"), rs.getString("REVISION_CODE"), rs.getString("VARIANT_CODE"),
                 rs.getString("COUNTRY_CODE"), rs.getString("NAME_FA"), rs.getString("NAME_EN"), rs.getString("SOURCE_AUTHORITY"), rs.getString("SOURCE_URI"),
                 localDate(rs.getDate("PUBLICATION_DATE")), rs.getString("DATASET_STATUS_CODE"), rs.getInt("IS_CURRENT") == 1, rs.getInt("IS_ACTIVE") == 1,
                 localDate(rs.getDate("VALID_FROM")), localDate(rs.getDate("VALID_TO")), rs.getInt("RECORD_VERSION"), rs.getString("CREATED_BY"),
-                localDateTime(rs.getTimestamp("CREATED_DATE")), rs.getString("LAST_MODIFIED_BY"), localDateTime(rs.getTimestamp("LAST_MODIFIED_DATE")));
+                localDateTime(rs.getTimestamp("CREATED_DATE")), rs.getString("LAST_MODIFIED_BY"), localDateTime(rs.getTimestamp("LAST_MODIFIED_DATE"))
+        );
     }
 
     private ActivityRow mapActivityRow(ResultSet rs) throws SQLException {
-        return new ActivityRow(rs.getLong("ISIC_ACTIVITY_ID"), rs.getLong("ISIC_RELEASE_ID"), rs.getString("RELEASE_LABEL"), rs.getString("ISIC_CODE"),
-                rs.getString("BASE_ISIC_CODE"), rs.getString("LEVEL_CODE"), rs.getString("PARENT_ISIC_CODE"), rs.getString("SECTION_CODE"), rs.getString("NAME_FA"),
-                rs.getString("NAME_EN"), rs.getString("DISPLAY_NAME"), rs.getString("TRANSLATION_STATUS"), rs.getInt("IS_SELECTABLE") == 1, rs.getInt("IS_ACTIVE") == 1,
-                localDate(rs.getDate("VALID_FROM")), localDate(rs.getDate("VALID_TO")), rs.getInt("SORT_ORDER"), rs.getInt("RECORD_VERSION"), rs.getInt("HAS_CHILDREN") == 1);
+        return new ActivityRow(
+                rs.getLong("ISIC_ACTIVITY_ID"), rs.getLong("ISIC_RELEASE_ID"), rs.getString("RELEASE_LABEL"),
+                nullableLong(rs, "PARENT_ACTIVITY_ID"), rs.getString("PARENT_ISIC_CODE"),
+                rs.getString("ISIC_CODE"), rs.getString("LEVEL_CODE"), rs.getInt("LEVEL_NO"),
+                rs.getString("NAME_FA"), rs.getString("NAME_EN"), rs.getString("DISPLAY_NAME"), rs.getString("TRANSLATION_STATUS_CODE"),
+                rs.getInt("IS_SELECTABLE") == 1, rs.getInt("IS_ACTIVE") == 1,
+                localDate(rs.getDate("VALID_FROM")), localDate(rs.getDate("VALID_TO")), rs.getInt("SORT_ORDER"), rs.getInt("RECORD_VERSION"),
+                rs.getInt("HAS_CHILDREN") == 1
+        );
     }
 
     private ActivityDetail mapActivityDetail(ResultSet rs) throws SQLException {
-        return new ActivityDetail(rs.getLong("ISIC_ACTIVITY_ID"), rs.getLong("ISIC_RELEASE_ID"), rs.getString("ISIC_CODE"), rs.getString("BASE_ISIC_CODE"),
-                rs.getString("LEVEL_CODE"), rs.getString("PARENT_ISIC_CODE"), rs.getString("SECTION_CODE"), rs.getString("NAME_FA"), rs.getString("NAME_EN"),
-                clob(rs, "DESCRIPTION_FA"), clob(rs, "DESCRIPTION_EN"), clob(rs, "INCLUSIONS_FA"), clob(rs, "INCLUSIONS_EN"), clob(rs, "EXCLUSIONS_FA"), clob(rs, "EXCLUSIONS_EN"),
-                rs.getString("TRANSLATION_STATUS"), rs.getInt("IS_SELECTABLE") == 1, rs.getInt("IS_ACTIVE") == 1, localDate(rs.getDate("VALID_FROM")),
-                localDate(rs.getDate("VALID_TO")), rs.getInt("SORT_ORDER"), rs.getInt("RECORD_VERSION"), rs.getString("CREATED_BY"),
-                localDateTime(rs.getTimestamp("CREATED_DATE")), rs.getString("LAST_MODIFIED_BY"), localDateTime(rs.getTimestamp("LAST_MODIFIED_DATE")));
+        return new ActivityDetail(
+                rs.getLong("ISIC_ACTIVITY_ID"), rs.getLong("ISIC_RELEASE_ID"), nullableLong(rs, "PARENT_ACTIVITY_ID"), rs.getString("PARENT_ISIC_CODE"),
+                rs.getString("ISIC_CODE"), rs.getString("LEVEL_CODE"), rs.getInt("LEVEL_NO"),
+                rs.getString("NAME_FA"), rs.getString("NAME_EN"),
+                clob(rs, "DESCRIPTION_FA"), clob(rs, "DESCRIPTION_EN"), clob(rs, "INCLUSIONS_FA"), clob(rs, "INCLUSIONS_EN"),
+                clob(rs, "EXCLUSIONS_FA"), clob(rs, "EXCLUSIONS_EN"), rs.getString("TRANSLATION_STATUS_CODE"),
+                rs.getInt("IS_SELECTABLE") == 1, rs.getInt("IS_ACTIVE") == 1,
+                localDate(rs.getDate("VALID_FROM")), localDate(rs.getDate("VALID_TO")), rs.getInt("SORT_ORDER"), rs.getInt("RECORD_VERSION"),
+                rs.getString("CREATED_BY"), localDateTime(rs.getTimestamp("CREATED_DATE")), rs.getString("LAST_MODIFIED_BY"),
+                localDateTime(rs.getTimestamp("LAST_MODIFIED_DATE"))
+        );
     }
 
     private static String clob(ResultSet rs, String column) throws SQLException {
         Clob value = rs.getClob(column);
         return value == null ? null : value.getSubString(1, (int) value.length());
+    }
+
+    private static Long nullableLong(ResultSet rs, String column) throws SQLException {
+        long value = rs.getLong(column);
+        return rs.wasNull() ? null : value;
     }
 
     private String table(String name) { return schema + "." + name; }

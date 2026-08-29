@@ -13,4 +13,4 @@
 - برای ارتقا از 0.3.2، فایل `reference-data/compliance-risk/install.sql` اجرا شود.
 - وضعیت اعتبارسنجی `NOT_VERIFIED` منبع به `UNVERIFIED` نرمال شده است تا با Default جداول عملیاتی CIF همسان باشد.
 
-- FIX72 (`0.3.61`): مدل نسخه‌محور ISIC در `isic2/` قرار دارد. این بسته `REF_ISIC_ACTIVITY2` را ایجاد می‌کند و `REF_ISIC_ACTIVITY` قدیمی را تغییر نمی‌دهد. برای نصب `@isic2/00-install-isic2.sql` اجرا شود.
+- FIX73 (`0.3.62`): مدل مستقل ISIC در `isic2/` بر پایه `REF_ISIC_RELEASE` و `REF_ISIC_ACTIVITY2` بازطراحی شده است؛ سلسله‌مراتب با `PARENT_ACTIVITY_ID`، سطح عددی با `LEVEL_NO` و عنوان فارسی/انگلیسی اجباری نگهداری می‌شود. Seed Rev.4 شامل 766 عنوان دو‌زبانه است. برای نصب `@isic2/00-install-isic2.sql` یا فایل Standalone `@isic2/CIF_ISIC2_FULL_INSTALL.sql` اجرا شود.

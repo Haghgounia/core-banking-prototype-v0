@@ -1,6 +1,7 @@
 @echo off
 setlocal
 set "ROOT=%~dp0"
+cd /d "%ROOT%" || exit /b 1
 
 for /f "usebackq delims=" %%V in ("%ROOT%VERSION") do set "APP_VERSION=%%V"
 echo Building Core Banking Prototype %APP_VERSION%...
@@ -50,6 +51,14 @@ node "%ROOT%tools\verify-calendar2-month-view.mjs" || exit /b 1
 
 rem FIX69 static guard: BUSINESS_CALENDAR country/time-zone lookups; organization remains free text.
 node "%ROOT%tools\verify-calendar2-business-calendar-lookups.mjs" || exit /b 1
+
+rem FIX71 static guard: empty Persian date pickers open on the current Solar Hijri date.
+node "%ROOT%tools\verify-persian-date-picker-current-default.mjs" || exit /b 1
+
+rem FIX74 static guard: Node verifier filesystem roots must be Windows-safe and cwd-independent.
+node "%ROOT%tools\verify-node-tool-path-portability.mjs" || exit /b 1
+echo [VERIFY] CIF ISIC2 clean hierarchy...
+node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 
 rem FIX70 static guard: PDL unified product builder menu, metadata CRUD and product workspace.
 node "%ROOT%tools\verify-pdl-product-builder.mjs" || exit /b 1

@@ -1,0 +1,767 @@
+﻿ISIC_CODE,LEVEL_CODE,LEVEL_NO,PARENT_ISIC_CODE,NAME_FA,NAME_EN,TRANSLATION_STATUS_CODE,IS_SELECTABLE,SORT_ORDER
+A,SECTION,1,,کشاورزی، جنگلداری و ماهیگیری,"Agriculture, forestry and fishing",BANK_TRANSLATED,0,10
+01,DIVISION,2,A,تولید محصولات زراعی و دامی، شکار و فعالیت‌های خدماتی مرتبط,"Crop and animal production, hunting and related service activities",BANK_TRANSLATED,0,20
+011,GROUP,3,01,کشت محصولات غیردائمی,Growing of non-perennial crops,BANK_TRANSLATED,0,30
+0111,CLASS,4,011,کشت غلات (به‌جز برنج)، حبوبات و دانه‌های روغنی,"Growing of cereals (except rice), leguminous crops and oil seeds",BANK_TRANSLATED,1,40
+0112,CLASS,4,011,کشت برنج,Growing of rice,BANK_TRANSLATED,1,50
+0113,CLASS,4,011,کشت سبزیجات و صیفی‌جات، ریشه‌ها و غده‌ها,"Growing of vegetables and melons, roots and tubers",BANK_TRANSLATED,1,60
+0114,CLASS,4,011,کشت نیشکر,Growing of sugar cane,BANK_TRANSLATED,1,70
+0115,CLASS,4,011,کشت توتون و تنباکو,Growing of tobacco,BANK_TRANSLATED,1,80
+0116,CLASS,4,011,کشت محصولات الیافی,Growing of fibre crops,BANK_TRANSLATED,1,90
+0119,CLASS,4,011,کشت سایر محصولات غیردائمی,Growing of other non-perennial crops,BANK_TRANSLATED,1,100
+012,GROUP,3,01,کشت محصولات دائمی,Growing of perennial crops,BANK_TRANSLATED,0,110
+0121,CLASS,4,012,کشت انگور,Growing of grapes,BANK_TRANSLATED,1,120
+0122,CLASS,4,012,کشت میوه‌های گرمسیری و نیمه‌گرمسیری,Growing of tropical and subtropical fruits,BANK_TRANSLATED,1,130
+0123,CLASS,4,012,کشت مرکبات,Growing of citrus fruits,BANK_TRANSLATED,1,140
+0124,CLASS,4,012,کشت میوه‌های دانه‌دار و هسته‌دار,Growing of pome fruits and stone fruits,BANK_TRANSLATED,1,150
+0125,CLASS,4,012,کشت سایر میوه‌های درختی و بوته‌ای و خشکبار,Growing of other tree and bush fruits and nuts,BANK_TRANSLATED,1,160
+0126,CLASS,4,012,کشت میوه‌های روغنی,Growing of oleaginous fruits,BANK_TRANSLATED,1,170
+0127,CLASS,4,012,کشت محصولات نوشیدنی,Growing of beverage crops,BANK_TRANSLATED,1,180
+0128,CLASS,4,012,کشت ادویه‌ها، گیاهان معطر، دارویی و داروسازی,"Growing of spices, aromatic, drug and pharmaceutical crops",BANK_TRANSLATED,1,190
+0129,CLASS,4,012,کشت سایر محصولات دائمی,Growing of other perennial crops,BANK_TRANSLATED,1,200
+013,GROUP,3,01,تکثیر گیاهان,Plant propagation,BANK_TRANSLATED,0,210
+0130,CLASS,4,013,تکثیر گیاهان,Plant propagation,BANK_TRANSLATED,1,220
+014,GROUP,3,01,تولیدات دامی,Animal production,BANK_TRANSLATED,0,230
+0141,CLASS,4,014,پرورش گاو و گاومیش,Raising of cattle and buffaloes,BANK_TRANSLATED,1,240
+0142,CLASS,4,014,پرورش اسب و سایر تک‌سمیان,Raising of horses and other equines,BANK_TRANSLATED,1,250
+0143,CLASS,4,014,پرورش شتر و شترسانان,Raising of camels and camelids,BANK_TRANSLATED,1,260
+0144,CLASS,4,014,پرورش گوسفند و بز,Raising of sheep and goats,BANK_TRANSLATED,1,270
+0145,CLASS,4,014,پرورش خوک,Raising of swine/pigs,BANK_TRANSLATED,1,280
+0146,CLASS,4,014,پرورش طیور,Raising of poultry,BANK_TRANSLATED,1,290
+0149,CLASS,4,014,پرورش سایر حیوانات,Raising of other animals,BANK_TRANSLATED,1,300
+015,GROUP,3,01,کشاورزی مختلط,Mixed farming,BANK_TRANSLATED,0,310
+0150,CLASS,4,015,کشاورزی مختلط,Mixed farming,BANK_TRANSLATED,1,320
+016,GROUP,3,01,فعالیت‌های پشتیبانی کشاورزی و فعالیت‌های پس از برداشت محصولات زراعی,Support activities to agriculture and post-harvest crop activities,BANK_TRANSLATED,0,330
+0161,CLASS,4,016,فعالیت‌های پشتیبانی تولید محصولات زراعی,Support activities for crop production,BANK_TRANSLATED,1,340
+0162,CLASS,4,016,فعالیت‌های پشتیبانی تولیدات دامی,Support activities for animal production,BANK_TRANSLATED,1,350
+0163,CLASS,4,016,فعالیت‌های پس از برداشت محصولات زراعی,Post-harvest crop activities,BANK_TRANSLATED,1,360
+0164,CLASS,4,016,فرآوری بذر برای تکثیر,Seed processing for propagation,BANK_TRANSLATED,1,370
+017,GROUP,3,01,شکار، تله‌گذاری و فعالیت‌های خدماتی مرتبط,"Hunting, trapping and related service activities",BANK_TRANSLATED,0,380
+0170,CLASS,4,017,شکار، تله‌گذاری و فعالیت‌های خدماتی مرتبط,"Hunting, trapping and related service activities",BANK_TRANSLATED,1,390
+02,DIVISION,2,A,جنگلداری و بهره‌برداری از جنگل,Forestry and logging,BANK_TRANSLATED,0,400
+021,GROUP,3,02,جنگل‌کاری و سایر فعالیت‌های جنگلداری,Silviculture and other forestry activities,BANK_TRANSLATED,0,410
+0210,CLASS,4,021,جنگل‌کاری و سایر فعالیت‌های جنگلداری,Silviculture and other forestry activities,BANK_TRANSLATED,1,420
+022,GROUP,3,02,بهره‌برداری از چوب جنگل,Logging,BANK_TRANSLATED,0,430
+0220,CLASS,4,022,بهره‌برداری از چوب جنگل,Logging,BANK_TRANSLATED,1,440
+023,GROUP,3,02,جمع‌آوری محصولات غیرچوبی جنگل,Gathering of non-wood forest products,BANK_TRANSLATED,0,450
+0230,CLASS,4,023,جمع‌آوری محصولات غیرچوبی جنگل,Gathering of non-wood forest products,BANK_TRANSLATED,1,460
+024,GROUP,3,02,خدمات پشتیبانی جنگلداری,Support services to forestry,BANK_TRANSLATED,0,470
+0240,CLASS,4,024,خدمات پشتیبانی جنگلداری,Support services to forestry,BANK_TRANSLATED,1,480
+03,DIVISION,2,A,ماهیگیری و آبزی‌پروری,Fishing and aquaculture,BANK_TRANSLATED,0,490
+031,GROUP,3,03,ماهیگیری,Fishing,BANK_TRANSLATED,0,500
+0311,CLASS,4,031,ماهیگیری دریایی,Marine fishing,BANK_TRANSLATED,1,510
+0312,CLASS,4,031,ماهیگیری آب‌های شیرین,Freshwater fishing,BANK_TRANSLATED,1,520
+032,GROUP,3,03,آبزی‌پروری,Aquaculture,BANK_TRANSLATED,0,530
+0321,CLASS,4,032,آبزی‌پروری دریایی,Marine aquaculture,BANK_TRANSLATED,1,540
+0322,CLASS,4,032,آبزی‌پروری آب‌های شیرین,Freshwater aquaculture,BANK_TRANSLATED,1,550
+B,SECTION,1,,استخراج معدن,Mining and quarrying,BANK_TRANSLATED,0,560
+05,DIVISION,2,B,استخراج زغال‌سنگ و لیگنیت,Mining of coal and lignite,BANK_TRANSLATED,0,570
+051,GROUP,3,05,استخراج زغال‌سنگ سخت,Mining of hard coal,BANK_TRANSLATED,0,580
+0510,CLASS,4,051,استخراج زغال‌سنگ سخت,Mining of hard coal,BANK_TRANSLATED,1,590
+052,GROUP,3,05,استخراج لیگنیت,Mining of lignite,BANK_TRANSLATED,0,600
+0520,CLASS,4,052,استخراج لیگنیت,Mining of lignite,BANK_TRANSLATED,1,610
+06,DIVISION,2,B,استخراج نفت خام و گاز طبیعی,Extraction of crude petroleum and natural gas,BANK_TRANSLATED,0,620
+061,GROUP,3,06,استخراج نفت خام,Extraction of crude petroleum,BANK_TRANSLATED,0,630
+0610,CLASS,4,061,استخراج نفت خام,Extraction of crude petroleum,BANK_TRANSLATED,1,640
+062,GROUP,3,06,استخراج گاز طبیعی,Extraction of natural gas,BANK_TRANSLATED,0,650
+0620,CLASS,4,062,استخراج گاز طبیعی,Extraction of natural gas,BANK_TRANSLATED,1,660
+07,DIVISION,2,B,استخراج سنگ‌های فلزی,Mining of metal ores,BANK_TRANSLATED,0,670
+071,GROUP,3,07,استخراج سنگ‌آهن,Mining of iron ores,BANK_TRANSLATED,0,680
+0710,CLASS,4,071,استخراج سنگ‌آهن,Mining of iron ores,BANK_TRANSLATED,1,690
+072,GROUP,3,07,استخراج سنگ‌های فلزی غیرآهنی,Mining of non-ferrous metal ores,BANK_TRANSLATED,0,700
+0721,CLASS,4,072,استخراج سنگ‌های اورانیوم و توریم,Mining of uranium and thorium ores,BANK_TRANSLATED,1,710
+0729,CLASS,4,072,استخراج سایر سنگ‌های فلزی غیرآهنی,Mining of other non-ferrous metal ores,BANK_TRANSLATED,1,720
+08,DIVISION,2,B,سایر فعالیت‌های استخراج معدن,Other mining and quarrying,BANK_TRANSLATED,0,730
+081,GROUP,3,08,استخراج سنگ، شن و خاک رس,"Quarrying of stone, sand and clay",BANK_TRANSLATED,0,740
+0810,CLASS,4,081,استخراج سنگ، شن و خاک رس,"Quarrying of stone, sand and clay",BANK_TRANSLATED,1,750
+089,GROUP,3,08,سایر فعالیت‌های استخراج معدن طبقه‌بندی‌نشده در جای دیگر,Mining and quarrying n.e.c.,BANK_TRANSLATED,0,760
+0891,CLASS,4,089,استخراج مواد معدنی شیمیایی و کودی,Mining of chemical and fertilizer minerals,BANK_TRANSLATED,1,770
+0892,CLASS,4,089,استخراج تورب,Extraction of peat,BANK_TRANSLATED,1,780
+0893,CLASS,4,089,استخراج نمک,Extraction of salt,BANK_TRANSLATED,1,790
+0899,CLASS,4,089,سایر فعالیت‌های استخراج معدن طبقه‌بندی‌نشده در جای دیگر,Other mining and quarrying n.e.c.,BANK_TRANSLATED,1,800
+09,DIVISION,2,B,فعالیت‌های خدمات پشتیبانی استخراج معدن,Mining support service activities,BANK_TRANSLATED,0,810
+091,GROUP,3,09,فعالیت‌های پشتیبانی استخراج نفت و گاز طبیعی,Support activities for petroleum and natural gas extraction,BANK_TRANSLATED,0,820
+0910,CLASS,4,091,فعالیت‌های پشتیبانی استخراج نفت و گاز طبیعی,Support activities for petroleum and natural gas extraction,BANK_TRANSLATED,1,830
+099,GROUP,3,09,فعالیت‌های پشتیبانی سایر استخراج‌های معدنی,Support activities for other mining and quarrying,BANK_TRANSLATED,0,840
+0990,CLASS,4,099,فعالیت‌های پشتیبانی سایر استخراج‌های معدنی,Support activities for other mining and quarrying,BANK_TRANSLATED,1,850
+C,SECTION,1,,ساخت و تولید,Manufacturing,BANK_TRANSLATED,0,860
+10,DIVISION,2,C,ساخت محصولات غذایی,Manufacture of food products,BANK_TRANSLATED,0,870
+101,GROUP,3,10,فرآوری و نگهداری گوشت,Processing and preserving of meat,BANK_TRANSLATED,0,880
+1010,CLASS,4,101,فرآوری و نگهداری گوشت,Processing and preserving of meat,BANK_TRANSLATED,1,890
+102,GROUP,3,10,فرآوری و نگهداری ماهی، سخت‌پوستان و نرم‌تنان,"Processing and preserving of fish, crustaceans and molluscs",BANK_TRANSLATED,0,900
+1020,CLASS,4,102,فرآوری و نگهداری ماهی، سخت‌پوستان و نرم‌تنان,"Processing and preserving of fish, crustaceans and molluscs",BANK_TRANSLATED,1,910
+103,GROUP,3,10,فرآوری و نگهداری میوه و سبزیجات,Processing and preserving of fruit and vegetables,BANK_TRANSLATED,0,920
+1030,CLASS,4,103,فرآوری و نگهداری میوه و سبزیجات,Processing and preserving of fruit and vegetables,BANK_TRANSLATED,1,930
+104,GROUP,3,10,ساخت روغن‌ها و چربی‌های گیاهی و حیوانی,Manufacture of vegetable and animal oils and fats,BANK_TRANSLATED,0,940
+1040,CLASS,4,104,ساخت روغن‌ها و چربی‌های گیاهی و حیوانی,Manufacture of vegetable and animal oils and fats,BANK_TRANSLATED,1,950
+105,GROUP,3,10,ساخت محصولات لبنی,Manufacture of dairy products,BANK_TRANSLATED,0,960
+1050,CLASS,4,105,ساخت محصولات لبنی,Manufacture of dairy products,BANK_TRANSLATED,1,970
+106,GROUP,3,10,ساخت محصولات آسیاب غلات، نشاسته و محصولات نشاسته‌ای,"Manufacture of grain mill products, starches and starch products",BANK_TRANSLATED,0,980
+1061,CLASS,4,106,ساخت محصولات آسیاب غلات,Manufacture of grain mill products,BANK_TRANSLATED,1,990
+1062,CLASS,4,106,ساخت نشاسته و محصولات نشاسته‌ای,Manufacture of starches and starch products,BANK_TRANSLATED,1,1000
+107,GROUP,3,10,ساخت سایر محصولات غذایی,Manufacture of other food products,BANK_TRANSLATED,0,1010
+1071,CLASS,4,107,ساخت محصولات نانوایی,Manufacture of bakery products,BANK_TRANSLATED,1,1020
+1072,CLASS,4,107,ساخت شکر,Manufacture of sugar,BANK_TRANSLATED,1,1030
+1073,CLASS,4,107,ساخت کاکائو، شکلات و شیرینی‌های قندی,"Manufacture of cocoa, chocolate and sugar confectionery",BANK_TRANSLATED,1,1040
+1074,CLASS,4,107,ساخت ماکارونی، رشته، کوسکوس و محصولات آردی مشابه,"Manufacture of macaroni, noodles, couscous and similar farinaceous products",BANK_TRANSLATED,1,1050
+1075,CLASS,4,107,ساخت غذاها و خوراک‌های آماده,Manufacture of prepared meals and dishes,BANK_TRANSLATED,1,1060
+1079,CLASS,4,107,ساخت سایر محصولات غذایی طبقه‌بندی‌نشده در جای دیگر,Manufacture of other food products n.e.c.,BANK_TRANSLATED,1,1070
+108,GROUP,3,10,ساخت خوراک آماده حیوانات,Manufacture of prepared animal feeds,BANK_TRANSLATED,0,1080
+1080,CLASS,4,108,ساخت خوراک آماده حیوانات,Manufacture of prepared animal feeds,BANK_TRANSLATED,1,1090
+11,DIVISION,2,C,ساخت نوشیدنی‌ها,Manufacture of beverages,BANK_TRANSLATED,0,1100
+110,GROUP,3,11,ساخت نوشیدنی‌ها,Manufacture of beverages,BANK_TRANSLATED,0,1110
+1101,CLASS,4,110,تقطیر، تصفیه و ترکیب مشروبات الکلی,"Distilling, rectifying and blending of spirits",BANK_TRANSLATED,1,1120
+1102,CLASS,4,110,ساخت شراب,Manufacture of wines,BANK_TRANSLATED,1,1130
+1103,CLASS,4,110,ساخت نوشیدنی‌های مالت و مالت,Manufacture of malt liquors and malt,BANK_TRANSLATED,1,1140
+1104,CLASS,4,110,ساخت نوشابه؛ تولید آب‌های معدنی و سایر آب‌های بطری‌شده,Manufacture of soft drinks; production of mineral waters and other bottled waters,BANK_TRANSLATED,1,1150
+12,DIVISION,2,C,ساخت محصولات دخانی,Manufacture of tobacco products,BANK_TRANSLATED,0,1160
+120,GROUP,3,12,ساخت محصولات دخانی,Manufacture of tobacco products,BANK_TRANSLATED,0,1170
+1200,CLASS,4,120,ساخت محصولات دخانی,Manufacture of tobacco products,BANK_TRANSLATED,1,1180
+13,DIVISION,2,C,ساخت منسوجات,Manufacture of textiles,BANK_TRANSLATED,0,1190
+131,GROUP,3,13,ریسندگی، بافندگی و تکمیل منسوجات,"Spinning, weaving and finishing of textiles",BANK_TRANSLATED,0,1200
+1311,CLASS,4,131,آماده‌سازی و ریسندگی الیاف نساجی,Preparation and spinning of textile fibres,BANK_TRANSLATED,1,1210
+1312,CLASS,4,131,بافندگی منسوجات,Weaving of textiles,BANK_TRANSLATED,1,1220
+1313,CLASS,4,131,تکمیل منسوجات,Finishing of textiles,BANK_TRANSLATED,1,1230
+139,GROUP,3,13,ساخت سایر منسوجات,Manufacture of other textiles,BANK_TRANSLATED,0,1240
+1391,CLASS,4,139,ساخت پارچه‌های کشباف و قلاب‌بافی,Manufacture of knitted and crocheted fabrics,BANK_TRANSLATED,1,1250
+1392,CLASS,4,139,ساخت مصنوعات نساجی آماده، به‌جز پوشاک,"Manufacture of made-up textile articles, except apparel",BANK_TRANSLATED,1,1260
+1393,CLASS,4,139,ساخت فرش و قالیچه,Manufacture of carpets and rugs,BANK_TRANSLATED,1,1270
+1394,CLASS,4,139,ساخت طناب، ریسمان، نخ چندلا و تور,"Manufacture of cordage, rope, twine and netting",BANK_TRANSLATED,1,1280
+1399,CLASS,4,139,ساخت سایر منسوجات طبقه‌بندی‌نشده در جای دیگر,Manufacture of other textiles n.e.c.,BANK_TRANSLATED,1,1290
+14,DIVISION,2,C,ساخت پوشاک,Manufacture of wearing apparel,BANK_TRANSLATED,0,1300
+141,GROUP,3,14,ساخت پوشاک، به‌جز پوشاک خزدار,"Manufacture of wearing apparel, except fur apparel",BANK_TRANSLATED,0,1310
+1410,CLASS,4,141,ساخت پوشاک، به‌جز پوشاک خزدار,"Manufacture of wearing apparel, except fur apparel",BANK_TRANSLATED,1,1320
+142,GROUP,3,14,ساخت مصنوعات خز,Manufacture of articles of fur,BANK_TRANSLATED,0,1330
+1420,CLASS,4,142,ساخت مصنوعات خز,Manufacture of articles of fur,BANK_TRANSLATED,1,1340
+143,GROUP,3,14,ساخت پوشاک کشباف و قلاب‌بافی,Manufacture of knitted and crocheted apparel,BANK_TRANSLATED,0,1350
+1430,CLASS,4,143,ساخت پوشاک کشباف و قلاب‌بافی,Manufacture of knitted and crocheted apparel,BANK_TRANSLATED,1,1360
+15,DIVISION,2,C,ساخت چرم و محصولات وابسته,Manufacture of leather and related products,BANK_TRANSLATED,0,1370
+151,GROUP,3,15,دباغی و پرداخت چرم؛ ساخت چمدان، کیف دستی، زین و یراق؛ پرداخت و رنگرزی خز,"Tanning and dressing of leather; manufacture of luggage, handbags, saddlery and harness; dressing and dyeing of fur",BANK_TRANSLATED,0,1380
+1511,CLASS,4,151,دباغی و پرداخت چرم؛ پرداخت و رنگرزی خز,Tanning and dressing of leather; dressing and dyeing of fur,BANK_TRANSLATED,1,1390
+1512,CLASS,4,151,ساخت چمدان، کیف دستی و محصولات مشابه، زین و یراق,"Manufacture of luggage, handbags and the like, saddlery and harness",BANK_TRANSLATED,1,1400
+152,GROUP,3,15,ساخت کفش,Manufacture of footwear,BANK_TRANSLATED,0,1410
+1520,CLASS,4,152,ساخت کفش,Manufacture of footwear,BANK_TRANSLATED,1,1420
+16,DIVISION,2,C,ساخت چوب و محصولات چوب و چوب‌پنبه، به‌جز مبلمان؛ ساخت مصنوعات حصیری و بافتنی,"Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials",BANK_TRANSLATED,0,1430
+161,GROUP,3,16,اره‌کشی و رنده‌کاری چوب,Sawmilling and planing of wood,BANK_TRANSLATED,0,1440
+1610,CLASS,4,161,اره‌کشی و رنده‌کاری چوب,Sawmilling and planing of wood,BANK_TRANSLATED,1,1450
+162,GROUP,3,16,ساخت محصولات چوب، چوب‌پنبه، حصیر و مواد بافتنی,"Manufacture of products of wood, cork, straw and plaiting materials",BANK_TRANSLATED,0,1460
+1621,CLASS,4,162,ساخت ورق روکش و پانل‌های چوبی,Manufacture of veneer sheets and wood-based panels,BANK_TRANSLATED,1,1470
+1622,CLASS,4,162,ساخت مصنوعات نجاری و درودگری ساختمانی,Manufacture of builders' carpentry and joinery,BANK_TRANSLATED,1,1480
+1623,CLASS,4,162,ساخت ظروف و محفظه‌های چوبی,Manufacture of wooden containers,BANK_TRANSLATED,1,1490
+1629,CLASS,4,162,ساخت سایر محصولات چوبی؛ ساخت مصنوعات چوب‌پنبه، حصیر و مواد بافتنی,"Manufacture of other products of wood; manufacture of articles of cork, straw and plaiting materials",BANK_TRANSLATED,1,1500
+17,DIVISION,2,C,ساخت کاغذ و محصولات کاغذی,Manufacture of paper and paper products,BANK_TRANSLATED,0,1510
+170,GROUP,3,17,ساخت کاغذ و محصولات کاغذی,Manufacture of paper and paper products,BANK_TRANSLATED,0,1520
+1701,CLASS,4,170,ساخت خمیر کاغذ، کاغذ و مقوا,"Manufacture of pulp, paper and paperboard",BANK_TRANSLATED,1,1530
+1702,CLASS,4,170,ساخت کاغذ و مقوای موج‌دار و ظروف کاغذی و مقوایی,Manufacture of corrugated paper and paperboard and of containers of paper and paperboard,BANK_TRANSLATED,1,1540
+1709,CLASS,4,170,ساخت سایر مصنوعات کاغذ و مقوا,Manufacture of other articles of paper and paperboard,BANK_TRANSLATED,1,1550
+18,DIVISION,2,C,چاپ و تکثیر رسانه‌های ضبط‌شده,Printing and reproduction of recorded media,BANK_TRANSLATED,0,1560
+181,GROUP,3,18,چاپ و فعالیت‌های خدماتی مرتبط با چاپ,Printing and service activities related to printing,BANK_TRANSLATED,0,1570
+1811,CLASS,4,181,چاپ,Printing,BANK_TRANSLATED,1,1580
+1812,CLASS,4,181,فعالیت‌های خدماتی مرتبط با چاپ,Service activities related to printing,BANK_TRANSLATED,1,1590
+182,GROUP,3,18,تکثیر رسانه‌های ضبط‌شده,Reproduction of recorded media,BANK_TRANSLATED,0,1600
+1820,CLASS,4,182,تکثیر رسانه‌های ضبط‌شده,Reproduction of recorded media,BANK_TRANSLATED,1,1610
+19,DIVISION,2,C,ساخت کک و فرآورده‌های پالایش‌شده نفتی,Manufacture of coke and refined petroleum products,BANK_TRANSLATED,0,1620
+191,GROUP,3,19,ساخت محصولات کوره کک,Manufacture of coke oven products,BANK_TRANSLATED,0,1630
+1910,CLASS,4,191,ساخت محصولات کوره کک,Manufacture of coke oven products,BANK_TRANSLATED,1,1640
+192,GROUP,3,19,ساخت فرآورده‌های پالایش‌شده نفتی,Manufacture of refined petroleum products,BANK_TRANSLATED,0,1650
+1920,CLASS,4,192,ساخت فرآورده‌های پالایش‌شده نفتی,Manufacture of refined petroleum products,BANK_TRANSLATED,1,1660
+20,DIVISION,2,C,ساخت مواد و محصولات شیمیایی,Manufacture of chemicals and chemical products,BANK_TRANSLATED,0,1670
+201,GROUP,3,20,ساخت مواد شیمیایی پایه، کودها و ترکیبات نیتروژنی، پلاستیک و لاستیک مصنوعی در اشکال اولیه,"Manufacture of basic chemicals, fertilizers and nitrogen compounds, plastics and synthetic rubber in primary forms",BANK_TRANSLATED,0,1680
+2011,CLASS,4,201,ساخت مواد شیمیایی پایه,Manufacture of basic chemicals,BANK_TRANSLATED,1,1690
+2012,CLASS,4,201,ساخت کودها و ترکیبات نیتروژنی,Manufacture of fertilizers and nitrogen compounds,BANK_TRANSLATED,1,1700
+2013,CLASS,4,201,ساخت پلاستیک و لاستیک مصنوعی در اشکال اولیه,Manufacture of plastics and synthetic rubber in primary forms,BANK_TRANSLATED,1,1710
+202,GROUP,3,20,ساخت سایر محصولات شیمیایی,Manufacture of other chemical products,BANK_TRANSLATED,0,1720
+2021,CLASS,4,202,ساخت آفت‌کش‌ها و سایر محصولات شیمیایی کشاورزی,Manufacture of pesticides and other agrochemical products,BANK_TRANSLATED,1,1730
+2022,CLASS,4,202,ساخت رنگ، لاک و پوشش‌های مشابه، جوهر چاپ و ماستیک,"Manufacture of paints, varnishes and similar coatings, printing ink and mastics",BANK_TRANSLATED,1,1740
+2023,CLASS,4,202,ساخت صابون و مواد شوینده، مواد پاک‌کننده و صیقل‌دهنده، عطر و فرآورده‌های بهداشتی,"Manufacture of soap and detergents, cleaning and polishing preparations, perfumes and toilet preparations",BANK_TRANSLATED,1,1750
+2029,CLASS,4,202,ساخت سایر محصولات شیمیایی طبقه‌بندی‌نشده در جای دیگر,Manufacture of other chemical products n.e.c.,BANK_TRANSLATED,1,1760
+203,GROUP,3,20,ساخت الیاف مصنوعی,Manufacture of man-made fibres,BANK_TRANSLATED,0,1770
+2030,CLASS,4,203,ساخت الیاف مصنوعی,Manufacture of man-made fibres,BANK_TRANSLATED,1,1780
+21,DIVISION,2,C,ساخت محصولات دارویی پایه و فرآورده‌های دارویی,Manufacture of basic pharmaceutical products and pharmaceutical preparations,BANK_TRANSLATED,0,1790
+210,GROUP,3,21,ساخت محصولات دارویی، مواد شیمیایی دارویی و محصولات گیاهی دارویی,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",BANK_TRANSLATED,0,1800
+2100,CLASS,4,210,ساخت محصولات دارویی، مواد شیمیایی دارویی و محصولات گیاهی دارویی,"Manufacture of pharmaceuticals, medicinal chemical and botanical products",BANK_TRANSLATED,1,1810
+22,DIVISION,2,C,ساخت محصولات لاستیکی و پلاستیکی,Manufacture of rubber and plastics products,BANK_TRANSLATED,0,1820
+221,GROUP,3,22,ساخت محصولات لاستیکی,Manufacture of rubber products,BANK_TRANSLATED,0,1830
+2211,CLASS,4,221,ساخت تایر و تیوب لاستیکی؛ روکش‌گذاری و بازسازی تایرهای لاستیکی,Manufacture of rubber tyres and tubes; retreading and rebuilding of rubber tyres,BANK_TRANSLATED,1,1840
+2219,CLASS,4,221,ساخت سایر محصولات لاستیکی,Manufacture of other rubber products,BANK_TRANSLATED,1,1850
+222,GROUP,3,22,ساخت محصولات پلاستیکی,Manufacture of plastics products,BANK_TRANSLATED,0,1860
+2220,CLASS,4,222,ساخت محصولات پلاستیکی,Manufacture of plastics products,BANK_TRANSLATED,1,1870
+23,DIVISION,2,C,ساخت سایر محصولات معدنی غیرفلزی,Manufacture of other non-metallic mineral products,BANK_TRANSLATED,0,1880
+231,GROUP,3,23,ساخت شیشه و محصولات شیشه‌ای,Manufacture of glass and glass products,BANK_TRANSLATED,0,1890
+2310,CLASS,4,231,ساخت شیشه و محصولات شیشه‌ای,Manufacture of glass and glass products,BANK_TRANSLATED,1,1900
+239,GROUP,3,23,ساخت محصولات معدنی غیرفلزی طبقه‌بندی‌نشده در جای دیگر,Manufacture of non-metallic mineral products n.e.c.,BANK_TRANSLATED,0,1910
+2391,CLASS,4,239,ساخت محصولات نسوز,Manufacture of refractory products,BANK_TRANSLATED,1,1920
+2392,CLASS,4,239,ساخت مصالح ساختمانی رسی,Manufacture of clay building materials,BANK_TRANSLATED,1,1930
+2393,CLASS,4,239,ساخت سایر محصولات چینی و سرامیکی,Manufacture of other porcelain and ceramic products,BANK_TRANSLATED,1,1940
+2394,CLASS,4,239,ساخت سیمان، آهک و گچ,"Manufacture of cement, lime and plaster",BANK_TRANSLATED,1,1950
+2395,CLASS,4,239,ساخت مصنوعات بتنی، سیمانی و گچی,"Manufacture of articles of concrete, cement and plaster",BANK_TRANSLATED,1,1960
+2396,CLASS,4,239,برش، شکل‌دهی و تکمیل سنگ,"Cutting, shaping and finishing of stone",BANK_TRANSLATED,1,1970
+2399,CLASS,4,239,ساخت سایر محصولات معدنی غیرفلزی طبقه‌بندی‌نشده در جای دیگر,Manufacture of other non-metallic mineral products n.e.c.,BANK_TRANSLATED,1,1980
+24,DIVISION,2,C,ساخت فلزات پایه,Manufacture of basic metals,BANK_TRANSLATED,0,1990
+241,GROUP,3,24,ساخت آهن و فولاد پایه,Manufacture of basic iron and steel,BANK_TRANSLATED,0,2000
+2410,CLASS,4,241,ساخت آهن و فولاد پایه,Manufacture of basic iron and steel,BANK_TRANSLATED,1,2010
+242,GROUP,3,24,ساخت فلزات گران‌بها و سایر فلزات غیرآهنی پایه,Manufacture of basic precious and other non-ferrous metals,BANK_TRANSLATED,0,2020
+2420,CLASS,4,242,ساخت فلزات گران‌بها و سایر فلزات غیرآهنی پایه,Manufacture of basic precious and other non-ferrous metals,BANK_TRANSLATED,1,2030
+243,GROUP,3,24,ریخته‌گری فلزات,Casting of metals,BANK_TRANSLATED,0,2040
+2431,CLASS,4,243,ریخته‌گری آهن و فولاد,Casting of iron and steel,BANK_TRANSLATED,1,2050
+2432,CLASS,4,243,ریخته‌گری فلزات غیرآهنی,Casting of non-ferrous metals,BANK_TRANSLATED,1,2060
+25,DIVISION,2,C,ساخت محصولات فلزی ساخته‌شده، به‌جز ماشین‌آلات و تجهیزات,"Manufacture of fabricated metal products, except machinery and equipment",BANK_TRANSLATED,0,2070
+251,GROUP,3,25,ساخت محصولات فلزی سازه‌ای، مخازن، تانک‌ها و مولدهای بخار,"Manufacture of structural metal products, tanks, reservoirs and steam generators",BANK_TRANSLATED,0,2080
+2511,CLASS,4,251,ساخت محصولات فلزی سازه‌ای,Manufacture of structural metal products,BANK_TRANSLATED,1,2090
+2512,CLASS,4,251,ساخت تانک‌ها، مخازن و ظروف فلزی,"Manufacture of tanks, reservoirs and containers of metal",BANK_TRANSLATED,1,2100
+2513,CLASS,4,251,ساخت مولدهای بخار، به‌جز دیگ‌های آب گرم گرمایش مرکزی,"Manufacture of steam generators, except central heating hot water boilers",BANK_TRANSLATED,1,2110
+252,GROUP,3,25,ساخت سلاح و مهمات,Manufacture of weapons and ammunition,BANK_TRANSLATED,0,2120
+2520,CLASS,4,252,ساخت سلاح و مهمات,Manufacture of weapons and ammunition,BANK_TRANSLATED,1,2130
+259,GROUP,3,25,ساخت سایر محصولات فلزی ساخته‌شده؛ فعالیت‌های خدماتی فلزکاری,Manufacture of other fabricated metal products; metalworking service activities,BANK_TRANSLATED,0,2140
+2591,CLASS,4,259,آهنگری، پرس‌کاری، مهرزنی و شکل‌دهی غلتکی فلز؛ متالورژی پودر,"Forging, pressing, stamping and roll-forming of metal; powder metallurgy",BANK_TRANSLATED,1,2150
+2592,CLASS,4,259,عملیات و پوشش‌دهی فلزات؛ ماشین‌کاری,Treatment and coating of metals; machining,BANK_TRANSLATED,1,2160
+2593,CLASS,4,259,ساخت کارد و چنگال، ابزار دستی و یراق‌آلات عمومی,"Manufacture of cutlery, hand tools and general hardware",BANK_TRANSLATED,1,2170
+2599,CLASS,4,259,ساخت سایر محصولات فلزی ساخته‌شده طبقه‌بندی‌نشده در جای دیگر,Manufacture of other fabricated metal products n.e.c.,BANK_TRANSLATED,1,2180
+26,DIVISION,2,C,ساخت رایانه، محصولات الکترونیکی و نوری,"Manufacture of computer, electronic and optical products",BANK_TRANSLATED,0,2190
+261,GROUP,3,26,ساخت قطعات و بردهای الکترونیکی,Manufacture of electronic components and boards,BANK_TRANSLATED,0,2200
+2610,CLASS,4,261,ساخت قطعات و بردهای الکترونیکی,Manufacture of electronic components and boards,BANK_TRANSLATED,1,2210
+262,GROUP,3,26,ساخت رایانه و تجهیزات جانبی,Manufacture of computers and peripheral equipment,BANK_TRANSLATED,0,2220
+2620,CLASS,4,262,ساخت رایانه و تجهیزات جانبی,Manufacture of computers and peripheral equipment,BANK_TRANSLATED,1,2230
+263,GROUP,3,26,ساخت تجهیزات ارتباطی,Manufacture of communication equipment,BANK_TRANSLATED,0,2240
+2630,CLASS,4,263,ساخت تجهیزات ارتباطی,Manufacture of communication equipment,BANK_TRANSLATED,1,2250
+264,GROUP,3,26,ساخت لوازم الکترونیکی مصرفی,Manufacture of consumer electronics,BANK_TRANSLATED,0,2260
+2640,CLASS,4,264,ساخت لوازم الکترونیکی مصرفی,Manufacture of consumer electronics,BANK_TRANSLATED,1,2270
+265,GROUP,3,26,ساخت تجهیزات اندازه‌گیری، آزمون، ناوبری و کنترل؛ ساعت و زمان‌سنج,"Manufacture of measuring, testing, navigating and control equipment; watches and clocks",BANK_TRANSLATED,0,2280
+2651,CLASS,4,265,ساخت تجهیزات اندازه‌گیری، آزمون، ناوبری و کنترل,"Manufacture of measuring, testing, navigating and control equipment",BANK_TRANSLATED,1,2290
+2652,CLASS,4,265,ساخت ساعت و زمان‌سنج,Manufacture of watches and clocks,BANK_TRANSLATED,1,2300
+266,GROUP,3,26,ساخت تجهیزات پرتودهی، الکتروپزشکی و الکتروتراپی,"Manufacture of irradiation, electromedical and electrotherapeutic equipment",BANK_TRANSLATED,0,2310
+2660,CLASS,4,266,ساخت تجهیزات پرتودهی، الکتروپزشکی و الکتروتراپی,"Manufacture of irradiation, electromedical and electrotherapeutic equipment",BANK_TRANSLATED,1,2320
+267,GROUP,3,26,ساخت ابزارهای نوری و تجهیزات عکاسی,Manufacture of optical instruments and photographic equipment,BANK_TRANSLATED,0,2330
+2670,CLASS,4,267,ساخت ابزارهای نوری و تجهیزات عکاسی,Manufacture of optical instruments and photographic equipment,BANK_TRANSLATED,1,2340
+268,GROUP,3,26,ساخت رسانه‌های مغناطیسی و نوری,Manufacture of magnetic and optical media,BANK_TRANSLATED,0,2350
+2680,CLASS,4,268,ساخت رسانه‌های مغناطیسی و نوری,Manufacture of magnetic and optical media,BANK_TRANSLATED,1,2360
+27,DIVISION,2,C,ساخت تجهیزات برقی,Manufacture of electrical equipment,BANK_TRANSLATED,0,2370
+271,GROUP,3,27,ساخت موتور الکتریکی، ژنراتور، ترانسفورماتور و تجهیزات توزیع و کنترل برق,"Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus",BANK_TRANSLATED,0,2380
+2710,CLASS,4,271,ساخت موتور الکتریکی، ژنراتور، ترانسفورماتور و تجهیزات توزیع و کنترل برق,"Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus",BANK_TRANSLATED,1,2390
+272,GROUP,3,27,ساخت باتری و انباره‌های برقی,Manufacture of batteries and accumulators,BANK_TRANSLATED,0,2400
+2720,CLASS,4,272,ساخت باتری و انباره‌های برقی,Manufacture of batteries and accumulators,BANK_TRANSLATED,1,2410
+273,GROUP,3,27,ساخت سیم و تجهیزات سیم‌کشی,Manufacture of wiring and wiring devices,BANK_TRANSLATED,0,2420
+2731,CLASS,4,273,ساخت کابل‌های فیبر نوری,Manufacture of fibre optic cables,BANK_TRANSLATED,1,2430
+2732,CLASS,4,273,ساخت سایر سیم‌ها و کابل‌های الکترونیکی و برقی,Manufacture of other electronic and electric wires and cables,BANK_TRANSLATED,1,2440
+2733,CLASS,4,273,ساخت تجهیزات سیم‌کشی,Manufacture of wiring devices,BANK_TRANSLATED,1,2450
+274,GROUP,3,27,ساخت تجهیزات روشنایی برقی,Manufacture of electric lighting equipment,BANK_TRANSLATED,0,2460
+2740,CLASS,4,274,ساخت تجهیزات روشنایی برقی,Manufacture of electric lighting equipment,BANK_TRANSLATED,1,2470
+275,GROUP,3,27,ساخت لوازم خانگی,Manufacture of domestic appliances,BANK_TRANSLATED,0,2480
+2750,CLASS,4,275,ساخت لوازم خانگی,Manufacture of domestic appliances,BANK_TRANSLATED,1,2490
+279,GROUP,3,27,ساخت سایر تجهیزات برقی,Manufacture of other electrical equipment,BANK_TRANSLATED,0,2500
+2790,CLASS,4,279,ساخت سایر تجهیزات برقی,Manufacture of other electrical equipment,BANK_TRANSLATED,1,2510
+28,DIVISION,2,C,ساخت ماشین‌آلات و تجهیزات طبقه‌بندی‌نشده در جای دیگر,Manufacture of machinery and equipment n.e.c.,BANK_TRANSLATED,0,2520
+281,GROUP,3,28,ساخت ماشین‌آلات عمومی,Manufacture of general-purpose machinery,BANK_TRANSLATED,0,2530
+2811,CLASS,4,281,ساخت موتور و توربین، به‌جز موتور هواپیما، وسایل نقلیه و دوچرخه,"Manufacture of engines and turbines, except aircraft, vehicle and cycle engines",BANK_TRANSLATED,1,2540
+2812,CLASS,4,281,ساخت تجهیزات توان سیال,Manufacture of fluid power equipment,BANK_TRANSLATED,1,2550
+2813,CLASS,4,281,ساخت سایر پمپ‌ها، کمپرسورها، شیرها و سوپاپ‌ها,"Manufacture of other pumps, compressors, taps and valves",BANK_TRANSLATED,1,2560
+2814,CLASS,4,281,ساخت یاتاقان، چرخ‌دنده، تجهیزات انتقال قدرت و اجزای محرک,"Manufacture of bearings, gears, gearing and driving elements",BANK_TRANSLATED,1,2570
+2815,CLASS,4,281,ساخت کوره، تنور و مشعل کوره,"Manufacture of ovens, furnaces and furnace burners",BANK_TRANSLATED,1,2580
+2816,CLASS,4,281,ساخت تجهیزات بالابری و جابه‌جایی,Manufacture of lifting and handling equipment,BANK_TRANSLATED,1,2590
+2817,CLASS,4,281,ساخت ماشین‌آلات و تجهیزات اداری (به‌جز رایانه و تجهیزات جانبی),Manufacture of office machinery and equipment (except computers and peripheral equipment),BANK_TRANSLATED,1,2600
+2818,CLASS,4,281,ساخت ابزارهای دستی نیرویی,Manufacture of power-driven hand tools,BANK_TRANSLATED,1,2610
+2819,CLASS,4,281,ساخت سایر ماشین‌آلات عمومی,Manufacture of other general-purpose machinery,BANK_TRANSLATED,1,2620
+282,GROUP,3,28,ساخت ماشین‌آلات ویژه,Manufacture of special-purpose machinery,BANK_TRANSLATED,0,2630
+2821,CLASS,4,282,ساخت ماشین‌آلات کشاورزی و جنگلداری,Manufacture of agricultural and forestry machinery,BANK_TRANSLATED,1,2640
+2822,CLASS,4,282,ساخت ماشین‌آلات شکل‌دهی فلز و ماشین‌ابزار,Manufacture of metal-forming machinery and machine tools,BANK_TRANSLATED,1,2650
+2823,CLASS,4,282,ساخت ماشین‌آلات متالورژی,Manufacture of machinery for metallurgy,BANK_TRANSLATED,1,2660
+2824,CLASS,4,282,ساخت ماشین‌آلات معدن، استخراج و ساخت‌وساز,"Manufacture of machinery for mining, quarrying and construction",BANK_TRANSLATED,1,2670
+2825,CLASS,4,282,ساخت ماشین‌آلات فرآوری مواد غذایی، نوشیدنی و دخانیات,"Manufacture of machinery for food, beverage and tobacco processing",BANK_TRANSLATED,1,2680
+2826,CLASS,4,282,ساخت ماشین‌آلات تولید منسوجات، پوشاک و چرم,"Manufacture of machinery for textile, apparel and leather production",BANK_TRANSLATED,1,2690
+2829,CLASS,4,282,ساخت سایر ماشین‌آلات ویژه,Manufacture of other special-purpose machinery,BANK_TRANSLATED,1,2700
+29,DIVISION,2,C,ساخت وسایل نقلیه موتوری، تریلر و نیمه‌تریلر,"Manufacture of motor vehicles, trailers and semi-trailers",BANK_TRANSLATED,0,2710
+291,GROUP,3,29,ساخت وسایل نقلیه موتوری,Manufacture of motor vehicles,BANK_TRANSLATED,0,2720
+2910,CLASS,4,291,ساخت وسایل نقلیه موتوری,Manufacture of motor vehicles,BANK_TRANSLATED,1,2730
+292,GROUP,3,29,ساخت بدنه وسایل نقلیه موتوری؛ ساخت تریلر و نیمه‌تریلر,Manufacture of bodies (coachwork) for motor vehicles; manufacture of trailers and semi-trailers,BANK_TRANSLATED,0,2740
+2920,CLASS,4,292,ساخت بدنه وسایل نقلیه موتوری؛ ساخت تریلر و نیمه‌تریلر,Manufacture of bodies (coachwork) for motor vehicles; manufacture of trailers and semi-trailers,BANK_TRANSLATED,1,2750
+293,GROUP,3,29,ساخت قطعات و لوازم جانبی وسایل نقلیه موتوری,Manufacture of parts and accessories for motor vehicles,BANK_TRANSLATED,0,2760
+2930,CLASS,4,293,ساخت قطعات و لوازم جانبی وسایل نقلیه موتوری,Manufacture of parts and accessories for motor vehicles,BANK_TRANSLATED,1,2770
+30,DIVISION,2,C,ساخت سایر تجهیزات حمل‌ونقل,Manufacture of other transport equipment,BANK_TRANSLATED,0,2780
+301,GROUP,3,30,ساخت کشتی و قایق,Building of ships and boats,BANK_TRANSLATED,0,2790
+3011,CLASS,4,301,ساخت کشتی و سازه‌های شناور,Building of ships and floating structures,BANK_TRANSLATED,1,2800
+3012,CLASS,4,301,ساخت قایق‌های تفریحی و ورزشی,Building of pleasure and sporting boats,BANK_TRANSLATED,1,2810
+302,GROUP,3,30,ساخت لوکوموتیو و ناوگان ریلی,Manufacture of railway locomotives and rolling stock,BANK_TRANSLATED,0,2820
+3020,CLASS,4,302,ساخت لوکوموتیو و ناوگان ریلی,Manufacture of railway locomotives and rolling stock,BANK_TRANSLATED,1,2830
+303,GROUP,3,30,ساخت هواپیما و فضاپیما و ماشین‌آلات مرتبط,Manufacture of air and spacecraft and related machinery,BANK_TRANSLATED,0,2840
+3030,CLASS,4,303,ساخت هواپیما و فضاپیما و ماشین‌آلات مرتبط,Manufacture of air and spacecraft and related machinery,BANK_TRANSLATED,1,2850
+304,GROUP,3,30,ساخت خودروهای جنگی نظامی,Manufacture of military fighting vehicles,BANK_TRANSLATED,0,2860
+3040,CLASS,4,304,ساخت خودروهای جنگی نظامی,Manufacture of military fighting vehicles,BANK_TRANSLATED,1,2870
+309,GROUP,3,30,ساخت تجهیزات حمل‌ونقل طبقه‌بندی‌نشده در جای دیگر,Manufacture of transport equipment n.e.c.,BANK_TRANSLATED,0,2880
+3091,CLASS,4,309,ساخت موتورسیکلت,Manufacture of motorcycles,BANK_TRANSLATED,1,2890
+3092,CLASS,4,309,ساخت دوچرخه و صندلی‌های چرخ‌دار ویژه افراد دارای معلولیت,Manufacture of bicycles and invalid carriages,BANK_TRANSLATED,1,2900
+3099,CLASS,4,309,ساخت سایر تجهیزات حمل‌ونقل طبقه‌بندی‌نشده در جای دیگر,Manufacture of other transport equipment n.e.c.,BANK_TRANSLATED,1,2910
+31,DIVISION,2,C,ساخت مبلمان,Manufacture of furniture,BANK_TRANSLATED,0,2920
+310,GROUP,3,31,ساخت مبلمان,Manufacture of furniture,BANK_TRANSLATED,0,2930
+3100,CLASS,4,310,ساخت مبلمان,Manufacture of furniture,BANK_TRANSLATED,1,2940
+32,DIVISION,2,C,سایر فعالیت‌های ساخت و تولید,Other manufacturing,BANK_TRANSLATED,0,2950
+321,GROUP,3,32,ساخت جواهرات، زیورآلات و مصنوعات مرتبط,"Manufacture of jewellery, bijouterie and related articles",BANK_TRANSLATED,0,2960
+3211,CLASS,4,321,ساخت جواهرات و مصنوعات مرتبط,Manufacture of jewellery and related articles,BANK_TRANSLATED,1,2970
+3212,CLASS,4,321,ساخت جواهرات بدلی و مصنوعات مرتبط,Manufacture of imitation jewellery and related articles,BANK_TRANSLATED,1,2980
+322,GROUP,3,32,ساخت آلات موسیقی,Manufacture of musical instruments,BANK_TRANSLATED,0,2990
+3220,CLASS,4,322,ساخت آلات موسیقی,Manufacture of musical instruments,BANK_TRANSLATED,1,3000
+323,GROUP,3,32,ساخت لوازم ورزشی,Manufacture of sports goods,BANK_TRANSLATED,0,3010
+3230,CLASS,4,323,ساخت لوازم ورزشی,Manufacture of sports goods,BANK_TRANSLATED,1,3020
+324,GROUP,3,32,ساخت بازی و اسباب‌بازی,Manufacture of games and toys,BANK_TRANSLATED,0,3030
+3240,CLASS,4,324,ساخت بازی و اسباب‌بازی,Manufacture of games and toys,BANK_TRANSLATED,1,3040
+325,GROUP,3,32,ساخت ابزار و ملزومات پزشکی و دندانپزشکی,Manufacture of medical and dental instruments and supplies,BANK_TRANSLATED,0,3050
+3250,CLASS,4,325,ساخت ابزار و ملزومات پزشکی و دندانپزشکی,Manufacture of medical and dental instruments and supplies,BANK_TRANSLATED,1,3060
+329,GROUP,3,32,سایر فعالیت‌های ساخت و تولید طبقه‌بندی‌نشده در جای دیگر,Other manufacturing n.e.c.,BANK_TRANSLATED,0,3070
+3290,CLASS,4,329,سایر فعالیت‌های ساخت و تولید طبقه‌بندی‌نشده در جای دیگر,Other manufacturing n.e.c.,BANK_TRANSLATED,1,3080
+33,DIVISION,2,C,تعمیر و نصب ماشین‌آلات و تجهیزات,Repair and installation of machinery and equipment,BANK_TRANSLATED,0,3090
+331,GROUP,3,33,تعمیر محصولات فلزی ساخته‌شده، ماشین‌آلات و تجهیزات,"Repair of fabricated metal products, machinery and equipment",BANK_TRANSLATED,0,3100
+3311,CLASS,4,331,تعمیر محصولات فلزی ساخته‌شده,Repair of fabricated metal products,BANK_TRANSLATED,1,3110
+3312,CLASS,4,331,تعمیر ماشین‌آلات,Repair of machinery,BANK_TRANSLATED,1,3120
+3313,CLASS,4,331,تعمیر تجهیزات الکترونیکی و نوری,Repair of electronic and optical equipment,BANK_TRANSLATED,1,3130
+3314,CLASS,4,331,تعمیر تجهیزات برقی,Repair of electrical equipment,BANK_TRANSLATED,1,3140
+3315,CLASS,4,331,تعمیر تجهیزات حمل‌ونقل، به‌جز وسایل نقلیه موتوری,"Repair of transport equipment, except motor vehicles",BANK_TRANSLATED,1,3150
+3319,CLASS,4,331,تعمیر سایر تجهیزات,Repair of other equipment,BANK_TRANSLATED,1,3160
+332,GROUP,3,33,نصب ماشین‌آلات و تجهیزات صنعتی,Installation of industrial machinery and equipment,BANK_TRANSLATED,0,3170
+3320,CLASS,4,332,نصب ماشین‌آلات و تجهیزات صنعتی,Installation of industrial machinery and equipment,BANK_TRANSLATED,1,3180
+D,SECTION,1,,تأمین برق، گاز، بخار و تهویه مطبوع,"Electricity, gas, steam and air conditioning supply",BANK_TRANSLATED,0,3190
+35,DIVISION,2,D,تأمین برق، گاز، بخار و تهویه مطبوع,"Electricity, gas, steam and air conditioning supply",BANK_TRANSLATED,0,3200
+351,GROUP,3,35,تولید، انتقال و توزیع برق,"Electric power generation, transmission and distribution",BANK_TRANSLATED,0,3210
+3510,CLASS,4,351,تولید، انتقال و توزیع برق,"Electric power generation, transmission and distribution",BANK_TRANSLATED,1,3220
+352,GROUP,3,35,تولید گاز؛ توزیع سوخت‌های گازی از طریق شبکه,Manufacture of gas; distribution of gaseous fuels through mains,BANK_TRANSLATED,0,3230
+3520,CLASS,4,352,تولید گاز؛ توزیع سوخت‌های گازی از طریق شبکه,Manufacture of gas; distribution of gaseous fuels through mains,BANK_TRANSLATED,1,3240
+353,GROUP,3,35,تأمین بخار و تهویه مطبوع,Steam and air conditioning supply,BANK_TRANSLATED,0,3250
+3530,CLASS,4,353,تأمین بخار و تهویه مطبوع,Steam and air conditioning supply,BANK_TRANSLATED,1,3260
+E,SECTION,1,,آبرسانی؛ فاضلاب، مدیریت پسماند و فعالیت‌های اصلاح و پاکسازی,"Water supply; sewerage, waste management and remediation activities",BANK_TRANSLATED,0,3270
+36,DIVISION,2,E,جمع‌آوری، تصفیه و تأمین آب,"Water collection, treatment and supply",BANK_TRANSLATED,0,3280
+360,GROUP,3,36,جمع‌آوری، تصفیه و تأمین آب,"Water collection, treatment and supply",BANK_TRANSLATED,0,3290
+3600,CLASS,4,360,جمع‌آوری، تصفیه و تأمین آب,"Water collection, treatment and supply",BANK_TRANSLATED,1,3300
+37,DIVISION,2,E,فاضلاب,Sewerage,BANK_TRANSLATED,0,3310
+370,GROUP,3,37,فاضلاب,Sewerage,BANK_TRANSLATED,0,3320
+3700,CLASS,4,370,فاضلاب,Sewerage,BANK_TRANSLATED,1,3330
+38,DIVISION,2,E,جمع‌آوری، تصفیه و دفع پسماند؛ بازیافت مواد,"Waste collection, treatment and disposal activities; materials recovery",BANK_TRANSLATED,0,3340
+381,GROUP,3,38,جمع‌آوری پسماند,Waste collection,BANK_TRANSLATED,0,3350
+3811,CLASS,4,381,جمع‌آوری پسماند غیرخطرناک,Collection of non-hazardous waste,BANK_TRANSLATED,1,3360
+3812,CLASS,4,381,جمع‌آوری پسماند خطرناک,Collection of hazardous waste,BANK_TRANSLATED,1,3370
+382,GROUP,3,38,تصفیه و دفع پسماند,Waste treatment and disposal,BANK_TRANSLATED,0,3380
+3821,CLASS,4,382,تصفیه و دفع پسماند غیرخطرناک,Treatment and disposal of non-hazardous waste,BANK_TRANSLATED,1,3390
+3822,CLASS,4,382,تصفیه و دفع پسماند خطرناک,Treatment and disposal of hazardous waste,BANK_TRANSLATED,1,3400
+383,GROUP,3,38,بازیافت مواد,Materials recovery,BANK_TRANSLATED,0,3410
+3830,CLASS,4,383,بازیافت مواد,Materials recovery,BANK_TRANSLATED,1,3420
+39,DIVISION,2,E,فعالیت‌های اصلاح و پاکسازی و سایر خدمات مدیریت پسماند,Remediation activities and other waste management services,BANK_TRANSLATED,0,3430
+390,GROUP,3,39,فعالیت‌های اصلاح و پاکسازی و سایر خدمات مدیریت پسماند,Remediation activities and other waste management services,BANK_TRANSLATED,0,3440
+3900,CLASS,4,390,فعالیت‌های اصلاح و پاکسازی و سایر خدمات مدیریت پسماند,Remediation activities and other waste management services,BANK_TRANSLATED,1,3450
+F,SECTION,1,,ساخت‌وساز,Construction,BANK_TRANSLATED,0,3460
+41,DIVISION,2,F,ساخت ساختمان,Construction of buildings,BANK_TRANSLATED,0,3470
+410,GROUP,3,41,ساخت ساختمان,Construction of buildings,BANK_TRANSLATED,0,3480
+4100,CLASS,4,410,ساخت ساختمان,Construction of buildings,BANK_TRANSLATED,1,3490
+42,DIVISION,2,F,مهندسی عمران,Civil engineering,BANK_TRANSLATED,0,3500
+421,GROUP,3,42,ساخت راه‌ها و راه‌آهن,Construction of roads and railways,BANK_TRANSLATED,0,3510
+4210,CLASS,4,421,ساخت راه‌ها و راه‌آهن,Construction of roads and railways,BANK_TRANSLATED,1,3520
+422,GROUP,3,42,ساخت پروژه‌های تأسیساتی زیربنایی,Construction of utility projects,BANK_TRANSLATED,0,3530
+4220,CLASS,4,422,ساخت پروژه‌های تأسیساتی زیربنایی,Construction of utility projects,BANK_TRANSLATED,1,3540
+429,GROUP,3,42,ساخت سایر پروژه‌های مهندسی عمران,Construction of other civil engineering projects,BANK_TRANSLATED,0,3550
+4290,CLASS,4,429,ساخت سایر پروژه‌های مهندسی عمران,Construction of other civil engineering projects,BANK_TRANSLATED,1,3560
+43,DIVISION,2,F,فعالیت‌های تخصصی ساخت‌وساز,Specialized construction activities,BANK_TRANSLATED,0,3570
+431,GROUP,3,43,تخریب و آماده‌سازی محل,Demolition and site preparation,BANK_TRANSLATED,0,3580
+4311,CLASS,4,431,تخریب,Demolition,BANK_TRANSLATED,1,3590
+4312,CLASS,4,431,آماده‌سازی محل,Site preparation,BANK_TRANSLATED,1,3600
+432,GROUP,3,43,نصب تأسیسات برقی، لوله‌کشی و سایر تأسیسات ساختمانی,"Electrical, plumbing and other construction installation activities",BANK_TRANSLATED,0,3610
+4321,CLASS,4,432,نصب تأسیسات برقی,Electrical installation,BANK_TRANSLATED,1,3620
+4322,CLASS,4,432,نصب لوله‌کشی، گرمایش و تهویه مطبوع,"Plumbing, heat and air-conditioning installation",BANK_TRANSLATED,1,3630
+4329,CLASS,4,432,سایر نصب‌های ساختمانی,Other construction installation,BANK_TRANSLATED,1,3640
+433,GROUP,3,43,تکمیل و نازک‌کاری ساختمان,Building completion and finishing,BANK_TRANSLATED,0,3650
+4330,CLASS,4,433,تکمیل و نازک‌کاری ساختمان,Building completion and finishing,BANK_TRANSLATED,1,3660
+439,GROUP,3,43,سایر فعالیت‌های تخصصی ساخت‌وساز,Other specialized construction activities,BANK_TRANSLATED,0,3670
+4390,CLASS,4,439,سایر فعالیت‌های تخصصی ساخت‌وساز,Other specialized construction activities,BANK_TRANSLATED,1,3680
+G,SECTION,1,,عمده‌فروشی و خرده‌فروشی؛ تعمیر وسایل نقلیه موتوری و موتورسیکلت,Wholesale and retail trade; repair of motor vehicles and motorcycles,BANK_TRANSLATED,0,3690
+45,DIVISION,2,G,عمده‌فروشی و خرده‌فروشی و تعمیر وسایل نقلیه موتوری و موتورسیکلت,Wholesale and retail trade and repair of motor vehicles and motorcycles,BANK_TRANSLATED,0,3700
+451,GROUP,3,45,فروش وسایل نقلیه موتوری,Sale of motor vehicles,BANK_TRANSLATED,0,3710
+4510,CLASS,4,451,فروش وسایل نقلیه موتوری,Sale of motor vehicles,BANK_TRANSLATED,1,3720
+452,GROUP,3,45,نگهداری و تعمیر وسایل نقلیه موتوری,Maintenance and repair of motor vehicles,BANK_TRANSLATED,0,3730
+4520,CLASS,4,452,نگهداری و تعمیر وسایل نقلیه موتوری,Maintenance and repair of motor vehicles,BANK_TRANSLATED,1,3740
+453,GROUP,3,45,فروش قطعات و لوازم جانبی وسایل نقلیه موتوری,Sale of motor vehicle parts and accessories,BANK_TRANSLATED,0,3750
+4530,CLASS,4,453,فروش قطعات و لوازم جانبی وسایل نقلیه موتوری,Sale of motor vehicle parts and accessories,BANK_TRANSLATED,1,3760
+454,GROUP,3,45,فروش، نگهداری و تعمیر موتورسیکلت و قطعات و لوازم جانبی مرتبط,"Sale, maintenance and repair of motorcycles and related parts and accessories",BANK_TRANSLATED,0,3770
+4540,CLASS,4,454,فروش، نگهداری و تعمیر موتورسیکلت و قطعات و لوازم جانبی مرتبط,"Sale, maintenance and repair of motorcycles and related parts and accessories",BANK_TRANSLATED,1,3780
+46,DIVISION,2,G,عمده‌فروشی، به‌جز وسایل نقلیه موتوری و موتورسیکلت,"Wholesale trade, except of motor vehicles and motorcycles",BANK_TRANSLATED,0,3790
+461,GROUP,3,46,عمده‌فروشی بر مبنای کارمزد یا قرارداد,Wholesale on a fee or contract basis,BANK_TRANSLATED,0,3800
+4610,CLASS,4,461,عمده‌فروشی بر مبنای کارمزد یا قرارداد,Wholesale on a fee or contract basis,BANK_TRANSLATED,1,3810
+462,GROUP,3,46,عمده‌فروشی مواد اولیه کشاورزی و دام زنده,Wholesale of agricultural raw materials and live animals,BANK_TRANSLATED,0,3820
+4620,CLASS,4,462,عمده‌فروشی مواد اولیه کشاورزی و دام زنده,Wholesale of agricultural raw materials and live animals,BANK_TRANSLATED,1,3830
+463,GROUP,3,46,عمده‌فروشی مواد غذایی، نوشیدنی و دخانیات,"Wholesale of food, beverages and tobacco",BANK_TRANSLATED,0,3840
+4630,CLASS,4,463,عمده‌فروشی مواد غذایی، نوشیدنی و دخانیات,"Wholesale of food, beverages and tobacco",BANK_TRANSLATED,1,3850
+464,GROUP,3,46,عمده‌فروشی کالاهای خانگی,Wholesale of household goods,BANK_TRANSLATED,0,3860
+4641,CLASS,4,464,عمده‌فروشی منسوجات، پوشاک و کفش,"Wholesale of textiles, clothing and footwear",BANK_TRANSLATED,1,3870
+4649,CLASS,4,464,عمده‌فروشی سایر کالاهای خانگی,Wholesale of other household goods,BANK_TRANSLATED,1,3880
+465,GROUP,3,46,عمده‌فروشی ماشین‌آلات، تجهیزات و ملزومات,"Wholesale of machinery, equipment and supplies",BANK_TRANSLATED,0,3890
+4651,CLASS,4,465,عمده‌فروشی رایانه، تجهیزات جانبی رایانه و نرم‌افزار,"Wholesale of computers, computer peripheral equipment and software",BANK_TRANSLATED,1,3900
+4652,CLASS,4,465,عمده‌فروشی تجهیزات و قطعات الکترونیکی و مخابراتی,Wholesale of electronic and telecommunications equipment and parts,BANK_TRANSLATED,1,3910
+4653,CLASS,4,465,عمده‌فروشی ماشین‌آلات، تجهیزات و ملزومات کشاورزی,"Wholesale of agricultural machinery, equipment and supplies",BANK_TRANSLATED,1,3920
+4659,CLASS,4,465,عمده‌فروشی سایر ماشین‌آلات و تجهیزات,Wholesale of other machinery and equipment,BANK_TRANSLATED,1,3930
+466,GROUP,3,46,سایر عمده‌فروشی‌های تخصصی,Other specialized wholesale,BANK_TRANSLATED,0,3940
+4661,CLASS,4,466,عمده‌فروشی سوخت‌های جامد، مایع و گازی و محصولات مرتبط,"Wholesale of solid, liquid and gaseous fuels and related products",BANK_TRANSLATED,1,3950
+4662,CLASS,4,466,عمده‌فروشی فلزات و سنگ‌های فلزی,Wholesale of metals and metal ores,BANK_TRANSLATED,1,3960
+4663,CLASS,4,466,عمده‌فروشی مصالح ساختمانی، یراق‌آلات، تجهیزات و ملزومات لوله‌کشی و گرمایش,"Wholesale of construction materials, hardware, plumbing and heating equipment and supplies",BANK_TRANSLATED,1,3970
+4669,CLASS,4,466,عمده‌فروشی ضایعات و قراضه و سایر محصولات طبقه‌بندی‌نشده در جای دیگر,Wholesale of waste and scrap and other products n.e.c.,BANK_TRANSLATED,1,3980
+469,GROUP,3,46,عمده‌فروشی غیرتخصصی,Non-specialized wholesale trade,BANK_TRANSLATED,0,3990
+4690,CLASS,4,469,عمده‌فروشی غیرتخصصی,Non-specialized wholesale trade,BANK_TRANSLATED,1,4000
+47,DIVISION,2,G,خرده‌فروشی، به‌جز وسایل نقلیه موتوری و موتورسیکلت,"Retail trade, except of motor vehicles and motorcycles",BANK_TRANSLATED,0,4010
+471,GROUP,3,47,خرده‌فروشی در فروشگاه‌های غیرتخصصی,Retail sale in non-specialized stores,BANK_TRANSLATED,0,4020
+4711,CLASS,4,471,خرده‌فروشی در فروشگاه‌های غیرتخصصی با غلبه مواد غذایی، نوشیدنی یا دخانیات,"Retail sale in non-specialized stores with food, beverages or tobacco predominating",BANK_TRANSLATED,1,4030
+4719,CLASS,4,471,سایر خرده‌فروشی‌ها در فروشگاه‌های غیرتخصصی,Other retail sale in non-specialized stores,BANK_TRANSLATED,1,4040
+472,GROUP,3,47,خرده‌فروشی مواد غذایی، نوشیدنی و دخانیات در فروشگاه‌های تخصصی,"Retail sale of food, beverages and tobacco in specialized stores",BANK_TRANSLATED,0,4050
+4721,CLASS,4,472,خرده‌فروشی مواد غذایی در فروشگاه‌های تخصصی,Retail sale of food in specialized stores,BANK_TRANSLATED,1,4060
+4722,CLASS,4,472,خرده‌فروشی نوشیدنی در فروشگاه‌های تخصصی,Retail sale of beverages in specialized stores,BANK_TRANSLATED,1,4070
+4723,CLASS,4,472,خرده‌فروشی محصولات دخانی در فروشگاه‌های تخصصی,Retail sale of tobacco products in specialized stores,BANK_TRANSLATED,1,4080
+473,GROUP,3,47,خرده‌فروشی سوخت خودرو در فروشگاه‌های تخصصی,Retail sale of automotive fuel in specialized stores,BANK_TRANSLATED,0,4090
+4730,CLASS,4,473,خرده‌فروشی سوخت خودرو در فروشگاه‌های تخصصی,Retail sale of automotive fuel in specialized stores,BANK_TRANSLATED,1,4100
+474,GROUP,3,47,خرده‌فروشی تجهیزات اطلاعات و ارتباطات در فروشگاه‌های تخصصی,Retail sale of information and communications equipment in specialized stores,BANK_TRANSLATED,0,4110
+4741,CLASS,4,474,خرده‌فروشی رایانه، تجهیزات جانبی، نرم‌افزار و تجهیزات مخابراتی در فروشگاه‌های تخصصی,"Retail sale of computers, peripheral units, software and telecommunications equipment in specialized stores",BANK_TRANSLATED,1,4120
+4742,CLASS,4,474,خرده‌فروشی تجهیزات صوتی و تصویری در فروشگاه‌های تخصصی,Retail sale of audio and video equipment in specialized stores,BANK_TRANSLATED,1,4130
+475,GROUP,3,47,خرده‌فروشی سایر تجهیزات خانگی در فروشگاه‌های تخصصی,Retail sale of other household equipment in specialized stores,BANK_TRANSLATED,0,4140
+4751,CLASS,4,475,خرده‌فروشی منسوجات در فروشگاه‌های تخصصی,Retail sale of textiles in specialized stores,BANK_TRANSLATED,1,4150
+4752,CLASS,4,475,خرده‌فروشی یراق‌آلات، رنگ و شیشه در فروشگاه‌های تخصصی,"Retail sale of hardware, paints and glass in specialized stores",BANK_TRANSLATED,1,4160
+4753,CLASS,4,475,خرده‌فروشی فرش، قالیچه و پوشش‌های دیوار و کف در فروشگاه‌های تخصصی,"Retail sale of carpets, rugs, wall and floor coverings in specialized stores",BANK_TRANSLATED,1,4170
+4759,CLASS,4,475,خرده‌فروشی لوازم برقی خانگی، مبلمان، تجهیزات روشنایی و سایر لوازم خانگی در فروشگاه‌های تخصصی,"Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores",BANK_TRANSLATED,1,4180
+476,GROUP,3,47,خرده‌فروشی کالاهای فرهنگی و تفریحی در فروشگاه‌های تخصصی,Retail sale of cultural and recreation goods in specialized stores,BANK_TRANSLATED,0,4190
+4761,CLASS,4,476,خرده‌فروشی کتاب، روزنامه و لوازم‌التحریر در فروشگاه‌های تخصصی,"Retail sale of books, newspapers and stationary in specialized stores",BANK_TRANSLATED,1,4200
+4762,CLASS,4,476,خرده‌فروشی آثار ضبط‌شده موسیقی و ویدئو در فروشگاه‌های تخصصی,Retail sale of music and video recordings in specialized stores,BANK_TRANSLATED,1,4210
+4763,CLASS,4,476,خرده‌فروشی تجهیزات ورزشی در فروشگاه‌های تخصصی,Retail sale of sporting equipment in specialized stores,BANK_TRANSLATED,1,4220
+4764,CLASS,4,476,خرده‌فروشی بازی و اسباب‌بازی,Retail sale of games and toys,BANK_TRANSLATED,1,4230
+477,GROUP,3,47,خرده‌فروشی سایر کالاها در فروشگاه‌های تخصصی,Retail sale of other goods in specialized stores,BANK_TRANSLATED,0,4240
+4771,CLASS,4,477,خرده‌فروشی پوشاک، کفش و مصنوعات چرمی در فروشگاه‌های تخصصی,"Retail sale of clothing, footwear and leather articles in specialized stores",BANK_TRANSLATED,1,4250
+4772,CLASS,4,477,خرده‌فروشی کالاهای دارویی و پزشکی، لوازم آرایشی و بهداشتی در فروشگاه‌های تخصصی,"Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores",BANK_TRANSLATED,1,4260
+4773,CLASS,4,477,سایر خرده‌فروشی کالاهای نو در فروشگاه‌های تخصصی,Other retail sale of new goods in specialized stores,BANK_TRANSLATED,1,4270
+4774,CLASS,4,477,خرده‌فروشی کالاهای دست‌دوم,Retail sale of second-hand goods,BANK_TRANSLATED,1,4280
+478,GROUP,3,47,خرده‌فروشی از طریق غرفه‌ها و بازارها,Retail sale via stalls and markets,BANK_TRANSLATED,0,4290
+4781,CLASS,4,478,خرده‌فروشی مواد غذایی، نوشیدنی و دخانیات از طریق غرفه‌ها و بازارها,"Retail sale via stalls and markets of food, beverages and tobacco products",BANK_TRANSLATED,1,4300
+4782,CLASS,4,478,خرده‌فروشی منسوجات، پوشاک و کفش از طریق غرفه‌ها و بازارها,"Retail sale via stalls and markets of textiles, clothing and footwear",BANK_TRANSLATED,1,4310
+4789,CLASS,4,478,خرده‌فروشی سایر کالاها از طریق غرفه‌ها و بازارها,Retail sale via stalls and markets of other goods,BANK_TRANSLATED,1,4320
+479,GROUP,3,47,خرده‌فروشی خارج از فروشگاه، غرفه یا بازار,"Retail trade not in stores, stalls or markets",BANK_TRANSLATED,0,4330
+4791,CLASS,4,479,خرده‌فروشی از طریق سفارش پستی یا اینترنت,Retail sale via mail order houses or via Internet,BANK_TRANSLATED,1,4340
+4799,CLASS,4,479,سایر خرده‌فروشی‌های خارج از فروشگاه، غرفه یا بازار,"Other retail sale not in stores, stalls or markets",BANK_TRANSLATED,1,4350
+H,SECTION,1,,حمل‌ونقل و انبارداری,Transportation and storage,BANK_TRANSLATED,0,4360
+49,DIVISION,2,H,حمل‌ونقل زمینی و حمل‌ونقل از طریق خطوط لوله,Land transport and transport via pipelines,BANK_TRANSLATED,0,4370
+491,GROUP,3,49,حمل‌ونقل ریلی,Transport via railways,BANK_TRANSLATED,0,4380
+4911,CLASS,4,491,حمل‌ونقل بین‌شهری مسافر با راه‌آهن,"Passenger rail transport, interurban",BANK_TRANSLATED,1,4390
+4912,CLASS,4,491,حمل‌ونقل بار با راه‌آهن,Freight rail transport,BANK_TRANSLATED,1,4400
+492,GROUP,3,49,سایر حمل‌ونقل زمینی,Other land transport,BANK_TRANSLATED,0,4410
+4921,CLASS,4,492,حمل‌ونقل زمینی مسافر درون‌شهری و حومه‌ای,Urban and suburban passenger land transport,BANK_TRANSLATED,1,4420
+4922,CLASS,4,492,سایر حمل‌ونقل زمینی مسافر,Other passenger land transport,BANK_TRANSLATED,1,4430
+4923,CLASS,4,492,حمل‌ونقل بار جاده‌ای,Freight transport by road,BANK_TRANSLATED,1,4440
+493,GROUP,3,49,حمل‌ونقل از طریق خطوط لوله,Transport via pipeline,BANK_TRANSLATED,0,4450
+4930,CLASS,4,493,حمل‌ونقل از طریق خطوط لوله,Transport via pipeline,BANK_TRANSLATED,1,4460
+50,DIVISION,2,H,حمل‌ونقل آبی,Water transport,BANK_TRANSLATED,0,4470
+501,GROUP,3,50,حمل‌ونقل دریایی و ساحلی,Sea and coastal water transport,BANK_TRANSLATED,0,4480
+5011,CLASS,4,501,حمل‌ونقل دریایی و ساحلی مسافر,Sea and coastal passenger water transport,BANK_TRANSLATED,1,4490
+5012,CLASS,4,501,حمل‌ونقل دریایی و ساحلی بار,Sea and coastal freight water transport,BANK_TRANSLATED,1,4500
+502,GROUP,3,50,حمل‌ونقل آب‌های داخلی,Inland water transport,BANK_TRANSLATED,0,4510
+5021,CLASS,4,502,حمل‌ونقل مسافر در آب‌های داخلی,Inland passenger water transport,BANK_TRANSLATED,1,4520
+5022,CLASS,4,502,حمل‌ونقل بار در آب‌های داخلی,Inland freight water transport,BANK_TRANSLATED,1,4530
+51,DIVISION,2,H,حمل‌ونقل هوایی,Air transport,BANK_TRANSLATED,0,4540
+511,GROUP,3,51,حمل‌ونقل هوایی مسافر,Passenger air transport,BANK_TRANSLATED,0,4550
+5110,CLASS,4,511,حمل‌ونقل هوایی مسافر,Passenger air transport,BANK_TRANSLATED,1,4560
+512,GROUP,3,51,حمل‌ونقل هوایی بار,Freight air transport,BANK_TRANSLATED,0,4570
+5120,CLASS,4,512,حمل‌ونقل هوایی بار,Freight air transport,BANK_TRANSLATED,1,4580
+52,DIVISION,2,H,انبارداری و فعالیت‌های پشتیبانی حمل‌ونقل,Warehousing and support activities for transportation,BANK_TRANSLATED,0,4590
+521,GROUP,3,52,انبارداری و ذخیره‌سازی,Warehousing and storage,BANK_TRANSLATED,0,4600
+5210,CLASS,4,521,انبارداری و ذخیره‌سازی,Warehousing and storage,BANK_TRANSLATED,1,4610
+522,GROUP,3,52,فعالیت‌های پشتیبانی حمل‌ونقل,Support activities for transportation,BANK_TRANSLATED,0,4620
+5221,CLASS,4,522,فعالیت‌های خدماتی مرتبط با حمل‌ونقل زمینی,Service activities incidental to land transportation,BANK_TRANSLATED,1,4630
+5222,CLASS,4,522,فعالیت‌های خدماتی مرتبط با حمل‌ونقل آبی,Service activities incidental to water transportation,BANK_TRANSLATED,1,4640
+5223,CLASS,4,522,فعالیت‌های خدماتی مرتبط با حمل‌ونقل هوایی,Service activities incidental to air transportation,BANK_TRANSLATED,1,4650
+5224,CLASS,4,522,جابه‌جایی بار,Cargo handling,BANK_TRANSLATED,1,4660
+5229,CLASS,4,522,سایر فعالیت‌های پشتیبانی حمل‌ونقل,Other transportation support activities,BANK_TRANSLATED,1,4670
+53,DIVISION,2,H,فعالیت‌های پستی و پیک,Postal and courier activities,BANK_TRANSLATED,0,4680
+531,GROUP,3,53,فعالیت‌های پستی,Postal activities,BANK_TRANSLATED,0,4690
+5310,CLASS,4,531,فعالیت‌های پستی,Postal activities,BANK_TRANSLATED,1,4700
+532,GROUP,3,53,فعالیت‌های پیک,Courier activities,BANK_TRANSLATED,0,4710
+5320,CLASS,4,532,فعالیت‌های پیک,Courier activities,BANK_TRANSLATED,1,4720
+I,SECTION,1,,فعالیت‌های اقامتی و خدمات غذا,Accommodation and food service activities,BANK_TRANSLATED,0,4730
+55,DIVISION,2,I,اقامت,Accommodation,BANK_TRANSLATED,0,4740
+551,GROUP,3,55,فعالیت‌های اقامت کوتاه‌مدت,Short term accommodation activities,BANK_TRANSLATED,0,4750
+5510,CLASS,4,551,فعالیت‌های اقامت کوتاه‌مدت,Short term accommodation activities,BANK_TRANSLATED,1,4760
+552,GROUP,3,55,زمین‌های کمپینگ، پارک‌های وسایل نقلیه تفریحی و پارک‌های تریلر,"Camping grounds, recreational vehicle parks and trailer parks",BANK_TRANSLATED,0,4770
+5520,CLASS,4,552,زمین‌های کمپینگ، پارک‌های وسایل نقلیه تفریحی و پارک‌های تریلر,"Camping grounds, recreational vehicle parks and trailer parks",BANK_TRANSLATED,1,4780
+559,GROUP,3,55,سایر اقامتگاه‌ها,Other accommodation,BANK_TRANSLATED,0,4790
+5590,CLASS,4,559,سایر اقامتگاه‌ها,Other accommodation,BANK_TRANSLATED,1,4800
+56,DIVISION,2,I,فعالیت‌های خدمات غذا و نوشیدنی,Food and beverage service activities,BANK_TRANSLATED,0,4810
+561,GROUP,3,56,رستوران‌ها و فعالیت‌های خدمات غذای سیار,Restaurants and mobile food service activities,BANK_TRANSLATED,0,4820
+5610,CLASS,4,561,رستوران‌ها و فعالیت‌های خدمات غذای سیار,Restaurants and mobile food service activities,BANK_TRANSLATED,1,4830
+562,GROUP,3,56,پذیرایی رویدادها و سایر فعالیت‌های خدمات غذایی,Event catering and other food service activities,BANK_TRANSLATED,0,4840
+5621,CLASS,4,562,پذیرایی رویدادها,Event catering,BANK_TRANSLATED,1,4850
+5629,CLASS,4,562,سایر فعالیت‌های خدمات غذایی,Other food service activities,BANK_TRANSLATED,1,4860
+563,GROUP,3,56,فعالیت‌های ارائه نوشیدنی,Beverage serving activities,BANK_TRANSLATED,0,4870
+5630,CLASS,4,563,فعالیت‌های ارائه نوشیدنی,Beverage serving activities,BANK_TRANSLATED,1,4880
+J,SECTION,1,,اطلاعات و ارتباطات,Information and communication,BANK_TRANSLATED,0,4890
+58,DIVISION,2,J,فعالیت‌های انتشاراتی,Publishing activities,BANK_TRANSLATED,0,4900
+581,GROUP,3,58,انتشار کتاب، نشریات و سایر فعالیت‌های انتشاراتی,"Publishing of books, periodicals and other publishing activities",BANK_TRANSLATED,0,4910
+5811,CLASS,4,581,انتشار کتاب,Book publishing,BANK_TRANSLATED,1,4920
+5812,CLASS,4,581,انتشار راهنماها و فهرست‌های پستی,Publishing of directories and mailing lists,BANK_TRANSLATED,1,4930
+5813,CLASS,4,581,انتشار روزنامه، مجله و نشریات دوره‌ای,"Publishing of newspapers, journals and periodicals",BANK_TRANSLATED,1,4940
+5819,CLASS,4,581,سایر فعالیت‌های انتشاراتی,Other publishing activities,BANK_TRANSLATED,1,4950
+582,GROUP,3,58,انتشار نرم‌افزار,Software publishing,BANK_TRANSLATED,0,4960
+5820,CLASS,4,582,انتشار نرم‌افزار,Software publishing,BANK_TRANSLATED,1,4970
+59,DIVISION,2,J,فعالیت‌های تولید فیلم، ویدئو و برنامه تلویزیونی، ضبط صدا و انتشار موسیقی,"Motion picture, video and television programme production, sound recording and music publishing activities",BANK_TRANSLATED,0,4980
+591,GROUP,3,59,فعالیت‌های فیلم، ویدئو و برنامه تلویزیونی,"Motion picture, video and television programme activities",BANK_TRANSLATED,0,4990
+5911,CLASS,4,591,فعالیت‌های تولید فیلم، ویدئو و برنامه تلویزیونی,"Motion picture, video and television programme production activities",BANK_TRANSLATED,1,5000
+5912,CLASS,4,591,فعالیت‌های پس‌تولید فیلم، ویدئو و برنامه تلویزیونی,"Motion picture, video and television programme post-production activities",BANK_TRANSLATED,1,5010
+5913,CLASS,4,591,فعالیت‌های توزیع فیلم، ویدئو و برنامه تلویزیونی,"Motion picture, video and television programme distribution activities",BANK_TRANSLATED,1,5020
+5914,CLASS,4,591,فعالیت‌های نمایش فیلم,Motion picture projection activities,BANK_TRANSLATED,1,5030
+592,GROUP,3,59,فعالیت‌های ضبط صدا و انتشار موسیقی,Sound recording and music publishing activities,BANK_TRANSLATED,0,5040
+5920,CLASS,4,592,فعالیت‌های ضبط صدا و انتشار موسیقی,Sound recording and music publishing activities,BANK_TRANSLATED,1,5050
+60,DIVISION,2,J,فعالیت‌های برنامه‌سازی و پخش,Programming and broadcasting activities,BANK_TRANSLATED,0,5060
+601,GROUP,3,60,پخش رادیویی,Radio broadcasting,BANK_TRANSLATED,0,5070
+6010,CLASS,4,601,پخش رادیویی,Radio broadcasting,BANK_TRANSLATED,1,5080
+602,GROUP,3,60,فعالیت‌های برنامه‌سازی و پخش تلویزیونی,Television programming and broadcasting activities,BANK_TRANSLATED,0,5090
+6020,CLASS,4,602,فعالیت‌های برنامه‌سازی و پخش تلویزیونی,Television programming and broadcasting activities,BANK_TRANSLATED,1,5100
+61,DIVISION,2,J,مخابرات,Telecommunications,BANK_TRANSLATED,0,5110
+611,GROUP,3,61,فعالیت‌های مخابرات سیمی,Wired telecommunications activities,BANK_TRANSLATED,0,5120
+6110,CLASS,4,611,فعالیت‌های مخابرات سیمی,Wired telecommunications activities,BANK_TRANSLATED,1,5130
+612,GROUP,3,61,فعالیت‌های مخابرات بی‌سیم,Wireless telecommunications activities,BANK_TRANSLATED,0,5140
+6120,CLASS,4,612,فعالیت‌های مخابرات بی‌سیم,Wireless telecommunications activities,BANK_TRANSLATED,1,5150
+613,GROUP,3,61,فعالیت‌های مخابرات ماهواره‌ای,Satellite telecommunications activities,BANK_TRANSLATED,0,5160
+6130,CLASS,4,613,فعالیت‌های مخابرات ماهواره‌ای,Satellite telecommunications activities,BANK_TRANSLATED,1,5170
+619,GROUP,3,61,سایر فعالیت‌های مخابراتی,Other telecommunications activities,BANK_TRANSLATED,0,5180
+6190,CLASS,4,619,سایر فعالیت‌های مخابراتی,Other telecommunications activities,BANK_TRANSLATED,1,5190
+62,DIVISION,2,J,برنامه‌نویسی رایانه، مشاوره و فعالیت‌های مرتبط,"Computer programming, consultancy and related activities",BANK_TRANSLATED,0,5200
+620,GROUP,3,62,برنامه‌نویسی رایانه، مشاوره و فعالیت‌های مرتبط,"Computer programming, consultancy and related activities",BANK_TRANSLATED,0,5210
+6201,CLASS,4,620,فعالیت‌های برنامه‌نویسی رایانه,Computer programming activities,BANK_TRANSLATED,1,5220
+6202,CLASS,4,620,مشاوره رایانه و فعالیت‌های مدیریت تأسیسات رایانه‌ای,Computer consultancy and computer facilities management activities,BANK_TRANSLATED,1,5230
+6209,CLASS,4,620,سایر فعالیت‌های خدمات فناوری اطلاعات و رایانه,Other information technology and computer service activities,BANK_TRANSLATED,1,5240
+63,DIVISION,2,J,فعالیت‌های خدمات اطلاعاتی,Information service activities,BANK_TRANSLATED,0,5250
+631,GROUP,3,63,پردازش داده، میزبانی و فعالیت‌های مرتبط؛ درگاه‌های وب,"Data processing, hosting and related activities; web portals",BANK_TRANSLATED,0,5260
+6311,CLASS,4,631,پردازش داده، میزبانی و فعالیت‌های مرتبط,"Data processing, hosting and related activities",BANK_TRANSLATED,1,5270
+6312,CLASS,4,631,درگاه‌های وب,Web portals,BANK_TRANSLATED,1,5280
+639,GROUP,3,63,سایر فعالیت‌های خدمات اطلاعاتی,Other information service activities,BANK_TRANSLATED,0,5290
+6391,CLASS,4,639,فعالیت‌های خبرگزاری,News agency activities,BANK_TRANSLATED,1,5300
+6399,CLASS,4,639,سایر فعالیت‌های خدمات اطلاعاتی طبقه‌بندی‌نشده در جای دیگر,Other information service activities n.e.c.,BANK_TRANSLATED,1,5310
+K,SECTION,1,,فعالیت‌های مالی و بیمه,Financial and insurance activities,BANK_TRANSLATED,0,5320
+64,DIVISION,2,K,فعالیت‌های خدمات مالی، به‌جز بیمه و تأمین مالی بازنشستگی,"Financial service activities, except insurance and pension funding",BANK_TRANSLATED,0,5330
+641,GROUP,3,64,واسطه‌گری پولی,Monetary intermediation,BANK_TRANSLATED,0,5340
+6411,CLASS,4,641,بانکداری مرکزی,Central banking,BANK_TRANSLATED,1,5350
+6419,CLASS,4,641,سایر واسطه‌گری‌های پولی,Other monetary intermediation,BANK_TRANSLATED,1,5360
+642,GROUP,3,64,فعالیت‌های شرکت‌های هلدینگ,Activities of holding companies,BANK_TRANSLATED,0,5370
+6420,CLASS,4,642,فعالیت‌های شرکت‌های هلدینگ,Activities of holding companies,BANK_TRANSLATED,1,5380
+643,GROUP,3,64,تراست‌ها، صندوق‌ها و نهادهای مالی مشابه,"Trusts, funds and similar financial entities",BANK_TRANSLATED,0,5390
+6430,CLASS,4,643,تراست‌ها، صندوق‌ها و نهادهای مالی مشابه,"Trusts, funds and similar financial entities",BANK_TRANSLATED,1,5400
+649,GROUP,3,64,سایر فعالیت‌های خدمات مالی، به‌جز بیمه و تأمین مالی بازنشستگی,"Other financial service activities, except insurance and pension funding activities",BANK_TRANSLATED,0,5410
+6491,CLASS,4,649,لیزینگ مالی,Financial leasing,BANK_TRANSLATED,1,5420
+6492,CLASS,4,649,سایر اعطای اعتبار,Other credit granting,BANK_TRANSLATED,1,5430
+6499,CLASS,4,649,سایر فعالیت‌های خدمات مالی، به‌جز بیمه و تأمین مالی بازنشستگی، طبقه‌بندی‌نشده در جای دیگر,"Other financial service activities, except insurance and pension funding activities, n.e.c.",BANK_TRANSLATED,1,5440
+65,DIVISION,2,K,بیمه، بیمه اتکایی و تأمین مالی بازنشستگی، به‌جز تأمین اجتماعی اجباری,"Insurance, reinsurance and pension funding, except compulsory social security",BANK_TRANSLATED,0,5450
+651,GROUP,3,65,بیمه,Insurance,BANK_TRANSLATED,0,5460
+6511,CLASS,4,651,بیمه عمر,Life insurance,BANK_TRANSLATED,1,5470
+6512,CLASS,4,651,بیمه غیرعمر,Non-life insurance,BANK_TRANSLATED,1,5480
+652,GROUP,3,65,بیمه اتکایی,Reinsurance,BANK_TRANSLATED,0,5490
+6520,CLASS,4,652,بیمه اتکایی,Reinsurance,BANK_TRANSLATED,1,5500
+653,GROUP,3,65,تأمین مالی بازنشستگی,Pension funding,BANK_TRANSLATED,0,5510
+6530,CLASS,4,653,تأمین مالی بازنشستگی,Pension funding,BANK_TRANSLATED,1,5520
+66,DIVISION,2,K,فعالیت‌های کمکی خدمات مالی و بیمه,Activities auxiliary to financial service and insurance activities,BANK_TRANSLATED,0,5530
+661,GROUP,3,66,فعالیت‌های کمکی خدمات مالی، به‌جز بیمه و تأمین مالی بازنشستگی,"Activities auxiliary to financial service activities, except insurance and pension funding",BANK_TRANSLATED,0,5540
+6611,CLASS,4,661,مدیریت بازارهای مالی,Administration of financial markets,BANK_TRANSLATED,1,5550
+6612,CLASS,4,661,کارگزاری قراردادهای اوراق بهادار و کالا,Security and commodity contracts brokerage,BANK_TRANSLATED,1,5560
+6619,CLASS,4,661,سایر فعالیت‌های کمکی خدمات مالی,Other activities auxiliary to financial service activities,BANK_TRANSLATED,1,5570
+662,GROUP,3,66,فعالیت‌های کمکی بیمه و تأمین مالی بازنشستگی,Activities auxiliary to insurance and pension funding,BANK_TRANSLATED,0,5580
+6621,CLASS,4,662,ارزیابی ریسک و خسارت,Risk and damage evaluation,BANK_TRANSLATED,1,5590
+6622,CLASS,4,662,فعالیت‌های نمایندگان و کارگزاران بیمه,Activities of insurance agents and brokers,BANK_TRANSLATED,1,5600
+6629,CLASS,4,662,سایر فعالیت‌های کمکی بیمه و تأمین مالی بازنشستگی,Other activities auxiliary to insurance and pension funding,BANK_TRANSLATED,1,5610
+663,GROUP,3,66,فعالیت‌های مدیریت صندوق,Fund management activities,BANK_TRANSLATED,0,5620
+6630,CLASS,4,663,فعالیت‌های مدیریت صندوق,Fund management activities,BANK_TRANSLATED,1,5630
+L,SECTION,1,,فعالیت‌های املاک و مستغلات,Real estate activities,BANK_TRANSLATED,0,5640
+68,DIVISION,2,L,فعالیت‌های املاک و مستغلات,Real estate activities,BANK_TRANSLATED,0,5650
+681,GROUP,3,68,فعالیت‌های املاک با ملک شخصی یا اجاره‌ای,Real estate activities with own or leased property,BANK_TRANSLATED,0,5660
+6810,CLASS,4,681,فعالیت‌های املاک با ملک شخصی یا اجاره‌ای,Real estate activities with own or leased property,BANK_TRANSLATED,1,5670
+682,GROUP,3,68,فعالیت‌های املاک بر مبنای کارمزد یا قرارداد,Real estate activities on a fee or contract basis,BANK_TRANSLATED,0,5680
+6820,CLASS,4,682,فعالیت‌های املاک بر مبنای کارمزد یا قرارداد,Real estate activities on a fee or contract basis,BANK_TRANSLATED,1,5690
+M,SECTION,1,,فعالیت‌های حرفه‌ای، علمی و فنی,"Professional, scientific and technical activities",BANK_TRANSLATED,0,5700
+69,DIVISION,2,M,فعالیت‌های حقوقی و حسابداری,Legal and accounting activities,BANK_TRANSLATED,0,5710
+691,GROUP,3,69,فعالیت‌های حقوقی,Legal activities,BANK_TRANSLATED,0,5720
+6910,CLASS,4,691,فعالیت‌های حقوقی,Legal activities,BANK_TRANSLATED,1,5730
+692,GROUP,3,69,فعالیت‌های حسابداری، دفترداری و حسابرسی؛ مشاوره مالیاتی,"Accounting, bookkeeping and auditing activities; tax consultancy",BANK_TRANSLATED,0,5740
+6920,CLASS,4,692,فعالیت‌های حسابداری، دفترداری و حسابرسی؛ مشاوره مالیاتی,"Accounting, bookkeeping and auditing activities; tax consultancy",BANK_TRANSLATED,1,5750
+70,DIVISION,2,M,فعالیت‌های دفاتر مرکزی؛ فعالیت‌های مشاوره مدیریت,Activities of head offices; management consultancy activities,BANK_TRANSLATED,0,5760
+701,GROUP,3,70,فعالیت‌های دفاتر مرکزی,Activities of head offices,BANK_TRANSLATED,0,5770
+7010,CLASS,4,701,فعالیت‌های دفاتر مرکزی,Activities of head offices,BANK_TRANSLATED,1,5780
+702,GROUP,3,70,فعالیت‌های مشاوره مدیریت,Management consultancy activities,BANK_TRANSLATED,0,5790
+7020,CLASS,4,702,فعالیت‌های مشاوره مدیریت,Management consultancy activities,BANK_TRANSLATED,1,5800
+71,DIVISION,2,M,فعالیت‌های معماری و مهندسی؛ آزمون و تحلیل فنی,Architectural and engineering activities; technical testing and analysis,BANK_TRANSLATED,0,5810
+711,GROUP,3,71,فعالیت‌های معماری و مهندسی و مشاوره فنی مرتبط,Architectural and engineering activities and related technical consultancy,BANK_TRANSLATED,0,5820
+7110,CLASS,4,711,فعالیت‌های معماری و مهندسی و مشاوره فنی مرتبط,Architectural and engineering activities and related technical consultancy,BANK_TRANSLATED,1,5830
+712,GROUP,3,71,آزمون و تحلیل فنی,Technical testing and analysis,BANK_TRANSLATED,0,5840
+7120,CLASS,4,712,آزمون و تحلیل فنی,Technical testing and analysis,BANK_TRANSLATED,1,5850
+72,DIVISION,2,M,پژوهش و توسعه علمی,Scientific research and development,BANK_TRANSLATED,0,5860
+721,GROUP,3,72,پژوهش و توسعه تجربی در علوم طبیعی و مهندسی,Research and experimental development on natural sciences and engineering,BANK_TRANSLATED,0,5870
+7210,CLASS,4,721,پژوهش و توسعه تجربی در علوم طبیعی و مهندسی,Research and experimental development on natural sciences and engineering,BANK_TRANSLATED,1,5880
+722,GROUP,3,72,پژوهش و توسعه تجربی در علوم اجتماعی و انسانی,Research and experimental development on social sciences and humanities,BANK_TRANSLATED,0,5890
+7220,CLASS,4,722,پژوهش و توسعه تجربی در علوم اجتماعی و انسانی,Research and experimental development on social sciences and humanities,BANK_TRANSLATED,1,5900
+73,DIVISION,2,M,تبلیغات و تحقیقات بازار,Advertising and market research,BANK_TRANSLATED,0,5910
+731,GROUP,3,73,تبلیغات,Advertising,BANK_TRANSLATED,0,5920
+7310,CLASS,4,731,تبلیغات,Advertising,BANK_TRANSLATED,1,5930
+732,GROUP,3,73,تحقیقات بازار و نظرسنجی افکار عمومی,Market research and public opinion polling,BANK_TRANSLATED,0,5940
+7320,CLASS,4,732,تحقیقات بازار و نظرسنجی افکار عمومی,Market research and public opinion polling,BANK_TRANSLATED,1,5950
+74,DIVISION,2,M,سایر فعالیت‌های حرفه‌ای، علمی و فنی,"Other professional, scientific and technical activities",BANK_TRANSLATED,0,5960
+741,GROUP,3,74,فعالیت‌های تخصصی طراحی,Specialized design activities,BANK_TRANSLATED,0,5970
+7410,CLASS,4,741,فعالیت‌های تخصصی طراحی,Specialized design activities,BANK_TRANSLATED,1,5980
+742,GROUP,3,74,فعالیت‌های عکاسی,Photographic activities,BANK_TRANSLATED,0,5990
+7420,CLASS,4,742,فعالیت‌های عکاسی,Photographic activities,BANK_TRANSLATED,1,6000
+749,GROUP,3,74,سایر فعالیت‌های حرفه‌ای، علمی و فنی طبقه‌بندی‌نشده در جای دیگر,"Other professional, scientific and technical activities n.e.c.",BANK_TRANSLATED,0,6010
+7490,CLASS,4,749,سایر فعالیت‌های حرفه‌ای، علمی و فنی طبقه‌بندی‌نشده در جای دیگر,"Other professional, scientific and technical activities n.e.c.",BANK_TRANSLATED,1,6020
+75,DIVISION,2,M,فعالیت‌های دامپزشکی,Veterinary activities,BANK_TRANSLATED,0,6030
+750,GROUP,3,75,فعالیت‌های دامپزشکی,Veterinary activities,BANK_TRANSLATED,0,6040
+7500,CLASS,4,750,فعالیت‌های دامپزشکی,Veterinary activities,BANK_TRANSLATED,1,6050
+N,SECTION,1,,فعالیت‌های خدمات اداری و پشتیبانی,Administrative and support service activities,BANK_TRANSLATED,0,6060
+77,DIVISION,2,N,فعالیت‌های اجاره و لیزینگ,Rental and leasing activities,BANK_TRANSLATED,0,6070
+771,GROUP,3,77,اجاره و لیزینگ وسایل نقلیه موتوری,Renting and leasing of motor vehicles,BANK_TRANSLATED,0,6080
+7710,CLASS,4,771,اجاره و لیزینگ وسایل نقلیه موتوری,Renting and leasing of motor vehicles,BANK_TRANSLATED,1,6090
+772,GROUP,3,77,اجاره و لیزینگ کالاهای شخصی و خانگی,Renting and leasing of personal and household goods,BANK_TRANSLATED,0,6100
+7721,CLASS,4,772,اجاره و لیزینگ کالاهای تفریحی و ورزشی,Renting and leasing of recreational and sports goods,BANK_TRANSLATED,1,6110
+7722,CLASS,4,772,اجاره نوارها و دیسک‌های ویدئویی,Renting of video tapes and disks,BANK_TRANSLATED,1,6120
+7729,CLASS,4,772,اجاره و لیزینگ سایر کالاهای شخصی و خانگی,Renting and leasing of other personal and household goods,BANK_TRANSLATED,1,6130
+773,GROUP,3,77,اجاره و لیزینگ سایر ماشین‌آلات، تجهیزات و کالاهای ملموس,"Renting and leasing of other machinery, equipment and tangible goods",BANK_TRANSLATED,0,6140
+7730,CLASS,4,773,اجاره و لیزینگ سایر ماشین‌آلات، تجهیزات و کالاهای ملموس,"Renting and leasing of other machinery, equipment and tangible goods",BANK_TRANSLATED,1,6150
+774,GROUP,3,77,لیزینگ مالکیت فکری و محصولات مشابه، به‌جز آثار دارای حق مؤلف,"Leasing of intellectual property and similar products, except copyrighted works",BANK_TRANSLATED,0,6160
+7740,CLASS,4,774,لیزینگ مالکیت فکری و محصولات مشابه، به‌جز آثار دارای حق مؤلف,"Leasing of intellectual property and similar products, except copyrighted works",BANK_TRANSLATED,1,6170
+78,DIVISION,2,N,فعالیت‌های اشتغال و کاریابی,Employment activities,BANK_TRANSLATED,0,6180
+781,GROUP,3,78,فعالیت‌های مؤسسات کاریابی,Activities of employment placement agencies,BANK_TRANSLATED,0,6190
+7810,CLASS,4,781,فعالیت‌های مؤسسات کاریابی,Activities of employment placement agencies,BANK_TRANSLATED,1,6200
+782,GROUP,3,78,فعالیت‌های مؤسسات تأمین نیروی کار موقت,Temporary employment agency activities,BANK_TRANSLATED,0,6210
+7820,CLASS,4,782,فعالیت‌های مؤسسات تأمین نیروی کار موقت,Temporary employment agency activities,BANK_TRANSLATED,1,6220
+783,GROUP,3,78,سایر تأمین نیروی انسانی,Other human resources provision,BANK_TRANSLATED,0,6230
+7830,CLASS,4,783,سایر تأمین نیروی انسانی,Other human resources provision,BANK_TRANSLATED,1,6240
+79,DIVISION,2,N,فعالیت‌های آژانس مسافرتی، برگزارکننده تور، خدمات رزرو و فعالیت‌های مرتبط,"Travel agency, tour operator, reservation service and related activities",BANK_TRANSLATED,0,6250
+791,GROUP,3,79,فعالیت‌های آژانس مسافرتی و برگزارکننده تور,Travel agency and tour operator activities,BANK_TRANSLATED,0,6260
+7911,CLASS,4,791,فعالیت‌های آژانس مسافرتی,Travel agency activities,BANK_TRANSLATED,1,6270
+7912,CLASS,4,791,فعالیت‌های برگزارکنندگان تور,Tour operator activities,BANK_TRANSLATED,1,6280
+799,GROUP,3,79,سایر خدمات رزرو و فعالیت‌های مرتبط,Other reservation service and related activities,BANK_TRANSLATED,0,6290
+7990,CLASS,4,799,سایر خدمات رزرو و فعالیت‌های مرتبط,Other reservation service and related activities,BANK_TRANSLATED,1,6300
+80,DIVISION,2,N,فعالیت‌های امنیتی و تحقیقاتی,Security and investigation activities,BANK_TRANSLATED,0,6310
+801,GROUP,3,80,فعالیت‌های امنیت خصوصی,Private security activities,BANK_TRANSLATED,0,6320
+8010,CLASS,4,801,فعالیت‌های امنیت خصوصی,Private security activities,BANK_TRANSLATED,1,6330
+802,GROUP,3,80,فعالیت‌های خدمات سیستم‌های امنیتی,Security systems service activities,BANK_TRANSLATED,0,6340
+8020,CLASS,4,802,فعالیت‌های خدمات سیستم‌های امنیتی,Security systems service activities,BANK_TRANSLATED,1,6350
+803,GROUP,3,80,فعالیت‌های تحقیقاتی,Investigation activities,BANK_TRANSLATED,0,6360
+8030,CLASS,4,803,فعالیت‌های تحقیقاتی,Investigation activities,BANK_TRANSLATED,1,6370
+81,DIVISION,2,N,خدمات مربوط به ساختمان‌ها و فعالیت‌های محوطه و فضای سبز,Services to buildings and landscape activities,BANK_TRANSLATED,0,6380
+811,GROUP,3,81,فعالیت‌های پشتیبانی ترکیبی تأسیسات,Combined facilities support activities,BANK_TRANSLATED,0,6390
+8110,CLASS,4,811,فعالیت‌های پشتیبانی ترکیبی تأسیسات,Combined facilities support activities,BANK_TRANSLATED,1,6400
+812,GROUP,3,81,فعالیت‌های نظافت,Cleaning activities,BANK_TRANSLATED,0,6410
+8121,CLASS,4,812,نظافت عمومی ساختمان‌ها,General cleaning of buildings,BANK_TRANSLATED,1,6420
+8129,CLASS,4,812,سایر فعالیت‌های نظافت ساختمان و صنعتی,Other building and industrial cleaning activities,BANK_TRANSLATED,1,6430
+813,GROUP,3,81,فعالیت‌های خدمات نگهداری و مراقبت از محوطه و فضای سبز,Landscape care and maintenance service activities,BANK_TRANSLATED,0,6440
+8130,CLASS,4,813,فعالیت‌های خدمات نگهداری و مراقبت از محوطه و فضای سبز,Landscape care and maintenance service activities,BANK_TRANSLATED,1,6450
+82,DIVISION,2,N,فعالیت‌های اداری دفتر، پشتیبانی دفتر و سایر فعالیت‌های پشتیبانی کسب‌وکار,"Office administrative, office support and other business support activities",BANK_TRANSLATED,0,6460
+821,GROUP,3,82,فعالیت‌های اداری و پشتیبانی دفتر,Office administrative and support activities,BANK_TRANSLATED,0,6470
+8211,CLASS,4,821,فعالیت‌های خدمات اداری ترکیبی دفتر,Combined office administrative service activities,BANK_TRANSLATED,1,6480
+8219,CLASS,4,821,فتوکپی، آماده‌سازی اسناد و سایر فعالیت‌های تخصصی پشتیبانی دفتر,"Photocopying, document preparation and other specialized office support activities",BANK_TRANSLATED,1,6490
+822,GROUP,3,82,فعالیت‌های مراکز تماس,Activities of call centres,BANK_TRANSLATED,0,6500
+8220,CLASS,4,822,فعالیت‌های مراکز تماس,Activities of call centres,BANK_TRANSLATED,1,6510
+823,GROUP,3,82,برگزاری همایش‌ها و نمایشگاه‌های تجاری,Organization of conventions and trade shows,BANK_TRANSLATED,0,6520
+8230,CLASS,4,823,برگزاری همایش‌ها و نمایشگاه‌های تجاری,Organization of conventions and trade shows,BANK_TRANSLATED,1,6530
+829,GROUP,3,82,فعالیت‌های خدمات پشتیبانی کسب‌وکار طبقه‌بندی‌نشده در جای دیگر,Business support service activities n.e.c.,BANK_TRANSLATED,0,6540
+8291,CLASS,4,829,فعالیت‌های مؤسسات وصول مطالبات و دفاتر اعتبارسنجی,Activities of collection agencies and credit bureaus,BANK_TRANSLATED,1,6550
+8292,CLASS,4,829,فعالیت‌های بسته‌بندی,Packaging activities,BANK_TRANSLATED,1,6560
+8299,CLASS,4,829,سایر فعالیت‌های خدمات پشتیبانی کسب‌وکار طبقه‌بندی‌نشده در جای دیگر,Other business support service activities n.e.c.,BANK_TRANSLATED,1,6570
+O,SECTION,1,,اداره عمومی و دفاع؛ تأمین اجتماعی اجباری,Public administration and defence; compulsory social security,BANK_TRANSLATED,0,6580
+84,DIVISION,2,O,اداره عمومی و دفاع؛ تأمین اجتماعی اجباری,Public administration and defence; compulsory social security,BANK_TRANSLATED,0,6590
+841,GROUP,3,84,اداره امور دولت و سیاست‌های اقتصادی و اجتماعی جامعه,Administration of the State and the economic and social policy of the community,BANK_TRANSLATED,0,6600
+8411,CLASS,4,841,فعالیت‌های عمومی اداره دولت,General public administration activities,BANK_TRANSLATED,1,6610
+8412,CLASS,4,841,تنظیم فعالیت‌های ارائه خدمات سلامت، آموزش، فرهنگی و سایر خدمات اجتماعی، به‌جز تأمین اجتماعی,"Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security",BANK_TRANSLATED,1,6620
+8413,CLASS,4,841,تنظیم و کمک به بهره‌برداری کارآمدتر کسب‌وکارها,Regulation of and contribution to more efficient operation of businesses,BANK_TRANSLATED,1,6630
+842,GROUP,3,84,ارائه خدمات به جامعه به‌طور کلی,Provision of services to the community as a whole,BANK_TRANSLATED,0,6640
+8421,CLASS,4,842,امور خارجه,Foreign affairs,BANK_TRANSLATED,1,6650
+8422,CLASS,4,842,فعالیت‌های دفاعی,Defence activities,BANK_TRANSLATED,1,6660
+8423,CLASS,4,842,فعالیت‌های نظم و امنیت عمومی,Public order and safety activities,BANK_TRANSLATED,1,6670
+843,GROUP,3,84,فعالیت‌های تأمین اجتماعی اجباری,Compulsory social security activities,BANK_TRANSLATED,0,6680
+8430,CLASS,4,843,فعالیت‌های تأمین اجتماعی اجباری,Compulsory social security activities,BANK_TRANSLATED,1,6690
+P,SECTION,1,,آموزش,Education,BANK_TRANSLATED,0,6700
+85,DIVISION,2,P,آموزش,Education,BANK_TRANSLATED,0,6710
+851,GROUP,3,85,آموزش پیش‌دبستانی و ابتدایی,Pre-primary and primary education,BANK_TRANSLATED,0,6720
+8510,CLASS,4,851,آموزش پیش‌دبستانی و ابتدایی,Pre-primary and primary education,BANK_TRANSLATED,1,6730
+852,GROUP,3,85,آموزش متوسطه,Secondary education,BANK_TRANSLATED,0,6740
+8521,CLASS,4,852,آموزش متوسطه عمومی,General secondary education,BANK_TRANSLATED,1,6750
+8522,CLASS,4,852,آموزش متوسطه فنی و حرفه‌ای,Technical and vocational secondary education,BANK_TRANSLATED,1,6760
+853,GROUP,3,85,آموزش عالی,Higher education,BANK_TRANSLATED,0,6770
+8530,CLASS,4,853,آموزش عالی,Higher education,BANK_TRANSLATED,1,6780
+854,GROUP,3,85,سایر آموزش‌ها,Other education,BANK_TRANSLATED,0,6790
+8541,CLASS,4,854,آموزش ورزش و تفریح,Sports and recreation education,BANK_TRANSLATED,1,6800
+8542,CLASS,4,854,آموزش فرهنگی,Cultural education,BANK_TRANSLATED,1,6810
+8549,CLASS,4,854,سایر آموزش‌ها طبقه‌بندی‌نشده در جای دیگر,Other education n.e.c.,BANK_TRANSLATED,1,6820
+855,GROUP,3,85,فعالیت‌های پشتیبانی آموزشی,Educational support activities,BANK_TRANSLATED,0,6830
+8550,CLASS,4,855,فعالیت‌های پشتیبانی آموزشی,Educational support activities,BANK_TRANSLATED,1,6840
+Q,SECTION,1,,فعالیت‌های سلامت انسان و مددکاری اجتماعی,Human health and social work activities,BANK_TRANSLATED,0,6850
+86,DIVISION,2,Q,فعالیت‌های سلامت انسان,Human health activities,BANK_TRANSLATED,0,6860
+861,GROUP,3,86,فعالیت‌های بیمارستانی,Hospital activities,BANK_TRANSLATED,0,6870
+8610,CLASS,4,861,فعالیت‌های بیمارستانی,Hospital activities,BANK_TRANSLATED,1,6880
+862,GROUP,3,86,فعالیت‌های طبابت پزشکی و دندانپزشکی,Medical and dental practice activities,BANK_TRANSLATED,0,6890
+8620,CLASS,4,862,فعالیت‌های طبابت پزشکی و دندانپزشکی,Medical and dental practice activities,BANK_TRANSLATED,1,6900
+869,GROUP,3,86,سایر فعالیت‌های سلامت انسان,Other human health activities,BANK_TRANSLATED,0,6910
+8690,CLASS,4,869,سایر فعالیت‌های سلامت انسان,Other human health activities,BANK_TRANSLATED,1,6920
+87,DIVISION,2,Q,فعالیت‌های مراقبتی اقامتی,Residential care activities,BANK_TRANSLATED,0,6930
+871,GROUP,3,87,مراکز مراقبت پرستاری اقامتی,Residential nursing care facilities,BANK_TRANSLATED,0,6940
+8710,CLASS,4,871,مراکز مراقبت پرستاری اقامتی,Residential nursing care facilities,BANK_TRANSLATED,1,6950
+872,GROUP,3,87,فعالیت‌های مراقبتی اقامتی برای ناتوانی ذهنی، سلامت روان و سوءمصرف مواد,"Residential care activities for mental retardation, mental health and substance abuse",BANK_TRANSLATED,0,6960
+8720,CLASS,4,872,فعالیت‌های مراقبتی اقامتی برای ناتوانی ذهنی، سلامت روان و سوءمصرف مواد,"Residential care activities for mental retardation, mental health and substance abuse",BANK_TRANSLATED,1,6970
+873,GROUP,3,87,فعالیت‌های مراقبتی اقامتی برای سالمندان و افراد دارای معلولیت,Residential care activities for the elderly and disabled,BANK_TRANSLATED,0,6980
+8730,CLASS,4,873,فعالیت‌های مراقبتی اقامتی برای سالمندان و افراد دارای معلولیت,Residential care activities for the elderly and disabled,BANK_TRANSLATED,1,6990
+879,GROUP,3,87,سایر فعالیت‌های مراقبتی اقامتی,Other residential care activities,BANK_TRANSLATED,0,7000
+8790,CLASS,4,879,سایر فعالیت‌های مراقبتی اقامتی,Other residential care activities,BANK_TRANSLATED,1,7010
+88,DIVISION,2,Q,فعالیت‌های مددکاری اجتماعی بدون اقامت,Social work activities without accommodation,BANK_TRANSLATED,0,7020
+881,GROUP,3,88,فعالیت‌های مددکاری اجتماعی بدون اقامت برای سالمندان و افراد دارای معلولیت,Social work activities without accommodation for the elderly and disabled,BANK_TRANSLATED,0,7030
+8810,CLASS,4,881,فعالیت‌های مددکاری اجتماعی بدون اقامت برای سالمندان و افراد دارای معلولیت,Social work activities without accommodation for the elderly and disabled,BANK_TRANSLATED,1,7040
+889,GROUP,3,88,سایر فعالیت‌های مددکاری اجتماعی بدون اقامت,Other social work activities without accommodation,BANK_TRANSLATED,0,7050
+8890,CLASS,4,889,سایر فعالیت‌های مددکاری اجتماعی بدون اقامت,Other social work activities without accommodation,BANK_TRANSLATED,1,7060
+R,SECTION,1,,هنر، سرگرمی و تفریح,"Arts, entertainment and recreation",BANK_TRANSLATED,0,7070
+90,DIVISION,2,R,فعالیت‌های خلاقانه، هنری و سرگرمی,"Creative, arts and entertainment activities",BANK_TRANSLATED,0,7080
+900,GROUP,3,90,فعالیت‌های خلاقانه، هنری و سرگرمی,"Creative, arts and entertainment activities",BANK_TRANSLATED,0,7090
+9000,CLASS,4,900,فعالیت‌های خلاقانه، هنری و سرگرمی,"Creative, arts and entertainment activities",BANK_TRANSLATED,1,7100
+91,DIVISION,2,R,کتابخانه‌ها، آرشیوها، موزه‌ها و سایر فعالیت‌های فرهنگی,"Libraries, archives, museums and other cultural activities",BANK_TRANSLATED,0,7110
+910,GROUP,3,91,کتابخانه‌ها، آرشیوها، موزه‌ها و سایر فعالیت‌های فرهنگی,"Libraries, archives, museums and other cultural activities",BANK_TRANSLATED,0,7120
+9101,CLASS,4,910,فعالیت‌های کتابخانه و آرشیو,Library and archives activities,BANK_TRANSLATED,1,7130
+9102,CLASS,4,910,فعالیت‌های موزه و بهره‌برداری از اماکن و بناهای تاریخی,Museums activities and operation of historical sites and buildings,BANK_TRANSLATED,1,7140
+9103,CLASS,4,910,فعالیت‌های باغ‌های گیاه‌شناسی و جانورشناسی و مناطق حفاظت‌شده طبیعی,Botanical and zoological gardens and nature reserves activities,BANK_TRANSLATED,1,7150
+92,DIVISION,2,R,فعالیت‌های قمار و شرط‌بندی,Gambling and betting activities,BANK_TRANSLATED,0,7160
+920,GROUP,3,92,فعالیت‌های قمار و شرط‌بندی,Gambling and betting activities,BANK_TRANSLATED,0,7170
+9200,CLASS,4,920,فعالیت‌های قمار و شرط‌بندی,Gambling and betting activities,BANK_TRANSLATED,1,7180
+93,DIVISION,2,R,فعالیت‌های ورزشی، سرگرمی و تفریح,Sports activities and amusement and recreation activities,BANK_TRANSLATED,0,7190
+931,GROUP,3,93,فعالیت‌های ورزشی,Sports activities,BANK_TRANSLATED,0,7200
+9311,CLASS,4,931,بهره‌برداری از تأسیسات ورزشی,Operation of sports facilities,BANK_TRANSLATED,1,7210
+9312,CLASS,4,931,فعالیت‌های باشگاه‌های ورزشی,Activities of sports clubs,BANK_TRANSLATED,1,7220
+9319,CLASS,4,931,سایر فعالیت‌های ورزشی,Other sports activities,BANK_TRANSLATED,1,7230
+932,GROUP,3,93,سایر فعالیت‌های سرگرمی و تفریح,Other amusement and recreation activities,BANK_TRANSLATED,0,7240
+9321,CLASS,4,932,فعالیت‌های شهربازی‌ها و پارک‌های موضوعی,Activities of amusement parks and theme parks,BANK_TRANSLATED,1,7250
+9329,CLASS,4,932,سایر فعالیت‌های سرگرمی و تفریح طبقه‌بندی‌نشده در جای دیگر,Other amusement and recreation activities n.e.c.,BANK_TRANSLATED,1,7260
+S,SECTION,1,,سایر فعالیت‌های خدماتی,Other service activities,BANK_TRANSLATED,0,7270
+94,DIVISION,2,S,فعالیت‌های سازمان‌های عضویت‌محور,Activities of membership organizations,BANK_TRANSLATED,0,7280
+941,GROUP,3,94,فعالیت‌های سازمان‌های عضویت‌محور کسب‌وکار، کارفرمایی و حرفه‌ای,"Activities of business, employers and professional membership organizations",BANK_TRANSLATED,0,7290
+9411,CLASS,4,941,فعالیت‌های سازمان‌های عضویت‌محور کسب‌وکار و کارفرمایان,Activities of business and employers membership organizations,BANK_TRANSLATED,1,7300
+9412,CLASS,4,941,فعالیت‌های سازمان‌های عضویت‌محور حرفه‌ای,Activities of professional membership organizations,BANK_TRANSLATED,1,7310
+942,GROUP,3,94,فعالیت‌های اتحادیه‌های کارگری,Activities of trade unions,BANK_TRANSLATED,0,7320
+9420,CLASS,4,942,فعالیت‌های اتحادیه‌های کارگری,Activities of trade unions,BANK_TRANSLATED,1,7330
+949,GROUP,3,94,فعالیت‌های سایر سازمان‌های عضویت‌محور,Activities of other membership organizations,BANK_TRANSLATED,0,7340
+9491,CLASS,4,949,فعالیت‌های سازمان‌های مذهبی,Activities of religious organizations,BANK_TRANSLATED,1,7350
+9492,CLASS,4,949,فعالیت‌های سازمان‌های سیاسی,Activities of political organizations,BANK_TRANSLATED,1,7360
+9499,CLASS,4,949,فعالیت‌های سایر سازمان‌های عضویت‌محور طبقه‌بندی‌نشده در جای دیگر,Activities of other membership organizations n.e.c.,BANK_TRANSLATED,1,7370
+95,DIVISION,2,S,تعمیر رایانه و کالاهای شخصی و خانگی,Repair of computers and personal and household goods,BANK_TRANSLATED,0,7380
+951,GROUP,3,95,تعمیر رایانه و تجهیزات ارتباطی,Repair of computers and communication equipment,BANK_TRANSLATED,0,7390
+9511,CLASS,4,951,تعمیر رایانه و تجهیزات جانبی,Repair of computers and peripheral equipment,BANK_TRANSLATED,1,7400
+9512,CLASS,4,951,تعمیر تجهیزات ارتباطی,Repair of communication equipment,BANK_TRANSLATED,1,7410
+952,GROUP,3,95,تعمیر کالاهای شخصی و خانگی,Repair of personal and household goods,BANK_TRANSLATED,0,7420
+9521,CLASS,4,952,تعمیر لوازم الکترونیکی مصرفی,Repair of consumer electronics,BANK_TRANSLATED,1,7430
+9522,CLASS,4,952,تعمیر لوازم خانگی و تجهیزات خانه و باغ,Repair of household appliances and home and garden equipment,BANK_TRANSLATED,1,7440
+9523,CLASS,4,952,تعمیر کفش و کالاهای چرمی,Repair of footwear and leather goods,BANK_TRANSLATED,1,7450
+9524,CLASS,4,952,تعمیر مبلمان و اثاثیه منزل,Repair of furniture and home furnishings,BANK_TRANSLATED,1,7460
+9529,CLASS,4,952,تعمیر سایر کالاهای شخصی و خانگی,Repair of other personal and household goods,BANK_TRANSLATED,1,7470
+96,DIVISION,2,S,سایر فعالیت‌های خدمات شخصی,Other personal service activities,BANK_TRANSLATED,0,7480
+960,GROUP,3,96,سایر فعالیت‌های خدمات شخصی,Other personal service activities,BANK_TRANSLATED,0,7490
+9601,CLASS,4,960,شست‌وشو و خشکشویی محصولات نساجی و خز,Washing and (dry-) cleaning of textile and fur products,BANK_TRANSLATED,1,7500
+9602,CLASS,4,960,آرایشگری و سایر خدمات زیبایی,Hairdressing and other beauty treatment,BANK_TRANSLATED,1,7510
+9603,CLASS,4,960,فعالیت‌های کفن‌ودفن و خدمات مرتبط,Funeral and related activities,BANK_TRANSLATED,1,7520
+9609,CLASS,4,960,سایر فعالیت‌های خدمات شخصی طبقه‌بندی‌نشده در جای دیگر,Other personal service activities n.e.c.,BANK_TRANSLATED,1,7530
+T,SECTION,1,,فعالیت خانوارها به‌عنوان کارفرما؛ فعالیت‌های تفکیک‌نشده تولید کالا و خدمات خانوارها برای مصرف شخصی,Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use,BANK_TRANSLATED,0,7540
+97,DIVISION,2,T,فعالیت خانوارها به‌عنوان کارفرمای کارکنان خانگی,Activities of households as employers of domestic personnel,BANK_TRANSLATED,0,7550
+970,GROUP,3,97,فعالیت خانوارها به‌عنوان کارفرمای کارکنان خانگی,Activities of households as employers of domestic personnel,BANK_TRANSLATED,0,7560
+9700,CLASS,4,970,فعالیت خانوارها به‌عنوان کارفرمای کارکنان خانگی,Activities of households as employers of domestic personnel,BANK_TRANSLATED,1,7570
+98,DIVISION,2,T,فعالیت‌های تفکیک‌نشده تولید کالا و خدمات خانوارهای خصوصی برای مصرف شخصی,Undifferentiated goods- and services-producing activities of private households for own use,BANK_TRANSLATED,0,7580
+981,GROUP,3,98,فعالیت‌های تفکیک‌نشده تولید کالا توسط خانوارهای خصوصی برای مصرف شخصی,Undifferentiated goods-producing activities of private households for own use,BANK_TRANSLATED,0,7590
+9810,CLASS,4,981,فعالیت‌های تفکیک‌نشده تولید کالا توسط خانوارهای خصوصی برای مصرف شخصی,Undifferentiated goods-producing activities of private households for own use,BANK_TRANSLATED,1,7600
+982,GROUP,3,98,فعالیت‌های تفکیک‌نشده تولید خدمات توسط خانوارهای خصوصی برای مصرف شخصی,Undifferentiated service-producing activities of private households for own use,BANK_TRANSLATED,0,7610
+9820,CLASS,4,982,فعالیت‌های تفکیک‌نشده تولید خدمات توسط خانوارهای خصوصی برای مصرف شخصی,Undifferentiated service-producing activities of private households for own use,BANK_TRANSLATED,1,7620
+U,SECTION,1,,فعالیت سازمان‌ها و نهادهای برون‌مرزی,Activities of extraterritorial organizations and bodies,BANK_TRANSLATED,0,7630
+99,DIVISION,2,U,فعالیت سازمان‌ها و نهادهای برون‌مرزی,Activities of extraterritorial organizations and bodies,BANK_TRANSLATED,0,7640
+990,GROUP,3,99,فعالیت سازمان‌ها و نهادهای برون‌مرزی,Activities of extraterritorial organizations and bodies,BANK_TRANSLATED,0,7650
+9900,CLASS,4,990,فعالیت سازمان‌ها و نهادهای برون‌مرزی,Activities of extraterritorial organizations and bodies,BANK_TRANSLATED,1,7660

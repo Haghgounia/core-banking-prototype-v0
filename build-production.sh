@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
 APP_VERSION="$(cat "$ROOT/VERSION")"
 echo "Building Core Banking Prototype $APP_VERSION..."
 
@@ -12,6 +13,10 @@ node "$ROOT/tools/verify-calendar-dataset-import.mjs"
 node "$ROOT/tools/verify-calendar2-reference.mjs"
 node "$ROOT/tools/verify-calendar2-month-view.mjs"
 node "$ROOT/tools/verify-calendar2-business-calendar-lookups.mjs"
+node "$ROOT/tools/verify-persian-date-picker-current-default.mjs"
+node "$ROOT/tools/verify-node-tool-path-portability.mjs"
+node "$ROOT/tools/verify-cif-isic2.mjs"
+node "$ROOT/tools/verify-pdl-product-builder.mjs"
 node "$ROOT/tools/verify-calendar-display-labels.mjs"
 node "$ROOT/tools/verify-runtime-artifact-contract.mjs"
 

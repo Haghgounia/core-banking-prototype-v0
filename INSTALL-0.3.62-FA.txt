@@ -1,0 +1,36 @@
+Core Banking Prototype 0.3.62-prototype-fee-p1 / FIX73
+======================================================
+
+ISIC2 در این نسخه بازطراحی شده است.
+
+هشدار:
+اسکریپت نصب Prototype جدول‌های CIF.REF_ISIC_RELEASE و CIF.REF_ISIC_ACTIVITY2 را Drop/Recreate می‌کند.
+اگر روی این دو جدول داده عملیاتی دارید قبل از اجرا Backup بگیرید.
+
+روش پیشنهادی نصب Oracle:
+1) وارد پوشه database/oracle/cif/isic2 شوید.
+2) یکی از دو روش زیر را اجرا کنید:
+
+روش A - فایل Standalone:
+  @CIF_ISIC2_FULL_INSTALL.sql
+
+روش B - Runner پوشه:
+  @00-install-isic2.sql
+
+خروجی مورد انتظار Verify:
+- Total = 766
+- NAME_FA = 766
+- NAME_EN = 766
+- BANK_TRANSLATED = 766
+- Selectable = 419
+- bad_parent = 0
+- bad_level = 0
+- bad_selectable = 0
+
+سپس از ریشه پروژه:
+  build-production.cmd
+
+فرم‌ها:
+اطلاعات پایه مشتری / Party -> طبقه‌بندی فعالیت اقتصادی ISIC
+- نسخه‌های ISIC
+- فعالیت‌های ISIC نسخه‌محور

@@ -69,7 +69,7 @@ const checks = [
   [exists('database/oracle/cal2/00-create-cal2-schema.sql') && exists('database/oracle/cal2/02-grant-cal2-to-application-user.sql'), 'CAL2 schema/grant scripts'],
   [(ddl.match(/^COMMENT ON COLUMN CAL2\./gm) ?? []).length === 158, '158 CAL2 Persian column comments'],
   [!(/REFERENCES\s+CAL\./i.test(ddl)) && !registry.includes('schemaName = "CAL"') && !controller.includes('/api/v1/calendar/reference'), 'CAL2 runtime/DDL isolated from CAL'],
-  [specification.includes('referenceForms: 201') && specification.includes('calendar2ReferenceForms: 16'), 'system specification includes CAL2 counts']
+  [specification.includes('referenceForms: 203') && specification.includes('calendar2ReferenceForms: 16'), 'system specification includes CAL2 counts']
 ];
 
 const failed = checks.filter(([ok]) => !ok).map(([, label]) => label);

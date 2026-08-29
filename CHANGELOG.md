@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.3.63-prototype-fee-p1 — FIX74: اصلاح مسیر Verifierهای Node در Windows و Build Guard
+
+- خطای Windows در `tools/verify-cif-isic2.mjs` که مسیر `file:///D:/...` را با `URL.pathname` به `/D:/...` تبدیل و در نهایت مسیر اشتباه `D:\D:\...` تولید می‌کرد، اصلاح شد.
+- ریشه فایل‌سیستم Verifierهای ISIC2 و PDL اکنون با `fileURLToPath(import.meta.url)` و `path.resolve(...)` محاسبه می‌شود و به Current Working Directory وابسته نیست.
+- `build-production.cmd` و `build-production.sh` در ابتدای اجرا به Root خود پروژه منتقل می‌شوند تا اجرای Build از هر Working Directory قابل اتکا باشد.
+- Guard جدید `verify-node-tool-path-portability.mjs` اضافه شد تا استفاده مجدد از `URL.pathname` یا `process.cwd()` برای ریشه Verifierها را Fail کند.
+- `bin/stop.cmd` از Kill کردن تکراری یک PID جلوگیری می‌کند؛ در صورت تکرار همان PID در خروجی `netstat` دیگر پیام خطای «There is no running instance» تولید نمی‌شود.
+- هیچ تغییر DDL، Seed، API یا UI در ISIC2 انجام نشده و طراحی/داده‌های FIX73 بدون تغییر باقی مانده‌اند.
+
+## 0.3.62-prototype-fee-p1 — FIX73: بازطراحی مستقل ISIC با سلسله‌مراتب Parent-ID و Seed کامل فارسی
+
+- مدل ISIC2 به‌صورت مستقل بازطراحی شد و محور آن فقط `CIF.REF_ISIC_RELEASE` و `CIF.REF_ISIC_ACTIVITY2` است.
+- `REF_ISIC_ACTIVITY2` از فیلدهای تکراری ساختار (`BASE_ISIC_CODE`، `SECTION_CODE` و Parent Code فیزیکی) پاک شد؛ رابطه درختی با `PARENT_ACTIVITY_ID` و Self FK برقرار می‌شود.
+- ستون `LEVEL_NO` اضافه شد و سازگاری `SECTION=1`، `DIVISION=2`، `GROUP=3`، `CLASS=4` و `NATIONAL_SUBCLASS=5` در Oracle و Backend کنترل می‌شود.
+- FK مرکب `(ISIC_RELEASE_ID, PARENT_ACTIVITY_ID)` تضمین می‌کند والد و فرزند متعلق به یک Release باشند.
+- `NAME_FA` و `NAME_EN` در Release و Activity اجباری شدند. Seed UNSD Rev.4 اکنون برای هر 766 رکورد عنوان فارسی و انگلیسی دارد.
+- تمام 766 عنوان فارسی Seed با `TRANSLATION_STATUS_CODE=BANK_TRANSLATED` ثبت می‌شوند؛ این عناوین ترجمه پروژه هستند و به‌عنوان ترجمه رسمی مرجع معرفی نمی‌شوند.
+- تعداد Seed بدون تغییر است: 21 Section، 88 Division، 238 Group و 419 Class؛ فقط 419 Class قابل انتخاب است.
+- فرم «نسخه‌های ISIC» نام فارسی را اجباری می‌کند و فرم «فعالیت‌های ISIC» به Tree/Search/Detail بر مبنای Parent ID، Level No و عنوان فارسی اجباری بازطراحی شد.
+- اسکریپت Prototype پاک‌سازی/ایجاد، Import کامل دو‌زبانه، ثبت Release غیرفعال `IR-SCI` و Validation دیتاست به بسته `database/oracle/cif/isic2` افزوده/بازنویسی شد.
+- `CIF_ISIC2_FULL_INSTALL.sql` به‌صورت Standalone ساخته شد و برای اجرای آن نیاز به include فایل‌های دیگر نیست.
+
 ## 0.3.61-prototype-fee-p1 — FIX72: ISIC نسخه‌محور با REF_ISIC_ACTIVITY2 و فرم‌های مستقل
 
 - جدول قدیمی `CIF.REF_ISIC_ACTIVITY` بدون تغییر باقی می‌ماند و مسیرهای عملیاتی فعلی Party همچنان از همان جدول استفاده می‌کنند.

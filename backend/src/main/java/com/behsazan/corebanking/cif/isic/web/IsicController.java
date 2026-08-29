@@ -41,12 +41,12 @@ public class IsicController {
     @DeleteMapping("/releases/{id}") public ResponseEntity<Void> deleteRelease(@PathVariable long id) { service.deleteRelease(id); return ResponseEntity.noContent().build(); }
 
     @GetMapping("/activities")
-    public PageResponse<ActivityRow> activities(@RequestParam(required=false) Long releaseId, @RequestParam(required=false) String parentCode,
+    public PageResponse<ActivityRow> activities(@RequestParam(required=false) Long releaseId, @RequestParam(required=false) Long parentActivityId,
                                                 @RequestParam(required=false) String levelCode, @RequestParam(required=false) String text,
                                                 @RequestParam(required=false) Boolean active, @RequestParam(required=false) Boolean selectable,
                                                 @RequestParam(defaultValue="0") int page, @RequestParam(defaultValue="50") int size,
                                                 @RequestParam(required=false) String sortBy, @RequestParam(defaultValue="asc") String direction) {
-        return service.searchActivities(releaseId, parentCode, levelCode, text, active, selectable, page, size, sortBy, direction);
+        return service.searchActivities(releaseId, parentActivityId, levelCode, text, active, selectable, page, size, sortBy, direction);
     }
     @GetMapping("/activities/lookup") public List<ActivityLookup> activityLookup(@RequestParam long releaseId, @RequestParam(required=false) String text,
                                                                                   @RequestParam(defaultValue="false") boolean selectableOnly,
