@@ -66,6 +66,9 @@ node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 rem FIX70 static guard: PDL unified product builder menu, metadata CRUD and product workspace.
 node "%ROOT%tools\verify-pdl-product-builder.mjs" || exit /b 1
 
+rem FIX77 static guard: FEE Baseline 1.0 has 47 metadata-driven forms and 574 seed rows.
+node "%ROOT%tools\verify-fee-admin-baseline.mjs" || exit /b 1
+
 rem FIX55 static guard: user-facing calendar labels must stay simple and distinct.
 node "%ROOT%tools\verify-calendar-display-labels.mjs" || exit /b 1
 

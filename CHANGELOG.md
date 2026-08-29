@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.66 — FIX77: فرم‌های جامع کارمزد بر مبنای FEE Baseline 1.0 (47 جدول / 574 Seed)
+
+- فایل‌های Oracle و Seed Data پیوست به‌عنوان مبنای فیزیکی ماژول FEE پذیرفته شدند: 47 جدول و 574 رکورد Seed.
+- صفحه جدید «مدیریت جامع کارمزد» در مسیر `/fee` اضافه شد و 47 فرم را در شش گروه کسب‌وکاری نمایش می‌دهد: اطلاعات پایه، داده آزمایشی، سیاست/مقررات، تعریف و پیکربندی، Arrangement و Runtime/Audit.
+- Backend جدید `/api/v1/fees/admin` بر اساس Metadata واقعی Oracle، PK/FK/Check Constraint/Comment/Datatype را خوانده و فرم‌های CRUD را بدون تکرار مدل فیلدها در کد ارائه می‌کند.
+- `FEE_REF_DOMAIN/FEE_REF_VALUE` برای فیلدهای کدی به‌عنوان Lookup فارسی استفاده می‌شوند و FKها نیز به Lookup رکورد مرجع تبدیل می‌شوند.
+- فیلدهای DATE/TIMESTAMP از Date Picker شمسی مشترک، CLOB از Textarea و مقادیر محدودشده با Check Constraint از Select استفاده می‌کنند.
+- 35 جدول Reference/Configuration/Arrangement قابل ثبت/ویرایش/حذف‌اند؛ 12 جدول Runtime/Audit در فرم عمومی فقط خواندنی هستند تا شواهد تراکنش و ممیزی دستی تغییر نکند.
+- Simulator قدیمی حفظ شد و به مسیر `/fee/simulator` منتقل شد.
+- 47 فایل DDL پیوست بدون تغییر محتوایی در `database/oracle/fee/baseline-1.0/ddl` نگهداری و Installer وابستگی‌محور `install-baseline-1.0-ddl.sql` اضافه شد.
+- بسته Seed پیوست در `baseline-1.0/seed` نگهداری و Installer `install-baseline-1.0-seed.sql` اضافه شد؛ Seed IDها منفی‌اند و رکوردهای جدید UI از Sequenceهای مثبت Oracle استفاده می‌کنند.
+- مدل قدیمی 21 جدولی FEE به `legacy-phase1-21-tables` منتقل شد و `install-ddl.sql` اکنون به Baseline 1.0 جدید هدایت می‌شود.
+
 ## 0.3.65 — FIX76: پاک‌سازی خودکار INSTALLهای قدیمی در Upgrade
 
 - در سناریوی Extract/Copy نسخه جدید روی پوشه نصب قدیمی، فایل‌های `INSTALL-*.txt` باقی‌مانده در Root دیگر باعث توقف `build-production.cmd` نمی‌شوند.

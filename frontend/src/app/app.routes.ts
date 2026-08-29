@@ -6,7 +6,9 @@ export const routes: Routes = [
     loadComponent: () => import('./layout/app-shell.component').then(m => m.AppShellComponent),
     children: [
       {path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)},
-      {path: 'fee', loadComponent: () => import('./features/fee/fee-management.component').then(m => m.FeeManagementComponent)},
+      {path: 'fee', loadComponent: () => import('./features/fee-admin/fee-admin-home.component').then(m => m.FeeAdminHomeComponent)},
+      {path: 'fee/simulator', loadComponent: () => import('./features/fee/fee-management.component').then(m => m.FeeManagementComponent)},
+      {path: 'fee/tables/:table', loadComponent: () => import('./features/fee-admin/fee-admin-table.component').then(m => m.FeeAdminTableComponent)},
       {path: 'product-builder', loadComponent: () => import('./features/product-builder/product-builder-home.component').then(m => m.ProductBuilderHomeComponent)},
       {path: 'product-builder/products', loadComponent: () => import('./features/product-builder/product-list.component').then(m => m.ProductListComponent)},
       {path: 'product-builder/products/:productId', loadComponent: () => import('./features/product-builder/product-workspace.component').then(m => m.ProductWorkspaceComponent)},

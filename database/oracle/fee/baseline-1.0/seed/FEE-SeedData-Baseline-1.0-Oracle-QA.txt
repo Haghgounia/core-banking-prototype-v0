@@ -1,0 +1,9 @@
+Fee Seed Static Validation
+==========================
+Model tables: 47
+Seeded tables: 47
+Seed rows: 574
+Parsed INSERTs: 574
+All 47 tables present: PASS
+Generator validations: required columns / FK references / unique seed keys / varchar lengths = PASS
+Oracle execution: NOT RUN (Oracle runtime unavailable in this environment)

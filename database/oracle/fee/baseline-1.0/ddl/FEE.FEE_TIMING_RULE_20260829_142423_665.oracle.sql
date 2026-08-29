@@ -1,0 +1,174 @@
+PROMPT ==============================================================
+PROMPT SchemaForge Validation Findings
+PROMPT ==============================================================
+PROMPT [WARNING] SCHEMA_NOT_FOUND [tables.FEE_TIMING_RULE]: Schema FEE does not exist in database metadata.
+PROMPT [WARNING] TABLE_NAME_NOT_PLURAL [tables.FEE_TIMING_RULE]: Table name FEE_TIMING_RULE appears to be singular. Table names should be plural.
+PROMPT [WARNING] PLURAL_COLUMN_COMPONENT [tables.FEE_TIMING_RULE.columns.DUE_OFFSET_DAYS]: Plural identifier component(s) detected: DAYS.
+PROMPT [WARNING] SPELLING_WARNING [tables.FEE_TIMING_RULE.columns.DUE_OFFSET_DAYS]: Possible spelling error: DUE. Did you mean to use the verb “do”?. Suggestions: do. Original identifier is preserved.
+PROMPT [WARNING] FK_TABLE_NOT_FOUND [tables.FEE_TIMING_RULE.foreignKeys.FK_FEE_TIMING_DEFV]: Referenced table FEE_DEFINITION_VERSION does not exist in database metadata.
+PROMPT [WARNING] TABLE_NAME_NOT_PLURAL [tables.FEE_TIMING_RULE.foreignKeys.FK_FEE_TIMING_DEFV]: Referenced table FEE_DEFINITION_VERSION appears to be singular. Table names should be plural.
+PROMPT ==============================================================
+
+PROMPT ==============================================================
+PROMPT SchemaForge Offline Oracle DDL
+PROMPT Source File : FEE-Target-DataModel-Baseline-1.0-EA-Oracle.xml
+PROMPT Schema      : FEE
+PROMPT ==============================================================
+SET DEFINE OFF;
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+
+PROMPT [INFRASTRUCTURE TEMPLATE][ORACLE] DBA review required; values are placeholders.
+-- Optional permanent tablespace for application data:
+-- CREATE TABLESPACE TS_FEE
+--   DATAFILE '<DATAFILE_PATH>/ts_fee_01.dbf'
+--   SIZE <INITIAL_SIZE> AUTOEXTEND ON NEXT <NEXT_SIZE> MAXSIZE <MAX_SIZE>
+--   EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
+-- Optional dedicated index tablespace:
+-- CREATE TABLESPACE ITS_FEE
+--   DATAFILE '<DATAFILE_PATH>/its_fee_01.dbf'
+--   SIZE <INITIAL_SIZE> AUTOEXTEND ON NEXT <NEXT_SIZE> MAXSIZE <MAX_SIZE>
+--   EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
+
+PROMPT [SCHEMA BOOTSTRAP] Oracle schema FEE is created by CREATE USER and must be provisioned by a DBA.
+-- Secure provisioning template; intentionally not executed by SchemaForge:
+-- CREATE USER FEE IDENTIFIED BY "<SECURE_PASSWORD>"
+--   DEFAULT TABLESPACE TS_FEE TEMPORARY TABLESPACE TEMP
+--   QUOTA UNLIMITED ON TS_FEE
+--   QUOTA UNLIMITED ON ITS_FEE;
+-- GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE VIEW,
+--       CREATE PROCEDURE, CREATE TRIGGER TO FEE;
+
+CREATE SEQUENCE FEE.SEQ_FEE_TIMING_RULE START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE NOORDER;
+
+-- Persian table name: قاعده زمان‌بندی کارمزد
+-- پیاده‌سازی Fee Application Timing Modality و تفکیک زمان محاسبه، اعمال، وصول و رخداد محرک.
+CREATE TABLE FEE.FEE_TIMING_RULE -- W:SCHEMA|TABLE-PLURAL
+(
+  /*   0*/  TIMING_RULE_ID NUMBER(19,0) DEFAULT FEE.SEQ_FEE_TIMING_RULE.NEXTVAL NOT NULL,
+  /*   0*/  FEE_DEFINITION_VERSION_ID NUMBER(19,0) NOT NULL,
+  /*   0*/  RULE_CODE VARCHAR2(80 CHAR) NOT NULL,
+  /*   0*/  APPLICATION_TIMING_TYPE_CODE VARCHAR2(50 CHAR) NOT NULL,
+  /*   0*/  APPLICATION_FREQUENCY_CODE VARCHAR2(50 CHAR),
+  /*   0*/  CALCULATION_FREQUENCY_CODE VARCHAR2(50 CHAR),
+  /*   0*/  CHARGING_FREQUENCY_CODE VARCHAR2(50 CHAR),
+  /*   0*/  EVENT_TRIGGER_CODE VARCHAR2(80 CHAR),
+  /*   0*/  DUE_OFFSET_DAYS NUMBER(10,0), -- W:SINGULAR|SPELL
+  /*   0*/  COLLECTION_TIMING_CODE VARCHAR2(50 CHAR),
+  /*   6*/  EFFECTIVE_FROM DATE,
+  /*   6*/  EFFECTIVE_TO DATE,
+  /* 181*/  IS_ACTIVE CHAR(1 CHAR) DEFAULT 'Y' NOT NULL,
+  /* 238*/  DESCRIPTION VARCHAR2(1000 CHAR),
+  /* 129*/  CREATED_AT TIMESTAMP(6) DEFAULT SYSTIMESTAMP NOT NULL,
+  /* 2858*/  CREATED_BY VARCHAR2(100 CHAR) DEFAULT 'SYSTEM' NOT NULL,
+  /* 122*/  UPDATED_AT TIMESTAMP(6),
+  /* 118*/  UPDATED_BY VARCHAR2(100 CHAR),
+  /* 273*/  RECORD_VERSION NUMBER(10,0) DEFAULT 1 NOT NULL,
+CONSTRAINT PK_FEE_TIMING_RULE PRIMARY KEY (TIMING_RULE_ID)
+USING INDEX (CREATE UNIQUE INDEX FEE.PK_FEE_TIMING_RULE_TIMING_RULE_ID ON FEE.FEE_TIMING_RULE(TIMING_RULE_ID)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE)
+)
+/*
+-- ORACLE TABLE PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 1
+-- PCTUSED intentionally omitted: with ASSM it is ignored; review only for MSSM tablespaces.
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: redo/recovery policy must come from source/profile.
+NOPARALLEL
+-- [SOURCE PHYSICAL REVIEW][ORACLE] SEGMENT CREATION is left unspecified so the database/session DEFERRED_SEGMENT_CREATION policy is not overridden.
+SEGMENT CREATION <DEFERRED_OR_IMMEDIATE>
+*/ TABLESPACE TS_FEE;
+
+ALTER TABLE FEE.FEE_TIMING_RULE ADD CONSTRAINT CK_FEE_TIMING_ACTIVE CHECK(IS_ACTIVE IN ('Y','N')) ENABLE;
+
+ALTER TABLE FEE.FEE_TIMING_RULE ADD CONSTRAINT UK_FEE_TIMING_CODE UNIQUE(FEE_DEFINITION_VERSION_ID,RULE_CODE)
+ USING INDEX (CREATE UNIQUE INDEX FEE.UK_FEE_TIMING_CODE ON FEE.FEE_TIMING_RULE(FEE_DEFINITION_VERSION_ID,RULE_CODE)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE);
+
+CREATE INDEX FEE.IX_FEE_TIMING_RULE_FEE_DEFINITION_VERSION_ID ON FEE.FEE_TIMING_RULE(FEE_DEFINITION_VERSION_ID)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE;
+
+ALTER TABLE FEE.FEE_TIMING_RULE ADD CONSTRAINT FK_FEE_TIMING_DEFV FOREIGN KEY (FEE_DEFINITION_VERSION_ID) REFERENCES FEE.FEE_DEFINITION_VERSION(FEE_DEFINITION_VERSION_ID) ENABLE;
+
+COMMENT ON TABLE FEE.FEE_TIMING_RULE IS 'قاعده زمان‌بندی کارمزد';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.TIMING_RULE_ID IS 'شناسه قاعده زمان‌بندی - ستون فیزیکی Oracle TIMING_RULE_ID.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.FEE_DEFINITION_VERSION_ID IS 'شناسه نسخه تعریف کارمزد - ستون فیزیکی Oracle FEE_DEFINITION_VERSION_ID.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.RULE_CODE IS 'کد قاعده زمان‌بندی - ستون فیزیکی Oracle RULE_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.APPLICATION_TIMING_TYPE_CODE IS 'نوع زمان‌بندی اعمال - ستون فیزیکی Oracle APPLICATION_TIMING_TYPE_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.APPLICATION_FREQUENCY_CODE IS 'تناوب اعمال کارمزد - ستون فیزیکی Oracle APPLICATION_FREQUENCY_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.CALCULATION_FREQUENCY_CODE IS 'تناوب محاسبه کارمزد - ستون فیزیکی Oracle CALCULATION_FREQUENCY_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.CHARGING_FREQUENCY_CODE IS 'تناوب شارژ کارمزد - ستون فیزیکی Oracle CHARGING_FREQUENCY_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.EVENT_TRIGGER_CODE IS 'رخداد محرک - ستون فیزیکی Oracle EVENT_TRIGGER_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.DUE_OFFSET_DAYS IS 'فاصله سررسید به روز - ستون فیزیکی Oracle DUE_OFFSET_DAYS.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.COLLECTION_TIMING_CODE IS 'زمان وصول - ستون فیزیکی Oracle COLLECTION_TIMING_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.EFFECTIVE_FROM IS 'تاریخ شروع اعتبار - ستون فیزیکی Oracle EFFECTIVE_FROM.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.EFFECTIVE_TO IS 'تاریخ پایان اعتبار - ستون فیزیکی Oracle EFFECTIVE_TO.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.IS_ACTIVE IS 'فعال است - ستون فیزیکی Oracle IS_ACTIVE.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.DESCRIPTION IS 'شرح - ستون فیزیکی Oracle DESCRIPTION.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.CREATED_AT IS 'زمان ایجاد - ستون فیزیکی Oracle CREATED_AT.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.CREATED_BY IS 'ایجادکننده - ستون فیزیکی Oracle CREATED_BY.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.UPDATED_AT IS 'زمان آخرین تغییر - ستون فیزیکی Oracle UPDATED_AT.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.UPDATED_BY IS 'آخرین تغییر دهنده - ستون فیزیکی Oracle UPDATED_BY.';
+
+COMMENT ON COLUMN FEE.FEE_TIMING_RULE.RECORD_VERSION IS 'نسخه رکورد - ستون فیزیکی Oracle RECORD_VERSION.';
+
+/*
+SchemaForge Object Summary
+Schemas      : 1
+Sequences    : 1
+Tables       : 1
+Columns      : 19
+Primary Keys : 1
+Unique Keys  : 1
+Checks       : 1
+Foreign Keys : 1
+Physical FKs : 1
+Logical FKs  : 0
+Indexes      : 1
+*/
+
+/*
+Generated By : SchemaForge
+Generated On : 2026-08-29 14:25:06 +03:30
+Source File  : FEE-Target-DataModel-Baseline-1.0-EA-Oracle.xml
+Dialect      : Oracle
+*/

@@ -19,6 +19,7 @@ node "$ROOT/tools/verify-persian-date-picker-current-default.mjs"
 node "$ROOT/tools/verify-node-tool-path-portability.mjs"
 node "$ROOT/tools/verify-cif-isic2.mjs"
 node "$ROOT/tools/verify-pdl-product-builder.mjs"
+node "$ROOT/tools/verify-fee-admin-baseline.mjs"
 node "$ROOT/tools/verify-calendar-display-labels.mjs"
 node "$ROOT/tools/verify-runtime-artifact-contract.mjs"
 

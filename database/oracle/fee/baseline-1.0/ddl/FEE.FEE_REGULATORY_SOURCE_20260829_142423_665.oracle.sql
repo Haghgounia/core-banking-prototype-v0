@@ -1,0 +1,157 @@
+PROMPT ==============================================================
+PROMPT SchemaForge Validation Findings
+PROMPT ==============================================================
+PROMPT [WARNING] SCHEMA_NOT_FOUND [tables.FEE_REGULATORY_SOURCE]: Schema FEE does not exist in database metadata.
+PROMPT [WARNING] TABLE_NAME_NOT_PLURAL [tables.FEE_REGULATORY_SOURCE]: Table name FEE_REGULATORY_SOURCE appears to be singular. Table names should be plural.
+PROMPT [WARNING] METADATA_DATATYPE_MISMATCH [tables.FEE_REGULATORY_SOURCE.columns.ISSUER_CODE]: Document type VARCHAR2(100 CHAR) differs from database metadata for ISSUER_CODE. Metadata frequencies: VARCHAR2(50) [2]. Total occurrences: 2.
+PROMPT [WARNING] METADATA_DATATYPE_MISMATCH [tables.FEE_REGULATORY_SOURCE.columns.SOURCE_CODE]: Document type VARCHAR2(80 CHAR) differs from database metadata for SOURCE_CODE. Metadata frequencies: VARCHAR2(30) [3], VARCHAR2(50) [1], VARCHAR2(60) [1]. Total occurrences: 5.
+PROMPT ==============================================================
+
+PROMPT ==============================================================
+PROMPT SchemaForge Offline Oracle DDL
+PROMPT Source File : FEE-Target-DataModel-Baseline-1.0-EA-Oracle.xml
+PROMPT Schema      : FEE
+PROMPT ==============================================================
+SET DEFINE OFF;
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+
+PROMPT [INFRASTRUCTURE TEMPLATE][ORACLE] DBA review required; values are placeholders.
+-- Optional permanent tablespace for application data:
+-- CREATE TABLESPACE TS_FEE
+--   DATAFILE '<DATAFILE_PATH>/ts_fee_01.dbf'
+--   SIZE <INITIAL_SIZE> AUTOEXTEND ON NEXT <NEXT_SIZE> MAXSIZE <MAX_SIZE>
+--   EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
+-- Optional dedicated index tablespace:
+-- CREATE TABLESPACE ITS_FEE
+--   DATAFILE '<DATAFILE_PATH>/its_fee_01.dbf'
+--   SIZE <INITIAL_SIZE> AUTOEXTEND ON NEXT <NEXT_SIZE> MAXSIZE <MAX_SIZE>
+--   EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
+
+PROMPT [SCHEMA BOOTSTRAP] Oracle schema FEE is created by CREATE USER and must be provisioned by a DBA.
+-- Secure provisioning template; intentionally not executed by SchemaForge:
+-- CREATE USER FEE IDENTIFIED BY "<SECURE_PASSWORD>"
+--   DEFAULT TABLESPACE TS_FEE TEMPORARY TABLESPACE TEMP
+--   QUOTA UNLIMITED ON TS_FEE
+--   QUOTA UNLIMITED ON ITS_FEE;
+-- GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE VIEW,
+--       CREATE PROCEDURE, CREATE TRIGGER TO FEE;
+
+CREATE SEQUENCE FEE.SEQ_FEE_REGULATORY_SOURCE START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE NOORDER;
+
+-- Persian table name: منبع مقرراتی کارمزد
+-- منبع قانونی یا بخشنامه ناظر بر کارمزد؛ برای Prototype ایران شامل بخشنامه‌های بانک مرکزی.
+CREATE TABLE FEE.FEE_REGULATORY_SOURCE -- W:SCHEMA|TABLE-PLURAL
+(
+  /*   0*/  REGULATORY_SOURCE_ID NUMBER(19,0) DEFAULT FEE.SEQ_FEE_REGULATORY_SOURCE.NEXTVAL NOT NULL,
+  /*   5*/  SOURCE_CODE VARCHAR2(80 CHAR) NOT NULL, -- W:TYPE
+  /*   1*/  SOURCE_TYPE_CODE VARCHAR2(30 CHAR) NOT NULL,
+  /*   2*/  ISSUER_CODE VARCHAR2(100 CHAR) NOT NULL, -- W:TYPE
+  /*   0*/  CIRCULAR_NO VARCHAR2(100 CHAR),
+  /*   0*/  TITLE_FA VARCHAR2(500 CHAR) NOT NULL,
+  /*   0*/  TITLE_EN VARCHAR2(500 CHAR),
+  /*   3*/  ISSUE_DATE DATE,
+  /*   6*/  EFFECTIVE_FROM DATE,
+  /*   6*/  EFFECTIVE_TO DATE,
+  /*   2*/  DOCUMENT_REF VARCHAR2(500 CHAR),
+  /*   0*/  DOCUMENT_HASH VARCHAR2(128 CHAR),
+  /*  16*/  STATUS_CODE VARCHAR2(30 CHAR) DEFAULT 'ACTIVE' NOT NULL,
+  /* 129*/  CREATED_AT TIMESTAMP(6) DEFAULT SYSTIMESTAMP NOT NULL,
+  /* 2858*/  CREATED_BY VARCHAR2(100 CHAR) DEFAULT 'SYSTEM' NOT NULL,
+  /* 122*/  UPDATED_AT TIMESTAMP(6),
+  /* 118*/  UPDATED_BY VARCHAR2(100 CHAR),
+  /* 273*/  RECORD_VERSION NUMBER(10,0) DEFAULT 1 NOT NULL,
+CONSTRAINT PK_FEE_REGULATORY_SOURCE PRIMARY KEY (REGULATORY_SOURCE_ID)
+USING INDEX (CREATE UNIQUE INDEX FEE.PK_FEE_REGULATORY_SOURCE_REGULATORY_SOURCE_ID ON FEE.FEE_REGULATORY_SOURCE(REGULATORY_SOURCE_ID)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE)
+)
+/*
+-- ORACLE TABLE PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 1
+-- PCTUSED intentionally omitted: with ASSM it is ignored; review only for MSSM tablespaces.
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: redo/recovery policy must come from source/profile.
+NOPARALLEL
+-- [SOURCE PHYSICAL REVIEW][ORACLE] SEGMENT CREATION is left unspecified so the database/session DEFERRED_SEGMENT_CREATION policy is not overridden.
+SEGMENT CREATION <DEFERRED_OR_IMMEDIATE>
+*/ TABLESPACE TS_FEE;
+
+ALTER TABLE FEE.FEE_REGULATORY_SOURCE ADD CONSTRAINT CK_FEE_REG_SOURCE_DATES CHECK(EFFECTIVE_TO IS NULL OR EFFECTIVE_FROM IS NULL OR EFFECTIVE_TO >= EFFECTIVE_FROM) ENABLE;
+
+ALTER TABLE FEE.FEE_REGULATORY_SOURCE ADD CONSTRAINT UK_FEE_REG_SOURCE_CODE UNIQUE(SOURCE_CODE)
+ USING INDEX (CREATE UNIQUE INDEX FEE.UK_FEE_REG_SOURCE_CODE ON FEE.FEE_REGULATORY_SOURCE(SOURCE_CODE)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE);
+
+COMMENT ON TABLE FEE.FEE_REGULATORY_SOURCE IS 'منبع مقرراتی کارمزد';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.REGULATORY_SOURCE_ID IS 'شناسه منبع مقرراتی - ستون فیزیکی Oracle REGULATORY_SOURCE_ID.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.SOURCE_CODE IS 'کد منبع مقرراتی - ستون فیزیکی Oracle SOURCE_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.SOURCE_TYPE_CODE IS 'نوع منبع - ستون فیزیکی Oracle SOURCE_TYPE_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.ISSUER_CODE IS 'کد مرجع صادرکننده - ستون فیزیکی Oracle ISSUER_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.CIRCULAR_NO IS 'شماره بخشنامه - ستون فیزیکی Oracle CIRCULAR_NO.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.TITLE_FA IS 'عنوان فارسی منبع - ستون فیزیکی Oracle TITLE_FA.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.TITLE_EN IS 'عنوان انگلیسی منبع - ستون فیزیکی Oracle TITLE_EN.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.ISSUE_DATE IS 'تاریخ صدور - ستون فیزیکی Oracle ISSUE_DATE.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.EFFECTIVE_FROM IS 'تاریخ شروع اجرا - ستون فیزیکی Oracle EFFECTIVE_FROM.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.EFFECTIVE_TO IS 'تاریخ پایان اجرا - ستون فیزیکی Oracle EFFECTIVE_TO.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.DOCUMENT_REF IS 'ارجاع سند - ستون فیزیکی Oracle DOCUMENT_REF.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.DOCUMENT_HASH IS 'هش سند - ستون فیزیکی Oracle DOCUMENT_HASH.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.STATUS_CODE IS 'وضعیت منبع - ستون فیزیکی Oracle STATUS_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.CREATED_AT IS 'زمان ایجاد - ستون فیزیکی Oracle CREATED_AT.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.CREATED_BY IS 'ایجادکننده - ستون فیزیکی Oracle CREATED_BY.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.UPDATED_AT IS 'زمان آخرین تغییر - ستون فیزیکی Oracle UPDATED_AT.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.UPDATED_BY IS 'آخرین تغییر دهنده - ستون فیزیکی Oracle UPDATED_BY.';
+
+COMMENT ON COLUMN FEE.FEE_REGULATORY_SOURCE.RECORD_VERSION IS 'نسخه رکورد - ستون فیزیکی Oracle RECORD_VERSION.';
+
+/*
+SchemaForge Object Summary
+Schemas      : 1
+Sequences    : 1
+Tables       : 1
+Columns      : 18
+Primary Keys : 1
+Unique Keys  : 1
+Checks       : 1
+Foreign Keys : 0
+Physical FKs : 0
+Logical FKs  : 0
+Indexes      : 0
+*/
+
+/*
+Generated By : SchemaForge
+Generated On : 2026-08-29 14:25:01 +03:30
+Source File  : FEE-Target-DataModel-Baseline-1.0-EA-Oracle.xml
+Dialect      : Oracle
+*/

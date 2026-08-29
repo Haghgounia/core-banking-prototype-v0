@@ -1,0 +1,175 @@
+PROMPT ==============================================================
+PROMPT SchemaForge Validation Findings
+PROMPT ==============================================================
+PROMPT [WARNING] SCHEMA_NOT_FOUND [tables.FEE_DEMO_ACCOUNT]: Schema FEE does not exist in database metadata.
+PROMPT [WARNING] TABLE_NAME_NOT_PLURAL [tables.FEE_DEMO_ACCOUNT]: Table name FEE_DEMO_ACCOUNT appears to be singular. Table names should be plural.
+PROMPT [WARNING] METADATA_DATATYPE_MISMATCH [tables.FEE_DEMO_ACCOUNT.columns.ACCOUNT_NO]: Document type VARCHAR2(50 CHAR) differs from database metadata for ACCOUNT_NO. Metadata frequencies: NUMBER(10,0) [3], NUMBER [1]. Total occurrences: 4.
+PROMPT [WARNING] FK_TABLE_NOT_FOUND [tables.FEE_DEMO_ACCOUNT.foreignKeys.FK_FEE_DEMO_ACC_PARTY]: Referenced table FEE_DEMO_PARTY does not exist in database metadata.
+PROMPT [WARNING] TABLE_NAME_NOT_PLURAL [tables.FEE_DEMO_ACCOUNT.foreignKeys.FK_FEE_DEMO_ACC_PARTY]: Referenced table FEE_DEMO_PARTY appears to be singular. Table names should be plural.
+PROMPT [WARNING] FK_TABLE_NOT_FOUND [tables.FEE_DEMO_ACCOUNT.foreignKeys.FK_FEE_DEMO_ACC_PRODUCT]: Referenced table FEE_DEMO_PRODUCT does not exist in database metadata.
+PROMPT [WARNING] TABLE_NAME_NOT_PLURAL [tables.FEE_DEMO_ACCOUNT.foreignKeys.FK_FEE_DEMO_ACC_PRODUCT]: Referenced table FEE_DEMO_PRODUCT appears to be singular. Table names should be plural.
+PROMPT ==============================================================
+
+PROMPT ==============================================================
+PROMPT SchemaForge Offline Oracle DDL
+PROMPT Source File : FEE-Target-DataModel-Baseline-1.0-EA-Oracle.xml
+PROMPT Schema      : FEE
+PROMPT ==============================================================
+SET DEFINE OFF;
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+
+PROMPT [INFRASTRUCTURE TEMPLATE][ORACLE] DBA review required; values are placeholders.
+-- Optional permanent tablespace for application data:
+-- CREATE TABLESPACE TS_FEE
+--   DATAFILE '<DATAFILE_PATH>/ts_fee_01.dbf'
+--   SIZE <INITIAL_SIZE> AUTOEXTEND ON NEXT <NEXT_SIZE> MAXSIZE <MAX_SIZE>
+--   EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
+-- Optional dedicated index tablespace:
+-- CREATE TABLESPACE ITS_FEE
+--   DATAFILE '<DATAFILE_PATH>/its_fee_01.dbf'
+--   SIZE <INITIAL_SIZE> AUTOEXTEND ON NEXT <NEXT_SIZE> MAXSIZE <MAX_SIZE>
+--   EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
+
+PROMPT [SCHEMA BOOTSTRAP] Oracle schema FEE is created by CREATE USER and must be provisioned by a DBA.
+-- Secure provisioning template; intentionally not executed by SchemaForge:
+-- CREATE USER FEE IDENTIFIED BY "<SECURE_PASSWORD>"
+--   DEFAULT TABLESPACE TS_FEE TEMPORARY TABLESPACE TEMP
+--   QUOTA UNLIMITED ON TS_FEE
+--   QUOTA UNLIMITED ON ITS_FEE;
+-- GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE VIEW,
+--       CREATE PROCEDURE, CREATE TRIGGER TO FEE;
+
+CREATE SEQUENCE FEE.SEQ_FEE_DEMO_ACCOUNT START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE NOORDER;
+
+-- Persian table name: حساب آزمایشی کارمزد
+-- حساب نمایشی جهت تست Charge Account، Refund Account و Settlement Account؛ جایگزین Account Master واقعی نیست.
+CREATE TABLE FEE.FEE_DEMO_ACCOUNT -- W:SCHEMA|TABLE-PLURAL
+(
+  /*   0*/  DEMO_ACCOUNT_ID NUMBER(19,0) DEFAULT FEE.SEQ_FEE_DEMO_ACCOUNT.NEXTVAL NOT NULL,
+  /*   4*/  ACCOUNT_NO VARCHAR2(50 CHAR) NOT NULL, -- W:TYPE
+  /*   0*/  DEMO_PARTY_ID NUMBER(19,0) NOT NULL,
+  /*   0*/  DEMO_PRODUCT_ID NUMBER(19,0),
+  /*   0*/  ACCOUNT_TYPE_CODE VARCHAR2(50 CHAR) NOT NULL,
+  /*   7*/  CURRENCY_CODE VARCHAR2(3 CHAR) NOT NULL,
+  /*  16*/  STATUS_CODE VARCHAR2(30 CHAR) DEFAULT 'ACTIVE' NOT NULL,
+  /*   0*/  AVAILABLE_BALANCE NUMBER(23,4),
+  /*   0*/  OPEN_DATE DATE,
+  /*   0*/  CLOSE_DATE DATE,
+  /* 129*/  CREATED_AT TIMESTAMP(6) DEFAULT SYSTIMESTAMP NOT NULL,
+  /* 2858*/  CREATED_BY VARCHAR2(100 CHAR) DEFAULT 'SYSTEM' NOT NULL,
+  /* 122*/  UPDATED_AT TIMESTAMP(6),
+  /* 118*/  UPDATED_BY VARCHAR2(100 CHAR),
+  /* 273*/  RECORD_VERSION NUMBER(10,0) DEFAULT 1 NOT NULL,
+CONSTRAINT PK_FEE_DEMO_ACCOUNT PRIMARY KEY (DEMO_ACCOUNT_ID)
+USING INDEX (CREATE UNIQUE INDEX FEE.PK_FEE_DEMO_ACCOUNT_DEMO_ACCOUNT_ID ON FEE.FEE_DEMO_ACCOUNT(DEMO_ACCOUNT_ID)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE)
+)
+/*
+-- ORACLE TABLE PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 1
+-- PCTUSED intentionally omitted: with ASSM it is ignored; review only for MSSM tablespaces.
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: redo/recovery policy must come from source/profile.
+NOPARALLEL
+-- [SOURCE PHYSICAL REVIEW][ORACLE] SEGMENT CREATION is left unspecified so the database/session DEFERRED_SEGMENT_CREATION policy is not overridden.
+SEGMENT CREATION <DEFERRED_OR_IMMEDIATE>
+*/ TABLESPACE TS_FEE;
+
+ALTER TABLE FEE.FEE_DEMO_ACCOUNT ADD CONSTRAINT CK_FEE_DEMO_ACCOUNT_DATES CHECK(CLOSE_DATE IS NULL OR OPEN_DATE IS NULL OR CLOSE_DATE >= OPEN_DATE) ENABLE;
+
+ALTER TABLE FEE.FEE_DEMO_ACCOUNT ADD CONSTRAINT UK_FEE_DEMO_ACCOUNT_NO UNIQUE(ACCOUNT_NO)
+ USING INDEX (CREATE UNIQUE INDEX FEE.UK_FEE_DEMO_ACCOUNT_NO ON FEE.FEE_DEMO_ACCOUNT(ACCOUNT_NO)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE);
+
+CREATE INDEX FEE.IX_FEE_DEMO_ACCOUNT_DEMO_PARTY_ID ON FEE.FEE_DEMO_ACCOUNT(DEMO_PARTY_ID)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE;
+
+CREATE INDEX FEE.IX_FEE_DEMO_ACCOUNT_DEMO_PRODUCT_ID ON FEE.FEE_DEMO_ACCOUNT(DEMO_PRODUCT_ID)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE;
+
+ALTER TABLE FEE.FEE_DEMO_ACCOUNT ADD CONSTRAINT FK_FEE_DEMO_ACC_PARTY FOREIGN KEY (DEMO_PARTY_ID) REFERENCES FEE.FEE_DEMO_PARTY(DEMO_PARTY_ID) ENABLE;
+
+ALTER TABLE FEE.FEE_DEMO_ACCOUNT ADD CONSTRAINT FK_FEE_DEMO_ACC_PRODUCT FOREIGN KEY (DEMO_PRODUCT_ID) REFERENCES FEE.FEE_DEMO_PRODUCT(DEMO_PRODUCT_ID) ENABLE;
+
+COMMENT ON TABLE FEE.FEE_DEMO_ACCOUNT IS 'حساب آزمایشی کارمزد';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.DEMO_ACCOUNT_ID IS 'شناسه حساب آزمایشی - ستون فیزیکی Oracle DEMO_ACCOUNT_ID.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.ACCOUNT_NO IS 'شماره حساب - ستون فیزیکی Oracle ACCOUNT_NO.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.DEMO_PARTY_ID IS 'شناسه صاحب حساب - ستون فیزیکی Oracle DEMO_PARTY_ID.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.DEMO_PRODUCT_ID IS 'شناسه محصول حساب - ستون فیزیکی Oracle DEMO_PRODUCT_ID.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.ACCOUNT_TYPE_CODE IS 'نوع حساب - ستون فیزیکی Oracle ACCOUNT_TYPE_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.CURRENCY_CODE IS 'کد ارز حساب - ستون فیزیکی Oracle CURRENCY_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.STATUS_CODE IS 'وضعیت حساب - ستون فیزیکی Oracle STATUS_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.AVAILABLE_BALANCE IS 'مانده قابل استفاده آزمایشی - ستون فیزیکی Oracle AVAILABLE_BALANCE.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.OPEN_DATE IS 'تاریخ افتتاح - ستون فیزیکی Oracle OPEN_DATE.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.CLOSE_DATE IS 'تاریخ بستن - ستون فیزیکی Oracle CLOSE_DATE.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.CREATED_AT IS 'زمان ایجاد - ستون فیزیکی Oracle CREATED_AT.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.CREATED_BY IS 'ایجادکننده - ستون فیزیکی Oracle CREATED_BY.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.UPDATED_AT IS 'زمان آخرین تغییر - ستون فیزیکی Oracle UPDATED_AT.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.UPDATED_BY IS 'آخرین تغییر دهنده - ستون فیزیکی Oracle UPDATED_BY.';
+
+COMMENT ON COLUMN FEE.FEE_DEMO_ACCOUNT.RECORD_VERSION IS 'نسخه رکورد - ستون فیزیکی Oracle RECORD_VERSION.';
+
+/*
+SchemaForge Object Summary
+Schemas      : 1
+Sequences    : 1
+Tables       : 1
+Columns      : 15
+Primary Keys : 1
+Unique Keys  : 1
+Checks       : 1
+Foreign Keys : 2
+Physical FKs : 2
+Logical FKs  : 0
+Indexes      : 2
+*/
+
+/*
+Generated By : SchemaForge
+Generated On : 2026-08-29 14:25:15 +03:30
+Source File  : FEE-Target-DataModel-Baseline-1.0-EA-Oracle.xml
+Dialect      : Oracle
+*/

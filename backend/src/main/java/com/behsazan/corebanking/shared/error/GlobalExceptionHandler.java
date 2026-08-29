@@ -4,6 +4,7 @@ import com.behsazan.corebanking.cif.error.CifNotFoundException;
 import com.behsazan.corebanking.cif.error.CifValidationException;
 import com.behsazan.corebanking.system.modelcomparison.ModelComparisonValidationException;
 import com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException;
+import com.behsazan.corebanking.fee.admin.application.FeeAdminValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -69,6 +70,16 @@ public class GlobalExceptionHandler {
         problem.setType(URI.create("urn:core-banking:problem:product-builder-validation"));
         problem.setTitle("Product builder validation failed");
         problem.setProperty("errorCode", "PRODUCT_BUILDER_VALIDATION_FAILED");
+        return problem;
+    }
+
+    @ExceptionHandler(FeeAdminValidationException.class)
+    ProblemDetail handleFeeAdminValidation(FeeAdminValidationException exception) {
+        log.warn("Fee admin validation failed: {}", exception.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
+        problem.setType(URI.create("urn:core-banking:problem:fee-admin-validation"));
+        problem.setTitle("اطلاعات کارمزد معتبر نیست");
+        problem.setProperty("errorCode", "FEE_ADMIN_VALIDATION_FAILED");
         return problem;
     }
 

@@ -464,17 +464,19 @@ database/oracle/cif/migrations/0.3.22-fix17-party-document-classification-date.s
 
 Parser XML در برابر DTD/External Entity غیرفعال و سخت‌سازی شده است. این قابلیت Schema دیتابیس جدیدی ایجاد نمی‌کند و Migration لازم ندارد؛ مقایسه در Runtime با همان DataSource Oracle برنامه انجام می‌شود.
 
-## ماژول مستقل مدیریت کارمزد (FEE) — Prototype P1
+## ماژول مستقل مدیریت کارمزد (FEE) — Baseline 1.0 / FIX77
 
-از نسخه `0.3.23-prototype-fee-p1` یک Bounded Module مستقل برای Fee Management اضافه شده است.
+از نسخه `0.3.66` صفحه `/fee` بر مبنای مدل Oracle و Seed Data Baseline 1.0 پیوست بازطراحی شده است. مدل جاری 47 جدول دارد و Seed پایه 574 رکورد را پوشش می‌دهد.
 
-- مسیر UI: `#/fee`
-- API پایه: `/api/v1/fees`
-- مدل Oracle: `database/oracle/fee`
-- Schema پیشنهادی: `FEE`
-- وابستگی Runtime به CIF/DPS/Account/Accounting: ندارد
+- UI اصلی: `/fee` — کاتالوگ 47 فرم در شش گروه کسب‌وکاری
+- شبیه‌ساز قبلی: `/fee/simulator`
+- API مدیریت Metadata-driven: `/api/v1/fees/admin`
+- Schema: `FEE`
+- DDL جاری: `database/oracle/fee/install-baseline-1.0-ddl.sql`
+- Seed جاری: `database/oracle/fee/install-baseline-1.0-seed.sql`
+- Verification: `database/oracle/fee/verify-baseline-1.0.sql`
 
-فرم P1 تعریف Fee، Versioning، Applicability، Calculation/Tier، Currency، Timing/Collection، Discount/Waiver، Allocation، Posting، Fee Arrangement، Simulator و Transaction/Reversal را پوشش می‌دهد.
+فرم‌ها از Metadata واقعی Oracle ساخته می‌شوند؛ عنوان فارسی ستون‌ها از `COMMENT ON COLUMN`، Lookupهای FK از روابط Oracle و مقادیر کدی از `FEE_REF_DOMAIN/FEE_REF_VALUE` دریافت می‌شوند. 35 جدول تنظیمات/مرجع/Arrangement قابل نگهداری و 12 جدول Runtime/Audit در فرم عمومی فقط خواندنی هستند. شناسه‌های Seed منفی‌اند و درج‌های جدید از Sequenceهای مثبت همان جدول استفاده می‌کنند.
 
 ## استخراج Oracle به Enterprise Architect — FIX43
 

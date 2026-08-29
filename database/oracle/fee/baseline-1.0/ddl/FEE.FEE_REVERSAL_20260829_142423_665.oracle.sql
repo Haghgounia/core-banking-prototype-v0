@@ -1,0 +1,199 @@
+PROMPT ==============================================================
+PROMPT SchemaForge Validation Findings
+PROMPT ==============================================================
+PROMPT [WARNING] SCHEMA_NOT_FOUND [tables.FEE_REVERSAL]: Schema FEE does not exist in database metadata.
+PROMPT [WARNING] TABLE_NAME_NOT_PLURAL [tables.FEE_REVERSAL]: Table name FEE_REVERSAL appears to be singular. Table names should be plural.
+PROMPT [WARNING] SPELLING_WARNING [tables.FEE_REVERSAL.columns.NON_REFUNDABLE_AMOUNT]: Possible spelling error: NON REFUNDABLE. This expression is normally spelled as one or with a hyphen.. Suggestions: non-refundable, nonrefundable. Original identifier is preserved.
+PROMPT [WARNING] SPELLING_WARNING [tables.FEE_REVERSAL.columns.REVERSAL_CALC_RULE_ID]: Possible spelling error: CALC. Possible spelling mistake found.. Suggestions: call, calm, calf. Original identifier is preserved.
+PROMPT [WARNING] FK_TABLE_NOT_FOUND [tables.FEE_REVERSAL.foreignKeys.FK_FEE_REV_ACCOUNT]: Referenced table FEE_DEMO_ACCOUNT does not exist in database metadata.
+PROMPT [WARNING] TABLE_NAME_NOT_PLURAL [tables.FEE_REVERSAL.foreignKeys.FK_FEE_REV_ACCOUNT]: Referenced table FEE_DEMO_ACCOUNT appears to be singular. Table names should be plural.
+PROMPT [WARNING] FK_TABLE_NOT_FOUND [tables.FEE_REVERSAL.foreignKeys.FK_FEE_REV_RULE]: Referenced table FEE_CALCULATION_RULE does not exist in database metadata.
+PROMPT [WARNING] TABLE_NAME_NOT_PLURAL [tables.FEE_REVERSAL.foreignKeys.FK_FEE_REV_RULE]: Referenced table FEE_CALCULATION_RULE appears to be singular. Table names should be plural.
+PROMPT [WARNING] FK_TABLE_NOT_FOUND [tables.FEE_REVERSAL.foreignKeys.FK_FEE_REV_TX]: Referenced table FEE_TRANSACTION does not exist in database metadata.
+PROMPT [WARNING] TABLE_NAME_NOT_PLURAL [tables.FEE_REVERSAL.foreignKeys.FK_FEE_REV_TX]: Referenced table FEE_TRANSACTION appears to be singular. Table names should be plural.
+PROMPT ==============================================================
+
+PROMPT ==============================================================
+PROMPT SchemaForge Offline Oracle DDL
+PROMPT Source File : FEE-Target-DataModel-Baseline-1.0-EA-Oracle.xml
+PROMPT Schema      : FEE
+PROMPT ==============================================================
+SET DEFINE OFF;
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+
+PROMPT [INFRASTRUCTURE TEMPLATE][ORACLE] DBA review required; values are placeholders.
+-- Optional permanent tablespace for application data:
+-- CREATE TABLESPACE TS_FEE
+--   DATAFILE '<DATAFILE_PATH>/ts_fee_01.dbf'
+--   SIZE <INITIAL_SIZE> AUTOEXTEND ON NEXT <NEXT_SIZE> MAXSIZE <MAX_SIZE>
+--   EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
+-- Optional dedicated index tablespace:
+-- CREATE TABLESPACE ITS_FEE
+--   DATAFILE '<DATAFILE_PATH>/its_fee_01.dbf'
+--   SIZE <INITIAL_SIZE> AUTOEXTEND ON NEXT <NEXT_SIZE> MAXSIZE <MAX_SIZE>
+--   EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
+
+PROMPT [SCHEMA BOOTSTRAP] Oracle schema FEE is created by CREATE USER and must be provisioned by a DBA.
+-- Secure provisioning template; intentionally not executed by SchemaForge:
+-- CREATE USER FEE IDENTIFIED BY "<SECURE_PASSWORD>"
+--   DEFAULT TABLESPACE TS_FEE TEMPORARY TABLESPACE TEMP
+--   QUOTA UNLIMITED ON TS_FEE
+--   QUOTA UNLIMITED ON ITS_FEE;
+-- GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE VIEW,
+--       CREATE PROCEDURE, CREATE TRIGGER TO FEE;
+
+CREATE SEQUENCE FEE.SEQ_FEE_REVERSAL START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE NOORDER;
+
+-- Persian table name: برگشت کارمزد
+-- ثبت Full، Partial یا Rule-based Reversal بدون تغییر تراکنش اصلی و با پشتیبانی مبلغ غیرقابل برگشت.
+CREATE TABLE FEE.FEE_REVERSAL -- W:SCHEMA|TABLE-PLURAL
+(
+  /*   0*/  FEE_REVERSAL_ID NUMBER(19,0) DEFAULT FEE.SEQ_FEE_REVERSAL.NEXTVAL NOT NULL,
+  /*   0*/  REVERSAL_NO VARCHAR2(100 CHAR) NOT NULL,
+  /*   0*/  FEE_TRANSACTION_ID NUMBER(19,0) NOT NULL,
+  /*   0*/  REVERSAL_TYPE_CODE VARCHAR2(30 CHAR) NOT NULL,
+  /*   0*/  REVERSAL_CALC_RULE_ID NUMBER(19,0), -- W:SPELL
+  /*   0*/  REQUESTED_AMOUNT NUMBER(23,4),
+  /*   0*/  CALCULATED_REVERSAL_AMOUNT NUMBER(23,4) NOT NULL,
+  /*   0*/  NON_REFUNDABLE_AMOUNT NUMBER(23,4), -- W:SPELL
+  /*   0*/  REVERSAL_CURRENCY_CODE VARCHAR2(3 CHAR) NOT NULL,
+  /*   7*/  REASON_CODE VARCHAR2(80 CHAR) NOT NULL,
+  /*   0*/  REASON_TEXT VARCHAR2(2000 CHAR),
+  /*   0*/  AUTHORIZATION_REF VARCHAR2(200 CHAR),
+  /*   0*/  REFUND_ACCOUNT_ID NUMBER(19,0),
+  /*  16*/  STATUS_CODE VARCHAR2(30 CHAR) DEFAULT 'REQUESTED' NOT NULL,
+  /*   2*/  REQUESTED_AT TIMESTAMP(6) NOT NULL,
+  /*   1*/  COMPLETED_AT TIMESTAMP(6),
+  /* 129*/  CREATED_AT TIMESTAMP(6) DEFAULT SYSTIMESTAMP NOT NULL,
+  /* 2858*/  CREATED_BY VARCHAR2(100 CHAR) NOT NULL,
+CONSTRAINT PK_FEE_REVERSAL PRIMARY KEY (FEE_REVERSAL_ID)
+USING INDEX (CREATE UNIQUE INDEX FEE.PK_FEE_REVERSAL_FEE_REVERSAL_ID ON FEE.FEE_REVERSAL(FEE_REVERSAL_ID)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE)
+)
+/*
+-- ORACLE TABLE PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 1
+-- PCTUSED intentionally omitted: with ASSM it is ignored; review only for MSSM tablespaces.
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: redo/recovery policy must come from source/profile.
+NOPARALLEL
+-- [SOURCE PHYSICAL REVIEW][ORACLE] SEGMENT CREATION is left unspecified so the database/session DEFERRED_SEGMENT_CREATION policy is not overridden.
+SEGMENT CREATION <DEFERRED_OR_IMMEDIATE>
+*/ TABLESPACE TS_FEE;
+
+ALTER TABLE FEE.FEE_REVERSAL ADD CONSTRAINT CK_FEE_REV_AMOUNT CHECK(CALCULATED_REVERSAL_AMOUNT >= 0) ENABLE;
+
+ALTER TABLE FEE.FEE_REVERSAL ADD CONSTRAINT UK_FEE_REVERSAL_NO UNIQUE(REVERSAL_NO)
+ USING INDEX (CREATE UNIQUE INDEX FEE.UK_FEE_REVERSAL_NO ON FEE.FEE_REVERSAL(REVERSAL_NO)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE);
+
+CREATE INDEX FEE.IX_FEE_REVERSAL_FEE_TRANSACTION_ID ON FEE.FEE_REVERSAL(FEE_TRANSACTION_ID)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE;
+
+CREATE INDEX FEE.IX_FEE_REVERSAL_REVERSAL_CALC_RULE_ID ON FEE.FEE_REVERSAL(REVERSAL_CALC_RULE_ID)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE;
+
+CREATE INDEX FEE.IX_FEE_REVERSAL_REFUND_ACCOUNT_ID ON FEE.FEE_REVERSAL(REFUND_ACCOUNT_ID)
+/*
+-- ORACLE INDEX PHYSICAL OPTIONS
+PCTFREE 10
+INITRANS 2
+NOCOMPRESS
+-- LOGGING/NOLOGGING intentionally unspecified: Oracle index logging is independent of the base table.
+NOPARALLEL
+*/ TABLESPACE ITS_FEE;
+
+ALTER TABLE FEE.FEE_REVERSAL ADD CONSTRAINT FK_FEE_REV_TX FOREIGN KEY (FEE_TRANSACTION_ID) REFERENCES FEE.FEE_TRANSACTION(FEE_TRANSACTION_ID) ENABLE;
+
+ALTER TABLE FEE.FEE_REVERSAL ADD CONSTRAINT FK_FEE_REV_RULE FOREIGN KEY (REVERSAL_CALC_RULE_ID) REFERENCES FEE.FEE_CALCULATION_RULE(CALCULATION_RULE_ID) ENABLE;
+
+ALTER TABLE FEE.FEE_REVERSAL ADD CONSTRAINT FK_FEE_REV_ACCOUNT FOREIGN KEY (REFUND_ACCOUNT_ID) REFERENCES FEE.FEE_DEMO_ACCOUNT(DEMO_ACCOUNT_ID) ENABLE;
+
+COMMENT ON TABLE FEE.FEE_REVERSAL IS 'برگشت کارمزد';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.FEE_REVERSAL_ID IS 'شناسه برگشت کارمزد - ستون فیزیکی Oracle FEE_REVERSAL_ID.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.REVERSAL_NO IS 'شماره برگشت - ستون فیزیکی Oracle REVERSAL_NO.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.FEE_TRANSACTION_ID IS 'شناسه تراکنش اصلی - ستون فیزیکی Oracle FEE_TRANSACTION_ID.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.REVERSAL_TYPE_CODE IS 'نوع برگشت - ستون فیزیکی Oracle REVERSAL_TYPE_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.REVERSAL_CALC_RULE_ID IS 'شناسه قاعده محاسبه برگشت - ستون فیزیکی Oracle REVERSAL_CALC_RULE_ID.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.REQUESTED_AMOUNT IS 'مبلغ درخواستی برگشت - ستون فیزیکی Oracle REQUESTED_AMOUNT.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.CALCULATED_REVERSAL_AMOUNT IS 'مبلغ محاسبه‌شده برگشت - ستون فیزیکی Oracle CALCULATED_REVERSAL_AMOUNT.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.NON_REFUNDABLE_AMOUNT IS 'مبلغ غیرقابل برگشت - ستون فیزیکی Oracle NON_REFUNDABLE_AMOUNT.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.REVERSAL_CURRENCY_CODE IS 'ارز برگشت - ستون فیزیکی Oracle REVERSAL_CURRENCY_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.REASON_CODE IS 'کد علت برگشت - ستون فیزیکی Oracle REASON_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.REASON_TEXT IS 'شرح علت برگشت - ستون فیزیکی Oracle REASON_TEXT.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.AUTHORIZATION_REF IS 'مرجع مجوز برگشت - ستون فیزیکی Oracle AUTHORIZATION_REF.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.REFUND_ACCOUNT_ID IS 'شناسه حساب آزمایشی برگشت - ستون فیزیکی Oracle REFUND_ACCOUNT_ID.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.STATUS_CODE IS 'وضعیت برگشت - ستون فیزیکی Oracle STATUS_CODE.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.REQUESTED_AT IS 'زمان درخواست برگشت - ستون فیزیکی Oracle REQUESTED_AT.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.COMPLETED_AT IS 'زمان تکمیل برگشت - ستون فیزیکی Oracle COMPLETED_AT.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.CREATED_AT IS 'زمان ایجاد - ستون فیزیکی Oracle CREATED_AT.';
+
+COMMENT ON COLUMN FEE.FEE_REVERSAL.CREATED_BY IS 'ایجادکننده - ستون فیزیکی Oracle CREATED_BY.';
+
+/*
+SchemaForge Object Summary
+Schemas      : 1
+Sequences    : 1
+Tables       : 1
+Columns      : 18
+Primary Keys : 1
+Unique Keys  : 1
+Checks       : 1
+Foreign Keys : 3
+Physical FKs : 3
+Logical FKs  : 0
+Indexes      : 3
+*/
+
+/*
+Generated By : SchemaForge
+Generated On : 2026-08-29 14:25:12 +03:30
+Source File  : FEE-Target-DataModel-Baseline-1.0-EA-Oracle.xml
+Dialect      : Oracle
+*/

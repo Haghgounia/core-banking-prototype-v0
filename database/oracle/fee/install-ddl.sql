@@ -1,3 +1,4 @@
-@@ddl/01_sequences.sql
-@@ddl/02_tables.sql
-@@ddl/03_indexes.sql
+-- Compatibility entry point.
+-- Current FEE physical model is Baseline 1.0 (47 tables).
+PROMPT Redirecting to FEE Baseline 1.0 DDL installer...
+@@install-baseline-1.0-ddl.sql

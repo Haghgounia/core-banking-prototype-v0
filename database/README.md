@@ -30,6 +30,7 @@ database/oracle/
 - `CIF`: DDL/Migrationهای Party/Customer و Reference Data مشتری.
 - `CAL`: مدل تقویم یک؛ مستقل از CAL2.
 - `CAL2`: مدل تقویم دو با ۱۶ جدول مستقل، قواعد تکرار مناسبت و Import مستقیم بسته ZIP از طریق Backend/JDBC.
+- `FEE`: مدل Baseline 1.0 کارمزد با 47 جدول Oracle و بسته Seed شامل 574 رکورد.
 - `database/oracle/exports`: خروجی زمان‌دار ابزار Export؛ Generated است و در Git ثبت نمی‌شود.
 
 برای نصب `CAL2` ابتدا `cal2/00-create-cal2-schema.sql` را با حساب دارای `CREATE USER` اجرا کنید، سپس `cal2/01-create-cal2-tables.sql` را اجرا کنید. اگر DataSource برنامه با User دیگری متصل است، `cal2/02-grant-cal2-to-application-user.sql` نیز اجرا شود. اسکریپت `99-verify-cal2-schema.sql` فقط‌خواندنی است.
@@ -41,3 +42,8 @@ database/oracle/
 ### ISIC نسخه‌محور
 
 بسته `database/oracle/cif/isic2` مدل مستقل ISIC را با `REF_ISIC_RELEASE`، `REF_ISIC_ACTIVITY2` و `REF_ISIC_ACTIVITY_NOTE` نگهداری می‌کند. در نسخه 0.3.64 عنوان فارسی/انگلیسی فعالیت اجباری است، ساختار با Parent ID نگهداری می‌شود و Explanatory/Includes/Also Includes/Excludes در جدول Note ذخیره می‌شوند. Seed UNSD Rev.4 شامل 766 عنوان دو‌زبانه است. برای اعمال DDL و Import باید فایل Standalone `CIF_ISIC2_FULL_INSTALL.sql` جدا از Build برنامه اجرا شود.
+
+
+### FEE Baseline 1.0
+
+برای نصب مدل جاری کارمزد، پس از آماده‌سازی Schema/Tablespace توسط DBA، `oracle/fee/install-baseline-1.0-ddl.sql` و سپس `oracle/fee/install-baseline-1.0-seed.sql` را اجرا کنید. فایل `oracle/fee/verify-baseline-1.0.sql` شمارش و سناریوهای Seed را کنترل می‌کند. مدل 21 جدولی قبلی در `oracle/fee/legacy-phase1-21-tables` فقط برای تاریخچه نگه داشته شده است.

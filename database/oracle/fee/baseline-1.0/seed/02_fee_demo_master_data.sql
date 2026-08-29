@@ -1,0 +1,749 @@
+-- ============================================================================
+-- 02_fee_demo_master_data.sql
+-- Fee Prototype Target Model Baseline 1.0 / Oracle
+-- UTF-8
+-- ============================================================================
+SET DEFINE OFF;
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+ALTER SESSION SET CURRENT_SCHEMA = FEE;
+
+PROMPT Loading FEE_DEMO_PARTY ...
+INSERT INTO FEE_DEMO_PARTY (
+    DEMO_PARTY_ID,
+    PARTY_NO,
+    PARTY_TYPE_CODE,
+    NAME_FA,
+    NAME_EN,
+    CUSTOMER_SEGMENT_CODE,
+    CUSTOMER_GROUP_CODE,
+    KNOWLEDGE_BASED_FLAG,
+    WELFARE_SUPPORT_FLAG,
+    COUNTRY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -2001,
+    'BANK-MELLAT-DEMO',
+    'BANK',
+    'بانک ملت - نمونه',
+    'Bank Mellat Demo',
+    NULL,
+    NULL,
+    'N',
+    'N',
+    'IR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PARTY (
+    DEMO_PARTY_ID,
+    PARTY_NO,
+    PARTY_TYPE_CODE,
+    NAME_FA,
+    NAME_EN,
+    CUSTOMER_SEGMENT_CODE,
+    CUSTOMER_GROUP_CODE,
+    KNOWLEDGE_BASED_FLAG,
+    WELFARE_SUPPORT_FLAG,
+    COUNTRY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -2002,
+    'BR-1001',
+    'BRANCH',
+    'شعبه مرکزی نمونه',
+    'Demo Central Branch',
+    NULL,
+    NULL,
+    'N',
+    'N',
+    'IR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PARTY (
+    DEMO_PARTY_ID,
+    PARTY_NO,
+    PARTY_TYPE_CODE,
+    NAME_FA,
+    NAME_EN,
+    CUSTOMER_SEGMENT_CODE,
+    CUSTOMER_GROUP_CODE,
+    KNOWLEDGE_BASED_FLAG,
+    WELFARE_SUPPORT_FLAG,
+    COUNTRY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -2003,
+    'CUST-1001',
+    'PERSON',
+    'مشتری حقیقی عادی',
+    'Standard Individual',
+    'STANDARD',
+    'RETAIL',
+    'N',
+    'N',
+    'IR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PARTY (
+    DEMO_PARTY_ID,
+    PARTY_NO,
+    PARTY_TYPE_CODE,
+    NAME_FA,
+    NAME_EN,
+    CUSTOMER_SEGMENT_CODE,
+    CUSTOMER_GROUP_CODE,
+    KNOWLEDGE_BASED_FLAG,
+    WELFARE_SUPPORT_FLAG,
+    COUNTRY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -2004,
+    'CUST-1002',
+    'PERSON',
+    'مشتری حقیقی VIP',
+    'VIP Individual',
+    'VIP',
+    'RETAIL',
+    'N',
+    'N',
+    'IR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PARTY (
+    DEMO_PARTY_ID,
+    PARTY_NO,
+    PARTY_TYPE_CODE,
+    NAME_FA,
+    NAME_EN,
+    CUSTOMER_SEGMENT_CODE,
+    CUSTOMER_GROUP_CODE,
+    KNOWLEDGE_BASED_FLAG,
+    WELFARE_SUPPORT_FLAG,
+    COUNTRY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -2005,
+    'CUST-2001',
+    'LEGAL_ENTITY',
+    'شرکت دانش‌بنیان نمونه',
+    'Demo Knowledge-based Co.',
+    'KNOWLEDGE_BASED',
+    'CORPORATE',
+    'Y',
+    'N',
+    'IR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PARTY (
+    DEMO_PARTY_ID,
+    PARTY_NO,
+    PARTY_TYPE_CODE,
+    NAME_FA,
+    NAME_EN,
+    CUSTOMER_SEGMENT_CODE,
+    CUSTOMER_GROUP_CODE,
+    KNOWLEDGE_BASED_FLAG,
+    WELFARE_SUPPORT_FLAG,
+    COUNTRY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -2006,
+    'CUST-1003',
+    'PERSON',
+    'مشتری مشمول حمایت',
+    'Welfare Customer',
+    'WELFARE_SUPPORT',
+    'RETAIL',
+    'N',
+    'Y',
+    'IR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PARTY (
+    DEMO_PARTY_ID,
+    PARTY_NO,
+    PARTY_TYPE_CODE,
+    NAME_FA,
+    NAME_EN,
+    CUSTOMER_SEGMENT_CODE,
+    CUSTOMER_GROUP_CODE,
+    KNOWLEDGE_BASED_FLAG,
+    WELFARE_SUPPORT_FLAG,
+    COUNTRY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -2007,
+    'ORG-POST',
+    'EXTERNAL_ORG',
+    'شرکت پست نمونه',
+    'Demo Postal Partner',
+    NULL,
+    'PARTNER',
+    'N',
+    'N',
+    'IR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+PROMPT Loading FEE_DEMO_PRODUCT ...
+INSERT INTO FEE_DEMO_PRODUCT (
+    DEMO_PRODUCT_ID,
+    PRODUCT_CODE,
+    NAME_FA,
+    NAME_EN,
+    PRODUCT_TYPE_CODE,
+    DEFAULT_CURRENCY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3001,
+    'CURRENT-STD',
+    'حساب جاری استاندارد نمونه',
+    'Demo Standard Current Account',
+    'CURRENT_ACCOUNT',
+    'IRR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PRODUCT (
+    DEMO_PRODUCT_ID,
+    PRODUCT_CODE,
+    NAME_FA,
+    NAME_EN,
+    PRODUCT_TYPE_CODE,
+    DEFAULT_CURRENCY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3002,
+    'GUARANTEE-STD',
+    'ضمانت‌نامه استاندارد نمونه',
+    'Demo Guarantee',
+    'GUARANTEE',
+    'IRR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PRODUCT (
+    DEMO_PRODUCT_ID,
+    PRODUCT_CODE,
+    NAME_FA,
+    NAME_EN,
+    PRODUCT_TYPE_CODE,
+    DEFAULT_CURRENCY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3003,
+    'FACILITY-STD',
+    'تسهیلات استاندارد نمونه',
+    'Demo Facility',
+    'FACILITY',
+    'IRR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PRODUCT (
+    DEMO_PRODUCT_ID,
+    PRODUCT_CODE,
+    NAME_FA,
+    NAME_EN,
+    PRODUCT_TYPE_CODE,
+    DEFAULT_CURRENCY_CODE,
+    STATUS_CODE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3004,
+    'SERVICE-GENERIC',
+    'خدمت عمومی نمونه',
+    'Demo Generic Service',
+    'SERVICE',
+    'IRR',
+    'ACTIVE',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+PROMPT Loading FEE_DEMO_PRODUCT_FEATURE ...
+INSERT INTO FEE_DEMO_PRODUCT_FEATURE (
+    DEMO_PRODUCT_FEATURE_ID,
+    DEMO_PRODUCT_ID,
+    FEATURE_CODE,
+    NAME_FA,
+    NAME_EN,
+    FEATURE_TYPE_CODE,
+    IS_ACTIVE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3101,
+    -3001,
+    'TRANSFER',
+    'انتقال وجه',
+    'Money Transfer',
+    'TRANSACTION',
+    'Y',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PRODUCT_FEATURE (
+    DEMO_PRODUCT_FEATURE_ID,
+    DEMO_PRODUCT_ID,
+    FEATURE_CODE,
+    NAME_FA,
+    NAME_EN,
+    FEATURE_TYPE_CODE,
+    IS_ACTIVE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3102,
+    -3001,
+    'CHEQUEBOOK',
+    'صدور دسته‌چک',
+    'Cheque Book Issuance',
+    'ISSUANCE',
+    'Y',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PRODUCT_FEATURE (
+    DEMO_PRODUCT_FEATURE_ID,
+    DEMO_PRODUCT_ID,
+    FEATURE_CODE,
+    NAME_FA,
+    NAME_EN,
+    FEATURE_TYPE_CODE,
+    IS_ACTIVE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3103,
+    -3002,
+    'GUARANTEE_ISSUE',
+    'صدور ضمانت‌نامه',
+    'Guarantee Issuance',
+    'ISSUANCE',
+    'Y',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PRODUCT_FEATURE (
+    DEMO_PRODUCT_FEATURE_ID,
+    DEMO_PRODUCT_ID,
+    FEATURE_CODE,
+    NAME_FA,
+    NAME_EN,
+    FEATURE_TYPE_CODE,
+    IS_ACTIVE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3104,
+    -3003,
+    'UNUSED_LIMIT',
+    'حد اعتباری استفاده‌نشده',
+    'Unused Credit Limit',
+    'LIMIT',
+    'Y',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PRODUCT_FEATURE (
+    DEMO_PRODUCT_FEATURE_ID,
+    DEMO_PRODUCT_ID,
+    FEATURE_CODE,
+    NAME_FA,
+    NAME_EN,
+    FEATURE_TYPE_CODE,
+    IS_ACTIVE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3105,
+    -3003,
+    'CREDIT_APPLICATION',
+    'کارشناسی درخواست تسهیلات',
+    'Credit Application Appraisal',
+    'APPRAISAL',
+    'Y',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PRODUCT_FEATURE (
+    DEMO_PRODUCT_FEATURE_ID,
+    DEMO_PRODUCT_ID,
+    FEATURE_CODE,
+    NAME_FA,
+    NAME_EN,
+    FEATURE_TYPE_CODE,
+    IS_ACTIVE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3106,
+    -3004,
+    'APPRAISAL',
+    'ارزیابی اموال',
+    'Property Appraisal',
+    'APPRAISAL',
+    'Y',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_PRODUCT_FEATURE (
+    DEMO_PRODUCT_FEATURE_ID,
+    DEMO_PRODUCT_ID,
+    FEATURE_CODE,
+    NAME_FA,
+    NAME_EN,
+    FEATURE_TYPE_CODE,
+    IS_ACTIVE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3107,
+    -3004,
+    'BILL_COLLECTION',
+    'وصول بروات',
+    'Bill Collection',
+    'SERVICE',
+    'Y',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+PROMPT Loading FEE_DEMO_ACCOUNT ...
+INSERT INTO FEE_DEMO_ACCOUNT (
+    DEMO_ACCOUNT_ID,
+    ACCOUNT_NO,
+    DEMO_PARTY_ID,
+    DEMO_PRODUCT_ID,
+    ACCOUNT_TYPE_CODE,
+    CURRENCY_CODE,
+    STATUS_CODE,
+    AVAILABLE_BALANCE,
+    OPEN_DATE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3201,
+    '1001-001-IRR',
+    -2003,
+    -3001,
+    'CURRENT',
+    'IRR',
+    'ACTIVE',
+    1500000000,
+    DATE '2025-01-01',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_ACCOUNT (
+    DEMO_ACCOUNT_ID,
+    ACCOUNT_NO,
+    DEMO_PARTY_ID,
+    DEMO_PRODUCT_ID,
+    ACCOUNT_TYPE_CODE,
+    CURRENCY_CODE,
+    STATUS_CODE,
+    AVAILABLE_BALANCE,
+    OPEN_DATE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3202,
+    '1002-001-IRR',
+    -2004,
+    -3001,
+    'CURRENT',
+    'IRR',
+    'ACTIVE',
+    3500000000,
+    DATE '2025-01-01',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_ACCOUNT (
+    DEMO_ACCOUNT_ID,
+    ACCOUNT_NO,
+    DEMO_PARTY_ID,
+    DEMO_PRODUCT_ID,
+    ACCOUNT_TYPE_CODE,
+    CURRENCY_CODE,
+    STATUS_CODE,
+    AVAILABLE_BALANCE,
+    OPEN_DATE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3203,
+    '2001-001-IRR',
+    -2005,
+    -3001,
+    'CURRENT',
+    'IRR',
+    'ACTIVE',
+    9000000000,
+    DATE '2025-01-01',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_ACCOUNT (
+    DEMO_ACCOUNT_ID,
+    ACCOUNT_NO,
+    DEMO_PARTY_ID,
+    DEMO_PRODUCT_ID,
+    ACCOUNT_TYPE_CODE,
+    CURRENCY_CODE,
+    STATUS_CODE,
+    AVAILABLE_BALANCE,
+    OPEN_DATE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3204,
+    '9999-FEE-INCOME',
+    -2001,
+    NULL,
+    'FEE_INCOME',
+    'IRR',
+    'ACTIVE',
+    0,
+    DATE '2025-01-01',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_ACCOUNT (
+    DEMO_ACCOUNT_ID,
+    ACCOUNT_NO,
+    DEMO_PARTY_ID,
+    DEMO_PRODUCT_ID,
+    ACCOUNT_TYPE_CODE,
+    CURRENCY_CODE,
+    STATUS_CODE,
+    AVAILABLE_BALANCE,
+    OPEN_DATE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3205,
+    '9999-SETTLEMENT',
+    -2001,
+    NULL,
+    'SETTLEMENT',
+    'IRR',
+    'ACTIVE',
+    0,
+    DATE '2025-01-01',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+INSERT INTO FEE_DEMO_ACCOUNT (
+    DEMO_ACCOUNT_ID,
+    ACCOUNT_NO,
+    DEMO_PARTY_ID,
+    DEMO_PRODUCT_ID,
+    ACCOUNT_TYPE_CODE,
+    CURRENCY_CODE,
+    STATUS_CODE,
+    AVAILABLE_BALANCE,
+    OPEN_DATE,
+    CREATED_AT,
+    CREATED_BY,
+    RECORD_VERSION
+) VALUES (
+    -3206,
+    'POST-SETTLEMENT',
+    -2007,
+    NULL,
+    'SETTLEMENT',
+    'IRR',
+    'ACTIVE',
+    0,
+    DATE '2025-01-01',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0',
+    1
+);
+
+PROMPT Loading FEE_DEMO_FX_RATE ...
+INSERT INTO FEE_DEMO_FX_RATE (
+    DEMO_FX_RATE_ID,
+    FROM_CURRENCY_CODE,
+    TO_CURRENCY_CODE,
+    RATE_TYPE_CODE,
+    RATE_VALUE,
+    QUOTED_AT,
+    EFFECTIVE_FROM,
+    SOURCE_CODE,
+    IS_ACTIVE,
+    CREATED_AT,
+    CREATED_BY
+) VALUES (
+    -3301,
+    'USD',
+    'IRR',
+    'DEMO_STATIC',
+    750000,
+    TIMESTAMP '2026-08-29 09:00:00',
+    TIMESTAMP '2026-08-29 00:00:00',
+    'DEMO',
+    'Y',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0'
+);
+
+INSERT INTO FEE_DEMO_FX_RATE (
+    DEMO_FX_RATE_ID,
+    FROM_CURRENCY_CODE,
+    TO_CURRENCY_CODE,
+    RATE_TYPE_CODE,
+    RATE_VALUE,
+    QUOTED_AT,
+    EFFECTIVE_FROM,
+    SOURCE_CODE,
+    IS_ACTIVE,
+    CREATED_AT,
+    CREATED_BY
+) VALUES (
+    -3302,
+    'EUR',
+    'IRR',
+    'DEMO_STATIC',
+    850000,
+    TIMESTAMP '2026-08-29 09:00:00',
+    TIMESTAMP '2026-08-29 00:00:00',
+    'DEMO',
+    'Y',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0'
+);
+
+INSERT INTO FEE_DEMO_FX_RATE (
+    DEMO_FX_RATE_ID,
+    FROM_CURRENCY_CODE,
+    TO_CURRENCY_CODE,
+    RATE_TYPE_CODE,
+    RATE_VALUE,
+    QUOTED_AT,
+    EFFECTIVE_FROM,
+    SOURCE_CODE,
+    IS_ACTIVE,
+    CREATED_AT,
+    CREATED_BY
+) VALUES (
+    -3303,
+    'IRR',
+    'USD',
+    'DEMO_STATIC',
+    1.33333333333e-06,
+    TIMESTAMP '2026-08-29 09:00:00',
+    TIMESTAMP '2026-08-29 00:00:00',
+    'DEMO',
+    'Y',
+    TIMESTAMP '2026-01-01 00:00:00',
+    'SEED_BASELINE_1_0'
+);
+
+COMMIT;
