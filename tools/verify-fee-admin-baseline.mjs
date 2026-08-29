@@ -40,7 +40,7 @@ const checks = [
   [controller.includes('/api/v1/fees/admin'), 'fee admin API base route is missing'],
   [routes.includes("path: 'fee/simulator'") && routes.includes("path: 'fee/tables/:table'"), 'fee admin routes are incomplete'],
   [home.includes('۴۷ فرم کارمزد') && home.includes('Seed پایه'), 'fee admin home coverage labels are missing'],
-  [home.includes('نقشه روال تعریف اطلاعات در فرم‌های کارمزد') && homeTs.includes('FEE_ARRANGEMENT_CALC_TERM') && (home.includes('/fee/simulator') || homeTs.includes("route: ['/fee', 'simulator']")), 'fee admin home flow diagram is missing or incomplete'],
+  [home.includes('دیاگرام روال تعریف اطلاعات کارمزد') && home.includes('flow-canvas') && home.includes('stage-connector') && homeTs.includes('FEE_ARRANGEMENT_CALC_TERM') && (home.includes('/fee/simulator') || homeTs.includes("route: ['/fee', 'simulator']")), 'fee admin home visual flowchart is missing or incomplete'],
   [table.includes('app-persian-date-input'), 'fee forms must use the shared Persian date picker'],
   [table.includes('Runtime / فقط مشاهده'), 'runtime read-only UI marker is missing'],
   [fs.existsSync(path.join(root,'database','oracle','fee','install-baseline-1.0-ddl.sql')), '47-table DDL installer is missing'],
