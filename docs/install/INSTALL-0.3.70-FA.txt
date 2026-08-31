@@ -1,0 +1,53 @@
+Core Banking Prototype 0.3.70 / FIX81
+=====================================
+
+1) پیش‌نیاز FEE Baseline 1.0
+-----------------------------
+اگر 47 جدول FEE و Seed پایه هنوز نصب نشده‌اند:
+@database/oracle/fee/install-baseline-1.0-ddl.sql
+@database/oracle/fee/install-baseline-1.0-seed.sql
+@database/oracle/fee/verify-baseline-1.0.sql
+
+اگر Baseline از قبل نصب است، DDL را مجدداً اجرا نکنید.
+
+2) Import تمیز تعرفه‌های بانک مرکزی ۱۴۰۴
+------------------------------------------
+از Root پروژه در SQL*Plus/SQLcl اجرا شود:
+@database/oracle/fee/install-cbi-fee-1404.sql
+
+این اسکریپت:
+- 239 ردیف Excel را به 229 تعریف منطقی تبدیل می‌کند.
+- 5 تعرفه ارزیابی را با 15 Tier درج می‌کند.
+- درصدها را به RATE_VALUE اعشاری تبدیل می‌کند.
+- فرمول‌های نامشخص را EXTERNAL_VALUE نگه می‌دارد.
+- هیچ DELETE/TRUNCATE/DROP ندارد و قابل اجرای مجدد است.
+- اجرای توصیه‌شده تراکنشی است: Import -> Verify -> COMMIT.
+- اگر Import یا Verification خطا بدهد، قبل از Commit کل تغییرات همان اجرا Rollback می‌شود.
+
+سه تناقض عددی منبع (Excel rows 45، 60، 154) عمداً Rule عددی اجرایی ندارند تا پس از تأیید منبع اصلاح شوند.
+
+3) Build برنامه
+---------------
+bin\stop.cmd
+build-production.cmd
+bin\start.cmd
+
+4) کنترل UI
+------------
+/fee/tables/FEE_DEFINITION
+  رکوردهای رسمی بانک مرکزی با CLASSIFICATION_CODE=CBI_1404 قابل مشاهده‌اند.
+
+/fee/tables/FEE_DEFINITION_VERSION
+  کد ردیف بانک مرکزی در REGULATORY_TARIFF_CODE نگهداری می‌شود.
+
+/fee/tables/FEE_CALCULATION_RULE
+  نوع محاسبه، مبلغ/نرخ/حداقل/حداکثر قابل بررسی است.
+
+/fee/tables/FEE_CALCULATION_TIER
+  پله‌های تعرفه‌های ارزیابی قابل مشاهده‌اند.
+
+5) فایل‌های Audit
+-----------------
+database/oracle/fee/cbi-1404/cbi_fee_1404_clean.csv
+database/oracle/fee/cbi-1404/cbi_fee_1404_review.csv
+database/oracle/fee/cbi-1404/cbi_fee_1404_manifest.json

@@ -1,0 +1,22 @@
+{
+  "source_file": "cbi-fee-1404(1).xlsx",
+  "source_sha256": "f43842c539427292dd86ce51562b2dbe38367b2cb10642abb164135fc31c9588",
+  "source_sheet": "کل کارمزدها",
+  "physical_source_rows": 239,
+  "logical_tariffs": 229,
+  "source_sections": 17,
+  "consolidated_continuation_rows": 10,
+  "official_tiers": 15,
+  "safe": 196,
+  "safe_tiered_external": 4,
+  "existing_enriched": 6,
+  "external_rule": 20,
+  "review_conflict": 3,
+  "review_source_gap": 0,
+  "classification_code": "CBI_1404",
+  "regulatory_source_code": "CBI_FEE_1404_04_35500",
+  "policy_code": "CBI_RIAL_ELECTRONIC_1404",
+  "policy_version": "1404.1",
+  "rate_normalization": "Excel percent value / 100 => RATE_VALUE decimal fraction",
+  "ambiguous_formula_policy": "EXTERNAL_VALUE; no invented executable formula"
+}

@@ -47,3 +47,5 @@ database/oracle/
 ### FEE Baseline 1.0
 
 برای نصب مدل جاری کارمزد، پس از آماده‌سازی Schema/Tablespace توسط DBA، `oracle/fee/install-baseline-1.0-ddl.sql` و سپس `oracle/fee/install-baseline-1.0-seed.sql` را اجرا کنید. فایل `oracle/fee/verify-baseline-1.0.sql` شمارش و سناریوهای Seed را کنترل می‌کند. مدل 21 جدولی قبلی در `oracle/fee/legacy-phase1-21-tables` فقط برای تاریخچه نگه داشته شده است.
+
+- FEE / CBI 1404: پس از Baseline، `database/oracle/fee/install-cbi-fee-1404.sql` برای Import تمیز 229 تعرفه منطقی بانک مرکزی اجرا شود.

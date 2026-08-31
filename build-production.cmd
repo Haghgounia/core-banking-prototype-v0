@@ -69,6 +69,9 @@ node "%ROOT%tools\verify-pdl-product-builder.mjs" || exit /b 1
 rem FIX77 static guard: FEE Baseline 1.0 has 47 metadata-driven forms and 574 seed rows.
 node "%ROOT%tools\verify-fee-admin-baseline.mjs" || exit /b 1
 
+rem FIX81 static guard: complete CBI 1404 tariff import is normalized, non-destructive and fully verified.
+node "%ROOT%tools\verify-cbi-fee-1404-import.mjs" || exit /b 1
+
 rem FIX55 static guard: user-facing calendar labels must stay simple and distinct.
 node "%ROOT%tools\verify-calendar-display-labels.mjs" || exit /b 1
 
