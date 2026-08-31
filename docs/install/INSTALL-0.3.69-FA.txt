@@ -1,0 +1,33 @@
+Core Banking Prototype 0.3.69 / FIX80
+=====================================
+
+1) نصب دیتابیس FEE Baseline 1.0
+--------------------------------
+پیش‌نیاز: Schema و Tablespaceهای FEE / TS_FEE / ITS_FEE قبلاً توسط DBA ایجاد شده باشند.
+
+در SQL*Plus/SQLcl از Root پروژه:
+@database/oracle/fee/install-baseline-1.0-ddl.sql
+@database/oracle/fee/install-baseline-1.0-seed.sql
+@database/oracle/fee/verify-baseline-1.0.sql
+
+اگر 47 جدول Baseline 1.0 از قبل نصب شده‌اند، DDL را مجدداً اجرا نکنید؛ فقط در صورت نیاز Seed را مطابق سیاست محیط خود اعمال کنید.
+
+2) Build برنامه
+---------------
+bin\stop.cmd
+build-production.cmd
+bin\start.cmd
+
+3) مسیرهای UI
+-------------
+/fee                 مدیریت جامع کارمزد و 47 فرم
+/fee/simulator       شبیه‌ساز قبلی کارمزد
+
+4) نکات
+-------
+- مدل قدیمی 21 جدولی در database/oracle/fee/legacy-phase1-21-tables فقط تاریخی است.
+- install-ddl.sql برای سازگاری به Installer جدید 47 جدولی هدایت می‌شود.
+- 12 جدول Runtime/Audit در فرم عمومی فقط خواندنی‌اند.
+- فرم نوع و قاعده محاسبه: /fee/tables/FEE_CALCULATION_RULE
+- در FIX80 نوع‌های مبلغ ثابت/درصدی/پلکانی/ترکیبی مستقیماً در ابتدای همین فرم قابل انتخاب‌اند.
+- برای FIX80 هیچ DDL یا Seed جدیدی نسبت به 0.3.68 لازم نیست.

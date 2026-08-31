@@ -49,6 +49,7 @@ public class FeeAdminRepository {
             Map.entry("PAYMENT_METHOD_CODE", "FEE_PAYMENT_METHOD"),
             Map.entry("APPLICATION_TIMING_TYPE_CODE", "APPLICATION_TIMING_MODALITY"),
             Map.entry("CALCULATION_STRATEGY_CODE", "CALCULATION_STRATEGY"),
+            Map.entry("BASIS_TYPE_CODE", "CALCULATION_BASIS"),
             Map.entry("TIER_STRATEGY_CODE", "CALCULATION_STRATEGY"),
             Map.entry("TIER_BASIS_CODE", "TIER_BASIS"),
             Map.entry("ROUNDING_MODE_CODE", "ROUNDING_MODE"),

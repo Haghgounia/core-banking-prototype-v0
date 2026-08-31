@@ -29,7 +29,7 @@ public final class FeeAdminCatalog {
         register("FEE_PRODUCT_FEATURE", "ویژگی کارمزدی محصول", "04", "تعریف و پیکربندی کارمزد", 7, true);
         register("FEE_APPLICABILITY_RULE", "قاعده شرایط اعمال کارمزد", "04", "تعریف و پیکربندی کارمزد", 9, true);
         register("FEE_APPLICABILITY_CONDITION", "شرط قاعده اعمال کارمزد", "04", "تعریف و پیکربندی کارمزد", 11, true);
-        register("FEE_CALCULATION_RULE", "قاعده محاسبه کارمزد", "04", "تعریف و پیکربندی کارمزد", 12, true);
+        register("FEE_CALCULATION_RULE", "نوع و قاعده محاسبه کارمزد", "04", "تعریف و پیکربندی کارمزد", 12, true);
         register("FEE_INPUT_DEFINITION", "تعریف ورودی محاسبه کارمزد", "04", "تعریف و پیکربندی کارمزد", 17, true);
         register("FEE_CALCULATION_TIER", "پله محاسبه کارمزد", "04", "تعریف و پیکربندی کارمزد", 5, true);
         register("FEE_RULE_COMPONENT", "جزء ترکیبی قاعده محاسبه", "04", "تعریف و پیکربندی کارمزد", 5, true);

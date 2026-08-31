@@ -11,6 +11,7 @@ const routes = read('frontend','src','app','app.routes.ts');
 const home = read('frontend','src','app','features','fee-admin','fee-admin-home.component.html');
 const homeTs = read('frontend','src','app','features','fee-admin','fee-admin-home.component.ts');
 const table = read('frontend','src','app','features','fee-admin','fee-admin-table.component.html');
+const tableTs = read('frontend','src','app','features','fee-admin','fee-admin-table.component.ts');
 const manifest = JSON.parse(read('database','oracle','fee','baseline-1.0','seed','seed_manifest.json'));
 const ddlDir = path.join(root,'database','oracle','fee','baseline-1.0','ddl');
 const ddlFiles = fs.readdirSync(ddlDir).filter(name => name.endsWith('.sql'));
@@ -41,6 +42,8 @@ const checks = [
   [routes.includes("path: 'fee/simulator'") && routes.includes("path: 'fee/tables/:table'"), 'fee admin routes are incomplete'],
   [home.includes('۴۷ فرم کارمزد') && home.includes('Seed پایه'), 'fee admin home coverage labels are missing'],
   [home.includes('دیاگرام روال تعریف اطلاعات کارمزد') && home.includes('flow-canvas') && home.includes('stage-connector') && homeTs.includes('FEE_ARRANGEMENT_CALC_TERM') && (home.includes('/fee/simulator') || homeTs.includes("route: ['/fee', 'simulator']")), 'fee admin home visual flowchart is missing or incomplete'],
+  [table.includes('نوع محاسبه کارمزد') && tableTs.includes("code: 'FIXED'") && tableTs.includes("code: 'PERCENTAGE'") && tableTs.includes('createCalculation') && tableTs.includes('calculationColumnVisible'), 'calculation strategy UX must expose fixed/percentage and conditional fields'],
+  [repo.includes('Map.entry("CALCULATION_STRATEGY_CODE", "CALCULATION_STRATEGY")') && repo.includes('Map.entry("BASIS_TYPE_CODE", "CALCULATION_BASIS")'), 'calculation strategy/basis domains must be mapped to Persian reference values'],
   [table.includes('app-persian-date-input'), 'fee forms must use the shared Persian date picker'],
   [table.includes('Runtime / فقط مشاهده'), 'runtime read-only UI marker is missing'],
   [fs.existsSync(path.join(root,'database','oracle','fee','install-baseline-1.0-ddl.sql')), '47-table DDL installer is missing'],
