@@ -14,7 +14,7 @@ export interface TechnologyGroup {
 
 export const SYSTEM_RELEASE = {
   version: GENERATED_SYSTEM_VERSIONS.release,
-  lastUpdated: '2026-08-29',
+  lastUpdated: '2026-09-02',
   referenceForms: 205,
   generalReferenceForms: 20,
   partyReferenceForms: 101,
@@ -105,6 +105,7 @@ export const SYSTEM_TECHNOLOGY_GROUPS: readonly TechnologyGroup[] = [
 ];
 
 export const SYSTEM_CAPABILITIES = [
+  'ابزار مستقل رومن‌نویسی نام در GEO: ورود نام فارسی و نمایش خروجی مجاز Auto-fill با فراخوانی مستقیم GEO.FN_ROMANIZE_NAME در Oracle',
   'دو فرم مستقل ISIC نسخه‌محور در CIF: مدیریت Release/Variant و درخت فعالیت‌های اقتصادی بر پایه Parent ID، با ۷۶۶ عنوان فارسی/انگلیسی Rev.4 و وضعیت ترجمه BANK_TRANSLATED',
   '۲۰۵ فرم فعال اطلاعات پایه/تقویم: ۲۲ فرم عمومی/GEO، ۱۰۱ فرم Party/Customer در CIF، ۵۰ فرم سپرده/DPS، ۱۶ فرم تقویم یک/CAL و ۱۶ فرم تقویم دو/CAL2',
   '۱۲ صفحه عملیاتی CIF شامل جست‌وجو، ایجاد Party، مراحل Onboarding، عملیات Lifecycle/Merge و Party / Customer 360',

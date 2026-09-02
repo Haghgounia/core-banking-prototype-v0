@@ -1,0 +1,8 @@
+Core Banking Prototype 0.3.72
+
+1) پیش‌نیاز: اشیای GEO Name Romanization نسخه 0.3.71 شامل GEO.FN_NORMALIZE_NAME و GEO.FN_ROMANIZE_NAME باید در Oracle موجود و معتبر باشند.
+2) از ریشه پروژه build-production.cmd را اجرا کنید.
+3) فقط پس از مشاهده Built version: 0.3.72، برنامه را با bin\start.cmd اجرا کنید.
+4) در اطلاعات پایه > اطلاعات پایه عمومی > اطلاعات عمومی، «تبدیل نام فارسی به انگلیسی» را باز کنید.
+5) تست: محمد باید Mohammad و سید محمد باید Seyed Mohammad نمایش داده شود.
+6) اگر Function برای نامی NULL برگرداند، فرم آن را به‌عنوان نیازمند بازبینی حاکمیتی نمایش می‌دهد و خروجی حدسی را Auto-fill نمی‌کند.

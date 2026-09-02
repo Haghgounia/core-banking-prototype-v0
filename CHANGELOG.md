@@ -1,4 +1,29 @@
+## 0.3.73 — GEO: نمایش Candidate رومن‌نویسی و وضعیت Governance
+
+- ابزار تبدیل نام فارسی به انگلیسی اکنون مستقیماً `GEO.PKG_NAME_ROMANIZATION.RESOLVE_NAME` را فراخوانی می‌کند.
+- معادل‌های Review-only مانند `آقا مصطفی → Agha Mostafa` نیز نمایش داده می‌شوند و دیگر با «پیدا نشد» اشتباه نمی‌شوند.
+- خروجی فرم شامل روش Resolve، Confidence، وضعیت Governance، Auto-fill و نیاز به بازبینی است.
+- `GEO.FN_ROMANIZE_NAME` برای Auto-fill امن بدون تغییر باقی مانده است.
+
+## 0.3.72 — GEO: ابزار تبدیل نام فارسی به انگلیسی
+
+- فرم مستقل «تبدیل نام فارسی به انگلیسی» در اطلاعات پایه عمومی اضافه شد.
+- API جدید `POST /api/v1/name-romanization/resolve` مستقیماً `GEO.FN_NORMALIZE_NAME` و `GEO.FN_ROMANIZE_NAME` را در Oracle فراخوانی می‌کند.
+- خروجی فرم بین نتیجه مجاز برای Auto-fill، نتیجه نیازمند Governance Review و خطای سرویس تفکیک می‌شود.
+- فرم برای نام‌های ساده و مرکب مانند `محمد` و `سید محمد` قابل استفاده است.
+- Guard استاتیک GEO برای Route، API و فراخوانی Function گسترش یافت.
+
 # Changelog
+
+## 0.3.71 — GEO: واژه‌نامه رومن‌نویسی نام و پیشوند/پسوند
+
+- دو جدول `GEO.NAME_ROMANIZATION_DICTIONARY` و `GEO.NAME_AFFIX_DICTIONARY` به موتور Generic Reference CRUD متصل شدند و فرم‌های آن‌ها در «اطلاعات پایه عمومی → اطلاعات عمومی» نمایش داده می‌شود.
+- فرم واژه‌نامه اصلی از جستجو، صفحه‌بندی، مرتب‌سازی، ایجاد/ویرایش/حذف، وضعیت فعال، Governance Status، Romanization Method، Confidence Score و کنترل `AUTO_FILL_ALLOWED` پشتیبانی می‌کند.
+- فرم Affix برای مدیریت `سید/سیده/سادات/آقا/خانم/خانوم/میرزا/...` با Position، Context Sensitivity، Priority و `AUTO_APPLY_ALLOWED` اضافه شد.
+- نوع جدید `STRING_SELECT` به موتور عمومی اطلاعات پایه اضافه شد تا Codeهای رشته‌ای در فرم به‌صورت Combo کنترل‌شده نمایش داده شوند.
+- Normalization نام فارسی در UI و Backend اعمال می‌شود (`ي/ى→ی`، `ك→ک`، نیم‌فاصله و فاصله‌های زائد).
+- قواعد حاکمیتی Backend مانع فعال‌شدن Auto-fill بدون Canonical English و Governance معتبر، و مانع Auto-apply برای Affixهای Context-sensitive می‌شوند.
+- DDL کامل Name Romanization به Installer استاندارد GEO اضافه شد و Verifier استاتیک `verify-geo-name-romanization.mjs` قرارداد UI/Backend/DDL را کنترل می‌کند.
 
 ## 0.3.70 — FIX81: Import تمیز و کامل تعرفه‌های بانک مرکزی ۱۴۰۴
 
@@ -885,6 +910,16 @@
 - Party Reference catalog now exposes 61 active forms.
 
 # Changelog
+
+## 0.3.71 — GEO: واژه‌نامه رومن‌نویسی نام و پیشوند/پسوند
+
+- دو جدول `GEO.NAME_ROMANIZATION_DICTIONARY` و `GEO.NAME_AFFIX_DICTIONARY` به موتور Generic Reference CRUD متصل شدند و فرم‌های آن‌ها در «اطلاعات پایه عمومی → اطلاعات عمومی» نمایش داده می‌شود.
+- فرم واژه‌نامه اصلی از جستجو، صفحه‌بندی، مرتب‌سازی، ایجاد/ویرایش/حذف، وضعیت فعال، Governance Status، Romanization Method، Confidence Score و کنترل `AUTO_FILL_ALLOWED` پشتیبانی می‌کند.
+- فرم Affix برای مدیریت `سید/سیده/سادات/آقا/خانم/خانوم/میرزا/...` با Position، Context Sensitivity، Priority و `AUTO_APPLY_ALLOWED` اضافه شد.
+- نوع جدید `STRING_SELECT` به موتور عمومی اطلاعات پایه اضافه شد تا Codeهای رشته‌ای در فرم به‌صورت Combo کنترل‌شده نمایش داده شوند.
+- Normalization نام فارسی در UI و Backend اعمال می‌شود (`ي/ى→ی`، `ك→ک`، نیم‌فاصله و فاصله‌های زائد).
+- قواعد حاکمیتی Backend مانع فعال‌شدن Auto-fill بدون Canonical English و Governance معتبر، و مانع Auto-apply برای Affixهای Context-sensitive می‌شوند.
+- DDL کامل Name Romanization به Installer استاندارد GEO اضافه شد و Verifier استاتیک `verify-geo-name-romanization.mjs` قرارداد UI/Backend/DDL را کنترل می‌کند.
 
 
 ## 0.3.3-prototype
