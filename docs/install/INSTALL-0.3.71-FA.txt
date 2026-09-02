@@ -1,0 +1,49 @@
+Core Banking Prototype 0.3.71
+=============================
+
+1) DDL واژه‌نامه نام در GEO
+----------------------------
+اگر جداول Name Romanization قبلاً در Schema GEO ایجاد نشده‌اند، یک‌بار اجرا شود:
+
+@database/oracle/geo/ddl/04_name_romanization_dictionary.sql
+
+این DDL آبجکت‌های زیر را ایجاد می‌کند:
+- GEO.NAME_ROMANIZATION_DICTIONARY
+- GEO.NAME_AFFIX_DICTIONARY
+- GEO.FN_NORMALIZE_NAME
+- GEO.V_NAME_ROMANIZATION_AUTOFILL
+- GEO.PKG_NAME_ROMANIZATION
+- GEO.FN_ROMANIZE_NAME
+
+اگر این آبجکت‌ها قبلاً با بسته دیتابیس Name Romanization ایجاد شده‌اند، DDL را مجدداً اجرا نکنید.
+
+2) داده واژه‌نامه
+-----------------
+داده حجیم Romanization مستقل از Source Package نگهداری می‌شود و باید با بسته داده تأییدشده GEO بارگذاری شود.
+فرم‌ها بدون Seed نیز قابل اجرا هستند و امکان ثبت/ویرایش دستی رکورد را دارند.
+
+3) Build برنامه
+---------------
+bin\stop.cmd
+build-production.cmd
+bin\start.cmd
+
+4) کنترل UI
+------------
+مسیر:
+اطلاعات پایه -> اطلاعات پایه عمومی -> اطلاعات عمومی
+
+فرم‌های جدید:
+- واژه‌نامه رومن‌نویسی نام‌ها
+- واژه‌نامه پیشوند و پسوند نام
+
+کنترل‌های پیشنهادی:
+- ثبت «محمد» و مشاهده Normalization خودکار
+- ثبت «سيد محمد» و کنترل تبدیل نویسه عربی «ي» به «ی» در فیلد Normalized
+- انتخاب وضعیت حاکمیتی و روش Romanization از Combo
+- کنترل جلوگیری از AUTO_FILL_ALLOWED بدون Canonical English معتبر
+- ثبت Affix «خانوم / Khanom» با Context Sensitive
+
+5) کنترل استاتیک Source Package
+--------------------------------
+node tools/verify-geo-name-romanization.mjs

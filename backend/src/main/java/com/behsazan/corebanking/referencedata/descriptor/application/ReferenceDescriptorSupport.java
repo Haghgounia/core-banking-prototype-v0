@@ -51,6 +51,19 @@ public final class ReferenceDescriptorSupport {
                 required, false, grid, searchable, maxLength, null, null, List.of());
     }
 
+    public static ReferenceFieldDescriptor stringSelect(
+            String api,
+            String column,
+            String label,
+            boolean required,
+            boolean grid,
+            Object defaultValue,
+            List<SelectOption> options
+    ) {
+        return new ReferenceFieldDescriptor(api, column, label, FieldType.STRING_SELECT,
+                required, false, grid, false, null, defaultValue, null, options);
+    }
+
     public static ReferenceFieldDescriptor number(
             String api,
             String column,

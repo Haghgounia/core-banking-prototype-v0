@@ -14,7 +14,7 @@ enterprise-calendar                -> Schema CAL
 bian-400y-calendar                 -> Schema CAL2
 ```
 
-در این نسخه ۲۰۳ فرم اطلاعات پایه/تقویم فعال هستند: ۲۰ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*`، ۱۰۱ فرم اطلاعات پایه Party/Customer در CIF (شامل دو فرم مستقل ISIC2)، ۱۶ فرم تقویم یک در CAL و ۱۶ فرم مستقل تقویم دو در CAL2. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
+در این نسخه ۲۰۵ فرم اطلاعات پایه/تقویم فعال هستند: ۲۲ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*`، ۱۰۱ فرم اطلاعات پایه Party/Customer در CIF (شامل دو فرم مستقل ISIC2)، ۱۶ فرم تقویم یک در CAL و ۱۶ فرم مستقل تقویم دو در CAL2. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
 
 برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. مسیر عملیاتی CIF از ایجاد Party تا اطلاعات Person/Organization، تماس و نشانی، مالی، شناسه و مدرک، طبقه‌بندی، روابط/UBO، Role/Customer، KYC/Risk/Screening، Consent/Preference، Lifecycle و Merge تکمیل شده است. در نسخه 0.3.22 تمام ۴۸ جدول عملیاتی موجود در `CIF-tables5.xlsx` در Backend پوشش داده می‌شوند: ۳۰ جدول در Workflowهای CIF استفاده/نگهداری می‌شوند و ۱۸ جدول تکمیلی بدون CRUD در CIF به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند؛ محصولات/تعاملات/شکایات و مشابه آن از سامانه‌های مبدأ می‌آیند و Registration/Audit صرفاً Trace خواندنی هستند.
 
@@ -158,7 +158,7 @@ DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون ب
 
 ## قابلیت‌های ماژول اطلاعات پایه
 
-- ۲۰۳ فرم فعال اطلاعات پایه/تقویم؛ شامل ۲۰ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS، ۱۰۱ فرم Party/Customer در CIF (با دو فرم مستقل ISIC2)، ۱۶ فرم تقویم یک در CAL و ۱۶ فرم تقویم دو/CAL2
+- ۲۰۵ فرم فعال اطلاعات پایه/تقویم؛ شامل ۲۲ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS، ۱۰۱ فرم Party/Customer در CIF (با دو فرم مستقل ISIC2)، ۱۶ فرم تقویم یک در CAL و ۱۶ فرم تقویم دو/CAL2
 - Import مستقیم Dataset تقویم یک/CAL از `calendar_day.csv` و `calendar_date.csv` با JDBC Batch و تراکنش واحد؛ بدون SQL*Loader/Oracle Client
 - Import مستقیم بسته ZIP مدل BIAN شامل ۱۵ CSV به Schema مستقل `CAL2` با ترتیب FK، JDBC Batch و یک تراکنش
 - نمای ماهانه CAL2 با پیش‌فرض هجری شمسی، جابه‌جایی ماه‌به‌ماه، سوئیچ شمسی/میلادی/قمری و نمایش مناسبت‌ها/تعطیلی‌های materialized از `EVENT_OCCURRENCE`

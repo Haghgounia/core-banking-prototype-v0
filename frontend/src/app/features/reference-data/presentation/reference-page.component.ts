@@ -180,6 +180,7 @@ export class ReferencePageComponent {
       return value ? 'بله' : 'خیر';
     }
     if (field.type === 'SELECT') return field.options.find(option => Number(option.value) === Number(value))?.label ?? String(value ?? '');
+    if (field.type === 'STRING_SELECT') return field.options.find(option => String(option.value) === String(value))?.label ?? String(value ?? '');
     return value === null || value === undefined ? '—' : String(value);
   }
 
@@ -223,6 +224,34 @@ export class ReferencePageComponent {
       if (field.maxLength) validators.push(Validators.maxLength(field.maxLength));
       this.form.addControl(field.apiName, new FormControl<unknown>(value, {validators}));
     }
+    this.wirePersianNormalization('persianName', 'normalizedPersianName');
+    this.wirePersianNormalization('persianAffix', 'normalizedPersianAffix');
+  }
+
+  private wirePersianNormalization(sourceField: string, targetField: string): void {
+    const source = this.form.controls[sourceField];
+    const target = this.form.controls[targetField];
+    if (!source || !target) return;
+    source.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
+      target.setValue(this.normalizePersianName(value), {emitEvent: false});
+    });
+    target.setValue(this.normalizePersianName(source.value), {emitEvent: false});
+  }
+
+  private normalizePersianName(value: unknown): string | null {
+    if (value === null || value === undefined) return null;
+    const normalized = String(value)
+      .trim()
+      .replace(/ي/g, 'ی')
+      .replace(/ى/g, 'ی')
+      .replace(/ك/g, 'ک')
+      .replace(/ة/g, 'ه')
+      .replace(/ۀ/g, 'ه')
+      .replace(/ـ/g, '')
+      .replace(/\u200c/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return normalized || null;
   }
 
   private async initializeLookupFields(): Promise<void> {

@@ -13,7 +13,7 @@ export interface CatalogResponse {
   readonly items: readonly CatalogItem[];
 }
 
-export type FieldType = 'TEXT' | 'NUMBER' | 'BOOLEAN' | 'SELECT' | 'LOOKUP' | 'DATE' | 'TIMESTAMP';
+export type FieldType = 'TEXT' | 'STRING_SELECT' | 'NUMBER' | 'BOOLEAN' | 'SELECT' | 'LOOKUP' | 'DATE' | 'TIMESTAMP';
 
 export interface SelectOption {
   readonly value: string | number;

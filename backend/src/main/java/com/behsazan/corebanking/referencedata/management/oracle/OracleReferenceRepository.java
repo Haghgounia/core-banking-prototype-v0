@@ -275,6 +275,7 @@ public class OracleReferenceRepository implements ReferenceRepository {
                 BigDecimal value = rs.getBigDecimal(field.apiName());
                 yield value == null ? null : value.intValue() == 1;
             }
+            case STRING_SELECT -> rs.getString(field.apiName());
             case NUMBER, SELECT, LOOKUP -> rs.getBigDecimal(field.apiName());
             case DATE -> {
                 Date value = rs.getDate(field.apiName());
@@ -290,7 +291,7 @@ public class OracleReferenceRepository implements ReferenceRepository {
 
     private static int sqlType(ReferenceFieldDescriptor field) {
         return switch (field.type()) {
-            case TEXT -> Types.VARCHAR;
+            case TEXT, STRING_SELECT -> Types.VARCHAR;
             case NUMBER, BOOLEAN, SELECT, LOOKUP -> Types.NUMERIC;
             case DATE -> Types.DATE;
             case TIMESTAMP -> Types.TIMESTAMP;
@@ -308,6 +309,7 @@ public class OracleReferenceRepository implements ReferenceRepository {
         return switch (field.type()) {
             case BOOLEAN -> Boolean.TRUE.equals(value) ? 1 : 0;
             case NUMBER, SELECT, LOOKUP -> value instanceof BigDecimal ? value : new BigDecimal(value.toString());
+            case STRING_SELECT -> value.toString();
             case DATE -> value instanceof LocalDate localDate ? Date.valueOf(localDate) : Date.valueOf(value.toString());
             case TEXT, TIMESTAMP -> value;
         };

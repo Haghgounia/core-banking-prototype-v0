@@ -2,6 +2,7 @@ package com.behsazan.corebanking.referencedata.management;
 
 import com.behsazan.corebanking.referencedata.descriptor.application.ReferenceDescriptorRegistry;
 import com.behsazan.corebanking.referencedata.geography.descriptor.GeographyDescriptorProvider;
+import com.behsazan.corebanking.referencedata.general.descriptor.NameRomanizationDescriptorProvider;
 import com.behsazan.corebanking.referencedata.descriptor.domain.ReferenceTableDescriptor;
 import com.behsazan.corebanking.referencedata.management.application.ReferenceRepository;
 import com.behsazan.corebanking.referencedata.management.application.ReferenceService;
@@ -34,6 +35,27 @@ class ReferenceServiceTest {
                 "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate"
         );
         assertThat(repository.actorId).isEqualTo(42L);
+    }
+
+    @Test
+    void createNormalizesPersianNameAndAppliesStringSelectDefaults() {
+        CapturingRepository repository = new CapturingRepository();
+        ReferenceService service = new ReferenceService(
+                new ReferenceDescriptorRegistry(List.of(new NameRomanizationDescriptorProvider())),
+                repository
+        );
+
+        service.create("name-romanization-dictionary", Map.of(
+                "persianName", "  سيد  محمد  ",
+                "suggestedEnglishName", "Seyed Mohammad"
+        ), 7L);
+
+        assertThat(repository.inserted).containsEntry("normalizedPersianName", "سید محمد");
+        assertThat(repository.inserted).containsEntry("entryTypeCode", "NAME");
+        assertThat(repository.inserted).containsEntry("romanizationMethodCode", "SOURCE_DICTIONARY");
+        assertThat(repository.inserted).containsEntry("governanceStatusCode", "GENERATED_REVIEW");
+        assertThat(repository.inserted).containsEntry("autoFillAllowed", false);
+        assertThat(repository.inserted).containsEntry("isActive", true);
     }
 
     private static final class CapturingRepository implements ReferenceRepository {

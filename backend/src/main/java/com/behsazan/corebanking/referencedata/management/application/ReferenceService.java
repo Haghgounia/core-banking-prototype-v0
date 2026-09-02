@@ -138,6 +138,7 @@ public class ReferenceService {
             normalized.put(field.apiName(), value);
         }
 
+        applyDerivedValues(descriptor, normalized);
         validateCrossFieldRules(descriptor, normalized, errors);
         if (!errors.isEmpty()) {
             throw new ReferenceValidationException("اطلاعات فرم را اصلاح کنید.", errors);
@@ -166,6 +167,29 @@ public class ReferenceService {
                 errors.put("parentCode", "کد والد نمی‌تواند با کد رکورد یکسان باشد.");
             }
         }
+        if (descriptor.optionalField("confidenceScore").isPresent()) {
+            Object rawScore = values.get("confidenceScore");
+            if (rawScore instanceof BigDecimal score
+                    && (score.compareTo(BigDecimal.ZERO) < 0 || score.compareTo(BigDecimal.ONE) > 0)) {
+                errors.put("confidenceScore", "امتیاز اطمینان باید بین صفر و یک باشد.");
+            }
+        }
+        if (descriptor.optionalField("autoFillAllowed").isPresent()
+                && Boolean.TRUE.equals(values.get("autoFillAllowed"))) {
+            Object canonical = values.get("canonicalEnglishName");
+            if (canonical == null || canonical.toString().isBlank()) {
+                errors.put("canonicalEnglishName", "برای تکمیل خودکار، نام انگلیسی Canonical الزامی است.");
+            }
+            Object governance = values.get("governanceStatusCode");
+            if (governance != null && !List.of("VERIFIED", "PROVISIONAL_SAFE", "COMPOSITION_HIGH").contains(governance.toString())) {
+                errors.put("governanceStatusCode", "این وضعیت حاکمیتی اجازه تکمیل خودکار ندارد.");
+            }
+        }
+        if (descriptor.optionalField("autoApplyAllowed").isPresent()
+                && Boolean.TRUE.equals(values.get("autoApplyAllowed"))
+                && Boolean.TRUE.equals(values.get("contextSensitive"))) {
+            errors.put("autoApplyAllowed", "جزء وابسته به Context نمی‌تواند بدون بازبینی به‌صورت خودکار اعمال شود.");
+        }
     }
 
     private Object normalize(ReferenceFieldDescriptor field, Object raw, Map<String, String> errors) {
@@ -175,6 +199,7 @@ public class ReferenceService {
         try {
             return switch (field.type()) {
                 case TEXT -> normalizeText(field, raw.toString(), errors);
+                case STRING_SELECT -> normalizeStringSelect(field, raw);
                 case NUMBER, LOOKUP -> new BigDecimal(raw.toString());
                 case BOOLEAN -> normalizeBoolean(raw);
                 case SELECT -> normalizeSelect(field, raw);
@@ -193,6 +218,46 @@ public class ReferenceService {
             errors.put(field.apiName(), "حداکثر طول مجاز " + field.maxLength() + " کاراکتر است.");
         }
         return value.isEmpty() ? null : value;
+    }
+
+    private static String normalizeStringSelect(ReferenceFieldDescriptor field, Object raw) {
+        String value = raw.toString().trim();
+        boolean accepted = field.options().isEmpty() || field.options().stream()
+                .map(option -> option.value().toString())
+                .anyMatch(optionValue -> optionValue.equals(value));
+        if (!accepted) {
+            throw new IllegalArgumentException("Unsupported option");
+        }
+        return value;
+    }
+
+    private static void applyDerivedValues(ReferenceTableDescriptor descriptor, Map<String, Object> values) {
+        deriveNormalizedPersian(descriptor, values, "persianName", "normalizedPersianName");
+        deriveNormalizedPersian(descriptor, values, "persianAffix", "normalizedPersianAffix");
+    }
+
+    private static void deriveNormalizedPersian(
+            ReferenceTableDescriptor descriptor,
+            Map<String, Object> values,
+            String sourceField,
+            String targetField
+    ) {
+        if (descriptor.optionalField(sourceField).isEmpty() || descriptor.optionalField(targetField).isEmpty()) return;
+        Object raw = values.get(sourceField);
+        if (raw == null) return;
+        values.put(targetField, normalizePersianName(raw.toString()));
+    }
+
+    private static String normalizePersianName(String raw) {
+        String value = raw.trim()
+                .replace('ي', 'ی')
+                .replace('ى', 'ی')
+                .replace('ك', 'ک')
+                .replace('ة', 'ه')
+                .replace('ۀ', 'ه')
+                .replace('ـ', ' ')
+                .replace('\u200C', ' ');
+        return value.replaceAll("\\s+", " ").trim();
     }
 
     private static Boolean normalizeBoolean(Object raw) {

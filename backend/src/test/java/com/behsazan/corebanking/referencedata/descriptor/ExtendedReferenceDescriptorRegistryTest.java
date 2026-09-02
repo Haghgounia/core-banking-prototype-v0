@@ -4,6 +4,7 @@ import com.behsazan.corebanking.referencedata.descriptor.application.ReferenceDe
 import com.behsazan.corebanking.referencedata.education.descriptor.EducationDescriptorProvider;
 import com.behsazan.corebanking.referencedata.employment.descriptor.EmploymentDescriptorProvider;
 import com.behsazan.corebanking.referencedata.general.descriptor.GeneralReferenceDescriptorProvider;
+import com.behsazan.corebanking.referencedata.general.descriptor.NameRomanizationDescriptorProvider;
 import com.behsazan.corebanking.referencedata.geography.descriptor.GeographyDescriptorProvider;
 import org.junit.jupiter.api.Test;
 
@@ -15,16 +16,18 @@ class ExtendedReferenceDescriptorRegistryTest {
     private final ReferenceDescriptorRegistry registry = new ReferenceDescriptorRegistry(List.of(
             new GeographyDescriptorProvider(),
             new GeneralReferenceDescriptorProvider(),
+            new NameRomanizationDescriptorProvider(),
             new EmploymentDescriptorProvider(),
             new EducationDescriptorProvider()
     ));
 
     @Test
     void registersAllActiveReferenceResources() {
-        assertThat(registry.all()).hasSize(20);
+        assertThat(registry.all()).hasSize(22);
         assertThat(registry.all()).extracting("resource").contains(
                 "continents", "languages", "currencies", "countries", "blood-types", "banks", "foreign-cities",
                 "job-groups", "jobs",
+                "name-romanization-dictionary", "name-affix-dictionary",
                 "education-groups", "education-subgroups", "education-degrees", "education-fields", "education-universities"
         );
     }

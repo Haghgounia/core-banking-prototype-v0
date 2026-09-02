@@ -130,6 +130,16 @@
                   @if (isInvalid(field)) { <mat-error>مقدار این فیلد الزامی است.</mat-error> }
                 </mat-form-field>
               }
+              @case ('STRING_SELECT') {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <mat-select [formControlName]="field.apiName">
+                    @if (!field.required) { <mat-option [value]="null">بدون انتخاب</mat-option> }
+                    @for (option of field.options; track option.value) { <mat-option [value]="option.value">{{ option.label }}</mat-option> }
+                  </mat-select>
+                  @if (isInvalid(field)) { <mat-error>انتخاب این فیلد الزامی است.</mat-error> }
+                </mat-form-field>
+              }
               @case ('LOOKUP') {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ field.label }}</mat-label>
