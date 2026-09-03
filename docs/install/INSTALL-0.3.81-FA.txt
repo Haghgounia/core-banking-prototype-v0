@@ -1,0 +1,13 @@
+Core Banking Prototype 0.3.81
+FIX89 - CAL2 SQL-driven LAST_DAY_IF_INVALID
+
+1) DDL جدید ندارد. Migration 0.3.80 باید قبلاً اجرا و Commit شده باشد.
+2) bin\stop.cmd
+3) build-production.cmd
+4) Built version: 0.3.81 را کنترل کنید.
+5) bin\start.cmd
+6) Log: CoreBankingApplication v0.3.81-SNAPSHOT
+7) ابتدا:
+   curl.exe -X POST "http://localhost:8091/api/v1/calendar2/event-recurrence/rebuild?ruleId=193"
+8) انتظار: dayResolutionPolicy=LAST_DAY_IF_INVALID, matchedCalendarDates=413, insertedGeneratedOccurrences=413
+9) سپس rebuild-all و Validation نهایی را اجرا کنید.

@@ -343,18 +343,21 @@ public class Calendar2EventRecurrenceRepository {
         params.put("monthNo", rule.monthNo());
         params.put("dayNo", rule.dayNo());
 
-        if ("LAST_DAY_IF_INVALID".equals(rule.dayResolutionPolicy())) {
-            String calendarDate = table("CALENDAR_DATE");
-            where.append(" AND (CD.DAY_NO = :dayNo OR (")
-                    .append("NOT EXISTS (SELECT 1 FROM ").append(calendarDate).append(" EX ")
-                    .append("WHERE EX.CALENDAR_VARIANT_ID = CD.CALENDAR_VARIANT_ID ")
-                    .append("AND EX.YEAR_NO = CD.YEAR_NO AND EX.MONTH_NO = CD.MONTH_NO AND EX.DAY_NO = :dayNo) ")
-                    .append("AND CD.DAY_NO = (SELECT MAX(MX.DAY_NO) FROM ").append(calendarDate).append(" MX ")
-                    .append("WHERE MX.CALENDAR_VARIANT_ID = CD.CALENDAR_VARIANT_ID ")
-                    .append("AND MX.YEAR_NO = CD.YEAR_NO AND MX.MONTH_NO = CD.MONTH_NO)))");
-        } else {
-            where.append(" AND CD.DAY_NO = :dayNo");
-        }
+        String calendarDate = table("CALENDAR_DATE");
+        String policy = rule.dayResolutionPolicy() == null
+                ? "EXACT" : rule.dayResolutionPolicy().trim().toUpperCase(Locale.ROOT);
+        params.put("dayResolutionPolicy", policy);
+
+        // FIX89: keep day-resolution policy inside Oracle SQL instead of selecting a Java branch.
+        // This makes the policy actually used by the same statement that counts/inserts candidate dates
+        // and gives one deterministic expression for both EXACT and LAST_DAY_IF_INVALID.
+        where.append(" AND CD.DAY_NO = CASE ")
+                .append("WHEN :dayResolutionPolicy = 'LAST_DAY_IF_INVALID' THEN (")
+                .append("SELECT NVL(MAX(CASE WHEN RX.DAY_NO = :dayNo THEN RX.DAY_NO END), MAX(RX.DAY_NO)) ")
+                .append("FROM ").append(calendarDate).append(" RX ")
+                .append("WHERE RX.CALENDAR_VARIANT_ID = CD.CALENDAR_VARIANT_ID ")
+                .append("AND RX.YEAR_NO = CD.YEAR_NO AND RX.MONTH_NO = CD.MONTH_NO) ")
+                .append("ELSE :dayNo END");
 
         if ("ONE_TIME_DATE".equals(rule.ruleType())) {
             where.append(" AND CD.YEAR_NO = :yearNo");

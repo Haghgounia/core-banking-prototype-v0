@@ -93,6 +93,7 @@ public final class Calendar2EventRecurrenceModels {
             long eventId,
             String eventName,
             String ruleType,
+            String dayResolutionPolicy,
             boolean active,
             int matchedCalendarDates,
             int deletedGeneratedOccurrences,

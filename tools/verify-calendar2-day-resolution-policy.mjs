@@ -10,6 +10,7 @@ const registry = read('backend/src/main/java/com/behsazan/corebanking/calendar2/
 const repo = read('backend/src/main/java/com/behsazan/corebanking/calendar2/eventrecurrence/oracle/Calendar2EventRecurrenceRepository.java');
 const service = read('backend/src/main/java/com/behsazan/corebanking/calendar2/eventrecurrence/application/Calendar2EventRecurrenceService.java');
 const models = read('backend/src/main/java/com/behsazan/corebanking/calendar2/eventrecurrence/domain/Calendar2EventRecurrenceModels.java');
+const recurrenceService = read('backend/src/main/java/com/behsazan/corebanking/calendar2/eventrecurrence/application/Calendar2EventRecurrenceService.java');
 const uiModels = read('frontend/src/app/features/calendar2-reference/calendar2-reference.models.ts');
 const ui = read('frontend/src/app/features/calendar2-reference/calendar2-reference-page.component.ts');
 const html = read('frontend/src/app/features/calendar2-reference/calendar2-reference-page.component.html');
@@ -18,8 +19,10 @@ const checks = [
   [migration.includes("IR_IMAM_REZA_MARTYRDOM") && migration.includes("LAST_DAY_IF_INVALID"), 'migration opts only Imam Reza 30 Safar rule into fallback'],
   [registry.includes('dayResolutionPolicy') && registry.includes('اگر روز وجود نداشت، آخرین روز ماه'), 'metadata form exposes controlled policy'],
   [models.includes('String dayResolutionPolicy'), 'backend rule model carries policy'],
-  [repo.includes('NOT EXISTS (SELECT 1 FROM ') && repo.includes('SELECT MAX(MX.DAY_NO)') && repo.includes('rule.dayResolutionPolicy()'), 'generator resolves invalid requested day to month end only when opted in'],
+  [repo.includes("WHEN :dayResolutionPolicy = 'LAST_DAY_IF_INVALID'") && repo.includes('NVL(MAX(CASE WHEN RX.DAY_NO = :dayNo THEN RX.DAY_NO END), MAX(RX.DAY_NO))') && repo.includes('params.put("dayResolutionPolicy", policy)'), 'generator resolves requested day in Oracle SQL using explicit policy'],
+  [!repo.includes('if ("LAST_DAY_IF_INVALID".equals(rule.dayResolutionPolicy()))'), 'generator no longer depends on a Java policy branch'],
   [service.includes('DAY_RESOLUTION_POLICIES') && service.includes('LAST_DAY_IF_INVALID'), 'service validates policy'],
+  [models.includes('String dayResolutionPolicy') && recurrenceService.includes('rule.dayResolutionPolicy(), true, matched'), 'rebuild response exposes the policy actually used at runtime'],
   [uiModels.includes('dayResolutionPolicy') && ui.includes('dayResolutionPolicyLabel') && html.includes('سیاست روز نامعتبر'), 'CAL2 recurrence grid shows policy']
 ];
 let ok = true;

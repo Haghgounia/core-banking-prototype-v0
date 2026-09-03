@@ -67,14 +67,14 @@ public class Calendar2EventRecurrenceService {
         boolean active = rule.ruleActive() && rule.eventActive();
         if (!active) {
             return new GenerationResult(rule.eventRuleId(), rule.eventId(), rule.eventName(), rule.ruleType(),
-                    false, 0, deleted, 0, 0);
+                    rule.dayResolutionPolicy(), false, 0, deleted, 0, 0);
         }
 
         int matched = repository.countCalendarMatches(rule);
         int inserted = repository.insertGenerated(rule);
         int skipped = Math.max(matched - inserted, 0);
         return new GenerationResult(rule.eventRuleId(), rule.eventId(), rule.eventName(), rule.ruleType(),
-                true, matched, deleted, inserted, skipped);
+                rule.dayResolutionPolicy(), true, matched, deleted, inserted, skipped);
     }
 
     @Transactional

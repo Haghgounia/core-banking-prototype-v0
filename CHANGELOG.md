@@ -1,3 +1,11 @@
+## 0.3.81 — FIX89: اجرای قطعی سیاست آخرین روز ماه در Materializer CAL2
+
+- منطق `DAY_RESOLUTION_POLICY` از branch جاوا به یک عبارت واحد و صریح Oracle SQL منتقل شد تا `countCalendarMatches` و `insertGenerated` دقیقاً از یک Resolution یکسان استفاده کنند.
+- برای `LAST_DAY_IF_INVALID`، Oracle در هر سال/ماه ابتدا روز درخواستی را انتخاب می‌کند و فقط اگر وجود نداشت `MAX(DAY_NO)` همان ماه را برمی‌گرداند؛ `EXACT` بدون تغییر باقی می‌ماند.
+- پاسخ API بازسازی هر Rule اکنون `dayResolutionPolicy` را نیز برمی‌گرداند تا مشخص باشد Runtime واقعاً با کدام Policy اجرا شده است.
+- هیچ DDL یا Migration جدیدی لازم نیست؛ Migration FIX88 نسخه 0.3.80 باید قبلاً اجرا و Commit شده باشد.
+- Diagnostic SQL برای Rule 193 اضافه شد؛ در Dataset فعلی انتظار `413` match و پس از rebuild حدود `97,732` رخداد کل داریم.
+
 ## 0.3.80 — FIX88: سیاست حل روز نامعتبر در قواعد مناسبت CAL2
 
 - افزودن `DAY_RESOLUTION_POLICY` به `CAL2.EVENT_RECURRENCE_RULE` با دو مقدار `EXACT` و `LAST_DAY_IF_INVALID`.
