@@ -16,6 +16,7 @@ public final class Calendar2EventRecurrenceModels {
             int dayNo,
             Integer startYearNo,
             Integer endYearNo,
+            String dayResolutionPolicy,
             Long sourceId,
             String description,
             boolean ruleActive,
@@ -39,6 +40,7 @@ public final class Calendar2EventRecurrenceModels {
             int dayNo,
             Integer startYearNo,
             Integer endYearNo,
+            String dayResolutionPolicy,
             boolean active,
             int generatedOccurrences
     ) {}

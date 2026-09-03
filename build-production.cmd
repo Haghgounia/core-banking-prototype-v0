@@ -70,6 +70,9 @@ node "%ROOT%tools\verify-calendar2-business-calendar-lookups.mjs" || exit /b 1
 rem FIX82 static guard: CAL2 business-calendar-day grid exposes Persian dates and labels.
 node "%ROOT%tools\verify-calendar2-business-calendar-day-grid.mjs" || exit /b 1
 
+rem FIX88 static guard: recurrence rules preserve requested dates and explicitly resolve invalid month-days.
+node "%ROOT%tools\verify-calendar2-day-resolution-policy.mjs" || exit /b 1
+
 rem FIX71 static guard: empty Persian date pickers open on the current Solar Hijri date.
 node "%ROOT%tools\verify-persian-date-picker-current-default.mjs" || exit /b 1
 

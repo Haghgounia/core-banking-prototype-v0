@@ -73,7 +73,7 @@ public class Calendar2EventRecurrenceRepository {
                        R.RULE_TYPE, R.CALENDAR_VARIANT_ID, V.VARIANT_CODE,
                        S.CALENDAR_CODE, S.NAME_FA AS CALENDAR_NAME, M.NAME_FA AS MONTH_NAME,
                        R.YEAR_NO, R.MONTH_NO, R.DAY_NO, R.START_YEAR_NO, R.END_YEAR_NO,
-                       R.ACTIVE_FLAG, %s AS GENERATED_OCCURRENCES
+                       R.DAY_RESOLUTION_POLICY, R.ACTIVE_FLAG, %s AS GENERATED_OCCURRENCES
                 %s
                 LEFT JOIN (
                     SELECT EVENT_RULE_ID, COUNT(*) AS GENERATED_OCCURRENCES
@@ -264,7 +264,7 @@ public class Calendar2EventRecurrenceRepository {
         String sql = """
                 SELECT R.EVENT_RULE_ID, R.EVENT_ID, E.NAME_FA AS EVENT_NAME, R.RULE_TYPE,
                        R.CALENDAR_VARIANT_ID, R.YEAR_NO, R.MONTH_NO, R.DAY_NO,
-                       R.START_YEAR_NO, R.END_YEAR_NO, R.SOURCE_ID, R.DESCRIPTION,
+                       R.START_YEAR_NO, R.END_YEAR_NO, R.DAY_RESOLUTION_POLICY, R.SOURCE_ID, R.DESCRIPTION,
                        R.ACTIVE_FLAG AS RULE_ACTIVE, E.ACTIVE_FLAG AS EVENT_ACTIVE,
                        E.DEFAULT_HOLIDAY_FLAG
                   FROM %s R
@@ -337,11 +337,24 @@ public class Calendar2EventRecurrenceRepository {
     }
 
     private RuleFilter filter(RuleDefinition rule) {
-        StringBuilder where = new StringBuilder("CD.CALENDAR_VARIANT_ID = :variantId AND CD.MONTH_NO = :monthNo AND CD.DAY_NO = :dayNo");
+        StringBuilder where = new StringBuilder("CD.CALENDAR_VARIANT_ID = :variantId AND CD.MONTH_NO = :monthNo");
         LinkedHashMap<String, Object> params = new LinkedHashMap<>();
         params.put("variantId", rule.calendarVariantId());
         params.put("monthNo", rule.monthNo());
         params.put("dayNo", rule.dayNo());
+
+        if ("LAST_DAY_IF_INVALID".equals(rule.dayResolutionPolicy())) {
+            String calendarDate = table("CALENDAR_DATE");
+            where.append(" AND (CD.DAY_NO = :dayNo OR (")
+                    .append("NOT EXISTS (SELECT 1 FROM ").append(calendarDate).append(" EX ")
+                    .append("WHERE EX.CALENDAR_VARIANT_ID = CD.CALENDAR_VARIANT_ID ")
+                    .append("AND EX.YEAR_NO = CD.YEAR_NO AND EX.MONTH_NO = CD.MONTH_NO AND EX.DAY_NO = :dayNo) ")
+                    .append("AND CD.DAY_NO = (SELECT MAX(MX.DAY_NO) FROM ").append(calendarDate).append(" MX ")
+                    .append("WHERE MX.CALENDAR_VARIANT_ID = CD.CALENDAR_VARIANT_ID ")
+                    .append("AND MX.YEAR_NO = CD.YEAR_NO AND MX.MONTH_NO = CD.MONTH_NO)))");
+        } else {
+            where.append(" AND CD.DAY_NO = :dayNo");
+        }
 
         if ("ONE_TIME_DATE".equals(rule.ruleType())) {
             where.append(" AND CD.YEAR_NO = :yearNo");
@@ -376,6 +389,7 @@ public class Calendar2EventRecurrenceRepository {
                 rs.getInt("DAY_NO"),
                 nullableInteger(rs, "START_YEAR_NO"),
                 nullableInteger(rs, "END_YEAR_NO"),
+                rs.getString("DAY_RESOLUTION_POLICY"),
                 "Y".equalsIgnoreCase(rs.getString("ACTIVE_FLAG")),
                 rs.getInt("GENERATED_OCCURRENCES")
         );
@@ -389,6 +403,7 @@ public class Calendar2EventRecurrenceRepository {
             case "dateLabel" -> "R.MONTH_NO, R.DAY_NO";
             case "ruleType" -> "R.RULE_TYPE";
             case "rangeLabel" -> "NVL(R.START_YEAR_NO, -999999), NVL(R.END_YEAR_NO, 999999)";
+            case "dayResolutionPolicy" -> "R.DAY_RESOLUTION_POLICY";
             case "generatedOccurrences" -> occurrenceCount;
             case "active" -> "R.ACTIVE_FLAG";
             default -> "E.NAME_FA";
@@ -411,6 +426,7 @@ public class Calendar2EventRecurrenceRepository {
                 rs.getInt("DAY_NO"),
                 nullableInteger(rs, "START_YEAR_NO"),
                 nullableInteger(rs, "END_YEAR_NO"),
+                rs.getString("DAY_RESOLUTION_POLICY"),
                 nullableLong(rs, "SOURCE_ID"),
                 rs.getString("DESCRIPTION"),
                 "Y".equalsIgnoreCase(rs.getString("RULE_ACTIVE")),

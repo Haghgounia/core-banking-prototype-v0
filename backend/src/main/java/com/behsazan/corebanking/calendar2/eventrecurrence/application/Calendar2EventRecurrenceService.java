@@ -22,6 +22,7 @@ import java.util.Set;
 @Service
 public class Calendar2EventRecurrenceService {
     private static final Set<String> OCCURRENCE_SOURCES = Set.of("GENERATED", "MANUAL", "OFFICIAL");
+    private static final Set<String> DAY_RESOLUTION_POLICIES = Set.of("EXACT", "LAST_DAY_IF_INVALID");
     private final Calendar2EventRecurrenceRepository repository;
 
     public Calendar2EventRecurrenceService(Calendar2EventRecurrenceRepository repository) {
@@ -104,6 +105,9 @@ public class Calendar2EventRecurrenceService {
         }
         if (rule.startYearNo() != null && rule.endYearNo() != null && rule.startYearNo() > rule.endYearNo()) {
             throw validation("بازه سال قاعده معتبر نیست.", "endYearNo");
+        }
+        if (rule.dayResolutionPolicy() == null || !DAY_RESOLUTION_POLICIES.contains(rule.dayResolutionPolicy())) {
+            throw validation("سیاست روز نامعتبر معتبر نیست.", "dayResolutionPolicy");
         }
     }
 

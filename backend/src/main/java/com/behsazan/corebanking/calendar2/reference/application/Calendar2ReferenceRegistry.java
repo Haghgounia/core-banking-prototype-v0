@@ -228,6 +228,9 @@ public class Calendar2ReferenceRegistry {
                         number("dayNo", "DAY_NO", "روز", true, true, true),
                         number("startYearNo", "START_YEAR_NO", "سال شروع (اختیاری)", false, false, true),
                         number("endYearNo", "END_YEAR_NO", "سال پایان (اختیاری)", false, false, true),
+                        select("dayResolutionPolicy", "DAY_RESOLUTION_POLICY", "سیاست روز نامعتبر", true, true, "EXACT",
+                                option("EXACT", "فقط تاریخ دقیق"),
+                                option("LAST_DAY_IF_INVALID", "اگر روز وجود نداشت، آخرین روز ماه")),
                         lookupNumber("sourceId", "SOURCE_ID", "منبع/مرجع مناسبت", "source-authorities", false, false),
                         text("description", "DESCRIPTION", "توضیحات", false, 1000, false, true),
                         bool("activeFlag", "ACTIVE_FLAG", "فعال", true, true, true)

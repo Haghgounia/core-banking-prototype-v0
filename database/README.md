@@ -49,3 +49,8 @@ database/oracle/
 برای نصب مدل جاری کارمزد، پس از آماده‌سازی Schema/Tablespace توسط DBA، `oracle/fee/install-baseline-1.0-ddl.sql` و سپس `oracle/fee/install-baseline-1.0-seed.sql` را اجرا کنید. فایل `oracle/fee/verify-baseline-1.0.sql` شمارش و سناریوهای Seed را کنترل می‌کند. مدل 21 جدولی قبلی در `oracle/fee/legacy-phase1-21-tables` فقط برای تاریخچه نگه داشته شده است.
 
 - FEE / CBI 1404: پس از Baseline، `database/oracle/fee/install-cbi-fee-1404.sql` برای Import تمیز 229 تعرفه منطقی بانک مرکزی اجرا شود.
+
+
+### CAL2 FIX88 / 0.3.80
+
+برای پشتیبانی از قواعدی مانند «۳۰ صفر» روی Variant محاسباتی فاقد آن روز، Migration `oracle/cal2/migrations/0.3.80-fix88-last-day-resolution-policy.sql` را اجرا کنید. پس از Commit، رخدادهای Generated را با `POST /api/v1/calendar2/event-recurrence/rebuild-all` بازسازی کنید.

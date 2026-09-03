@@ -1,3 +1,11 @@
+## 0.3.80 — FIX88: سیاست حل روز نامعتبر در قواعد مناسبت CAL2
+
+- افزودن `DAY_RESOLUTION_POLICY` به `CAL2.EVENT_RECURRENCE_RULE` با دو مقدار `EXACT` و `LAST_DAY_IF_INVALID`.
+- قاعده `IR_IMAM_REZA_MARTYRDOM` همچنان «۳۰ صفر» باقی می‌ماند و فقط در Calendar Variant محاسباتی فاقد روز ۳۰ به آخرین روز ماه Resolve می‌شود.
+- Generator رخدادها برای هر سال ابتدا Match دقیق را ترجیح می‌دهد و fallback را فقط برای Ruleهای صریحاً opt-in شده اعمال می‌کند.
+- فرم «مناسبت‌های تقویم» سیاست روز نامعتبر را به‌صورت Combo فارسی و Grid اختصاصی نمایش می‌دهد.
+- Migration و Guard استاتیک FIX88 اضافه شد.
+
 ## 0.3.79 — FIX87: اطلاعات پایه دین و مذهب
 
 - افزودن `CIF.REF_RELIGION` برای اطلاعات پایه دین.

@@ -1,0 +1,23 @@
+Core Banking Prototype 0.3.80
+
+1) نسخه را در پوشه پروژه Extract/Replace کنید.
+2) bin\stop.cmd را اجرا کنید.
+3) Migration زیر را روی Oracle اجرا و نتیجه را بررسی کنید:
+   database\oracle\cal2\migrations\0.3.80-fix88-last-day-resolution-policy.sql
+4) در Verification باید برای IR_IMAM_REZA_MARTYRDOM مقدار زیر دیده شود:
+   DAY_RESOLUTION_POLICY = LAST_DAY_IF_INVALID
+5) در صورت صحت نتیجه COMMIT کنید.
+6) build-production.cmd را اجرا کنید.
+7) فقط پس از مشاهده Built version: 0.3.80 برنامه را با bin\start.cmd اجرا کنید.
+8) در Log باید CoreBankingApplication v0.3.80-SNAPSHOT دیده شود.
+9) پس از بالا آمدن Runtime 0.3.80، رخدادهای Generated را بازسازی کنید:
+   curl.exe -X POST "http://localhost:8091/api/v1/calendar2/event-recurrence/rebuild-all"
+10) سپس database\oracle\cal2\CAL2_FIX88_POST_REBUILD_VALIDATION.sql را اجرا کنید.
+11) در مرورگر Ctrl+F5 بزنید.
+
+FIX88:
+- DAY_RESOLUTION_POLICY به CAL2.EVENT_RECURRENCE_RULE اضافه شده است.
+- EXACT رفتار پیش‌فرض همه قواعد است.
+- LAST_DAY_IF_INVALID فقط با انتخاب صریح Rule فعال می‌شود.
+- برای «شهادت امام رضا (ع) / ۳۰ صفر»، خود Rule همچنان ۳۰ صفر می‌ماند؛ در Variant محاسباتی فعلی که صفر ۲۹ روزه است، رخداد محاسباتی روی آخرین روز صفر تولید می‌شود.
+- Match دقیق همیشه بر fallback اولویت دارد.
