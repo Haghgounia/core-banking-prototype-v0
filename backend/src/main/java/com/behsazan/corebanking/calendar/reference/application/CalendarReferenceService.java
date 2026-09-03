@@ -5,6 +5,7 @@ import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModel
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.FieldType;
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.LookupOption;
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.RecordResponse;
+import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.SolarYearContext;
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.TableDescriptor;
 import com.behsazan.corebanking.calendar.reference.oracle.CalendarReferenceRepository;
 import com.behsazan.corebanking.shared.error.ReferenceNotFoundException;
@@ -36,16 +37,20 @@ public class CalendarReferenceService {
         return registry.require(resource);
     }
 
-    public PageResponse<Map<String, Object>> search(String resource, String text, int page, int size,
+    public SolarYearContext solarYearContext() {
+        return repository.solarYearContext();
+    }
+
+    public PageResponse<Map<String, Object>> search(String resource, String text, Integer solarYear, int page, int size,
                                                      String sortBy, String direction) {
         TableDescriptor descriptor = registry.require(resource);
         return switch (resource) {
-            case "calendar-days" -> repository.searchCalendarDays(text, page, size, sortBy, direction);
-            case "business-calendar-days" -> repository.searchBusinessCalendarDays(text, page, size, sortBy, direction);
+            case "calendar-days" -> repository.searchCalendarDays(text, solarYear, page, size, sortBy, direction);
+            case "business-calendar-days" -> repository.searchBusinessCalendarDays(text, solarYear, page, size, sortBy, direction);
             case "occasion-rules" -> repository.searchOccasionRules(text, page, size, sortBy, direction);
-            case "occasion-occurrences" -> repository.searchOccasionOccurrences(text, page, size, sortBy, direction);
-            case "calendar-day-occasions" -> repository.searchCalendarDayOccasions(text, page, size, sortBy, direction);
-            default -> repository.search(descriptor, text, page, size, sortBy, direction);
+            case "occasion-occurrences" -> repository.searchOccasionOccurrences(text, solarYear, page, size, sortBy, direction);
+            case "calendar-day-occasions" -> repository.searchCalendarDayOccasions(text, solarYear, page, size, sortBy, direction);
+            default -> repository.search(descriptor, text, solarYear, page, size, sortBy, direction);
         };
     }
 

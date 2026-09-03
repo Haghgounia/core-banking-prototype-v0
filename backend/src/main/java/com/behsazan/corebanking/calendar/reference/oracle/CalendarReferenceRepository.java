@@ -5,6 +5,7 @@ import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModel
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.FieldType;
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.LookupOption;
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.RecordResponse;
+import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.SolarYearContext;
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.TableDescriptor;
 import com.behsazan.corebanking.shared.model.PageResponse;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -35,14 +36,19 @@ public class CalendarReferenceRepository {
         this.registry = registry;
     }
 
-    public PageResponse<Map<String, Object>> search(TableDescriptor descriptor, String text, int page, int size,
+    public PageResponse<Map<String, Object>> search(TableDescriptor descriptor, String text, Integer solarYear, int page, int size,
                                                      String sortBy, String direction) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 100);
-        String where = searchWhere(descriptor, text);
+        StringBuilder where = new StringBuilder(searchWhere(descriptor, text));
         Map<String, Object> params = new LinkedHashMap<>();
         if (text != null && !text.isBlank() && !descriptor.searchableFields().isEmpty()) {
             params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        if (solarYear != null && hasDayId(descriptor)) {
+            appendCondition(where, "EXISTS (SELECT 1 FROM " + solarDateTable()
+                    + " SY WHERE SY.DAY_ID=T.DAY_ID AND SY.CALENDAR_SYSTEM_CODE='SOLAR_HIJRI_IR' AND SY.YEAR_NO=:solarYear)");
+            params.put("solarYear", solarYear);
         }
 
         long total = jdbcClient.sql("SELECT COUNT(*) FROM " + table(descriptor) + " T" + where)
@@ -64,8 +70,20 @@ public class CalendarReferenceRepository {
         return new PageResponse<>(rows, total, safePage, safeSize);
     }
 
+    public SolarYearContext solarYearContext() {
+        String schema = CalendarSqlNames.identifier(registry.schemaName());
+        String sql = "SELECT MIN(P.YEAR_NO) AS MIN_YEAR, MAX(P.YEAR_NO) AS MAX_YEAR, "
+                + "NVL(MAX(CASE WHEN D.CANONICAL_DATE=TRUNC(SYSDATE) THEN P.YEAR_NO END), "
+                + "MAX(P.YEAR_NO) KEEP (DENSE_RANK FIRST ORDER BY ABS(D.CANONICAL_DATE-TRUNC(SYSDATE)))) AS CURRENT_YEAR "
+                + "FROM " + schema + ".CALENDAR_DATE P JOIN " + schema + ".CALENDAR_DAY D ON D.DAY_ID=P.DAY_ID "
+                + "WHERE P.CALENDAR_SYSTEM_CODE='SOLAR_HIJRI_IR'";
+        return jdbcClient.sql(sql).query((rs, rowNum) -> new SolarYearContext(
+                rs.getInt("CURRENT_YEAR"), rs.getInt("MIN_YEAR"), rs.getInt("MAX_YEAR")
+        )).single();
+    }
 
-    public PageResponse<Map<String, Object>> searchCalendarDays(String text, int page, int size,
+
+    public PageResponse<Map<String, Object>> searchCalendarDays(String text, Integer solarYear, int page, int size,
                                                                  String sortBy, String direction) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 100);
@@ -78,6 +96,10 @@ public class CalendarReferenceRepository {
                     .append(" OR UPPER(NVL(H.FORMATTED_DATE,'')) LIKE :searchText")
                     .append(" OR UPPER(W.WEEKDAY_NAME_FA) LIKE :searchText)");
             params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        if (solarYear != null) {
+            where.append(" AND P.YEAR_NO=:solarYear");
+            params.put("solarYear", solarYear);
         }
         String schema = CalendarSqlNames.identifier(registry.schemaName());
         String from = " FROM " + schema + ".CALENDAR_DAY D"
@@ -120,7 +142,7 @@ public class CalendarReferenceRepository {
         return new PageResponse<>(rows, total, safePage, safeSize);
     }
 
-    public PageResponse<Map<String, Object>> searchBusinessCalendarDays(String text, int page, int size,
+    public PageResponse<Map<String, Object>> searchBusinessCalendarDays(String text, Integer solarYear, int page, int size,
                                                                          String sortBy, String direction) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 100);
@@ -135,6 +157,10 @@ public class CalendarReferenceRepository {
                     .append(" OR UPPER(W.WEEKDAY_NAME_FA) LIKE :searchText")
                     .append(" OR UPPER(NVL(B.STATUS_SOURCE_CODE,'')) LIKE :searchText)");
             params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        if (solarYear != null) {
+            where.append(" AND P.YEAR_NO=:solarYear");
+            params.put("solarYear", solarYear);
         }
         String schema = CalendarSqlNames.identifier(registry.schemaName());
         String from = " FROM " + schema + ".BUSINESS_CALENDAR_DAY B"
@@ -245,7 +271,7 @@ public class CalendarReferenceRepository {
         return new PageResponse<>(rows, total, safePage, safeSize);
     }
 
-    public PageResponse<Map<String, Object>> searchOccasionOccurrences(String text, int page, int size,
+    public PageResponse<Map<String, Object>> searchOccasionOccurrences(String text, Integer solarYear, int page, int size,
                                                                         String sortBy, String direction) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 100);
@@ -260,6 +286,10 @@ public class CalendarReferenceRepository {
                     .append(" OR UPPER(TO_CHAR(SD.CANONICAL_DATE,'YYYY-MM-DD')) LIKE :searchText")
                     .append(" OR UPPER(NVL(X.SOURCE_AUTHORITY_CODE,'')) LIKE :searchText)");
             params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        if (solarYear != null) {
+            where.append(" AND SP.YEAR_NO=:solarYear");
+            params.put("solarYear", solarYear);
         }
         String schema = CalendarSqlNames.identifier(registry.schemaName());
         String from = " FROM " + schema + ".OCCASION_OCCURRENCE X"
@@ -314,7 +344,7 @@ public class CalendarReferenceRepository {
         return new PageResponse<>(rows, total, safePage, safeSize);
     }
 
-    public PageResponse<Map<String, Object>> searchCalendarDayOccasions(String text, int page, int size,
+    public PageResponse<Map<String, Object>> searchCalendarDayOccasions(String text, Integer solarYear, int page, int size,
                                                                          String sortBy, String direction) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 100);
@@ -327,6 +357,10 @@ public class CalendarReferenceRepository {
                     .append(" OR UPPER(W.WEEKDAY_NAME_FA) LIKE :searchText")
                     .append(" OR UPPER(TO_CHAR(CDO.DAY_ID)) LIKE :searchText)");
             params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        if (solarYear != null) {
+            where.append(" AND P.YEAR_NO=:solarYear");
+            params.put("solarYear", solarYear);
         }
         String schema = CalendarSqlNames.identifier(registry.schemaName());
         String from = " FROM " + schema + ".CALENDAR_DAY_OCCASION CDO"
@@ -523,6 +557,19 @@ public class CalendarReferenceRepository {
                     + (rs.getString("START_DATE").equals(rs.getString("END_DATE")) ? "" : " تا " + rs.getString("END_DATE"));
             return new LookupOption(id, code, label);
         }).list();
+    }
+
+    private boolean hasDayId(TableDescriptor descriptor) {
+        return descriptor.fields().stream().anyMatch(field -> "DAY_ID".equals(field.columnName()));
+    }
+
+    private String solarDateTable() {
+        return CalendarSqlNames.qualified(registry.schemaName(), "CALENDAR_DATE");
+    }
+
+    private static void appendCondition(StringBuilder where, String condition) {
+        if (where.length() == 0) where.append(" WHERE ").append(condition);
+        else where.append(" AND ").append(condition);
     }
 
     private String searchWhere(TableDescriptor descriptor, String text) {

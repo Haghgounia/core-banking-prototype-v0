@@ -1,0 +1,14 @@
+Core Banking Prototype 0.3.78
+
+1) نسخه را در پوشه پروژه Extract/Replace کنید.
+2) bin\stop.cmd را اجرا کنید.
+3) build-production.cmd را اجرا کنید.
+4) فقط پس از مشاهده Built version: 0.3.78 برنامه را با bin\start.cmd اجرا کنید.
+5) در Log باید CoreBankingApplication v0.3.78-SNAPSHOT دیده شود.
+6) در مرورگر Ctrl+F5 بزنید.
+
+FIX86:
+- پیش‌فرض سال هجری شمسی جاری در 7 فرم تاریخ‌محور CAL.
+- امکان انتخاب سال دیگر، بازگشت به «سال جاری» و مشاهده «همه سال‌ها».
+- فیلتر Server-side بر پایه CAL.CALENDAR_DATE / SOLAR_HIJRI_IR.
+- DDL یا تغییر داده‌ای ندارد.

@@ -52,6 +52,9 @@ node "%ROOT%tools\verify-calendar-month-view.mjs" || exit /b 1
 rem FIX85 static guard: high-volume CAL forms expose Persian dates/business context instead of raw IDs.
 node "%ROOT%tools\verify-calendar-form-usability.mjs" || exit /b 1
 
+rem FIX86 static guard: date-bound CAL forms default to the current Solar Hijri year while preserving all-years access.
+node "%ROOT%tools\verify-calendar-current-year-default.mjs" || exit /b 1
+
 rem CAL2 static guard: independent forms/DDL, recurring events and ZIP JDBC import.
 node "%ROOT%tools\verify-calendar2-reference.mjs" || exit /b 1
 

@@ -4,6 +4,7 @@ import com.behsazan.corebanking.calendar.reference.application.CalendarReference
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.CatalogResponse;
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.LookupOption;
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.RecordResponse;
+import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.SolarYearContext;
 import com.behsazan.corebanking.calendar.reference.domain.CalendarReferenceModels.TableDescriptor;
 import com.behsazan.corebanking.shared.model.PageResponse;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,11 @@ public class CalendarReferenceController {
         return service.descriptor(resource);
     }
 
+    @GetMapping("/solar-year-context")
+    SolarYearContext solarYearContext() {
+        return service.solarYearContext();
+    }
+
     @GetMapping("/{resource}/lookup")
     List<LookupOption> lookup(@PathVariable String resource,
                               @RequestParam(required = false) String text,
@@ -49,11 +55,12 @@ public class CalendarReferenceController {
     @GetMapping("/{resource}")
     PageResponse<Map<String, Object>> search(@PathVariable String resource,
                                              @RequestParam(required = false) String text,
+                                             @RequestParam(required = false) Integer solarYear,
                                              @RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "20") int size,
                                              @RequestParam(required = false) String sortBy,
                                              @RequestParam(defaultValue = "asc") String direction) {
-        return service.search(resource, text, page, size, sortBy, direction);
+        return service.search(resource, text, solarYear, page, size, sortBy, direction);
     }
 
     @GetMapping("/{resource}/{key}")

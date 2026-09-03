@@ -97,6 +97,8 @@ public final class CalendarReferenceModels {
         }
     }
 
+    public record SolarYearContext(int currentYear, int minimumYear, int maximumYear) {}
+
     public record RecordResponse(String key, Map<String, Object> values) {
         public RecordResponse {
             values = Collections.unmodifiableMap(new LinkedHashMap<>(values));
