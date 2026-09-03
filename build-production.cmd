@@ -46,6 +46,12 @@ node "%ROOT%tools\verify-calendar-reference.mjs" || exit /b 1
 rem FIX47 static guard: transactional CAL dataset CSV import over JDBC; no SQL*Loader dependency.
 node "%ROOT%tools\verify-calendar-dataset-import.mjs" || exit /b 1
 
+rem FIX85 static guard: CAL monthly view mirrors CAL2 UX using CAL-native data.
+node "%ROOT%tools\verify-calendar-month-view.mjs" || exit /b 1
+
+rem FIX85 static guard: high-volume CAL forms expose Persian dates/business context instead of raw IDs.
+node "%ROOT%tools\verify-calendar-form-usability.mjs" || exit /b 1
+
 rem CAL2 static guard: independent forms/DDL, recurring events and ZIP JDBC import.
 node "%ROOT%tools\verify-calendar2-reference.mjs" || exit /b 1
 
@@ -75,6 +81,9 @@ node "%ROOT%tools\verify-fee-admin-baseline.mjs" || exit /b 1
 rem FIX81 static guard: complete CBI 1404 tariff import is normalized, non-destructive and fully verified.
 node "%ROOT%tools\verify-cbi-fee-1404-import.mjs" || exit /b 1
 node "%ROOT%tools\verify-geo-name-romanization.mjs" || exit /b 1
+
+rem FIX84 static guard: one centralized breadcrumb must cover every application section.
+node "%ROOT%tools\verify-global-breadcrumb.mjs" || exit /b 1
 
 rem FIX55 static guard: user-facing calendar labels must stay simple and distinct.
 node "%ROOT%tools\verify-calendar-display-labels.mjs" || exit /b 1

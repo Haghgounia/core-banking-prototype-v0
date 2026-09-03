@@ -1,0 +1,11 @@
+Patch 0.3.76 - Breadcrumb سراسری
+
+این Patch را روی نسخه 0.3.75 Extract/Replace کنید.
+سپس:
+  bin\stop.cmd
+  build-production.cmd
+پس از مشاهده Built version: 0.3.76:
+  bin\start.cmd
+در مرورگر Ctrl+F5 بزنید.
+
+نیاز به DDL یا تغییر دیتابیس ندارد.

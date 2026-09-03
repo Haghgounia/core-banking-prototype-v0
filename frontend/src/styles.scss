@@ -257,3 +257,13 @@ mat-icon.mat-icon {
   .db-grid,
   .record-table { min-width: 760px !important; table-layout: auto; }
 }
+
+
+/* Fix84: one centralized breadcrumb is rendered by AppShell for every route.
+   Hide legacy page-local breadcrumb navs to avoid duplicate navigation paths. */
+main.content nav.reference-breadcrumb,
+main.content nav.tree-breadcrumb,
+main.content nav.tool-breadcrumb,
+main.content nav.breadcrumb {
+  display: none !important;
+}

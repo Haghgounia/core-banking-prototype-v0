@@ -64,6 +64,312 @@ public class CalendarReferenceRepository {
         return new PageResponse<>(rows, total, safePage, safeSize);
     }
 
+
+    public PageResponse<Map<String, Object>> searchCalendarDays(String text, int page, int size,
+                                                                 String sortBy, String direction) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1=1");
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(TO_CHAR(D.DAY_ID)) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(D.CANONICAL_DATE,'YYYY-MM-DD')) LIKE :searchText")
+                    .append(" OR UPPER(NVL(P.FORMATTED_DATE,'')) LIKE :searchText")
+                    .append(" OR UPPER(NVL(H.FORMATTED_DATE,'')) LIKE :searchText")
+                    .append(" OR UPPER(W.WEEKDAY_NAME_FA) LIKE :searchText)");
+            params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        String schema = CalendarSqlNames.identifier(registry.schemaName());
+        String from = " FROM " + schema + ".CALENDAR_DAY D"
+                + " JOIN " + schema + ".WEEKDAY W ON W.WEEKDAY_ID=D.WEEKDAY_ID"
+                + " LEFT JOIN " + schema + ".CALENDAR_DATE P ON P.DAY_ID=D.DAY_ID AND P.CALENDAR_SYSTEM_CODE='SOLAR_HIJRI_IR'"
+                + " LEFT JOIN " + schema + ".CALENDAR_DATE H ON H.DAY_ID=D.DAY_ID AND H.CALENDAR_SYSTEM_CODE='HIJRI_CIVIL'";
+        long total = jdbcClient.sql("SELECT COUNT(*)" + from + where).params(params).query(Long.class).single();
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+        String order = switch (sortBy == null ? "" : sortBy) {
+            case "canonicalDate" -> "D.CANONICAL_DATE";
+            case "solarDate" -> "P.YEAR_NO, P.MONTH_NO, P.DAY_NO";
+            case "hijriDate" -> "H.YEAR_NO, H.MONTH_NO, H.DAY_NO";
+            case "weekdayName" -> "W.IR_WEEKDAY_NO";
+            case "epochDay" -> "D.EPOCH_DAY";
+            case "julianDayNumber" -> "D.JULIAN_DAY_NUMBER";
+            default -> "D.DAY_ID";
+        };
+        String sql = "SELECT D.DAY_ID, D.CANONICAL_DATE, D.EPOCH_DAY, D.JULIAN_DAY_NUMBER, D.WEEKDAY_ID, "
+                + "D.ISO_WEEKDAY_NO, D.IR_WEEKDAY_NO, W.WEEKDAY_NAME_FA, P.FORMATTED_DATE AS SOLAR_DATE, "
+                + "H.FORMATTED_DATE AS HIJRI_DATE" + from + where + " ORDER BY " + order + " "
+                + normalizedDirection(direction) + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+        List<Map<String, Object>> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> {
+            Map<String, Object> row = new LinkedHashMap<>();
+            BigDecimal id = rs.getBigDecimal("DAY_ID");
+            Date canonical = rs.getDate("CANONICAL_DATE");
+            row.put("dayId", id);
+            row.put("canonicalDate", canonical == null ? null : canonical.toLocalDate());
+            row.put("epochDay", rs.getBigDecimal("EPOCH_DAY"));
+            row.put("julianDayNumber", rs.getBigDecimal("JULIAN_DAY_NUMBER"));
+            row.put("weekdayId", rs.getBigDecimal("WEEKDAY_ID"));
+            row.put("isoWeekdayNo", rs.getBigDecimal("ISO_WEEKDAY_NO"));
+            row.put("irWeekdayNo", rs.getBigDecimal("IR_WEEKDAY_NO"));
+            row.put("weekdayName", rs.getString("WEEKDAY_NAME_FA"));
+            row.put("solarDate", rs.getString("SOLAR_DATE"));
+            row.put("hijriDate", rs.getString("HIJRI_DATE"));
+            row.put("_key", id == null ? "" : id.stripTrailingZeros().toPlainString());
+            return row;
+        }).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public PageResponse<Map<String, Object>> searchBusinessCalendarDays(String text, int page, int size,
+                                                                         String sortBy, String direction) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1=1");
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(TO_CHAR(B.BUSINESS_CALENDAR_DAY_ID)) LIKE :searchText")
+                    .append(" OR UPPER(BC.CALENDAR_CODE) LIKE :searchText")
+                    .append(" OR UPPER(BC.CALENDAR_NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(B.DAY_ID)) LIKE :searchText")
+                    .append(" OR UPPER(NVL(P.FORMATTED_DATE,'')) LIKE :searchText")
+                    .append(" OR UPPER(W.WEEKDAY_NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(NVL(B.STATUS_SOURCE_CODE,'')) LIKE :searchText)");
+            params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        String schema = CalendarSqlNames.identifier(registry.schemaName());
+        String from = " FROM " + schema + ".BUSINESS_CALENDAR_DAY B"
+                + " JOIN " + schema + ".BUSINESS_CALENDAR BC ON BC.BUSINESS_CALENDAR_ID=B.BUSINESS_CALENDAR_ID"
+                + " JOIN " + schema + ".CALENDAR_DAY D ON D.DAY_ID=B.DAY_ID"
+                + " JOIN " + schema + ".WEEKDAY W ON W.WEEKDAY_ID=D.WEEKDAY_ID"
+                + " LEFT JOIN " + schema + ".CALENDAR_DATE P ON P.DAY_ID=D.DAY_ID AND P.CALENDAR_SYSTEM_CODE='SOLAR_HIJRI_IR'";
+        long total = jdbcClient.sql("SELECT COUNT(*)" + from + where).params(params).query(Long.class).single();
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+        String order = switch (sortBy == null ? "" : sortBy) {
+            case "businessCalendarName" -> "BC.CALENDAR_NAME_FA";
+            case "solarDate" -> "P.YEAR_NO, P.MONTH_NO, P.DAY_NO";
+            case "weekdayName" -> "W.IR_WEEKDAY_NO";
+            case "workingDay" -> "B.IS_WORKING_DAY";
+            case "bankHoliday" -> "B.IS_BANK_HOLIDAY";
+            case "statusSourceCode" -> "B.STATUS_SOURCE_CODE";
+            default -> "D.CANONICAL_DATE";
+        };
+        String sql = "SELECT B.BUSINESS_CALENDAR_DAY_ID, B.BUSINESS_CALENDAR_ID, B.DAY_ID, B.IS_WORKING_DAY, "
+                + "B.IS_BANK_HOLIDAY, B.IS_SETTLEMENT_DAY, B.IS_CLEARING_DAY, B.IS_POSTING_DAY, B.OPEN_TIME, B.CLOSE_TIME, "
+                + "B.STATUS_SOURCE_CODE, BC.CALENDAR_CODE, BC.CALENDAR_NAME_FA, D.CANONICAL_DATE, W.WEEKDAY_NAME_FA, "
+                + "P.FORMATTED_DATE AS SOLAR_DATE" + from + where + " ORDER BY " + order + " "
+                + normalizedDirection(direction) + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+        List<Map<String, Object>> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> {
+            Map<String, Object> row = new LinkedHashMap<>();
+            BigDecimal id = rs.getBigDecimal("BUSINESS_CALENDAR_DAY_ID");
+            Date canonical = rs.getDate("CANONICAL_DATE");
+            row.put("businessCalendarDayId", id);
+            row.put("businessCalendarId", rs.getBigDecimal("BUSINESS_CALENDAR_ID"));
+            row.put("dayId", rs.getBigDecimal("DAY_ID"));
+            row.put("workingDay", "Y".equalsIgnoreCase(rs.getString("IS_WORKING_DAY")));
+            row.put("bankHoliday", "Y".equalsIgnoreCase(rs.getString("IS_BANK_HOLIDAY")));
+            row.put("settlementDay", "Y".equalsIgnoreCase(rs.getString("IS_SETTLEMENT_DAY")));
+            row.put("clearingDay", "Y".equalsIgnoreCase(rs.getString("IS_CLEARING_DAY")));
+            row.put("postingDay", "Y".equalsIgnoreCase(rs.getString("IS_POSTING_DAY")));
+            row.put("openTime", rs.getString("OPEN_TIME"));
+            row.put("closeTime", rs.getString("CLOSE_TIME"));
+            row.put("statusSourceCode", rs.getString("STATUS_SOURCE_CODE"));
+            row.put("businessCalendarCode", rs.getString("CALENDAR_CODE"));
+            row.put("businessCalendarName", rs.getString("CALENDAR_NAME_FA"));
+            row.put("canonicalDate", canonical == null ? null : canonical.toLocalDate());
+            row.put("weekdayName", rs.getString("WEEKDAY_NAME_FA"));
+            row.put("solarDate", rs.getString("SOLAR_DATE"));
+            row.put("_key", id == null ? "" : id.stripTrailingZeros().toPlainString());
+            return row;
+        }).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public PageResponse<Map<String, Object>> searchOccasionRules(String text, int page, int size,
+                                                                  String sortBy, String direction) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1=1");
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(O.OCCASION_NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(O.OCCASION_CODE) LIKE :searchText")
+                    .append(" OR UPPER(R.RULE_TYPE_CODE) LIKE :searchText")
+                    .append(" OR UPPER(S.CALENDAR_SYSTEM_NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(NVL(M.MONTH_NAME_FA,'')) LIKE :searchText)");
+            params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        String schema = CalendarSqlNames.identifier(registry.schemaName());
+        String from = " FROM " + schema + ".OCCASION_RULE R"
+                + " JOIN " + schema + ".OCCASION O ON O.OCCASION_ID=R.OCCASION_ID"
+                + " JOIN " + schema + ".CALENDAR_SYSTEM S ON S.CALENDAR_SYSTEM_CODE=R.DATE_SYSTEM_CODE"
+                + " LEFT JOIN " + schema + ".CALENDAR_MONTH M ON M.CALENDAR_SYSTEM_CODE=R.DATE_SYSTEM_CODE AND M.MONTH_NO=R.MONTH_NO";
+        long total = jdbcClient.sql("SELECT COUNT(*)" + from + where).params(params).query(Long.class).single();
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+        String order = switch (sortBy == null ? "" : sortBy) {
+            case "occasionName" -> "O.OCCASION_NAME_FA";
+            case "ruleTypeCode" -> "R.RULE_TYPE_CODE";
+            case "dateSystemName" -> "S.CALENDAR_SYSTEM_NAME_FA";
+            case "monthNo" -> "R.MONTH_NO, R.DAY_NO";
+            case "effectiveFromYear" -> "R.EFFECTIVE_FROM_YEAR";
+            case "priorityNo" -> "R.PRIORITY_NO";
+            default -> "R.OCCASION_RULE_ID";
+        };
+        String sql = "SELECT R.OCCASION_RULE_ID, R.OCCASION_ID, R.RULE_TYPE_CODE, R.DATE_SYSTEM_CODE, R.MONTH_NO, R.DAY_NO, "
+                + "R.DURATION_DAYS, R.EFFECTIVE_FROM_YEAR, R.EFFECTIVE_TO_YEAR, R.PRIORITY_NO, R.ACTIVE_FLAG, "
+                + "O.OCCASION_CODE, O.OCCASION_NAME_FA, S.CALENDAR_SYSTEM_NAME_FA, M.MONTH_NAME_FA" + from + where
+                + " ORDER BY " + order + " " + normalizedDirection(direction)
+                + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+        List<Map<String, Object>> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> {
+            Map<String, Object> row = new LinkedHashMap<>();
+            BigDecimal id = rs.getBigDecimal("OCCASION_RULE_ID");
+            row.put("occasionRuleId", id);
+            row.put("occasionId", rs.getBigDecimal("OCCASION_ID"));
+            row.put("ruleTypeCode", rs.getString("RULE_TYPE_CODE"));
+            row.put("dateSystemCode", rs.getString("DATE_SYSTEM_CODE"));
+            row.put("monthNo", rs.getBigDecimal("MONTH_NO"));
+            row.put("dayNo", rs.getBigDecimal("DAY_NO"));
+            row.put("durationDays", rs.getBigDecimal("DURATION_DAYS"));
+            row.put("effectiveFromYear", rs.getBigDecimal("EFFECTIVE_FROM_YEAR"));
+            row.put("effectiveToYear", rs.getBigDecimal("EFFECTIVE_TO_YEAR"));
+            row.put("priorityNo", rs.getBigDecimal("PRIORITY_NO"));
+            row.put("activeFlag", "Y".equalsIgnoreCase(rs.getString("ACTIVE_FLAG")));
+            row.put("occasionCode", rs.getString("OCCASION_CODE"));
+            row.put("occasionName", rs.getString("OCCASION_NAME_FA"));
+            row.put("dateSystemName", rs.getString("CALENDAR_SYSTEM_NAME_FA"));
+            row.put("monthName", rs.getString("MONTH_NAME_FA"));
+            row.put("_key", id == null ? "" : id.stripTrailingZeros().toPlainString());
+            return row;
+        }).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public PageResponse<Map<String, Object>> searchOccasionOccurrences(String text, int page, int size,
+                                                                        String sortBy, String direction) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1=1");
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(O.OCCASION_NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(O.OCCASION_CODE) LIKE :searchText")
+                    .append(" OR UPPER(C.CATEGORY_NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(X.OCCURRENCE_STATUS_CODE) LIKE :searchText")
+                    .append(" OR UPPER(NVL(SP.FORMATTED_DATE,'')) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(SD.CANONICAL_DATE,'YYYY-MM-DD')) LIKE :searchText")
+                    .append(" OR UPPER(NVL(X.SOURCE_AUTHORITY_CODE,'')) LIKE :searchText)");
+            params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        String schema = CalendarSqlNames.identifier(registry.schemaName());
+        String from = " FROM " + schema + ".OCCASION_OCCURRENCE X"
+                + " JOIN " + schema + ".OCCASION O ON O.OCCASION_ID=X.OCCASION_ID"
+                + " JOIN " + schema + ".OCCASION_CATEGORY C ON C.OCCASION_CATEGORY_ID=O.OCCASION_CATEGORY_ID"
+                + " JOIN " + schema + ".CALENDAR_DAY SD ON SD.DAY_ID=X.START_DAY_ID"
+                + " JOIN " + schema + ".CALENDAR_DAY ED ON ED.DAY_ID=X.END_DAY_ID"
+                + " LEFT JOIN " + schema + ".CALENDAR_DATE SP ON SP.DAY_ID=SD.DAY_ID AND SP.CALENDAR_SYSTEM_CODE='SOLAR_HIJRI_IR'"
+                + " LEFT JOIN " + schema + ".CALENDAR_DATE EP ON EP.DAY_ID=ED.DAY_ID AND EP.CALENDAR_SYSTEM_CODE='SOLAR_HIJRI_IR'";
+        long total = jdbcClient.sql("SELECT COUNT(*)" + from + where).params(params).query(Long.class).single();
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+        String order = switch (sortBy == null ? "" : sortBy) {
+            case "occasionName" -> "O.OCCASION_NAME_FA";
+            case "categoryName" -> "C.CATEGORY_NAME_FA";
+            case "startSolarDate" -> "SD.CANONICAL_DATE";
+            case "occurrenceStatusCode" -> "X.OCCURRENCE_STATUS_CODE";
+            case "sourceAuthorityCode" -> "X.SOURCE_AUTHORITY_CODE";
+            default -> "SD.CANONICAL_DATE";
+        };
+        String sql = "SELECT X.OCCASION_OCCURRENCE_ID, X.OCCASION_ID, X.START_DAY_ID, X.END_DAY_ID, X.OCCURRENCE_STATUS_CODE, "
+                + "X.SOURCE_AUTHORITY_CODE, X.SOURCE_REFERENCE, X.IS_OFFICIAL, X.IS_CONFIRMED, O.OCCASION_CODE, O.OCCASION_NAME_FA, "
+                + "C.CATEGORY_CODE, C.CATEGORY_NAME_FA, SD.CANONICAL_DATE AS START_CANONICAL_DATE, ED.CANONICAL_DATE AS END_CANONICAL_DATE, "
+                + "SP.FORMATTED_DATE AS START_SOLAR_DATE, EP.FORMATTED_DATE AS END_SOLAR_DATE" + from + where
+                + " ORDER BY " + order + " " + normalizedDirection(direction)
+                + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+        List<Map<String, Object>> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> {
+            Map<String, Object> row = new LinkedHashMap<>();
+            BigDecimal id = rs.getBigDecimal("OCCASION_OCCURRENCE_ID");
+            Date startDate = rs.getDate("START_CANONICAL_DATE");
+            Date endDate = rs.getDate("END_CANONICAL_DATE");
+            row.put("occasionOccurrenceId", id);
+            row.put("occasionId", rs.getBigDecimal("OCCASION_ID"));
+            row.put("startDayId", rs.getBigDecimal("START_DAY_ID"));
+            row.put("endDayId", rs.getBigDecimal("END_DAY_ID"));
+            row.put("occurrenceStatusCode", rs.getString("OCCURRENCE_STATUS_CODE"));
+            row.put("sourceAuthorityCode", rs.getString("SOURCE_AUTHORITY_CODE"));
+            row.put("sourceReference", rs.getString("SOURCE_REFERENCE"));
+            row.put("official", "Y".equalsIgnoreCase(rs.getString("IS_OFFICIAL")));
+            row.put("confirmed", "Y".equalsIgnoreCase(rs.getString("IS_CONFIRMED")));
+            row.put("occasionCode", rs.getString("OCCASION_CODE"));
+            row.put("occasionName", rs.getString("OCCASION_NAME_FA"));
+            row.put("categoryCode", rs.getString("CATEGORY_CODE"));
+            row.put("categoryName", rs.getString("CATEGORY_NAME_FA"));
+            row.put("startCanonicalDate", startDate == null ? null : startDate.toLocalDate());
+            row.put("endCanonicalDate", endDate == null ? null : endDate.toLocalDate());
+            row.put("startSolarDate", rs.getString("START_SOLAR_DATE"));
+            row.put("endSolarDate", rs.getString("END_SOLAR_DATE"));
+            row.put("_key", id == null ? "" : id.stripTrailingZeros().toPlainString());
+            return row;
+        }).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public PageResponse<Map<String, Object>> searchCalendarDayOccasions(String text, int page, int size,
+                                                                         String sortBy, String direction) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1=1");
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(O.OCCASION_NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(O.OCCASION_CODE) LIKE :searchText")
+                    .append(" OR UPPER(NVL(P.FORMATTED_DATE,'')) LIKE :searchText")
+                    .append(" OR UPPER(W.WEEKDAY_NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(CDO.DAY_ID)) LIKE :searchText)");
+            params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        String schema = CalendarSqlNames.identifier(registry.schemaName());
+        String from = " FROM " + schema + ".CALENDAR_DAY_OCCASION CDO"
+                + " JOIN " + schema + ".CALENDAR_DAY D ON D.DAY_ID=CDO.DAY_ID"
+                + " JOIN " + schema + ".WEEKDAY W ON W.WEEKDAY_ID=D.WEEKDAY_ID"
+                + " JOIN " + schema + ".OCCASION_OCCURRENCE X ON X.OCCASION_OCCURRENCE_ID=CDO.OCCASION_OCCURRENCE_ID"
+                + " JOIN " + schema + ".OCCASION O ON O.OCCASION_ID=X.OCCASION_ID"
+                + " LEFT JOIN " + schema + ".CALENDAR_DATE P ON P.DAY_ID=D.DAY_ID AND P.CALENDAR_SYSTEM_CODE='SOLAR_HIJRI_IR'";
+        long total = jdbcClient.sql("SELECT COUNT(*)" + from + where).params(params).query(Long.class).single();
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+        String order = switch (sortBy == null ? "" : sortBy) {
+            case "solarDate" -> "D.CANONICAL_DATE";
+            case "weekdayName" -> "W.IR_WEEKDAY_NO";
+            case "occasionName" -> "O.OCCASION_NAME_FA";
+            case "displayPriority" -> "CDO.DISPLAY_PRIORITY";
+            case "primaryOccasion" -> "CDO.PRIMARY_OCCASION_FLAG";
+            default -> "D.CANONICAL_DATE, CDO.DISPLAY_PRIORITY";
+        };
+        String sql = "SELECT CDO.CALENDAR_DAY_OCCASION_ID, CDO.DAY_ID, CDO.OCCASION_OCCURRENCE_ID, CDO.DISPLAY_PRIORITY, "
+                + "CDO.PRIMARY_OCCASION_FLAG, D.CANONICAL_DATE, W.WEEKDAY_NAME_FA, P.FORMATTED_DATE AS SOLAR_DATE, "
+                + "O.OCCASION_CODE, O.OCCASION_NAME_FA" + from + where + " ORDER BY " + order + " "
+                + normalizedDirection(direction) + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+        List<Map<String, Object>> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> {
+            Map<String, Object> row = new LinkedHashMap<>();
+            BigDecimal id = rs.getBigDecimal("CALENDAR_DAY_OCCASION_ID");
+            Date canonical = rs.getDate("CANONICAL_DATE");
+            row.put("calendarDayOccasionId", id);
+            row.put("dayId", rs.getBigDecimal("DAY_ID"));
+            row.put("occasionOccurrenceId", rs.getBigDecimal("OCCASION_OCCURRENCE_ID"));
+            row.put("displayPriority", rs.getBigDecimal("DISPLAY_PRIORITY"));
+            row.put("primaryOccasion", "Y".equalsIgnoreCase(rs.getString("PRIMARY_OCCASION_FLAG")));
+            row.put("canonicalDate", canonical == null ? null : canonical.toLocalDate());
+            row.put("weekdayName", rs.getString("WEEKDAY_NAME_FA"));
+            row.put("solarDate", rs.getString("SOLAR_DATE"));
+            row.put("occasionCode", rs.getString("OCCASION_CODE"));
+            row.put("occasionName", rs.getString("OCCASION_NAME_FA"));
+            row.put("_key", id == null ? "" : id.stripTrailingZeros().toPlainString());
+            return row;
+        }).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
     public Optional<RecordResponse> find(TableDescriptor descriptor, String encodedKey) {
         ParsedKey key = parseKey(descriptor, encodedKey);
         String sql = "SELECT " + selectList(descriptor.fields(), "T") + " FROM " + table(descriptor) + " T WHERE " + key.where();

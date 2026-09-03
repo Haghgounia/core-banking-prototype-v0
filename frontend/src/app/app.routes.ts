@@ -31,6 +31,7 @@ export const routes: Routes = [
       {path: 'reference-data/general/name-romanization-tool', loadComponent: () => import('./features/name-romanization-tool/name-romanization-tool.component').then(m => m.NameRomanizationToolComponent)},
       {path: 'calendar/reference-data', loadComponent: () => import('./features/calendar-reference/calendar-reference-menu.component').then(m => m.CalendarReferenceMenuComponent)},
       {path: 'calendar/reference-data/import', loadComponent: () => import('./features/calendar-reference/calendar-dataset-import.component').then(m => m.CalendarDatasetImportComponent)},
+      {path: 'calendar/month-view', loadComponent: () => import('./features/calendar-reference/calendar-month-view.component').then(m => m.CalendarMonthViewComponent)},
       {path: 'calendar/reference-data/:resource', loadComponent: () => import('./features/calendar-reference/calendar-reference-page.component').then(m => m.CalendarReferencePageComponent)},
       {path: 'calendar2/reference-data', loadComponent: () => import('./features/calendar2-reference/calendar2-reference-menu.component').then(m => m.Calendar2ReferenceMenuComponent)},
       {path: 'calendar2/month-view', loadComponent: () => import('./features/calendar2-reference/calendar2-month-view.component').then(m => m.Calendar2MonthViewComponent)},

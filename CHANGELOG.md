@@ -1,3 +1,21 @@
+## 0.3.77 — FIX85: بازبینی CAL و نمای ماهانه تقویم یک
+
+- صفحه «مشاهده تقویم ماهانه» برای CAL اضافه شد و مانند CAL2 از هجری شمسی، میلادی و قمری با چیدمان شنبه‌محور پشتیبانی می‌کند.
+- Backend نمای ماهانه فقط از جداول CAL (`CALENDAR_DAY/DATE`, `OCCASION*`, `BUSINESS_CALENDAR*`) استفاده می‌کند و در Runtime وابستگی به CAL2 ندارد.
+- Gridهای `CALENDAR_DAY`, `BUSINESS_CALENDAR_DAY`, `OCCASION_RULE`, `OCCASION_OCCURRENCE` و `CALENDAR_DAY_OCCASION` با تاریخ شمسی، روز هفته و عنوان‌های فارسی/کسب‌وکاری بازطراحی شدند.
+- Codeهای کنترل‌شده در UI فارسی نمایش داده می‌شوند و مقدار واقعی Oracle دست‌نخورده باقی می‌ماند.
+- عنوان‌های کاربری قدیمی دارای `Deterministic / Canonical / Override` به عبارت‌های فارسی تبدیل شدند؛ اصطلاحات فنی Oracle تغییر نکردند.
+- Guardهای `verify-calendar-month-view.mjs` و `verify-calendar-form-usability.mjs` اضافه شدند.
+- مناسبت‌های CAL از 74,807 رخداد موجود CAL2 همگام شده‌اند؛ CAL2 منبع این انتقال است و نباید رخدادها دوباره Bulk Insert شوند.
+
+## 0.3.76 — FIX84: Breadcrumb سراسری و یکپارچه در تمام صفحات
+
+- Breadcrumb از صفحات اختصاصی به `AppShell` منتقل شد تا تمام Routeهای سامانه مسیر بازگشت یکسان داشته باشند.
+- مسیرهای اطلاعات پایه عمومی، Party/CIF، سپرده، تقویم یک، تقویم دو، کارمزد، محصول‌ساز، Party عملیاتی و صفحات سیستم پوشش داده شدند.
+- عنوان آخر Breadcrumb از `H1` واقعی صفحه خوانده می‌شود؛ بنابراین فرم‌های Dynamic عنوان فارسی خود را حفظ می‌کنند.
+- Breadcrumbهای محلی قدیمی هنگام Runtime مخفی می‌شوند تا مسیر تکراری در بالای صفحات ایجاد نشود.
+- Guard جدید `verify-global-breadcrumb.mjs` اتصال AppShell، Route hierarchy و حذف Breadcrumbهای تکراری را کنترل می‌کند.
+
 ## 0.3.75 — FIX83: فعال‌سازی قطعی Renderer روزهای تقویم کاری
 
 - علت عدم مشاهده تغییرات 0.3.74 اصلاح شد: تشخیص صفحه `BUSINESS_CALENDAR_DAY` دیگر فقط بر `descriptor.resource` متکی نیست و `descriptor.tableName` نیز معیار قطعی است.

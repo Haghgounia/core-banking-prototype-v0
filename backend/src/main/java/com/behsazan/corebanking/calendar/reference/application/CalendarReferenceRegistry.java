@@ -42,10 +42,10 @@ public class CalendarReferenceRegistry {
 
     public CatalogResponse catalog() {
         List<CatalogGroup> groups = List.of(
-                group("CORE", "ساختار و داده تقویم", "تعریف سیستم‌های تقویم، الگوریتم، روز هفته، ماه و Dataset تقویم", "calendar_month"),
+                group("CORE", "ساختار و داده تقویم", "تعریف سیستم‌های تقویم، الگوریتم، روز هفته، ماه و داده‌مجموعه تقویم", "calendar_month"),
                 group("BUSINESS", "تقویم کاری و بانکی", "تقویم کاری بانک، وضعیت روز کاری، استثناها و قواعد تعدیل روز کاری", "event_available"),
                 group("OCCASION", "مناسبت‌ها و رویدادها", "دسته‌بندی، تعریف، قواعد تکرار و رخداد واقعی مناسبت‌ها", "celebration"),
-                group("HIJRI", "اصلاحات رسمی تقویم قمری", "ثبت اصلاحات رؤیتی/اعلام رسمی بدون تغییر Dataset محاسباتی", "verified")
+                group("HIJRI", "اصلاحات رسمی تقویم قمری", "ثبت اصلاحات رؤیتی/اعلام رسمی بدون تغییر داده‌مجموعه محاسباتی", "verified")
         );
         return new CatalogResponse(schemaName, descriptors.size(), groups);
     }
@@ -91,7 +91,7 @@ public class CalendarReferenceRegistry {
                         lookupText("calendarSystemCode", "CALENDAR_SYSTEM_CODE", "سیستم تقویم", "calendar-systems", true, true),
                         text("algorithmName", "ALGORITHM_NAME", "نام الگوریتم", true, 200, true, true),
                         text("algorithmVersion", "ALGORITHM_VERSION", "نسخه الگوریتم", false, 50, true, true),
-                        bool("deterministicFlag", "DETERMINISTIC_FLAG", "قطعی / Deterministic", true, true, true),
+                        bool("deterministicFlag", "DETERMINISTIC_FLAG", "قطعی بودن الگوریتم", true, true, true),
                         number("verifiedFromYear", "VERIFIED_FROM_YEAR", "سال شروع بازه آزموده‌شده", false, true, false),
                         number("verifiedToYear", "VERIFIED_TO_YEAR", "سال پایان بازه آزموده‌شده", false, true, false),
                         text("description", "DESCRIPTION", "توضیحات", false, 1000, false, true),
@@ -125,13 +125,13 @@ public class CalendarReferenceRegistry {
     }
 
     private TableDescriptor calendarDay() {
-        return table("calendar-days", "CORE", "روزهای Canonical", "محور مطلق روز؛ Dataset تقویم و فقط‌خواندنی", "today",
+        return table("calendar-days", "CORE", "روزهای مرجع تقویم", "محور مطلق روز؛ داده‌مجموعه تقویم و فقط‌خواندنی", "today",
                 "CALENDAR_DAY", false, false, false, false, "dayId", "canonicalDate",
                 List.of(
                         readKeyNumber("dayId", "DAY_ID", "شناسه روز", true),
-                        readDate("canonicalDate", "CANONICAL_DATE", "تاریخ Canonical / میلادی", true, true),
-                        readNumber("epochDay", "EPOCH_DAY", "Epoch Day", true),
-                        readNumber("julianDayNumber", "JULIAN_DAY_NUMBER", "Julian Day Number", true),
+                        readDate("canonicalDate", "CANONICAL_DATE", "تاریخ مرجع / میلادی", true, true),
+                        readNumber("epochDay", "EPOCH_DAY", "شماره روز از مبدأ", true),
+                        readNumber("julianDayNumber", "JULIAN_DAY_NUMBER", "شماره روز ژولیوسی", true),
                         readNumber("weekdayId", "WEEKDAY_ID", "شناسه روز هفته", true),
                         readNumber("isoWeekdayNo", "ISO_WEEKDAY_NO", "شماره ISO روز هفته", true),
                         readNumber("irWeekdayNo", "IR_WEEKDAY_NO", "شماره ایرانی روز هفته", true)
@@ -139,7 +139,7 @@ public class CalendarReferenceRegistry {
     }
 
     private TableDescriptor calendarDate() {
-        return table("calendar-dates", "CORE", "نمایش تاریخ در سه تقویم", "سه نمایش میلادی، شمسی و قمری برای هر DAY_ID؛ Dataset فقط‌خواندنی", "event_note",
+        return table("calendar-dates", "CORE", "نمایش تاریخ در سه تقویم", "سه نمایش میلادی، شمسی و قمری برای هر شناسه روز؛ داده‌مجموعه فقط‌خواندنی", "event_note",
                 "CALENDAR_DATE", false, false, false, false, "calendarDateId", "formattedDate",
                 List.of(
                         readKeyNumber("calendarDateId", "CALENDAR_DATE_ID", "شناسه نمایش تاریخ", true),
@@ -207,15 +207,15 @@ public class CalendarReferenceRegistry {
                         text("reasonCode", "REASON_CODE", "کد علت", false, 50, true, true),
                         text("description", "DESCRIPTION", "توضیحات", false, 1000, false, true),
                         text("sourceAuthorityCode", "SOURCE_AUTHORITY_CODE", "مرجع اعلام‌کننده", false, 50, true, true),
-                        nullableBool("workingDayOverride", "WORKING_DAY_OVERRIDE", "Override روز کاری", false, true),
-                        nullableBool("settlementDayOverride", "SETTLEMENT_DAY_OVERRIDE", "Override روز تسویه", false, true),
-                        nullableBool("clearingDayOverride", "CLEARING_DAY_OVERRIDE", "Override روز پایاپای", false, true),
-                        nullableBool("postingDayOverride", "POSTING_DAY_OVERRIDE", "Override روز ثبت حسابداری", false, true)
+                        nullableBool("workingDayOverride", "WORKING_DAY_OVERRIDE", "اصلاح وضعیت روز کاری", false, true),
+                        nullableBool("settlementDayOverride", "SETTLEMENT_DAY_OVERRIDE", "اصلاح وضعیت روز تسویه", false, true),
+                        nullableBool("clearingDayOverride", "CLEARING_DAY_OVERRIDE", "اصلاح وضعیت روز پایاپای", false, true),
+                        nullableBool("postingDayOverride", "POSTING_DAY_OVERRIDE", "اصلاح وضعیت روز ثبت حسابداری", false, true)
                 ));
     }
 
     private TableDescriptor businessDayConvention() {
-        return table("business-day-conventions", "BUSINESS", "قواعد تعدیل روز کاری", "Following، Preceding و قواعد Modified", "swap_horiz",
+        return table("business-day-conventions", "BUSINESS", "قواعد تعدیل روز کاری", "قواعد پس‌رو، پیش‌رو و حالت‌های تعدیل‌شده روز کاری", "swap_horiz",
                 "BUSINESS_DAY_CONVENTION", true, true, true, false, "conventionCode", "conventionNameFa",
                 List.of(
                         keyText("conventionCode", "CONVENTION_CODE", "کد قاعده", 30, true),
@@ -307,11 +307,11 @@ public class CalendarReferenceRegistry {
     }
 
     private TableDescriptor hijriDateOverride() {
-        return table("hijri-date-overrides", "HIJRI", "اصلاحات رسمی تاریخ قمری", "لایه اصلاح رسمی/رؤیتی روی HIJRI_CIVIL محاسباتی", "verified",
+        return table("hijri-date-overrides", "HIJRI", "اصلاحات رسمی تاریخ قمری", "لایه اصلاح رسمی/رؤیتی روی تقویم قمری محاسباتی", "verified",
                 "HIJRI_DATE_OVERRIDE", true, true, true, true, "hijriOverrideId", "sourceAuthorityCode",
                 List.of(
                         autoKey("hijriOverrideId", "HIJRI_OVERRIDE_ID", "شناسه اصلاح", true),
-                        lookupNumber("dayId", "DAY_ID", "روز Canonical", "calendar-days", true, true),
+                        lookupNumber("dayId", "DAY_ID", "روز مرجع تقویم", "calendar-days", true, true),
                         number("officialHijriYear", "OFFICIAL_HIJRI_YEAR", "سال قمری رسمی", true, true, false),
                         number("officialHijriMonth", "OFFICIAL_HIJRI_MONTH", "ماه قمری رسمی", true, true, false),
                         number("officialHijriDay", "OFFICIAL_HIJRI_DAY", "روز قمری رسمی", true, true, false),

@@ -38,7 +38,15 @@ public class CalendarReferenceService {
 
     public PageResponse<Map<String, Object>> search(String resource, String text, int page, int size,
                                                      String sortBy, String direction) {
-        return repository.search(registry.require(resource), text, page, size, sortBy, direction);
+        TableDescriptor descriptor = registry.require(resource);
+        return switch (resource) {
+            case "calendar-days" -> repository.searchCalendarDays(text, page, size, sortBy, direction);
+            case "business-calendar-days" -> repository.searchBusinessCalendarDays(text, page, size, sortBy, direction);
+            case "occasion-rules" -> repository.searchOccasionRules(text, page, size, sortBy, direction);
+            case "occasion-occurrences" -> repository.searchOccasionOccurrences(text, page, size, sortBy, direction);
+            case "calendar-day-occasions" -> repository.searchCalendarDayOccasions(text, page, size, sortBy, direction);
+            default -> repository.search(descriptor, text, page, size, sortBy, direction);
+        };
     }
 
     public RecordResponse find(String resource, String key) {

@@ -1,0 +1,10 @@
+Core Banking Prototype 0.3.76
+
+1) نسخه را در پوشه پروژه Extract/Replace کنید.
+2) bin\stop.cmd را اجرا کنید.
+3) build-production.cmd را اجرا کنید.
+4) فقط پس از مشاهده Built version: 0.3.76 برنامه را با bin\start.cmd اجرا کنید.
+5) در مرورگر Ctrl+F5 بزنید تا Lazy Chunkهای نسخه قبل از Cache حذف شوند.
+
+FIX84: Breadcrumb سراسری برای تمام صفحات.
+نیاز به DDL جدید ندارد.
