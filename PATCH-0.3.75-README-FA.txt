@@ -1,0 +1,7 @@
+Patch 0.3.75 - FIX83
+1) فایل ZIP را در ریشه پروژه 0.3.74 Extract و Replace کنید.
+2) bin\stop.cmd
+3) build-production.cmd
+4) فقط پس از Built version: 0.3.75، bin\start.cmd
+5) در مرورگر Ctrl+F5 بزنید تا Lazy Chunk قبلی از Cache استفاده نشود.
+6) صفحه CAL2 > روزهای تقویم کاری باید Grid اختصاصی با تاریخ شمسی و برچسب‌های فارسی نشان دهد.
