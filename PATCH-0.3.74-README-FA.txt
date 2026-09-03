@@ -1,0 +1,14 @@
+Core Banking Prototype 0.3.74 - CAL2 Business Calendar Day Grid
+
+هدف:
+- نمایش تاریخ هجری شمسی و روز هفته در Grid روزهای تقویم کاری.
+- نمایش نام فارسی تقویم کاری و نام فارسی منبع به جای شناسه خام در نمای Grid.
+- فارسی‌سازی Codeهای فنی وضعیت/دلیل بدون تغییر مقدار ذخیره‌شده در Oracle.
+
+نحوه نصب:
+1) فایل‌های Patch را روی پروژه 0.3.73 جایگزین کنید.
+2) bin\stop.cmd
+3) build-production.cmd
+4) فقط پس از مشاهده Built version: 0.3.74، bin\start.cmd
+
+DDL جدید لازم نیست.

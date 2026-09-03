@@ -278,14 +278,21 @@ public class Calendar2ReferenceRegistry {
                         lookupNumber("businessCalendarId", "BUSINESS_CALENDAR_ID", "تقویم کاری", "business-calendars", true, true),
                         lookupNumber("dayId", "DAY_ID", "روز مرجع تقویم", "canonical-days", true, true),
                         select("dayStatus", "DAY_STATUS", "وضعیت روز", false, true, null,
-                                option("OPEN", "باز"), option("CLOSED", "بسته"), option("PARTIAL", "نیمه‌وقت")),
+                                option("UNCLASSIFIED", "طبقه‌بندی‌نشده"), option("OPEN", "باز"), option("CLOSED", "بسته"),
+                                option("PARTIAL", "نیمه‌وقت"), option("BUSINESS", "روز کاری"), option("WEEKEND", "تعطیلی هفتگی"),
+                                option("HOLIDAY", "تعطیل رسمی")),
                         timestamp("openTime", "OPEN_TIME", "زمان بازشدن", false, true, false),
                         timestamp("closeTime", "CLOSE_TIME", "زمان بسته‌شدن", false, true, false),
                         bool("isBusinessDay", "IS_BUSINESS_DAY", "روز کاری", true, true, false),
                         bool("isSettlementDay", "IS_SETTLEMENT_DAY", "روز تسویه", true, true, false),
                         bool("isClearingDay", "IS_CLEARING_DAY", "روز پایاپای", true, true, false),
                         bool("isProcessingDay", "IS_PROCESSING_DAY", "روز پردازش", true, true, false),
-                        text("reasonCode", "REASON_CODE", "کد دلیل", false, 80, true, true),
+                        select("reasonCode", "REASON_CODE", "دلیل وضعیت", false, true, null,
+                                option("PENDING_RULE_EVALUATION", "در انتظار اعمال قواعد"),
+                                option("PUBLIC_HOLIDAY", "تعطیل رسمی"), option("WEEKEND", "تعطیلی هفتگی"),
+                                option("BANK_HOLIDAY", "تعطیلی بانکی"), option("SPECIAL_CLOSED", "تعطیلی موردی"),
+                                option("EMERGENCY_CLOSED", "تعطیلی اضطراری"), option("HALF_DAY", "نیمه‌وقت"),
+                                option("MANUAL_OVERRIDE", "اصلاح دستی")),
                         lookupNumber("sourceId", "SOURCE_ID", "منبع", "source-authorities", false, true)
                 ));
     }

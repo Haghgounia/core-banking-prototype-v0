@@ -40,7 +40,11 @@ public class Calendar2ReferenceService {
     public TableDescriptor descriptor(String resource) { return registry.require(resource); }
 
     public PageResponse<Map<String, Object>> search(String resource, String text, int page, int size, String sortBy, String direction) {
-        return repository.search(registry.require(resource), text, page, size, sortBy, direction);
+        TableDescriptor descriptor = registry.require(resource);
+        if ("business-calendar-days".equals(resource)) {
+            return repository.searchBusinessCalendarDays(text, page, size, sortBy, direction);
+        }
+        return repository.search(descriptor, text, page, size, sortBy, direction);
     }
 
     public PageResponse<CanonicalDaySummary> searchCanonicalDays(String text, Integer solarYear, Integer solarCentury,

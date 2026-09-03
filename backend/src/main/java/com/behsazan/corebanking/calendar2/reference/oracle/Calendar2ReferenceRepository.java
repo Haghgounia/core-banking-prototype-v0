@@ -73,6 +73,81 @@ public class Calendar2ReferenceRepository {
         return new PageResponse<>(rows, total, safePage, safeSize);
     }
 
+    public PageResponse<Map<String, Object>> searchBusinessCalendarDays(String text, int page, int size,
+                                                                        String sortBy, String direction) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1 = 1");
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(TO_CHAR(B.BUSINESS_CALENDAR_DAY_ID)) LIKE :searchText")
+                    .append(" OR UPPER(BC.CALENDAR_CODE) LIKE :searchText")
+                    .append(" OR UPPER(BC.NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(B.DAY_ID)) LIKE :searchText")
+                    .append(" OR UPPER(TO_CHAR(PCD.YEAR_NO) || '/' || LPAD(PCD.MONTH_NO,2,'0') || '/' || LPAD(PCD.DAY_NO,2,'0')) LIKE :searchText")
+                    .append(" OR UPPER(W.NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(B.DAY_STATUS) LIKE :searchText")
+                    .append(" OR UPPER(B.REASON_CODE) LIKE :searchText")
+                    .append(" OR UPPER(SA.NAME_FA) LIKE :searchText)");
+            params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+
+        String cte = canonicalDayContextCte();
+        String from = " FROM " + cal2Table("BUSINESS_CALENDAR_DAY") + " B"
+                + " JOIN " + cal2Table("BUSINESS_CALENDAR") + " BC ON BC.BUSINESS_CALENDAR_ID = B.BUSINESS_CALENDAR_ID"
+                + " JOIN " + cal2Table("CANONICAL_DAY") + " D ON D.DAY_ID = B.DAY_ID"
+                + " CROSS JOIN PERSIAN_CONTEXT PX"
+                + " LEFT JOIN " + cal2Table("CALENDAR_DATE") + " PCD ON PCD.DAY_ID = D.DAY_ID AND PCD.CALENDAR_VARIANT_ID = PX.PERSIAN_VARIANT_ID"
+                + " LEFT JOIN " + cal2Table("WEEKDAY") + " W ON W.WEEKDAY_ID = D.WEEKDAY_ID"
+                + " LEFT JOIN " + cal2Table("CALENDAR_MONTH") + " PM ON PM.CALENDAR_SYSTEM_ID = PX.PERSIAN_SYSTEM_ID AND PM.MONTH_NO = PCD.MONTH_NO"
+                + " LEFT JOIN " + cal2Table("SOURCE_AUTHORITY") + " SA ON SA.SOURCE_ID = B.SOURCE_ID";
+
+        long total = jdbcClient.sql(cte + " SELECT COUNT(*) " + from + where)
+                .params(params).query(Long.class).single();
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+
+        String sql = cte + " SELECT "
+                + "B.BUSINESS_CALENDAR_DAY_ID, B.BUSINESS_CALENDAR_ID, B.DAY_ID, B.DAY_STATUS, "
+                + "B.OPEN_TIME, B.CLOSE_TIME, B.IS_BUSINESS_DAY, B.IS_SETTLEMENT_DAY, B.IS_CLEARING_DAY, B.IS_PROCESSING_DAY, "
+                + "B.REASON_CODE, B.SOURCE_ID, BC.CALENDAR_CODE, BC.NAME_FA AS BUSINESS_CALENDAR_NAME, "
+                + "D.CANONICAL_DATE, W.NAME_FA AS WEEKDAY_NAME, PCD.YEAR_NO AS SOLAR_YEAR, PCD.MONTH_NO AS SOLAR_MONTH_NO, "
+                + "PCD.DAY_NO AS SOLAR_DAY_NO, PM.NAME_FA AS SOLAR_MONTH_NAME, SA.NAME_FA AS SOURCE_NAME "
+                + from + where + " ORDER BY " + businessCalendarDaySort(sortBy) + " " + normalizedDirection(direction)
+                + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+
+        List<Map<String, Object>> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("businessCalendarDayId", rs.getBigDecimal("BUSINESS_CALENDAR_DAY_ID"));
+            row.put("businessCalendarId", rs.getBigDecimal("BUSINESS_CALENDAR_ID"));
+            row.put("dayId", rs.getBigDecimal("DAY_ID"));
+            row.put("dayStatus", rs.getString("DAY_STATUS"));
+            Timestamp openTime = rs.getTimestamp("OPEN_TIME");
+            Timestamp closeTime = rs.getTimestamp("CLOSE_TIME");
+            row.put("openTime", openTime == null ? null : openTime.toLocalDateTime());
+            row.put("closeTime", closeTime == null ? null : closeTime.toLocalDateTime());
+            row.put("isBusinessDay", "Y".equalsIgnoreCase(rs.getString("IS_BUSINESS_DAY")));
+            row.put("isSettlementDay", "Y".equalsIgnoreCase(rs.getString("IS_SETTLEMENT_DAY")));
+            row.put("isClearingDay", "Y".equalsIgnoreCase(rs.getString("IS_CLEARING_DAY")));
+            row.put("isProcessingDay", "Y".equalsIgnoreCase(rs.getString("IS_PROCESSING_DAY")));
+            row.put("reasonCode", rs.getString("REASON_CODE"));
+            row.put("sourceId", rs.getBigDecimal("SOURCE_ID"));
+            row.put("businessCalendarCode", rs.getString("CALENDAR_CODE"));
+            row.put("businessCalendarName", rs.getString("BUSINESS_CALENDAR_NAME"));
+            Date canonicalDate = rs.getDate("CANONICAL_DATE");
+            row.put("canonicalDate", canonicalDate == null ? null : canonicalDate.toLocalDate());
+            row.put("weekdayName", rs.getString("WEEKDAY_NAME"));
+            row.put("solarYear", nullableInteger(rs, "SOLAR_YEAR"));
+            row.put("solarMonthNo", nullableInteger(rs, "SOLAR_MONTH_NO"));
+            row.put("solarDayNo", nullableInteger(rs, "SOLAR_DAY_NO"));
+            row.put("solarMonthName", rs.getString("SOLAR_MONTH_NAME"));
+            row.put("sourceName", rs.getString("SOURCE_NAME"));
+            row.put("_key", rs.getString("BUSINESS_CALENDAR_DAY_ID"));
+            return row;
+        }).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
     public PageResponse<CanonicalDaySummary> searchCanonicalDays(String text, Integer solarYear, Integer solarCentury,
                                                                     int page, int size, String sortBy, String direction) {
         int safePage = Math.max(page, 0);
@@ -478,6 +553,26 @@ public class Calendar2ReferenceRepository {
             case NUMBER -> "TO_CHAR(" + qualifiedColumn + ")";
             case LOOKUP -> isNumericLookup(field) ? "TO_CHAR(" + qualifiedColumn + ")" : qualifiedColumn;
             default -> qualifiedColumn;
+        };
+    }
+
+    private static String businessCalendarDaySort(String requested) {
+        if (requested == null || requested.isBlank()) return "D.CANONICAL_DATE";
+        return switch (requested) {
+            case "businessCalendarDayId" -> "B.BUSINESS_CALENDAR_DAY_ID";
+            case "businessCalendarName", "businessCalendarId" -> "BC.NAME_FA";
+            case "solarDate", "dayId", "canonicalDate" -> "D.CANONICAL_DATE";
+            case "weekdayName" -> "W.IR_DISPLAY_ORDER";
+            case "dayStatus" -> "B.DAY_STATUS";
+            case "openTime" -> "B.OPEN_TIME";
+            case "closeTime" -> "B.CLOSE_TIME";
+            case "isBusinessDay" -> "B.IS_BUSINESS_DAY";
+            case "isSettlementDay" -> "B.IS_SETTLEMENT_DAY";
+            case "isClearingDay" -> "B.IS_CLEARING_DAY";
+            case "isProcessingDay" -> "B.IS_PROCESSING_DAY";
+            case "reasonCode" -> "B.REASON_CODE";
+            case "sourceName", "sourceId" -> "SA.NAME_FA";
+            default -> "D.CANONICAL_DATE";
         };
     }
 

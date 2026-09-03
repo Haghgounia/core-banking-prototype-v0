@@ -55,6 +55,9 @@ node "%ROOT%tools\verify-calendar2-month-view.mjs" || exit /b 1
 rem FIX69 static guard: BUSINESS_CALENDAR country/time-zone lookups; organization remains free text.
 node "%ROOT%tools\verify-calendar2-business-calendar-lookups.mjs" || exit /b 1
 
+rem FIX82 static guard: CAL2 business-calendar-day grid exposes Persian dates and labels.
+node "%ROOT%tools\verify-calendar2-business-calendar-day-grid.mjs" || exit /b 1
+
 rem FIX71 static guard: empty Persian date pickers open on the current Solar Hijri date.
 node "%ROOT%tools\verify-persian-date-picker-current-default.mjs" || exit /b 1
 
