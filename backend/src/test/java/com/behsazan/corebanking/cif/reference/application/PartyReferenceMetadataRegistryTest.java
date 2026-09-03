@@ -11,7 +11,7 @@ class PartyReferenceMetadataRegistryTest {
     @Test
     void loadsCompletedReferenceCatalogIncludingOperationalExtensions() {
         var catalog = registry.catalog();
-        assertThat(catalog.tableCount()).isEqualTo(103);
+        assertThat(catalog.tableCount()).isEqualTo(105);
         assertThat(catalog.packages()).extracting("name")
                 .contains("Identity and Party", "Contact and Geography", "Compliance and Risk", "Organization and Product", "Workflow and Interaction", "Analytics and Recommendation");
     }
@@ -74,6 +74,20 @@ class PartyReferenceMetadataRegistryTest {
         assertThat(registry.descriptor("ref-recommendation-type").tableName()).isEqualTo("REF_RECOMMENDATION_TYPE");
         assertThat(registry.descriptor("ref-score-band").tableName()).isEqualTo("REF_SCORE_BAND");
         assertThat(registry.descriptor("ref-score-type").tableName()).isEqualTo("REF_SCORE_TYPE");
+    }
+
+    @Test
+    void exposesReligionAndDenominationLookups() {
+        var religion = registry.descriptor("ref-religion");
+        assertThat(religion.tableName()).isEqualTo("REF_RELIGION");
+        assertThat(religion.primaryKey()).containsExactly("RELIGION_CODE");
+
+        var denomination = registry.descriptor("ref-religious-denomination");
+        assertThat(denomination.tableName()).isEqualTo("REF_RELIGIOUS_DENOMINATION");
+        assertThat(denomination.primaryKey()).containsExactly("DENOMINATION_CODE");
+        assertThat(denomination.relation()).isNotNull();
+        assertThat(denomination.relation().field()).isEqualTo("RELIGION_CODE");
+        assertThat(denomination.relation().targetResource()).isEqualTo("ref-religion");
     }
 
 }

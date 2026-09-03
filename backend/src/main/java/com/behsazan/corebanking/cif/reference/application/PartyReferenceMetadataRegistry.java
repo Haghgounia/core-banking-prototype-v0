@@ -188,6 +188,7 @@ public class PartyReferenceMetadataRegistry {
     private static String iconFor(TableDefinition table) {
         String name = table.name();
         if (name.contains("GENDER") || name.contains("PARTY_TYPE")) return "badge";
+        if (name.contains("RELIGION") || name.contains("DENOMINATION")) return "diversity_3";
         if (name.contains("DOCUMENT") || name.contains("IDENTIFIER")) return "fingerprint";
         if (name.contains("CONSENT")) return "verified_user";
         if (name.contains("ROLE") || name.contains("AUTHORITY")) return "manage_accounts";

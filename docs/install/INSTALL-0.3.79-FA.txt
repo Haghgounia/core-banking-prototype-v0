@@ -1,0 +1,18 @@
+Core Banking Prototype 0.3.79
+
+1) نسخه را در پوشه پروژه Extract/Replace کنید.
+2) برای دیتابیس موجود، اسکریپت زیر را یک‌بار اجرا کنید:
+   database\oracle\cif\migrations\0.3.79-fix87-religion-denomination-reference.sql
+3) خروجی Verification باید REF_RELIGION=7 و REF_RELIGIOUS_DENOMINATION=16 را نشان دهد.
+4) bin\stop.cmd را اجرا کنید.
+5) build-production.cmd را اجرا کنید.
+6) فقط پس از مشاهده Built version: 0.3.79 برنامه را با bin\start.cmd اجرا کنید.
+7) در Log باید CoreBankingApplication v0.3.79-SNAPSHOT دیده شود.
+8) در مرورگر Ctrl+F5 بزنید.
+
+FIX87:
+- جدول و فرم CIF.REF_RELIGION برای «دین».
+- جدول و فرم CIF.REF_RELIGIOUS_DENOMINATION برای «مذهب / شاخه دینی».
+- ارتباط اجباری مذهب به دین و سلسله‌مراتب اختیاری مذهب با PARENT_CODE.
+- فرم‌ها در اطلاعات پایه مشتری / Party -> هویت و Party نمایش داده می‌شوند.
+- این نسخه هنوز فیلد دین/مذهب را به PERSON متصل نمی‌کند؛ این اتصال باید با کنترل دسترسی و حریم خصوصی در گام جداگانه انجام شود.

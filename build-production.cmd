@@ -37,6 +37,9 @@ if not exist "%ROOT%backend\src\main\resources\cif\party-reference\party-referen
 rem Persisted-grid static UI regression guard: CIF records remain column grids and sidebar docking stays wired.
 node "%ROOT%tools\verify-cif-persisted-grids.mjs" || exit /b 1
 
+rem FIX87 static guard: CIF religion and denomination reference forms/tables remain governed and linked.
+node "%ROOT%tools\verify-cif-religion-reference.mjs" || exit /b 1
+
 rem Fix30 static guard: EA/XMI to configured Oracle schema comparison must remain fully wired.
 node "%ROOT%tools\verify-ea-oracle-comparison.mjs" || exit /b 1
 
