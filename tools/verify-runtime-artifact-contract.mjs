@@ -8,6 +8,7 @@ const buildSh = readFileSync(join(root, 'build-production.sh'), 'utf8');
 const startCmd = readFileSync(join(root, 'bin', 'start.cmd'), 'utf8');
 const startSh = readFileSync(join(root, 'bin', 'start.sh'), 'utf8');
 const exportCmd = readFileSync(join(root, 'bin', 'export-database.cmd'), 'utf8');
+const packageReleaseCmd = readFileSync(join(root, 'package-release.cmd'), 'utf8');
 
 const canonical = 'core-banking-prototype.jar';
 const checks = [
@@ -20,6 +21,7 @@ const checks = [
   [startSh.includes(`JAR="$ROOT/app/${canonical}"`), 'start.sh uses only the canonical runtime JAR'],
   [startSh.includes('[ "$BUILT_VERSION" != "$APP_VERSION" ]'), 'start.sh rejects a stale runtime via BUILD-VERSION'],
   [exportCmd.includes(`set "JAR=%ROOT%\\app\\${canonical}"`), 'database export uses the canonical runtime JAR'],
+  [packageReleaseCmd.includes('--exclude=app/BUILD-VERSION'), 'source packaging excludes BUILD-VERSION so overlay extraction cannot bless a stale JAR'],
   [![buildCmd, buildSh, startCmd, startSh, exportCmd].some((text) => /APP_VERSION[^\r\n]*\.jar|\.jar[^\r\n]*APP_VERSION/.test(text)), 'no active runtime script composes a JAR filename from the release version'],
 ];
 

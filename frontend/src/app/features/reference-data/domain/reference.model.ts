@@ -27,6 +27,7 @@ export interface ReferenceSearchQuery {
   readonly text: string;
   readonly parentId: number | null;
   readonly active: boolean | null;
+  readonly filters: Readonly<Record<string, string | number | boolean>>;
   readonly page: number;
   readonly size: number;
   readonly sortBy: string | null;

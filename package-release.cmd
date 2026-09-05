@@ -16,6 +16,7 @@ tar.exe -a -c -f "%OUT%" ^
   --exclude=backend/src/main/resources/static ^
   --exclude=app/*.jar ^
   --exclude=app/*.jar.original ^
+  --exclude=app/BUILD-VERSION ^
   --exclude=logs ^
   --exclude=data/document-storage ^
   --exclude=.git ^

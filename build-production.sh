@@ -27,6 +27,7 @@ node "$ROOT/tools/verify-fee-admin-baseline.mjs"
 node "$ROOT/tools/verify-cbi-fee-1404-import.mjs"
 node "$ROOT/tools/verify-geo-name-romanization.mjs"
 node "$ROOT/tools/verify-global-breadcrumb.mjs"
+node "$ROOT/tools/verify-edu-reference-ui.mjs"
 node "$ROOT/tools/verify-calendar-display-labels.mjs"
 node "$ROOT/tools/verify-runtime-artifact-contract.mjs"
 

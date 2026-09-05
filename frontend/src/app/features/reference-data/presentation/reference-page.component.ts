@@ -41,9 +41,21 @@ export class ReferencePageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
+  private readonly eduFilterFields: Readonly<Record<string, readonly string[]>> = {
+    'edu-education-levels': ['educationSystemCode', 'isSelectable', 'activeFlag'],
+    'edu-education-fields': ['parentEducationFieldsId', 'educationSystemCode', 'fieldNodeTypeCode', 'isSelectable', 'activeFlag'],
+    'edu-education-field-levels': ['educationFieldsId', 'educationLevelsId', 'sourceId', 'activeFlag'],
+    'edu-education-institutions': ['institutionTypeCode', 'educationSystemCode', 'institutionStatusCode', 'isDegreeGranting', 'activeFlag'],
+    'edu-education-sources': ['sourceTypeCode', 'sourceYear', 'activeFlag'],
+    'edu-education-source-mappings': ['sourceId', 'entityTypeCode', 'mappingTypeCode', 'matchStatusCode', 'activeFlag']
+  };
+
   readonly searchControl = new FormControl('', {nonNullable: true});
   readonly activeControl = new FormControl<boolean | null>(null);
   readonly parentFilterControl = new FormControl<number | null>(null);
+  readonly advancedFilterForm = new FormRecord<FormControl<unknown>>({});
+  readonly advancedFilterFields = signal<readonly ReferenceFieldDescriptor[]>([]);
+  readonly advancedFilterLookupOptions = signal<Partial<Record<string, readonly LookupOption[]>>>({});
   readonly form = new FormRecord<FormControl<unknown>>({});
   readonly editorVisible = signal(false);
   readonly hierarchyOptions = signal<Partial<Record<string, readonly LookupOption[]>>>({});
@@ -181,6 +193,11 @@ export class ReferencePageComponent {
     }
     if (field.type === 'SELECT') return field.options.find(option => Number(option.value) === Number(value))?.label ?? String(value ?? '');
     if (field.type === 'STRING_SELECT') return field.options.find(option => String(option.value) === String(value))?.label ?? String(value ?? '');
+    if (field.type === 'LOOKUP') {
+      if (value === null || value === undefined) return '—';
+      return this.lookupOptions()[field.apiName]?.find(option => Number(option.value) === Number(value))?.label
+        ?? String(value);
+    }
     return value === null || value === undefined ? '—' : String(value);
   }
 
@@ -201,8 +218,56 @@ export class ReferencePageComponent {
     this.parentFilterControl.setValue(null, {emitEvent: false});
     this.parentFilterOptions.set([]);
     this.lookupOptions.set({});
-    await this.initializeParentFilter();
+    await Promise.all([this.initializeParentFilter(), this.initializeGridLookupFields(), this.initializeAdvancedFilters(resource)]);
     this.editorVisible.set(false);
+  }
+
+  clearAdvancedFilters(): void {
+    for (const control of Object.values(this.advancedFilterForm.controls)) {
+      control.setValue(null, {emitEvent: false});
+    }
+    void this.store.search({filters: {}, page: 0});
+  }
+
+  private async initializeAdvancedFilters(resource: string): Promise<void> {
+    for (const key of Object.keys(this.advancedFilterForm.controls)) {
+      this.advancedFilterForm.removeControl(key);
+    }
+    this.advancedFilterFields.set([]);
+    this.advancedFilterLookupOptions.set({});
+
+    const descriptor = this.store.descriptor();
+    const names = this.eduFilterFields[resource] ?? [];
+    if (!descriptor || !names.length) return;
+
+    const fields = names
+      .map(name => descriptor.fields.find(field => field.apiName === name))
+      .filter((field): field is ReferenceFieldDescriptor => Boolean(field));
+    this.advancedFilterFields.set(fields);
+
+    for (const field of fields) {
+      const control = new FormControl<unknown>(null);
+      this.advancedFilterForm.addControl(field.apiName, control);
+      control.valueChanges.pipe(
+        debounceTime(field.type === 'NUMBER' ? 350 : 0),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe(() => {
+        const filters: Record<string, string | number | boolean> = {};
+        for (const filterField of this.advancedFilterFields()) {
+          const value = this.advancedFilterForm.controls[filterField.apiName]?.value;
+          if (value !== null && value !== undefined && value !== '') {
+            filters[filterField.apiName] = value as string | number | boolean;
+          }
+        }
+        void this.store.search({filters, page: 0});
+      });
+    }
+
+    const lookupEntries = await Promise.all(fields
+      .filter(field => field.type === 'LOOKUP' && field.lookupResource)
+      .map(async field => [field.apiName, await this.gateway.lookup(field.lookupResource!)] as const));
+    this.advancedFilterLookupOptions.set(Object.fromEntries(lookupEntries));
   }
 
   private async initializeParentFilter(): Promise<void> {
@@ -264,7 +329,20 @@ export class ReferencePageComponent {
       field.apiName,
       await this.gateway.lookup(field.lookupResource as string)
     ] as const));
-    this.lookupOptions.set(Object.fromEntries(entries));
+    this.lookupOptions.update(current => ({...current, ...Object.fromEntries(entries)}));
+  }
+
+  private async initializeGridLookupFields(): Promise<void> {
+    const descriptor = this.store.descriptor();
+    if (!descriptor) return;
+    const fields = descriptor.fields.filter(field =>
+      field.grid && field.type === 'LOOKUP' && field.apiName !== descriptor.parent?.apiField && field.lookupResource
+    );
+    const entries = await Promise.all(fields.map(async field => [
+      field.apiName,
+      await this.gateway.lookup(field.lookupResource as string)
+    ] as const));
+    this.lookupOptions.update(current => ({...current, ...Object.fromEntries(entries)}));
   }
 
   private buildHierarchy(): readonly CatalogItem[] {

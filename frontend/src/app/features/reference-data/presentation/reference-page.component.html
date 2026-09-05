@@ -46,6 +46,45 @@
         }
       </div>
 
+      @if (advancedFilterFields().length) {
+        <div class="advanced-filters" [formGroup]="advancedFilterForm">
+          <div class="advanced-filters__title">
+            <div><mat-icon>filter_alt</mat-icon><strong>فیلترهای تخصصی</strong></div>
+            <button mat-button type="button" (click)="clearAdvancedFilters()">پاک کردن فیلترها</button>
+          </div>
+          <div class="advanced-filters__grid">
+            @for (field of advancedFilterFields(); track field.apiName) {
+              @if (field.type === 'STRING_SELECT' || field.type === 'SELECT') {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <mat-select [formControlName]="field.apiName">
+                    <mat-option [value]="null">همه</mat-option>
+                    @for (option of field.options; track option.value) {
+                      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              } @else if (field.type === 'LOOKUP') {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <mat-select [formControlName]="field.apiName">
+                    <mat-option [value]="null">همه</mat-option>
+                    @for (option of advancedFilterLookupOptions()[field.apiName] ?? []; track option.value) {
+                      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              } @else if (field.type === 'NUMBER') {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <input matInput type="number" [formControlName]="field.apiName">
+                </mat-form-field>
+              }
+            }
+          </div>
+        </div>
+      }
+
       <div class="table-wrap">
         <table mat-table matSort [dataSource]="store.rows()" (matSortChange)="onSort($event)">
           @for (field of gridFields(); track field.apiName) {

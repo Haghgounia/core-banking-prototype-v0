@@ -94,6 +94,9 @@ node "%ROOT%tools\verify-geo-name-romanization.mjs" || exit /b 1
 rem FIX84 static guard: one centralized breadcrumb must cover every application section.
 node "%ROOT%tools\verify-global-breadcrumb.mjs" || exit /b 1
 
+rem FIX91 static guard: vocabulary remains a separate menu group and all canonical EDU forms expose server-side filters.
+node "%ROOT%tools\verify-edu-reference-ui.mjs" || exit /b 1
+
 rem FIX55 static guard: user-facing calendar labels must stay simple and distinct.
 node "%ROOT%tools\verify-calendar-display-labels.mjs" || exit /b 1
 

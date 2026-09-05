@@ -1,0 +1,14 @@
+Core Banking Prototype 0.3.83
+FIX91 - Vocabulary menu + EDU reference filters
+
+1) این نسخه DDL یا Migration جدید ندارد.
+2) اگر نسخه را روی پوشه قبلی Extract می‌کنید، فایل app\BUILD-VERSION عمداً در Source Package وجود ندارد تا JAR قدیمی به‌عنوان Build جدید شناخته نشود.
+3) bin\stop.cmd
+4) build-production.cmd
+5) خروجی زیر را کنترل کنید:
+   Built version: 0.3.83
+6) bin\start.cmd
+7) نسخه 0.3.83 را در Header کنترل و در مرورگر Ctrl+F5 اجرا کنید.
+8) مسیر #/reference-data/general: گروه «واژگان و اصطلاحات» باید سه گزینه داشته باشد.
+9) هر شش فرم edu-* باید بخش «فیلترهای تخصصی» داشته باشند.
+10) در «مقاطع معتبر هر رشته»، رشته و مقطع باید با عنوان فارسی نمایش داده شوند.

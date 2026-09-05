@@ -220,8 +220,28 @@ public class OracleReferenceRepository implements ReferenceRepository {
             where.add("T.IS_ACTIVE = :active");
             params.put("active", query.active() ? 1 : 0);
         }
+        int filterIndex = 0;
+        for (Map.Entry<String, String> entry : query.filters().entrySet()) {
+            Optional<ReferenceFieldDescriptor> candidate = descriptor.optionalField(entry.getKey());
+            if (candidate.isEmpty()) continue;
+            ReferenceFieldDescriptor field = candidate.get();
+            if (field.readOnly()) continue;
+            String paramName = "filter" + filterIndex++;
+            where.add("T." + OracleSqlNames.identifier(field.columnName()) + " = :" + paramName);
+            params.put(paramName, queryFilterValue(field, entry.getValue()));
+        }
 
         return new QueryParts(from + (where.isEmpty() ? "" : " WHERE " + String.join(" AND ", where)), params);
+    }
+
+    private static Object queryFilterValue(ReferenceFieldDescriptor field, String raw) {
+        return switch (field.type()) {
+            case NUMBER, SELECT, LOOKUP -> new BigDecimal(raw);
+            case BOOLEAN -> ("true".equalsIgnoreCase(raw) || "1".equals(raw)) ? 1 : 0;
+            case DATE -> Date.valueOf(raw);
+            case TIMESTAMP -> Timestamp.valueOf(raw);
+            case TEXT, STRING_SELECT -> raw;
+        };
     }
 
     private String orderBy(ReferenceTableDescriptor descriptor, String requested) {

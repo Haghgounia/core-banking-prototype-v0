@@ -26,7 +26,7 @@ public class NameRomanizationDescriptorProvider implements ReferenceDescriptorPr
 
     private ReferenceTableDescriptor nameDictionary() {
         return descriptor(
-                "name-romanization-dictionary", "GENERAL", "واژه‌نامه رومن‌نویسی نام‌ها", "spellcheck",
+                "name-romanization-dictionary", "VOCABULARY", "واژه‌نامه رومن‌نویسی نام‌ها", "spellcheck",
                 schemaName, "NAME_ROMANIZATION_DICTIONARY", "SEQ_NAME_ROMANIZATION_DICT",
                 "nameRomanizationId", "NAME_ROMANIZATION_ID", "normalizedPersianName", "persianName", null,
                 List.of(
@@ -79,7 +79,7 @@ public class NameRomanizationDescriptorProvider implements ReferenceDescriptorPr
 
     private ReferenceTableDescriptor affixDictionary() {
         return descriptor(
-                "name-affix-dictionary", "GENERAL", "واژه‌نامه پیشوند و پسوند نام", "account_tree",
+                "name-affix-dictionary", "VOCABULARY", "واژه‌نامه پیشوند و پسوند نام", "account_tree",
                 schemaName, "NAME_AFFIX_DICTIONARY", "SEQ_NAME_AFFIX_DICTIONARY",
                 "nameAffixId", "NAME_AFFIX_ID", "normalizedPersianAffix", "persianAffix", null,
                 List.of(

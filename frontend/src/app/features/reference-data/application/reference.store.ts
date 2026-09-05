@@ -16,7 +16,7 @@ export class ReferenceStore {
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
   readonly query = signal<ReferenceSearchQuery>({
-    text: '', parentId: null, active: null, page: 0, size: 20, sortBy: null, direction: 'asc'
+    text: '', parentId: null, active: null, filters: {}, page: 0, size: 20, sortBy: null, direction: 'asc'
   });
 
   async initialize(resource: string): Promise<void> {
@@ -24,7 +24,7 @@ export class ReferenceStore {
     this.descriptor.set(null);
     this.rows.set([]);
     this.selected.set(null);
-    this.query.set({text: '', parentId: null, active: null, page: 0, size: 20, sortBy: null, direction: 'asc'});
+    this.query.set({text: '', parentId: null, active: null, filters: {}, page: 0, size: 20, sortBy: null, direction: 'asc'});
     this.error.set(null);
     try {
       this.descriptor.set(await this.gateway.descriptor(resource));

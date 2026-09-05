@@ -21,6 +21,9 @@ export class HttpReferenceGateway implements ReferenceGateway {
       .set('direction', query.direction);
     if (query.parentId !== null) params = params.set('parentId', query.parentId);
     if (query.active !== null) params = params.set('active', query.active);
+    for (const [field, value] of Object.entries(query.filters)) {
+      params = params.set(`filter.${field}`, String(value));
+    }
     if (query.sortBy) params = params.set('sortBy', query.sortBy);
     return firstValueFrom(this.http.get<PageResponse<Readonly<Record<string, unknown>>>>(
       `/api/v1/reference/${resource}`, {params}

@@ -39,10 +39,17 @@ public class ReferenceController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String sortBy,
-            @RequestParam(defaultValue = "asc") String direction
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam Map<String, String> requestParams
     ) {
+        Map<String, String> filters = new java.util.LinkedHashMap<>();
+        requestParams.forEach((key, value) -> {
+            if (key.startsWith("filter.") && key.length() > 7 && value != null && !value.isBlank()) {
+                filters.put(key.substring(7), value.trim());
+            }
+        });
         return service.search(resource, new ReferenceSearchQuery(
-                text, parentId, active, page, size, sortBy, direction
+                text, parentId, active, filters, page, size, sortBy, direction
         ));
     }
 
