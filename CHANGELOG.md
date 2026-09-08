@@ -1,3 +1,11 @@
+## 0.3.84 — FIX92: سازگاری صفحه استخراج Oracle به EA XMI با تم روشن/تیره
+
+- صفحه `#/system/oracle-ea-xmi-export` از Colorهای ثابت روشن جدا شد و تمام Surface/Text/Border/Code/Semantic stateها به Theme Tokenهای سراسری پروژه منتقل شدند.
+- Card اصلی، Connection Strip، Metricها، Badge فرمت، Preview، Guidance و پیام‌های Success/Error/Warning در هر دو Theme روشن و تیره کنتراست سازگار دارند.
+- هیچ Hex/RGB hard-coded در Stylesheet این صفحه باقی نمانده است.
+- Guard `verify-oracle-ea-xmi-export.mjs` با کنترل Theme Contract گسترش یافت و به هر دو Build script ویندوز و لینوکس اضافه شد.
+- Backend، Oracle Metadata queries و XMI generation بدون تغییر باقی مانده‌اند و DDL/Migration جدیدی لازم نیست.
+
 ## 0.3.83 — FIX91: تفکیک قطعی واژگان و فعال‌سازی قابل‌مشاهده فیلترهای EDU
 
 - دسته `VOCABULARY` به Metadata/Catalog Backend منتقل شد تا دو واژه‌نامه نام دیگر عضو `GENERAL` نباشند و تفکیک منو وابسته به استثناء Frontend نباشد.

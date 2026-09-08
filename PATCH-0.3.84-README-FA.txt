@@ -1,0 +1,16 @@
+Core Banking Prototype 0.3.84 - FIX92
+Oracle -> EA XMI Theme Compatibility
+
+Scope:
+- Theme-aware styling for #/system/oracle-ea-xmi-export
+- Removes light-only hard-coded colors from the page
+- Adds theme regression checks to the Oracle -> EA XMI verifier
+- Wires the verifier into production build scripts
+- No database changes
+
+After overlay:
+1. bin\stop.cmd
+2. build-production.cmd
+3. Verify: Built version: 0.3.84
+4. bin\start.cmd
+5. Ctrl+F5 and test both Dark and Light themes

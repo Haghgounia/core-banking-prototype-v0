@@ -1,7 +1,6 @@
 import {readFileSync, existsSync} from 'node:fs';
-import {join} from 'node:path';
+import {join, dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {dirname} from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const checks = [];
@@ -13,16 +12,19 @@ const writerPath = join(root, 'backend/src/main/java/com/behsazan/corebanking/sy
 const inspectorPath = join(root, 'backend/src/main/java/com/behsazan/corebanking/system/modelcomparison/OracleEaMetadataInspector.java');
 const uiPath = join(root, 'frontend/src/app/features/oracle-ea-xmi-export/oracle-ea-xmi-export.component.html');
 const uiTsPath = join(root, 'frontend/src/app/features/oracle-ea-xmi-export/oracle-ea-xmi-export.component.ts');
+const uiStylePath = join(root, 'frontend/src/app/features/oracle-ea-xmi-export/oracle-ea-xmi-export.component.scss');
 
 expect('Backend export controller exists', existsSync(controllerPath));
 expect('EA XMI writer exists', existsSync(writerPath));
 expect('Oracle metadata inspector exists', existsSync(inspectorPath));
 expect('Export form exists', existsSync(uiPath));
+expect('Export form theme stylesheet exists', existsSync(uiStylePath));
 
 const controller = read('backend/src/main/java/com/behsazan/corebanking/system/modelcomparison/OracleEaXmiExportController.java');
 const writer = read('backend/src/main/java/com/behsazan/corebanking/system/modelcomparison/EaOracleXmiWriter.java');
 const inspector = read('backend/src/main/java/com/behsazan/corebanking/system/modelcomparison/OracleEaMetadataInspector.java');
 const uiTs = read('frontend/src/app/features/oracle-ea-xmi-export/oracle-ea-xmi-export.component.ts');
+const uiStyle = read('frontend/src/app/features/oracle-ea-xmi-export/oracle-ea-xmi-export.component.scss');
 const routes = read('frontend/src/app/app.routes.ts');
 const menu = read('frontend/src/app/layout/app-shell.component.html');
 
@@ -42,8 +44,17 @@ expect('Check constraints read from Oracle', inspector.includes('SEARCH_CONDITIO
 expect('Comments read from Oracle', inspector.includes('ALL_TAB_COMMENTS') && inspector.includes('ALL_COL_COMMENTS'));
 expect('Virtual-column metadata uses ALL_TAB_COLS', inspector.includes('ALL_TAB_COLS TC') && inspector.includes('TC.VIRTUAL_COLUMN') && !/[^T]C\.VIRTUAL_COLUMN/.test(inspector));
 expect('No automatic metadata preview on page initialization', !/loadingConfiguration\.set\(false\);\s*this\.preview\(\)/s.test(uiTs));
-expect('Frontend route wired', routes.includes("system/oracle-ea-xmi-export"));
+expect('Frontend route wired', routes.includes('system/oracle-ea-xmi-export'));
 expect('Sidebar menu wired', menu.includes('استخراج Oracle به EA XML'));
+
+// FIX92: this screen must consume the shared theme contract instead of painting a light-only surface.
+expect('Theme surface token used', uiStyle.includes('var(--app-surface)'));
+expect('Theme muted surface token used', uiStyle.includes('var(--app-surface-muted)'));
+expect('Theme text tokens used', uiStyle.includes('var(--app-text)') && uiStyle.includes('var(--app-muted)'));
+expect('Theme border/divider tokens used', uiStyle.includes('var(--app-border)') && uiStyle.includes('var(--app-divider)'));
+expect('Theme semantic tokens used', uiStyle.includes('var(--app-success)') && uiStyle.includes('var(--app-danger)') && uiStyle.includes('var(--app-warning-bg)'));
+expect('Theme code tokens used', uiStyle.includes('var(--app-code-bg)') && uiStyle.includes('var(--app-code-text)'));
+expect('No hard-coded color literals in export page stylesheet', !/(#[0-9a-fA-F]{3,8}\b|rgba?\s*\()/g.test(uiStyle));
 
 const failed = checks.filter(check => !check.ok);
 for (const check of checks) console.log(`${check.ok ? 'PASS' : 'FAIL'} - ${check.name}`);

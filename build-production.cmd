@@ -43,6 +43,9 @@ node "%ROOT%tools\verify-cif-religion-reference.mjs" || exit /b 1
 rem Fix30 static guard: EA/XMI to configured Oracle schema comparison must remain fully wired.
 node "%ROOT%tools\verify-ea-oracle-comparison.mjs" || exit /b 1
 
+rem FIX92 static guard: Oracle to EA XMI screen must remain fully wired and theme-aware.
+node "%ROOT%tools\verify-oracle-ea-xmi-export.mjs" || exit /b 1
+
 rem FIX46 static guard: CAL enterprise calendar forms and separate Reference Data menu.
 node "%ROOT%tools\verify-calendar-reference.mjs" || exit /b 1
 
