@@ -46,7 +46,8 @@ public final class PdlCatalog {
         register("DEPOSIT_PRODUCT_OPENING_RULE", "\u0642\u0648\u0627\u0639\u062f \u0627\u0641\u062a\u062a\u0627\u062d \u0645\u062d\u0635\u0648\u0644 \u0633\u067e\u0631\u062f\u0647", "03", "Deposit Module");
         register("DEPOSIT_PRODUCT_CLOSURE_RULE", "\u0642\u0648\u0627\u0639\u062f \u062e\u0627\u062a\u0645\u0647 \u0645\u062d\u0635\u0648\u0644 \u0633\u067e\u0631\u062f\u0647", "03", "Deposit Module");
         register("DEPOSIT_PRODUCT_TERM_RULE", "\u0642\u0648\u0627\u0639\u062f \u0645\u062f\u062a \u0648 \u0633\u0631\u0631\u0633\u06cc\u062f \u0645\u062d\u0635\u0648\u0644 \u0633\u067e\u0631\u062f\u0647", "03", "Deposit Module");
-        register("DEPOSIT_PRODUCT_DORMANCY_RULE", "\u0642\u0648\u0627\u0639\u062f \u0631\u0627\u06a9\u062f\u06cc \u0645\u062d\u0635\u0648\u0644 \u0633\u067e\u0631\u062f\u0647", "03", "Deposit Module");
+        register("DEPOSIT_PRODUCT_DORMANCY_RULE", "قواعد راکدی محصول سپرده", "03", "Deposit Module");
+        register("DEPOSIT_PROFIT_PAYMENT_RULE", "برنامه پرداخت سود سپرده", "03", "Deposit Module");
         register("LOAN_PRODUCT_PROCESS_RULE", "\u0642\u0648\u0627\u0639\u062f \u0641\u0631\u0627\u06cc\u0646\u062f\u06cc \u0645\u062d\u0635\u0648\u0644 \u062a\u0633\u0647\u06cc\u0644\u0627\u062a", "04", "Loan Module");
         register("LOAN_PRODUCT_PROFILE", "\u067e\u0631\u0648\u0641\u0627\u06cc\u0644 \u062a\u0633\u0647\u06cc\u0644\u0627\u062a", "04", "Loan Module");
         register("LOAN_FINANCIAL_EXTENSION", "\u0627\u0641\u0632\u0648\u0646\u0647 \u0645\u0627\u0644\u06cc \u062a\u0633\u0647\u06cc\u0644\u0627\u062a", "04", "Loan Module");
@@ -61,15 +62,17 @@ public final class PdlCatalog {
         register("PATTERN_OPERATION_DETAIL", "\u062c\u0632\u0626\u06cc\u0627\u062a \u0639\u0645\u0644\u06cc\u0627\u062a \u062a\u0633\u0647\u06cc\u0644\u0627\u062a", "05", "Reference Data");
         register("ECONOMIC_SECTION", "\u062c\u062f\u0648\u0644 \u0628\u062e\u0634 \u0627\u0642\u062a\u0635\u0627\u062f\u06cc", "05", "Reference Data");
         register("LOAN_USAGE", "\u0646\u062d\u0648\u0647 \u0627\u0633\u062a\u0641\u0627\u062f\u0647", "05", "Reference Data");
-        register("CODE_SET", "\u0645\u062c\u0645\u0648\u0639\u0647 \u06a9\u062f \u0645\u0631\u062c\u0639", "05", "Reference Data");
         register("ECONOMIC_SUB_SECTION", "\u062c\u062f\u0648\u0644 \u0632\u06cc\u0631 \u0628\u062e\u0634 \u0627\u0642\u062a\u0635\u0627\u062f\u06cc", "05", "Reference Data");
         register("LOAN_PRODUCT_COLLATERAL", "\u0627\u0642\u0644\u0627\u0645 \u0627\u0644\u06af\u0648\u06cc \u0648\u062b\u0627\u06cc\u0642 \u0645\u062d\u0635\u0648\u0644", "05", "Reference Data");
         register("DOCUMENT_TYPE", "\u0646\u0648\u0639 \u0645\u062f\u0631\u06a9", "05", "Reference Data");
         register("PATTERN_OPERATION", "\u0627\u0644\u06af\u0648\u06cc \u0639\u0645\u0644\u06cc\u0627\u062a", "05", "Reference Data");
-        register("CODE_VALUE_TRANSITION", "\u0642\u0648\u0627\u0639\u062f \u06af\u0630\u0627\u0631 \u0645\u0642\u0627\u062f\u06cc\u0631 \u0648\u0636\u0639\u06cc\u062a", "05", "Reference Data");
         register("OPERATION", "\u0627\u0646\u0648\u0627\u0639 \u0639\u0645\u0644\u06cc\u0627\u062a", "05", "Reference Data");
-        register("CODE_VALUE", "\u0645\u0642\u0627\u062f\u06cc\u0631 \u06a9\u062f \u0645\u0631\u062c\u0639", "05", "Reference Data");
         register("SUB_OPERATION", "\u0631\u06cc\u0632 \u0639\u0645\u0644\u06cc\u0627\u062a", "05", "Reference Data");
+        register("CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE", "پروفایل محصول نوسترو/وسترو", "11", "Correspondent Accounts");
+        register("CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE", "قاعده تسویه نوسترو/وسترو", "11", "Correspondent Accounts");
+        register("CODE_SET", "مجموعه کد مرجع", "90", "Code Management");
+        register("CODE_VALUE", "مقادیر کد مرجع", "90", "Code Management");
+        register("CODE_VALUE_TRANSITION", "قواعد گذار مقادیر وضعیت", "90", "Code Management");
     }
 
     public static Entry require(String tableName) {

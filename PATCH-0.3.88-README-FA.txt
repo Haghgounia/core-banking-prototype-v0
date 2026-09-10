@@ -1,0 +1,16 @@
+Core Banking Prototype 0.3.88 / FIX96 — PDL Unified Product Builder Baseline
+
+این Patch برای Overlay روی Source نسخه 0.3.87 است.
+
+Migration الزامی:
+1) database\oracle\pdl\migrations\0.3.88-fix96-unified-product-builder-baseline.sql
+2) database\oracle\dps\migrations\0.3.88-fix96-unified-product-builder-reference-seed.sql
+
+سپس:
+build-production.cmd
+bin\start.cmd
+Ctrl+F5
+
+جزئیات کامل:
+docs\PDL-0.3.88-FIX96-UNIFIED-PRODUCT-BUILDER-BASELINE-QA.md
+docs\install\INSTALL-0.3.88-FA.txt

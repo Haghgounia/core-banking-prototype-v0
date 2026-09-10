@@ -1,0 +1,70 @@
+Core Banking Prototype 0.3.88 / FIX96
+PDL — Unified Product Builder Baseline
+
+این نسخه نسبت به 0.3.87 دارای Migration پایگاه داده است.
+
+ترتیب ارتقا از 0.3.87:
+
+1) برنامه را متوقف کنید:
+   bin\stop.cmd
+
+2) Patch یا Source نسخه 0.3.88 را روی نسخه قبلی Overlay کنید.
+
+3) Migration سه جدول جدید PDL را با کاربری که مجوز DDL روی Schema PDL دارد اجرا کنید:
+   @database/oracle/pdl/migrations/0.3.88-fix96-unified-product-builder-baseline.sql
+
+   جدول‌های افزوده‌شده:
+   - PDL.DEPOSIT_PROFIT_PAYMENT_RULE
+   - PDL.CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE
+   - PDL.CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE
+
+4) Seed معنایی خانواده‌های محصول/سپرده را روی Schema DPS اجرا کنید:
+   @database/oracle/dps/migrations/0.3.88-fix96-unified-product-builder-reference-seed.sql
+
+   این Seed رکوردهای Legacy موجود را حذف یا غیرفعال نمی‌کند و فقط کدهای جدید Target را در صورت نبودن اضافه می‌کند.
+
+5) اگر Application User از Ownerهای PDL/DPS جدا است، همان Grantهای SELECT/INSERT/UPDATE/DELETE و Metadata Visibility مورد استفاده برای جداول فعلی PDL را برای سه جدول جدید نیز اعمال کنید.
+
+6) Build کامل را اجرا کنید:
+   build-production.cmd
+
+7) در خروجی Build کنترل کنید:
+   Built version: 0.3.88
+
+8) برنامه را اجرا کنید:
+   bin\start.cmd
+
+9) Header باید نسخه 0.3.88 را نشان دهد؛ سپس Ctrl+F5 بزنید.
+
+کنترل‌های پذیرش FIX96
+--------------------
+A) صفحه اصلی Product Builder
+- 50 «جدول کسب‌وکاری» نمایش داده شود.
+- 53 «فرم فیزیکی PDL» نمایش داده شود.
+- سه جدول CODE_SET / CODE_VALUE / CODE_VALUE_TRANSITION در گروه «زیرساخت مدیریت کدها» قرار داشته باشند.
+
+B) خانواده محصول
+- Deposit: CURRENT_ACCOUNT, QARD_SAVINGS, SHORT_TERM_DEPOSIT, LONG_TERM_DEPOSIT,
+  CERTIFICATE_OF_DEPOSIT, NOSTRO_ACCOUNT, VOSTRO_ACCOUNT
+- Loan: RETAIL_LOAN, QARD_HASAN_LOAN
+
+C) Workspace نسخه محصول
+- DEPOSIT_PROFIT_PAYMENT_RULE فقط برای SHORT_TERM_DEPOSIT / LONG_TERM_DEPOSIT / CERTIFICATE_OF_DEPOSIT نمایش داده شود.
+- DEPOSIT_PRODUCT_TERM_RULE نیز فقط برای همین خانواده‌های مدت‌دار نمایش داده شود.
+- CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE فقط برای NOSTRO_ACCOUNT / VOSTRO_ACCOUNT نمایش داده شود.
+
+D) فرم برنامه واریز سود
+- DATEها با Persian Date Picker وارد شوند ولی API مقدار ISO/Gregorian دریافت کند.
+- در PAYMENT_FREQUENCY_CODE=MATURITY، PAYMENT_DAY_RULE_CODE باید MATURITY_DATE شود.
+- PAYMENT_DAY_NO فقط برای FIXED_DAY_OF_MONTH فعال باشد.
+- CAPITALIZATION_DEFAULT بدون CAPITALIZATION_ALLOWED قابل فعال شدن نباشد.
+
+E) فرم Settlement نوسترو/وسترو
+- CUTOFF_TIME با Clock/Dial مشترک 24 ساعته وارد شود.
+- API مقدار HH:mm مانند 16:00 دریافت کند.
+- VALID_FROM / VALID_TO با Persian Date Picker باشند.
+
+نکته Scope
+----------
+FIX96 «Baseline اجرایی» مدل جدید است. Wizard کامل شش‌مرحله‌ای، Hierarchical Child Editing برای جداول وابسته،
+Publish/Readiness کامل و Product 360 متصل به Backend در فاز بعدی انجام می‌شوند.

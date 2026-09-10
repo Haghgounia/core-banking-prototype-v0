@@ -19,9 +19,12 @@ import java.util.Map;
 @Service
 public class ProductBuilderService {
     private final PdlProductBuilderRepository repository;
+    private final ProductBuilderBusinessValidator businessValidator;
 
-    public ProductBuilderService(PdlProductBuilderRepository repository) {
+    public ProductBuilderService(PdlProductBuilderRepository repository,
+                                 ProductBuilderBusinessValidator businessValidator) {
         this.repository = repository;
+        this.businessValidator = businessValidator;
     }
 
     public CatalogResponse catalog() {
@@ -57,12 +60,16 @@ public class ProductBuilderService {
 
     @Transactional
     public Map<String, Object> create(String table, Map<String, Object> values, String actor) {
+        businessValidator.validate(table, values);
         long id = repository.insert(table, values, actorName(actor));
         return findById(table, id);
     }
 
     @Transactional
     public Map<String, Object> update(String table, long id, Map<String, Object> values, String actor) {
+        Map<String, Object> merged = new LinkedHashMap<>(findById(table, id));
+        merged.putAll(values);
+        businessValidator.validate(table, merged);
         if (!repository.update(table, id, values, actorName(actor))) {
             throw new ProductBuilderValidationException("PDL row not found: " + table + "/" + id);
         }

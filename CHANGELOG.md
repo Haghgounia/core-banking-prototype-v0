@@ -1,3 +1,15 @@
+## 0.3.88 — FIX96: Baseline اجرایی Unified Product Builder برای PDL
+
+- مدل PDL با فایل `Unified_Product_Builder_Deposit_Loan.html` هم‌تراز شد: 50 جدول کسب‌وکاری Target + سه جدول زیرساخت Code Management = 53 Object فیزیکی Catalog.
+- سه جدول `DEPOSIT_PROFIT_PAYMENT_RULE`, `CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE`, `CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE` همراه با FK/Check/Comment و Migration Oracle اضافه شدند.
+- `DEPOSIT_PROFIT_PAYMENT_RULE` مسئول زمان‌بندی واریز سود شد و نرخ/روش محاسبه همچنان در `PRODUCT_PRICING_*` باقی ماند.
+- خانواده‌های سپرده به `CURRENT_ACCOUNT`, `QARD_SAVINGS`, `SHORT_TERM_DEPOSIT`, `LONG_TERM_DEPOSIT`, `CERTIFICATE_OF_DEPOSIT`, `NOSTRO_ACCOUNT`, `VOSTRO_ACCOUNT` تفکیک و Seed مرجع DPS اضافه شد؛ داده‌های Legacy حذف نمی‌شوند.
+- Module Applicability در Workspace اضافه شد: TERM/PROFIT_PAYMENT فقط برای سپرده‌های مدت‌دار و CORRESPONDENT فقط برای NOSTRO/VOSTRO.
+- Generic PDL Forms برای DATE از Persian Date Picker و برای `*_TIME` از Clock/Dial مشترک استفاده می‌کنند؛ قرارداد Backend به‌ترتیب ISO date و `HH:mm` باقی می‌ماند.
+- `ProductBuilderBusinessValidator` به Create/Update متصل شد تا قواعد Cross-field برنامه پرداخت سود و Settlement/Date Range در Backend نیز enforce شوند.
+- سه جدول `CODE_SET`, `CODE_VALUE`, `CODE_VALUE_TRANSITION` حذف نشدند و به Package مستقل `90 / Code Management` منتقل شدند تا از شمارش مدل کسب‌وکاری Target جدا باشند.
+- این Release Baseline اجرایی است؛ Wizard شش‌مرحله‌ای کامل، Child Editing سلسله‌مراتبی، Product 360 Backend و Publish/Readiness در فاز بعدی تکمیل می‌شوند.
+
 ## 0.3.87 — FIX95: تاریخ شمسی استثناءهای CAL2 و Time Picker ساعت‌محور
 
 - نمایش تمام فیلدهای `DATE` در Gridهای عمومی CAL2 به هجری شمسی تغییر کرد؛ از جمله `BUSINESS_CALENDAR_EXCEPTION.EXCEPTION_DATE` و تاریخ‌های اعتبار Schedule. مقدار API/Oracle همچنان ISO/Gregorian باقی می‌ماند.

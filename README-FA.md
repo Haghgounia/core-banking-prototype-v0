@@ -592,3 +592,9 @@ Parser XML در برابر DTD/External Entity غیرفعال و سخت‌ساز
 
 همچنین فیلدهای `DATE` در Gridهای عمومی CAL2 به هجری شمسی نمایش داده می‌شوند. بنابراین در فرم «استثناءهای تک‌روز»، `EXCEPTION_DATE` مانند `1405/12/10` دیده می‌شود، در حالی که مقدار Canonical ارسالی به Backend/Oracle همچنان ISO مانند `2027-03-01` باقی می‌ماند. همین قاعده برای تاریخ شروع/پایان اعتبار برنامه‌های ساعات کاری نیز اعمال می‌شود. FIX95 تغییر Database ندارد.
 
+
+### Unified Product Builder PDL — FIX96 / 0.3.88
+
+در FIX96 مدل PDL با Baseline جدید Unified Product Builder هم‌راستا شده است: 50 جدول کسب‌وکاری Target و سه جدول Infrastructure مدیریت کد در Catalog فیزیکی. سه Object جدید `DEPOSIT_PROFIT_PAYMENT_RULE`، `CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE` و `CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE` اضافه شده‌اند. خانواده‌های سپرده به جاری، قرض‌الحسنه پس‌انداز، کوتاه‌مدت، بلندمدت، گواهی سپرده، نوسترو و وسترو تفکیک می‌شوند. DATEهای فرم‌های PDL با ورودی شمسی و ساعت Cut-off با Clock/Dial مشترک نمایش داده می‌شوند؛ قرارداد Backend بدون تغییر Canonical باقی می‌ماند.
+
+برای ارتقا از 0.3.87 ابتدا Migrationهای PDL و DPS داخل `database/oracle/*/migrations/0.3.88-*` اجرا و سپس `build-production.cmd` اجرا شود. جزئیات در `docs/PDL-0.3.88-FIX96-UNIFIED-PRODUCT-BUILDER-BASELINE-QA.md` آمده است.
