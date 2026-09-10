@@ -1,0 +1,23 @@
+Core Banking Prototype 0.3.85 - FIX93
+CAL2 Range-Based Business Calendar Schedule / Single-Day Exception
+
+Scope:
+- 3 new CAL2 policy tables/forms: schedule, weekly pattern, single-day exception
+- BUSINESS_CALENDAR_DAY becomes read-only resolved/materialized output
+- Separate staff attendance hours from customer branch opening/service hours
+- Rebuild REST API + Oracle MERGE resolver
+- Exception > Holiday > Schedule > Default precedence
+- Automatic seven-weekday initialization for each schedule
+- FIX93 Oracle migration and regression guard
+
+Database migration REQUIRED for an existing CAL2 schema:
+  database\oracle\cal2\migrations\0.3.85-fix93-business-calendar-schedule-policy.sql
+
+After overlay:
+1. bin\stop.cmd
+2. Run FIX93 migration in Oracle and commit if your SQL client does not auto-commit DDL context as expected.
+3. Re-run CAL2 grants when application user differs from CAL2/SYSTEM.
+4. build-production.cmd
+5. Verify: Built version: 0.3.85
+6. bin\start.cmd
+7. Ctrl+F5

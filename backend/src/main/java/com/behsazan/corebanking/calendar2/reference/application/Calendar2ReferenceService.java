@@ -44,6 +44,9 @@ public class Calendar2ReferenceService {
         if ("business-calendar-days".equals(resource)) {
             return repository.searchBusinessCalendarDays(text, page, size, sortBy, direction);
         }
+        if ("business-calendar-schedule-days".equals(resource)) {
+            return repository.searchBusinessCalendarScheduleDays(text, page, size, sortBy, direction);
+        }
         return repository.search(descriptor, text, page, size, sortBy, direction);
     }
 
@@ -86,10 +89,14 @@ public class Calendar2ReferenceService {
     public RecordResponse create(String resource, Map<String, Object> values) {
         TableDescriptor descriptor = registry.require(resource);
         if (!descriptor.allowCreate()) throw validation("این جدول CAL2 فقط‌خواندنی است.", "_form");
+        normalizeBusinessCalendarPolicy(descriptor, values);
         validate(descriptor, values, true);
         validateBusinessCalendar(descriptor, values);
+        validateBusinessCalendarPolicy(descriptor, values);
         validateEventOccurrenceCreate(descriptor, values);
         RecordResponse saved = repository.insert(descriptor, values);
+        initializeBusinessCalendarScheduleIfNeeded(descriptor, saved);
+        validateBusinessCalendarScheduleActivationIfNeeded(descriptor, saved);
         rebuildRecurrenceRuleIfNeeded(descriptor, saved);
         return saved;
     }
@@ -99,11 +106,15 @@ public class Calendar2ReferenceService {
         TableDescriptor descriptor = registry.require(resource);
         if (!descriptor.allowUpdate()) throw validation("ویرایش این جدول CAL2 مجاز نیست.", "_form");
         validateEventOccurrenceMutation(descriptor, key, false, values);
+        normalizeBusinessCalendarPolicy(descriptor, values);
         validate(descriptor, values, false);
         validateBusinessCalendar(descriptor, values);
+        validateBusinessCalendarPolicy(descriptor, values);
         validateEventOccurrenceCreate(descriptor, values);
         RecordResponse saved = repository.update(descriptor, key, values)
                 .orElseThrow(() -> new ReferenceNotFoundException("رکورد CAL2 برای ویرایش یافت نشد."));
+        initializeBusinessCalendarScheduleIfNeeded(descriptor, saved);
+        validateBusinessCalendarScheduleActivationIfNeeded(descriptor, saved);
         rebuildRecurrenceRuleIfNeeded(descriptor, saved);
         return saved;
     }
@@ -129,6 +140,72 @@ public class Calendar2ReferenceService {
             } catch (DateTimeException ex) {
                 throw validation("منطقه زمانی باید یک شناسه معتبر IANA مانند Asia/Tehran باشد.", "timeZone");
             }
+        }
+    }
+
+    private void initializeBusinessCalendarScheduleIfNeeded(TableDescriptor descriptor, RecordResponse saved) {
+        if (!"business-calendar-schedules".equals(descriptor.resource())) return;
+        repository.initializeBusinessCalendarScheduleDays(Long.parseLong(saved.key()));
+    }
+
+    private void validateBusinessCalendarScheduleActivationIfNeeded(TableDescriptor descriptor, RecordResponse saved) {
+        if (!"business-calendar-schedules".equals(descriptor.resource())) return;
+        String status = text(saved.values().get("status"));
+        if (!"ACTIVE".equalsIgnoreCase(status)) return;
+        long incomplete = repository.countIncompleteBusinessCalendarScheduleDays(Long.parseLong(saved.key()));
+        if (incomplete > 0) {
+            throw validation("برای فعال‌سازی برنامه، الگوی هفتگی هفت روز باید کامل باشد و روزهای باز/نیمه‌وقت هر چهار ساعت کارکنان و مشتری را داشته باشند. تعداد ردیف ناقص: " + incomplete, "status");
+        }
+    }
+
+    private static void normalizeBusinessCalendarPolicy(TableDescriptor descriptor, Map<String, Object> values) {
+        if (values == null) return;
+        String resource = descriptor.resource();
+        if (!"business-calendar-schedule-days".equals(resource) && !"business-calendar-exceptions".equals(resource)) return;
+        String dayStatus = text(values.get("dayStatus"));
+        if (!"CLOSED".equalsIgnoreCase(dayStatus)) return;
+        values.put("staffStartTime", null);
+        values.put("staffEndTime", null);
+        values.put("customerOpenTime", null);
+        values.put("customerCloseTime", null);
+        values.put("isBusinessDay", false);
+        values.put("isSettlementDay", false);
+        values.put("isClearingDay", false);
+        values.put("isProcessingDay", false);
+    }
+
+    private static void validateBusinessCalendarPolicy(TableDescriptor descriptor, Map<String, Object> values) {
+        if (values == null) return;
+        String resource = descriptor.resource();
+        if ("business-calendar-schedules".equals(resource)) {
+            Integer priority = integer(values.get("priorityNo"));
+            if (priority != null && priority < 0) throw validation("اولویت برنامه ساعات کاری نمی‌تواند منفی باشد.", "priorityNo");
+            return;
+        }
+        if (!"business-calendar-schedule-days".equals(resource) && !"business-calendar-exceptions".equals(resource)) return;
+
+        LinkedHashMap<String, String> errors = new LinkedHashMap<>();
+        validateClock(values, "staffStartTime", "ساعت شروع حضور کارکنان", errors);
+        validateClock(values, "staffEndTime", "ساعت پایان حضور کارکنان", errors);
+        validateClock(values, "customerOpenTime", "ساعت بازشدن برای مشتری", errors);
+        validateClock(values, "customerCloseTime", "ساعت پایان خدمت‌رسانی", errors);
+        clockRange(values, "staffStartTime", "staffEndTime", "بازه حضور کارکنان", errors);
+        clockRange(values, "customerOpenTime", "customerCloseTime", "بازه خدمت‌رسانی به مشتری", errors);
+        if (!errors.isEmpty()) throw new ReferenceValidationException("ساعات کاری را اصلاح کنید.", errors);
+    }
+
+    private static void validateClock(Map<String, Object> values, String key, String label, Map<String, String> errors) {
+        String value = text(values.get(key));
+        if (value == null || value.isBlank()) return;
+        if (!value.matches("(?:[01]\\d|2[0-3]):[0-5]\\d")) errors.put(key, label + " باید در قالب HH:MM مانند 07:30 باشد.");
+    }
+
+    private static void clockRange(Map<String, Object> values, String fromKey, String toKey, String label, Map<String, String> errors) {
+        String from = text(values.get(fromKey));
+        String to = text(values.get(toKey));
+        if (from == null || to == null || from.isBlank() || to.isBlank()) return;
+        if (from.matches("(?:[01]\\d|2[0-3]):[0-5]\\d") && to.matches("(?:[01]\\d|2[0-3]):[0-5]\\d") && to.compareTo(from) < 0) {
+            errors.put(toKey, label + " نامعتبر است؛ ساعت پایان باید بعد از ساعت شروع باشد.");
         }
     }
 
@@ -178,14 +255,20 @@ public class Calendar2ReferenceService {
             if (field.maxLength() != null && value.toString().length() > field.maxLength()) {
                 errors.put(field.apiName(), "طول «" + field.label() + "» بیش از " + field.maxLength() + " کاراکتر است.");
             }
+            if (field.type() == FieldType.TIME && !value.toString().matches("^([01][0-9]|2[0-3]):[0-5][0-9]$")) {
+                errors.put(field.apiName(), "مقدار «" + field.label() + "» باید ساعت معتبر ۲۴ ساعته با قالب HH:mm باشد.");
+            }
             if (field.type() == FieldType.SELECT && !field.options().isEmpty()) {
                 boolean valid = field.options().stream().anyMatch(option -> String.valueOf(option.value()).equals(String.valueOf(value)));
                 if (!valid) errors.put(field.apiName(), "مقدار انتخاب‌شده برای «" + field.label() + "» معتبر نیست.");
             }
         }
         range(values, "validFrom", "validTo", "بازه اعتبار", errors);
+        range(values, "effectiveFrom", "effectiveTo", "بازه اعتبار برنامه ساعات کاری", errors);
         range(values, "startTime", "endTime", "بازه زمانی", errors);
         range(values, "openTime", "closeTime", "ساعات کاری", errors);
+        range(values, "staffStartTime", "staffEndTime", "ساعات حضور کارکنان", errors);
+        range(values, "customerOpenTime", "customerCloseTime", "ساعات خدمت‌رسانی به مشتری", errors);
         if ("event-recurrence-rules".equals(descriptor.resource())) validateEventRecurrenceRule(values, errors);
         if (!errors.isEmpty()) throw new ReferenceValidationException("اطلاعات فرم CAL2 را اصلاح کنید.", errors);
     }

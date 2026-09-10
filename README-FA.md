@@ -72,7 +72,7 @@ enterprise-calendar                -> Schema CAL
 bian-400y-calendar                 -> Schema CAL2
 ```
 
-در این نسخه ۲۰۵ فرم اطلاعات پایه/تقویم فعال هستند: ۲۲ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*`، ۱۰۱ فرم اطلاعات پایه Party/Customer در CIF (شامل دو فرم مستقل ISIC2)، ۱۶ فرم تقویم یک در CAL و ۱۶ فرم مستقل تقویم دو در CAL2. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
+در این نسخه ۲۰۸ فرم اطلاعات پایه/تقویم فعال هستند: ۲۲ فرم عمومی/GEO، ۵۰ فرم `DPS.REF_*`، ۱۰۱ فرم اطلاعات پایه Party/Customer در CIF (شامل دو فرم مستقل ISIC2)، ۱۶ فرم تقویم یک در CAL و ۱۹ فرم مستقل تقویم دو در CAL2. علاوه بر آن، ماژول «مدیریت مشتری / CIF» با فهرست Party، Workflow کامل شخص حقیقی/حقوقی و نمای نهایی Party / Customer 360 فعال است.
 
 برای جداول عملیاتی `DEPOSIT_PRODUCT*` هنوز Package، API یا صفحه‌ای ایجاد نشده است. مسیر عملیاتی CIF از ایجاد Party تا اطلاعات Person/Organization، تماس و نشانی، مالی، شناسه و مدرک، طبقه‌بندی، روابط/UBO، Role/Customer، KYC/Risk/Screening، Consent/Preference، Lifecycle و Merge تکمیل شده است. در نسخه 0.3.22 تمام ۴۸ جدول عملیاتی موجود در `CIF-tables5.xlsx` در Backend پوشش داده می‌شوند: ۳۰ جدول در Workflowهای CIF استفاده/نگهداری می‌شوند و ۱۸ جدول تکمیلی بدون CRUD در CIF به‌صورت Read-only در Party / Customer 360 تجمیع می‌شوند؛ محصولات/تعاملات/شکایات و مشابه آن از سامانه‌های مبدأ می‌آیند و Registration/Audit صرفاً Trace خواندنی هستند.
 
@@ -216,7 +216,7 @@ DDL و Comment و Constraintهای دریافت‌شده از Oracle بدون ب
 
 ## قابلیت‌های ماژول اطلاعات پایه
 
-- ۲۰۵ فرم فعال اطلاعات پایه/تقویم؛ شامل ۲۲ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS، ۱۰۱ فرم Party/Customer در CIF (با دو فرم مستقل ISIC2)، ۱۶ فرم تقویم یک در CAL و ۱۶ فرم تقویم دو/CAL2
+- ۲۰۸ فرم فعال اطلاعات پایه/تقویم؛ شامل ۲۲ فرم عمومی/GEO، ۵۰ فرم مرجع محصول سپرده در DPS، ۱۰۱ فرم Party/Customer در CIF (با دو فرم مستقل ISIC2)، ۱۶ فرم تقویم یک در CAL و ۱۹ فرم تقویم دو/CAL2
 - Import مستقیم Dataset تقویم یک/CAL از `calendar_day.csv` و `calendar_date.csv` با JDBC Batch و تراکنش واحد؛ بدون SQL*Loader/Oracle Client
 - Import مستقیم بسته ZIP مدل BIAN شامل ۱۵ CSV به Schema مستقل `CAL2` با ترتیب FK، JDBC Batch و یک تراکنش
 - نمای ماهانه CAL2 با پیش‌فرض هجری شمسی، جابه‌جایی ماه‌به‌ماه، سوئیچ شمسی/میلادی/قمری و نمایش مناسبت‌ها/تعطیلی‌های materialized از `EVENT_OCCURRENCE`
@@ -555,9 +555,19 @@ Parser XML در برابر DTD/External Entity غیرفعال و سخت‌ساز
 
 ## تقویم دو / CAL2 — FIX54
 
-از نسخه `0.3.43-prototype-fee-p1` مدل دوم تقویم به‌صورت کاملاً مستقل در Schema `CAL2` اضافه شده است. این مدل از بسته `BIAN_Calendar_400Y_Oracle_Import` استخراج شده و با جدول قواعد مناسبت در FIX56 اکنون ۱۶ جدول دارد. بازه Dataset مبنا `1826-01-01` تا `2225-12-31`، شامل ۱۴۶٬۰۹۷ روز Canonical و ۴۳۸٬۲۹۱ نگاشت تاریخ برای سه Variant است.
+از نسخه `0.3.43-prototype-fee-p1` مدل دوم تقویم به‌صورت کاملاً مستقل در Schema `CAL2` اضافه شده است. این مدل از بسته `BIAN_Calendar_400Y_Oracle_Import` استخراج شده و با قواعد مناسبت و سیاست ساعات کاری بازه‌ای در FIX93 اکنون ۱۹ جدول دارد. بازه Dataset مبنا `1826-01-01` تا `2225-12-31`، شامل ۱۴۶٬۰۹۷ روز Canonical و ۴۳۸٬۲۹۱ نگاشت تاریخ برای سه Variant است.
 
 منوی مستقل «تقویم دو» زیر «اطلاعات پایه» قرار دارد و فرم‌ها در شش گروه تعاریف تقویم، منبع/نسخه Dataset، Dataset تقویم، مناسبت‌ها، تقویم کاری و کنترل/ممیزی ارائه می‌شوند. `CANONICAL_DAY`، `CALENDAR_DATE`، `DATASET_VERSION`، `VALIDATION_RUN` و `VALIDATION_RESULT` در UI فقط‌خواندنی هستند؛ فرم‌های Event و Business Calendar قابل نگهداری‌اند.
+
+### سیاست ساعات کاری بازه‌ای و استثناها — FIX93 / 0.3.85
+
+برای تعریف ساعات کار مطابق اطلاعیه‌های ماهانه، فصلی یا سالانه، `CAL2.BUSINESS_CALENDAR_SCHEDULE` به‌عنوان Policy بازه‌ای و `CAL2.BUSINESS_CALENDAR_SCHEDULE_DAY` به‌عنوان الگوی هفتگی استفاده می‌شوند. ساعت حضور کارکنان (`STAFF_START_TIME/STAFF_END_TIME`) مستقل از ساعت بازشدن/پایان خدمت‌رسانی شعب به مشتری (`CUSTOMER_OPEN_TIME/CUSTOMER_CLOSE_TIME`) نگهداری می‌شود. با ایجاد هر Schedule، هفت ردیف روز هفته خودکار ساخته می‌شود؛ جمعه به‌صورت پیش‌فرض بسته است.
+
+برای تعطیلی موردی، فورس‌ماژور یا تغییر ساعت یک روز، `CAL2.BUSINESS_CALENDAR_EXCEPTION` فقط همان تاریخ را Override می‌کند. `CAL2.BUSINESS_CALENDAR_DAY` دیگر منبع ویرایش روزبه‌روز نیست و به‌صورت خروجی Resolve‌شده و فقط‌خواندنی نگهداری می‌شود. اولویت Resolver عبارت است از **استثنای تک‌روز → تعطیلی رسمی → برنامه ساعات کاری → پیش‌فرض**؛ در همپوشانی Scheduleها، `PRIORITY_NO` و سپس تاریخ شروع اعتبار تعیین‌کننده هستند.
+
+برای Schema موجود، Migration زیر قبل از اجرای نسخه 0.3.85 الزامی است:
+
+`database/oracle/cal2/migrations/0.3.85-fix93-business-calendar-schedule-policy.sql`
 
 برای نصب Schema جدید ابتدا به‌ترتیب `database/oracle/cal2/00-create-cal2-schema.sql` و `01-create-cal2-tables.sql` اجرا شود. اگر برنامه با User دیگری به Oracle متصل می‌شود، `02-grant-cal2-to-application-user.sql` نیز اجرا شود. پس از ایجاد ساختار، فایل ZIP اصلی ۱۵-CSV از مسیر `/calendar2/reference-data/import` با JDBC Batch و یک تراکنش Import می‌شود؛ SQL*Loader لازم نیست. این مدل هیچ FK یا وابستگی فیزیکی به Schema `CAL` ندارد.
 
@@ -572,3 +582,7 @@ Parser XML در برابر DTD/External Entity غیرفعال و سخت‌ساز
 برای Schemaهای CAL2 موجود، Migration زیر اجرا شود:
 
 `database/oracle/cal2/migrations/0.3.45-fix56-event-recurrence-rule.sql`
+### Time Picker مشترک — FIX94 / 0.3.86
+
+تمام فیلدهای خالص ساعت/زمان در Frontend از کنترل مشترک `app-time-input` استفاده می کنند. این Component بر پایه Angular Material Timepicker است، نمایش 24 ساعته دارد، فهرست آن با گام 5 دقیقه تولید می شود و تایپ مستقیم `HH:mm` نیز پشتیبانی می شود. مقدار ارسالی به API همچنان String مانند `07:30` است. CAL2 برای این فیلدها Metadata نوع `TIME` مستقل دارد. FIX94 نیاز به تغییر Database ندارد.
+

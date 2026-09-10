@@ -1,8 +1,7 @@
+# Runtime configuration for the local prototype environment.
 spring:
-  application:
-    name: core-banking-prototype
   datasource:
-    url: jdbc:oracle:thin:@//127.0.0.1:1521/FREEPDB1
+    url: jdbc:oracle:thin:@//10.1.60.51:1522/FREEPDB1
     username: SYSTEM
     password: Oracle123
     driver-class-name: oracle.jdbc.OracleDriver
@@ -11,13 +10,15 @@ spring:
       minimum-idle: 1
       connection-timeout: 15000
       validation-timeout: 5000
-  mvc:
-    problemdetails:
-      enabled: true
+
   servlet:
     multipart:
       max-file-size: 64MB
       max-request-size: 96MB
+
+  mvc:
+    problemdetails:
+      enabled: true
 
 server:
   port: ${SERVER_PORT:8091}
@@ -43,15 +44,11 @@ core-banking:
     fee: FEE
     calendar: CAL
     calendar2: CAL2
-    product-definition: PDL
   database-export:
     enabled: false
     schema: DPS
     table-prefix: REF_
     output-directory: database/oracle/exports
-  document-storage:
-    root: ${DOCUMENT_STORAGE_ROOT:./data/document-storage}
-    max-file-size-bytes: ${DOCUMENT_STORAGE_MAX_BYTES:20971520}
 logging:
   file:
     name: logs/core-banking-prototype.log

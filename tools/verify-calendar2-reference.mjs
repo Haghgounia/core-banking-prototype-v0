@@ -9,6 +9,9 @@ const exists = rel => fs.existsSync(path.join(root, rel));
 const registry = read('backend/src/main/java/com/behsazan/corebanking/calendar2/reference/application/Calendar2ReferenceRegistry.java');
 const referenceService = read('backend/src/main/java/com/behsazan/corebanking/calendar2/reference/application/Calendar2ReferenceService.java');
 const referenceRepository = read('backend/src/main/java/com/behsazan/corebanking/calendar2/reference/oracle/Calendar2ReferenceRepository.java');
+const businessCalendarController = read('backend/src/main/java/com/behsazan/corebanking/calendar2/businesscalendar/web/Calendar2BusinessCalendarController.java');
+const businessCalendarService = read('backend/src/main/java/com/behsazan/corebanking/calendar2/businesscalendar/application/Calendar2BusinessCalendarService.java');
+const businessCalendarRepository = read('backend/src/main/java/com/behsazan/corebanking/calendar2/businesscalendar/oracle/Calendar2BusinessCalendarRepository.java');
 const controller = read('backend/src/main/java/com/behsazan/corebanking/calendar2/reference/web/Calendar2ReferenceController.java');
 const recurrenceController = read('backend/src/main/java/com/behsazan/corebanking/calendar2/eventrecurrence/web/Calendar2EventRecurrenceController.java');
 const recurrenceService = read('backend/src/main/java/com/behsazan/corebanking/calendar2/eventrecurrence/application/Calendar2EventRecurrenceService.java');
@@ -31,12 +34,12 @@ const specification = read('frontend/src/app/features/system-specification/syste
 const expectedTables = [
   'CALENDAR_SYSTEM','SOURCE_AUTHORITY','DATASET_VERSION','CALENDAR_VARIANT','CALENDAR_MONTH','WEEKDAY',
   'CANONICAL_DAY','CALENDAR_DATE','EVENT_TYPE','EVENT','EVENT_RECURRENCE_RULE','EVENT_OCCURRENCE','BUSINESS_CALENDAR',
-  'BUSINESS_CALENDAR_DAY','VALIDATION_RUN','VALIDATION_RESULT'
+  'BUSINESS_CALENDAR_SCHEDULE','BUSINESS_CALENDAR_SCHEDULE_DAY','BUSINESS_CALENDAR_EXCEPTION','BUSINESS_CALENDAR_DAY','VALIDATION_RUN','VALIDATION_RESULT'
 ];
 
 const checks = [
-  [expectedTables.every(t => registry.includes(`\"${t}\"`)), '16 CAL2 descriptors'],
-  [expectedTables.every(t => ddl.includes(`CAL2.${t}`)), '16 CAL2 DDL tables'],
+  [expectedTables.every(t => registry.includes(`\"${t}\"`)), '19 CAL2 descriptors'],
+  [expectedTables.every(t => ddl.includes(`CAL2.${t}`)), '19 CAL2 DDL tables'],
   [controller.includes('/api/v1/calendar2/reference'), 'CAL2 reference API'],
   [registry.includes('روزهای مرجع تقویم') && registry.includes('تاریخ مرجع') && !registry.includes('روزهای Canonical'), 'Persian canonical-day form naming'],
   [controller.includes('/canonical-days/explorer') && controller.includes('/canonical-days/filter-meta') && referenceService.includes('searchCanonicalDays') && referenceRepository.includes('searchCanonicalDays') && referenceRepository.includes('solarCentury') && referenceRepository.includes('W.NAME_FA AS WEEKDAY_NAME') && referenceRepository.includes('PM.NAME_FA AS SOLAR_MONTH_NAME'), 'canonical-day Persian year/century explorer API'],
@@ -54,9 +57,17 @@ const checks = [
   [uiService.includes('/canonical-days/explorer') && uiService.includes('/canonical-days/filter-meta'), 'frontend canonical-day explorer API client'],
   [controller.includes('/calendar-dates/explorer') && controller.includes('/calendar-dates/filter-meta') && referenceRepository.includes('searchCalendarDates') && pageHtml.includes('نوع تقویم') && pageHtml.includes('calendar-date-filters'), 'calendar-date current-year/century/calendar filters'],
   [controller.includes('/events/explorer') && referenceRepository.includes('EVENT_TYPE_NAME') && page.includes('eventTypeControl') && page.includes('eventCalendarControl') && pageHtml.includes('event-filters'), 'event Persian type labels and event/calendar filters'],
-  [menu.includes('دیاگرام روابط جداول CAL2') && menu.includes('EVENT_RECURRENCE_RULE') && menu.includes('BUSINESS_CALENDAR_DAY'), 'CAL2 relationship diagram'],
+  [menu.includes('دیاگرام روابط جداول CAL2') && menu.includes('EVENT_RECURRENCE_RULE') && menu.includes('BUSINESS_CALENDAR_SCHEDULE') && menu.includes('BUSINESS_CALENDAR_EXCEPTION') && menu.includes('BUSINESS_CALENDAR_DAY'), 'CAL2 relationship diagram'],
   [exists('database/oracle/cal2/migrations/0.3.49-fix60-iran-islamic-fixed-events.sql'), 'Iran fixed Islamic-event seed migration'],
   [uiService.includes('/api/v1/calendar2/event-recurrence/rebuild') && uiService.includes('/api/v1/calendar2/event-recurrence/rules') && uiService.includes('/api/v1/calendar2/event-recurrence/months') && uiService.includes('/api/v1/calendar2/event-recurrence/occurrences') && uiService.includes('/api/v1/calendar2/event-recurrence/occurrence-meta'), 'frontend recurrence and occurrence API client'],
+  [registry.includes('business-calendar-schedules') && registry.includes('business-calendar-schedule-days') && registry.includes('business-calendar-exceptions'), 'range schedule, weekly pattern and single-day exception descriptors'],
+  [referenceService.includes('initializeBusinessCalendarScheduleIfNeeded') && referenceRepository.includes('initializeBusinessCalendarScheduleDays'), 'seven weekday rows initialized when a schedule is saved'],
+  [businessCalendarController.includes('/api/v1/calendar2/business-calendar') && businessCalendarController.includes('/rebuild'), 'business-calendar rebuild API'],
+  [businessCalendarService.includes('@Transactional') && businessCalendarService.includes('repository.rebuild'), 'transactional business-calendar resolver'],
+  [businessCalendarRepository.includes('BUSINESS_CALENDAR_SCHEDULE') && businessCalendarRepository.includes('BUSINESS_CALENDAR_EXCEPTION') && businessCalendarRepository.includes("EO.HOLIDAY_FLAG = 'Y'") && businessCalendarRepository.includes('MERGE INTO'), 'resolver merges schedule, holiday and exception into materialized days'],
+  [page.includes('businessCalendarScheduleDayPage') && page.includes('rebuildBusinessCalendar') && page.includes('TimeInputComponent') && pageHtml.includes("@case ('TIME')") && pageHtml.includes('استثنا فقط همان روز را Override می‌کند') && pageHtml.includes('بازسازی خروجی روزهای تقویم کاری'), 'business-calendar policy UI and resolver panel'],
+  [uiService.includes('/api/v1/calendar2/business-calendar/rebuild'), 'frontend business-calendar rebuild client'],
+  [exists('database/oracle/cal2/migrations/0.3.85-fix93-business-calendar-schedule-policy.sql'), 'FIX93 business-calendar migration'],
   [importController.includes('/api/v1/calendar2/dataset') && importController.includes('MULTIPART_FORM_DATA_VALUE'), 'CAL2 ZIP import API'],
   [importService.includes('@Transactional'), 'single CAL2 import transaction'],
   [importService.includes('01_calendar_system.csv') && importService.includes('15_validation_result.csv'), '15-file dataset package contract'],
@@ -67,11 +78,11 @@ const checks = [
   [config.includes('calendar2: CAL2') && resourceConfig.includes('calendar2: CAL2'), 'CAL2 schema configuration'],
   [schemas.includes('schemas.calendar2') && schemas.includes('تقویم دو (CAL2)'), 'CAL2 system tools schema option'],
   [exists('database/oracle/cal2/00-create-cal2-schema.sql') && exists('database/oracle/cal2/02-grant-cal2-to-application-user.sql'), 'CAL2 schema/grant scripts'],
-  [(ddl.match(/^COMMENT ON COLUMN CAL2\./gm) ?? []).length === 158, '158 CAL2 Persian column comments'],
+  [(ddl.match(/^COMMENT ON COLUMN CAL2\./gm) ?? []).length === 212, '212 CAL2 Persian column comments'],
   [!(/REFERENCES\s+CAL\./i.test(ddl)) && !registry.includes('schemaName = "CAL"') && !controller.includes('/api/v1/calendar/reference'), 'CAL2 runtime/DDL isolated from CAL'],
-  [specification.includes('referenceForms: 205') && specification.includes('calendar2ReferenceForms: 16'), 'system specification includes CAL2 counts']
+  [specification.includes('referenceForms: 208') && specification.includes('calendar2ReferenceForms: 19'), 'system specification includes CAL2 counts']
 ];
 
 const failed = checks.filter(([ok]) => !ok).map(([, label]) => label);
 if (failed.length) throw new Error(`CAL2 verification failed: ${failed.join(', ')}`);
-console.log(`CAL2 verification OK: ${expectedTables.length} independent tables/forms, business-oriented rules/occurrences plus canonical/calendar/event filters and schema diagram, protected generated rows, materialization, ZIP JDBC import, separate CAL2 schema and routes.`);
+console.log(`CAL2 verification OK: ${expectedTables.length} independent tables/forms, recurrence rules, range-based business schedules, single-day exceptions, materialized business days, ZIP JDBC import, separate CAL2 schema and routes.`);

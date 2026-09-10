@@ -29,7 +29,7 @@ database/oracle/
 - `DPS/pending`: اشیای استخراج‌شده مربوط به فازهای آینده، مانند Indexهای `DEPOSIT_PRODUCT*`.
 - `CIF`: DDL/Migrationهای Party/Customer و Reference Data مشتری.
 - `CAL`: مدل تقویم یک؛ مستقل از CAL2.
-- `CAL2`: مدل تقویم دو با ۱۶ جدول مستقل، قواعد تکرار مناسبت و Import مستقیم بسته ZIP از طریق Backend/JDBC.
+- `CAL2`: مدل تقویم دو با ۱۹ جدول مستقل، قواعد تکرار مناسبت و Import مستقیم بسته ZIP از طریق Backend/JDBC.
 - `FEE`: مدل Baseline 1.0 کارمزد با 47 جدول Oracle و بسته Seed شامل 574 رکورد.
 - `database/oracle/exports`: خروجی زمان‌دار ابزار Export؛ Generated است و در Git ثبت نمی‌شود.
 
@@ -54,3 +54,7 @@ database/oracle/
 ### CAL2 FIX88 / 0.3.80
 
 برای پشتیبانی از قواعدی مانند «۳۰ صفر» روی Variant محاسباتی فاقد آن روز، Migration `oracle/cal2/migrations/0.3.80-fix88-last-day-resolution-policy.sql` را اجرا کنید. پس از Commit، رخدادهای Generated را با `POST /api/v1/calendar2/event-recurrence/rebuild-all` بازسازی کنید.
+
+### CAL2 FIX93 / 0.3.85
+
+برای تعریف گروهی ساعات شروع/پایان فعالیت بر اساس اطلاعیه‌های ماهانه، فصلی یا سالانه و Override تک‌روز، Migration `cal2/migrations/0.3.85-fix93-business-calendar-schedule-policy.sql` را روی Schema موجود اجرا کنید. این Migration سه جدول Policy/Weekly/Exception را اضافه و `BUSINESS_CALENDAR_DAY` را به خروجی Resolve‌شده مجهز می‌کند.

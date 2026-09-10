@@ -1,0 +1,25 @@
+Core Banking Prototype 0.3.86 - FIX94
+Shared Material Time Picker / HH:mm Contract
+
+هدف
+- جایگزینی تمام inputهای native از نوع time با Time Picker مشترک و سازگار با Theme.
+- استفاده از Angular Material Timepicker با نمایش 24 ساعته و Interval انتخابی 5 دقیقه.
+- حفظ قرارداد Backend/Oracle به صورت HH:mm بدون تبدیل به Date/Timestamp.
+- افزودن FieldType.TIME واقعی به Metadata لایه CAL2.
+
+دامنه تغییر
+- CAL2: الگوی هفتگی ساعات کاری و استثناهای تک روز.
+- CAL: تمام Fieldهای metadata از نوع TIME.
+- CIF: ساعات مجاز تماس و ترجیح زمان تماس.
+
+Database
+- هیچ DDL یا Migration جدیدی لازم نیست.
+- ستون های FIX93 همچنان VARCHAR2(5 CHAR) با قرارداد HH24:MI باقی می مانند.
+
+نصب روی 0.3.85
+1. bin\stop.cmd
+2. Patch را روی Root نسخه 0.3.85 Extract و Replace کنید.
+3. build-production.cmd
+4. Verify: Built version: 0.3.86
+5. bin\start.cmd
+6. Ctrl+F5

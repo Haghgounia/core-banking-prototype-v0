@@ -42,7 +42,7 @@ public class Calendar2ReferenceRegistry {
                 group("SOURCE", "منبع و نسخه Dataset", "مراجع داده و شناسنامه نسخه Dataset", "fact_check"),
                 group("DATASET", "Dataset تقویم", "روز مرجع تقویم و نگاشت تاریخ در سه Variant؛ فقط‌خواندنی", "date_range"),
                 group("EVENT", "مناسبت‌ها و رویدادها", "تعریف مناسبت، قاعده تکرار و رخدادهای واقعی/تولیدشده", "celebration"),
-                group("BUSINESS", "تقویم کاری و بانکی", "تعریف تقویم کاری و وضعیت عملیاتی هر روز", "business_center"),
+                group("BUSINESS", "تقویم کاری و بانکی", "تقویم کاری، برنامه بازه‌ای ساعات کار، الگوی هفتگی، استثناهای تک‌روز و خروجی Resolve‌شده", "business_center"),
                 group("VALIDATION", "کنترل و ممیزی Dataset", "اجرای اعتبارسنجی و شواهد نتیجه؛ فقط‌خواندنی", "verified")
         ));
     }
@@ -56,7 +56,7 @@ public class Calendar2ReferenceRegistry {
 
     private List<TableDescriptor> buildDescriptors() {
         return List.of(calendarSystem(), sourceAuthority(), datasetVersion(), calendarVariant(), calendarMonth(), weekday(),
-                canonicalDay(), calendarDate(), eventType(), event(), eventRecurrenceRule(), eventOccurrence(), businessCalendar(), businessCalendarDay(),
+                canonicalDay(), calendarDate(), eventType(), event(), eventRecurrenceRule(), eventOccurrence(), businessCalendar(), businessCalendarSchedule(), businessCalendarScheduleDay(), businessCalendarException(), businessCalendarDay(),
                 validationRun(), validationResult());
     }
 
@@ -274,9 +274,80 @@ public class Calendar2ReferenceRegistry {
                 ));
     }
 
+    private TableDescriptor businessCalendarSchedule() {
+        return table("business-calendar-schedules", "BUSINESS", "برنامه‌های ساعات کاری", "تعریف یک سیاست ساعات کار برای ماه، فصل، سال یا هر بازه معتبر بر اساس بخشنامه/اطلاعیه", "schedule",
+                "BUSINESS_CALENDAR_SCHEDULE", true, true, false, true, "scheduleCode", "nameFa", List.of(
+                        autoKey("businessCalendarScheduleId", "BUSINESS_CALENDAR_SCHEDULE_ID", "شناسه برنامه", true),
+                        lookupNumber("businessCalendarId", "BUSINESS_CALENDAR_ID", "تقویم کاری", "business-calendars", true, true),
+                        text("scheduleCode", "SCHEDULE_CODE", "کد برنامه", true, 80, true, true),
+                        text("nameFa", "NAME_FA", "عنوان برنامه", true, 200, true, true),
+                        text("nameEn", "NAME_EN", "عنوان انگلیسی", false, 200, false, true),
+                        date("effectiveFrom", "EFFECTIVE_FROM", "اعتبار از", true, true),
+                        date("effectiveTo", "EFFECTIVE_TO", "اعتبار تا", true, true),
+                        select("status", "STATUS", "وضعیت برنامه", true, true, "DRAFT",
+                                option("DRAFT", "پیش‌نویس"), option("ACTIVE", "فعال"), option("SUPERSEDED", "جایگزین‌شده")),
+                        numberDefault("priorityNo", "PRIORITY_NO", "اولویت", true, true, 100),
+                        lookupNumber("sourceId", "SOURCE_ID", "مرجع صادرکننده", "source-authorities", false, true),
+                        text("sourceReference", "SOURCE_REFERENCE", "شماره/شناسه بخشنامه", false, 250, true, true),
+                        date("sourceDate", "SOURCE_DATE", "تاریخ بخشنامه", false, true),
+                        text("sourceUri", "SOURCE_URI", "نشانی سند مرجع", false, 1000, false, true),
+                        text("description", "DESCRIPTION", "توضیحات", false, 2000, false, true),
+                        bool("activeFlag", "ACTIVE_FLAG", "فعال", true, true, true)
+                ));
+    }
+
+    private TableDescriptor businessCalendarScheduleDay() {
+        return table("business-calendar-schedule-days", "BUSINESS", "الگوی هفتگی ساعات کاری", "هفت ردیف روز هفته برای ساعات حضور کارکنان، باز/بسته شدن شعب و سرویس‌های عملیاتی", "view_week",
+                "BUSINESS_CALENDAR_SCHEDULE_DAY", false, true, false, false, "businessCalendarScheduleDayId", "businessCalendarScheduleDayId", List.of(
+                        readKeyNumber("businessCalendarScheduleDayId", "BUSINESS_CALENDAR_SCHEDULE_DAY_ID", "شناسه ردیف", true),
+                        readLookupNumber("businessCalendarScheduleId", "BUSINESS_CALENDAR_SCHEDULE_ID", "برنامه ساعات کاری", "business-calendar-schedules", true),
+                        readLookupNumber("weekdayId", "WEEKDAY_ID", "روز هفته", "weekdays", true),
+                        select("dayStatus", "DAY_STATUS", "وضعیت روز", true, true, "OPEN",
+                                option("OPEN", "باز"), option("CLOSED", "بسته"), option("PARTIAL", "نیمه‌وقت")),
+                        time("staffStartTime", "STAFF_START_TIME", "شروع حضور کارکنان", false, true),
+                        time("staffEndTime", "STAFF_END_TIME", "پایان حضور کارکنان", false, true),
+                        time("customerOpenTime", "CUSTOMER_OPEN_TIME", "بازشدن برای مشتری", false, true),
+                        time("customerCloseTime", "CUSTOMER_CLOSE_TIME", "پایان خدمت‌رسانی", false, true),
+                        bool("isBusinessDay", "IS_BUSINESS_DAY", "روز کاری", true, true, true),
+                        bool("isSettlementDay", "IS_SETTLEMENT_DAY", "روز تسویه", true, true, true),
+                        bool("isClearingDay", "IS_CLEARING_DAY", "روز پایاپای", true, true, true),
+                        bool("isProcessingDay", "IS_PROCESSING_DAY", "روز پردازش", true, true, true),
+                        bool("activeFlag", "ACTIVE_FLAG", "فعال", true, true, true)
+                ));
+    }
+
+    private TableDescriptor businessCalendarException() {
+        return table("business-calendar-exceptions", "BUSINESS", "استثناهای تک‌روز", "Override یک روز برای فورس‌ماژور، تعطیلی موردی یا ساعات خاص بدون تغییر برنامه بازه‌ای", "notification_important",
+                "BUSINESS_CALENDAR_EXCEPTION", true, true, false, true, "businessCalendarExceptionId", "businessCalendarExceptionId", List.of(
+                        autoKey("businessCalendarExceptionId", "BUSINESS_CALENDAR_EXCEPTION_ID", "شناسه استثنا", true),
+                        lookupNumber("businessCalendarId", "BUSINESS_CALENDAR_ID", "تقویم کاری", "business-calendars", true, true),
+                        date("exceptionDate", "EXCEPTION_DATE", "تاریخ استثنا", true, true),
+                        select("exceptionType", "EXCEPTION_TYPE", "نوع استثنا", true, true, "MANUAL_OVERRIDE",
+                                option("FORCE_MAJEURE", "فورس‌ماژور"), option("OFFICIAL_CLOSURE", "تعطیلی رسمی/موردی"),
+                                option("SPECIAL_HOURS", "ساعات خاص"), option("MANUAL_OVERRIDE", "اصلاح دستی")),
+                        select("dayStatus", "DAY_STATUS", "وضعیت روز", false, true, null,
+                                option("OPEN", "باز"), option("CLOSED", "بسته"), option("PARTIAL", "نیمه‌وقت")),
+                        time("staffStartTime", "STAFF_START_TIME", "شروع حضور کارکنان", false, true),
+                        time("staffEndTime", "STAFF_END_TIME", "پایان حضور کارکنان", false, true),
+                        time("customerOpenTime", "CUSTOMER_OPEN_TIME", "بازشدن برای مشتری", false, true),
+                        time("customerCloseTime", "CUSTOMER_CLOSE_TIME", "پایان خدمت‌رسانی", false, true),
+                        bool("isBusinessDay", "IS_BUSINESS_DAY", "روز کاری", false, true, false),
+                        bool("isSettlementDay", "IS_SETTLEMENT_DAY", "روز تسویه", false, true, false),
+                        bool("isClearingDay", "IS_CLEARING_DAY", "روز پایاپای", false, true, false),
+                        bool("isProcessingDay", "IS_PROCESSING_DAY", "روز پردازش", false, true, false),
+                        text("reasonCode", "REASON_CODE", "کد دلیل", false, 80, true, true),
+                        lookupNumber("sourceId", "SOURCE_ID", "مرجع صادرکننده", "source-authorities", false, true),
+                        text("sourceReference", "SOURCE_REFERENCE", "شماره/شناسه اطلاعیه", false, 250, true, true),
+                        date("sourceDate", "SOURCE_DATE", "تاریخ اطلاعیه", false, true),
+                        text("sourceUri", "SOURCE_URI", "نشانی سند مرجع", false, 1000, false, true),
+                        text("description", "DESCRIPTION", "توضیحات", false, 2000, false, true),
+                        bool("activeFlag", "ACTIVE_FLAG", "فعال", true, true, true)
+                ));
+    }
+
     private TableDescriptor businessCalendarDay() {
-        return table("business-calendar-days", "BUSINESS", "روزهای تقویم کاری", "وضعیت کاری، تسویه، پایاپای و پردازش برای هر روز", "event_available",
-                "BUSINESS_CALENDAR_DAY", true, true, true, true, "businessCalendarDayId", "businessCalendarDayId", List.of(
+        return table("business-calendar-days", "BUSINESS", "روزهای تقویم کاری", "خروجی Resolve‌شده از برنامه ساعات کاری، تعطیلات و استثناهای تک‌روز؛ فقط‌خواندنی", "event_available",
+                "BUSINESS_CALENDAR_DAY", false, false, false, false, "businessCalendarDayId", "businessCalendarDayId", List.of(
                         autoKey("businessCalendarDayId", "BUSINESS_CALENDAR_DAY_ID", "شناسه", true),
                         lookupNumber("businessCalendarId", "BUSINESS_CALENDAR_ID", "تقویم کاری", "business-calendars", true, true),
                         lookupNumber("dayId", "DAY_ID", "روز مرجع تقویم", "canonical-days", true, true),
@@ -285,7 +356,9 @@ public class Calendar2ReferenceRegistry {
                                 option("PARTIAL", "نیمه‌وقت"), option("BUSINESS", "روز کاری"), option("WEEKEND", "تعطیلی هفتگی"),
                                 option("HOLIDAY", "تعطیل رسمی")),
                         timestamp("openTime", "OPEN_TIME", "زمان بازشدن", false, true, false),
-                        timestamp("closeTime", "CLOSE_TIME", "زمان بسته‌شدن", false, true, false),
+                        timestamp("closeTime", "CLOSE_TIME", "پایان خدمت‌رسانی به مشتری", false, true, false),
+                        timestamp("staffStartTime", "STAFF_START_TIME", "شروع حضور کارکنان", false, true, false),
+                        timestamp("staffEndTime", "STAFF_END_TIME", "پایان حضور کارکنان", false, true, false),
                         bool("isBusinessDay", "IS_BUSINESS_DAY", "روز کاری", true, true, false),
                         bool("isSettlementDay", "IS_SETTLEMENT_DAY", "روز تسویه", true, true, false),
                         bool("isClearingDay", "IS_CLEARING_DAY", "روز پایاپای", true, true, false),
@@ -296,7 +369,11 @@ public class Calendar2ReferenceRegistry {
                                 option("BANK_HOLIDAY", "تعطیلی بانکی"), option("SPECIAL_CLOSED", "تعطیلی موردی"),
                                 option("EMERGENCY_CLOSED", "تعطیلی اضطراری"), option("HALF_DAY", "نیمه‌وقت"),
                                 option("MANUAL_OVERRIDE", "اصلاح دستی")),
-                        lookupNumber("sourceId", "SOURCE_ID", "منبع", "source-authorities", false, true)
+                        lookupNumber("sourceId", "SOURCE_ID", "منبع", "source-authorities", false, true),
+                        readText("resolutionSource", "RESOLUTION_SOURCE", "منشأ Resolve", true, true),
+                        readNumber("scheduleId", "SCHEDULE_ID", "شناسه برنامه مبنا", false),
+                        readNumber("exceptionId", "EXCEPTION_ID", "شناسه استثنای مبنا", false),
+                        readTimestamp("resolvedAt", "RESOLVED_AT", "زمان Resolve", false)
                 ));
     }
 
@@ -355,6 +432,9 @@ public class Calendar2ReferenceRegistry {
     private static FieldDescriptor date(String api, String col, String label, boolean req, boolean grid) {
         return f(api, col, label, FieldType.DATE, req, false, false, grid, true, null, null, null);
     }
+    private static FieldDescriptor time(String api, String col, String label, boolean req, boolean grid) {
+        return f(api, col, label, FieldType.TIME, req, false, false, grid, false, 5, null, null);
+    }
     private static FieldDescriptor timestamp(String api, String col, String label, boolean req, boolean grid, boolean readOnly) {
         return f(api, col, label, FieldType.TIMESTAMP, req, false, readOnly, grid, true, null, null, null);
     }
@@ -369,6 +449,9 @@ public class Calendar2ReferenceRegistry {
     }
     private static FieldDescriptor lookupText(String api, String col, String label, String lookup, boolean req, boolean grid, int max) {
         return f(api, col, label, FieldType.LOOKUP, req, false, false, grid, true, max, null, lookup);
+    }
+    private static FieldDescriptor readLookupNumber(String api, String col, String label, String lookup, boolean grid) {
+        return f(api, col, label, FieldType.LOOKUP, false, false, true, grid, true, null, null, lookup);
     }
     private static FieldDescriptor readKeyNumber(String api, String col, String label, boolean grid) {
         return f(api, col, label, FieldType.NUMBER, true, true, true, grid, true, null, null, null);

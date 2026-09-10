@@ -1,0 +1,25 @@
+Core Banking Prototype 0.3.85
+FIX93 - CAL2 Range-Based Business Calendar Schedule / Single-Day Exception
+
+این نسخه دارای Migration پایگاه داده است. برای نصب روی CAL2 موجود، Migration قبل از Start نسخه جدید اجرا شود.
+
+ترتیب ارتقا:
+1) bin\stop.cmd
+2) از CAL2 یا حساب Privileged در Oracle اجرا کنید:
+   @database/oracle/cal2/migrations/0.3.85-fix93-business-calendar-schedule-policy.sql
+3) اگر Application User جدا از CAL2/SYSTEM است، مجوزها را دوباره اعمال کنید:
+   @database/oracle/cal2/02-grant-cal2-to-application-user.sql
+4) build-production.cmd
+5) خروجی زیر را کنترل کنید:
+   Built version: 0.3.85
+6) bin\start.cmd
+7) نسخه 0.3.85 را در Header کنترل و مرورگر را با Ctrl+F5 Refresh کنید.
+
+کنترل Functional:
+8) اطلاعات پایه -> تقویم دو -> برنامه‌های ساعات کاری: یک برنامه با بازه ماه/فصل/سال ثبت کنید.
+9) اطلاعات پایه -> تقویم دو -> الگوی هفتگی ساعات کاری: هفت ردیف خودکار را کنترل و ساعات کارکنان/مشتری را تنظیم کنید؛ سپس برنامه را از DRAFT به ACTIVE تغییر دهید.
+10) اطلاعات پایه -> تقویم دو -> استثناهای تک‌روز: برای یک تاریخ Force Majeure یا Special Hours ثبت کنید.
+11) اطلاعات پایه -> تقویم دو -> روزهای تقویم کاری: تقویم و بازه را انتخاب و «بازسازی بازه» را اجرا کنید.
+12) کنترل کنید که BUSINESS_CALENDAR_DAY فقط‌خواندنی و Provenance هر روز (Schedule/Holiday/Exception/Default) قابل مشاهده باشد.
+
+نکته: اولویت Resolver برابر است با Exception -> Official Holiday -> Active Schedule -> Default.

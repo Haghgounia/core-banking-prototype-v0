@@ -1,6 +1,6 @@
 # CAL2 — BIAN-aligned 400-Year Calendar
 
-این شاخه Schema مستقل `CAL2` را برای بسته `BIAN_Calendar_400Y_Oracle_Import` ایجاد می‌کند. مدل شامل ۱۶ جدول است و هیچ FK یا جدول مشترکی با Schema `CAL` ندارد.
+این شاخه Schema مستقل `CAL2` را برای بسته `BIAN_Calendar_400Y_Oracle_Import` ایجاد می‌کند. مدل شامل ۱۹ جدول است و هیچ FK یا جدول مشترکی با Schema `CAL` ندارد.
 
 ## ترتیب نصب
 
@@ -35,6 +35,23 @@
 ```
 
 Migration جدول `EVENT_RECURRENCE_RULE` را اضافه می‌کند و `EVENT_OCCURRENCE` را با `EVENT_RULE_ID` و `OCCURRENCE_SOURCE` توسعه می‌دهد. اگر برنامه با User دیگری غیر از `SYSTEM` یا `CAL2` متصل است، پس از Migration اسکریپت `02-grant-cal2-to-application-user.sql` را دوباره اجرا کنید تا مجوز جدول جدید نیز اعطا شود.
+
+
+## ارتقا به FIX93 / 0.3.85 — سیاست ساعات کاری بازه‌ای
+
+برای Schema `CAL2` موجود، Migration زیر را اجرا کنید:
+
+```sql
+@migrations/0.3.85-fix93-business-calendar-schedule-policy.sql
+```
+
+این Migration سه جدول `BUSINESS_CALENDAR_SCHEDULE`، `BUSINESS_CALENDAR_SCHEDULE_DAY` و `BUSINESS_CALENDAR_EXCEPTION` را اضافه می‌کند و `BUSINESS_CALENDAR_DAY` را با ساعات حضور کارکنان و Provenance نتیجه Resolve توسعه می‌دهد. اگر DataSource با User دیگری متصل است، پس از Migration اسکریپت `02-grant-cal2-to-application-user.sql` را دوباره اجرا کنید.
+
+الگوی نگهداری از FIX93:
+- Schedule: سیاست معتبر برای یک بازه ماهانه/فصلی/سالانه.
+- Schedule Day: هفت ردیف روز هفته و ساعات کارکنان/مشتری.
+- Exception: Override فقط یک تاریخ برای فورس‌ماژور، تعطیلی موردی یا ساعات خاص.
+- Business Calendar Day: خروجی Materialized و فقط‌خواندنی Resolver.
 
 ## Import داده
 

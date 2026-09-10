@@ -88,6 +88,8 @@ public class Calendar2ReferenceRepository {
                     .append(" OR UPPER(W.NAME_FA) LIKE :searchText")
                     .append(" OR UPPER(B.DAY_STATUS) LIKE :searchText")
                     .append(" OR UPPER(B.REASON_CODE) LIKE :searchText")
+                    .append(" OR UPPER(B.RESOLUTION_SOURCE) LIKE :searchText")
+                    .append(" OR UPPER(SC.NAME_FA) LIKE :searchText")
                     .append(" OR UPPER(SA.NAME_FA) LIKE :searchText)");
             params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
         }
@@ -100,7 +102,9 @@ public class Calendar2ReferenceRepository {
                 + " LEFT JOIN " + cal2Table("CALENDAR_DATE") + " PCD ON PCD.DAY_ID = D.DAY_ID AND PCD.CALENDAR_VARIANT_ID = PX.PERSIAN_VARIANT_ID"
                 + " LEFT JOIN " + cal2Table("WEEKDAY") + " W ON W.WEEKDAY_ID = D.WEEKDAY_ID"
                 + " LEFT JOIN " + cal2Table("CALENDAR_MONTH") + " PM ON PM.CALENDAR_SYSTEM_ID = PX.PERSIAN_SYSTEM_ID AND PM.MONTH_NO = PCD.MONTH_NO"
-                + " LEFT JOIN " + cal2Table("SOURCE_AUTHORITY") + " SA ON SA.SOURCE_ID = B.SOURCE_ID";
+                + " LEFT JOIN " + cal2Table("SOURCE_AUTHORITY") + " SA ON SA.SOURCE_ID = B.SOURCE_ID"
+                + " LEFT JOIN " + cal2Table("BUSINESS_CALENDAR_SCHEDULE") + " SC ON SC.BUSINESS_CALENDAR_SCHEDULE_ID = B.SCHEDULE_ID"
+                + " LEFT JOIN " + cal2Table("BUSINESS_CALENDAR_EXCEPTION") + " EXC ON EXC.BUSINESS_CALENDAR_EXCEPTION_ID = B.EXCEPTION_ID";
 
         long total = jdbcClient.sql(cte + " SELECT COUNT(*) " + from + where)
                 .params(params).query(Long.class).single();
@@ -109,8 +113,9 @@ public class Calendar2ReferenceRepository {
 
         String sql = cte + " SELECT "
                 + "B.BUSINESS_CALENDAR_DAY_ID, B.BUSINESS_CALENDAR_ID, B.DAY_ID, B.DAY_STATUS, "
-                + "B.OPEN_TIME, B.CLOSE_TIME, B.IS_BUSINESS_DAY, B.IS_SETTLEMENT_DAY, B.IS_CLEARING_DAY, B.IS_PROCESSING_DAY, "
-                + "B.REASON_CODE, B.SOURCE_ID, BC.CALENDAR_CODE, BC.NAME_FA AS BUSINESS_CALENDAR_NAME, "
+                + "B.OPEN_TIME, B.CLOSE_TIME, B.STAFF_START_TIME, B.STAFF_END_TIME, B.IS_BUSINESS_DAY, B.IS_SETTLEMENT_DAY, B.IS_CLEARING_DAY, B.IS_PROCESSING_DAY, "
+                + "B.REASON_CODE, B.SOURCE_ID, B.RESOLUTION_SOURCE, B.SCHEDULE_ID, B.EXCEPTION_ID, B.RESOLVED_AT, "
+                + "BC.CALENDAR_CODE, BC.NAME_FA AS BUSINESS_CALENDAR_NAME, SC.SCHEDULE_CODE, SC.NAME_FA AS SCHEDULE_NAME, EXC.EXCEPTION_TYPE, "
                 + "D.CANONICAL_DATE, W.NAME_FA AS WEEKDAY_NAME, PCD.YEAR_NO AS SOLAR_YEAR, PCD.MONTH_NO AS SOLAR_MONTH_NO, "
                 + "PCD.DAY_NO AS SOLAR_DAY_NO, PM.NAME_FA AS SOLAR_MONTH_NAME, SA.NAME_FA AS SOURCE_NAME "
                 + from + where + " ORDER BY " + businessCalendarDaySort(sortBy) + " " + normalizedDirection(direction)
@@ -124,14 +129,26 @@ public class Calendar2ReferenceRepository {
             row.put("dayStatus", rs.getString("DAY_STATUS"));
             Timestamp openTime = rs.getTimestamp("OPEN_TIME");
             Timestamp closeTime = rs.getTimestamp("CLOSE_TIME");
+            Timestamp staffStartTime = rs.getTimestamp("STAFF_START_TIME");
+            Timestamp staffEndTime = rs.getTimestamp("STAFF_END_TIME");
             row.put("openTime", openTime == null ? null : openTime.toLocalDateTime());
             row.put("closeTime", closeTime == null ? null : closeTime.toLocalDateTime());
+            row.put("staffStartTime", staffStartTime == null ? null : staffStartTime.toLocalDateTime());
+            row.put("staffEndTime", staffEndTime == null ? null : staffEndTime.toLocalDateTime());
             row.put("isBusinessDay", "Y".equalsIgnoreCase(rs.getString("IS_BUSINESS_DAY")));
             row.put("isSettlementDay", "Y".equalsIgnoreCase(rs.getString("IS_SETTLEMENT_DAY")));
             row.put("isClearingDay", "Y".equalsIgnoreCase(rs.getString("IS_CLEARING_DAY")));
             row.put("isProcessingDay", "Y".equalsIgnoreCase(rs.getString("IS_PROCESSING_DAY")));
             row.put("reasonCode", rs.getString("REASON_CODE"));
             row.put("sourceId", rs.getBigDecimal("SOURCE_ID"));
+            row.put("resolutionSource", rs.getString("RESOLUTION_SOURCE"));
+            row.put("scheduleId", rs.getBigDecimal("SCHEDULE_ID"));
+            row.put("exceptionId", rs.getBigDecimal("EXCEPTION_ID"));
+            Timestamp resolvedAt = rs.getTimestamp("RESOLVED_AT");
+            row.put("resolvedAt", resolvedAt == null ? null : resolvedAt.toLocalDateTime());
+            row.put("scheduleCode", rs.getString("SCHEDULE_CODE"));
+            row.put("scheduleName", rs.getString("SCHEDULE_NAME"));
+            row.put("exceptionType", rs.getString("EXCEPTION_TYPE"));
             row.put("businessCalendarCode", rs.getString("CALENDAR_CODE"));
             row.put("businessCalendarName", rs.getString("BUSINESS_CALENDAR_NAME"));
             Date canonicalDate = rs.getDate("CANONICAL_DATE");
@@ -143,6 +160,71 @@ public class Calendar2ReferenceRepository {
             row.put("solarMonthName", rs.getString("SOLAR_MONTH_NAME"));
             row.put("sourceName", rs.getString("SOURCE_NAME"));
             row.put("_key", rs.getString("BUSINESS_CALENDAR_DAY_ID"));
+            return row;
+        }).list();
+        return new PageResponse<>(rows, total, safePage, safeSize);
+    }
+
+    public PageResponse<Map<String, Object>> searchBusinessCalendarScheduleDays(String text, int page, int size,
+                                                                                String sortBy, String direction) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder where = new StringBuilder(" WHERE 1 = 1");
+        if (text != null && !text.isBlank()) {
+            where.append(" AND (UPPER(S.SCHEDULE_CODE) LIKE :searchText")
+                    .append(" OR UPPER(S.NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(BC.NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(W.NAME_FA) LIKE :searchText")
+                    .append(" OR UPPER(D.DAY_STATUS) LIKE :searchText")
+                    .append(" OR UPPER(D.STAFF_START_TIME) LIKE :searchText")
+                    .append(" OR UPPER(D.CUSTOMER_OPEN_TIME) LIKE :searchText)");
+            params.put("searchText", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
+        }
+        String from = " FROM " + cal2Table("BUSINESS_CALENDAR_SCHEDULE_DAY") + " D"
+                + " JOIN " + cal2Table("BUSINESS_CALENDAR_SCHEDULE") + " S ON S.BUSINESS_CALENDAR_SCHEDULE_ID=D.BUSINESS_CALENDAR_SCHEDULE_ID"
+                + " JOIN " + cal2Table("BUSINESS_CALENDAR") + " BC ON BC.BUSINESS_CALENDAR_ID=S.BUSINESS_CALENDAR_ID"
+                + " JOIN " + cal2Table("WEEKDAY") + " W ON W.WEEKDAY_ID=D.WEEKDAY_ID";
+        long total = jdbcClient.sql("SELECT COUNT(*)" + from + where).params(params).query(Long.class).single();
+        params.put("offset", safePage * safeSize);
+        params.put("pageSize", safeSize);
+        String order = switch (sortBy == null ? "" : sortBy) {
+            case "businessCalendarScheduleDayId" -> "D.BUSINESS_CALENDAR_SCHEDULE_DAY_ID";
+            case "businessCalendarScheduleId", "scheduleName" -> "S.NAME_FA";
+            case "weekdayId", "weekdayName" -> "W.IR_DISPLAY_ORDER";
+            case "dayStatus" -> "D.DAY_STATUS";
+            case "staffStartTime" -> "D.STAFF_START_TIME";
+            case "customerOpenTime" -> "D.CUSTOMER_OPEN_TIME";
+            default -> "S.BUSINESS_CALENDAR_SCHEDULE_ID, W.IR_DISPLAY_ORDER";
+        };
+        String sql = "SELECT D.BUSINESS_CALENDAR_SCHEDULE_DAY_ID, D.BUSINESS_CALENDAR_SCHEDULE_ID, D.WEEKDAY_ID, D.DAY_STATUS, "
+                + "D.STAFF_START_TIME, D.STAFF_END_TIME, D.CUSTOMER_OPEN_TIME, D.CUSTOMER_CLOSE_TIME, "
+                + "D.IS_BUSINESS_DAY, D.IS_SETTLEMENT_DAY, D.IS_CLEARING_DAY, D.IS_PROCESSING_DAY, D.ACTIVE_FLAG, "
+                + "S.SCHEDULE_CODE, S.NAME_FA SCHEDULE_NAME, BC.NAME_FA BUSINESS_CALENDAR_NAME, "
+                + "W.NAME_FA WEEKDAY_NAME, W.IR_DISPLAY_ORDER "
+                + from + where + " ORDER BY " + order + " " + normalizedDirection(direction)
+                + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
+        List<Map<String, Object>> rows = jdbcClient.sql(sql).params(params).query((rs, rowNum) -> {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("businessCalendarScheduleDayId", rs.getBigDecimal("BUSINESS_CALENDAR_SCHEDULE_DAY_ID"));
+            row.put("businessCalendarScheduleId", rs.getBigDecimal("BUSINESS_CALENDAR_SCHEDULE_ID"));
+            row.put("weekdayId", rs.getBigDecimal("WEEKDAY_ID"));
+            row.put("scheduleCode", rs.getString("SCHEDULE_CODE"));
+            row.put("scheduleName", rs.getString("SCHEDULE_NAME"));
+            row.put("businessCalendarName", rs.getString("BUSINESS_CALENDAR_NAME"));
+            row.put("weekdayName", rs.getString("WEEKDAY_NAME"));
+            row.put("irDisplayOrder", rs.getInt("IR_DISPLAY_ORDER"));
+            row.put("dayStatus", rs.getString("DAY_STATUS"));
+            row.put("staffStartTime", rs.getString("STAFF_START_TIME"));
+            row.put("staffEndTime", rs.getString("STAFF_END_TIME"));
+            row.put("customerOpenTime", rs.getString("CUSTOMER_OPEN_TIME"));
+            row.put("customerCloseTime", rs.getString("CUSTOMER_CLOSE_TIME"));
+            row.put("isBusinessDay", "Y".equalsIgnoreCase(rs.getString("IS_BUSINESS_DAY")));
+            row.put("isSettlementDay", "Y".equalsIgnoreCase(rs.getString("IS_SETTLEMENT_DAY")));
+            row.put("isClearingDay", "Y".equalsIgnoreCase(rs.getString("IS_CLEARING_DAY")));
+            row.put("isProcessingDay", "Y".equalsIgnoreCase(rs.getString("IS_PROCESSING_DAY")));
+            row.put("activeFlag", "Y".equalsIgnoreCase(rs.getString("ACTIVE_FLAG")));
+            row.put("_key", rs.getString("BUSINESS_CALENDAR_SCHEDULE_DAY_ID"));
             return row;
         }).list();
         return new PageResponse<>(rows, total, safePage, safeSize);
@@ -395,6 +477,34 @@ public class Calendar2ReferenceRepository {
                 .paramSource(key.params()).update() == 1;
     }
 
+    public long countIncompleteBusinessCalendarScheduleDays(long scheduleId) {
+        String sql = "SELECT COUNT(*) FROM " + cal2Table("WEEKDAY") + " W "
+                + "LEFT JOIN " + cal2Table("BUSINESS_CALENDAR_SCHEDULE_DAY") + " D "
+                + "ON D.WEEKDAY_ID=W.WEEKDAY_ID AND D.BUSINESS_CALENDAR_SCHEDULE_ID=:scheduleId AND D.ACTIVE_FLAG='Y' "
+                + "WHERE D.BUSINESS_CALENDAR_SCHEDULE_DAY_ID IS NULL "
+                + "OR (D.DAY_STATUS IN ('OPEN','PARTIAL') AND (D.STAFF_START_TIME IS NULL OR D.STAFF_END_TIME IS NULL "
+                + "OR D.CUSTOMER_OPEN_TIME IS NULL OR D.CUSTOMER_CLOSE_TIME IS NULL))";
+        Long count = jdbcClient.sql(sql).param("scheduleId", scheduleId).query(Long.class).single();
+        return count == null ? 0 : count;
+    }
+
+    public int initializeBusinessCalendarScheduleDays(long scheduleId) {
+        String target = cal2Table("BUSINESS_CALENDAR_SCHEDULE_DAY");
+        jdbcClient.sql("LOCK TABLE " + target + " IN SHARE ROW EXCLUSIVE MODE").update();
+        long baseId = jdbcClient.sql("SELECT NVL(MAX(BUSINESS_CALENDAR_SCHEDULE_DAY_ID), 0) FROM " + target)
+                .query(Long.class).single();
+        String sql = "INSERT INTO " + target + " (BUSINESS_CALENDAR_SCHEDULE_DAY_ID, BUSINESS_CALENDAR_SCHEDULE_ID, WEEKDAY_ID, "
+                + "DAY_STATUS, STAFF_START_TIME, STAFF_END_TIME, CUSTOMER_OPEN_TIME, CUSTOMER_CLOSE_TIME, "
+                + "IS_BUSINESS_DAY, IS_SETTLEMENT_DAY, IS_CLEARING_DAY, IS_PROCESSING_DAY, ACTIVE_FLAG) "
+                + "SELECT :baseId + ROW_NUMBER() OVER (ORDER BY NVL(W.IR_DISPLAY_ORDER, W.ISO_WEEKDAY_NO), W.WEEKDAY_ID), :scheduleId, W.WEEKDAY_ID, "
+                + "CASE WHEN W.IR_DISPLAY_ORDER = 7 THEN 'CLOSED' ELSE 'OPEN' END, NULL, NULL, NULL, NULL, "
+                + "CASE WHEN W.IR_DISPLAY_ORDER = 7 THEN 'N' ELSE 'Y' END, CASE WHEN W.IR_DISPLAY_ORDER = 7 THEN 'N' ELSE 'Y' END, "
+                + "CASE WHEN W.IR_DISPLAY_ORDER = 7 THEN 'N' ELSE 'Y' END, CASE WHEN W.IR_DISPLAY_ORDER = 7 THEN 'N' ELSE 'Y' END, 'Y' "
+                + "FROM " + cal2Table("WEEKDAY") + " W WHERE NOT EXISTS (SELECT 1 FROM " + target
+                + " X WHERE X.BUSINESS_CALENDAR_SCHEDULE_ID = :scheduleId AND X.WEEKDAY_ID = W.WEEKDAY_ID)";
+        return jdbcClient.sql(sql).param("baseId", baseId).param("scheduleId", scheduleId).update();
+    }
+
     public List<LookupOption> lookup(String resource, String text, int limit) {
         if ("geo-countries".equals(resource)) return geoCountryLookup(text, limit);
         if ("iana-time-zones".equals(resource)) return ianaTimeZoneLookup(text, limit);
@@ -571,6 +681,9 @@ public class Calendar2ReferenceRepository {
             case "isClearingDay" -> "B.IS_CLEARING_DAY";
             case "isProcessingDay" -> "B.IS_PROCESSING_DAY";
             case "reasonCode" -> "B.REASON_CODE";
+            case "resolutionSource" -> "B.RESOLUTION_SOURCE";
+            case "staffStartTime" -> "B.STAFF_START_TIME";
+            case "staffEndTime" -> "B.STAFF_END_TIME";
             case "sourceName", "sourceId" -> "SA.NAME_FA";
             default -> "D.CANONICAL_DATE";
         };
@@ -605,7 +718,7 @@ public class Calendar2ReferenceRepository {
                 yield ts == null ? null : ts.toLocalDateTime();
             }
             case LOOKUP -> isNumericLookup(field) ? rs.getBigDecimal(field.apiName()) : rs.getString(field.apiName());
-            case TEXT, SELECT -> rs.getString(field.apiName());
+            case TEXT, TIME, SELECT -> rs.getString(field.apiName());
         };
     }
 
@@ -624,7 +737,7 @@ public class Calendar2ReferenceRepository {
             case NUMBER -> Types.NUMERIC;
             case DATE -> Types.DATE;
             case TIMESTAMP -> Types.TIMESTAMP;
-            case BOOLEAN, TEXT, SELECT -> Types.VARCHAR;
+            case BOOLEAN, TEXT, TIME, SELECT -> Types.VARCHAR;
             case LOOKUP -> isNumericLookup(field) ? Types.NUMERIC : Types.VARCHAR;
         };
     }
@@ -641,7 +754,7 @@ public class Calendar2ReferenceRepository {
             }
             case LOOKUP -> isNumericLookup(field)
                     ? (value instanceof BigDecimal ? value : new BigDecimal(value.toString())) : value.toString();
-            case TEXT, SELECT -> value.toString();
+            case TEXT, TIME, SELECT -> value.toString();
         };
     }
 

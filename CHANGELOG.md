@@ -1,3 +1,26 @@
+## 0.3.86 — FIX94: Time Picker مشترک 24 ساعته برای فیلدهای ساعت/زمان
+
+- Component مشترک `app-time-input` بر پایه Angular Material Timepicker اضافه شد.
+- تمام `input type=time`های Frontend حذف و CAL2، CAL و CIF به کنترل مشترک منتقل شدند.
+- انتخاب ساعت با فهرست 24 ساعته، گام 5 دقیقه، تایپ مستقیم `HH:mm`، Clear و Validation فراهم شد.
+- CAL2 دارای `FieldType.TIME` واقعی در Metadata Frontend/Backend شد؛ فیلدهای ساعات کارکنان و مشتریان دیگر TEXT عمومی نیستند.
+- قرارداد API/Oracle بدون تغییر و به صورت `HH:mm` باقی ماند.
+- Validation سمت Backend برای TIME و بازه شروع/پایان تقویت شد.
+- Verifier جدید `verify-time-picker.mjs` اضافه و به build-production.cmd/sh متصل شد.
+- این تغییر نیاز به DDL/Migration ندارد.
+
+## 0.3.85 — FIX93: سیاست ساعات کاری بازه‌ای و استثناهای تک‌روز CAL2
+
+- سه Object جدید `CAL2.BUSINESS_CALENDAR_SCHEDULE`، `CAL2.BUSINESS_CALENDAR_SCHEDULE_DAY` و `CAL2.BUSINESS_CALENDAR_EXCEPTION` برای تعریف گروهی ساعات کار ماهانه/فصلی/سالانه و Override تک‌روز اضافه شد.
+- ساعت حضور کارکنان از ساعت بازشدن/بسته‌شدن شعب برای مشتری جدا شد؛ الگوی هفتگی با `HH24:MI` نگهداری و هنگام Resolve به Timestamp همان روز Materialize می‌شود.
+- با ایجاد هر Schedule، هفت ردیف روز هفته خودکار ساخته می‌شود؛ جمعه پیش‌فرض `CLOSED` و سایر روزها `OPEN` هستند.
+- Schedule جدید به‌صورت `DRAFT` ساخته می‌شود و تا تکمیل هفت ردیف و چهار ساعت لازم برای روزهای باز/نیمه‌وقت قابل `ACTIVE` شدن نیست؛ Resolver نیز داده فعال ناقص را رد می‌کند.
+- `CAL2.BUSINESS_CALENDAR_DAY` از Source of Truth روزبه‌روز به خروجی Resolve‌شده و فقط‌خواندنی تبدیل شد و Provenance شامل `RESOLUTION_SOURCE`، `SCHEDULE_ID`، `EXCEPTION_ID` و `RESOLVED_AT` را نگه می‌دارد.
+- Resolver جدید با API `POST /api/v1/calendar2/business-calendar/rebuild` و Oracle `MERGE` اضافه شد. ترتیب تصمیم: **استثنای تک‌روز → تعطیلی رسمی → Schedule فعال → پیش‌فرض**؛ همپوشانی Scheduleها با `PRIORITY_NO`، تاریخ شروع و ID به‌صورت قطعی حل می‌شود.
+- فرم‌های «برنامه‌های ساعات کاری»، «الگوی هفتگی ساعات کاری» و «استثناهای تک‌روز» به گروه تقویم کاری CAL2 اضافه و صفحه «روزهای تقویم کاری» به پنل بازسازی بازه مجهز شد.
+- Migration idempotent `database/oracle/cal2/migrations/0.3.85-fix93-business-calendar-schedule-policy.sql` برای Schemaهای موجود اضافه شد.
+- Guard مستقل `verify-calendar2-business-calendar-schedule.mjs` به Build ویندوز/لینوکس افزوده شد و Contract مدل، API، Resolver، UI و Migration را کنترل می‌کند.
+
 ## 0.3.84 — FIX92: سازگاری صفحه استخراج Oracle به EA XMI با تم روشن/تیره
 
 - صفحه `#/system/oracle-ea-xmi-export` از Colorهای ثابت روشن جدا شد و تمام Surface/Text/Border/Code/Semantic stateها به Theme Tokenهای سراسری پروژه منتقل شدند.

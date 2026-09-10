@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public final class Calendar2ReferenceModels {
     private Calendar2ReferenceModels() {}
 
-    public enum FieldType { TEXT, NUMBER, DATE, TIMESTAMP, BOOLEAN, SELECT, LOOKUP }
+    public enum FieldType { TEXT, NUMBER, DATE, TIME, TIMESTAMP, BOOLEAN, SELECT, LOOKUP }
 
     public record SelectOption(Object value, String label) {}
 

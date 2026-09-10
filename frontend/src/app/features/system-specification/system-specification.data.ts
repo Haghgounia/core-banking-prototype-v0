@@ -15,12 +15,12 @@ export interface TechnologyGroup {
 export const SYSTEM_RELEASE = {
   version: GENERATED_SYSTEM_VERSIONS.release,
   lastUpdated: '2026-09-02',
-  referenceForms: 205,
+  referenceForms: 208,
   generalReferenceForms: 20,
   partyReferenceForms: 101,
   depositReferenceForms: 50,
   calendarReferenceForms: 16,
-  calendar2ReferenceForms: 16,
+  calendar2ReferenceForms: 19,
   partyOperationalScreens: 12,
   cifTableCoverage: 48,
   cifOperationalTables: 30,
@@ -47,7 +47,7 @@ export const SYSTEM_ARCHITECTURE = [
   {
     title: 'پایگاه داده',
     icon: 'storage',
-    description: 'Oracle Database با Schemaهای CIF، GEO، DPS، CAL، CAL2 و FEE؛ پوشش ۴۸ جدول عملیاتی CIF و ۲۰۵ فرم اطلاعات پایه/تقویم در پنج دامنه مرجع.'
+    description: 'Oracle Database با Schemaهای CIF، GEO، DPS، CAL، CAL2 و FEE؛ پوشش ۴۸ جدول عملیاتی CIF و ۲۰۸ فرم اطلاعات پایه/تقویم در پنج دامنه مرجع.'
   }
 ] as const;
 
@@ -86,7 +86,7 @@ export const SYSTEM_TECHNOLOGY_GROUPS: readonly TechnologyGroup[] = [
       {name: 'General Reference Schema', version: 'GEO', purpose: '۲۰ فرم اطلاعات پایه عمومی، جغرافیا، اشتغال و تحصیلات'},
       {name: 'Deposit Reference Schema', version: 'DPS', purpose: '۵۰ جدول مرجع فعال محصول‌ساز سپرده'},
       {name: 'تقویم یک', version: 'CAL', purpose: '۱۶ جدول تقویم سه‌گانه، روز کاری، مناسبت، اصلاح رسمی قمری و Dataset تقویم'},
-      {name: 'تقویم دو', version: 'CAL2', purpose: '۱۶ جدول مستقل شامل Calendar Variant، Source Authority، Dataset Version، Canonical Day، Event Rule/Occurrence، Business Calendar و Validation Evidence'},
+      {name: 'تقویم دو', version: 'CAL2', purpose: '۱۹ جدول مستقل شامل Calendar Variant، Source Authority، Dataset Version، Canonical Day، Event Rule/Occurrence، برنامه ساعات کاری بازه‌ای، استثنای تک‌روز، Business Calendar و Validation Evidence'},
       {name: 'CIF Operational Coverage', version: '48 tables', purpose: '۳۰ جدول Workflow و ۱۸ منبع Read-only در Party / Customer 360'},
       {name: 'Server-side Pagination', version: 'Oracle OFFSET/FETCH', purpose: 'نمایش کارآمد جداول حجیم و Lookupهای جست‌وجویی'}
     ]
@@ -107,7 +107,7 @@ export const SYSTEM_TECHNOLOGY_GROUPS: readonly TechnologyGroup[] = [
 export const SYSTEM_CAPABILITIES = [
   'ابزار مستقل رومن‌نویسی نام در GEO: ورود نام فارسی و نمایش خروجی مجاز Auto-fill با فراخوانی مستقیم GEO.FN_ROMANIZE_NAME در Oracle',
   'دو فرم مستقل ISIC نسخه‌محور در CIF: مدیریت Release/Variant و درخت فعالیت‌های اقتصادی بر پایه Parent ID، با ۷۶۶ عنوان فارسی/انگلیسی Rev.4 و وضعیت ترجمه BANK_TRANSLATED',
-  '۲۰۵ فرم فعال اطلاعات پایه/تقویم: ۲۲ فرم عمومی/GEO، ۱۰۱ فرم Party/Customer در CIF، ۵۰ فرم سپرده/DPS، ۱۶ فرم تقویم یک/CAL و ۱۶ فرم تقویم دو/CAL2',
+  '۲۰۸ فرم فعال اطلاعات پایه/تقویم: ۲۲ فرم عمومی/GEO، ۱۰۱ فرم Party/Customer در CIF، ۵۰ فرم سپرده/DPS، ۱۶ فرم تقویم یک/CAL و ۱۹ فرم تقویم دو/CAL2',
   '۱۲ صفحه عملیاتی CIF شامل جست‌وجو، ایجاد Party، مراحل Onboarding، عملیات Lifecycle/Merge و Party / Customer 360',
   'Workflow انتهابه‌انتها برای Person و Organization از ایجاد Party تا Role/Customer، KYC، Consent و کنترل نهایی آمادگی',
   'تفکیک Party از Customer و ایجاد شماره مشتری فقط در نقش بانکی Customer',
@@ -118,7 +118,7 @@ export const SYSTEM_CAPABILITIES = [
   'Searchable Combo سمت سرور، Lookupهای مرجع، جست‌وجو، مرتب‌سازی و صفحه‌بندی سمت سرور',
   'تقویم شمسی پیش‌فرض در فرم‌های عملیاتی با تبدیل استاندارد به تاریخ ISO برای Java/Oracle',
   'ماژول تقویم یک/CAL با ۱۶ فرم مستقل: سیستم‌های تقویم، الگوریتم، ماه/هفته، Dataset سه‌تقویمی، تقویم کاری، استثناها، مناسبت‌ها و اصلاح رسمی قمری',
-  'ماژول مستقل تقویم دو/CAL2 با ۱۶ فرم: Calendar System/Variant، Source Authority، Dataset Version، Canonical Day/Calendar Date، Event، قاعده تکرار مناسبت و Materialized Occurrence، Business Calendar و Validation Evidence',
+  'ماژول مستقل تقویم دو/CAL2 با ۱۹ فرم: Calendar System/Variant، Source Authority، Dataset Version، Canonical Day/Calendar Date، Event/Recurrence، برنامه ساعات کاری بازه‌ای، الگوی هفتگی، استثنای تک‌روز، خروجی Resolve‌شده Business Calendar و Validation Evidence',
   'تعریف یک‌باره مناسبت‌های سالانه/یک‌باره در CAL2 بر مبنای Calendar Variant و تولید/بازسازی خودکار EVENT_OCCURRENCE برای سال‌های Dataset، بدون بازنویسی رخدادهای دستی/رسمی',
   'Import مستقیم بسته ZIP تقویم دو شامل ۱۵ CSV به CAL2 با JDBC Batch ترتیبی و یک تراکنش، بدون نیاز به Oracle Client/SQL*Loader',
   'Import مستقیم Dataset تقویم CAL از calendar_day.csv و calendar_date.csv با JDBC Batch خام و Commit پس از پایان هر دو stream، بدون وابستگی به SQL*Loader',
