@@ -80,7 +80,7 @@ node "%ROOT%tools\verify-calendar2-day-resolution-policy.mjs" || exit /b 1
 rem FIX71 static guard: empty Persian date pickers open on the current Solar Hijri date.
 node "%ROOT%tools\verify-persian-date-picker-current-default.mjs" || exit /b 1
 
-rem FIX94 static guard: all pure time fields use the shared Material 24-hour picker and HH:mm API contract.
+rem FIX95 static guard: all pure time fields use the shared clock-style 24-hour picker and HH:mm API contract.
 node "%ROOT%tools\verify-time-picker.mjs" || exit /b 1
 
 rem FIX74 static guard: Node verifier filesystem roots must be Windows-safe and cwd-independent.

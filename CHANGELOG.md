@@ -1,3 +1,14 @@
+## 0.3.87 — FIX95: تاریخ شمسی استثناءهای CAL2 و Time Picker ساعت‌محور
+
+- نمایش تمام فیلدهای `DATE` در Gridهای عمومی CAL2 به هجری شمسی تغییر کرد؛ از جمله `BUSINESS_CALENDAR_EXCEPTION.EXCEPTION_DATE` و تاریخ‌های اعتبار Schedule. مقدار API/Oracle همچنان ISO/Gregorian باقی می‌ماند.
+- ویرایش فیلدهای DATE همچنان با `app-persian-date-input` انجام می‌شود؛ بنابراین ورود و نمایش کاربر شمسی و قرارداد Backend بدون تغییر است.
+- `app-time-input` از Timepicker فهرستی نسخه قبل به یک Clock/Dial تعاملی 24 ساعته با UX مشابه Grudus Timepicker بازطراحی شد.
+- Clock Picker دارای دو مرحله ساعت/دقیقه، حلقه بیرونی 1..12، حلقه داخلی 13..23/00، گام پیش‌فرض 5 دقیقه، انتخاب «اکنون»، پاک‌کردن، Min/Max و تأیید/انصراف است.
+- Component جدید Angular-native است و وابستگی Runtime به کتابخانه Grudus یا JavaScript خارجی اضافه نمی‌کند؛ قرارداد `HH:mm`، Reactive Forms، Validation و پشتیبانی از ارقام فارسی/عربی حفظ شده است.
+- ظاهر Clock Picker از Theme Tokenهای سراسری استفاده می‌کند و با Light/Dark Theme و RTL سازگار است.
+- Guardهای `verify-time-picker.mjs` و `verify-calendar2-business-calendar-schedule.mjs` برای UX ساعت‌محور و نمایش شمسی DATE گسترش یافتند.
+- این تغییر نیاز به DDL/Migration ندارد.
+
 ## 0.3.86 — FIX94: Time Picker مشترک 24 ساعته برای فیلدهای ساعت/زمان
 
 - Component مشترک `app-time-input` بر پایه Angular Material Timepicker اضافه شد.

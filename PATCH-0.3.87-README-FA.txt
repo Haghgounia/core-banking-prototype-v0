@@ -1,0 +1,15 @@
+Core Banking Prototype Patch 0.3.87 / FIX95
+Baseline: 0.3.86 / FIX94
+
+تغییرات:
+- نمایش شمسی DATE در Gridهای عمومی CAL2، به‌ویژه تاریخ استثناء تک‌روز.
+- جایگزینی Time Picker فهرستی با Clock/Dial گرافیکی 24 ساعته مشابه UX نمونه Grudus.
+- حفظ قرارداد API/Oracle برای DATE و TIME؛ بدون DDL/Migration.
+
+نصب:
+1) bin\stop.cmd
+2) Overlay محتویات Patch روی Source نسخه 0.3.86
+3) build-production.cmd
+4) کنترل Built version: 0.3.87
+5) bin\start.cmd
+6) Ctrl+F5

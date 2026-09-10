@@ -584,5 +584,11 @@ Parser XML در برابر DTD/External Entity غیرفعال و سخت‌ساز
 `database/oracle/cal2/migrations/0.3.45-fix56-event-recurrence-rule.sql`
 ### Time Picker مشترک — FIX94 / 0.3.86
 
-تمام فیلدهای خالص ساعت/زمان در Frontend از کنترل مشترک `app-time-input` استفاده می کنند. این Component بر پایه Angular Material Timepicker است، نمایش 24 ساعته دارد، فهرست آن با گام 5 دقیقه تولید می شود و تایپ مستقیم `HH:mm` نیز پشتیبانی می شود. مقدار ارسالی به API همچنان String مانند `07:30` است. CAL2 برای این فیلدها Metadata نوع `TIME` مستقل دارد. FIX94 نیاز به تغییر Database ندارد.
+تمام فیلدهای خالص ساعت/زمان در Frontend از کنترل مشترک `app-time-input` استفاده می‌کنند و قرارداد API آن‌ها `HH:mm` است. CAL2 برای این فیلدها Metadata نوع `TIME` مستقل دارد.
+
+### Clock-style Time Picker و تاریخ شمسی Policyها — FIX95 / 0.3.87
+
+در FIX95 کنترل مشترک ساعت به یک Clock/Dial تعاملی 24 ساعته بازطراحی شد: ساعت در حلقه بیرونی/داخلی انتخاب می‌شود، سپس دقیقه با گام پیش‌فرض 5 دقیقه تعیین می‌گردد. تایپ مستقیم `HH:mm`، Min/Max، پاک‌کردن و انتخاب زمان جاری نیز حفظ شده است. پیاده‌سازی Angular-native و Theme-aware است و وابستگی خارجی Grudus در Runtime ندارد، اما UX آن از Clock-style Material Time Picker نمونه Grudus الهام گرفته است.
+
+همچنین فیلدهای `DATE` در Gridهای عمومی CAL2 به هجری شمسی نمایش داده می‌شوند. بنابراین در فرم «استثناءهای تک‌روز»، `EXCEPTION_DATE` مانند `1405/12/10` دیده می‌شود، در حالی که مقدار Canonical ارسالی به Backend/Oracle همچنان ISO مانند `2027-03-01` باقی می‌ماند. همین قاعده برای تاریخ شروع/پایان اعتبار برنامه‌های ساعات کاری نیز اعمال می‌شود. FIX95 تغییر Database ندارد.
 

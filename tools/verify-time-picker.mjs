@@ -30,20 +30,25 @@ function walk(dir) {
 const nativeTimeInputs = walk(frontendRoot).filter(file => /type\s*=\s*["']time["']/.test(fs.readFileSync(file, 'utf8')));
 
 const checks = [
-  [shared.includes("MatTimepickerModule") && shared.includes("selector: 'app-time-input'"), 'shared app-time-input uses Angular Material Timepicker'],
-  [shared.includes("provideNativeDateAdapter()") && shared.includes("MAT_DATE_LOCALE") && shared.includes("'en-GB'"), 'timepicker has local 24-hour native date adapter configuration'],
-  [shared.includes('NG_VALUE_ACCESSOR') && shared.includes('NG_VALIDATORS') && shared.includes('implements ControlValueAccessor, Validator'), 'timepicker integrates with Reactive Forms and validation'],
-  [shared.includes("interval: string | number = '5m'") && shared.includes("min = '00:00'") && shared.includes("max = '23:59'"), 'timepicker defaults to 5-minute options over the complete 24-hour range'],
-  [shared.includes('toApiValue') && shared.includes("padStart(2, '0')") && shared.includes('asciiDigits'), 'timepicker keeps API value normalized as HH:mm and accepts Persian/Arabic digits when preloaded'],
+  [shared.includes("selector: 'app-time-input'") && shared.includes('MatMenuModule') && shared.includes('class="clock-face"'), 'shared app-time-input renders a custom overlay clock dial'],
+  [!shared.includes('MatTimepickerModule') && !shared.includes('<mat-timepicker'), 'legacy list/native Material timepicker implementation is removed'],
+  [shared.includes("phase = signal<'hour' | 'minute'>") && shared.includes("this.phase.set('minute')"), 'clock picker has separate hour and minute selection phases'],
+  [shared.includes('innerValues = [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0]') && shared.includes('Array.from({length: 12}'), 'clock dial provides a full 24-hour outer/inner ring'],
+  [shared.includes("interval: string | number = '5m'") && shared.includes('intervalMinutes()') && shared.includes('minute < 60; minute += step'), 'minute dial honors configurable interval with a 5-minute default'],
+  [shared.includes("min = '00:00'") && shared.includes("max = '23:59'") && shared.includes('draftOutOfRange()'), 'picker enforces the complete default 24-hour range and disables invalid confirmation'],
+  [shared.includes('NG_VALUE_ACCESSOR') && shared.includes('NG_VALIDATORS') && shared.includes('implements ControlValueAccessor, Validator'), 'clock picker integrates with Reactive Forms and validation'],
+  [shared.includes("padStart(2, '0')") && shared.includes('asciiDigits') && shared.includes('normalizeApiValue'), 'picker keeps API values normalized as HH:mm and accepts Persian/Arabic digits'],
+  [shared.includes('var(--app-primary)') && shared.includes('var(--app-surface)') && shared.includes('var(--app-text)'), 'clock UI uses application theme tokens for light/dark compatibility'],
+  [shared.includes('role="dialog"') && shared.includes('aria-label="باز کردن ساعت گرافیکی"') && shared.includes('aria-label]="dialAriaLabel'), 'clock interaction has dialog/button accessibility labels'],
   [nativeTimeInputs.length === 0, `no browser-native type=time inputs remain (${nativeTimeInputs.length})`],
   [cal2Model.includes("'TIME'"), 'CAL2 frontend metadata has a first-class TIME field type'],
   [javaModels.includes('DATE, TIME, TIMESTAMP'), 'CAL2 backend metadata has a first-class TIME field type'],
   [javaRegistry.includes('FieldType.TIME') && javaRegistry.includes('time("staffStartTime"') && javaRegistry.includes('time("customerCloseTime"'), 'weekly schedule and exception clocks are declared as TIME metadata'],
   [javaRepo.includes('case TEXT, TIME, SELECT') && javaRepo.includes('case BOOLEAN, TEXT, TIME, SELECT'), 'CAL2 repository reads/writes TIME as normalized VARCHAR HH:mm'],
   [javaService.includes('field.type() == FieldType.TIME') && javaService.includes('ساعات حضور کارکنان') && javaService.includes('ساعات خدمت‌رسانی به مشتری'), 'CAL2 service validates TIME syntax and start/end ranges'],
-  [cal2Ts.includes('TimeInputComponent') && cal2Html.includes("@case ('TIME')") && cal2Html.includes('<app-time-input'), 'CAL2 generic editor renders TIME through shared picker'],
-  [cal1Ts.includes('TimeInputComponent') && cal1Html.includes('<app-time-input'), 'legacy CAL TIME fields use the same shared picker'],
-  [cifTs.includes('TimeInputComponent') && (cifHtml.match(/<app-time-input/g) ?? []).length >= 3, 'CIF communication/preference time fields use the same shared picker']
+  [cal2Ts.includes('TimeInputComponent') && cal2Html.includes("@case ('TIME')") && cal2Html.includes('<app-time-input'), 'CAL2 generic editor renders TIME through shared clock picker'],
+  [cal1Ts.includes('TimeInputComponent') && cal1Html.includes('<app-time-input'), 'legacy CAL TIME fields use the same shared clock picker'],
+  [cifTs.includes('TimeInputComponent') && (cifHtml.match(/<app-time-input/g) ?? []).length >= 3, 'CIF communication/preference time fields use the same shared clock picker']
 ];
 
 let ok = true;
@@ -55,4 +60,4 @@ if (!ok) {
   if (nativeTimeInputs.length) console.error('Native time inputs:', nativeTimeInputs.map(file => path.relative(root, file)).join(', '));
   process.exit(1);
 }
-console.log(`Shared time-picker guard passed (${checks.length}/${checks.length}).`);
+console.log(`Shared clock-style time-picker guard passed (${checks.length}/${checks.length}).`);
