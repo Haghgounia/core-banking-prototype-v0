@@ -22,6 +22,7 @@ tar.exe -a -c -f "%OUT%" ^
   --exclude=.git ^
   --exclude=.idea ^
   --exclude=.vscode ^
+  --exclude=.upgrade-backup ^
   --exclude=*.log ^
   --exclude=*.tmp ^
   --exclude=*.class ^

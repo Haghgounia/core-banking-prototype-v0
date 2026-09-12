@@ -1,0 +1,36 @@
+{
+  "classification_code": "CBI_1405_RIAL_PROVISIONAL",
+  "source_code": "CBI_RIAL_FEE_1405_PROVISIONAL",
+  "source_status": "PROVISIONAL",
+  "circular_no": "PROVISIONAL-RIAL-FEE-1405",
+  "provisional_effective_from": "2026-09-10",
+  "provisional_archive_to": "2026-09-09",
+  "xlsx_sha256": "bbe79ea223fabbfcddd83a402a70bc87f9c3fb3ad3d0de01369155240e4bd15e",
+  "pdf_sha256": "ea2e6a22e3b92b7ea6ef5da8cd6bfa20f918d0fc069c2e1bd46b89167a993e14",
+  "new_tariffs": 152,
+  "source_components": 180,
+  "old_rial_versions_to_archive": 156,
+  "old_electronic_versions_retained": 73,
+  "strategy_counts": {
+    "FIXED": 64,
+    "ANNUALIZED_PERCENTAGE": 16,
+    "COMPOSITE": 32,
+    "PERCENTAGE_WITH_FLOOR": 1,
+    "PER_UNIT": 20,
+    "PERCENTAGE_WITH_CAP": 4,
+    "PERCENTAGE": 14,
+    "PERCENTAGE_FLOOR_CAP": 1
+  },
+  "section_counts": {
+    "1": 20,
+    "2": 4,
+    "3": 5,
+    "4": 14,
+    "5": 6,
+    "6": 40,
+    "7": 7,
+    "8": 39,
+    "9": 17
+  },
+  "note": "Official circular number/date were not supplied; metadata is deliberately provisional."
+}

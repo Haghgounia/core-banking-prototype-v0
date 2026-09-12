@@ -1,0 +1,24 @@
+Core Banking Prototype 0.3.91 / FIX99 — Product Builder Angular Compile Hotfix
+
+این Patch برای Overlay روی Source نسخه 0.3.90 است.
+
+علت Hotfix:
+Angular build با TS4111 در Product Workspace متوقف می‌شد، چون payload از نوع Record<string, any> است و فیلدهای APPROVED_AT / APPROVED_BY با dot notation حذف می‌شدند.
+
+اصلاح:
+delete payload['APPROVED_AT'];
+delete payload['APPROVED_BY'];
+
+دیتابیس:
+- DDL/Migration جدید ندارد.
+- اگر Installer کارمزد FIX98 قبلاً اجرا نشده است، همان Installer نسخه 0.3.90 باید اجرا شود.
+- اگر FIX98 قبلاً روی دیتابیس اجرا شده، برای FIX99 هیچ SQL جدیدی لازم نیست.
+
+پس از Overlay:
+build-production.cmd
+bin\start.cmd
+Ctrl+F5
+
+جزئیات کامل:
+docs\PDL-0.3.91-FIX99-ANGULAR-COMPILE-HOTFIX-QA.md
+docs\install\INSTALL-0.3.91-FA.txt

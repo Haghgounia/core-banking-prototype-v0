@@ -1,0 +1,28 @@
+Core Banking Prototype 0.3.92 / FIX100
+راهنمای ارتقا از 0.3.91
+
+پیش‌نیاز:
+- Source نسخه 0.3.91 / FIX99
+- Java 21
+- Node/NPM مطابق Baseline پروژه
+
+مراحل:
+1) bin\stop.cmd
+2) Patch نسخه 0.3.92 را روی Root پروژه Overlay کنید.
+3) build-production.cmd
+   در ابتدای Build، اگر فایل قدیمی ProductGovernanceService.java وجود داشته باشد، به مسیر زیر Backup می‌شود:
+   .upgrade-backup\0.3.92\obsolete-source\...
+4) کنترل کنید Backend clean compile و Angular build هر دو موفق باشند.
+5) کنترل پیام:
+   Built version: 0.3.92
+6) کنترل فایل:
+   app\core-banking-prototype.jar
+7) bin\start.cmd
+8) Ctrl+F5
+
+Database:
+- برای FIX100 هیچ SQL جدیدی اجرا نشود.
+- Installer کارمزد FIX98 در صورت اجرای قبلی دوباره لازم نیست.
+
+نکته:
+حذف Source قدیمی destructive نیست؛ قبل از حذف از Source فعال، نسخه آن در .upgrade-backup نگهداری می‌شود.

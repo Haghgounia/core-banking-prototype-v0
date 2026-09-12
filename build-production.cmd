@@ -10,6 +10,8 @@ rem Synchronize generated system specification before any verifier reads it.
 node "%ROOT%tools\sync-system-specification.mjs" || exit /b 1
 rem FIX76 upgrade guard: clean legacy root INSTALL files left by overlay extraction from older releases.
 node "%ROOT%tools\migrate-release-layout.mjs" || exit /b 1
+rem FIX100 upgrade guard: archive obsolete Product Builder source left by older overlay patches.
+node "%ROOT%tools\migrate-source-layout.mjs" || exit /b 1
 node "%ROOT%tools\verify-release-layout.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.
@@ -96,6 +98,7 @@ node "%ROOT%tools\verify-fee-admin-baseline.mjs" || exit /b 1
 
 rem FIX81 static guard: complete CBI 1404 tariff import is normalized, non-destructive and fully verified.
 node "%ROOT%tools\verify-cbi-fee-1404-import.mjs" || exit /b 1
+node "%ROOT%tools\verify-cbi-rial-fee-1405-provisional.mjs" || exit /b 1
 node "%ROOT%tools\verify-geo-name-romanization.mjs" || exit /b 1
 
 rem FIX84 static guard: one centralized breadcrumb must cover every application section.
@@ -112,7 +115,7 @@ node "%ROOT%tools\verify-runtime-artifact-contract.mjs" || exit /b 1
 
 rem FIX62 fail-fast: compile Java before the Angular production build so type errors are caught early.
 cd /d "%ROOT%backend"
-call mvnw.cmd -DskipTests compile || exit /b 1
+call mvnw.cmd -DskipTests clean compile || exit /b 1
 cd /d "%ROOT%"
 
 rem Remove stale runtime artifacts first. A failed build must never leave an older JAR looking current.

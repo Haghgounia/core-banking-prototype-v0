@@ -1,0 +1,30 @@
+Core Banking Prototype 0.3.91 / FIX99
+======================================
+
+موضوع Release:
+Product Builder Angular Compile Hotfix (TS4111)
+
+پیش‌نیاز:
+- Source نسخه 0.3.90 / FIX98 یا نسخه کامل 0.3.91.
+- برای داده کارمزد جدید، Installer FIX98 باید قبلاً اجرا شده باشد یا اکنون جداگانه اجرا شود.
+
+مراحل ارتقا از 0.3.90:
+1) bin\stop.cmd
+2) Patch نسخه 0.3.91 را روی Root پروژه Overlay کنید.
+3) build-production.cmd
+4) کنترل کنید Angular build بدون TS4111 تکمیل شود.
+5) پیام Built version: 0.3.91 را کنترل کنید.
+6) bin\start.cmd
+7) Ctrl+F5
+
+اثر دیتابیس:
+- DDL جدید ندارد.
+- Migration/Seed جدید ندارد.
+- داده‌های FEE واردشده در FIX98 بدون تغییر باقی می‌مانند.
+
+اگر FIX98 هنوز روی دیتابیس اجرا نشده است:
+از database\oracle\fee اجرا کنید:
+@install-cbi-rial-fee-1405-provisional.sql
+
+QA:
+docs\PDL-0.3.91-FIX99-ANGULAR-COMPILE-HOTFIX-QA.md

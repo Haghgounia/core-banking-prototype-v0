@@ -1,0 +1,29 @@
+Core Banking Prototype 0.3.92 / FIX100 — Product Builder Overlay Source Cleanup
+
+این Patch برای Overlay روی Source نسخه 0.3.91 است.
+
+علت Hotfix:
+در پروژه‌هایی که نسخه‌ها به‌صورت Overlay نصب شده‌اند، فایل قدیمی و دیگرغیرفعال ProductGovernanceService.java می‌تواند از یک Build/پچ میانی در Source باقی بماند. این فایل در Baseline رسمی 0.3.91 وجود ندارد و به مدل‌های حذف‌شده Product360 / ProductModuleValidation / ProductReadinessItem وابسته است. Maven incremental compile ممکن است آن را در مرحله اولیه تشخیص ندهد، ولی clean package در انتهای build روی آن شکست می‌خورد.
+
+اصلاح FIX100:
+- قبل از Verify/Compile، فایل قدیمی در صورت وجود به .upgrade-backup\0.3.92\obsolete-source منتقل می‌شود و از Source فعال حذف می‌شود.
+- preflight Maven از compile به clean compile تغییر کرد تا Source کامل از صفر کامپایل شود و خطاهای stale/incremental قبل از Angular build دیده شوند.
+- PDL verifier تأیید می‌کند ProductGovernanceService.java در Baseline canonical وجود نداشته باشد.
+
+دیتابیس:
+- DDL/Migration جدید ندارد.
+- FEE FIX98 و داده‌های کارمزد تغییری نمی‌کنند.
+
+پس از Overlay:
+bin\stop.cmd
+build-production.cmd
+bin\start.cmd
+Ctrl+F5
+
+خروجی مورد انتظار:
+Built version: 0.3.92
+JAR: ...\app\core-banking-prototype.jar
+
+جزئیات:
+docs\PDL-0.3.92-FIX100-OVERLAY-SOURCE-CLEANUP-QA.md
+docs\install\INSTALL-0.3.92-FA.txt

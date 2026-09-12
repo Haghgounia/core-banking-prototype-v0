@@ -1,0 +1,382 @@
+﻿action,fee_code,tariff_code,name_fa,feature_code,effective_to
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_1_01,1-1,ضمانت نامه در مقابل 100 درصد سپرده نقدی,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI_GUARANTEE_DEPOSIT_FEE,1-2,صدور ضمانت نامه در مقابل حساب های قرض الحسنه پس انداز,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_3_01,1-3,ضمانت نامه در مقابل سپرده مدت دار(ریالی),CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_4_01,1-4,ضمانت نامه در مقابل سپرده مدت دار(ارزی),CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_5_01,1-5,ضمانت نامه در مقابل طلا *,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_6_01,1-6,ضمانت نامه در مقابل ضمانت نامه های مؤسسات اعتباری داخلی,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_6_02,1-6,ضمانت نامه در مقابل ضمانت نامه های اعتباری(ارزی ریالی) صادره توسط صندوق ضمانت صادرات ایران و سایر صندوق هایی که به موجب قانون تأسیس می شوند,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_8_01,1-8,ضمانت نامه در مقابل ضمانت نامه های بانک های خارجی معتبر,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_9_01,1-9,ضمانت نامه در مقابل اوراق بهادار بدون ریسک**,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_10_01,1-10,ضمانت نامه در مقابل سایر اوراق بهادار***,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_11_01,1-11,ضمانت نامه در مقابل سهام پذیرفته شده در بورس****,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_12_01,1-12,ضمانت نامه در مقابل اموال غیرمنقول سهل البیع(با تشخیص بانک),CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_13_01,1-13,ضمانت نامه در مقابل سایر اموال غیرمنقول,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_14_01,1-14,ضمانت نامه در مقابل توثیق سند کشتی و هواپیما دارای بیمه نامه معتبر,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_15_01,1-15,ضمانت نامه در مقابل سفته معتبر,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_16_01,1-16,ضمانت نامه در مقابل رسید انبارهای عمومی,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_17_01,1-17,تمدید و تجدیدضمانت نامه,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_18_01,1-18,تقلیل ضمانت نامه,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_18_02,1-18,ابطال ضمانت نامه قبل از سررسید (غیر از ضبط ضمانت نامه),CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_20_01,1-20,صدور المثنی ضمانت نامه های بانکی,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_21_01,1-21,در مقابل سایر وثایق(برای برخی اسناد ریز تجاری),CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_GAR_1_22_01,1-22,انتقال ذی نفع ضمانت نامه,CBI_GUARANTEE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_REM_2_1_01,2-1,صدور چک تضمین شده(بانکی/ رمزدار بین بانکی),CBI_REMITTANCE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_REM_2_2_01,2-2,اعلام منع پرداخت چک های بانکی/ بین بانکی مفقودی,CBI_REMITTANCE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_REM_2_3_01,2-3,صدور المثنی چک بانکی,CBI_REMITTANCE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_REM_2_4_01,2-4,ابطال چک بانکی / بین بانکی به درخواست مشتری,CBI_REMITTANCE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SDB_3_1_01,3-1,صندوق اجاره ای(اجاره بها سالانه، ودیعه),CBI_SAFE_DEPOSIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SDB_3_2_01,3-2,هر بار استفاده از صندوق,CBI_SAFE_DEPOSIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SDB_3_3_01,3-3,مفقودی کلیدها,CBI_SAFE_DEPOSIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SDB_3_4_01,3-4,تخلیه و تحویل صندوق,CBI_SAFE_DEPOSIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SDB_3_5_01,3-5,هماهنگی جهت بازدید صندوق اجاره ای به درخواست مراجع ذی صالح بدون کارمزد,CBI_SAFE_DEPOSIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SEC_4_1_01,4-1,انتقال هر برگ اوراق گواهی حق تقدم اعطای تسهیلات,CBI_SECURITIES_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SEC_4_2_01,4-2,صدور هر برگ اوراق المثنی اوراق حق تقدم اعطای تسهیلات,CBI_SECURITIES_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SEC_4_3_01,4-3,تضمین اصل و سود اوراق بهادار(شامل اوراق مشارکت، صکوک و ...) توسط بانک عامل *,CBI_SECURITIES_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SEC_4_4_01,4-4,انتقال اوراق بهادار/ نقل و انتقال اوراق گواهی سپرده با نام به شخص ثالث,CBI_SECURITIES_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SEC_4_5_01,4-5,کارمزد عاملیت و ضمانت اوراق گواهی اعتبار مولد(گام),CBI_SECURITIES_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SEC_4_6_01,4-6,کارمزد انتقال اوراق گواهی اعتبار مولد(گام),CBI_SECURITIES_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SEC_4_7_01,4-7,بررسی و پذیرش مطالبات قراردادی با موضوع تأمین کالا,CBI_SECURITIES_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SEC_4_8_01,4-8,بررسی و پذیرش مطالبات قراردادی با موضوع تأمین خدمات,CBI_SECURITIES_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SEC_4_9_01,4-9,کارت رفاهی متصل به اوراق گواهی اعتبار مولد(گام) (به صورت اقساط مساوی در دوره بازپرداخت),CBI_SECURITIES_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI_BILL_COLLECTION_FEE,5-1,سفته، برات و قبوض ثبتی وصولی,CBI_BILL_COLLECTION_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_COL_5_2_01,5-2,ابلاغ سفته و برات,CBI_BILL_COLLECTION_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_COL_5_3_01,5-3,واخواست سفته,CBI_BILL_COLLECTION_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_COL_5_4_01,5-4,فروش سفته/ بارنامه (از متقاضی),CBI_BILL_COLLECTION_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_1_01,6-1-1,تقاضای عدم پرداخت چک,CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_2_01,6-1-2,صدور گواهی نامه عدم پرداخت وجه چک(از حساب مشتری),CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_3_01,6-1-3,رفع سوء اثر برای هر برگ چک,CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_4_01,6-1-4,صدور چک آمنیبوس,CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_5_01,6-1-5,انتقال حساب جاری به شعبه دیگر در هر شهر(بنا به درخواست مشتری),CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_5_02,6-1-5,اخذ هر گونه اطلاعات لازم جهت افتتاح حساب جاری (با دست چک),CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_7_01,6-1-7,چک های واگذاری عهده سایر بانک ها(از ذی نفع چک),CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_8_01,6-1-8,انتقال وجه از سایر حساب ها بابت تأمین وجه چک حساب,CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI_CHEQUEBOOK_ISSUE_FEE,6-1-9,صدور دسته چک,CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_10_01,6-1-10,صدور المثنی گواهی نامه عدم پرداخت صادر شده قبلی به درخواست مشتری,CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_11_01,6-1-11,ابطال چک جاری اشخاص به درخواست مشتری با ارائه چک باطل شده,CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_12_01,6-1-12,اخذ صورت اطلاعات چک های برگشتی به درخواست مشتری,CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_13_01,6-1-13,افتتاح حساب جاری موقت(در شرف تأسیس),CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_14_01,6-1-14,تحویل دسته چک در شعبه غیر از دارنده حساب جاری,CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_15_01,6-1-15,نگهداری امانی چک های با سررسید بیش از 30 روز (به استثنای چک های تسهیلاتی),CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CUR_6_1_16_01,6-1-16,صدور چک موردی جاری اشخاص,CBI_CURRENT_ACCOUNT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SAV_6_2_1_01,6-2-1,افتتاح حساب و صدور دفترچه سپرده قرض الحسنه پس انداز,CBI_SAVINGS_DEPOSIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SAV_6_2_2_01,6-2-2,افتتاح حساب سپرده کوتاه مدت,CBI_SAVINGS_DEPOSIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_SAV_6_2_3_01,6-2-3,صدور هر جلد دفترچه صرفاً جهت حساب های کوتاه مدت,CBI_SAVINGS_DEPOSIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CERT_6_3_1_01,6-3-1,صدور هرگونه گواهی حساب,CBI_CERTIFICATE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CERT_6_3_2_01,6-3-2,صدور گواهی حساب به لاتین,CBI_CERTIFICATE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CERT_6_3_3_01,6-3-3,صدور المثنی گواهی سپرده های ویژه کوتاه مدت و بلندمدت,CBI_CERTIFICATE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_STMT_6_4_2_01,6-4-2,ارائه صورت حساب سال جاری/ سال های گذشته (جهت کلیه حساب ها) به صورت حضوری,CBI_STATEMENT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_STMT_6_4_2_02,6-4-2,ارائه صورت حساب مشتری به صورت فایل,CBI_STATEMENT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_1_01,6-5-1,ارتباط هر حساب جدید با کارت(پس از صدور کارت) - درخواست حضوری از طریق مراجعه به شعب,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_2_01,6-5-2,تغییر حساب اصلی کارت- درخواست حضوری از طریق مراجعه به شعب,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_3_01,6-5-3,فعال سازی حساب های راکد- به صورت حضوری هر حساب,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_4_01,6-5-4,فعال سازی حساب های مطالبه نشده و تعیین تکلیف نشده- به صورت حضوری هر حساب,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_5_01,6-5-5,انتقال و واگذاری سپرده بلندمدت و سپرده کوتاه مدت ویژه به اشخاص درجه اول (بابت هر بار انتقال),CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_5_02,6-5-5,انسداد یا رفع انسداد حساب/ کارت به درخواست مشتری (همه حساب ها) - به صورت حضوری,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_SRC76_01,,"تغییر در شرایط/اطلاعات حساب های بانکی (صاحبان امضا , آدرس و ...) به درخواست مشتری به صورت حضوری اشخاص حقیقی",CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_SRC77_01,,"تغییر در شرایط/اطلاعات حساب های بانکی (صاحبان امضا , آدرس و ...) به درخواست مشتری به صورت حضوری اشخاص حقوقی",CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_5_03,6-5-5,برقراری ارتباط بین حساب ها با لحاظ کف و سقف مبلغ بابت هر نوبت (به استثنای تأمین وجه چک),CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_SRC79_01,,ثبت حضوری دستور پرداخت مستمر (برای هر بار تعریف) اشخاص حقیقی,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_SRC80_01,,ثبت حضوری دستور پرداخت مستمر (برای هر بار تعریف) اشخاص حقوقی,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_10_01,6-5-10,انتقال سایر سپرده ها(اعم از پس انداز، کوتاه مدت و بلندمدت) به شعب دیگر در هر شهر,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_11_01,6-5-11,انسداد یا رفع انسداد حساب یا موجودی که از سوی مراجع ذی صالح به هر طریق به بانک اعلام می گردد,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_12_01,6-5-12,صدور رمز جدید برای انواع کارت های بانکی موجود(نقدی، اعتباری و هدیه) در شعبه به درخواست مشتری,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_13_01,6-5-13,بررسی تراکنش های کارت های سرقتی به درخواست مشتری بابت هر شماره پیگیری,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_13_02,6-5-13,اعمال محدودیت کارت بنا به درخواست مشتری (تعیین سقف برداشت / واریز به حساب با مسئولیت مشتری),CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_ACCSVC_6_5_15_01,6-5-15,بستن حساب در شعبه ای غیر از شعبه افتتاح کننده حساب,CBI_ACCOUNT_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_APP_7_1_01,7-1,ارزیابی ماشین آلات و کالا,CBI_APPRAISAL_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI_PROPERTY_APPRAISAL_FEE,7-2,ارزیابی املاک و ساختمان,CBI_APPRAISAL_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_APP_7_3_01,7-3,ارزیابی املاک مزروعی و باغات,CBI_APPRAISAL_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_APP_7_3_02,7-3,ارزیابی تسهیلات مشارکت مدنی و پیشرفت فیزیکی پروژه ها (برآورد هزینه و آورده غیرنقدی شریک),CBI_APPRAISAL_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_APP_7_3_03,7-3,ارزیابی و بازدید تسهیلات تعمیر مسکن/ بازدید نوبت های اضافی تسهیلات تعمیر مسکن در قالب کلیه عقود,CBI_APPRAISAL_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_APP_7_3_04,7-3,ارزیابی مجدد به درخواست مشتری (به غیر از تسهیلات جعاله تعمیر مسکن),CBI_APPRAISAL_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_APP_7_3_05,7-3,ارزیابی وثایق غیرمنقول مازاد,CBI_APPRAISAL_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_1_01,8-1,اخذ استعلام اعتبارسنجی از شرکت رتبه بندی اعتباری ایران,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_2_01,8-2,واگذاری سهم الشرکه بانک به غیر,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_3_01,8-3,تمدید تسهیلات عقود مشارکتی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_4_01,8-4,بررسی اصالت پیش فاکتور,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_5_01,8-5,صلح حقوق یا انتقال تعهد,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_6_01,8-6,تغییر در شرایط,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_7_01,8-7,تفکیک، تغییر و تعویض رهینه یا وثیقه,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_8_01,8-8,اقاله ملک,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_8_02,8-8,**امور مربوط به نظارت بر مصرف تسهیالت مشارکت مدنی (جهت انواع تسهیلاتی که به صورت تدریجی، مرحله ای و متناسب با پیشرفت کار پرداخت می گردد),CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_10_01,8-10,امور مربوط به بررسی رهن مازاد سایر سازمان ها و بانک ها,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_11_01,8-11,تکمیل فرم یارانه تسهیلات تکلیفی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_12_01,8-12,صدور اخطار کتبی جهت اقساط یا مطالبات غیرجاری,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_13_01,8-13,انتقال ملک مرهونه به شخص ثالث,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_14_01,8-14,تغییر ضامنین تسهیلات,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI_UNUSED_LIMIT_COMMITMENT_FEE,8-15,عدم استفاده از حد اعتباری تسهیالت مصوب بعد از 45 روز از تاریخ ابلاغ (Commitment fee),CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI_CREDIT_EXPERTISE_FEE,8-16,هزینه کارشناسی(ارزیابی) طرح ها,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_17_01,8-17,هزینه کارشناسی تسهیلات سرمایه در گردش,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_18_01,8-18,هزینه کارشناسی کالاهای سرمایه ای واحدهای تولیدی، خدماتی و بازرگانی خارج از طرح ***,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_18_02,8-18,"تهیه گزارش اطلاعات اعتباری مشتمل بر استعلام از شاهکار , آدرس , استفاده از سامانه های داخلی , لیست سیاه و ... می باشد. (تسهیلات/تعهدات) اشخاص حقیقی",CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_18_03,8-18,"تهیه گزارش اطلاعات اعتباری مشتمل بر استعلام از شاهکار , آدرس , استفاده از سامانه های داخلی , لیست سیاه و ... می باشد. (تسهیلات/تعهدات) اشخاص حقوقی",CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_20_01,8-20,تشکیل پرونده اعتباری اعم از تعهدات یا تسهیلات (به استثنای قرض الحسنه),CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_21_01,8-21,پذیرش اوراق گواهی حق تقدم، هنگام پرداخت تسهیلات,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_22_01,8-22,ارائه صورت اطلاعات تسهیلات و تعهدات به درخواست مشتری,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_22_02,8-22,تغییر شرایط مصوبات ابلاغی صادره از سوی ارکان اعتباری بالاتر از رکن اعتباری شعبه به درخواست مشتری و منوط به صدور مصوبه جدید اشخاص حقیقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_22_03,8-22,تغییر شرایط مصوبات ابلاغی صادره از سوی ارکان اعتباری بالاتر از رکن اعتباری شعبه به درخواست مشتری و منوط به صدور مصوبه جدید اشخاص حقوقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_24_01,8-24,موافقت با تنظیم اجاره نامه بر روی هر واحد مورد رهن اشخاص حقیقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_24_02,8-24,موافقت با تنظیم اجاره نامه بر روی هر واحد مورد رهن اشخاص حقوقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_25_01,8-25,بررسی و تصویب درخواست امهال,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_26_01,8-26,"توقف عملیات اجرایی در هر نوبت بعد از صدور اجراییه نسبت به قراردادهای رهنی , داخلی و چک به تقاضای بدهکار/راهن/سایر ذی نفعان (ضامنین , اشخاص ثالث و غیره)",CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_27_01,8-27,هزینه استعلام از سازمان ثبت احوال کشور,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_27_02,8-27,ثبت و نگهداری سفته های تضمینی اشخاص حقیقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_27_03,8-27,ثبت و نگهداری سفته های تضمینی اشخاص حقوقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_29_01,8-29,انتقال قراردادهای تسهیلاتی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_30_01,8-30,موافقت با تجمیع دو یا چند پلاک به منظور پرداخت تسهیلات مشارکت,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_31_01,8-31,موافقت با تغییر و اصلاح حدود اربعه پلاک در رهن بانک اشخاص حقیقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_31_02,8-31,موافقت با تغییر و اصلاح حدود اربعه پلاک در رهن بانک اشخاص حقوقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_30_02,8-30,درخواست تمدید مدت تعویض وثیقه غیر همزمان اشخاص حقیقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_30_03,8-30,درخواست تمدید مدت تعویض وثیقه غیر همزمان اشخاص حقوقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_33_01,8-33,موافقت با تنظیم سند پیش فروش روی واحد مورد مشارکت بانک اشخاص حقیقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_33_02,8-33,موافقت با تنظیم سند پیش فروش روی واحد مورد مشارکت بانک اشخاص حقوقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_34_01,8-34,تنظیم پیش نویس و ثبت سند رهنی در سیستم اشخاص حقیقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_34_02,8-34,تنظیم پیش نویس و ثبت سند رهنی در سیستم اشخاص حقوقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_35_01,8-35,تمدید پیش نویس قراردادهای رهنی پس از طی مهلت یک ماهه,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_35_02,8-35,اصلاح یا برگشت مبلغ اضافه واریزی اقساط (به درخواست مشتری) اشخاص حقیقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_35_03,8-35,اصلاح یا برگشت مبلغ اضافه واریزی اقساط (به درخواست مشتری) اشخاص حقوقی,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_CRD_8_37_01,8-37,تشکیل پرونده برای پرداخت بیمه غرامت فوت گیرندگان تسهیلات,CBI_CREDIT_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_1_01,9-1,نگهداری مانده های مطالبه نشده و راکد(سالانه),CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_2_01,9-2,تهیه تصویر(صدور سند المثنی) اسناد روزهای قبل به درخواست مشتری *,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_3_01,9-3,بازبینی تصاویر دوربین های مدار بسته(اعم از داخل و بیرون) شعب به درخواست مشتری/ دستور مرجع قضایی,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_4_01,9-4,اطلاعات درخواستی مشتریان جهت ارائه به بازرسان قانونی و حسابرسان مستقل آن ها,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_5_01,9-5,گواهی اعلام بدهی و یا مانده هرگونه از حساب ها به مراجع ذی صلاح به درخواست مشتری**,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_6_01,9-6,دریافت حضوری قبوض آب، برق، گاز، تلفن(ثابت همراه) ، شهرداری، راهنمایی و رانندگی و موارد مشابه (از سازمان / شرکت ذی ربط),CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_7_01,9-7,تأیید اصالت وکالت نامه,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_7_02,9-7,ارائه تاییدیه شماره حساب و شماره شبا به سایر سازمان ها بنا به درخواست مشتری اشخاص حقیقی,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_7_03,9-7,ارائه تاییدیه شماره حساب و شماره شبا به سایر سازمان ها بنا به درخواست مشتری اشخاص حقوقی,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_9_01,9-9,محاسبه و پرداخت سهم الارث وراث از حساب متوفی(حسب مدارک مثبته),CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_10_01,9-10,اخذ کد بورسی در شعبه,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_11_01,9-11,ارائه خدمات مربوط به ETC برای بار اول,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_12_01,9-12,اخذ استعلام وضعیت اعتباری(تسهیالت و تعهدات) و ماده (۱۲) حساب جاری از سامانه بانک مرکزی جهت ارائه به سایر سازمان ها و نهادها,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_12_02,9-12,ارائه تصویر مدارک هویتی موجود در پرونده تسهیلاتی یا قراردادهای افتتاح حساب اشخاص حقیقی (وام گیرنده یا صاحب حساب),CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_14_01,9-14,استعلام مربوط به اخذ فرم ماده (186) قانون مالیات های مستقیم,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_15_01,9-15,استعلام کدپستی به درخواست مشتری(دریافت نشانی، مختصات جغرافیایی، تولید گواهی کد پستی),CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_15_02,9-15,انجام استعلام از مراجع ذی ربط به درخواست مشتری (نظیر استعلام پایان کار ساختمان، بافت فرسوده، بافت ناپایدار، حریم مترو، گسل، پهنه ملک، طرح تفصیلی ملک، وضعیت پرونده شهرسازی، روزنامه رسمی، جواز کسب و کار مشتری),CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+ARCHIVE_OLD_RIAL,CBI1404_OTH_9_17_01,9-17,استعلام مالکیت شماره تلفن همراه از سامانه شاهکار,CBI_OTHER_SERVICE_FEE_GROUP,2026-09-09
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_1_01,1,صدور انواع کارت مغناطیسی هوشمند/ اعتباری,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_2_01,2,صدور انواع کارت مغناطیسی(نقدی، بن کارت، خانواده، هدیه و ...),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_3_01,3,صدور کارت مجازی برای اشخاص حقیقی,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_4_01,4,صدور کارت مجازی برای اشخاص حقوقی,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_5_01,5,اعلام مانده کارت (بین بانکی),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_6_01,6,اعلام مانده کارت و صورت حساب 10 گردش آخر- پایانه شعب (بین بانکی),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_7_01,7,هزینه پردازش اعلام مانده، صورت حساب 10 گردش آخر، انتقال وجه درون بانکی/ مستمر سپرده/ کارت به سپرده/ کارت و ...,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_8_01,8,انتقال وجه شتابی کارت به کارت/ انتقال وجه کارت به شبا (خدمت سحاب),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_9_01,9,ارسال پیامک اطالع رسانی تراکنش حساب مشتریان,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_10_01,10,انتقال وجه بین بانکی پایا - دستور پرداخت انفرادی,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_11_01,11,انتقال وجه بین بانکی پایا - دستور پرداخت گروهی,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_12_01,12,انتقال وجه بین بانکی ساتنا,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_13_01,13,اعلام 10 گردش آخر کارت(بین بانکی),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_14_01,14,دریافت غیرحضوری قبوض آب، برق، گاز، تلفن (ثابت- همراه) ، شهرداری، راهنمایی و رانندگی و موارد مشابه (از سازمان / شرکت ذی ربط),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_15_01,15,واریز گروهی (پرداخت حقوق، واریز سود سهام، پرداخت پاداش، شارژ بن کارت و ...) از سازمان متقاضی,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_16_01,16,ارتباط هر حساب جدید با کارت - غیر حضوری (پس از صدور کارت),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_17_01,17,تغییر حساب اصلی کارت - غیرحضوری,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_18_01,18,انسداد یا رفع انسداد حساب به درخواست مشتری - غیرحضوری (کلیه حساب ها),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_19_01,19,ثبت دستور پرداخت مستمر (برای هر بار تعریف),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_20_01,20,خدمات مرتبط با صدور سفته و برات الکترونیک,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_21_01,21,فعال سازی همراه بانک و اینترنت بانک,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_22_01,22,انسداد یا رفع انسداد کارت به درخواست مشتری - غیر حضوری,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_23_01,23,صدور المثنی انواع کارت، پیش از تاریخ انقضای کارت (مربوط به انواع کارت ردیف های 1 و2),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_24_01,24,احراز هویت غیر حضوری(الکترونیک),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_25_01,25,دریافت وجه نقد پایانه شعب pinpad (شتابی),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_26_01,26,خرید کارتی,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_27_01,27,برگشت وجه خرید کارتی (Refund),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_28_01,28,ریال دیجیتال- کیف به کیف (انتقال از کیف عادی به کیف عادی),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_29_01,29,ریال دیجیتال - خرید (انتقال به کیف تجاری)/برگشت از خرید (ریفاند),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_30_01,30,درخواست استعلام شبا,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_31_01,31,دریافت شماره منحصربه فرد,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_32_01,32,گشایش,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_33_01,33,اصالحیه(ویرایش | تمدید) | خاتمه اعتبار(تبصره 2 ماده 45),CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_34_01,34,انتقال اعتبار اسنادی(تغییر ذی نفع),CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_35_01,35,اعالم وصول دریافت پیام,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_36_01,36,اعالم پذیرش اسناد مغایر,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_37_01,37,اعالم عدم پذیرش اسناد ارائه شده,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_38_01,38,اعالم مغایرت(درخواست پذیرش اسناد مغایر),CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_39_01,39,مجوز پذیرش پرداخت,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_40_01,40,اعلام پذیرش پرداخت,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_41_01,41,اعلام پرداخت,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_42_01,42,ارسال اسناد(تصویر),CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_43_01,43,دریافت شماره منحصربه فرد,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_44_01,44,صدور سند تعهد پرداخت,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_45_01,45,واگذاری یا انتقال سند تعهد پرداخت,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_46_01,46,استعلام پیام های صادر شده- پیام سیستمی گروه صفر,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_47_01,47,درخواست شماره منحصربه فرد تنزیل,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_48_01,48,استعلام وضعیت یک اعتبار قبل از تنزیل,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_49_01,49,تنزیل,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_50_01,50,تسویه پس از تنزیل,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELC_51_01,51,پیام متن آزاد,CBI_ELECTRONIC_LC_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_EGAR_52_01,52,دریافت شماره منحصربه فرد,CBI_ELECTRONIC_GUARANTEE_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_EGAR_53_01,53,صدور,CBI_ELECTRONIC_GUARANTEE_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_EGAR_54_01,54,ویرایش| تمدید| ابطال| خاتمه اعتبار,CBI_ELECTRONIC_GUARANTEE_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_EGAR_55_01,55,استعلام ضمانت نامه های بالتکلیف و پرداخت شده یک ضمانت خواه- پیام سیستمی گروه صفر,CBI_ELECTRONIC_GUARANTEE_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_EGAR_56_01,56,استعلام وضعیت یک پیام- پیام سیستمی گروه صفر,CBI_ELECTRONIC_GUARANTEE_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_EGAR_57_01,57,برگشت عملیات,CBI_ELECTRONIC_GUARANTEE_RIAL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_EBILL_58_01,58,اخذ کد سپامی,CBI_ELECTRONIC_BILL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_EBILL_59_01,59,ابطال کد سپامی,CBI_ELECTRONIC_BILL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_EBILL_60_01,60,تسویه,CBI_ELECTRONIC_BILL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_EBILL_61_01,61,استعلام وضعیت برات |فهرست برات های درانتظار صدور | فهرست برات های فعال,CBI_ELECTRONIC_BILL_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_62_01,62,سامانه پرداخت حسابی(پل پی) - خرید حسابی (واریز آنی),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_63_01,63,سامانه پرداخت حسابی(پل پی) - خرید حسابی (واریز چرخه ای),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_64_01,64,سامانه پرداخت حسابی(پل پی) - خرید حسابی (واریز روزانه),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_65_01,65,سامانه پرداخت حسابی (پل پی) - سرویس برگشت از خرید (Refund),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_66_01,66,سامانه پرداخت حسابی(پل پی) - درخواست دریافت وجه - سرویس Request to Pay,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_67_01,67,سامانه پرداخت حسابی(پل پی) - درخواست دریافت وجه مستمر - سرویس Direct Debit,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_68_01,68,دریافت وجه نقد خودپرداز (بین بانکی),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_69_01,69,ثبت یا انتقال یا استعلام چک در سامانه صیاد(حضوری),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_70_01,70,ثبت یا انتقال یا استعلام چک در سامانه صیاد (غیرحضوری),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_71_01,71,صدور دسته چک (اعم از کاغذی و الکترونیکی),CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_72_01,72,آبونمان عضویت در سامانه سپام ارزی,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+RETAIN_OLD_ELECTRONIC,CBI1404_ELEC_73_01,73,واگذاری چک دیجیتال غیرحضوری,CBI_ELECTRONIC_SERVICE_FEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_1,1-1,ضمانتنامه در مقابل 100 درصد سپرده نقدی,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_2,1-2,ضمانتنامه در مقابل انواع حساب های سپرده اعم از قرض الحسنه پس انداز و سرمایه گذاری مدت دار (ریالی و ارزی),CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_3,1-3,ضمانتنامه در مقابل طلا (1),CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_4,1-4,ضمانتنامه در مقابل ضمانتنامه های صادره توسط مؤسسات اعتباری داخلی,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_5,1-5,ضمانتنامه در مقابل ضمانتنامه های اعتباری (ارزی-ریالی) صادره توسط صندوق ضمانت صادرات ایران و سایر صندوق هایی که به موجب قانون تأسیس می شوند,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_6,1-6,ضمانتنامه در مقابل ضمانتنامه های صادره توسط بانک های خارجی معتبر,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_7,1-7,ضمانتنامه در مقابل اوراق بهادار بدون ریسک (2),CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_8,1-8,ضمانتنامه در مقابل سایر اوراق بهادار (3),CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_9,1-9,ضمانتنامه در مقابل سهام پذیرفته شده در بورس (4),CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_10,1-10,ضمانتنامه در مقابل اموال غیرمنقول سهل البیع (با تشخیص مؤسسه اعتباری),CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_11,1-11,ضمانتنامه در مقابل سایر اموال غیرمنقول,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_12,1-12,ضمانتنامه در مقابل توثیق سند کشتی و هواپیما دارای بیمه نامه معتبر,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_13,1-13,ضمانتنامه در مقابل اسناد تجاری نظیر سفته و چک,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_14,1-14,ضمانتنامه در مقابل رسید انبارهای عمومی,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_15,1-15,ضمانتنامه در مقابل سایر وثایق,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_16,1-16,تمدید ضمانتنامه,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_17,1-17,تقلیل ضمانتنامه,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_18,1-18,ابطال ضمانتنامه قبل از سررسید (غیر از ضبط ضمانتنامه) (5),CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_19,1-19,صدور المثنی ضمانتنامه های بانکی,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_GAR_1_20,1-20,انتقال ذی نفع ضمانتنامه,CBI_RIAL_1405_GUARANTEE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_REM_2_1,2-1,صدور چک تضمین شده یا رمزدار بین بانکی,CBI_RIAL_1405_REMITTANCE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_REM_2_2,2-2,اعلام منع پرداخت چک های بانکی/بین بانکی مفقودی,CBI_RIAL_1405_REMITTANCE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_REM_2_3,2-3,صدور المثنی چک بانکی,CBI_RIAL_1405_REMITTANCE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_REM_2_4,2-4,استرداد/ابطال چک بانکی/بین بانکی به درخواست مشتری,CBI_RIAL_1405_REMITTANCE_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SDB_3_1,3-1,صندوق اجاره ای (اجاره بها و ودیعه سالانه),CBI_RIAL_1405_SAFE_DEPOSIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SDB_3_2,3-2,هر بار استفاده از صندوق,CBI_RIAL_1405_SAFE_DEPOSIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SDB_3_3,3-3,مفقودی کلیدها,CBI_RIAL_1405_SAFE_DEPOSIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SDB_3_4,3-4,تخلیه و تحویل صندوق,CBI_RIAL_1405_SAFE_DEPOSIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SDB_3_5,3-5,هماهنگی جهت بازدید از صندوق اجاره ای به درخواست مراجع ذی صلاح,CBI_RIAL_1405_SAFE_DEPOSIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_1,4-1,انتقال هر برگ اوراق گواهی حق تقدم اعطای تسهیلات,CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_2,4-2,صدور هر برگ المثنی اوراق حق تقدم اعطای تسهیلات,CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_3,4-3,تضمین اصل و سود اوراق بدهی توسط مؤسسه اعتباری عامل,CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_4,4-4,انتقال اوراق بهادار/نقل و انتقال اوراق گواهی سپرده با نام به شخص ثالث,CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_5,4-5,عاملیت و ضمانت اوراق گواهی اعتبار مولد (گام),CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_6,4-6,انتقال اوراق گواهی اعتبار مولد (گام),CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_7,4-7,ابطال اوراق گواهی اعتبار مولد (گام) در لایه اول زنجیره تولید (از متقاضی) (1),CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_8,4-8,انتقال اوراق گام به بازار سرمایه (با نماد بازار سرمایه),CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_9,4-9,تنزیل (خرید دین) اوراق گام (با نماد بازار پول),CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_10,4-10,توثیق اوراق گواهی اعتبار مولد (گام),CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_11,4-11,بررسی و پذیرش مطالبات قراردادی با موضوع تأمین کالا,CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_12,4-12,بررسی و پذیرش مطالبات قراردادی با موضوع تأمین خدمات,CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_13,4-13,کارت رفاهی متصل به اوراق گواهی اعتبار مولد (گام) (به صورت اقساط مساوی در دوره بازپرداخت),CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_SEC_4_14,4-14,صدور اوراق گواهی اعتبار مولد (گام) یارانه دارو,CBI_RIAL_1405_SECURITIES_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_COL_5_1,5-1,سفته، برات و قبوض ثبتی وصولی,CBI_RIAL_1405_COLLECTION_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_COL_5_2,5-2,ابلاغ سفته و برات,CBI_RIAL_1405_COLLECTION_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_COL_5_3,5-3,واخواست سفته,CBI_RIAL_1405_COLLECTION_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_COL_5_4,5-4,فروش سفته/براتنامه (از متقاضی),CBI_RIAL_1405_COLLECTION_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_COL_5_5,5-5,قبولی «برات الکترونیکی زنجیره تولید»,CBI_RIAL_1405_COLLECTION_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_COL_5_6,5-6,انتقال «برات الکترونیکی زنجیره تولید»,CBI_RIAL_1405_COLLECTION_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_1,6-1-1,تقاضای عدم پرداخت چک,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_2,6-1-2,صدور گواهی نامه عدم پرداخت وجه چک,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_3,6-1-3,رفع سوء اثر برای هر برگ چک,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_4,6-1-4,انتقال حساب جاری به شعبه دیگر در هر شهر (بنا به درخواست مشتری),CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_5,6-1-5,اخذ هرگونه اطلاعات لازم جهت افتتاح حساب سپرده قرض الحسنه جاری با/بدون دسته چک,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_6,6-1-6,افتتاح حساب سپرده قرض الحسنه جاری موقت (برای شخص حقوقی در شرف تأسیس),CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_7,6-1-7,چک های واگذاری عهده سایر مؤسسات اعتباری (از ذی نفع چک),CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_8,6-1-8,انتقال وجه از سایر حساب های مشتری بابت تأمین وجه چک,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_9,6-1-9,اخذ گزارش اعتباری برای صدور دسته چک اشخاص حقیقی,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_10,6-1-10,صدور دسته چک,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_11,6-1-11,صدور المثنی (چاپ مجدد) گواهی نامه عدم پرداخت صادرشده قبلی به درخواست مشتری,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_12,6-1-12,ابطال/استرداد چک صادره توسط اشخاص به درخواست مشتری با ارائه لاشه چک باطل شده,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_13,6-1-13,اخذ صورت اطلاعات چک های برگشتی به درخواست مشتری,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_14,6-1-14,تحویل دسته چک به مشتری در شعبه ای غیر از شعبه افتتاح کننده حساب سپرده قرض الحسنه جاری,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_15,6-1-15,نگهداری امانی چک های با سررسید بیش از 30 روز (به استثنای چک های مأخوذه بابت تضمین تسهیلات),CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_1_16,6-1-16,صدور چک موردی جاری اشخاص,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_2_1,6-2-1,افتتاح حساب سپرده قرض الحسنه پس انداز,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_2_2,6-2-2,افتتاح حساب سپرده سرمایه گذاری کوتاه مدت,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_2_3,6-2-3,صدور هر جلد دفترچه صرفاً جهت حساب های سپرده سرمایه گذاری کوتاه مدت,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_3_1,6-3-1,صدور هرگونه گواهی حساب,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_3_2,6-3-2,صدور گواهی حساب به لاتین,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_3_3,6-3-3,صدور المثنی گواهی سپرده های سرمایه گذاری ویژه کوتاه مدت و بلندمدت,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_4_1,6-4-1,ارائه نسخه فیزیکی صورت حساب به مشتری,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_4_2,6-4-2,ارائه نسخه الکترونیکی (فایل) صورت حساب به مشتری,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_1,6-5-1,ارتباط هر حساب جدید با کارت (پس از صدور کارت) - از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_2,6-5-2,تغییر حساب اصلی کارت - از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_3,6-5-3,فعال سازی حساب های راکد - از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_4,6-5-4,فعال سازی حساب های مطالبه نشده و تعیین تکلیف نشده - از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_5,6-5-5,انتقال و واگذاری سپرده سرمایه گذاری بلندمدت به اشخاص مجاز طبق ضوابط ابلاغی بانک مرکزی,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_6,6-5-6,انسداد یا رفع انسداد انواع حساب/کارت به درخواست مشتری - از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_7,6-5-7,تغییر در شرایط/اطلاعات انواع حساب (نظیر صاحبان امضاء و آدرس) به درخواست مشتری - از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_8,6-5-8,برقراری ارتباط بین انواع حساب با لحاظ کف و سقف مبلغ - از طریق مراجعه به شعبه (به استثنای تأمین وجه چک),CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_9,6-5-9,ثبت دستور پرداخت مستمر - از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_10,6-5-10,انتقال سپرده قرض الحسنه پس انداز و سرمایه گذاری مدت دار به شعب دیگر در هر شهر,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_11,6-5-11,انسداد یا رفع انسداد انواع حساب یا موجودی که از سوی مراجع ذی صلاح به هر طریق به مؤسسه اعتباری اعلام می گردد,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_12,6-5-12,صدور رمز جدید برای انواع کارت های بانکی (نقدی، اعتباری و هدیه) به درخواست مشتری - از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_13,6-5-13,هزینه آبونمان سالانه کارت اعتباری مراجعه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_14,6-5-14,بررسی تراکنش های کارت های مفقودی/سرقتی به درخواست مشتری از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_15,6-5-15,تعیین سقف برداشت/واریز به حساب به درخواست مشتری از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_ACC_6_5_16,6-5-16,بستن انواع حساب در شعبه ای غیر از شعبه افتتاح کننده حساب به درخواست مشتری از طریق مراجعه به شعبه,CBI_RIAL_1405_ACCOUNT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_APP_7_1,7-1,ارزیابی ماشین آلات و کالا,CBI_RIAL_1405_APPRAISAL_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_APP_7_2,7-2,ارزیابی املاک و ساختمان,CBI_RIAL_1405_APPRAISAL_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_APP_7_3,7-3,ارزیابی املاک مزروعی و باغات,CBI_RIAL_1405_APPRAISAL_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_APP_7_4,7-4,ارزیابی میزان پیشرفت فیزیکی طرح های موضوع تسهیلات مشارکت مدنی (برآورد هزینه و آورده غیرنقدی شریک),CBI_RIAL_1405_APPRAISAL_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_APP_7_5,7-5,بازدید تسهیلات تعمیر مسکن/بازدید نوبت های اضافی تسهیلات تعمیر مسکن در قالب کلیه عقود,CBI_RIAL_1405_APPRAISAL_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_APP_7_6,7-6,ارزیابی مجدد به درخواست مشتری (به غیر از تسهیلات جعاله تعمیر مسکن),CBI_RIAL_1405_APPRAISAL_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_APP_7_7,7-7,ارزیابی وثایق غیرمنقول مازاد,CBI_RIAL_1405_APPRAISAL_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_1,8-1,اخذ استعلام اعتبارسنجی از شرکت رتبه بندی اعتباری ایران,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_2,8-2,واگذاری سهم الشرکه بانک به غیر (1),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_3,8-3,تمدید تسهیلات عقود مشارکتی,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_4,8-4,بررسی اصالت پیش فاکتور,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_5,8-5,صلح حقوق یا انتقال تعهد,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_6,8-6,تغییر در شرایط قرارداد,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_7,8-7,تفکیک، تغییر و تعویض رهینه با وثیقه (تسهیلات و تعهدات),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_8,8-8,اقاله ملک,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_9,8-9,امور مربوط به نظارت بر مصرف تسهیلات (جهت انواع تسهیلاتی که به صورت دفعات واحده نیست و همچنین متناسب با پیشرفت کار پرداخت می گردد) (2),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_10,8-10,امور مربوط به بررسی رهن مازاد سایر سازمان ها و مؤسسات اعتباری,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_11,8-11,تکمیل فرم یارانه تسهیلات تکلیفی,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_12,8-12,صدور اخطاریه کتبی جهت اقساط یا مطالبات غیرجاری,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_13,8-13,انتقال ملک مرهونه به شخص ثالث,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_14,8-14,تغییر ضامن/گیرنده تسهیلات/تعهدات,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_15,8-15,عدم استفاده از حد اعتباری تسهیلات مصوب پس از 45 روز از تاریخ ابلاغ (Commitment fee),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_16,8-16,هزینه کارشناسی (ارزیابی) طرح ها,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_17,8-17,هزینه کارشناسی تسهیلات سرمایه در گردش (3),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_18,8-18,هزینه کارشناسی کالای سرمایه ای واحدهای تولیدی، خدماتی و بازرگانی خارج از طرح (4),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_19,8-19,هزینه کارشناسی در ایجاد تعهدات (ضمانتنامه، برات، فاکتورینگ، گشایش اعتبار اسنادی و غیره),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_20,8-20,تهیه گزارش اطلاعات اعتباری مشتمل بر استعلام از شاهکار، آدرس، استفاده از سامانه های داخلی، لیست سیاه و ... (تسهیلات/تعهدات),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_21,8-21,تشکیل پرونده اعتباری اعم از تعهدات یا تسهیلات (به استثنای قرض الحسنه),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_22,8-22,پذیرش اوراق گواهی حق تقدم هنگام پرداخت تسهیلات,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_23,8-23,ارائه صورت اطلاعات تسهیلات و تعهدات به درخواست مشتری,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_24,8-24,تغییر شرایط مصوبات ابلاغی صادره از سوی ارکان اعتباری بالاتر از رکن اعتباری شعبه به درخواست مشتری و منوط به صدور مصوبه جدید (تسهیلات/تعهدات),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_25,8-25,موافقت با تنظیم اجاره نامه بر روی هر واحد مورد رهن,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_26,8-26,بررسی و تصویب درخواست امهال (7),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_27,8-27,توقف عملیات اجرایی در هر نوبت بعد از صدور اجرائیه نسبت به قراردادهای رهنی، داخلی و چک به تقاضای بدهکار/راهن/سایر ذی نفعان (ضامنین، اشخاص ثالث و غیره),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_28,8-28,هزینه استعلام از سازمان ثبت احوال کشور,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_29,8-29,ثبت و نگهداری سفته های تضمینی,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_30,8-30,انتقال قراردادهای تسهیلاتی,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_31,8-31,موافقت با تجمیع دو یا چند پلاک به منظور پرداخت تسهیلات مشارکت,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_32,8-32,موافقت با تغییر و اصلاح حدود اربعه پلاک در رهن بانک,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_33,8-33,درخواست تمدید مدت تعویض وثیقه غیر همزمان,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_34,8-34,موافقت با تنظیم سند پیش فروش روی واحد مورد مشارکت بانک,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_35,8-35,تنظیم پیش نویس و ثبت سند رهنی در سیستم,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_36,8-36,تمدید پیش نویس قراردادهای رهنی پس از طی مهلت یک ماهه,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_37,8-37,اصلاح یا برگشت مبلغ اضافه واریزی اقساط (به درخواست مشتری),CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_38,8-38,تشکیل پرونده برای پرداخت بیمه غرامت فوت گیرندگان تسهیلات,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_CRD_8_39,8-39,وصول مطالبات اعم از برون سپاری به مؤسسات/شرکت های ذی ربط یا توسط خود مؤسسه اعتباری,CBI_RIAL_1405_CREDIT_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_1,9-1,نگهداری مانده های مطالبه نشده و راکد (سالانه),CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_2,9-2,تهیه تصویر (صدور سند المثنی)/چاپ مجدد اسناد روزهای قبل به درخواست مشتری (1),CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_3,9-3,بازیابی تصاویر دوربین های مدار بسته (اعم از داخل و بیرون) شعب به درخواست مشتری/دستور مرجع قضایی,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_4,9-4,اطلاعات درخواستی مشتریان جهت ارائه به بازرسان قانونی و حسابرسان مستقل آن ها,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_5,9-5,گواهی اعلام بدهی و یا مانده هرگونه از حساب ها به مراجع ذی صلاح به درخواست مشتری (2),CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_6,9-6,دریافت حضوری قبوض آب، برق، گاز، تلفن (ثابت-همراه)، شهرداری، راهنمایی و رانندگی و موارد مشابه (از سازمان/شرکت ذی ربط),CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_7,9-7,تأیید اصالت وکالتنامه,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_8,9-8,ارائه تأییدیه شماره حساب و شماره شبا به سایر سازمان ها بنا به درخواست مشتری,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_9,9-9,محاسبه و پرداخت سهم الارث وراث از حساب متوفی (حسب مدارک مثبته),CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_10,9-10,اخذ کد بورسی به درخواست مشتری از طریق مراجعه به شعبه,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_11,9-11,ارائه خدمات مربوط به ETC برای بار اول,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_12,9-12,اخذ استعلام وضعیت اعتباری (تسهیلات و تعهدات) و ماده (21) حساب جاری از سامانه بانک مرکزی جهت ارائه به سایر سازمان ها و نهادها,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_13,9-13,ارائه تصویر مدارک موجود در پرونده تسهیلاتی یا قراردادهای افتتاح حساب اشخاص حقیقی به تسهیلات گیرنده یا صاحب حساب,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_14,9-14,استعلام مربوط به اخذ فرم ماده (186) قانون مالیات های مستقیم,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_15,9-15,استعلام و به روزرسانی کدپستی به درخواست مشتری (دریافت نشانی، مختصات جغرافیایی، تولید گواهی کد پستی) از طریق مراجعه به شعبه,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_16,9-16,انجام استعلام از مراجع ذی ربط (نظیر شهرداری، سازمان نظام وظیفه و شرکت مترو) جهت انجام/ارائه عملیات/خدمات بانکی,CBI_RIAL_1405_OTHER_GROUP,
+INSERT_NEW_PROVISIONAL,CBI1405R_OTH_9_17,9-17,استعلام مالکیت شماره تلفن همراه از سامانه شاهکار,CBI_RIAL_1405_OTHER_GROUP,

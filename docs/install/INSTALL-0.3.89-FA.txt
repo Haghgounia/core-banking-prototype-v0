@@ -1,30 +1,29 @@
 Core Banking Prototype 0.3.89 / FIX97
-PDL — Unified Product Builder Wizard + Child Editing
+======================================
 
-این نسخه نسبت به 0.3.88 تغییر DDL ندارد و FIX96 پیش‌نیاز است.
+موضوع Release:
+Unified Product Builder Phase 2 - Six Step Wizard + Hierarchical Child Navigation
 
-ترتیب ارتقا:
-1) برنامه را متوقف کنید: bin\stop.cmd
-2) Source/Patch نسخه 0.3.89 را روی 0.3.88 Overlay کنید.
-3) هیچ Migration جدیدی اجرا نکنید؛ Migrationهای FIX96 باید قبلاً اعمال شده باشند.
-4) build-production.cmd
-5) در خروجی Build کنترل کنید: Built version: 0.3.89
-6) bin\start.cmd
-7) Ctrl+F5
+پیش‌نیاز:
+- نصب موفق 0.3.88 / FIX96 و اجرای Migrationهای آن.
+- این Release دیتابیس جدیدی ایجاد نمی‌کند و Migration جدید ندارد.
 
-کنترل پذیرش Product Workspace:
-- مرحله 1: PRODUCT / هویت و Family
-- مرحله 2: PRODUCT_VERSION / اعتبار و Origination/Servicing
-- مرحله 3: PRODUCT_VERSION_MODULE / Enable + Configuration + Validation با Persist واقعی
-- مرحله 4: Common Rules بر اساس Moduleهای فعال
-- مرحله 5: Deposit/Loan Rules بر اساس Family
-- مرحله 6: Review + Configuration Readiness
+مراحل ارتقا از 0.3.88:
+1) bin\stop.cmd
+2) فایل‌های Patch نسخه 0.3.89 را روی Root پروژه Overlay کنید.
+3) build-production.cmd
+4) پیام Built version: 0.3.89 را کنترل کنید.
+5) bin\start.cmd
+6) مرورگر: Ctrl+F5
 
-کنترل Child Editing:
-- PRODUCT_CHANNEL_RULE -> PRODUCT_CHANNEL_OPERATION
-- PRODUCT_PRICING_RULE -> PRODUCT_PRICING_COMPONENT -> PRODUCT_RATE_TIER
-- PRODUCT_ELIGIBILITY_RULE -> LOAN_ELIGIBILITY_EXTENSION
-- DEPOSIT_PRODUCT_TERM_RULE -> DEPOSIT_PRODUCT_ALLOWED_TERM
-- DEPOSIT_PRODUCT_CLOSURE_RULE -> PRECHECK / SETTLEMENT / APPROVAL
-- CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE -> CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE
-- در تمام Child Formها FK Parent باید از Context پر و قفل باشد.
+کنترل پذیرش:
+- Product Workspace دارای 6 مرحله باشد.
+- مرحله 3 ماژول‌ها را برای نسخه انتخاب‌شده فعال/غیرفعال کند.
+- TERM و PROFIT_PAYMENT فقط برای SHORT_TERM_DEPOSIT/LONG_TERM_DEPOSIT/CERTIFICATE_OF_DEPOSIT نمایش داده شوند.
+- CORRESPONDENT فقط برای NOSTRO_ACCOUNT/VOSTRO_ACCOUNT نمایش داده شود.
+- در PRODUCT_PRICING_RULE روی هر ردیف لینک «اجزای قیمت‌گذاری» موجود باشد.
+- در PRODUCT_PRICING_COMPONENT لینک «پله‌های نرخ» موجود باشد.
+- در DEPOSIT_PRODUCT_TERM_RULE لینک «مدت‌های مجاز» موجود باشد.
+- در DEPOSIT_PRODUCT_CLOSURE_RULE لینک‌های Precheck/Settlement/Approval موجود باشند.
+- در CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE لینک Settlement موجود باشد.
+- در PRODUCT_ELIGIBILITY_RULE لینک LOAN_ELIGIBILITY_EXTENSION موجود باشد.

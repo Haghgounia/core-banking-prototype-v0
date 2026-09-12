@@ -1,26 +1,41 @@
-## 0.3.90 — FIX98: Product 360 + Rule Validation + Governed Lifecycle
+## 0.3.92 — FIX100: پاک‌سازی Source باقی‌مانده در Overlay و Clean-Compile Guard
 
-- مرحله ۶ Product Workspace به Product 360 متصل به Backend ارتقا یافت.
-- Rule Validation از داده واقعی ماژول‌ها و Child Ruleها محاسبه و در PRODUCT_VERSION_MODULE ثبت می‌شود.
-- چرخه Governed `DRAFT → APPROVED → ACTIVE` با Actionهای Validate / Approve / Publish اضافه شد.
-- Publish همیشه Validation زنده را دوباره اجرا می‌کند و نسخه جاری را کنترل می‌کند.
-- Statusهای Lifecycle و Approval در UI و Backend سیستم‌مدیریت شدند؛ Generic CRUD نمی‌تواند آن‌ها را تغییر دهد.
-- نسخه‌های APPROVED/ACTIVE و Module/Ruleهای وابسته، شامل Child Ruleها، در Generic CRUD immutable هستند؛ اصلاح از Return-to-Draft یا Version جدید انجام می‌شود.
-- Loan Eligibility در UI تخصصی از Parent `PRODUCT_ELIGIBILITY_RULE` وارد Child Editing می‌شود.
-- DDL جدید ندارد؛ FIX96 همچنان Baseline دیتابیس است.
+- فایل منسوخ `ProductGovernanceService.java` که ممکن است از پچ‌های میانی در نصب Overlay باقی مانده باشد، قبل از Build به `.upgrade-backup` منتقل و از Source فعال خارج می‌شود.
+- Preflight Maven در `build-production.cmd` از incremental `compile` به `clean compile` تغییر کرد تا خطاهای Source کامل پیش از Angular build شناسایی شوند.
+- Verifier PDL نبودن Source governance منسوخ در Baseline رسمی را کنترل می‌کند.
+- هیچ DDL/Migration یا تغییر داده‌ای ندارد؛ FEE FIX98 بدون تغییر باقی می‌ماند.
 
-## 0.3.89 — FIX97: Wizard شش‌مرحله‌ای Unified Product Builder و Child Editing
+## 0.3.91 — FIX99: Hotfix کامپایل Angular در Unified Product Builder
 
-- `Product Workspace` از صفحه‌ی تجمیعی به Wizard شش‌مرحله‌ای تبدیل شد: هویت/خانواده، نسخه/اعتبار، ماژول‌ها، قواعد مشترک، قواعد تخصصی Family و Review/Readiness.
-- مرحله ۱ مستقیماً `PDL.PRODUCT` را مدیریت می‌کند و Domain سپرده/تسهیلات، خانواده محصول، ارز، وضعیت و ماهیت ترازنامه‌ای را نگه می‌دارد.
-- مرحله ۲ مدیریت `PDL.PRODUCT_VERSION` را شامل بازه اعتبار، نسخه جاری، `VERSION_STATUS_CODE` و وضعیت‌های `ORIGINATION_STATUS_CODE` / `SERVICING_STATUS_CODE` انجام می‌دهد.
-- مرحله ۳ دیگر Switch موقت Frontend نیست؛ هر ماژول یک رکورد واقعی در `PDL.PRODUCT_VERSION_MODULE` دارد و `IS_ENABLED`، `CONFIGURATION_STATUS_CODE` و `VALIDATION_STATUS_CODE` مستقیماً Persist می‌شوند.
-- مرحله ۴ قواعد مشترک را فقط بر اساس ماژول‌های فعال نسخه نمایش می‌دهد: Eligibility، Channel، Org Scope، Document، Inquiry، Pricing و Product Relationship.
-- مرحله ۵ قواعد تخصصی را بر اساس `PRODUCT_CLASS_CODE` و `PRODUCT_FAMILY_CODE` فیلتر می‌کند؛ TERM/PROFIT_PAYMENT فقط برای سپرده‌های مدت‌دار و CORRESPONDENT فقط برای NOSTRO/VOSTRO ظاهر می‌شوند.
-- مرحله ۶ `Configuration Readiness` را بدون جدول یا State موازی از وضعیت واقعی `PRODUCT`، `PRODUCT_VERSION` و `PRODUCT_VERSION_MODULE` محاسبه و وضعیت‌های Product/Version/Origination/Servicing را یکجا Review می‌کند.
-- Child Editing سلسله‌مراتبی در Generic PDL Grid فعال است: `CHANNEL→OPERATION`، `PRICING_RULE→COMPONENT→TIER`، `ELIGIBILITY→LOAN_EXTENSION`، `TERM→ALLOWED_TERM`، `CLOSURE→PRECHECK/SETTLEMENT/APPROVAL` و `CORRESPONDENT_PROFILE→SETTLEMENT_RULE`. FK والد از Context پر و در فرم Child قفل می‌شود.
-- این Release **DDL/Migration جدید ندارد** و دیتابیس FIX96 / نسخه 0.3.88 پیش‌نیاز است.
-- Guard `verify-pdl-product-builder.mjs` اکنون علاوه بر Coverage پنجاه جدول کسب‌وکاری، Contract کامل Wizard، مدیریت مستقیم Module، Family applicability، Readiness و Child Context را کنترل می‌کند.
+- خطای `TS4111` در `product-workspace.component.ts` رفع شد؛ `payload` از نوع `Record<string, any>` است و حذف فیلدهای سیستمی `APPROVED_AT` و `APPROVED_BY` اکنون با bracket notation انجام می‌شود.
+- Verifier `verify-pdl-product-builder.mjs` با Regression Guard مربوط به `noPropertyAccessFromIndexSignature` تقویت شد تا بازگشت این خطا در Releaseهای بعدی متوقف شود.
+- هیچ تغییر Business، API، DDL، Migration یا Seed ندارد؛ داده‌های FEE نسخه FIX98 بدون تغییر باقی می‌مانند.
+- این Hotfix علت نبودن JAR اجرایی پس از Build ناموفق 0.3.90 را رفع می‌کند؛ پس از Build موفق باید canonical JAR و BUILD-VERSION=0.3.91 ساخته شوند.
+
+## 0.3.90 — FIX98: مصوبه جدید کارمزد خدمات بانکی ریالی با Versioned Archive
+
+- بسته موقت مصوبه جدید کارمزد خدمات بانکی ریالی از فایل ۸ صفحه‌ای و Excel ساختاری به FEE اضافه شد.
+- 152 تعرفه جدید و 180 جزء محاسباتی منبع ثبت می‌شوند؛ 15 Tier ارزیابی برای پنج تعرفه سه‌بازه‌ای نیز ایجاد می‌شود.
+- 156 نسخه قبلی غیرالکترونیکی CBI-1404 با `EFFECTIVE_TO=2026-09-09` و وضعیت `SUPERSEDED` آرشیو زمانی می‌شوند؛ هیچ DELETE فیزیکی انجام نمی‌شود.
+- 73 تعرفه الکترونیکی CBI-1404 صریحاً از Scope آرشیو خارج و فعال باقی می‌مانند.
+- منبع مقرراتی جدید تا زمان دریافت نامه رسمی با `SOURCE_CODE=CBI_RIAL_FEE_1405_PROVISIONAL`، شماره `PROVISIONAL-RIAL-FEE-1405` و `STATUS_CODE=PROVISIONAL` ثبت می‌شود.
+- تاریخ `2026-09-10` صرفاً تاریخ موقت مبتنی بر فایل ساختاری است و به‌عنوان تاریخ رسمی ابلاغ ادعا نمی‌شود.
+- Ruleهای ساده FIXED/RATE/PER_UNIT اجرایی نگاشت می‌شوند؛ قواعد مرکب، مرجعی و فرمولی بدون ساختن فرمول حدسی در `COMPOSITE/EXTERNAL_VALUE` و `FEE_RULE_COMPONENT` حفظ می‌شوند.
+- Import idempotent و تراکنشی است: Import → Verify → COMMIT؛ خطا قبل از Commit باعث Rollback می‌شود.
+- Verifier مستقل `verify-cbi-rial-fee-1405-provisional.mjs` به Build اضافه شد.
+- DDL جدید ندارد؛ Baseline 1.0 FEE و Import قبلی CBI-1404 پیش‌نیاز هستند.
+
+## 0.3.89 — FIX97: Unified Product Builder Phase 2 — Wizard شش‌مرحله‌ای و Child Editing سلسله‌مراتبی
+
+- Workspace محصول از کارت‌های مستقل به Wizard شش‌مرحله‌ای `PRODUCT → PRODUCT_VERSION → MODULES → COMMON RULES → DOMAIN RULES → REVIEW` تبدیل شد.
+- مرحله ماژول‌ها مستقیماً `PRODUCT_VERSION_MODULE` را مدیریت می‌کند و Applicability خانواده محصول را رعایت می‌کند.
+- برای خانواده‌های سپرده، `TERM` و `PROFIT_PAYMENT` فقط برای Short/Long/Certificate و `CORRESPONDENT` فقط برای NOSTRO/VOSTRO قابل اعمال است.
+- فرم‌های جدولی مادر اکنون Child Navigation دارند: Channel→Operation، Pricing Rule→Component→Tier، Term Rule→Allowed Term، Closure→Precheck/Settlement/Approval، Correspondent Profile→Settlement و Eligibility→Loan Eligibility Extension.
+- FK فنی Child از Context ردیف مادر اعمال و در فرم Child قفل می‌شود؛ کاربر ID ارتباطی را دستی وارد نمی‌کند.
+- فرم نسخه با semantics هدف اصلاح شد: Origination=`OPEN/SUSPENDED/CLOSED` و Servicing=`ACTIVE/SUSPENDED/CLOSED`؛ فیلدهای `APPROVED_AT/BY` فقط سیستمی‌اند.
+- `SOURCE_VERSION_ID` فقط از نسخه‌های همان محصول و بدون Self-reference انتخاب می‌شود.
+- مرحله Review شمارش ماژول‌های فعال، فرم‌های دارای داده و تعداد رکوردهای پیکربندی نسخه را نمایش می‌دهد.
+- این Release نیاز به DDL/Migration ندارد و بر Baseline دیتابیس FIX96 اجرا می‌شود.
 
 ## 0.3.88 — FIX96: Baseline اجرایی Unified Product Builder برای PDL
 

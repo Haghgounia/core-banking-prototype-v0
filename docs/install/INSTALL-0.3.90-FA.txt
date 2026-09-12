@@ -1,24 +1,34 @@
 Core Banking Prototype 0.3.90 / FIX98
-Product 360 + Rule Validation + Governed Approval/Publish
+======================================
 
-پیش‌نیاز دیتابیس:
-- FIX96 / 0.3.88 قبلاً اجرا شده باشد.
-- FIX98 هیچ DDL یا Migration جدیدی ندارد.
+موضوع Release:
+CBI Rial Banking Fee 1405 - Provisional Versioned Import + Temporal Archive
 
-روش نصب Source/Patch:
-1) از نسخه 0.3.89 / FIX97 یا Full Package جدید Backup بگیرید.
-2) Source/Patch نسخه 0.3.90 را Overlay کنید.
-3) build-production.cmd را اجرا کنید.
-4) bin\start.cmd را اجرا کنید.
-5) در System Specification کنترل کنید: Built version: 0.3.90
+پیش‌نیاز:
+- نصب موفق FEE Baseline 1.0.
+- اجرای موفق تعرفه CBI-1404 (FIX81).
+- نامه رسمی مصوبه جدید هنوز در اختیار پروژه نیست؛ Source جدید عمداً PROVISIONAL است.
 
-کنترل PDL:
-- Product Workspace مرحله ۶ باید Product 360 را نمایش دهد.
-- Validation Status ماژول در مرحله ۳ Read-only است.
-- Validate -> Approve -> Publish باید از Backend انجام شود.
-- node tools\verify-pdl-product-builder.mjs باید OK باشد.
+مراحل ارتقا از 0.3.89:
+1) bin\stop.cmd
+2) Patch نسخه 0.3.90 را روی Root پروژه Overlay کنید.
+3) در SQL*Plus/SQLcl از مسیر database\oracle\fee اجرا کنید:
+   @install-cbi-rial-fee-1405-provisional.sql
+4) خروجی Verify باید OK باشد و سپس COMMIT خودکار Installer انجام می‌شود.
+5) build-production.cmd
+6) پیام Built version: 0.3.90 را کنترل کنید.
+7) bin\start.cmd
+8) Ctrl+F5
 
-FIX98 Governance Guard:
-- Lifecycle status fields are backend-managed.
-- APPROVED/ACTIVE version-scoped configuration is immutable through Generic CRUD.
-- No new DDL/migration is required.
+اثر دیتابیس:
+- DDL جدید ندارد.
+- 152 تعرفه جدید + 180 Component + 15 Tier وارد می‌شود.
+- 156 Version قبلی غیرالکترونیکی CBI-1404 به صورت Temporal Archive بسته می‌شود.
+- 73 Version الکترونیکی CBI-1404 دست‌نخورده باقی می‌ماند.
+- هیچ DELETE فیزیکی انجام نمی‌شود.
+
+هشدار:
+EFFECTIVE_FROM=2026-09-10 و CIRCULAR_NO=PROVISIONAL-RIAL-FEE-1405 مقادیر موقت Prototype هستند و بعد از دریافت نامه رسمی باید اصلاح شوند.
+
+QA:
+docs\FEE-0.3.90-FIX98-CBI-RIAL-1405-PROVISIONAL-QA.md

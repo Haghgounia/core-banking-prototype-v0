@@ -63,43 +63,6 @@ public final class ProductBuilderModels {
             int size
     ) {}
 
-
-    public record ProductReadinessItem(
-            String code,
-            String label,
-            boolean ok,
-            String detail
-    ) {}
-
-    public record ProductModuleValidation(
-            String moduleCode,
-            String label,
-            String domain,
-            boolean required,
-            boolean enabled,
-            boolean configured,
-            boolean dataValid,
-            boolean validationRecorded,
-            String configurationStatus,
-            String validationStatus,
-            List<String> missingTables,
-            Map<String, Long> ruleCounts
-    ) {}
-
-    public record Product360(
-            Map<String, Object> product,
-            Map<String, Object> version,
-            List<Map<String, Object>> modules,
-            Map<String, Long> ruleCounts,
-            List<ProductModuleValidation> moduleValidations,
-            List<ProductReadinessItem> readiness,
-            int readinessScore,
-            boolean validationPassed,
-            boolean canApprove,
-            boolean canPublish,
-            String lifecycleStatus
-    ) {}
-
     public record ProductWorkspace(
             Map<String, Object> product,
             List<Map<String, Object>> versions,
