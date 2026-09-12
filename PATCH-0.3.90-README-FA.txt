@@ -1,0 +1,27 @@
+Core Banking Prototype 0.3.90 / FIX98
+Product 360 + Rule Validation + Governed Publish/Approval Lifecycle
+
+مبنای نصب Patch:
+- Source/UI نسخه 0.3.89 / FIX97
+- Database Baseline نسخه 0.3.88 / FIX96
+
+نحوه نصب:
+1) از نسخه فعلی Backup بگیرید.
+2) محتوای این ZIP را روی Root پروژه FIX97 Overlay کنید.
+3) هیچ DDL یا Migration جدیدی برای FIX98 اجرا نمی‌شود.
+4) build-production.cmd را اجرا کنید.
+5) برنامه را با bin\\start.cmd راه‌اندازی کنید.
+
+کنترل‌های اصلی FIX98:
+- Product 360 مبتنی بر Backend
+- Live Rule Validation و ثبت VALID/INVALID در PRODUCT_VERSION_MODULE
+- Governed DRAFT -> APPROVED -> ACTIVE
+- Approve/Publish با Re-validation زنده
+- Lifecycle fields غیرقابل تغییر از Generic CRUD
+- APPROVED/ACTIVE Version و Module/Ruleهای وابسته immutable در Generic CRUD
+- Child Ruleها نیز از طریق Parent Chain تحت Governance Guard هستند
+
+Verifier:
+node tools/verify-pdl-product-builder.mjs
+node tools/verify-release-layout.mjs
+node tools/verify-runtime-artifact-contract.mjs

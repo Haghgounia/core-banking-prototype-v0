@@ -1,26 +1,28 @@
+0.3.90 / FIX98 patch files (overlay on 0.3.89 / FIX97)
+
 CHANGELOG.md
-PATCH-0.3.88-README-FA.txt
 README-FA.md
 VERSION
+PATCH-0.3.90-README-FA.txt
+PATCH-FILE-LIST.txt
 backend/pom.xml
-backend/src/main/java/com/behsazan/corebanking/productbuilder/application/PdlCatalog.java
-backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderBusinessValidator.java
 backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderService.java
-backend/src/test/java/com/behsazan/corebanking/productbuilder/application/PdlCatalogTest.java
-backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderBusinessValidatorTest.java
-database/oracle/dps/migrations/0.3.88-fix96-unified-product-builder-reference-seed.sql
-database/oracle/pdl/migrations/0.3.88-fix96-unified-product-builder-baseline.sql
-docs/PDL-0.3.88-FIX96-UNIFIED-PRODUCT-BUILDER-BASELINE-QA.md
-docs/install/INSTALL-0.3.88-FA.txt
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductGovernanceService.java
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductGovernanceWriteGuard.java
+backend/src/main/java/com/behsazan/corebanking/productbuilder/domain/ProductBuilderModels.java
+backend/src/main/java/com/behsazan/corebanking/productbuilder/web/ProductBuilderController.java
+docs/PDL-0.3.90-FIX98-PRODUCT-360-GOVERNANCE-QA.md
+docs/install/INSTALL-0.3.90-FA.txt
 frontend/package-lock.json
 frontend/package.json
-frontend/src/app/features/product-builder/pdl-table.component.html
-frontend/src/app/features/product-builder/pdl-table.component.scss
-frontend/src/app/features/product-builder/pdl-table.component.ts
-frontend/src/app/features/product-builder/product-builder-home.component.html
-frontend/src/app/features/product-builder/product-builder-home.component.ts
+frontend/src/app/features/product-builder/product-builder.models.ts
+frontend/src/app/features/product-builder/product-builder.service.ts
 frontend/src/app/features/product-builder/product-workspace.component.html
 frontend/src/app/features/product-builder/product-workspace.component.scss
 frontend/src/app/features/product-builder/product-workspace.component.ts
 frontend/src/app/features/system-specification/system-version.generated.ts
 tools/verify-pdl-product-builder.mjs
+
+Database migration: NONE
+Database prerequisite: FIX96 / 0.3.88
+Source prerequisite: FIX97 / 0.3.89

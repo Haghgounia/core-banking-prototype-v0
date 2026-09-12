@@ -1,3 +1,27 @@
+## 0.3.90 — FIX98: Product 360 + Rule Validation + Governed Lifecycle
+
+- مرحله ۶ Product Workspace به Product 360 متصل به Backend ارتقا یافت.
+- Rule Validation از داده واقعی ماژول‌ها و Child Ruleها محاسبه و در PRODUCT_VERSION_MODULE ثبت می‌شود.
+- چرخه Governed `DRAFT → APPROVED → ACTIVE` با Actionهای Validate / Approve / Publish اضافه شد.
+- Publish همیشه Validation زنده را دوباره اجرا می‌کند و نسخه جاری را کنترل می‌کند.
+- Statusهای Lifecycle و Approval در UI و Backend سیستم‌مدیریت شدند؛ Generic CRUD نمی‌تواند آن‌ها را تغییر دهد.
+- نسخه‌های APPROVED/ACTIVE و Module/Ruleهای وابسته، شامل Child Ruleها، در Generic CRUD immutable هستند؛ اصلاح از Return-to-Draft یا Version جدید انجام می‌شود.
+- Loan Eligibility در UI تخصصی از Parent `PRODUCT_ELIGIBILITY_RULE` وارد Child Editing می‌شود.
+- DDL جدید ندارد؛ FIX96 همچنان Baseline دیتابیس است.
+
+## 0.3.89 — FIX97: Wizard شش‌مرحله‌ای Unified Product Builder و Child Editing
+
+- `Product Workspace` از صفحه‌ی تجمیعی به Wizard شش‌مرحله‌ای تبدیل شد: هویت/خانواده، نسخه/اعتبار، ماژول‌ها، قواعد مشترک، قواعد تخصصی Family و Review/Readiness.
+- مرحله ۱ مستقیماً `PDL.PRODUCT` را مدیریت می‌کند و Domain سپرده/تسهیلات، خانواده محصول، ارز، وضعیت و ماهیت ترازنامه‌ای را نگه می‌دارد.
+- مرحله ۲ مدیریت `PDL.PRODUCT_VERSION` را شامل بازه اعتبار، نسخه جاری، `VERSION_STATUS_CODE` و وضعیت‌های `ORIGINATION_STATUS_CODE` / `SERVICING_STATUS_CODE` انجام می‌دهد.
+- مرحله ۳ دیگر Switch موقت Frontend نیست؛ هر ماژول یک رکورد واقعی در `PDL.PRODUCT_VERSION_MODULE` دارد و `IS_ENABLED`، `CONFIGURATION_STATUS_CODE` و `VALIDATION_STATUS_CODE` مستقیماً Persist می‌شوند.
+- مرحله ۴ قواعد مشترک را فقط بر اساس ماژول‌های فعال نسخه نمایش می‌دهد: Eligibility، Channel، Org Scope، Document، Inquiry، Pricing و Product Relationship.
+- مرحله ۵ قواعد تخصصی را بر اساس `PRODUCT_CLASS_CODE` و `PRODUCT_FAMILY_CODE` فیلتر می‌کند؛ TERM/PROFIT_PAYMENT فقط برای سپرده‌های مدت‌دار و CORRESPONDENT فقط برای NOSTRO/VOSTRO ظاهر می‌شوند.
+- مرحله ۶ `Configuration Readiness` را بدون جدول یا State موازی از وضعیت واقعی `PRODUCT`، `PRODUCT_VERSION` و `PRODUCT_VERSION_MODULE` محاسبه و وضعیت‌های Product/Version/Origination/Servicing را یکجا Review می‌کند.
+- Child Editing سلسله‌مراتبی در Generic PDL Grid فعال است: `CHANNEL→OPERATION`، `PRICING_RULE→COMPONENT→TIER`، `ELIGIBILITY→LOAN_EXTENSION`، `TERM→ALLOWED_TERM`، `CLOSURE→PRECHECK/SETTLEMENT/APPROVAL` و `CORRESPONDENT_PROFILE→SETTLEMENT_RULE`. FK والد از Context پر و در فرم Child قفل می‌شود.
+- این Release **DDL/Migration جدید ندارد** و دیتابیس FIX96 / نسخه 0.3.88 پیش‌نیاز است.
+- Guard `verify-pdl-product-builder.mjs` اکنون علاوه بر Coverage پنجاه جدول کسب‌وکاری، Contract کامل Wizard، مدیریت مستقیم Module، Family applicability، Readiness و Child Context را کنترل می‌کند.
+
 ## 0.3.88 — FIX96: Baseline اجرایی Unified Product Builder برای PDL
 
 - مدل PDL با فایل `Unified_Product_Builder_Deposit_Loan.html` هم‌تراز شد: 50 جدول کسب‌وکاری Target + سه جدول زیرساخت Code Management = 53 Object فیزیکی Catalog.

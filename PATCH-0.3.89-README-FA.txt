@@ -1,0 +1,20 @@
+Core Banking Prototype 0.3.89 / FIX97 — Unified Product Builder Wizard + Child Editing
+
+این Patch برای Overlay روی Source نسخه 0.3.88 / FIX96 است.
+Migration جدید ندارد؛ دیتابیس FIX96 پیش‌نیاز است.
+
+Scope:
+- Product Workspace Wizard شش‌مرحله‌ای
+- مدیریت مستقیم PRODUCT_VERSION_MODULE
+- Common Rules و Family-specific Rules
+- Review / Configuration Readiness
+- Hierarchical Child Editing با Parent Context قفل‌شده
+
+پس از Overlay:
+build-production.cmd
+bin\start.cmd
+Ctrl+F5
+
+جزئیات:
+docs\PDL-0.3.89-FIX97-HIERARCHICAL-CHILD-NAVIGATION-QA.md
+docs\install\INSTALL-0.3.89-FA.txt

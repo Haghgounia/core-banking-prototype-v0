@@ -20,11 +20,14 @@ import java.util.Map;
 public class ProductBuilderService {
     private final PdlProductBuilderRepository repository;
     private final ProductBuilderBusinessValidator businessValidator;
+    private final ProductGovernanceWriteGuard governanceWriteGuard;
 
     public ProductBuilderService(PdlProductBuilderRepository repository,
-                                 ProductBuilderBusinessValidator businessValidator) {
+                                 ProductBuilderBusinessValidator businessValidator,
+                                 ProductGovernanceWriteGuard governanceWriteGuard) {
         this.repository = repository;
         this.businessValidator = businessValidator;
+        this.governanceWriteGuard = governanceWriteGuard;
     }
 
     public CatalogResponse catalog() {
@@ -60,6 +63,8 @@ public class ProductBuilderService {
 
     @Transactional
     public Map<String, Object> create(String table, Map<String, Object> values, String actor) {
+        guardGovernedFieldsOnCreate(table, values);
+        governanceWriteGuard.assertCreateAllowed(table, values);
         businessValidator.validate(table, values);
         long id = repository.insert(table, values, actorName(actor));
         return findById(table, id);
@@ -67,7 +72,10 @@ public class ProductBuilderService {
 
     @Transactional
     public Map<String, Object> update(String table, long id, Map<String, Object> values, String actor) {
-        Map<String, Object> merged = new LinkedHashMap<>(findById(table, id));
+        guardGovernedFieldsOnUpdate(table, values);
+        Map<String, Object> existing = new LinkedHashMap<>(findById(table, id));
+        governanceWriteGuard.assertUpdateAllowed(table, existing, values);
+        Map<String, Object> merged = new LinkedHashMap<>(existing);
         merged.putAll(values);
         businessValidator.validate(table, merged);
         if (!repository.update(table, id, values, actorName(actor))) {
@@ -78,6 +86,8 @@ public class ProductBuilderService {
 
     @Transactional
     public void delete(String table, long id, String actor) {
+        Map<String, Object> existing = findById(table, id);
+        governanceWriteGuard.assertDeleteAllowed(table, existing);
         if (!repository.delete(table, id, actorName(actor))) {
             throw new ProductBuilderValidationException("PDL row not found: " + table + "/" + id);
         }
@@ -94,6 +104,72 @@ public class ProductBuilderService {
         counts.put("PRODUCT_VERSION", versionPage.totalElements());
         counts.put("PRODUCT_LEGACY_MAPPING", repository.search("PRODUCT_LEGACY_MAPPING", null, 0, 1, "PRODUCT_ID", String.valueOf(productId)).totalElements());
         return new ProductWorkspace(product, versionPage.items(), counts);
+    }
+
+    private static void guardGovernedFieldsOnCreate(String table, Map<String, Object> values) {
+        String normalized = normalizeTable(table);
+        if ("PRODUCT".equals(normalized)) {
+            requireInitialValue(values, "PRODUCT_STATUS_CODE", "DRAFT");
+        } else if ("PRODUCT_VERSION".equals(normalized)) {
+            requireInitialValue(values, "VERSION_STATUS_CODE", "DRAFT");
+            requireFalseOrEmpty(values, "IS_CURRENT");
+            requireEmpty(values, "APPROVED_AT");
+            requireEmpty(values, "APPROVED_BY");
+        } else if ("PRODUCT_VERSION_MODULE".equals(normalized)) {
+            requireInitialValue(values, "VALIDATION_STATUS_CODE", "NOT_VALIDATED");
+        }
+    }
+
+    private static void guardGovernedFieldsOnUpdate(String table, Map<String, Object> values) {
+        String normalized = normalizeTable(table);
+        if ("PRODUCT".equals(normalized) && values.containsKey("PRODUCT_STATUS_CODE")) {
+            governedField("PRODUCT_STATUS_CODE", "Validate/Approve/Publish");
+        }
+        if ("PRODUCT_VERSION".equals(normalized)) {
+            for (String field : List.of("VERSION_STATUS_CODE", "IS_CURRENT", "APPROVED_AT", "APPROVED_BY")) {
+                if (values.containsKey(field)) governedField(field, "Validate/Approve/Publish/Return-to-Draft");
+            }
+        }
+        if ("PRODUCT_VERSION_MODULE".equals(normalized) && values.containsKey("VALIDATION_STATUS_CODE")) {
+            String value = textValue(values.get("VALIDATION_STATUS_CODE"));
+            if (!value.isBlank() && !"NOT_VALIDATED".equals(value)) {
+                governedField("VALIDATION_STATUS_CODE", "Validate");
+            }
+        }
+    }
+
+    private static void requireInitialValue(Map<String, Object> values, String field, String expected) {
+        if (!values.containsKey(field)) return;
+        String actual = textValue(values.get(field));
+        if (!actual.isBlank() && !expected.equals(actual)) governedField(field, "governed lifecycle action");
+    }
+
+    private static void requireFalseOrEmpty(Map<String, Object> values, String field) {
+        if (!values.containsKey(field)) return;
+        Object value = values.get(field);
+        if (value == null) return;
+        String text = value.toString().trim();
+        if (!(text.isBlank() || "0".equals(text) || "FALSE".equalsIgnoreCase(text) || "N".equalsIgnoreCase(text))) {
+            governedField(field, "Publish");
+        }
+    }
+
+    private static void requireEmpty(Map<String, Object> values, String field) {
+        if (!values.containsKey(field)) return;
+        Object value = values.get(field);
+        if (value != null && !value.toString().isBlank()) governedField(field, "Approve");
+    }
+
+    private static String normalizeTable(String table) {
+        return table == null ? "" : table.trim().toUpperCase();
+    }
+
+    private static String textValue(Object value) {
+        return value == null ? "" : value.toString().trim().toUpperCase();
+    }
+
+    private static void governedField(String field, String action) {
+        throw new ProductBuilderValidationException(field + " یک فیلد حاکمیتی است و فقط از مسیر " + action + " قابل تغییر است.");
     }
 
     private static String actorName(String actor) {

@@ -593,8 +593,16 @@ Parser XML در برابر DTD/External Entity غیرفعال و سخت‌ساز
 همچنین فیلدهای `DATE` در Gridهای عمومی CAL2 به هجری شمسی نمایش داده می‌شوند. بنابراین در فرم «استثناءهای تک‌روز»، `EXCEPTION_DATE` مانند `1405/12/10` دیده می‌شود، در حالی که مقدار Canonical ارسالی به Backend/Oracle همچنان ISO مانند `2027-03-01` باقی می‌ماند. همین قاعده برای تاریخ شروع/پایان اعتبار برنامه‌های ساعات کاری نیز اعمال می‌شود. FIX95 تغییر Database ندارد.
 
 
+### Unified Product Builder PDL — FIX97 / 0.3.89
+
+در FIX97، Product Workspace به Wizard شش‌مرحله‌ای تبدیل شده است: هویت و Family محصول، مدیریت Version و وضعیت‌های Origination/Servicing، مدیریت مستقیم `PRODUCT_VERSION_MODULE`، قواعد مشترک، قواعد تخصصی Family و Review/Configuration Readiness. Moduleها مستقیماً در جدول `PDL.PRODUCT_VERSION_MODULE` Persist می‌شوند و Child Editing سلسله‌مراتبی با انتقال و قفل‌کردن FK والد فعال است. این نسخه DDL جدید ندارد و FIX96 پیش‌نیاز آن است.
+
 ### Unified Product Builder PDL — FIX96 / 0.3.88
 
 در FIX96 مدل PDL با Baseline جدید Unified Product Builder هم‌راستا شده است: 50 جدول کسب‌وکاری Target و سه جدول Infrastructure مدیریت کد در Catalog فیزیکی. سه Object جدید `DEPOSIT_PROFIT_PAYMENT_RULE`، `CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE` و `CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE` اضافه شده‌اند. خانواده‌های سپرده به جاری، قرض‌الحسنه پس‌انداز، کوتاه‌مدت، بلندمدت، گواهی سپرده، نوسترو و وسترو تفکیک می‌شوند. DATEهای فرم‌های PDL با ورودی شمسی و ساعت Cut-off با Clock/Dial مشترک نمایش داده می‌شوند؛ قرارداد Backend بدون تغییر Canonical باقی می‌ماند.
 
 برای ارتقا از 0.3.87 ابتدا Migrationهای PDL و DPS داخل `database/oracle/*/migrations/0.3.88-*` اجرا و سپس `build-production.cmd` اجرا شود. جزئیات در `docs/PDL-0.3.88-FIX96-UNIFIED-PRODUCT-BUILDER-BASELINE-QA.md` آمده است.
+
+### Product 360 و Governance — FIX98 / 0.3.90
+
+FIX98 مرحله ۶ Unified Product Builder را به Product 360 مبتنی بر Backend ارتقا می‌دهد. Ruleهای واقعی هر Module، از جمله روابط Parent/Child در Channel، Pricing، Term، Correspondent و Loan Eligibility، برای Validation خوانده می‌شوند. نتیجه Validation در `PRODUCT_VERSION_MODULE` ثبت می‌شود و چرخه Governed `DRAFT → APPROVED → ACTIVE` از Actionهای Validate، Approve و Publish عبور می‌کند. Publish همیشه Validation را دوباره اجرا می‌کند و `IS_CURRENT` را روی نسخه منتشرشده تنظیم می‌کند. Lifecycle در Backend نیز Guard شده است: Statusهای حاکمیتی از Generic CRUD قابل تغییر نیستند و Versionهای APPROVED/ACTIVE همراه با Module/Ruleهای وابسته immutable می‌شوند؛ اصلاح باید با Return-to-Draft یا ایجاد Version جدید انجام شود. این Release DDL جدید ندارد و دیتابیس FIX96 کافی است.

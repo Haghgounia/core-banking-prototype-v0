@@ -1,8 +1,10 @@
 package com.behsazan.corebanking.productbuilder.web;
 
 import com.behsazan.corebanking.productbuilder.application.ProductBuilderService;
+import com.behsazan.corebanking.productbuilder.application.ProductGovernanceService;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.CatalogResponse;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.ProductWorkspace;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.Product360;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.SelectOption;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.TableDescriptor;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.TablePage;
@@ -25,9 +27,11 @@ import java.util.Map;
 @RequestMapping("/api/v1/product-builder")
 public class ProductBuilderController {
     private final ProductBuilderService service;
+    private final ProductGovernanceService governanceService;
 
-    public ProductBuilderController(ProductBuilderService service) {
+    public ProductBuilderController(ProductBuilderService service, ProductGovernanceService governanceService) {
         this.service = service;
+        this.governanceService = governanceService;
     }
 
     @GetMapping("/catalog")
@@ -38,6 +42,40 @@ public class ProductBuilderController {
     @GetMapping("/products/{productId}/workspace")
     ProductWorkspace productWorkspace(@PathVariable long productId) {
         return service.productWorkspace(productId);
+    }
+
+    @GetMapping("/products/{productId}/360")
+    Product360 product360(@PathVariable long productId,
+                          @RequestParam(required = false) Long versionId) {
+        return governanceService.product360(productId, versionId);
+    }
+
+    @PostMapping("/products/{productId}/versions/{versionId}/validate")
+    Product360 validateVersion(@PathVariable long productId,
+                               @PathVariable long versionId,
+                               @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        return governanceService.validateVersion(productId, versionId, actor);
+    }
+
+    @PostMapping("/products/{productId}/versions/{versionId}/approve")
+    Product360 approveVersion(@PathVariable long productId,
+                              @PathVariable long versionId,
+                              @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        return governanceService.approveVersion(productId, versionId, actor);
+    }
+
+    @PostMapping("/products/{productId}/versions/{versionId}/publish")
+    Product360 publishVersion(@PathVariable long productId,
+                              @PathVariable long versionId,
+                              @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        return governanceService.publishVersion(productId, versionId, actor);
+    }
+
+    @PostMapping("/products/{productId}/versions/{versionId}/draft")
+    Product360 returnToDraft(@PathVariable long productId,
+                             @PathVariable long versionId,
+                             @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        return governanceService.returnToDraft(productId, versionId, actor);
     }
 
     @GetMapping("/tables/{table}/descriptor")

@@ -1,0 +1,24 @@
+Core Banking Prototype 0.3.90 / FIX98
+Product 360 + Rule Validation + Governed Approval/Publish
+
+پیش‌نیاز دیتابیس:
+- FIX96 / 0.3.88 قبلاً اجرا شده باشد.
+- FIX98 هیچ DDL یا Migration جدیدی ندارد.
+
+روش نصب Source/Patch:
+1) از نسخه 0.3.89 / FIX97 یا Full Package جدید Backup بگیرید.
+2) Source/Patch نسخه 0.3.90 را Overlay کنید.
+3) build-production.cmd را اجرا کنید.
+4) bin\start.cmd را اجرا کنید.
+5) در System Specification کنترل کنید: Built version: 0.3.90
+
+کنترل PDL:
+- Product Workspace مرحله ۶ باید Product 360 را نمایش دهد.
+- Validation Status ماژول در مرحله ۳ Read-only است.
+- Validate -> Approve -> Publish باید از Backend انجام شود.
+- node tools\verify-pdl-product-builder.mjs باید OK باشد.
+
+FIX98 Governance Guard:
+- Lifecycle status fields are backend-managed.
+- APPROVED/ACTIVE version-scoped configuration is immutable through Generic CRUD.
+- No new DDL/migration is required.

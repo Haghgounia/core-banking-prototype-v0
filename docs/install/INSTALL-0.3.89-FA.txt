@@ -1,0 +1,30 @@
+Core Banking Prototype 0.3.89 / FIX97
+PDL — Unified Product Builder Wizard + Child Editing
+
+این نسخه نسبت به 0.3.88 تغییر DDL ندارد و FIX96 پیش‌نیاز است.
+
+ترتیب ارتقا:
+1) برنامه را متوقف کنید: bin\stop.cmd
+2) Source/Patch نسخه 0.3.89 را روی 0.3.88 Overlay کنید.
+3) هیچ Migration جدیدی اجرا نکنید؛ Migrationهای FIX96 باید قبلاً اعمال شده باشند.
+4) build-production.cmd
+5) در خروجی Build کنترل کنید: Built version: 0.3.89
+6) bin\start.cmd
+7) Ctrl+F5
+
+کنترل پذیرش Product Workspace:
+- مرحله 1: PRODUCT / هویت و Family
+- مرحله 2: PRODUCT_VERSION / اعتبار و Origination/Servicing
+- مرحله 3: PRODUCT_VERSION_MODULE / Enable + Configuration + Validation با Persist واقعی
+- مرحله 4: Common Rules بر اساس Moduleهای فعال
+- مرحله 5: Deposit/Loan Rules بر اساس Family
+- مرحله 6: Review + Configuration Readiness
+
+کنترل Child Editing:
+- PRODUCT_CHANNEL_RULE -> PRODUCT_CHANNEL_OPERATION
+- PRODUCT_PRICING_RULE -> PRODUCT_PRICING_COMPONENT -> PRODUCT_RATE_TIER
+- PRODUCT_ELIGIBILITY_RULE -> LOAN_ELIGIBILITY_EXTENSION
+- DEPOSIT_PRODUCT_TERM_RULE -> DEPOSIT_PRODUCT_ALLOWED_TERM
+- DEPOSIT_PRODUCT_CLOSURE_RULE -> PRECHECK / SETTLEMENT / APPROVAL
+- CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE -> CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE
+- در تمام Child Formها FK Parent باید از Context پر و قفل باشد.
