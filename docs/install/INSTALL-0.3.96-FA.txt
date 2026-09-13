@@ -1,0 +1,31 @@
+Core Banking Prototype 0.3.96 / FIX104
+راهنمای اصلاح Reconciliation کارمزد 1405
+
+هدف:
+- رفع ORA-06502 در 04-reconcile برای متن های فارسی چندبایتی.
+- داده های FEE و DDL تغییر نمی کنند.
+
+علت:
+- عنوان تعرفه CBI1405R_CRD_8_24 دارای 139 کاراکتر و 252 بایت UTF-8 است.
+- Reconciliation قبلی آن را در متغیر محلی VARCHAR2(250) می خواند و با character string buffer too small متوقف می شد.
+- FIX104 بافرهای متنی را با %TYPE به ستون های واقعی Oracle متصل می کند.
+
+برای دیتابیسی که 04 قبلی در آن با عبارت Rollback شکست خورده است:
+1) ابتدا اجرا کنید:
+   @05-diagnose-cbi-rial-fee-1405-state.sql
+2) اگر SOURCE/DEFINITIONS/ACTIVE_VERSIONS/ACTIVE_RULES همگی صفر بودند، Import قبلی Rollback شده است و باید مراحل زیر از نو اجرا شوند:
+   @01-import-cbi-rial-fee-1405-provisional.sql
+   @02-verify-cbi-rial-fee-1405-provisional.sql
+   @04-reconcile-cbi-rial-fee-1405-provisional.sql
+   COMMIT;
+3) اگر Diagnostic نشان داد Dataset هنوز موجود است، فقط 04 اصلاح شده را اجرا کنید و پس از mismatches=0، COMMIT کنید.
+
+انتظار نهایی 04:
+- tariffs_checked=152
+- components_checked=180
+- inputs_checked=66
+- tiers_checked=15
+- mismatches=0
+- CBI Rial Fee 1405 PROVISIONAL source-to-Oracle reconciliation OK.
+
+هیچ DDL جدیدی ندارد.

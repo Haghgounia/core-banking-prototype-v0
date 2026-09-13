@@ -1,0 +1,16 @@
+Core Banking Prototype 0.3.96 / FIX104
+
+موضوع: رفع ORA-06502 در Source-to-Oracle Reconciliation کارمزد 1405 برای متن فارسی چندبایتی.
+
+تغییر اصلی:
+- بافرهای متنی ثابت PL/SQL در 04-reconcile core با %TYPE ستون های واقعی Oracle جایگزین شدند.
+- Generator و Verifier مربوط به FEE به روز شدند.
+- DDL و Business Data تغییر نکرده است.
+
+ارتقا از 0.3.95:
+1) فایل های Patch را Overlay کنید.
+2) برای ادامه کنترل دیتابیس ابتدا 05-diagnose را اجرا کنید.
+3) اگر Import قبلی به دلیل Rollback از بین رفته بود، 01 سپس 02 سپس 04 را اجرا کنید و فقط در صورت mismatches=0، COMMIT کنید.
+4) اگر Dataset هنوز وجود داشت، فقط 04 اصلاح شده را اجرا و در صورت موفقیت COMMIT کنید.
+
+نسخه هدف: 0.3.96

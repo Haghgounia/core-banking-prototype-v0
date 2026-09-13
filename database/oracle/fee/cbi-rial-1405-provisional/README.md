@@ -26,4 +26,4 @@ Replace/finalize these values after receiving the official CBI letter.
 - Source component count is preserved exactly.
 
 ## Install
-Run `00-install-cbi-rial-fee-1405-provisional.sql`. It imports, verifies, then commits. Any SQL error rolls back before commit.
+Run `00-install-cbi-rial-fee-1405-provisional.sql`. It imports, performs structural verification, runs the full source-to-Oracle business-value reconciliation, then commits. Any SQL error or reconciliation mismatch rolls back before commit. For an already-installed database, first run `05-diagnose-cbi-rial-fee-1405-state.sql` if installation state is uncertain, then run `04-reconcile-cbi-rial-fee-1405-provisional.sql` directly. The standalone reconciliation wrapper is transaction-neutral: it never commits or rolls back caller work.

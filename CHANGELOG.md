@@ -1,3 +1,39 @@
+## 0.3.96 — FIX104: Oracle Reconciliation Multibyte Buffer Guard
+
+- خطای `ORA-06502: character string buffer too small` در `04-reconcile...` رفع شد. خطا هنگام بررسی تعرفه `CBI1405R_CRD_8_24` رخ می‌داد؛ عنوان فارسی آن 139 کاراکتر اما 252 بایت UTF-8 است و متغیر محلی `VARCHAR2(250)` ظرفیت کافی نداشت.
+- متغیرهای متنی Reconciliation دیگر با اندازه‌های ثابت Byte-oriented تعریف نمی‌شوند و با `%TYPE` مستقیم به ستون‌های Oracle (`FEE_DEFINITION`, `FEE_RULE_COMPONENT`, `FEE_INPUT_DEFINITION`, `FEE_CALCULATION_TIER` و جداول مرجع مرتبط) متصل شده‌اند.
+- همین اصلاح برای Component/Input/Tier نیز اعمال شد تا متن‌های فارسی چندبایتی بعدی به خطای مشابه منجر نشوند.
+- Generator و `verify-cbi-rial-fee-1405-provisional.mjs` با Regression Guard مربوط به `%TYPE` به‌روزرسانی شدند.
+- هیچ DDL، Import یا تغییر Business Data جدیدی ندارد؛ فقط Validation/Reconciliation اصلاح شده است.
+
+## 0.3.95 — FIX103: Transaction-safe FEE Reconciliation و Recovery Guard
+
+- خروجی واقعی Oracle نشان داد که 419 اختلاف همگی از نوع `ROW expected=present actual=missing` هستند و شمارش‌های Global برای Source/Definition/Rule/Component/Input/Tier همگی صفر شده‌اند؛ بنابراین مسئله Business Value نیست و Dataset موقت ۱۴۰۵ در Session/Database فعلی حضور ندارد.
+- با توجه به اینکه Verification قبلی FIX98 موفق بود و اجرای ناموفق قبلی `04-reconcile...sql` پیام `Rollback` تولید کرد، سناریوی محتمل این است که Import به‌صورت دستی (`01` + `02`) و بدون `COMMIT` اجرا شده و سپس Reconciliation ناموفق همان Transaction را Rollback کرده است؛ سناریوی جایگزین، اتصال به Service/PDB متفاوت است.
+- Reconciliation به سه لایه تفکیک شد: `core`، wrapper مستقل Transaction-neutral، و wrapper `enforced` برای Installer. اجرای مستقل `04-reconcile...sql` دیگر هیچ `COMMIT/ROLLBACK` روی Transaction کاربر انجام نمی‌دهد.
+- Installer از `04-reconcile...-enforced.sql` استفاده می‌کند تا در نصب تراکنشی، هر Mismatch قبل از `COMMIT` عمداً Rollback شود.
+- اسکریپت Read-only جدید `05-diagnose-cbi-rial-fee-1405-state.sql` Context اتصال Oracle و وضعیت Dataset ۱۴۰۵/نسخه‌های ۱۴۰۴ را گزارش می‌کند تا Rollback از اتصال به Database/Service اشتباه تفکیک شود.
+- Generator و Verifier برای این Transaction-safety contract اصلاح شدند. هیچ DDL یا تغییر مدل داده‌ای ندارد.
+
+## 0.3.94 — FIX102: اصلاح Syntax اسکریپت Source-to-Oracle Reconciliation کارمزد
+
+- خطای Oracle/PLSQL در `04-reconcile-cbi-rial-fee-1405-provisional.sql` رفع شد؛ literalهای `LIKE 'SRC:%'` و کلیدهای `'#'` / `'#TIER'` اکنون به‌درستی Quote می‌شوند.
+- علت خطا در Generator نیز اصلاح شد؛ استفاده از Python adjacent string literals باعث حذف Quoteهای موردنیاز SQL شده بود.
+- Regression Guard به `verify-cbi-rial-fee-1405-provisional.mjs` اضافه شد تا بازگشت literalهای بدون Quote در خروجی Generated متوقف شود.
+- Generator با همان Excel/PDF رسمی پروژه دوباره اجرا شد و خروجی `04` با فایل Release بایت‌به‌بایت تطبیق داده شد.
+- این Fix فقط Validation SQL/Generator را اصلاح می‌کند؛ هیچ DDL، Import، Update یا تغییر داده FEE ندارد.
+- خطای FIX101 پیش از اجرای Reconciliation متوقف شده است؛ `ROLLBACK` مشاهده‌شده اثری روی داده‌های قبلاً Commit‌شده FIX98 ندارد.
+
+## 0.3.93 — FIX101: Source-to-Oracle Reconciliation کامل برای مصوبه کارمزد ریالی ۱۴۰۵
+
+- کنترل مرحله دوم FEE برای تطبیق کامل Source ↔ Oracle اضافه شد؛ این کنترل فقط Read-only است و هیچ داده‌ای را تغییر نمی‌دهد.
+- اسکریپت `04-reconcile-cbi-rial-fee-1405-provisional.sql` هر 152 تعرفه، 180 جزء منبع، 66 Input اجرایی و 15 Tier ارزیابی را با قرارداد استخراج‌شده از Excel/PDF مقایسه می‌کند.
+- برای هر تعرفه علاوه بر Strategy، مبالغ و نرخ‌ها، `REGULATORY_TARIFF_CODE`، Feature/Category، Policy/Source، تاریخ اعتبار و `CONFIG_HASH` منبع کنترل می‌شود.
+- Hash فایل Excel و PDF نیز با Metadata ذخیره‌شده در `FEE_REGULATORY_SOURCE` تطبیق داده می‌شود.
+- در صورت هر اختلاف، اسکریپت Field-level `[MISMATCH]` چاپ و با `ORA-20260` متوقف می‌شود؛ نتیجه سالم با پیام `source-to-Oracle reconciliation OK` خاتمه می‌یابد.
+- Installer مصوبه موقت برای نصب‌های بعدی از این نسخه به ترتیب `Import → Structural Verify → Source Reconciliation → COMMIT` اجرا می‌شود.
+- Import یا DDL جدیدی ندارد؛ داده‌های FIX98 بدون تغییر باقی می‌مانند.
+
 ## 0.3.92 — FIX100: پاک‌سازی Source باقی‌مانده در Overlay و Clean-Compile Guard
 
 - فایل منسوخ `ProductGovernanceService.java` که ممکن است از پچ‌های میانی در نصب Overlay باقی مانده باشد، قبل از Build به `.upgrade-backup` منتقل و از Source فعال خارج می‌شود.

@@ -424,6 +424,327 @@ def generate_sql(tariffs:list[Tariff], components:list[dict[str,Any]], xlsx_hash
     return '\n'.join(lines)+'\n'
 
 
+
+def generate_reconciliation(tariffs:list[Tariff], components:list[dict[str,Any]], xlsx_hash:str, pdf_hash:str) -> str:
+    """Generate a source-to-Oracle acceptance verifier.
+
+    Unlike the structural verifier, this embeds the normalized source contract and
+    compares every tariff, every source component, every executable input and every
+    generated tier against the rows stored in Oracle. No source file access is
+    required at execution time.
+    """
+    by_tariff=defaultdict(list)
+    for c in components:
+        by_tariff[c['tariff_code']].append(c)
+    for rows in by_tariff.values():
+        rows.sort(key=lambda x:x['sequence'])
+
+    lines=[]
+    a=lines.append
+    a('-- ============================================================================')
+    a('-- CBI Rial Banking Fees 1405 - PROVISIONAL source-to-Oracle reconciliation')
+    a(f'-- Workbook SHA256: {xlsx_hash}')
+    a(f'-- PDF SHA256     : {pdf_hash}')
+    a('-- Generated from the same normalized source contract as the FIX98 importer.')
+    a('-- This script is read-only. It raises ORA-20260 if any business-value mismatch exists.')
+    a('-- ============================================================================')
+    a('SET DEFINE OFF;')
+    a('WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;')
+    a('ALTER SESSION SET CURRENT_SCHEMA = FEE;')
+    a('SET SERVEROUTPUT ON SIZE UNLIMITED;')
+    a('')
+    a('DECLARE')
+    a('  v_errors NUMBER := 0;')
+    a('  v_tariffs_checked NUMBER := 0;')
+    a('  v_components_checked NUMBER := 0;')
+    a('  v_inputs_checked NUMBER := 0;')
+    a('  v_tiers_checked NUMBER := 0;')
+    a('')
+    a('  FUNCTION same_text(a VARCHAR2, b VARCHAR2) RETURN BOOLEAN IS')
+    a('  BEGIN')
+    a('    IF a IS NULL AND b IS NULL THEN RETURN TRUE; END IF;')
+    a('    IF a IS NULL OR b IS NULL THEN RETURN FALSE; END IF;')
+    a('    RETURN a = b;')
+    a('  END;')
+    a('')
+    a('  FUNCTION same_num(a NUMBER, b NUMBER) RETURN BOOLEAN IS')
+    a('  BEGIN')
+    a('    IF a IS NULL AND b IS NULL THEN RETURN TRUE; END IF;')
+    a('    IF a IS NULL OR b IS NULL THEN RETURN FALSE; END IF;')
+    a('    RETURN a = b;')
+    a('  END;')
+    a('')
+    a('  FUNCTION same_date(a DATE, b DATE) RETURN BOOLEAN IS')
+    a('  BEGIN')
+    a('    IF a IS NULL AND b IS NULL THEN RETURN TRUE; END IF;')
+    a('    IF a IS NULL OR b IS NULL THEN RETURN FALSE; END IF;')
+    a('    RETURN a = b;')
+    a('  END;')
+    a('')
+    a('  FUNCTION show_text(v VARCHAR2) RETURN VARCHAR2 IS')
+    a("  BEGIN RETURN CASE WHEN v IS NULL THEN '<NULL>' ELSE SUBSTR(v,1,900) END; END;")
+    a('')
+    a('  FUNCTION show_num(v NUMBER) RETURN VARCHAR2 IS')
+    a("  BEGIN RETURN CASE WHEN v IS NULL THEN '<NULL>' ELSE TO_CHAR(v) END; END;")
+    a('')
+    a('  PROCEDURE fail(p_scope VARCHAR2, p_key VARCHAR2, p_field VARCHAR2, p_expected VARCHAR2, p_actual VARCHAR2) IS')
+    a('  BEGIN')
+    a('    v_errors := v_errors + 1;')
+    a("    DBMS_OUTPUT.PUT_LINE('[MISMATCH] '||p_scope||' '||p_key||' '||p_field||' expected='||show_text(p_expected)||' actual='||show_text(p_actual));")
+    a('  END;')
+    a('')
+    a('  PROCEDURE check_text(p_scope VARCHAR2, p_key VARCHAR2, p_field VARCHAR2, p_expected VARCHAR2, p_actual VARCHAR2) IS')
+    a('  BEGIN IF NOT same_text(p_expected,p_actual) THEN fail(p_scope,p_key,p_field,p_expected,p_actual); END IF; END;')
+    a('')
+    a('  PROCEDURE check_num(p_scope VARCHAR2, p_key VARCHAR2, p_field VARCHAR2, p_expected NUMBER, p_actual NUMBER) IS')
+    a('  BEGIN IF NOT same_num(p_expected,p_actual) THEN fail(p_scope,p_key,p_field,show_num(p_expected),show_num(p_actual)); END IF; END;')
+    a('')
+    a('  PROCEDURE check_date(p_scope VARCHAR2, p_key VARCHAR2, p_field VARCHAR2, p_expected DATE, p_actual DATE) IS')
+    a("  BEGIN IF NOT same_date(p_expected,p_actual) THEN fail(p_scope,p_key,p_field,CASE WHEN p_expected IS NULL THEN '<NULL>' ELSE TO_CHAR(p_expected,'YYYY-MM-DD') END,CASE WHEN p_actual IS NULL THEN '<NULL>' ELSE TO_CHAR(p_actual,'YYYY-MM-DD') END); END IF; END;")
+    a('')
+    a('  PROCEDURE check_tariff(')
+    a('    p_fee_code VARCHAR2, p_tariff_code VARCHAR2, p_rule_code VARCHAR2, p_name_fa VARCHAR2,')
+    a('    p_feature_code VARCHAR2, p_category_code VARCHAR2, p_config_hash VARCHAR2,')
+    a('    p_strategy VARCHAR2, p_basis VARCHAR2, p_fixed NUMBER, p_rate NUMBER,')
+    a('    p_min NUMBER, p_max NUMBER, p_period VARCHAR2, p_component_count NUMBER')
+    a('  ) IS')
+    a('    a_name FEE.FEE_DEFINITION.NAME_FA%TYPE; a_feature FEE.FEE_FEATURE.FEATURE_CODE%TYPE; a_category FEE.FEE_DEFINITION.CATEGORY_CODE%TYPE; a_class FEE.FEE_DEFINITION.CLASSIFICATION_CODE%TYPE;')
+    a('    a_tariff FEE.FEE_DEFINITION_VERSION.REGULATORY_TARIFF_CODE%TYPE; a_version FEE.FEE_DEFINITION_VERSION.VERSION_NO%TYPE; a_status FEE.FEE_DEFINITION_VERSION.STATUS_CODE%TYPE; a_hash FEE.FEE_DEFINITION_VERSION.CONFIG_HASH%TYPE;')
+    a('    a_source FEE.FEE_REGULATORY_SOURCE.SOURCE_CODE%TYPE; a_policy FEE.FEE_POLICY_SET.POLICY_CODE%TYPE; a_rule FEE.FEE_CALCULATION_RULE.RULE_CODE%TYPE; a_strategy FEE.FEE_CALCULATION_RULE.CALCULATION_STRATEGY_CODE%TYPE; a_basis FEE.FEE_CALCULATION_RULE.BASIS_TYPE_CODE%TYPE;')
+    a('    a_fixed NUMBER; a_rate NUMBER; a_min NUMBER; a_max NUMBER; a_period FEE.FEE_CALCULATION_RULE.RATE_PERIOD_CODE%TYPE;')
+    a('    a_currency FEE.FEE_CALCULATION_RULE.CURRENCY_CODE%TYPE; a_active FEE.FEE_CALCULATION_RULE.IS_ACTIVE%TYPE; a_from DATE; a_to DATE; a_components NUMBER;')
+    a('  BEGIN')
+    a('    v_tariffs_checked := v_tariffs_checked + 1;')
+    a('    BEGIN')
+    a('      SELECT d.NAME_FA,f.FEATURE_CODE,d.CATEGORY_CODE,d.CLASSIFICATION_CODE,')
+    a('             dv.REGULATORY_TARIFF_CODE,dv.VERSION_NO,dv.STATUS_CODE,dv.CONFIG_HASH,')
+    a('             rs.SOURCE_CODE,ps.POLICY_CODE,r.RULE_CODE,r.CALCULATION_STRATEGY_CODE,r.BASIS_TYPE_CODE,')
+    a('             r.FIXED_AMOUNT,r.RATE_VALUE,r.MIN_FEE_AMOUNT,r.MAX_FEE_AMOUNT,r.RATE_PERIOD_CODE,')
+    a('             r.CURRENCY_CODE,r.IS_ACTIVE,r.EFFECTIVE_FROM,r.EFFECTIVE_TO,')
+    a("             (SELECT COUNT(*) FROM FEE_RULE_COMPONENT c WHERE c.CALCULATION_RULE_ID=r.CALCULATION_RULE_ID AND c.REFERENCE_CODE LIKE 'SRC:%')")
+    a('        INTO a_name,a_feature,a_category,a_class,a_tariff,a_version,a_status,a_hash,a_source,a_policy,a_rule,a_strategy,a_basis,')
+    a('             a_fixed,a_rate,a_min,a_max,a_period,a_currency,a_active,a_from,a_to,a_components')
+    a('        FROM FEE_DEFINITION d')
+    a('        JOIN FEE_FEATURE f ON f.FEE_FEATURE_ID=d.FEE_FEATURE_ID')
+    a('        JOIN FEE_DEFINITION_VERSION dv ON dv.FEE_DEFINITION_ID=d.FEE_DEFINITION_ID')
+    a('        JOIN FEE_REGULATORY_SOURCE rs ON rs.REGULATORY_SOURCE_ID=dv.REGULATORY_SOURCE_ID')
+    a('        JOIN FEE_POLICY_VERSION pv ON pv.POLICY_VERSION_ID=dv.POLICY_VERSION_ID')
+    a('        JOIN FEE_POLICY_SET ps ON ps.POLICY_SET_ID=pv.POLICY_SET_ID')
+    a('        JOIN FEE_CALCULATION_RULE r ON r.FEE_DEFINITION_VERSION_ID=dv.FEE_DEFINITION_VERSION_ID')
+    a(f"       WHERE d.FEE_CODE=p_fee_code AND dv.VERSION_NO='{POLICY_VERSION_NO}' AND r.RULE_CODE=p_rule_code;")
+    a('    EXCEPTION')
+    a("      WHEN NO_DATA_FOUND THEN fail('TARIFF',p_fee_code,'ROW','present','missing'); RETURN;")
+    a("      WHEN TOO_MANY_ROWS THEN fail('TARIFF',p_fee_code,'ROW','one row','multiple rows'); RETURN;")
+    a('    END;')
+    a("    check_text('TARIFF',p_fee_code,'NAME_FA',p_name_fa,a_name);")
+    a("    check_text('TARIFF',p_fee_code,'FEATURE_CODE',p_feature_code,a_feature);")
+    a("    check_text('TARIFF',p_fee_code,'CATEGORY_CODE',p_category_code,a_category);")
+    a(f"    check_text('TARIFF',p_fee_code,'CLASSIFICATION_CODE','{CLASSIFICATION_CODE}',a_class);")
+    a("    check_text('TARIFF',p_fee_code,'REGULATORY_TARIFF_CODE',p_tariff_code,a_tariff);")
+    a(f"    check_text('TARIFF',p_fee_code,'VERSION_NO','{POLICY_VERSION_NO}',a_version);")
+    a("    check_text('TARIFF',p_fee_code,'STATUS_CODE','ACTIVE',a_status);")
+    a("    check_text('TARIFF',p_fee_code,'CONFIG_HASH',p_config_hash,a_hash);")
+    a(f"    check_text('TARIFF',p_fee_code,'SOURCE_CODE','{SOURCE_CODE}',a_source);")
+    a(f"    check_text('TARIFF',p_fee_code,'POLICY_CODE','{POLICY_CODE}',a_policy);")
+    a("    check_text('TARIFF',p_fee_code,'RULE_CODE',p_rule_code,a_rule);")
+    a("    check_text('TARIFF',p_fee_code,'STRATEGY',p_strategy,a_strategy);")
+    a("    check_text('TARIFF',p_fee_code,'BASIS_TYPE',p_basis,a_basis);")
+    a("    check_num('TARIFF',p_fee_code,'FIXED_AMOUNT',p_fixed,a_fixed);")
+    a("    check_num('TARIFF',p_fee_code,'RATE_VALUE',p_rate,a_rate);")
+    a("    check_num('TARIFF',p_fee_code,'MIN_FEE_AMOUNT',p_min,a_min);")
+    a("    check_num('TARIFF',p_fee_code,'MAX_FEE_AMOUNT',p_max,a_max);")
+    a("    check_text('TARIFF',p_fee_code,'RATE_PERIOD_CODE',p_period,a_period);")
+    a("    check_text('TARIFF',p_fee_code,'CURRENCY_CODE','IRR',a_currency);")
+    a("    check_text('TARIFF',p_fee_code,'IS_ACTIVE','Y',a_active);")
+    a(f"    check_date('TARIFF',p_fee_code,'EFFECTIVE_FROM',DATE '{EFFECTIVE_FROM}',a_from);")
+    a("    check_date('TARIFF',p_fee_code,'EFFECTIVE_TO',NULL,a_to);")
+    a("    check_num('TARIFF',p_fee_code,'SOURCE_COMPONENT_COUNT',p_component_count,a_components);")
+    a('  END;')
+    a('')
+    a('  PROCEDURE check_component(p_fee_code VARCHAR2, p_sequence NUMBER, p_node VARCHAR2, p_number NUMBER, p_text VARCHAR2, p_ref VARCHAR2, p_desc VARCHAR2) IS')
+    a('    a_node FEE.FEE_RULE_COMPONENT.NODE_TYPE_CODE%TYPE; a_number NUMBER; a_text FEE.FEE_RULE_COMPONENT.CONSTANT_TEXT%TYPE; a_ref FEE.FEE_RULE_COMPONENT.REFERENCE_CODE%TYPE; a_desc FEE.FEE_RULE_COMPONENT.DESCRIPTION%TYPE;')
+    a('    a_parent NUMBER; a_operator FEE.FEE_RULE_COMPONENT.OPERATOR_CODE%TYPE; a_input FEE.FEE_RULE_COMPONENT.INPUT_CODE%TYPE;')
+    a("    k VARCHAR2(200) := p_fee_code||'#'||p_sequence;")
+    a('  BEGIN')
+    a('    v_components_checked := v_components_checked + 1;')
+    a('    BEGIN')
+    a('      SELECT c.NODE_TYPE_CODE,c.CONSTANT_NUMBER,c.CONSTANT_TEXT,c.REFERENCE_CODE,c.DESCRIPTION,c.PARENT_RULE_COMPONENT_ID,c.OPERATOR_CODE,c.INPUT_CODE')
+    a('        INTO a_node,a_number,a_text,a_ref,a_desc,a_parent,a_operator,a_input')
+    a('        FROM FEE_RULE_COMPONENT c')
+    a('        JOIN FEE_CALCULATION_RULE r ON r.CALCULATION_RULE_ID=c.CALCULATION_RULE_ID')
+    a('        JOIN FEE_DEFINITION_VERSION dv ON dv.FEE_DEFINITION_VERSION_ID=r.FEE_DEFINITION_VERSION_ID')
+    a('        JOIN FEE_DEFINITION d ON d.FEE_DEFINITION_ID=dv.FEE_DEFINITION_ID')
+    a(f"       WHERE d.FEE_CODE=p_fee_code AND dv.VERSION_NO='{POLICY_VERSION_NO}' AND c.SEQUENCE_NO=p_sequence;")
+    a('    EXCEPTION')
+    a("      WHEN NO_DATA_FOUND THEN fail('COMPONENT',k,'ROW','present','missing'); RETURN;")
+    a("      WHEN TOO_MANY_ROWS THEN fail('COMPONENT',k,'ROW','one row','multiple rows'); RETURN;")
+    a('    END;')
+    a("    check_text('COMPONENT',k,'NODE_TYPE_CODE',p_node,a_node);")
+    a("    check_num('COMPONENT',k,'CONSTANT_NUMBER',p_number,a_number);")
+    a("    check_text('COMPONENT',k,'CONSTANT_TEXT',p_text,a_text);")
+    a("    check_text('COMPONENT',k,'REFERENCE_CODE',p_ref,a_ref);")
+    a("    check_text('COMPONENT',k,'DESCRIPTION',p_desc,a_desc);")
+    a("    IF a_parent IS NOT NULL THEN fail('COMPONENT',k,'PARENT_RULE_COMPONENT_ID','<NULL>',show_num(a_parent)); END IF;")
+    a("    check_text('COMPONENT',k,'OPERATOR_CODE',NULL,a_operator);")
+    a("    check_text('COMPONENT',k,'INPUT_CODE',NULL,a_input);")
+    a('  END;')
+    a('')
+    a('  PROCEDURE check_input(p_fee_code VARCHAR2, p_input_code VARCHAR2, p_name VARCHAR2, p_unit VARCHAR2, p_order NUMBER) IS')
+    a('    a_name FEE.FEE_INPUT_DEFINITION.NAME_FA%TYPE; a_type FEE.FEE_INPUT_DEFINITION.DATA_TYPE_CODE%TYPE; a_unit FEE.FEE_INPUT_DEFINITION.UNIT_CODE%TYPE; a_mand FEE.FEE_INPUT_DEFINITION.MANDATORY_FLAG%TYPE; a_order NUMBER;')
+    a("    k VARCHAR2(200) := p_fee_code||'#'||p_input_code;")
+    a('  BEGIN')
+    a('    v_inputs_checked := v_inputs_checked + 1;')
+    a('    BEGIN')
+    a('      SELECT i.NAME_FA,i.DATA_TYPE_CODE,i.UNIT_CODE,i.MANDATORY_FLAG,i.DISPLAY_ORDER')
+    a('        INTO a_name,a_type,a_unit,a_mand,a_order')
+    a('        FROM FEE_INPUT_DEFINITION i')
+    a('        JOIN FEE_CALCULATION_RULE r ON r.CALCULATION_RULE_ID=i.CALCULATION_RULE_ID')
+    a('        JOIN FEE_DEFINITION_VERSION dv ON dv.FEE_DEFINITION_VERSION_ID=r.FEE_DEFINITION_VERSION_ID')
+    a('        JOIN FEE_DEFINITION d ON d.FEE_DEFINITION_ID=dv.FEE_DEFINITION_ID')
+    a(f"       WHERE d.FEE_CODE=p_fee_code AND dv.VERSION_NO='{POLICY_VERSION_NO}' AND i.INPUT_CODE=p_input_code;")
+    a('    EXCEPTION')
+    a("      WHEN NO_DATA_FOUND THEN fail('INPUT',k,'ROW','present','missing'); RETURN;")
+    a("      WHEN TOO_MANY_ROWS THEN fail('INPUT',k,'ROW','one row','multiple rows'); RETURN;")
+    a('    END;')
+    a("    check_text('INPUT',k,'NAME_FA',p_name,a_name);")
+    a("    check_text('INPUT',k,'DATA_TYPE_CODE','NUMBER',a_type);")
+    a("    check_text('INPUT',k,'UNIT_CODE',p_unit,a_unit);")
+    a("    check_text('INPUT',k,'MANDATORY_FLAG','Y',a_mand);")
+    a("    check_num('INPUT',k,'DISPLAY_ORDER',p_order,a_order);")
+    a('  END;')
+    a('')
+    a('  PROCEDURE check_tier(p_fee_code VARCHAR2, p_tier_no NUMBER, p_name VARCHAR2, p_lower NUMBER, p_upper NUMBER, p_basis VARCHAR2, p_strategy VARCHAR2, p_fixed NUMBER, p_rate NUMBER, p_min NUMBER, p_max NUMBER) IS')
+    a('    a_name FEE.FEE_CALCULATION_TIER.TIER_NAME_FA%TYPE; a_lower NUMBER; a_upper NUMBER; a_unit FEE.FEE_CALCULATION_TIER.BOUND_UNIT_CODE%TYPE; a_basis FEE.FEE_CALCULATION_TIER.TIER_BASIS_CODE%TYPE; a_strategy FEE.FEE_CALCULATION_TIER.TIER_STRATEGY_CODE%TYPE;')
+    a('    a_fixed NUMBER; a_rate NUMBER; a_min NUMBER; a_max NUMBER; a_from DATE; a_to DATE;')
+    a("    k VARCHAR2(200) := p_fee_code||'#TIER'||p_tier_no;")
+    a('  BEGIN')
+    a('    v_tiers_checked := v_tiers_checked + 1;')
+    a('    BEGIN')
+    a('      SELECT tr.TIER_NAME_FA,tr.LOWER_BOUND,tr.UPPER_BOUND,tr.BOUND_UNIT_CODE,tr.TIER_BASIS_CODE,tr.TIER_STRATEGY_CODE,')
+    a('             tr.FIXED_AMOUNT,tr.RATE_VALUE,tr.MIN_FEE_AMOUNT,tr.MAX_FEE_AMOUNT,tr.EFFECTIVE_FROM,tr.EFFECTIVE_TO')
+    a('        INTO a_name,a_lower,a_upper,a_unit,a_basis,a_strategy,a_fixed,a_rate,a_min,a_max,a_from,a_to')
+    a('        FROM FEE_CALCULATION_TIER tr')
+    a('        JOIN FEE_CALCULATION_RULE r ON r.CALCULATION_RULE_ID=tr.CALCULATION_RULE_ID')
+    a('        JOIN FEE_DEFINITION_VERSION dv ON dv.FEE_DEFINITION_VERSION_ID=r.FEE_DEFINITION_VERSION_ID')
+    a('        JOIN FEE_DEFINITION d ON d.FEE_DEFINITION_ID=dv.FEE_DEFINITION_ID')
+    a(f"       WHERE d.FEE_CODE=p_fee_code AND dv.VERSION_NO='{POLICY_VERSION_NO}' AND tr.TIER_NO=p_tier_no;")
+    a('    EXCEPTION')
+    a("      WHEN NO_DATA_FOUND THEN fail('TIER',k,'ROW','present','missing'); RETURN;")
+    a("      WHEN TOO_MANY_ROWS THEN fail('TIER',k,'ROW','one row','multiple rows'); RETURN;")
+    a('    END;')
+    a("    check_text('TIER',k,'TIER_NAME_FA',p_name,a_name);")
+    a("    check_num('TIER',k,'LOWER_BOUND',p_lower,a_lower);")
+    a("    check_num('TIER',k,'UPPER_BOUND',p_upper,a_upper);")
+    a("    check_text('TIER',k,'BOUND_UNIT_CODE','IRR',a_unit);")
+    a("    check_text('TIER',k,'TIER_BASIS_CODE',p_basis,a_basis);")
+    a("    check_text('TIER',k,'TIER_STRATEGY_CODE',p_strategy,a_strategy);")
+    a("    check_num('TIER',k,'FIXED_AMOUNT',p_fixed,a_fixed);")
+    a("    check_num('TIER',k,'RATE_VALUE',p_rate,a_rate);")
+    a("    check_num('TIER',k,'MIN_FEE_AMOUNT',p_min,a_min);")
+    a("    check_num('TIER',k,'MAX_FEE_AMOUNT',p_max,a_max);")
+    a(f"    check_date('TIER',k,'EFFECTIVE_FROM',DATE '{EFFECTIVE_FROM}',a_from);")
+    a("    check_date('TIER',k,'EFFECTIVE_TO',NULL,a_to);")
+    a('  END;')
+    a('')
+    a('  PROCEDURE check_global_counts IS')
+    a('    n NUMBER;')
+    a('  BEGIN')
+    a(f"    SELECT COUNT(*) INTO n FROM FEE_DEFINITION WHERE CLASSIFICATION_CODE='{CLASSIFICATION_CODE}' AND IS_ACTIVE='Y';")
+    a("    check_num('GLOBAL','CBI1405','DEFINITIONS',152,n);")
+    a(f"    SELECT COUNT(*) INTO n FROM FEE_CALCULATION_RULE r JOIN FEE_DEFINITION_VERSION dv ON dv.FEE_DEFINITION_VERSION_ID=r.FEE_DEFINITION_VERSION_ID JOIN FEE_DEFINITION d ON d.FEE_DEFINITION_ID=dv.FEE_DEFINITION_ID WHERE d.CLASSIFICATION_CODE='{CLASSIFICATION_CODE}' AND r.IS_ACTIVE='Y';")
+    a("    check_num('GLOBAL','CBI1405','RULES',152,n);")
+    a(f"    SELECT COUNT(*) INTO n FROM FEE_RULE_COMPONENT c JOIN FEE_CALCULATION_RULE r ON r.CALCULATION_RULE_ID=c.CALCULATION_RULE_ID JOIN FEE_DEFINITION_VERSION dv ON dv.FEE_DEFINITION_VERSION_ID=r.FEE_DEFINITION_VERSION_ID JOIN FEE_DEFINITION d ON d.FEE_DEFINITION_ID=dv.FEE_DEFINITION_ID WHERE d.CLASSIFICATION_CODE='{CLASSIFICATION_CODE}' AND c.REFERENCE_CODE LIKE 'SRC:%';")
+    a("    check_num('GLOBAL','CBI1405','SOURCE_COMPONENTS',180,n);")
+    a(f"    SELECT COUNT(*) INTO n FROM FEE_INPUT_DEFINITION i JOIN FEE_CALCULATION_RULE r ON r.CALCULATION_RULE_ID=i.CALCULATION_RULE_ID JOIN FEE_DEFINITION_VERSION dv ON dv.FEE_DEFINITION_VERSION_ID=r.FEE_DEFINITION_VERSION_ID JOIN FEE_DEFINITION d ON d.FEE_DEFINITION_ID=dv.FEE_DEFINITION_ID WHERE d.CLASSIFICATION_CODE='{CLASSIFICATION_CODE}';")
+    a("    check_num('GLOBAL','CBI1405','INPUT_DEFINITIONS',66,n);")
+    a(f"    SELECT COUNT(*) INTO n FROM FEE_CALCULATION_TIER tr JOIN FEE_CALCULATION_RULE r ON r.CALCULATION_RULE_ID=tr.CALCULATION_RULE_ID JOIN FEE_DEFINITION_VERSION dv ON dv.FEE_DEFINITION_VERSION_ID=r.FEE_DEFINITION_VERSION_ID JOIN FEE_DEFINITION d ON d.FEE_DEFINITION_ID=dv.FEE_DEFINITION_ID WHERE d.CLASSIFICATION_CODE='{CLASSIFICATION_CODE}';")
+    a("    check_num('GLOBAL','CBI1405','TIERS',15,n);")
+    a('  END;')
+    a('')
+    a('  PROCEDURE check_source_hashes IS')
+    a('    a_ref VARCHAR2(500); a_hash VARCHAR2(200); a_status VARCHAR2(30);')
+    a('  BEGIN')
+    a(f"    SELECT DOCUMENT_REF,DOCUMENT_HASH,STATUS_CODE INTO a_ref,a_hash,a_status FROM FEE_REGULATORY_SOURCE WHERE SOURCE_CODE='{SOURCE_CODE}';")
+    a(f"    IF INSTR(a_ref,'XLSX_SHA256={xlsx_hash}')=0 THEN fail('SOURCE','{SOURCE_CODE}','XLSX_SHA256','{xlsx_hash}',a_ref); END IF;")
+    a(f"    check_text('SOURCE','{SOURCE_CODE}','PDF_SHA256','SHA256:{pdf_hash}',a_hash);")
+    a(f"    check_text('SOURCE','{SOURCE_CODE}','STATUS_CODE','PROVISIONAL',a_status);")
+    a(f"  EXCEPTION WHEN NO_DATA_FOUND THEN fail('SOURCE','{SOURCE_CODE}','ROW','present','missing');")
+    a('  END;')
+    a('')
+    a('BEGIN')
+    a("  DBMS_OUTPUT.PUT_LINE('=== CBI 1405 PROVISIONAL SOURCE -> ORACLE RECONCILIATION ===');")
+    a('  check_source_hashes;')
+    a('  check_global_counts;')
+    a('')
+    a("  DBMS_OUTPUT.PUT_LINE('--- Checking 152 tariff contracts ---');")
+    for t in tariffs:
+        rule_code='TARIFF_'+slug(t.tariff_code)
+        a('  check_tariff('+','.join([
+            sql_str(t.fee_code),sql_str(t.tariff_code),sql_str(rule_code),sql_str(t.service_name),
+            sql_str(t.feature_code),sql_str(t.category_code),sql_str(t.config_hash),sql_str(t.strategy),sql_str(t.basis_type),
+            sql_num(t.fixed_amount),sql_num(t.rate_value),sql_num(t.min_fee),sql_num(t.max_fee),sql_str(t.rate_period_code),str(t.component_count)
+        ])+');')
+    a('')
+    a("  DBMS_OUTPUT.PUT_LINE('--- Checking 180 preserved source components ---');")
+    for t in tariffs:
+        for c in by_tariff[t.tariff_code]:
+            node=component_node_type(c)
+            num=component_numeric(c)
+            ref=f"SRC:{c['component_id']}:{c['rule_type']}"[:190]
+            desc=component_description(c)
+            text=c['original_fee_text'][:490] if c['original_fee_text'] else None
+            a('  check_component('+','.join([
+                sql_str(t.fee_code),str(c['sequence']),sql_str(node),sql_num(num),sql_str(text),sql_str(ref),sql_str(desc)
+            ])+');')
+    a('')
+    a("  DBMS_OUTPUT.PUT_LINE('--- Checking executable input contracts ---');")
+    percentage_strategies={'PERCENTAGE','PERCENTAGE_WITH_FLOOR','PERCENTAGE_WITH_CAP','PERCENTAGE_FLOOR_CAP','ANNUALIZED_PERCENTAGE'}
+    for t in tariffs:
+        comps=by_tariff[t.tariff_code]
+        if t.strategy in percentage_strategies:
+            basis_name=comps[0]['basis'] or 'مبلغ مبنای محاسبه'
+            a('  check_input('+','.join([sql_str(t.fee_code),sql_str('BASE_AMOUNT'),sql_str(basis_name),sql_str('IRR'),'1'])+');')
+        ranged=[c for c in comps if c['lower_bound'] is not None or c['upper_bound'] is not None]
+        if len(ranged)==3 and all(c['range_basis']=='مبلغ ارزیابی' for c in ranged):
+            a('  check_input('+','.join([sql_str(t.fee_code),sql_str('APPRAISAL_AMOUNT'),sql_str('مبلغ ارزیابی'),sql_str('IRR'),'1'])+');')
+            a('  check_input('+','.join([sql_str(t.fee_code),sql_str('OFFICIAL_EXPERT_TARIFF'),sql_str('تعرفه کارشناس رسمی دادگستری'),sql_str('IRR'),'2'])+');')
+        elif t.strategy=='PER_UNIT':
+            unit=comps[0]['unit'] or 'واحد'
+            a('  check_input('+','.join([sql_str(t.fee_code),sql_str('UNIT_COUNT'),sql_str('تعداد '+unit),sql_str('COUNT'),'1'])+');')
+    a('')
+    a("  DBMS_OUTPUT.PUT_LINE('--- Checking 15 appraisal tiers ---');")
+    for t in tariffs:
+        ranged=[c for c in by_tariff[t.tariff_code] if c['lower_bound'] is not None or c['upper_bound'] is not None]
+        if len(ranged)==3 and all(c['range_basis']=='مبلغ ارزیابی' for c in ranged):
+            for tier_no,c in enumerate(ranged,1):
+                if c['rule_type']=='FIXED_AMOUNT':
+                    tier_strategy='FIXED'; fixed=c['amount']; rate=None; basis_code='WHOLE_AMOUNT'
+                elif c['rule_type']=='RATE':
+                    tier_strategy='COMPOSITE' if c['reference'] else 'PERCENTAGE'; fixed=None; rate=normalized_rate(c['percent'],c['permille']); basis_code='EXCESS_OVER_LOWER_BOUND'
+                else:
+                    tier_strategy='EXTERNAL_VALUE'; fixed=None; rate=None; basis_code='EXCESS_OVER_LOWER_BOUND'
+                tier_name=(c['description'] or f'بازه {tier_no}')[:190]
+                a('  check_tier('+','.join([
+                    sql_str(t.fee_code),str(tier_no),sql_str(tier_name),sql_num(c['lower_bound']),sql_num(c['upper_bound']),
+                    sql_str(basis_code),sql_str(tier_strategy),sql_num(fixed),sql_num(rate),sql_num(c['min_fee']),sql_num(c['max_fee'])
+                ])+');')
+    a('')
+    a("  DBMS_OUTPUT.PUT_LINE('--- Reconciliation summary ---');")
+    a("  DBMS_OUTPUT.PUT_LINE('tariffs_checked='||v_tariffs_checked||' expected=152');")
+    a("  DBMS_OUTPUT.PUT_LINE('components_checked='||v_components_checked||' expected=180');")
+    a("  DBMS_OUTPUT.PUT_LINE('inputs_checked='||v_inputs_checked||' expected=66');")
+    a("  DBMS_OUTPUT.PUT_LINE('tiers_checked='||v_tiers_checked||' expected=15');")
+    a("  DBMS_OUTPUT.PUT_LINE('mismatches='||v_errors||' expected=0');")
+    a("  IF v_tariffs_checked<>152 THEN fail('GLOBAL','CBI1405','TARIFF_CALL_COUNT','152',TO_CHAR(v_tariffs_checked)); END IF;")
+    a("  IF v_components_checked<>180 THEN fail('GLOBAL','CBI1405','COMPONENT_CALL_COUNT','180',TO_CHAR(v_components_checked)); END IF;")
+    a("  IF v_inputs_checked<>66 THEN fail('GLOBAL','CBI1405','INPUT_CALL_COUNT','66',TO_CHAR(v_inputs_checked)); END IF;")
+    a("  IF v_tiers_checked<>15 THEN fail('GLOBAL','CBI1405','TIER_CALL_COUNT','15',TO_CHAR(v_tiers_checked)); END IF;")
+    a("  IF v_errors>0 THEN RAISE_APPLICATION_ERROR(-20260,'CBI 1405 source-to-Oracle reconciliation failed; mismatches='||v_errors); END IF;")
+    a("  DBMS_OUTPUT.PUT_LINE('CBI Rial Fee 1405 PROVISIONAL source-to-Oracle reconciliation OK.');")
+    a('END;')
+    a('/')
+    return '\n'.join(lines)+'\n'
+
 def generate_verify(meta:dict[str,Any]) -> str:
     strategy_lines='\n'.join(f"PROMPT Expected {k} = {v}" for k,v in sorted(meta['rule_strategies'].items()))
     return f"""-- CBI Rial Fee 1405 PROVISIONAL verification
@@ -556,7 +877,94 @@ def main():
 
     (args.out/'01-import-cbi-rial-fee-1405-provisional.sql').write_text(generate_sql(tariffs,components,xhash,phash),encoding='utf-8')
     (args.out/'02-verify-cbi-rial-fee-1405-provisional.sql').write_text(generate_verify(meta),encoding='utf-8')
-    (args.out/'00-install-cbi-rial-fee-1405-provisional.sql').write_text("""SET ECHO ON\nSET SERVEROUTPUT ON\nWHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;\nPROMPT === Importing CBI Rial Fee 1405 PROVISIONAL ===\n@01-import-cbi-rial-fee-1405-provisional.sql\nPROMPT === Verifying ===\n@02-verify-cbi-rial-fee-1405-provisional.sql\nCOMMIT;\nPROMPT === CBI Rial Fee 1405 PROVISIONAL committed successfully ===\n""",encoding='utf-8')
+
+    # FIX103: split reconciliation into a transaction-neutral standalone wrapper
+    # and an installer-enforced wrapper. The former must never rollback/commit
+    # unrelated caller work; the latter intentionally rolls back the import if
+    # business reconciliation fails before COMMIT.
+    strict_reconcile = generate_reconciliation(tariffs,components,xhash,phash)
+    core_lines=[]
+    for line in strict_reconcile.splitlines():
+        if line in {
+            'SET DEFINE OFF;',
+            'WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;',
+            'ALTER SESSION SET CURRENT_SCHEMA = FEE;',
+            'SET SERVEROUTPUT ON SIZE UNLIMITED;',
+        }:
+            continue
+        if line == '-- This script is read-only. It raises ORA-20260 if any business-value mismatch exists.':
+            core_lines.append('-- Core reconciliation contract. Wrapper controls transaction/error behavior.')
+        else:
+            core_lines.append(line)
+    core_text='\n'.join(core_lines)+'\n'
+    core_name='04-reconcile-cbi-rial-fee-1405-provisional-core.sql'
+    (args.out/core_name).write_text(core_text,encoding='utf-8')
+
+    standalone = f"""-- Standalone read-only reconciliation wrapper.
+-- IMPORTANT: on mismatch this wrapper reports ORA-20260 but does NOT COMMIT or ROLLBACK
+-- the caller transaction. Run it in a clean/fresh session for independent validation.
+SET DEFINE OFF;
+SET SERVEROUTPUT ON SIZE UNLIMITED;
+WHENEVER SQLERROR CONTINUE NONE;
+ALTER SESSION SET CURRENT_SCHEMA = FEE;
+PROMPT === Standalone CBI Rial Fee 1405 source-to-Oracle reconciliation ===
+@{core_name}
+"""
+    (args.out/'04-reconcile-cbi-rial-fee-1405-provisional.sql').write_text(standalone,encoding='utf-8')
+
+    enforced = f"""-- Installer-enforced reconciliation wrapper.
+-- Any mismatch must rollback the pending import transaction before SQL*Plus exits.
+SET DEFINE OFF;
+SET SERVEROUTPUT ON SIZE UNLIMITED;
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+ALTER SESSION SET CURRENT_SCHEMA = FEE;
+@{core_name}
+"""
+    (args.out/'04-reconcile-cbi-rial-fee-1405-provisional-enforced.sql').write_text(enforced,encoding='utf-8')
+
+    diagnose = """-- Read-only installation-state diagnostic. No COMMIT/ROLLBACK is executed.
+SET DEFINE OFF;
+SET SERVEROUTPUT ON;
+WHENEVER SQLERROR CONTINUE NONE;
+ALTER SESSION SET CURRENT_SCHEMA = FEE;
+
+PROMPT === Oracle connection context ===
+SELECT SYS_CONTEXT('USERENV','DB_NAME') DB_NAME,
+       SYS_CONTEXT('USERENV','CON_NAME') CON_NAME,
+       SYS_CONTEXT('USERENV','SERVICE_NAME') SERVICE_NAME,
+       SYS_CONTEXT('USERENV','SESSION_USER') SESSION_USER,
+       SYS_CONTEXT('USERENV','CURRENT_SCHEMA') CURRENT_SCHEMA
+  FROM dual;
+
+PROMPT === CBI 1405 provisional state ===
+SELECT 'SOURCE' ITEM, COUNT(*) CNT FROM FEE_REGULATORY_SOURCE WHERE SOURCE_CODE='CBI_RIAL_FEE_1405_PROVISIONAL'
+UNION ALL
+SELECT 'DEFINITIONS', COUNT(*) FROM FEE_DEFINITION WHERE CLASSIFICATION_CODE='CBI_1405_RIAL_PROVISIONAL'
+UNION ALL
+SELECT 'ACTIVE_VERSIONS', COUNT(*)
+  FROM FEE_DEFINITION_VERSION dv JOIN FEE_DEFINITION d ON d.FEE_DEFINITION_ID=dv.FEE_DEFINITION_ID
+ WHERE d.CLASSIFICATION_CODE='CBI_1405_RIAL_PROVISIONAL' AND dv.VERSION_NO='1405.P1' AND dv.STATUS_CODE='ACTIVE'
+UNION ALL
+SELECT 'ACTIVE_RULES', COUNT(*)
+  FROM FEE_CALCULATION_RULE r JOIN FEE_DEFINITION_VERSION dv ON dv.FEE_DEFINITION_VERSION_ID=r.FEE_DEFINITION_VERSION_ID
+  JOIN FEE_DEFINITION d ON d.FEE_DEFINITION_ID=dv.FEE_DEFINITION_ID
+ WHERE d.CLASSIFICATION_CODE='CBI_1405_RIAL_PROVISIONAL' AND r.IS_ACTIVE='Y';
+
+PROMPT === Prior CBI 1404 non-electronic version state ===
+SELECT dv.STATUS_CODE, dv.EFFECTIVE_TO, COUNT(*) CNT
+  FROM FEE_DEFINITION_VERSION dv
+  JOIN FEE_DEFINITION d ON d.FEE_DEFINITION_ID=dv.FEE_DEFINITION_ID
+  JOIN FEE_FEATURE f ON f.FEE_FEATURE_ID=d.FEE_FEATURE_ID
+  JOIN FEE_REGULATORY_SOURCE rs ON rs.REGULATORY_SOURCE_ID=dv.REGULATORY_SOURCE_ID
+ WHERE rs.SOURCE_CODE='CBI_FEE_1404_04_35500'
+   AND dv.VERSION_NO='1.0'
+   AND f.FEATURE_CODE IN ('CBI_GUARANTEE_FEE_GROUP','CBI_REMITTANCE_FEE_GROUP','CBI_SAFE_DEPOSIT_FEE_GROUP','CBI_SECURITIES_FEE_GROUP','CBI_BILL_COLLECTION_FEE_GROUP','CBI_CURRENT_ACCOUNT_FEE_GROUP','CBI_SAVINGS_DEPOSIT_FEE_GROUP','CBI_CERTIFICATE_FEE_GROUP','CBI_STATEMENT_FEE_GROUP','CBI_ACCOUNT_SERVICE_FEE_GROUP','CBI_APPRAISAL_FEE_GROUP','CBI_CREDIT_FEE_GROUP','CBI_OTHER_SERVICE_FEE_GROUP')
+ GROUP BY dv.STATUS_CODE,dv.EFFECTIVE_TO
+ ORDER BY dv.STATUS_CODE,dv.EFFECTIVE_TO;
+"""
+    (args.out/'05-diagnose-cbi-rial-fee-1405-state.sql').write_text(diagnose,encoding='utf-8')
+
+    (args.out/'00-install-cbi-rial-fee-1405-provisional.sql').write_text("""SET ECHO ON\nSET SERVEROUTPUT ON SIZE UNLIMITED\nWHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;\nPROMPT === Importing CBI Rial Fee 1405 PROVISIONAL ===\n@01-import-cbi-rial-fee-1405-provisional.sql\nPROMPT === Structural verification ===\n@02-verify-cbi-rial-fee-1405-provisional.sql\nPROMPT === Source-to-Oracle business-value reconciliation ===\n@04-reconcile-cbi-rial-fee-1405-provisional-enforced.sql\nCOMMIT;\nPROMPT === CBI Rial Fee 1405 PROVISIONAL committed successfully ===\n""",encoding='utf-8')
     (args.out/'03-finalize-official-reference-template.sql').write_text("""-- TEMPLATE ONLY. Fill values from the official CBI cover letter before execution.\n-- This intentionally does not modify tariff calculation data.\nSET DEFINE ON;\nDEFINE OFFICIAL_SOURCE_CODE = 'CBI_RIAL_FEE_1405_OFFICIAL';\nDEFINE OFFICIAL_CIRCULAR_NO = 'REPLACE_ME';\nDEFINE OFFICIAL_ISSUE_DATE = 'YYYY-MM-DD';\nDEFINE OFFICIAL_EFFECTIVE_FROM = 'YYYY-MM-DD';\nPROMPT Review and replace the provisional regulatory source/policy metadata manually after official verification.\n""",encoding='utf-8')
 
     manifest={
@@ -568,7 +976,7 @@ def main():
         'note':'Official circular number/date were not supplied; metadata is deliberately provisional.'
     }
     (args.out/'cbi_rial_fee_1405_provisional_manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
-    readme=f"""# CBI Rial Banking Fees 1405 — Provisional Versioned Import\n\nSource workbook SHA256: `{xhash}`  \nSource PDF SHA256: `{phash}`\n\n## Scope\n- 152 new rial-banking tariff definitions from the supplied 8-page attachment.\n- {len(components)} structured source calculation components.\n- 156 prior **non-electronic** CBI-1404 fee definition versions are closed on {OLD_ARCHIVE_TO} and marked `SUPERSEDED`.\n- 73 prior **electronic** CBI-1404 definitions are explicitly retained.\n- No physical DELETE is executed. Historical definitions/rules remain queryable by effective date and regulatory source.\n\n## Provisional regulatory metadata\nThe official cover letter/circular number and effective date were not supplied. For prototype execution only, this package uses:\n- `SOURCE_CODE={SOURCE_CODE}`\n- `CIRCULAR_NO={CIRCULAR_NO}`\n- `STATUS_CODE=PROVISIONAL`\n- `EFFECTIVE_FROM={EFFECTIVE_FROM}` (derived from the supplied workbook date, **not claimed as the official effective date**)\n\nReplace/finalize these values after receiving the official CBI letter.\n\n## Calculation policy\n- Simple fixed/rate/per-unit rows are mapped to executable `FEE_CALCULATION_RULE` fields.\n- Percent values are normalized from human percent to decimal (`0.5% -> 0.005`).\n- Composite/conditional/reference/formula rows are not guessed. They use `COMPOSITE` or `EXTERNAL_VALUE`, and every source component is preserved in `FEE_RULE_COMPONENT` with source condition/reference text.\n- Source component count is preserved exactly.\n\n## Install\nRun `00-install-cbi-rial-fee-1405-provisional.sql`. It imports, verifies, then commits. Any SQL error rolls back before commit.\n"""
+    readme=f"""# CBI Rial Banking Fees 1405 — Provisional Versioned Import\n\nSource workbook SHA256: `{xhash}`  \nSource PDF SHA256: `{phash}`\n\n## Scope\n- 152 new rial-banking tariff definitions from the supplied 8-page attachment.\n- {len(components)} structured source calculation components.\n- 156 prior **non-electronic** CBI-1404 fee definition versions are closed on {OLD_ARCHIVE_TO} and marked `SUPERSEDED`.\n- 73 prior **electronic** CBI-1404 definitions are explicitly retained.\n- No physical DELETE is executed. Historical definitions/rules remain queryable by effective date and regulatory source.\n\n## Provisional regulatory metadata\nThe official cover letter/circular number and effective date were not supplied. For prototype execution only, this package uses:\n- `SOURCE_CODE={SOURCE_CODE}`\n- `CIRCULAR_NO={CIRCULAR_NO}`\n- `STATUS_CODE=PROVISIONAL`\n- `EFFECTIVE_FROM={EFFECTIVE_FROM}` (derived from the supplied workbook date, **not claimed as the official effective date**)\n\nReplace/finalize these values after receiving the official CBI letter.\n\n## Calculation policy\n- Simple fixed/rate/per-unit rows are mapped to executable `FEE_CALCULATION_RULE` fields.\n- Percent values are normalized from human percent to decimal (`0.5% -> 0.005`).\n- Composite/conditional/reference/formula rows are not guessed. They use `COMPOSITE` or `EXTERNAL_VALUE`, and every source component is preserved in `FEE_RULE_COMPONENT` with source condition/reference text.\n- Source component count is preserved exactly.\n\n## Install\nRun `00-install-cbi-rial-fee-1405-provisional.sql`. It imports, performs structural verification, runs the full source-to-Oracle business-value reconciliation, then commits. Any SQL error or reconciliation mismatch rolls back before commit. For an already-installed database, first run `05-diagnose-cbi-rial-fee-1405-state.sql` if installation state is uncertain, then run `04-reconcile-cbi-rial-fee-1405-provisional.sql` directly. The standalone reconciliation wrapper is transaction-neutral: it never commits or rolls back caller work.\n"""
     (args.out/'README.md').write_text(readme,encoding='utf-8')
     print(json.dumps(manifest,ensure_ascii=False,indent=2))
 

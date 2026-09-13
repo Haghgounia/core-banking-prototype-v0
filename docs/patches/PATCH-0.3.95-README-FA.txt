@@ -1,0 +1,13 @@
+Core Banking Prototype 0.3.95 / FIX103
+
+Scope: FEE transaction-safe reconciliation and recovery diagnostics.
+No DDL.
+
+Database recovery when 1405 counts are zero:
+1) @05-diagnose-cbi-rial-fee-1405-state.sql
+2) @00-install-cbi-rial-fee-1405-provisional.sql
+3) open a fresh session
+4) @02-verify-cbi-rial-fee-1405-provisional.sql
+5) @04-reconcile-cbi-rial-fee-1405-provisional.sql
+
+Standalone 04 does not COMMIT/ROLLBACK caller work.

@@ -1,0 +1,30 @@
+Core Banking Prototype 0.3.93 / FIX101
+Patch روی نسخه 0.3.92 / FIX100
+
+موضوع:
+Source-to-Oracle Reconciliation کامل برای مصوبه موقت کارمزد خدمات بانکی ریالی ۱۴۰۵.
+
+این Patch داده کارمزد را دوباره Import نمی‌کند و DDL جدید ندارد.
+
+پس از Overlay، برای Acceptance دیتابیس موجود اجرا کنید:
+  database\oracle\fee\cbi-rial-1405-provisional\04-reconcile-cbi-rial-fee-1405-provisional.sql
+
+خروجی موفق مورد انتظار:
+  tariffs_checked=152 expected=152
+  components_checked=180 expected=180
+  inputs_checked=66 expected=66
+  tiers_checked=15 expected=15
+  mismatches=0 expected=0
+  CBI Rial Fee 1405 PROVISIONAL source-to-Oracle reconciliation OK.
+
+در صورت ORA-20260 داده را Update نکنید؛ خطوط [MISMATCH] را بررسی کنید.
+
+برای به‌روزرسانی Runtime Version نیز پس از Overlay:
+  bin\stop.cmd
+  build-production.cmd
+  bin\start.cmd
+
+توجه:
+- اجرای مجدد Installer FIX98 برای دیتابیس موجود لازم نیست.
+- اسکریپت 04 Read-only است.
+- Installer مصوبه برای نصب‌های جدید اکنون Reconciliation را قبل از COMMIT اجرا می‌کند.

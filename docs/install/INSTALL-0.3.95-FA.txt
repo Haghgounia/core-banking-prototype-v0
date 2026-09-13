@@ -1,0 +1,48 @@
+Core Banking Prototype 0.3.95 / FIX103
+راهنمای ارتقا از 0.3.94
+
+هدف:
+- ایمن‌سازی Transaction در Reconciliation کارمزد.
+- تشخیص و بازیابی Dataset موقت 1405 در صورتی که Rollback شده یا Session به DB/PDB/Service دیگری متصل باشد.
+
+گام 1 - Diagnostic (Read-only):
+cd database\oracle\fee\cbi-rial-1405-provisional
+@05-diagnose-cbi-rial-fee-1405-state.sql
+
+اگر SOURCE/DEFINITIONS/ACTIVE_VERSIONS/ACTIVE_RULES صفر است:
+- ابتدا DB_NAME / CON_NAME / SERVICE_NAME را کنترل کنید.
+- اگر Connection صحیح است، Dataset 1405 در DB فعلی موجود نیست و باید Installer کامل اجرا شود.
+
+گام 2 - Recovery/Install تراکنشی:
+@00-install-cbi-rial-fee-1405-provisional.sql
+
+از اجرای جداگانه 01-import و 02-verify برای Recovery خودداری کنید.
+انتهای موفق باید پیام زیر را بدهد:
+CBI Rial Fee 1405 PROVISIONAL committed successfully
+
+گام 3 - Persistence Acceptance:
+- یک Session جدید SQL*Plus/SQLcl باز کنید.
+@02-verify-cbi-rial-fee-1405-provisional.sql
+@04-reconcile-cbi-rial-fee-1405-provisional.sql
+
+انتظار:
+- Structural verification OK
+- tariffs_checked=152
+- components_checked=180
+- inputs_checked=66
+- tiers_checked=15
+- mismatches=0
+- source-to-Oracle reconciliation OK
+
+نکته:
+- 04 standalone در FIX103 Transaction-neutral است و Commit/Rollback انجام نمی‌دهد.
+- 04-enforced فقط توسط Installer استفاده می‌شود و در صورت خطا، Import در حال انجام را Rollback می‌کند.
+- DDL جدید وجود ندارد.
+
+Overlay پروژه:
+1) bin\stop.cmd
+2) Patch 0.3.95 / FIX103 را Overlay کنید.
+3) build-production.cmd
+4) Built version: 0.3.95
+5) bin\start.cmd
+6) Ctrl+F5

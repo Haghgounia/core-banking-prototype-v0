@@ -1,0 +1,20 @@
+Core Banking Prototype 0.3.94 / FIX102
+Patch روی نسخه 0.3.93 / FIX101
+
+موضوع:
+اصلاح Syntax اسکریپت Read-only Source-to-Oracle Reconciliation برای تعرفه‌های ریالی ۱۴۰۵.
+
+این Patch هیچ داده‌ای را Import/Update نمی‌کند و DDL ندارد.
+برای دیتابیس موجود FIX98 فقط اجرا کنید:
+  database\oracle\fee\cbi-rial-1405-provisional\04-reconcile-cbi-rial-fee-1405-provisional.sql
+
+نیازی به اجرای مجدد 01-import یا Installer FIX98 نیست.
+Rollback مشاهده‌شده در خطای FIX101 به داده‌های Commit‌شده قبلی آسیبی نزده است.
+
+خروجی موفق مورد انتظار:
+  tariffs_checked=152 expected=152
+  components_checked=180 expected=180
+  inputs_checked=66 expected=66
+  tiers_checked=15 expected=15
+  mismatches=0 expected=0
+  CBI Rial Fee 1405 PROVISIONAL source-to-Oracle reconciliation OK.
