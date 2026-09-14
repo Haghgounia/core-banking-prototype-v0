@@ -5,6 +5,7 @@ import com.behsazan.corebanking.cif.error.CifValidationException;
 import com.behsazan.corebanking.system.modelcomparison.ModelComparisonValidationException;
 import com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException;
 import com.behsazan.corebanking.fee.admin.application.FeeAdminValidationException;
+import com.behsazan.corebanking.deposit.opening.error.DepositOpeningValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -80,6 +81,18 @@ public class GlobalExceptionHandler {
         problem.setType(URI.create("urn:core-banking:problem:fee-admin-validation"));
         problem.setTitle("اطلاعات کارمزد معتبر نیست");
         problem.setProperty("errorCode", "FEE_ADMIN_VALIDATION_FAILED");
+        return problem;
+    }
+
+
+    @ExceptionHandler(DepositOpeningValidationException.class)
+    ProblemDetail handleDepositOpeningValidation(DepositOpeningValidationException exception) {
+        log.warn("Deposit opening validation failed: {} fields={}", exception.getMessage(), exception.fieldErrors());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
+        problem.setType(URI.create("urn:core-banking:problem:deposit-opening-validation"));
+        problem.setTitle("اطلاعات افتتاح حساب معتبر نیست");
+        problem.setProperty("errorCode", "DEPOSIT_OPENING_VALIDATION_FAILED");
+        problem.setProperty("fieldErrors", exception.fieldErrors());
         return problem;
     }
 

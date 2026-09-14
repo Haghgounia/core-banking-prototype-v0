@@ -42,6 +42,13 @@ export const routes: Routes = [
       {path: 'deposit/reference-data', data: {scope: 'DEPOSIT'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},
       {path: 'deposit/reference-data/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
 
+      {path: 'four-deposits', loadComponent: () => import('./features/four-deposits/four-deposits-home.component').then(m => m.FourDepositsHomeComponent)},
+      {path: 'four-deposits/opening', loadComponent: () => import('./features/four-deposits/deposit-opening-wizard.component').then(m => m.DepositOpeningWizardComponent)},
+      {path: 'four-deposits/operations', loadComponent: () => import('./features/four-deposits/deposit-opening-operations.component').then(m => m.DepositOpeningOperationsComponent)},
+      {path: 'four-deposits/operations/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
+      {path: 'four-deposits/reference-data', data: {scope: 'FOUR_DEPOSIT'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},
+      {path: 'four-deposits/reference-data/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
+
       {path: 'cif/reference-data', data: {scope: 'PARTY'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},
       {path: 'cif/reference-data/isic-releases', loadComponent: () => import('./features/isic-reference/isic-release-page.component').then(m => m.IsicReleasePageComponent)},
       {path: 'cif/reference-data/isic-activities', loadComponent: () => import('./features/isic-reference/isic-activity-page.component').then(m => m.IsicActivityPageComponent)},

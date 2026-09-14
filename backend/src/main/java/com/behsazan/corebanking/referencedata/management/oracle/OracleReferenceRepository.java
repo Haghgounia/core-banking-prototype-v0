@@ -131,7 +131,14 @@ public class OracleReferenceRepository implements ReferenceRepository {
             assignments.add(OracleSqlNames.identifier(field.columnName()) + " = :modifiedBy");
             params.addValue("modifiedBy", actorValue(field, actorId), sqlType(field));
         });
+        descriptor.optionalField("updatedBy").ifPresent(field -> {
+            assignments.add(OracleSqlNames.identifier(field.columnName()) + " = :updatedByActor");
+            params.addValue("updatedByActor", actorValue(field, actorId), sqlType(field));
+        });
         descriptor.optionalField("lastModifiedDate").ifPresent(field ->
+                assignments.add(OracleSqlNames.identifier(field.columnName()) + " = SYSTIMESTAMP")
+        );
+        descriptor.optionalField("updatedAt").ifPresent(field ->
                 assignments.add(OracleSqlNames.identifier(field.columnName()) + " = SYSTIMESTAMP")
         );
 
@@ -331,7 +338,13 @@ public class OracleReferenceRepository implements ReferenceRepository {
             case NUMBER, SELECT, LOOKUP -> value instanceof BigDecimal ? value : new BigDecimal(value.toString());
             case STRING_SELECT -> value.toString();
             case DATE -> value instanceof LocalDate localDate ? Date.valueOf(localDate) : Date.valueOf(value.toString());
-            case TEXT, TIMESTAMP -> value;
+            case TIMESTAMP -> {
+                if (value instanceof Timestamp timestamp) yield timestamp;
+                String normalized = value.toString().trim().replace('T', ' ');
+                if (normalized.length() == 16) normalized += ":00";
+                yield Timestamp.valueOf(normalized);
+            }
+            case TEXT -> value;
         };
     }
 

@@ -1,0 +1,11 @@
+Core Banking Prototype 0.3.97 — DPS2 Four Deposits Phase 1
+============================================================
+
+این Patch منوی «چهار سپرده»، 59 فرم اطلاعات پایه DPS2، 25 فرم عملیاتی عمومی و Wizard هفت‌مرحله‌ای افتتاح موردی را اضافه می‌کند.
+
+Database DDL: ندارد.
+Target schema: DPS2 (configurable).
+Certificate of Deposit: خارج از دامنه این منو.
+Audit/Change tables: عمداً خارج از Generic CRUD.
+
+برای جزئیات: docs/DPS2-0.3.97-FOUR-DEPOSITS-PHASE1-QA.md

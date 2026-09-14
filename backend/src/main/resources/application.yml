@@ -2,7 +2,7 @@ spring:
   application:
     name: core-banking-prototype
   datasource:
-    url: jdbc:oracle:thin:@//127.0.0.1:1521/FREEPDB1
+    url: jdbc:oracle:thin:@//10.1.60.51:1522/FREEPDB1
     username: SYSTEM
     password: Oracle123
     driver-class-name: oracle.jdbc.OracleDriver
@@ -38,6 +38,7 @@ core-banking:
   schemas:
     reference-data: GEO
     deposit-product-factory: DPS
+    deposit-opening: DPS2
     cif: CIF
     party-reference: CIF
     fee: FEE

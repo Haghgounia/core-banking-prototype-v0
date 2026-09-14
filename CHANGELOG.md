@@ -1,3 +1,31 @@
+# 0.3.99 — DPS2 Four Deposits Phase 3 — Full Opening Aggregate
+
+- Extended the atomic Deposit Opening aggregate with Signatory/Authority, Authorized User, Delegation, Beneficiary, Document, Payment Instrument, Pricing Override, Tax Status and Reward Enrollment.
+- Added request-local Signatory correlation IDs that are safely remapped to Oracle sequence-generated `OPENING_SIGNATORY_ID` values before Authority persistence.
+- Added relationship/document/tax/pricing/reward validation guards while preserving Phase 2 idempotency and transaction semantics.
+- Expanded the seven-step Angular wizard with operational editors and payload contracts for all Phase 3 tables.
+- No DDL is introduced; the supplied DPS2 schema remains the database prerequisite.
+- `DEPOSIT_ACCOUNT` creation and activation remain the next lifecycle phase.
+
+# 0.3.98 — DPS2 Four Deposits Phase 2 — Transactional Opening Persistence
+
+- Added `POST /api/v1/deposit-opening/requests` for atomic persistence of the Deposit Opening aggregate in Oracle `DPS2`.
+- Request, Party, signature rule, term/maturity instruction, profit instruction, withdrawal media, initial services, funding, checks, terms acceptance, decision and initial status history are written inside one Spring transaction.
+- Added explicit idempotency handling on `IDEMPOTENCY_KEY`: the same request/key returns the existing request instead of creating duplicate child rows.
+- Added backend validation for ownership shares/primary owner, approved-request funding, PASS checks, accepted terms and final APPROVE decision.
+- Wizard step 7 now calls the backend and displays the persisted `OPENING_REQUEST_ID`; the former payload-only behavior is retained as an inspectable contract.
+- Opening reference codes used by the wizard were aligned with the attached opening prototype (funding method, check codes/types and terms acceptance source).
+- `DEPOSIT_ACCOUNT` creation remains deliberately outside this transaction and is the next lifecycle step after Origination approval.
+
+# 0.3.97 — DPS2 Four Deposits Phase 1
+
+- Added top-level **چهار سپرده** menu for Deposit Account Opening.
+- Added 59 DPS2 reference-data forms and 25 safe operational forms.
+- Added seven-step single-account-opening wizard for the four supported deposit families.
+- Added `core-banking.schemas.deposit-opening` configuration (default `DPS2`).
+- Added TIMESTAMP editor support and generic `UPDATED_AT` / `UPDATED_BY` handling.
+- Audit/change/snapshot/status-history tables remain outside generic CRUD by design.
+
 ## 0.3.96 — FIX104: Oracle Reconciliation Multibyte Buffer Guard
 
 - خطای `ORA-06502: character string buffer too small` در `04-reconcile...` رفع شد. خطا هنگام بررسی تعرفه `CBI1405R_CRD_8_24` رخ می‌داد؛ عنوان فارسی آن 139 کاراکتر اما 252 بایت UTF-8 است و متغیر محلی `VARCHAR2(250)` ظرفیت کافی نداشت.

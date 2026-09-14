@@ -41,6 +41,7 @@ class ConfiguredDatabaseSchemas {
         addLabel(labels, environment.getProperty("core-banking.schemas.cif"), "Party / Customer (CIF)");
         addLabel(labels, environment.getProperty("core-banking.schemas.reference-data"), "اطلاعات پایه عمومی (GEO)");
         addLabel(labels, environment.getProperty("core-banking.schemas.deposit-product-factory"), "محصول‌ساز سپرده (DPS)");
+        addLabel(labels, environment.getProperty("core-banking.schemas.deposit-opening"), "چهار سپرده / افتتاح حساب (DPS2)");
         addLabel(labels, environment.getProperty("core-banking.schemas.fee"), "مدیریت کارمزد (FEE)");
         addLabel(labels, environment.getProperty("core-banking.schemas.calendar"), "تقویم یک (CAL)");
         addLabel(labels, environment.getProperty("core-banking.schemas.calendar2"), "تقویم دو (CAL2)");

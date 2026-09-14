@@ -92,6 +92,8 @@ node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 
 rem FIX70 static guard: PDL unified product builder menu, metadata CRUD and product workspace.
 node "%ROOT%tools\verify-pdl-product-builder.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-four-deposits.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-deposit-opening-persistence.mjs" || exit /b 1
 
 rem FIX77 static guard: FEE Baseline 1.0 has 47 metadata-driven forms and 574 seed rows.
 node "%ROOT%tools\verify-fee-admin-baseline.mjs" || exit /b 1

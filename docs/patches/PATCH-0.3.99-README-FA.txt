@@ -1,0 +1,24 @@
+Core Banking Prototype 0.3.99 — DPS2 Four Deposits Phase 3
+==========================================================
+
+این Patch پوشش Aggregate افتتاح حساب سپرده را از Phase 2 به مجموعه کامل‌تر روابط و سرویس‌های زمان افتتاح توسعه می‌دهد.
+
+تغییرات اصلی:
+- DEPOSIT_OPENING_SIGNATORY + SIGNATORY_AUTHORITY
+- AUTHORIZED_USER / DELEGATION / BENEFICIARY
+- PAYMENT_INSTRUMENT
+- PRICING_OVERRIDE_REQUEST
+- TAX_STATUS
+- REWARD_ENROLLMENT
+- DEPOSIT_OPENING_DOCUMENT
+- نگاشت امن شناسه موقت Signatory در Payload به Sequence واقعی Oracle
+- Validationهای رابطه‌ای و اسنادی جدید
+- تکمیل UI Wizard برای ورود و مشاهده این اقلام
+
+DDL جدید: ندارد
+API جدید: ندارد؛ Endpoint موجود POST /api/v1/deposit-opening/requests توسعه یافته است.
+Account Creation: هنوز در این Patch انجام نمی‌شود.
+
+پیش نیاز Source Patch: 0.3.98
+QA: docs/DPS2-0.3.99-FOUR-DEPOSITS-PHASE3-AGGREGATE-QA.md
+Install: docs/install/INSTALL-0.3.99-FA.txt

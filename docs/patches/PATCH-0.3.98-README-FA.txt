@@ -1,0 +1,18 @@
+Core Banking Prototype 0.3.98 — DPS2 Four Deposits Phase 2
+==========================================================
+
+این Patch ثبت تراکنشی Aggregate افتتاح حساب سپرده را به DPS2 اضافه می‌کند.
+
+مهم‌ترین تغییرات:
+- API جدید POST /api/v1/deposit-opening/requests
+- Spring @Transactional برای Parent/Childهای افتتاح
+- کنترل Idempotency
+- Validation مالکیت، Funding، Check، Terms و Decision
+- ثبت اولیه DEPOSIT_OPENING_STATUS_HISTORY توسط Backend
+- اتصال Step 7 Wizard به Backend واقعی
+
+DDL جدید: ندارد
+Account Creation: در این Patch انجام نمی‌شود.
+
+QA: docs/DPS2-0.3.98-FOUR-DEPOSITS-PHASE2-PERSISTENCE-QA.md
+Install: docs/install/INSTALL-0.3.98-FA.txt

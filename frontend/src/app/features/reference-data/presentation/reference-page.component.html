@@ -205,6 +205,13 @@
                   @if (isInvalid(field)) { <mat-error>تاریخ معتبر وارد کنید.</mat-error> }
                 </mat-form-field>
               }
+              @case ('TIMESTAMP') {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <input matInput type="datetime-local" [formControlName]="field.apiName">
+                  @if (isInvalid(field)) { <mat-error>تاریخ و زمان معتبر وارد کنید.</mat-error> }
+                </mat-form-field>
+              }
               @case ('TEXT') {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ field.label }}</mat-label>

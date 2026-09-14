@@ -47,6 +47,7 @@ export class AppShellComponent {
     return url.startsWith('/reference-data')
       || url.startsWith('/cif/reference')
       || url.startsWith('/deposit/reference-data')
+      || url.startsWith('/four-deposits/reference-data')
       || url.startsWith('/geography-tree')
       || url.startsWith('/calendar/reference-data')
       || url.startsWith('/calendar2/')

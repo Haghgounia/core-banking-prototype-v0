@@ -26,3 +26,89 @@ tools/verify-pdl-product-builder.mjs
 Database migration: NONE
 Database prerequisite: FIX96 / 0.3.88
 Source prerequisite: FIX97 / 0.3.89
+
+
+0.3.98 / DPS2 Four Deposits Phase 1+2 cumulative patch files (overlay on 0.3.96)
+
+CHANGELOG.md
+README-FA.md
+VERSION
+backend/pom.xml
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/application/DepositOpeningAggregateService.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/domain/DepositOpeningModels.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/error/DepositOpeningValidationException.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/operational/DepositOpeningOperationalDescriptorProvider.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/oracle/DepositOpeningAggregateRepository.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/reference/DepositOpeningReferenceDescriptorProvider.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/web/DepositOpeningController.java
+backend/src/main/java/com/behsazan/corebanking/referencedata/management/oracle/OracleReferenceRepository.java
+backend/src/main/java/com/behsazan/corebanking/shared/error/GlobalExceptionHandler.java
+backend/src/main/java/com/behsazan/corebanking/system/modelcomparison/ConfiguredDatabaseSchemas.java
+backend/src/main/resources/application.yml
+backend/src/main/resources/application.yml_
+build-production.cmd
+build-production.sh
+config/application.yml
+config/application.yml_
+docs/DPS2-0.3.97-FOUR-DEPOSITS-PHASE1-QA.md
+docs/DPS2-0.3.98-FOUR-DEPOSITS-PHASE2-PERSISTENCE-QA.md
+docs/install/INSTALL-0.3.97-FA.txt
+docs/install/INSTALL-0.3.98-FA.txt
+docs/patches/PATCH-0.3.97-README-FA.txt
+docs/patches/PATCH-0.3.98-README-FA.txt
+docs/patches/PATCH-FILE-LIST.txt
+frontend/package-lock.json
+frontend/package.json
+frontend/src/app/app.routes.ts
+frontend/src/app/features/four-deposits/deposit-opening-operations.component.html
+frontend/src/app/features/four-deposits/deposit-opening-operations.component.scss
+frontend/src/app/features/four-deposits/deposit-opening-operations.component.ts
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.html
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.scss
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts
+frontend/src/app/features/four-deposits/deposit-opening.service.ts
+frontend/src/app/features/four-deposits/four-deposits-home.component.html
+frontend/src/app/features/four-deposits/four-deposits-home.component.scss
+frontend/src/app/features/four-deposits/four-deposits-home.component.ts
+frontend/src/app/features/reference-data/presentation/reference-page.component.html
+frontend/src/app/features/reference-menu/reference-menu.component.html
+frontend/src/app/features/reference-menu/reference-menu.component.ts
+frontend/src/app/features/system-specification/system-version.generated.ts
+frontend/src/app/layout/app-shell.component.html
+frontend/src/app/layout/app-shell.component.ts
+frontend/src/app/shared/ui/app-breadcrumb.component.ts
+tools/verify-dps2-deposit-opening-persistence.mjs
+tools/verify-dps2-four-deposits.mjs
+
+Database migration: NONE
+Database prerequisite: installed DPS2 schema and reference seeds from the supplied deposit-opening model
+Source prerequisite: 0.3.96 / FIX104
+Runtime artifact: NOT rebuilt in this package; app/BUILD-VERSION remains 0.3.96 until a real production build is completed.
+
+
+0.3.99 / DPS2 Four Deposits Phase 3 incremental patch files (overlay on 0.3.98)
+
+CHANGELOG.md
+README-FA.md
+VERSION
+backend/pom.xml
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/application/DepositOpeningAggregateService.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/domain/DepositOpeningModels.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/oracle/DepositOpeningAggregateRepository.java
+docs/DPS2-0.3.99-FOUR-DEPOSITS-PHASE3-AGGREGATE-QA.md
+docs/install/INSTALL-0.3.99-FA.txt
+docs/patches/PATCH-0.3.99-README-FA.txt
+docs/patches/PATCH-FILE-LIST.txt
+frontend/package-lock.json
+frontend/package.json
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.html
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.scss
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts
+frontend/src/app/features/system-specification/system-version.generated.ts
+tools/verify-dps2-deposit-opening-persistence.mjs
+tools/verify-dps2-deposit-opening-phase3.mjs
+
+Database migration: NONE
+Database prerequisite: installed DPS2 schema and reference seeds from the supplied deposit-opening model
+Source prerequisite: 0.3.98 / DPS2 Four Deposits Phase 2
+Runtime artifact: NOT rebuilt in this package; app/BUILD-VERSION remains 0.3.96 until a real production build is completed.

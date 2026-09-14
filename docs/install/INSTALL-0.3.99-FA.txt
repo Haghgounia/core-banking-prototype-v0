@@ -1,0 +1,39 @@
+Core Banking Prototype 0.3.99 - Four Deposits / DPS2 Phase 3
+============================================================
+
+نوع تغییر
+---------
+Backend + Frontend source release. DDL جدید ندارد.
+
+پیش نیاز
+--------
+- Source نسخه 0.3.98 یا Baseline معادل آن.
+- Schema DPS2 و تمام جداول/Sequenceهای Deposit Account Opening از فایل مدل/DDL پیوست نصب شده باشند.
+- Reference Data جداول REF_DEP_OPEN_* مورد استفاده Wizard Seed شده باشد.
+
+Build
+-----
+1) Frontend و Backend را از Source نسخه 0.3.99 Build کنید.
+2) Runtime artifact باید فقط بعد از Build واقعی با VERSION=0.3.99 همگام شود.
+3) app/BUILD-VERSION در Source ZIP عمداً به نسخه جدید تغییر داده نشده است.
+
+Smoke Test پیشنهادی
+-------------------
+1) منوی «چهار سپرده» -> «افتتاح موردی» را باز کنید.
+2) حداقل یک Party مالک با سهم مجموع 100 ثبت کنید.
+3) یک صاحب امضا و حداقل یک Authority متصل به همان Signatory ثبت کنید.
+4) در صورت نیاز Authorized User / Delegation / Beneficiary اضافه کنید.
+5) Payment Instrument، Pricing Override، Tax Status یا Reward Enrollment را به صورت اختیاری ثبت کنید.
+6) حداقل مدارک لازم محیط تست را در بخش Document ثبت کنید؛ مدرک دریافت/تأییدشده باید DOCUMENT_REFERENCE داشته باشد.
+7) Funding را SUCCESS، شروط را Accepted و Checkها را PASS کنید؛ سپس Decision=APPROVE.
+8) در گام 7 «ثبت اتمیک Aggregate» را اجرا کنید.
+9) پاسخ باید OPENING_REQUEST_ID واقعی برگرداند.
+10) اجرای مجدد همان Payload باید idempotentReplay=true بدهد و Child جدید ایجاد نکند.
+
+کنترل Oracle
+------------
+پس از یک درخواست موفق، OPENING_REQUEST_ID را در جداول Phase 2 و Phase 3 کنترل کنید. Authority باید با OPENING_SIGNATORY_ID واقعی Oracle به DEPOSIT_OPENING_SIGNATORY متصل شده باشد؛ شناسه موقت UI نباید به عنوان PK Oracle استفاده شده باشد.
+
+توجه
+-----
+این نسخه DEPOSIT_ACCOUNT را ایجاد یا ACTIVE نمی‌کند. Account Creation / PENDING_ACTIVATION / Activation فاز بعدی است.

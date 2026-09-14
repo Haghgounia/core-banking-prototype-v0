@@ -1,0 +1,15 @@
+Core Banking Prototype 0.3.97 - Four Deposits / DPS2 Phase 1
+==============================================================
+
+1) این نسخه DDL جدیدی برای DPS2 اجرا نمی‌کند. Schema و جداول DPS2 باید از قبل مطابق مدل/DDL پیوست موجود باشند.
+2) property زیر در application.yml قابل تنظیم است:
+   core-banking.schemas.deposit-opening: DPS2
+3) برنامه را با build-production.cmd (Windows) یا build-production.sh (Linux/macOS) Build کنید.
+4) پس از اجرا، منوی «چهار سپرده» باید شامل این مسیرها باشد:
+   - صفحه اصلی چهار سپرده
+   - افتتاح موردی
+   - فرم‌های عملیاتی
+   - اطلاعات پایه
+5) اطلاعات پایه باید 59 فرم REF_DEP_OPEN_* و فرم‌های عملیاتی عمومی باید 25 فرم را نمایش دهند.
+6) Audit/Change/Snapshot/Status History در CRUD عمومی عمداً ارائه نشده‌اند.
+7) Wizard فاز اول Payload تولید می‌کند؛ ثبت اتمیک Aggregate در فاز بعدی است.

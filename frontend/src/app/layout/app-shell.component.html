@@ -41,6 +41,26 @@
       </a>
     </mat-nav-list>
 
+    <div class="menu-section-label">چهار سپرده</div>
+    <mat-nav-list class="section-list">
+      <a mat-list-item routerLink="/four-deposits" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" matTooltip="چهار سپرده" matTooltipPosition="before">
+        <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
+        <span matListItemTitle>چهار سپرده</span>
+      </a>
+      <a mat-list-item routerLink="/four-deposits/opening" routerLinkActive="active-link" matTooltip="افتتاح موردی حساب سپرده" matTooltipPosition="before">
+        <mat-icon matListItemIcon>playlist_add_check_circle</mat-icon>
+        <span matListItemTitle>افتتاح موردی</span>
+      </a>
+      <a mat-list-item routerLink="/four-deposits/operations" routerLinkActive="active-link" matTooltip="فرم‌های عملیاتی DPS2" matTooltipPosition="before">
+        <mat-icon matListItemIcon>table_view</mat-icon>
+        <span matListItemTitle>فرم‌های عملیاتی</span>
+      </a>
+      <a mat-list-item routerLink="/four-deposits/reference-data" routerLinkActive="active-link" matTooltip="اطلاعات پایه DPS2" matTooltipPosition="before">
+        <mat-icon matListItemIcon>dataset</mat-icon>
+        <span matListItemTitle>اطلاعات پایه</span>
+      </a>
+    </mat-nav-list>
+
     <div class="menu-section-label">داده‌های مرجع</div>
     <mat-nav-list class="section-list reference-root-menu">
       <a mat-list-item routerLink="/reference-data" [class.active-link]="isReferenceSection()" matTooltip="اطلاعات پایه" matTooltipPosition="before">

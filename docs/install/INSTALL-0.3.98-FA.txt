@@ -1,0 +1,32 @@
+Core Banking Prototype 0.3.98 - Four Deposits / DPS2 Phase 2
+============================================================
+
+نوع تغییر
+---------
+Backend + Frontend source release. DDL جدید ندارد.
+
+پیش نیاز
+--------
+- Schema DPS2 و جداول مدل Deposit Account Opening از قبل نصب شده باشند.
+- اطلاعات پایه REF_DEP_OPEN_* مورد استفاده فرم افتتاح Seed شده باشد.
+- نسخه 0.3.97 یا Baseline معادل آن موجود باشد.
+
+Build
+-----
+1) Frontend و Backend را از Source نسخه 0.3.98 Build کنید.
+2) Runtime artifact باید بعد از Build با VERSION=0.3.98 همگام شود.
+3) app/BUILD-VERSION داخل این Source ZIP به عمد دستکاری نشده است؛ فقط Build واقعی باید آن را تغییر دهد.
+
+Smoke Test
+----------
+- منوی «چهار سپرده» -> «افتتاح موردی» را باز کنید.
+- Party اصلی با سهم 100 ثبت کنید.
+- Funding را SUCCESS کنید.
+- شروط را بپذیرید، کنترل‌ها را اجرا و تصمیم را APPROVE کنید.
+- در گام 7 «ثبت اتمیک Aggregate» را اجرا کنید.
+- پاسخ باید OPENING_REQUEST_ID واقعی برگرداند.
+- اجرای مجدد همان Payload باید idempotentReplay=true بدهد و Child جدید ایجاد نکند.
+
+توجه
+-----
+این نسخه DEPOSIT_ACCOUNT را ایجاد یا ACTIVE نمی‌کند. Account Creation/Activation فاز بعدی است.
