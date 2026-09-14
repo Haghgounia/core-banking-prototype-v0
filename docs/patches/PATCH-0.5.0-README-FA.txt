@@ -1,0 +1,25 @@
+Patch 0.5.0 — DPS2 Four Deposits Phase 5
+=========================================
+
+Baseline: 0.4.0
+Target:   0.5.0
+Scope:    Opening Audit & Change Management
+
+این Patch باید روی Source تمیز نسخه 0.4.0 Overlay شود.
+
+قابلیت‌های اصلی:
+- Change Set lifecycle
+- aggregate-aware controlled field correction
+- per-entity immutable Audit Event
+- field-level Old/New + SHA-256 evidence
+- canonical PRE_CHANGE / POST_CHANGE snapshots
+- append-only Oracle triggers
+- dedicated Angular Audit & Change Management screen
+
+پس از Overlay:
+1) Migration نسخه 0.5.0 را اجرا کنید.
+2) Regression verifierها را اجرا کنید.
+3) Maven/Angular Production Build را در محیط دارای Dependency Access اجرا کنید.
+4) Smoke/Integration Test روی Oracle DPS2 انجام دهید.
+
+هیچ جدول Audit/Change در Generic CRUD اضافه نشده است.

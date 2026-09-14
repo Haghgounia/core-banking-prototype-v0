@@ -44,6 +44,7 @@ export const routes: Routes = [
 
       {path: 'four-deposits', loadComponent: () => import('./features/four-deposits/four-deposits-home.component').then(m => m.FourDepositsHomeComponent)},
       {path: 'four-deposits/opening', loadComponent: () => import('./features/four-deposits/deposit-opening-wizard.component').then(m => m.DepositOpeningWizardComponent)},
+      {path: 'four-deposits/change-management', loadComponent: () => import('./features/four-deposits/deposit-opening-change-management.component').then(m => m.DepositOpeningChangeManagementComponent)},
       {path: 'four-deposits/operations', loadComponent: () => import('./features/four-deposits/deposit-opening-operations.component').then(m => m.DepositOpeningOperationsComponent)},
       {path: 'four-deposits/operations/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
       {path: 'four-deposits/reference-data', data: {scope: 'FOUR_DEPOSIT'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},

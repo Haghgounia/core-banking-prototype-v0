@@ -45,6 +45,10 @@ core-banking:
     calendar: CAL
     calendar2: CAL2
     product-definition: PDL
+  deposit-opening:
+    audit:
+      # Comma-separated FIELD_NAME or ENTITY.FIELD_NAME values. Values are masked in Audit CLOBs while SHA-256 hashes are retained.
+      sensitive-fields: ${DEPOSIT_OPENING_AUDIT_SENSITIVE_FIELDS:}
   database-export:
     enabled: false
     schema: DPS

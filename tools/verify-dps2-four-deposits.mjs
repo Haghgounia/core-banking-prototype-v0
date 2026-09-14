@@ -47,7 +47,7 @@ const checks = [
   [shell.includes('>چهار سپرده</span>') && shell.includes('routerLink="/four-deposits/opening"') && shell.includes('routerLink="/four-deposits/operations"') && shell.includes('routerLink="/four-deposits/reference-data"'), 'sidebar Four Deposits menu is incomplete'],
   [menuTs.includes("'FOUR_DEPOSIT'") && menuTs.includes("DEPOSIT_OPENING_REFERENCE") && menuHtml.includes('اطلاعات پایه افتتاح چهار سپرده'), 'DPS2 reference menu scope is missing'],
   [familyKeys.every(k => wizardTs.includes(`${k}:`)), 'wizard must contain exactly the four supported deposit family contracts'],
-  [(wizardTs.match(/readonly steps=\[/g) ?? []).length === 1 && wizardTs.includes("'Payload و ثبت'") && wizardHtml.includes('step()===7'), 'seven-step opening wizard contract is incomplete'],
+  [(wizardTs.match(/readonly steps=\[/g) ?? []).length === 1 && (wizardTs.includes("'Payload و ثبت'") || wizardTs.includes("'ثبت و فعال‌سازی حساب'")) && wizardHtml.includes('step()===7'), 'seven-step opening wizard contract is incomplete'],
   [wizardTs.includes('DEPOSIT_OPENING_REQUEST') && wizardTs.includes('DEPOSIT_OPENING_PARTY') && wizardTs.includes('DEPOSIT_OPENING_FUNDING') && wizardTs.includes('DEPOSIT_OPENING_CHECK') && wizardTs.includes('DEPOSIT_OPENING_DECISION'), 'wizard payload must cover core DPS2 opening entities'],
   [home.includes('قرض‌الحسنه پس‌انداز') && home.includes('حساب جاری') && home.includes('سپرده کوتاه‌مدت') && home.includes('سپرده بلندمدت') && home.includes('گواهی سپرده'), 'Four Deposits landing scope text is incomplete'],
   [opsTs.includes('dps2-opening-request') && opsTs.includes('dps2-opening-decision') && opsTs.includes('dps2-opening-batch'), 'operational forms grouping is incomplete'],

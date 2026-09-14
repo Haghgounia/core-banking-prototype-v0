@@ -1,0 +1,20 @@
+Patch 0.5.1 — DPS2 Four Deposits Phase 5 Build Hotfix
+=====================================================
+
+Patch Type: CUMULATIVE
+Baseline supported for source overlay: 0.3.99 and later Phase 4/Phase 5 source trees
+Target: 0.5.1
+
+علت Hotfix:
+1) Patch 0.5.0 برای Baseline 0.4.0 ساخته شده بود. Overlay مستقیم آن روی 0.3.99 می‌توانست فایل DepositAccountLifecycleService را بدون Domain/Error/Repositoryهای Phase 4 وارد کند و Maven compile را بشکند.
+2) Phase 5 Audit Service از importهای Jackson 2 استفاده می‌کرد؛ پروژه Spring Boot 4.1.0 از Jackson 3 / tools.jackson استفاده می‌کند.
+
+این Patch به‌صورت تجمیعی موارد زیر را تضمین می‌کند:
+- تمام Sourceهای Phase 4 Account Lifecycle
+- تمام Sourceهای Phase 5 Audit & Change Management
+- Jackson 3 alignment
+- Production build fail-fast guards
+- Phase 4 / Phase 5 / 0.5.1 verifier execution
+- Version synchronization to 0.5.1
+
+DDL جدیدی در 0.5.1 وجود ندارد. Migrationهای 0.4.0 و 0.5.0 در بسته حضور دارند و فقط در صورت اجرا نشدن قبلی باید روی Oracle اعمال شوند.

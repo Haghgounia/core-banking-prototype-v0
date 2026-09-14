@@ -1,6 +1,8 @@
 package com.behsazan.corebanking.deposit.opening.application;
 
 import com.behsazan.corebanking.deposit.opening.domain.DepositOpeningModels.*;
+import com.behsazan.corebanking.deposit.opening.audit.application.DepositOpeningAuditService;
+import com.behsazan.corebanking.deposit.opening.audit.domain.DepositOpeningAuditModels.OpeningCreateAuditResult;
 import com.behsazan.corebanking.deposit.opening.error.DepositOpeningValidationException;
 import com.behsazan.corebanking.deposit.opening.oracle.DepositOpeningAggregateRepository;
 import com.behsazan.corebanking.deposit.opening.oracle.DepositOpeningAggregateRepository.ExistingRequest;
@@ -21,9 +23,14 @@ import java.util.UUID;
 @Service
 public class DepositOpeningAggregateService {
     private final DepositOpeningAggregateRepository repository;
+    private final DepositOpeningAuditService auditService;
 
-    public DepositOpeningAggregateService(DepositOpeningAggregateRepository repository) {
+    public DepositOpeningAggregateService(
+            DepositOpeningAggregateRepository repository,
+            DepositOpeningAuditService auditService
+    ) {
         this.repository = repository;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -167,8 +174,10 @@ public class DepositOpeningAggregateService {
             put(rows, "DEPOSIT_OPENING_DECISION", repository.insertDecision(requestId, request.decision(), actor));
         }
 
-        put(rows, "DEPOSIT_OPENING_STATUS_HISTORY",
-                repository.insertInitialStatusHistory(requestId, root.requestStatusCode(), actor, correlationId));
+        OpeningCreateAuditResult audit = auditService.recordOpeningCreated(requestId, root, actor, correlationId);
+        put(rows, "DEPOSIT_OPENING_AUDIT_EVENT", 1);
+        put(rows, "DEPOSIT_OPENING_STATUS_HISTORY", audit.statusHistoryRows());
+        if (audit.snapshotId() != null) put(rows, "DEPOSIT_OPENING_SNAPSHOT", 1);
 
         return new PersistedAggregateResponse(
                 requestId, root.requestNo(), root.idempotencyKey(), root.requestStatusCode(), false, Map.copyOf(rows)

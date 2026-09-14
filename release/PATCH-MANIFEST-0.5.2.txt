@@ -1,0 +1,38 @@
+Core Banking Prototype 0.5.2 - Incremental Patch Manifest
+Baseline: 0.5.1
+Target: 0.5.2
+Patch type: INCREMENTAL BUILD HOTFIX
+Functional changes: NONE
+Oracle DDL changes: NONE
+
+Added files (7):
+- docs/DPS2-0.5.2-JAVA-LAMBDA-BUILD-HOTFIX-QA.md
+- docs/install/INSTALL-0.5.2-FA.txt
+- docs/patches/PATCH-0.5.2-README-FA.txt
+- release/QA-REPORT-0.5.2.md
+- release/RELEASE-NOTES-0.5.2.md
+- tools/verify-dps2-build-hotfix-052.mjs
+- release/PATCH-MANIFEST-0.5.2.txt
+
+Changed files (15):
+- CHANGELOG.md
+- README-FA.md
+- VERSION
+- backend/pom.xml
+- backend/src/main/java/com/behsazan/corebanking/deposit/opening/audit/application/DepositOpeningAuditService.java
+- build-production.cmd
+- build-production.sh
+- frontend/package-lock.json
+- frontend/package.json
+- frontend/src/app/features/system-specification/system-version.generated.ts
+- tools/verify-dps2-build-hotfix-051.mjs
+- tools/verify-dps2-deposit-account-phase4.mjs
+- tools/verify-dps2-deposit-opening-persistence.mjs
+- tools/verify-dps2-deposit-opening-phase3.mjs
+- tools/verify-dps2-deposit-opening-phase5.mjs
+
+Removed files: 0
+
+Primary defect fixed:
+- Java compiler: local variables referenced from a lambda expression must be final or effectively final
+- Location: DepositOpeningAuditService.java around former line 212

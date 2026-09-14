@@ -7,6 +7,7 @@ const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const exists = relative => fs.existsSync(path.join(root, relative));
 
 const version = read('VERSION').trim();
+const versionAtLeast=(actual,minimum)=>{const a=actual.split('.').map(Number),m=minimum.split('.').map(Number);for(let i=0;i<3;i++){if(a[i]>m[i])return true;if(a[i]<m[i])return false}return true};
 const pom = read('backend/pom.xml');
 const packageJson = JSON.parse(read('frontend/package.json'));
 const models = read('backend/src/main/java/com/behsazan/corebanking/deposit/opening/domain/DepositOpeningModels.java');
@@ -38,9 +39,9 @@ const uiHooks = [
 ];
 
 const checks = [
-  [version === '0.3.99', `VERSION must be 0.3.99, got ${version}`],
-  [pom.includes('<version>0.3.99-SNAPSHOT</version>'), 'backend Maven source version is not 0.3.99-SNAPSHOT'],
-  [packageJson.version === '0.3.99', `frontend source version must be 0.3.99, got ${packageJson.version}`],
+  [versionAtLeast(version,'0.3.99'), `VERSION must preserve Phase 3 or later source, got ${version}`],
+  [pom.includes(`<version>${version}-SNAPSHOT</version>`), `backend Maven source version is not ${version}-SNAPSHOT`],
+  [packageJson.version === version, `frontend source version must match ${version}, got ${packageJson.version}`],
   [modelTypes.every(type => models.includes(type)), 'Phase 3 typed aggregate models are incomplete'],
   [phase3Tables.every(table => models.includes(`@JsonProperty("${table}")`)), 'AggregateRequest does not expose all Phase 3 tables'],
   [phase3Tables.every(table => repository.includes(`INSERT INTO %s.${table}`)), 'repository does not cover all Phase 3 tables'],

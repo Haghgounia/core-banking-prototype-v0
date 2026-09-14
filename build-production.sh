@@ -8,6 +8,17 @@ echo "Building Core Banking Prototype $APP_VERSION..."
 node "$ROOT/tools/sync-system-specification.mjs"
 node "$ROOT/tools/migrate-release-layout.mjs"
 node "$ROOT/tools/verify-release-layout.mjs"
+
+for required in \
+  "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/domain/DepositAccountModels.java" \
+  "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/error/DepositAccountLifecycleException.java" \
+  "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/oracle/DepositAccountRepository.java"; do
+  if [ ! -f "$required" ]; then
+    echo "ERROR: DPS2 Phase 4 account lifecycle source is incomplete: $required" >&2
+    echo "Apply the cumulative 0.5.1 patch or use the full package." >&2
+    exit 1
+  fi
+done
 node "$ROOT/tools/verify-cif-persisted-grids.mjs"
 node "$ROOT/tools/verify-ea-oracle-comparison.mjs"
 node "$ROOT/tools/verify-oracle-ea-xmi-export.mjs"
@@ -28,6 +39,11 @@ node "$ROOT/tools/verify-cif-isic2.mjs"
 node "$ROOT/tools/verify-pdl-product-builder.mjs"
 node "$ROOT/tools/verify-dps2-four-deposits.mjs"
 node "$ROOT/tools/verify-dps2-deposit-opening-persistence.mjs"
+node "$ROOT/tools/verify-dps2-deposit-opening-phase3.mjs"
+node "$ROOT/tools/verify-dps2-deposit-account-phase4.mjs"
+node "$ROOT/tools/verify-dps2-deposit-opening-phase5.mjs"
+node "$ROOT/tools/verify-dps2-build-hotfix-051.mjs"
+node "$ROOT/tools/verify-dps2-build-hotfix-052.mjs"
 node "$ROOT/tools/verify-fee-admin-baseline.mjs"
 node "$ROOT/tools/verify-cbi-fee-1404-import.mjs"
 node "$ROOT/tools/verify-cbi-rial-fee-1405-provisional.mjs"

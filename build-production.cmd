@@ -36,6 +36,20 @@ if not exist "%ROOT%backend\src\main\resources\cif\party-reference\party-referen
   exit /b 1
 )
 
+rem DPS2 Phase 4/5 cumulative-source guard. A later patch must never compile against an incomplete earlier phase.
+if not exist "%ROOT%backend\src\main\java\com\behsazan\corebanking\deposit\account\domain\DepositAccountModels.java" (
+  echo ERROR: DPS2 Phase 4 account domain source is missing. Apply the cumulative 0.5.1 patch or full package.
+  exit /b 1
+)
+if not exist "%ROOT%backend\src\main\java\com\behsazan\corebanking\deposit\account\error\DepositAccountLifecycleException.java" (
+  echo ERROR: DPS2 Phase 4 account error source is missing.
+  exit /b 1
+)
+if not exist "%ROOT%backend\src\main\java\com\behsazan\corebanking\deposit\account\oracle\DepositAccountRepository.java" (
+  echo ERROR: DPS2 Phase 4 account repository source is missing. Apply the cumulative 0.5.1 patch or full package.
+  exit /b 1
+)
+
 rem Persisted-grid static UI regression guard: CIF records remain column grids and sidebar docking stays wired.
 node "%ROOT%tools\verify-cif-persisted-grids.mjs" || exit /b 1
 
@@ -94,6 +108,11 @@ rem FIX70 static guard: PDL unified product builder menu, metadata CRUD and prod
 node "%ROOT%tools\verify-pdl-product-builder.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-four-deposits.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-opening-persistence.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-deposit-opening-phase3.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-deposit-account-phase4.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-deposit-opening-phase5.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-build-hotfix-051.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-build-hotfix-052.mjs" || exit /b 1
 
 rem FIX77 static guard: FEE Baseline 1.0 has 47 metadata-driven forms and 574 seed rows.
 node "%ROOT%tools\verify-fee-admin-baseline.mjs" || exit /b 1

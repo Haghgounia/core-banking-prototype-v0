@@ -1,0 +1,22 @@
+نصب نسخه 0.5.2 — Java Lambda Build Hotfix / چهار سپرده
+======================================================
+
+هدف:
+- رفع خطای javac در DepositOpeningAuditService که به علت capture متغیر local غیر effectively-final داخل lambda رخ می‌داد.
+- بدون تغییر Functional و بدون DDL جدید.
+
+مبنای نصب:
+- این Patch برای Source نسخه 0.5.1 ساخته شده است.
+- اگر هنوز روی 0.3.99/0.5.0 ناقص هستید، ابتدا Patch تجمیعی 0.5.1 را اعمال کنید یا Full Source 0.5.2 را جایگزین نمایید.
+
+Build:
+1) bin\stop.cmd
+2) rmdir /s /q frontend\dist   (اگر وجود دارد)
+3) rmdir /s /q backend\src\main\resources\static   (اگر وجود دارد)
+4) build-production.cmd
+5) bin\start.cmd
+
+انتظار:
+- Verifierهای Phase 4، Phase 5، Hotfix 0.5.1 و Hotfix 0.5.2 باید PASS شوند.
+- javac نباید خطای "local variables referenced from a lambda expression must be final or effectively final" بدهد.
+- پس از Build موفق app\BUILD-VERSION باید 0.5.2 باشد.

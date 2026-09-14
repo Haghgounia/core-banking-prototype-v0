@@ -1,0 +1,38 @@
+نصب نسخه 0.5.0 — چهار سپرده / Phase 5 Audit & Change Management
+================================================================
+
+پیش‌نیاز:
+- Source/Runtime نسخه 0.4.0 یا Baseline معادل آن نصب شده باشد.
+- Schema عملیاتی افتتاح سپرده DPS2 مطابق فایل DDL مرجع موجود باشد.
+- جداول DEPOSIT_OPENING_CHANGE_SET / AUDIT_EVENT / AUDIT_FIELD_CHANGE / SNAPSHOT / STATUS_HISTORY از قبل وجود داشته باشند.
+
+1) Migration زیر را با کاربری دارای مجوز لازم روی DPS2 اجرا کنید:
+
+database/oracle/dps2/migrations/0.5.0-phase5-opening-audit-change-management.sql
+
+Migration کدهای مرجع Phase 5 را به‌صورت idempotent درج می‌کند و Triggerهای Append-only را ایجاد/جایگزین می‌کند.
+
+2) Backend نسخه 0.5.0 را Build و Deploy کنید.
+
+3) Frontend نسخه 0.5.0 را Build و Deploy کنید.
+
+اختیاری/امنیتی: فیلدهای حساس Audit را از طریق متغیر محیطی زیر طبقه‌بندی کنید:
+DEPOSIT_OPENING_AUDIT_SENSITIVE_FIELDS=DOCUMENT_REFERENCE,TAX_VERIFICATION_REFERENCE,DEPOSIT_OPENING_BENEFICIARY.BENEFICIARY_REFERENCE
+مقادیر این فیلدها در OLD_VALUE/NEW_VALUE با [MASKED] ذخیره می‌شوند ولی SHA-256 مقدار واقعی برای Evidence حفظ می‌شود. فهرست دقیق باید توسط Data Classification/Governance بانک تعیین شود.
+
+4) Smoke Test پیشنهادی:
+- Opening غیر COMPLETED را انتخاب کنید.
+- Change Set ایجاد کنید.
+- Change Set را APPROVE کنید.
+- یک Root field و یک Child field متعلق به همان Opening را تغییر دهید.
+- Apply را اجرا کنید.
+- Audit Trail را بررسی کنید: PRE_CHANGE / POST_CHANGE، یک CHANGE_APPLIED برای هر Entity و Field Changeهای Old/New باید موجود باشند.
+- تلاش برای تغییر Child متعلق به Opening دیگر باید رد شود.
+- تلاش برای تغییر PK/RECORD_VERSION/Audit Columns باید رد شود.
+- تلاش برای Apply روی Opening در وضعیت COMPLETED باید رد شود.
+
+5) کنترل Append-only:
+UPDATE/DELETE مستقیم روی Audit Event، Audit Field Change، Snapshot و Status History باید با ORA-20051..ORA-20054 رد شود.
+
+توجه معماری:
+پس از COMPLETED، پرونده Opening سابقه تاریخی است و تغییرات ماهیتی حساب باید در Deposit Account Operations انجام شود.

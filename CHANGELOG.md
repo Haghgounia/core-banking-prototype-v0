@@ -1,3 +1,38 @@
+# 0.5.2 — DPS2 Java Lambda Build Hotfix
+
+- Fixed effectively-final lambda capture in `DepositOpeningAuditService`.
+- Added dedicated 0.5.2 build verifier.
+- No functional or DDL changes.
+
+# 0.5.1 — DPS2 Phase 5 Build Hotfix
+
+- Fixed cumulative source packaging so Phase 4 Account Lifecycle domain/error/repository sources are always present when Phase 5 is deployed from a 0.3.99-era tree.
+- Migrated `DepositOpeningAuditService` from Jackson 2 `com.fasterxml.jackson.*` imports to Spring Boot 4.1 / Jackson 3 `tools.jackson.*`.
+- Added production-build fail-fast checks for missing Phase 4 account source files.
+- Production build now executes Phase 5 and 0.5.1 hotfix verifiers before Maven compilation.
+- No functional scope or Oracle DDL change; Phase 5 behavior remains the same.
+
+# 0.5.0 — DPS2 Four Deposits Phase 5 — Opening Audit & Change Management
+
+- Added domain-managed Change Set lifecycle (`DRAFT -> APPROVED -> APPLIED` or `REJECTED`) with base `RECORD_VERSION` concurrency validation.
+- Added append-only business Audit Events and field-level Old/New + SHA-256 change evidence.
+- Added canonical JSON snapshots at APPROVED/SUBMITTED/COMPLETED and PRE_CHANGE/POST_CHANGE control points.
+- Linked initial Opening status history to the CREATE audit event and linked Phase 4 account activation completion to a STATUS_CHANGE audit event.
+- Added dedicated Angular route `/four-deposits/change-management`; audit/change tables remain excluded from Generic CRUD.
+- Added Oracle migration `database/oracle/dps2/migrations/0.5.0-phase5-opening-audit-change-management.sql` with prototype lifecycle reference codes and append-only triggers.
+- Enforced the bounded-context rule that material Opening changes are rejected after `COMPLETED`; subsequent account changes belong to Deposit Account Operations.
+
+# 0.4.0 — DPS2 Four Deposits Phase 4 — Account Creation & Activation
+
+- Added real account lifecycle APIs: create, activate and query account by Opening request.
+- Account creation is idempotent and serializes competing requests with `SELECT ... FOR UPDATE` on the Opening root.
+- Added `DEPOSIT_ACCOUNT` in `PENDING_ACTIVATION`, activation to `ACTIVE`, and `CREATE` / `ACTIVATE` lifecycle events.
+- Persists `DEPOSIT_OPENING_REQUEST.CREATED_ACCOUNT_ID` as an Integration Reference without a physical cross-domain FK.
+- After successful activation, Opening transitions `APPROVED -> COMPLETED` and writes `DEPOSIT_OPENING_STATUS_HISTORY`.
+- Step 7 is now a real three-stage workflow: Opening persistence -> Account Creation -> Account Activation.
+- Added Oracle migration `database/oracle/dps2/migrations/0.4.0-phase4-deposit-account-lifecycle.sql`.
+- `DPA...` is explicitly a technical prototype number, not a production account-numbering algorithm.
+
 # 0.3.99 — DPS2 Four Deposits Phase 3 — Full Opening Aggregate
 
 - Extended the atomic Deposit Opening aggregate with Signatory/Authority, Authorized User, Delegation, Beneficiary, Document, Payment Instrument, Pricing Override, Tax Status and Reward Enrollment.

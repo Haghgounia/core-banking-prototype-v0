@@ -1,0 +1,54 @@
+Core Banking Prototype 0.4.0 - Four Deposits / DPS2 Phase 4
+===========================================================
+
+نوع تغییر
+---------
+Backend + Frontend + Oracle Migration
+Account Creation & Activation Lifecycle
+
+پیش نیاز
+--------
+- Source نسخه 0.3.99 یا Baseline معادل آن.
+- Schema DPS2 و جداول/Sequenceهای Deposit Account Opening فازهای قبل نصب شده باشند.
+- Opening مورد استفاده برای ایجاد حساب باید در وضعیت APPROVED باشد.
+- دسترسی اجرای DDL روی Schema DPS2 برای Migration موجود باشد.
+
+Migration
+---------
+database/oracle/dps2/migrations/0.4.0-phase4-deposit-account-lifecycle.sql
+
+Migration موارد زیر را ایجاد/تکمیل می‌کند:
+- CREATED_ACCOUNT_ID روی DEPOSIT_OPENING_REQUEST در صورت نبودن ستون
+- DEPOSIT_ACCOUNT
+- DEPOSIT_ACCOUNT_LIFECYCLE_EVENT
+- Sequenceها، Constraintها و Indexهای لازم
+
+نکته معماری مهم
+----------------
+CREATED_ACCOUNT_ID فقط Integration Reference است. بین DEPOSIT_OPENING_REQUEST و DEPOSIT_ACCOUNT هیچ FK فیزیکی Cross-Domain ایجاد نمی‌شود.
+
+Build
+-----
+1) Migration را در محیط هدف اجرا کنید.
+2) Backend و Frontend نسخه 0.4.0 را Build کنید.
+3) تمام verify-*.mjsها باید PASS شوند.
+4) Runtime artifact فقط بعد از Build موفق باید BUILD-VERSION=0.4.0 داشته باشد.
+
+Smoke Test پیشنهادی
+-------------------
+1) یک Opening معتبر را در Wizard تا APPROVED ثبت کنید.
+2) در Step 7 «ثبت Opening» را اجرا کنید و OPENING_REQUEST_ID بگیرید.
+3) «ایجاد حساب» را اجرا کنید.
+4) DEPOSIT_ACCOUNT باید با PENDING_ACTIVATION ایجاد شود.
+5) CREATED_ACCOUNT_ID باید روی DEPOSIT_OPENING_REQUEST ثبت شود.
+6) Event نوع CREATE باید در DEPOSIT_ACCOUNT_LIFECYCLE_EVENT ثبت شود.
+7) Create را برای همان Opening دوباره اجرا کنید؛ حساب جدید نباید ساخته شود و پاسخ باید Idempotent باشد.
+8) «فعال‌سازی حساب» را اجرا کنید.
+9) حساب باید ACTIVE شود.
+10) Event نوع ACTIVATE باید ثبت شود.
+11) Opening باید COMPLETED شود و DEPOSIT_OPENING_STATUS_HISTORY باید APPROVED -> COMPLETED را ثبت کند.
+12) تلاش دوم برای Activation باید رد شود چون وضعیت حساب دیگر PENDING_ACTIVATION نیست.
+
+هشدار شماره حساب
+-----------------
+شماره‌های DPA... صرفاً Technical Prototype Number هستند و الگوریتم واقعی شماره حساب بانک محسوب نمی‌شوند.

@@ -5,6 +5,8 @@ import com.behsazan.corebanking.cif.error.CifValidationException;
 import com.behsazan.corebanking.system.modelcomparison.ModelComparisonValidationException;
 import com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException;
 import com.behsazan.corebanking.fee.admin.application.FeeAdminValidationException;
+import com.behsazan.corebanking.deposit.account.error.DepositAccountLifecycleException;
+import com.behsazan.corebanking.deposit.account.error.DepositAccountNotFoundException;
 import com.behsazan.corebanking.deposit.opening.error.DepositOpeningValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +86,26 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+
+    @ExceptionHandler(DepositAccountNotFoundException.class)
+    ProblemDetail handleDepositAccountNotFound(DepositAccountNotFoundException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+        problem.setType(URI.create("urn:core-banking:problem:deposit-account-not-found"));
+        problem.setTitle("حساب سپرده یا پرونده افتتاح یافت نشد");
+        problem.setProperty("errorCode", "DEPOSIT_ACCOUNT_NOT_FOUND");
+        return problem;
+    }
+
+    @ExceptionHandler(DepositAccountLifecycleException.class)
+    ProblemDetail handleDepositAccountLifecycle(DepositAccountLifecycleException exception) {
+        log.warn("Deposit account lifecycle failed: {} fields={}", exception.getMessage(), exception.fieldErrors());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+        problem.setType(URI.create("urn:core-banking:problem:deposit-account-lifecycle"));
+        problem.setTitle("Transition چرخه حساب مجاز نیست");
+        problem.setProperty("errorCode", "DEPOSIT_ACCOUNT_LIFECYCLE_CONFLICT");
+        problem.setProperty("fieldErrors", exception.fieldErrors());
+        return problem;
+    }
 
     @ExceptionHandler(DepositOpeningValidationException.class)
     ProblemDetail handleDepositOpeningValidation(DepositOpeningValidationException exception) {

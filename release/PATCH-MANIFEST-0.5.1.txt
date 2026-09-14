@@ -1,0 +1,78 @@
+Core Banking Prototype 0.5.1 - Cumulative Build Hotfix Patch Manifest
+
+Baseline: 0.3.99
+Target: 0.5.1
+Patch type: CUMULATIVE
+
+Added: 34
+Changed: 24
+Deleted: 0
+
+ADDED FILES
+backend/src/main/java/com/behsazan/corebanking/deposit/account/application/DepositAccountLifecycleService.java
+backend/src/main/java/com/behsazan/corebanking/deposit/account/domain/DepositAccountModels.java
+backend/src/main/java/com/behsazan/corebanking/deposit/account/error/DepositAccountLifecycleException.java
+backend/src/main/java/com/behsazan/corebanking/deposit/account/error/DepositAccountNotFoundException.java
+backend/src/main/java/com/behsazan/corebanking/deposit/account/oracle/DepositAccountRepository.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/audit/application/DepositOpeningAuditService.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/audit/domain/DepositOpeningAuditModels.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/audit/oracle/DepositOpeningAuditRepository.java
+database/oracle/dps2/migrations/0.4.0-phase4-deposit-account-lifecycle.sql
+database/oracle/dps2/migrations/0.5.0-phase5-opening-audit-change-management.sql
+docs/DPS2-0.4.0-FOUR-DEPOSITS-PHASE4-ACCOUNT-LIFECYCLE-QA.md
+docs/DPS2-0.5.0-FOUR-DEPOSITS-PHASE5-AUDIT-CHANGE-MANAGEMENT-QA.md
+docs/DPS2-0.5.1-BUILD-HOTFIX-QA.md
+docs/install/INSTALL-0.4.0-FA.txt
+docs/install/INSTALL-0.5.0-FA.txt
+docs/install/INSTALL-0.5.1-FA.txt
+docs/patches/PATCH-0.4.0-README-FA.txt
+docs/patches/PATCH-0.5.0-README-FA.txt
+docs/patches/PATCH-0.5.1-README-FA.txt
+frontend/src/app/features/four-deposits/deposit-opening-change-management.component.html
+frontend/src/app/features/four-deposits/deposit-opening-change-management.component.scss
+frontend/src/app/features/four-deposits/deposit-opening-change-management.component.ts
+release/PATCH-MANIFEST-0.4.0.txt
+release/PATCH-MANIFEST-0.5.0.txt
+release/PATCH-MANIFEST-0.5.1.txt
+release/QA-REPORT-0.4.0.md
+release/QA-REPORT-0.5.0.md
+release/QA-REPORT-0.5.1.md
+release/RELEASE-NOTES-0.4.0.md
+release/RELEASE-NOTES-0.5.0.md
+release/RELEASE-NOTES-0.5.1.md
+tools/verify-dps2-build-hotfix-051.mjs
+tools/verify-dps2-deposit-account-phase4.mjs
+tools/verify-dps2-deposit-opening-phase5.mjs
+
+CHANGED FILES
+CHANGELOG.md
+README-FA.md
+VERSION
+backend/pom.xml
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/application/DepositOpeningAggregateService.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/web/DepositOpeningController.java
+backend/src/main/java/com/behsazan/corebanking/shared/error/GlobalExceptionHandler.java
+backend/src/main/resources/application.yml
+build-production.cmd
+build-production.sh
+frontend/package-lock.json
+frontend/package.json
+frontend/src/app/app.routes.ts
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.html
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.scss
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts
+frontend/src/app/features/four-deposits/deposit-opening.service.ts
+frontend/src/app/features/four-deposits/four-deposits-home.component.html
+frontend/src/app/features/system-specification/system-version.generated.ts
+frontend/src/app/layout/app-shell.component.html
+frontend/src/app/shared/ui/app-breadcrumb.component.ts
+tools/verify-dps2-deposit-opening-persistence.mjs
+tools/verify-dps2-deposit-opening-phase3.mjs
+tools/verify-dps2-four-deposits.mjs
+
+DELETED FILES
+(none)
+
+Overlay contract:
+Applying this cumulative patch to the managed source scope of 0.3.99 must produce the 0.5.1 target source byte-for-byte.
+The same patch is safe to overlay on the current mixed 0.5.0 tree because files are only added/overwritten and no source deletion is required.

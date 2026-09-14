@@ -1,0 +1,15 @@
+Patch 0.5.2 — DPS2 Four Deposits Java Lambda Build Hotfix
+=========================================================
+Patch Type: INCREMENTAL
+Baseline: 0.5.1
+Target: 0.5.2
+
+علت:
+DepositOpeningAuditService متغیر entity را پس از مقداردهی اولیه دوباره assign می‌کرد و سپس آن را در orElseThrow lambda استفاده می‌کرد؛ javac آن را effectively-final نمی‌دانست.
+
+اصلاح:
+- معرفی requestedEntity برای ورودی normalize شده.
+- تعریف final String entity با expression واحد.
+- افزودن verifier اختصاصی 0.5.2 به Production Build.
+
+DDL جدید: ندارد.

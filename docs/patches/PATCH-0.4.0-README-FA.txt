@@ -1,0 +1,32 @@
+Core Banking Prototype 0.4.0 — DPS2 Four Deposits Phase 4
+=========================================================
+
+پیش نیاز Patch: نسخه Source 0.3.99
+
+تغییرات اصلی:
+- POST /api/v1/deposit-opening/requests/{id}/account
+- POST /api/v1/deposit-opening/requests/{id}/account/activate
+- GET /api/v1/deposit-opening/requests/{id}/account
+- Account Creation با Idempotency و SELECT ... FOR UPDATE روی Opening
+- ثبت CREATED_ACCOUNT_ID به عنوان Integration Reference
+- DEPOSIT_ACCOUNT با وضعیت اولیه PENDING_ACTIVATION
+- Activation فقط از PENDING_ACTIVATION به ACTIVE
+- ثبت Lifecycle Eventهای CREATE و ACTIVATE
+- انتقال Opening از APPROVED به COMPLETED بعد از Activation
+- ثبت DEPOSIT_OPENING_STATUS_HISTORY برای Completion
+- Step 7 سه‌مرحله‌ای: ثبت Opening -> ایجاد حساب -> فعال‌سازی
+- Migration جدید Phase 4
+
+مرزبندی معماری:
+هیچ FK فیزیکی بین DEPOSIT_OPENING_REQUEST و DEPOSIT_ACCOUNT ایجاد نمی‌شود. تغییرات ماهیتی حساب بعد از COMPLETED در Account Operations انجام می‌شوند.
+
+شماره حساب DPA... فقط Technical Prototype Number است.
+
+Migration:
+database/oracle/dps2/migrations/0.4.0-phase4-deposit-account-lifecycle.sql
+
+QA:
+docs/DPS2-0.4.0-FOUR-DEPOSITS-PHASE4-ACCOUNT-LIFECYCLE-QA.md
+
+Install:
+docs/install/INSTALL-0.4.0-FA.txt

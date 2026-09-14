@@ -1,4 +1,36 @@
-## چهار سپرده / Deposit Account Opening — Phase 3 (0.3.99)
+## Hotfix ساخت چهار سپرده — 0.5.2
+
+نسخه 0.5.2 فقط خطای Java lambda capture در Phase 5 را رفع می‌کند و هیچ تغییر Functional یا DDL ندارد.
+
+## Hotfix ساخت چهار سپرده — 0.5.1
+
+نسخه 0.5.1 توسعه Functional جدیدی اضافه نمی‌کند. این Hotfix، بسته Phase 5 را برای Build واقعی Spring Boot 4.1 اصلاح می‌کند: Sourceهای کامل Phase 4 Account Lifecycle را در Patch تجمیعی تضمین می‌کند، `DepositOpeningAuditService` را با Jackson 3 (`tools.jackson`) هم‌راستا می‌سازد و Build Guardهای Phase 4/5 را قبل از Maven compile اجرا می‌کند.
+
+## چهار سپرده / Deposit Account Opening — Phase 5 (0.5.0)
+
+Phase 5 لایه‌ی **Opening Audit & Change Management** را اضافه می‌کند. پنج جدول کنترل‌شده‌ی `DEPOSIT_OPENING_CHANGE_SET`، `DEPOSIT_OPENING_AUDIT_EVENT`، `DEPOSIT_OPENING_AUDIT_FIELD_CHANGE`، `DEPOSIT_OPENING_SNAPSHOT` و `DEPOSIT_OPENING_STATUS_HISTORY` همچنان از Generic CRUD خارج هستند و اکنون از Domain Service اختصاصی مدیریت می‌شوند. Apply تغییرات روی `RECORD_VERSION` پایه کنترل می‌شود، قبل و بعد از Apply Snapshot canonical JSON با SHA-256 ثبت می‌گردد و پس از `COMPLETED` تغییر ماهیتی Opening ممنوع است.
+
+APIهای Phase 5:
+
+- `POST /api/v1/deposit-opening/requests/{id}/change-sets`
+- `POST /api/v1/deposit-opening/requests/{id}/change-sets/{changeSetId}/approve`
+- `POST /api/v1/deposit-opening/requests/{id}/change-sets/{changeSetId}/reject`
+- `POST /api/v1/deposit-opening/requests/{id}/change-sets/{changeSetId}/apply`
+- `GET /api/v1/deposit-opening/requests/{id}/audit-trail`
+- `GET /api/v1/deposit-opening/requests/{id}/snapshots/{snapshotId}`
+
+## چهار سپرده / Deposit Account Opening — Phase 4 (0.4.0)
+
+Phase 4 چرخه عملیاتی پس از Origination را اضافه می‌کند: ثبت Opening تأییدشده، ایجاد `DEPOSIT_ACCOUNT` در وضعیت `PENDING_ACTIVATION`، فعال‌سازی حساب به `ACTIVE` و سپس انتقال Opening به `COMPLETED`. ارتباط Opening با Account فقط از طریق `CREATED_ACCOUNT_ID` به‌عنوان Integration Reference است و FK فیزیکی Cross-Domain ایجاد نمی‌شود. شماره `DPA...` صرفاً شماره فنی Prototype است.
+
+APIهای Phase 4:
+
+- `POST /api/v1/deposit-opening/requests/{id}/account`
+- `POST /api/v1/deposit-opening/requests/{id}/account/activate`
+- `GET /api/v1/deposit-opening/requests/{id}/account`
+
+## Phase 3 baseline (0.3.99)
+
 
 در این نسخه Aggregate اتمیک افتتاح سپرده با اجزای تکمیلی زمان افتتاح توسعه یافته است: صاحب امضا و حدود اختیار، کاربر مجاز، وکالت/نمایندگی، ذی‌نفع، مدارک، ابزار پرداخت، درخواست شرایط ترجیحی، وضعیت مالیاتی و عضویت برنامه جایزه. شناسه موقت Signatory در Payload فقط برای اتصال داخلی درخواست استفاده می‌شود و Backend شناسه واقعی Oracle را از Sequence تولید می‌کند. Endpoint همان `POST /api/v1/deposit-opening/requests` است و همه اقلام موجود در یک Transaction ذخیره می‌شوند. ایجاد `DEPOSIT_ACCOUNT` همچنان فاز بعدی چرخه عمر است.
 

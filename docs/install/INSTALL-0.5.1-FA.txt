@@ -1,0 +1,31 @@
+نصب نسخه 0.5.1 — Hotfix ساخت Phase 5 / چهار سپرده
+====================================================
+
+هدف این Hotfix:
+- تکمیل Sourceهای Phase 4 که در صورت Overlay اشتباه Patch 0.5.0 روی Baseline 0.3.99 ممکن است غایب باشند.
+- هم‌راستاسازی Phase 5 Audit Service با Jackson 3 / Spring Boot 4.1.0.
+- افزودن Fail-fast Guard و اجرای Verifierهای Phase 4 و Phase 5 در Production Build.
+
+مبنای امن نصب:
+- اگر Source شما اکنون VERSION=0.5.0 دارد ولی build با خطاهای package com.behsazan.corebanking.deposit.account.* does not exist یا com.fasterxml.jackson.* does not exist متوقف می‌شود، Patch تجمیعی 0.5.1 را مستقیم روی همان پوشه Overlay کنید.
+- Patch 0.5.1 تجمیعی است و تغییرات لازم از Baseline 0.3.99 تا 0.5.1 را حمل می‌کند؛ بنابراین وابسته به وجود کامل Patch قبلی 0.4.0 نیست.
+
+Database:
+- Hotfix 0.5.1 DDL جدید ندارد.
+- اگر Migration فاز 4 اجرا نشده است، ابتدا:
+  database/oracle/dps2/migrations/0.4.0-phase4-deposit-account-lifecycle.sql
+- اگر Migration فاز 5 اجرا نشده است، سپس:
+  database/oracle/dps2/migrations/0.5.0-phase5-opening-audit-change-management.sql
+
+Build:
+1) bin\stop.cmd
+2) rmdir /s /q frontend\dist   (اگر وجود دارد)
+3) rmdir /s /q backend\src\main\resources\static   (اگر وجود دارد)
+4) build-production.cmd
+5) bin\start.cmd
+
+انتظار:
+- قبل از Maven compile، Verifierهای Phase 4، Phase 5 و Hotfix 0.5.1 باید PASS شوند.
+- Maven باید DepositAccountModels / DepositAccountRepository / Exceptions را پیدا کند.
+- DepositOpeningAuditService باید از tools.jackson.core.JacksonException و tools.jackson.databind.json.JsonMapper استفاده کند.
+- پس از build موفق، app\BUILD-VERSION باید 0.5.1 باشد.
