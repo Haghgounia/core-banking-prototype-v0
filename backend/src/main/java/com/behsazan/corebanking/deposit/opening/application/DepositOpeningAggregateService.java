@@ -6,6 +6,9 @@ import com.behsazan.corebanking.deposit.opening.audit.domain.DepositOpeningAudit
 import com.behsazan.corebanking.deposit.opening.error.DepositOpeningValidationException;
 import com.behsazan.corebanking.deposit.opening.oracle.DepositOpeningAggregateRepository;
 import com.behsazan.corebanking.deposit.opening.oracle.DepositOpeningAggregateRepository.ExistingRequest;
+import com.behsazan.corebanking.deposit.opening.readiness.application.DepositOpeningRuntimeValidator;
+import com.behsazan.corebanking.deposit.opening.readiness.domain.DepositOpeningRuntimeModels.RuntimeValidationResponse;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,19 +27,23 @@ import java.util.UUID;
 public class DepositOpeningAggregateService {
     private final DepositOpeningAggregateRepository repository;
     private final DepositOpeningAuditService auditService;
+    private final DepositOpeningRuntimeValidator runtimeValidator;
 
     public DepositOpeningAggregateService(
             DepositOpeningAggregateRepository repository,
-            DepositOpeningAuditService auditService
+            DepositOpeningAuditService auditService,
+            DepositOpeningRuntimeValidator runtimeValidator
     ) {
         this.repository = repository;
         this.auditService = auditService;
+        this.runtimeValidator = runtimeValidator;
     }
 
     @Transactional
     public PersistedAggregateResponse create(AggregateRequest aggregate, String actor, String correlationId) {
         AggregateRequest request = normalize(aggregate);
         validate(request);
+        runtimeValidator.validateAggregate(request);
 
         OpeningRequest root = request.request();
         ExistingRequest existing = repository.findByIdempotencyKey(root.idempotencyKey()).orElse(null);
@@ -55,7 +62,22 @@ public class DepositOpeningAggregateService {
 
         long requestId = repository.nextRequestId();
         Map<String, Integer> rows = new LinkedHashMap<>();
-        put(rows, "DEPOSIT_OPENING_REQUEST", repository.insertRequest(requestId, root, actor));
+        try {
+            put(rows, "DEPOSIT_OPENING_REQUEST", repository.insertRequest(requestId, root, actor));
+        } catch (DuplicateKeyException ex) {
+            ExistingRequest concurrent = repository.findByIdempotencyKey(root.idempotencyKey()).orElse(null);
+            if (concurrent == null) throw ex;
+            if (!concurrent.requestNo().equals(root.requestNo())) {
+                throw new DepositOpeningValidationException(
+                        "کلید Idempotency همزمان برای درخواست دیگری ثبت شده است.",
+                        Map.of("DEPOSIT_OPENING_REQUEST.IDEMPOTENCY_KEY", "کلید Idempotency باید به همان REQUEST_NO بازپخش شود.")
+                );
+            }
+            return new PersistedAggregateResponse(
+                    concurrent.openingRequestId(), concurrent.requestNo(), concurrent.idempotencyKey(),
+                    concurrent.requestStatusCode(), true, Map.of()
+            );
+        }
 
         int partySequence = 1;
         for (OpeningParty party : safe(request.parties())) {
@@ -182,6 +204,13 @@ public class DepositOpeningAggregateService {
         return new PersistedAggregateResponse(
                 requestId, root.requestNo(), root.idempotencyKey(), root.requestStatusCode(), false, Map.copyOf(rows)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public RuntimeValidationResponse validateRuntime(AggregateRequest aggregate) {
+        AggregateRequest request = normalize(aggregate);
+        validate(request);
+        return runtimeValidator.validateAggregate(request);
     }
 
     private static AggregateRequest normalize(AggregateRequest value) {

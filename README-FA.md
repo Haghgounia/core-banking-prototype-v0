@@ -1,3 +1,18 @@
+## Hotfix نشانی مشتری — 0.7.1
+
+نسخه 0.7.1 خطای ثبت نشانی CIF را که در آن شهرستان در UI انتخاب شده بود ولی `CIF.ADDRESS.COUNTY_CODE` می‌توانست خالی به Oracle برسد، اصلاح می‌کند. استان/شهرستان/بخش اکنون مستقیماً Code مرجع GEO را در فرم نگه می‌دارند و Backend نیز قبل از Insert/Update الزامی‌بودن و سازگاری سلسله‌مراتب جغرافیایی را کنترل می‌کند. این Hotfix Migration دیتابیس ندارد.
+
+## افتتاح سپرده — Phase 7 Runtime Hardening / 0.7.0
+
+نسخه 0.7.0 بدون ورود به Deposit Account Servicing، فرایند افتتاح موردی و گروهی را برای اجرای واقعی روی Oracle سخت‌گیری می‌کند: Referenceهای DPS2، Party در CIF و Product Version در PDL قبل از Persistence کنترل می‌شوند؛ مرحله 5 Wizard دارای Runtime Preflight است و صفحه `/four-deposits/runtime-readiness` وضعیت Schema/Sequence/Trigger/Unique Guard و Rollback Probe واقعی را نمایش می‌دهد. Account Service و Tax Profile/Withholding مطابق HTML همچنان External Contract هستند و تا اتصال واقعی با WARN نمایش داده می‌شوند.
+
+Migration این فاز:
+`database/oracle/dps2/migrations/0.7.0-phase7-opening-e2e-hardening.sql`
+
+## افتتاح گروهی سپرده — Phase 6 / 0.6.0
+
+مسیر اختصاصی `/four-deposits/batch-opening` مطابق فایل HTML مرجع، Batch Opening را با Header/Item/Error، اعتبارسنجی، پردازش مستقل هر ردیف، ایجاد Opening Request و Account و فعال‌سازی حساب‌های موفق ارائه می‌کند. سه جدول Batch موجود DPS2 دوباره ایجاد نمی‌شوند و Generic CRUD آن‌ها فقط برای مدیریت فنی باقی می‌ماند.
+
 ## Hotfix ساخت چهار سپرده — 0.5.2
 
 نسخه 0.5.2 فقط خطای Java lambda capture در Phase 5 را رفع می‌کند و هیچ تغییر Functional یا DDL ندارد.
@@ -670,3 +685,9 @@ Parser XML در برابر DTD/External Entity غیرفعال و سخت‌ساز
 در FIX96 مدل PDL با Baseline جدید Unified Product Builder هم‌راستا شده است: 50 جدول کسب‌وکاری Target و سه جدول Infrastructure مدیریت کد در Catalog فیزیکی. سه Object جدید `DEPOSIT_PROFIT_PAYMENT_RULE`، `CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE` و `CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE` اضافه شده‌اند. خانواده‌های سپرده به جاری، قرض‌الحسنه پس‌انداز، کوتاه‌مدت، بلندمدت، گواهی سپرده، نوسترو و وسترو تفکیک می‌شوند. DATEهای فرم‌های PDL با ورودی شمسی و ساعت Cut-off با Clock/Dial مشترک نمایش داده می‌شوند؛ قرارداد Backend بدون تغییر Canonical باقی می‌ماند.
 
 برای ارتقا از 0.3.87 ابتدا Migrationهای PDL و DPS داخل `database/oracle/*/migrations/0.3.88-*` اجرا و سپس `build-production.cmd` اجرا شود. جزئیات در `docs/PDL-0.3.88-FIX96-UNIFIED-PRODUCT-BUILDER-BASELINE-QA.md` آمده است.
+
+### چهار سپرده — عملیات حساب سپرده 0.8.0
+پس از تکمیل Opening، Workspace مستقل `four-deposits/account-operations` برای جست‌وجو و نمای 360 حساب‌های سپرده اضافه شده است. این فاز Read-Only است و تا زمان وجود مدل قطعی Servicing، عملیات Hold/Closure/Posting را ایجاد نمی‌کند.
+
+### چهار سپرده — نسخه 0.9.0
+Phase 9 عملیات حساب سپرده، اولین Servicing تغییردهنده را بر اساس مدل واقعی DPS2 اضافه می‌کند: بستن کنترل‌شده حساب از `ACTIVE` به `CLOSED`. وضعیت‌های Hold/Dormancy/Reactivation تا زمان تعریف مدل فیزیکی معتبر اضافه نشده‌اند.

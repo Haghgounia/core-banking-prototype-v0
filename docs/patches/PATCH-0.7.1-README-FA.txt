@@ -1,0 +1,8 @@
+Patch 0.7.1 from 0.7.0
+Scope: CIF Party Address COUNTY_CODE hotfix
+No database migration.
+
+اصلاح اصلی:
+- Code-bound province/county/district controls
+- Server-side required/hierarchy validation against GEO
+- Forward-compatible Phase 7 verifier

@@ -1,0 +1,34 @@
+Core Banking Prototype 0.9.0
+Four Deposits - Phase 9 Account Servicing / Closure
+====================================================
+
+پیش‌نیاز:
+- Source نسخه 0.8.0 یا Full Source نسخه 0.9.0
+- Oracle DPS2 در وضعیت سالم
+
+1) در صورت استفاده از Patch، فایل‌های Patch را روی Source نسخه 0.8.0 Overlay کنید.
+
+2) Migration زیر را روی Oracle اجرا کنید:
+   @database/oracle/dps2/migrations/0.9.0-phase9-account-closure-servicing.sql
+
+3) Build:
+   bin\stop.cmd
+   rmdir /s /q frontend\dist
+   rmdir /s /q backend\src\main\resources\static
+   build-production.cmd
+   bin\start.cmd
+
+4) انتظار در Build:
+   DPS2 Deposit Account Servicing Phase 9 verification OK: 18/18 controlled Account Closure checks passed.
+   Built version: 0.9.0
+
+5) Smoke Test:
+   - مسیر /#/four-deposits/account-operations را باز کنید.
+   - یک حساب ACTIVE انتخاب کنید.
+   - «بستن حساب» را اجرا کنید.
+   - وضعیت باید CLOSED شود.
+   - در Timeline دقیقاً یک رویداد CLOSE دیده شود.
+   - Record Version باید یک واحد افزایش یابد.
+
+6) نکته Scope:
+   Hold/Block/Dormancy/Reactivation در این نسخه اضافه نشده‌اند، چون مدل فیزیکی فعلی DPS2 برای آن‌ها Status/Event معتبر ندارد.

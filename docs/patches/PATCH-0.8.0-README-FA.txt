@@ -1,0 +1,14 @@
+Patch 0.8.0 from 0.7.1
+Scope: Four Deposits - Deposit Account Operations Foundation
+No database migration.
+
+قابلیت‌های اصلی:
+- API مستقل و Read-Only عملیات حساب سپرده
+- جست‌وجوی حساب بر اساس شماره حساب، وضعیت، Opening Request، Party و خانواده محصول
+- Account 360 با ارتباط Opening و مالکان
+- Lifecycle Timeline بر اساس رویدادهای موجود CREATE/ACTIVATE
+- Route و منوی مستقل /four-deposits/account-operations
+
+عمداً خارج از این Patch:
+Hold / Reactivation / Closure / Dormancy / Profit Posting / Transaction Posting
+تا زمانی که مدل قطعی Servicing ارائه یا استخراج شود.

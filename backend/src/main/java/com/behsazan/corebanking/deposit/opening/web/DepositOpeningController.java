@@ -3,10 +3,16 @@ package com.behsazan.corebanking.deposit.opening.web;
 import com.behsazan.corebanking.deposit.account.application.DepositAccountLifecycleService;
 import com.behsazan.corebanking.deposit.account.domain.DepositAccountModels.AccountLifecycleResponse;
 import com.behsazan.corebanking.deposit.opening.application.DepositOpeningAggregateService;
+import com.behsazan.corebanking.deposit.opening.batch.application.DepositOpeningBatchService;
+import com.behsazan.corebanking.deposit.opening.batch.domain.DepositOpeningBatchModels.*;
 import com.behsazan.corebanking.deposit.opening.audit.application.DepositOpeningAuditService;
 import com.behsazan.corebanking.deposit.opening.audit.domain.DepositOpeningAuditModels.*;
 import com.behsazan.corebanking.deposit.opening.domain.DepositOpeningModels.AggregateRequest;
 import com.behsazan.corebanking.deposit.opening.domain.DepositOpeningModels.PersistedAggregateResponse;
+import com.behsazan.corebanking.deposit.opening.readiness.application.DepositOpeningReadinessService;
+import com.behsazan.corebanking.deposit.opening.readiness.domain.DepositOpeningRuntimeModels.ReadinessReport;
+import com.behsazan.corebanking.deposit.opening.readiness.domain.DepositOpeningRuntimeModels.RollbackProbeResult;
+import com.behsazan.corebanking.deposit.opening.readiness.domain.DepositOpeningRuntimeModels.RuntimeValidationResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,15 +30,82 @@ public class DepositOpeningController {
     private final DepositOpeningAggregateService service;
     private final DepositAccountLifecycleService accountLifecycleService;
     private final DepositOpeningAuditService auditService;
+    private final DepositOpeningBatchService batchService;
+    private final DepositOpeningReadinessService readinessService;
 
     public DepositOpeningController(
             DepositOpeningAggregateService service,
             DepositAccountLifecycleService accountLifecycleService,
-            DepositOpeningAuditService auditService
+            DepositOpeningAuditService auditService,
+            DepositOpeningBatchService batchService,
+            DepositOpeningReadinessService readinessService
     ) {
         this.service = service;
         this.accountLifecycleService = accountLifecycleService;
         this.auditService = auditService;
+        this.batchService = batchService;
+        this.readinessService = readinessService;
+    }
+
+    @PostMapping("/batches")
+    ResponseEntity<BatchView> createBatch(
+            @RequestBody BatchCreateRequest request,
+            @RequestHeader(name = "X-User-Id", defaultValue = "opening.operator") String actor
+    ) {
+        BatchView result = batchService.create(request, normalizedActor(actor));
+        if (result.idempotentReplay()) return ResponseEntity.ok(result);
+        return ResponseEntity.created(URI.create("/api/v1/deposit-opening/batches/" + result.batch().openingBatchId())).body(result);
+    }
+
+    @GetMapping("/batches/{batchId}")
+    ResponseEntity<BatchView> getBatch(@PathVariable("batchId") long batchId) {
+        return ResponseEntity.ok(batchService.get(batchId));
+    }
+
+    @PostMapping("/batches/{batchId}/validate")
+    ResponseEntity<BatchView> validateBatch(
+            @PathVariable("batchId") long batchId,
+            @RequestHeader(name = "X-User-Id", defaultValue = "opening.operator") String actor
+    ) {
+        return ResponseEntity.ok(batchService.validate(batchId, normalizedActor(actor)));
+    }
+
+    @PostMapping("/batches/{batchId}/process")
+    ResponseEntity<BatchView> processBatch(
+            @PathVariable("batchId") long batchId,
+            @RequestBody BatchProcessRequest request,
+            @RequestHeader(name = "X-User-Id", defaultValue = "opening.operator") String actor,
+            @RequestHeader(name = "X-Correlation-Id", required = false) String correlationId
+    ) {
+        return ResponseEntity.ok(batchService.process(
+                batchId, request, normalizedActor(actor), DepositOpeningAggregateService.correlationId(correlationId)
+        ));
+    }
+
+    @PostMapping("/batches/{batchId}/activate")
+    ResponseEntity<BatchView> activateBatch(
+            @PathVariable("batchId") long batchId,
+            @RequestHeader(name = "X-User-Id", defaultValue = "opening.operator") String actor,
+            @RequestHeader(name = "X-Correlation-Id", required = false) String correlationId
+    ) {
+        return ResponseEntity.ok(batchService.activate(
+                batchId, normalizedActor(actor), DepositOpeningAggregateService.correlationId(correlationId)
+        ));
+    }
+
+    @PostMapping("/requests/validate")
+    ResponseEntity<RuntimeValidationResponse> validateRequest(@RequestBody AggregateRequest request) {
+        return ResponseEntity.ok(service.validateRuntime(request));
+    }
+
+    @GetMapping("/readiness")
+    ResponseEntity<ReadinessReport> readiness() {
+        return ResponseEntity.ok(readinessService.readiness());
+    }
+
+    @PostMapping("/readiness/rollback-probe")
+    ResponseEntity<RollbackProbeResult> rollbackProbe() {
+        return ResponseEntity.ok(readinessService.rollbackProbe());
     }
 
     @PostMapping("/requests")

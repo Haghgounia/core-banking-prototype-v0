@@ -6,6 +6,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const exists = relative => fs.existsSync(path.join(root, relative));
 const version = read('VERSION').trim();
+const versionAtLeast=(actual,minimum)=>{const a=actual.split('.').map(Number),m=minimum.split('.').map(Number);for(let i=0;i<3;i++){if(a[i]>m[i])return true;if(a[i]<m[i])return false}return true};
 const pom = read('backend/pom.xml');
 const packageJson = JSON.parse(read('frontend/package.json'));
 const auditService = read('backend/src/main/java/com/behsazan/corebanking/deposit/opening/audit/application/DepositOpeningAuditService.java');
@@ -16,9 +17,9 @@ const immutableEntityPattern = /String requestedEntity\s*=\s*upper\(mutation\.en
 const legacyReassignPattern = /String entity\s*=\s*upper\(mutation\.entityName\(\)\);\s*if\s*\(blank\(entity\)\)\s*entity\s*=\s*ROOT_ENTITY;/s;
 
 const checks = [
-  [version === '0.5.2', `VERSION must be 0.5.2, got ${version}`],
-  [pom.includes('<version>0.5.2-SNAPSHOT</version>'), 'backend Maven version is not 0.5.2-SNAPSHOT'],
-  [packageJson.version === '0.5.2', `frontend version must be 0.5.2, got ${packageJson.version}`],
+  [versionAtLeast(version,'0.5.2'), `VERSION must preserve 0.5.2 hotfix or later, got ${version}`],
+  [pom.includes(`<version>${version}-SNAPSHOT</version>`), `backend Maven version is not ${version}-SNAPSHOT`],
+  [packageJson.version === version, `frontend version must match ${version}, got ${packageJson.version}`],
   [immutableEntityPattern.test(auditService), 'Phase 5 audit mutation entity must be normalized into a final/effectively-final variable before lambda capture'],
   [!legacyReassignPattern.test(auditService), 'legacy reassigned entity local remains and can break javac lambda capture'],
   [auditService.includes('.orElseThrow(() -> validation('), 'expected validation lambda contract is missing'],

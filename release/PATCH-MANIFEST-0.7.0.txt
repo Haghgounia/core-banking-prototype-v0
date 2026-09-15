@@ -1,0 +1,46 @@
+Core Banking Prototype 0.7.0 - Phase 7 Patch Manifest
+Baseline: 0.6.0
+Added: 15
+Changed: 20
+Removed: 0
+
+[ADDED]
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/readiness/application/DepositOpeningReadinessService.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/readiness/application/DepositOpeningRuntimeValidator.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/readiness/domain/DepositOpeningRuntimeModels.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/readiness/oracle/DepositOpeningRuntimeRepository.java
+database/oracle/dps2/migrations/0.7.0-phase7-opening-e2e-hardening.sql
+docs/DPS2-0.7.0-FOUR-DEPOSITS-PHASE7-E2E-HARDENING-QA.md
+docs/install/INSTALL-0.7.0-FA.txt
+docs/patches/PATCH-0.7.0-README-FA.txt
+frontend/src/app/features/four-deposits/deposit-opening-runtime-readiness.component.html
+frontend/src/app/features/four-deposits/deposit-opening-runtime-readiness.component.scss
+frontend/src/app/features/four-deposits/deposit-opening-runtime-readiness.component.ts
+release/PATCH-MANIFEST-0.7.0.txt
+release/QA-REPORT-0.7.0.md
+release/RELEASE-NOTES-0.7.0.md
+tools/verify-dps2-deposit-opening-phase7.mjs
+
+[CHANGED]
+CHANGELOG.md
+README-FA.md
+VERSION
+backend/pom.xml
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/application/DepositOpeningAggregateService.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/batch/application/DepositOpeningBatchService.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/web/DepositOpeningController.java
+build-production.cmd
+build-production.sh
+frontend/package-lock.json
+frontend/package.json
+frontend/src/app/app.routes.ts
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.html
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts
+frontend/src/app/features/four-deposits/deposit-opening.service.ts
+frontend/src/app/features/four-deposits/four-deposits-home.component.html
+frontend/src/app/features/system-specification/system-version.generated.ts
+frontend/src/app/layout/app-shell.component.html
+frontend/src/app/shared/ui/app-breadcrumb.component.ts
+tools/verify-dps2-deposit-opening-phase6.mjs
+
+[REMOVED]

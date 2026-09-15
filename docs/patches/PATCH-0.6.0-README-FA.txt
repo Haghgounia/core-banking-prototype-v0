@@ -1,0 +1,16 @@
+Patch 0.6.0 - Phase 6 Batch / Bulk Deposit Opening
+Baseline: 0.5.2
+
+تغییر Functional:
+- پیاده‌سازی Workflow واقعی افتتاح گروهی مطابق Deposit_Account_Opening.html
+- Batch Header / Item / Error persistence
+- Validate / Process / Activate
+- تراکنش مستقل برای هر Item
+- ایجاد Opening Request مستقل با REQUEST_TYPE_CODE=BULK و BATCH_ITEM_ID
+- ایجاد Account از Account Lifecycle موجود با وضعیت PENDING_ACTIVATION
+- فعال‌سازی جداگانه حساب‌های موفق
+- Retry حداقلی و امن برای خطاهای موقت Processing بدون Duplicate کردن Itemهای موفق
+- UI اختصاصی افتتاح گروهی مطابق HTML مرجع
+- Migration فقط Reference Data؛ بدون CREATE TABLE
+
+پس از Overlay حتماً migration 0.6.0 و سپس build-production.cmd اجرا شود.

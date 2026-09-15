@@ -44,6 +44,11 @@ node "$ROOT/tools/verify-dps2-deposit-account-phase4.mjs"
 node "$ROOT/tools/verify-dps2-deposit-opening-phase5.mjs"
 node "$ROOT/tools/verify-dps2-build-hotfix-051.mjs"
 node "$ROOT/tools/verify-dps2-build-hotfix-052.mjs"
+node "$ROOT/tools/verify-dps2-deposit-opening-phase6.mjs"
+node "$ROOT/tools/verify-dps2-deposit-opening-phase7.mjs"
+node "$ROOT/tools/verify-dps2-deposit-account-operations-phase8.mjs"
+node "$ROOT/tools/verify-dps2-deposit-account-servicing-phase9.mjs"
+node "$ROOT/tools/verify-cif-address-hotfix-071.mjs"
 node "$ROOT/tools/verify-fee-admin-baseline.mjs"
 node "$ROOT/tools/verify-cbi-fee-1404-import.mjs"
 node "$ROOT/tools/verify-cbi-rial-fee-1405-provisional.mjs"
@@ -54,7 +59,7 @@ node "$ROOT/tools/verify-calendar-display-labels.mjs"
 node "$ROOT/tools/verify-runtime-artifact-contract.mjs"
 
 cd "$ROOT/backend"
-./mvnw -DskipTests compile
+sh ./mvnw -DskipTests compile
 cd "$ROOT"
 
 rm -f "$ROOT/app/"*.jar "$ROOT/app/BUILD-VERSION" "$ROOT/backend/target/core-banking-prototype.jar"
@@ -73,7 +78,7 @@ else
 fi
 
 cd "$ROOT/backend"
-./mvnw clean package
+sh ./mvnw clean package
 mkdir -p "$ROOT/app"
 JAR="$ROOT/app/core-banking-prototype.jar"
 cp "$ROOT/backend/target/core-banking-prototype.jar" "$JAR"

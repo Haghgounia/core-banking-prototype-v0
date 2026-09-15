@@ -1430,6 +1430,19 @@ public class CifService {
         if (!repository.activeReferenceCodeExists("REF_ADDRESS_TYPE", "ADDRESS_TYPE_CODE", r.addressTypeCode())) {
             errors.put("addressTypeCode", "نوع نشانی در داده مرجع فعال یافت نشد.");
         }
+        if (!repository.activeCountryCodeExists(r.countryCode())) {
+            errors.put("countryCode", "کشور نشانی در داده مرجع فعال یافت نشد.");
+        }
+        if ("IRN".equals(r.countryCode())) {
+            if (blank(r.provinceCode())) errors.put("provinceCode", "برای نشانی داخل ایران، استان الزامی است.");
+            if (blank(r.countyCode())) errors.put("countyCode", "برای نشانی داخل ایران، شهرستان الزامی است.");
+            if (blank(r.cityCode())) errors.put("cityCode", "برای نشانی داخل ایران، شهر الزامی است.");
+            if (!errors.containsKey("provinceCode") && !errors.containsKey("countyCode") && !errors.containsKey("cityCode")
+                    && !repository.activeAddressGeographyPathExists(
+                    r.countryCode(), r.provinceCode(), r.countyCode(), r.districtCode(), r.cityCode())) {
+                errors.put("cityCode", "مسیر جغرافیایی استان، شهرستان، بخش و شهر با داده مرجع GEO سازگار نیست.");
+            }
+        }
         if (!blank(r.tenureTypeCode()) && !repository.activeReferenceCodeExists("REF_TENURE_TYPE", "TENURE_TYPE_CODE", r.tenureTypeCode())) {
             errors.put("tenureTypeCode", "وضعیت تصرف در داده مرجع فعال یافت نشد.");
         }

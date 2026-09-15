@@ -113,6 +113,11 @@ node "%ROOT%tools\verify-dps2-deposit-account-phase4.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-opening-phase5.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-build-hotfix-051.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-build-hotfix-052.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-deposit-opening-phase6.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-deposit-opening-phase7.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-deposit-account-operations-phase8.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-deposit-account-servicing-phase9.mjs" || exit /b 1
+node "%ROOT%tools\verify-cif-address-hotfix-071.mjs" || exit /b 1
 
 rem FIX77 static guard: FEE Baseline 1.0 has 47 metadata-driven forms and 574 seed rows.
 node "%ROOT%tools\verify-fee-admin-baseline.mjs" || exit /b 1

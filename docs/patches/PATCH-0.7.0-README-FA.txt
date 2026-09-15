@@ -1,0 +1,18 @@
+Patch 0.7.0 - Phase 7 End-to-End Integration & Runtime Hardening
+Baseline: 0.6.0
+
+تغییرات اصلی:
+- Validation واقعی Single Opening روی DPS2 Reference Data، CIF.PARTY و PDL Product/Product Version
+- Validate-only endpoint برای Runtime Preflight مرحله 5
+- Runtime Readiness API و UI مستقل
+- Rollback Probe واقعی و non-destructive با Transaction ایزوله
+- Unique Guard برای Opening Idempotency، Batch Idempotency و Batch External Row Key
+- مدیریت race ناشی از concurrent duplicate insert به‌صورت idempotent replay در مسیرهای Opening/Batch
+- Validation Runtime برای Itemهای Batch و Contractهای ثابت BULK
+- حفظ Account Service و Tax Profile Service به‌عنوان External Contract با وضعیت WARN
+- عدم ورود به Deposit Account Servicing
+
+Migration:
+@database/oracle/dps2/migrations/0.7.0-phase7-opening-e2e-hardening.sql
+
+پس از Overlay حتماً Migration و سپس build-production.cmd اجرا شود.

@@ -1,0 +1,19 @@
+Core Banking Prototype 0.7.1
+Hotfix: CIF Party Address COUNTY_CODE
+
+پیش‌نیاز: نسخه 0.7.0
+
+1) Patch را روی سورس 0.7.0 Overlay کنید.
+2) Migration دیتابیس ندارد.
+3) سپس:
+   bin\stop.cmd
+   rmdir /s /q frontend\dist
+   rmdir /s /q backend\src\main\resources\static
+   build-production.cmd
+   bin\start.cmd
+
+در Build باید پیام زیر PASS شود:
+CIF 0.7.1 address COUNTY_CODE hotfix verification OK
+
+سناریوی تست:
+Party > نشانی و تماس > ایران > تهران > تهران > تهران > ثبت نشانی

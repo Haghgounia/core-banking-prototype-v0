@@ -89,6 +89,39 @@ public class DepositOpeningAggregateRepository {
                 .addValue("createdBy", actor, Types.VARCHAR));
     }
 
+    public int insertBatchRequest(long requestId, OpeningRequest value, long batchItemId, String actor) {
+        String sql = """
+                INSERT INTO %s.DEPOSIT_OPENING_REQUEST (
+                    OPENING_REQUEST_ID, REQUEST_NO, IDEMPOTENCY_KEY, PRODUCT_VERSION_ID,
+                    REQUEST_TYPE_CODE, OWNERSHIP_TYPE_CODE, CURRENCY_CODE, OPENING_CHANNEL_CODE,
+                    ORG_UNIT_CODE, REQUESTED_OPENING_DATE, OPENING_AMOUNT, SOURCE_OF_FUNDS_CODE,
+                    PURPOSE_CODE, REQUEST_STATUS_CODE, BATCH_ITEM_ID, CREATED_BY
+                ) VALUES (
+                    :requestId, :requestNo, :idempotencyKey, :productVersionId,
+                    :requestTypeCode, :ownershipTypeCode, :currencyCode, :openingChannelCode,
+                    :orgUnitCode, :requestedOpeningDate, :openingAmount, :sourceOfFundsCode,
+                    :purposeCode, :requestStatusCode, :batchItemId, :createdBy
+                )
+                """.formatted(schema);
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("requestId", requestId, Types.NUMERIC)
+                .addValue("requestNo", value.requestNo(), Types.VARCHAR)
+                .addValue("idempotencyKey", value.idempotencyKey(), Types.VARCHAR)
+                .addValue("productVersionId", value.productVersionId(), Types.NUMERIC)
+                .addValue("requestTypeCode", value.requestTypeCode(), Types.VARCHAR)
+                .addValue("ownershipTypeCode", value.ownershipTypeCode(), Types.VARCHAR)
+                .addValue("currencyCode", value.currencyCode(), Types.VARCHAR)
+                .addValue("openingChannelCode", value.openingChannelCode(), Types.VARCHAR)
+                .addValue("orgUnitCode", value.orgUnitCode(), Types.VARCHAR)
+                .addValue("requestedOpeningDate", value.requestedOpeningDate(), Types.DATE)
+                .addValue("openingAmount", value.openingAmount(), Types.NUMERIC)
+                .addValue("sourceOfFundsCode", value.sourceOfFundsCode(), Types.VARCHAR)
+                .addValue("purposeCode", value.purposeCode(), Types.VARCHAR)
+                .addValue("requestStatusCode", value.requestStatusCode(), Types.VARCHAR)
+                .addValue("batchItemId", batchItemId, Types.NUMERIC)
+                .addValue("createdBy", actor, Types.VARCHAR));
+    }
+
     public int insertParty(long requestId, OpeningParty value, int fallbackSequence, String actor) {
         String sql = """
                 INSERT INTO %s.DEPOSIT_OPENING_PARTY (

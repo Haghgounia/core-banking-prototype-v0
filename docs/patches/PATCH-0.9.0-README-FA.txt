@@ -1,0 +1,15 @@
+Patch 0.9.0 - Four Deposits Phase 9 Account Servicing
+Baseline: 0.8.0
+
+این Patch اولین عملیات تغییردهنده Account Operations را اضافه می‌کند:
+ACTIVE -> CLOSED
+
+مراحل:
+1. Patch را روی Source نسخه 0.8.0 Overlay کنید.
+2. Migration زیر را اجرا کنید:
+   @database/oracle/dps2/migrations/0.9.0-phase9-account-closure-servicing.sql
+3. build-production.cmd را اجرا کنید.
+4. مسیر #/four-deposits/account-operations را باز کنید و یک حساب ACTIVE را ببندید.
+
+نکته:
+Hold/Block/Dormancy/Reactivation در مدل فعلی DPS2 تعریف نشده‌اند و در این Patch ایجاد نشده‌اند.

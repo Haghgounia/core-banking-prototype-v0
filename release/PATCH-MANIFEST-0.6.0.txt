@@ -1,0 +1,50 @@
+Core Banking Prototype 0.6.0 - Phase 6 Patch Manifest
+Baseline: user supplied 0.5.2 source (2026-09-14 19:52)
+
+Added   : 14
+Changed : 17
+Deleted : 0
+Total patch files: 31
+
+=== ADDED ===
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/batch/application/DepositOpeningBatchService.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/batch/domain/DepositOpeningBatchModels.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/batch/oracle/DepositOpeningBatchRepository.java
+database/oracle/dps2/migrations/0.6.0-phase6-batch-opening.sql
+docs/DPS2-0.6.0-FOUR-DEPOSITS-PHASE6-BATCH-OPENING-QA.md
+docs/install/INSTALL-0.6.0-FA.txt
+docs/patches/PATCH-0.6.0-README-FA.txt
+frontend/src/app/features/four-deposits/deposit-opening-batch.component.html
+frontend/src/app/features/four-deposits/deposit-opening-batch.component.scss
+frontend/src/app/features/four-deposits/deposit-opening-batch.component.ts
+release/PATCH-MANIFEST-0.6.0.txt
+release/QA-REPORT-0.6.0.md
+release/RELEASE-NOTES-0.6.0.md
+tools/verify-dps2-deposit-opening-phase6.mjs
+
+=== CHANGED ===
+CHANGELOG.md
+README-FA.md
+VERSION
+backend/pom.xml
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/oracle/DepositOpeningAggregateRepository.java
+backend/src/main/java/com/behsazan/corebanking/deposit/opening/web/DepositOpeningController.java
+build-production.cmd
+build-production.sh
+frontend/package-lock.json
+frontend/package.json
+frontend/src/app/app.routes.ts
+frontend/src/app/features/four-deposits/deposit-opening.service.ts
+frontend/src/app/features/four-deposits/four-deposits-home.component.html
+frontend/src/app/features/system-specification/system-version.generated.ts
+frontend/src/app/layout/app-shell.component.html
+frontend/src/app/shared/ui/app-breadcrumb.component.ts
+tools/verify-dps2-build-hotfix-052.mjs
+
+=== DELETED ===
+(none)
+
+Notes:
+- Existing DEPOSIT_OPENING_BATCH / ITEM / ERROR tables are reused; no CREATE TABLE is included.
+- 0.6.0 migration contains idempotent reference-data MERGE statements only.
+- Business flow follows the supplied Deposit_Account_Opening.html bulk-opening view.

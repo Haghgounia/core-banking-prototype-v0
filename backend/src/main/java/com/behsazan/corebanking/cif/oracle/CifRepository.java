@@ -2695,6 +2695,46 @@ public class CifRepository {
                 .query(Long.class).single() > 0;
     }
 
+    public boolean activeAddressGeographyPathExists(
+            String countryCode,
+            String provinceCode,
+            String countyCode,
+            String districtCode,
+            String cityCode
+    ) {
+        if (countryCode == null || countryCode.isBlank()
+                || provinceCode == null || provinceCode.isBlank()
+                || countyCode == null || countyCode.isBlank()
+                || cityCode == null || cityCode.isBlank()) {
+            return false;
+        }
+        StringBuilder sql = new StringBuilder("""
+                SELECT COUNT(*)
+                FROM %1$s.CITIES C
+                JOIN %1$s.DISTRICTS D ON D.DISTRICT_ID=C.DISTRICT_ID
+                JOIN %1$s.COUNTIES CNT ON CNT.COUNTY_ID=D.COUNTY_ID
+                JOIN %1$s.PROVINCES P ON P.PROVINCE_ID=CNT.PROVINCE_ID
+                JOIN %1$s.COUNTRIES CO ON CO.COUNTRY_ID=P.COUNTRY_ID
+                WHERE CO.COUNTRY_ISO_CODE=:countryCode
+                  AND P.PROVINCE_CODE=:provinceCode
+                  AND CNT.COUNTY_CODE=:countyCode
+                  AND C.CITY_CODE=:cityCode
+                  AND C.IS_ACTIVE=1 AND D.IS_ACTIVE=1 AND CNT.IS_ACTIVE=1 AND P.IS_ACTIVE=1 AND CO.IS_ACTIVE=1
+                """.formatted(referenceDataSchema));
+        if (districtCode != null && !districtCode.isBlank()) {
+            sql.append(" AND D.DISTRICT_CODE=:districtCode");
+        }
+        JdbcClient.StatementSpec statement = jdbc.sql(sql.toString())
+                .param("countryCode", countryCode.trim().toUpperCase(Locale.ROOT))
+                .param("provinceCode", provinceCode.trim())
+                .param("countyCode", countyCode.trim())
+                .param("cityCode", cityCode.trim());
+        if (districtCode != null && !districtCode.isBlank()) {
+            statement = statement.param("districtCode", districtCode.trim());
+        }
+        return statement.query(Long.class).single() > 0;
+    }
+
     public boolean registrationPlaceBelongsToCountry(String countryCode, String placeCode) {
         if (countryCode == null || countryCode.isBlank() || placeCode == null || placeCode.isBlank()) return false;
         String sql = """

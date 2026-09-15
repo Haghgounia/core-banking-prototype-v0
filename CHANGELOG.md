@@ -1,3 +1,32 @@
+# 0.7.1 — CIF Party Address COUNTY_CODE Hotfix
+
+- Province/county/district selectors now persist GEO reference codes directly in the reactive form; surrogate IDs are used only for child lookup loading.
+- Added server-side country and Iran address required-field validation before Oracle DML.
+- Added active GEO hierarchy validation across COUNTRY -> PROVINCE -> COUNTY -> DISTRICT -> CITY.
+- Prevents the reported `CIF.ADDRESS.COUNTY_CODE` null insert path from reaching Oracle as a user-facing ORA-01400.
+- No database migration; Deposit Opening Phase 7 behavior is unchanged.
+
+# 0.7.0 — DPS2 Four Deposits Phase 7 — End-to-End Integration & Runtime Hardening
+
+- Added real server-side validation of DPS2 reference codes, `CIF.PARTY` and `PDL.PRODUCT/PRODUCT_VERSION` before Single Opening persistence.
+- Added validate-only runtime preflight used from Step 5 of the supplied seven-step Opening HTML flow.
+- Added `/api/v1/deposit-opening/readiness` and isolated non-destructive rollback probe plus dedicated `/four-deposits/runtime-readiness` UI.
+- Added database-level unique guards for Opening idempotency, Batch idempotency and per-Batch external row keys; migration fails explicitly on legacy duplicates instead of silently changing business data.
+- Hardened concurrent Single/Batch duplicate insert races to resolve valid replays idempotently.
+- Added runtime validation to Batch Items while preserving Phase 6 per-item transaction isolation and Opening/Account linkage.
+- Account Service and Tax Profile/Withholding remain explicit external contracts and are reported as WARN rather than simulated as integrated services.
+- No Deposit Account Servicing business function is introduced in this phase.
+- Repository static/regression verifier suite: 38/38 PASS; Phase 7 dedicated verifier: 22/22 PASS.
+
+## چهار سپرده / Deposit Account Opening — Phase 6 (0.6.0)
+
+- پیاده‌سازی افتتاح گروهی دقیقاً بر اساس بخش Bulk فایل HTML مرجع: Batch Header، Item، Error، Validate، Process و Activate.
+- هر ردیف معتبر یک `DEPOSIT_OPENING_REQUEST` مستقل با `REQUEST_TYPE_CODE=BULK` و `BATCH_ITEM_ID` ایجاد می‌کند.
+- پردازش Itemها با Transaction مستقل انجام می‌شود تا خطای یک ردیف باعث Rollback سایر ردیف‌ها نشود.
+- ایجاد حساب از Lifecycle موجود استفاده می‌کند و Account ابتدا `PENDING_ACTIVATION` ساخته می‌شود؛ فعال‌سازی مرحله جداگانه است.
+- مسیر UI جدید `/four-deposits/batch-opening` اضافه شد.
+- Migration 0.6.0 فقط Reference Codeهای Batch را Seed می‌کند و هیچ جدول جدیدی ایجاد نمی‌کند.
+
 # 0.5.2 — DPS2 Java Lambda Build Hotfix
 
 - Fixed effectively-final lambda capture in `DepositOpeningAuditService`.
@@ -1360,3 +1389,21 @@
 - تعداد جدول‌های قابل مشاهده هر Schema در عنوان گزینه نمایش داده می‌شود.
 - Configurationهای `core-banking.schemas.*` فقط برای Label دوستانه و ترجیح Schema پیش‌فرض باقی مانده‌اند و دیگر تعیین‌کننده فهرست انتخابی نیستند.
 - همین قرارداد برای فرم «استخراج Oracle به EA XMI» نیز یکسان شد تا دو ابزار مدیریت مدل رفتار متفاوت نداشته باشند.
+
+## 0.7.0 - DPS2 Deposit Opening Phase 7
+- Added Oracle/CIF/PDL runtime validation for Deposit Opening.
+- Added validate-only, readiness and rollback-probe APIs.
+- Added database-level idempotency/concurrency unique guards.
+- Added Runtime Readiness UI and Step 5 runtime preflight.
+- Kept Account Service and Tax Profile Service as explicit external WARN contracts.
+
+## 0.8.0
+- Added Four Deposits Deposit Account Operations Foundation as a separate read-only bounded context.
+- Added account search, Account 360, Opening/Party linkage and lifecycle timeline.
+- No servicing mutation schema was invented beyond the supplied/current account contract.
+
+## 0.9.0 - 2026-09-15
+- Four Deposits Phase 9: controlled Deposit Account Servicing.
+- Added ACTIVE -> CLOSED account transition with row lock and optimistic Record Version.
+- Added CLOSE lifecycle event and append-only lifecycle trigger.
+- Added Account Operations closure action and model-gap guard for unsupported states.

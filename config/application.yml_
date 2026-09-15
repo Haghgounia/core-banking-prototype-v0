@@ -40,6 +40,7 @@ core-banking:
     reference-data: GEO
     deposit-product-factory: DPS
     deposit-opening: DPS2
+    deposit-account: DPS2
     cif: CIF
     party-reference: CIF
     fee: FEE

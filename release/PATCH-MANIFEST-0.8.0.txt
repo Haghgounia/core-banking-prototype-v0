@@ -1,0 +1,41 @@
+Core Banking Prototype 0.8.0 Patch Manifest
+Baseline: 0.7.1
+
+ADDED:
+  backend/src/main/java/com/behsazan/corebanking/deposit/account/operations/application/DepositAccountOperationsService.java
+  backend/src/main/java/com/behsazan/corebanking/deposit/account/operations/domain/DepositAccountOperationsModels.java
+  backend/src/main/java/com/behsazan/corebanking/deposit/account/operations/oracle/DepositAccountOperationsRepository.java
+  backend/src/main/java/com/behsazan/corebanking/deposit/account/operations/web/DepositAccountOperationsController.java
+  docs/DPS2-0.8.0-FOUR-DEPOSITS-ACCOUNT-OPERATIONS-FOUNDATION-QA.md
+  docs/install/INSTALL-0.8.0-FA.txt
+  docs/patches/PATCH-0.8.0-README-FA.txt
+  frontend/src/app/features/four-deposits/deposit-account-operations.component.html
+  frontend/src/app/features/four-deposits/deposit-account-operations.component.scss
+  frontend/src/app/features/four-deposits/deposit-account-operations.component.ts
+  frontend/src/app/features/four-deposits/deposit-account-operations.service.ts
+  release/PATCH-MANIFEST-0.8.0.txt
+  release/QA-REPORT-0.8.0.md
+  release/RELEASE-NOTES-0.8.0.md
+  tools/verify-dps2-deposit-account-operations-phase8.mjs
+
+CHANGED:
+  CHANGELOG.md
+  README-FA.md
+  VERSION
+  backend/pom.xml
+  backend/src/main/resources/application.yml
+  build-production.cmd
+  build-production.sh
+  config/application.yml
+  config/application.yml_
+  frontend/package-lock.json
+  frontend/package.json
+  frontend/src/app/app.routes.ts
+  frontend/src/app/features/four-deposits/four-deposits-home.component.html
+  frontend/src/app/features/system-specification/system-version.generated.ts
+  frontend/src/app/layout/app-shell.component.html
+  frontend/src/app/shared/ui/app-breadcrumb.component.ts
+
+REMOVED:
+
+Final counts: added=15, changed=16, removed=0

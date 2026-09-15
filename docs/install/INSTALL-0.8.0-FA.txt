@@ -1,0 +1,21 @@
+Core Banking Prototype 0.8.0
+Four Deposits - Deposit Account Operations Foundation
+
+پیش‌نیاز: نسخه 0.7.1
+
+1) Patch را روی سورس 0.7.1 Overlay کنید یا Full Source 0.8.0 را استفاده کنید.
+2) Migration دیتابیس ندارد.
+3) سپس:
+   bin\stop.cmd
+   rmdir /s /q frontend\dist
+   rmdir /s /q backend\src\main\resources\static
+   build-production.cmd
+   bin\start.cmd
+
+در Build باید پیام زیر PASS شود:
+DPS2 Deposit Account Operations Phase 8 verification OK
+
+مسیر UI:
+http://localhost:8091/#/four-deposits/account-operations
+
+این فاز Read-Only است و عملیات Hold/Closure/Reactivation/Posting را ایجاد نمی‌کند.

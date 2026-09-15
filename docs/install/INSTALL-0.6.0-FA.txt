@@ -1,0 +1,20 @@
+Core Banking Prototype 0.6.0 - نصب Phase 6 افتتاح گروهی
+Baseline مورد انتظار: 0.5.2
+
+1) Patch 0.6.0 را روی Source فعلی 0.5.2 Overlay کنید.
+2) با کاربری که مجوز DML روی DPS2 دارد اجرا کنید:
+   @database/oracle/dps2/migrations/0.6.0-phase6-batch-opening.sql
+3) سپس در Windows:
+   cd /d D:\Projects\core-banking-prototype-v0
+   bin\stop.cmd
+   rmdir /s /q frontend\dist
+   rmdir /s /q backend\src\main\resources\static
+   build-production.cmd
+   bin\start.cmd
+4) کنترل کنید:
+   - DPS2 Deposit Opening Phase 6 verification OK
+   - Built version: 0.6.0
+5) مسیر UI:
+   http://localhost:8091/#/four-deposits/batch-opening
+
+این Migration جدول جدید ایجاد نمی‌کند و rerunnable است.

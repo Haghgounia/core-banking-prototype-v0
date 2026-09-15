@@ -1,0 +1,36 @@
+Core Banking Prototype 0.9.0 Patch Manifest
+Baseline: 0.8.0
+
+ADDED:
+  backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/application/DepositAccountServicingService.java
+  backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/domain/DepositAccountServicingModels.java
+  backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/oracle/DepositAccountServicingRepository.java
+  database/oracle/dps2/migrations/0.9.0-phase9-account-closure-servicing.sql
+  docs/DPS2-0.9.0-FOUR-DEPOSITS-ACCOUNT-SERVICING-QA.md
+  docs/install/INSTALL-0.9.0-FA.txt
+  docs/patches/PATCH-0.9.0-README-FA.txt
+  release/PATCH-MANIFEST-0.9.0.txt
+  release/QA-REPORT-0.9.0.md
+  release/RELEASE-NOTES-0.9.0.md
+  tools/verify-dps2-deposit-account-servicing-phase9.mjs
+
+CHANGED:
+  CHANGELOG.md
+  README-FA.md
+  VERSION
+  backend/pom.xml
+  backend/src/main/java/com/behsazan/corebanking/deposit/account/operations/web/DepositAccountOperationsController.java
+  build-production.cmd
+  build-production.sh
+  frontend/package-lock.json
+  frontend/package.json
+  frontend/src/app/features/four-deposits/deposit-account-operations.component.html
+  frontend/src/app/features/four-deposits/deposit-account-operations.component.scss
+  frontend/src/app/features/four-deposits/deposit-account-operations.component.ts
+  frontend/src/app/features/four-deposits/deposit-account-operations.service.ts
+  frontend/src/app/features/system-specification/system-version.generated.ts
+  tools/verify-dps2-deposit-account-operations-phase8.mjs
+
+REMOVED:
+
+Final counts: added=11, changed=15, removed=0
