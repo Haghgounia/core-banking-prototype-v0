@@ -1,0 +1,4 @@
+Files removed/migrated from active source by tools/migrate-root-layout.mjs after overlay:
+README-FA.txt
+config/application.yml_
+backend/src/main/resources/application.yml_

@@ -1,0 +1,14 @@
+Patch 0.9.2 از Baseline 0.9.0
+
+محدوده:
+- افزودن Migration موفق Reconciliation Phase 4 + Phase 9 به مسیر استاندارد database/oracle/dps2/migrations.
+- همگام‌سازی VERSION/POM/Angular/System Specification روی 0.9.2.
+- پاک‌سازی Layout: انتقال README-FA.txt قدیمی از Root و حذف Backupهای application.yml_ از Source فعال.
+- افزودن Build Guard برای Reconciliation و Root Layout.
+- همسان‌سازی build-production.sh با Guardهای build-production.cmd.
+
+Business Behavior فاز 9 تغییر نکرده است؛ Closure همچنان ACTIVE -> CLOSED است.
+
+پس از Overlay می‌توانید قبل از Build این دستور را اجرا کنید:
+node tools\migrate-root-layout.mjs
+تا README قدیمی Root و Backupهای application.yml_ فوراً از Source فعال خارج شوند.

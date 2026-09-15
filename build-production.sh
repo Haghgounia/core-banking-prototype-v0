@@ -7,6 +7,8 @@ echo "Building Core Banking Prototype $APP_VERSION..."
 
 node "$ROOT/tools/sync-system-specification.mjs"
 node "$ROOT/tools/migrate-release-layout.mjs"
+node "$ROOT/tools/migrate-root-layout.mjs"
+node "$ROOT/tools/migrate-source-layout.mjs"
 node "$ROOT/tools/verify-release-layout.mjs"
 
 for required in \
@@ -20,12 +22,14 @@ for required in \
   fi
 done
 node "$ROOT/tools/verify-cif-persisted-grids.mjs"
+node "$ROOT/tools/verify-cif-religion-reference.mjs"
 node "$ROOT/tools/verify-ea-oracle-comparison.mjs"
 node "$ROOT/tools/verify-oracle-ea-xmi-export.mjs"
 node "$ROOT/tools/verify-calendar-reference.mjs"
 node "$ROOT/tools/verify-calendar-dataset-import.mjs"
 node "$ROOT/tools/verify-calendar-month-view.mjs"
 node "$ROOT/tools/verify-calendar-form-usability.mjs"
+node "$ROOT/tools/verify-calendar-current-year-default.mjs"
 node "$ROOT/tools/verify-calendar2-reference.mjs"
 node "$ROOT/tools/verify-calendar2-month-view.mjs"
 node "$ROOT/tools/verify-calendar2-business-calendar-lookups.mjs"
@@ -48,6 +52,7 @@ node "$ROOT/tools/verify-dps2-deposit-opening-phase6.mjs"
 node "$ROOT/tools/verify-dps2-deposit-opening-phase7.mjs"
 node "$ROOT/tools/verify-dps2-deposit-account-operations-phase8.mjs"
 node "$ROOT/tools/verify-dps2-deposit-account-servicing-phase9.mjs"
+node "$ROOT/tools/verify-dps2-account-schema-reconciliation-092.mjs"
 node "$ROOT/tools/verify-cif-address-hotfix-071.mjs"
 node "$ROOT/tools/verify-fee-admin-baseline.mjs"
 node "$ROOT/tools/verify-cbi-fee-1404-import.mjs"

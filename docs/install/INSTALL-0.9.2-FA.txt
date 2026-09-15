@@ -1,0 +1,25 @@
+Core Banking Prototype 0.9.2
+DPS2 Account Schema Reconciliation + Source Layout Cleanup
+
+1) Patch را روی Source نسخه 0.9.0 Overlay کنید یا Full Source 0.9.2 را استفاده کنید.
+   اگر Patch استفاده می‌کنید و می‌خواهید Root همان لحظه پاک‌سازی شود، یک‌بار اجرا کنید:
+   node tools\migrate-root-layout.mjs
+   (build-production.cmd نیز همین Migration Layout را خودکار اجرا می‌کند.)
+2) Migration زیر فقط برای محیطی لازم است که Reconciliation 0.9.2 قبلاً روی آن اجرا نشده باشد:
+   database/oracle/dps2/migrations/0.9.2-phase4-phase9-account-schema-reconciliation.sql
+
+اگر همان خروجی SUCCESS قبلی برای 0.9.2 را دارید، Migration را دوباره اجرا کردن ضروری نیست؛ Script Idempotent است، اما اجرای غیرضروری توصیه نمی‌شود.
+
+3) Build:
+   bin\stop.cmd
+   rmdir /s /q frontend\dist
+   rmdir /s /q backend\src\main\resources\static
+   build-production.cmd
+   bin\start.cmd
+
+4) انتظار Build:
+   DPS2 0.9.2 Account Schema Reconciliation verification OK: 20/20 checks passed.
+
+5) Runtime:
+   #/four-deposits/account-operations
+   ACTIVE -> CLOSED باید RECORD_VERSION را یک واحد افزایش دهد و یک Event نوع CLOSE ثبت کند.

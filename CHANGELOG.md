@@ -1,3 +1,13 @@
+# 0.9.2 — DPS2 Account Schema Reconciliation & Source Layout Cleanup
+
+- Added the successful idempotent DPS2 reconciliation migration `database/oracle/dps2/migrations/0.9.2-phase4-phase9-account-schema-reconciliation.sql`.
+- Reconciles missing Phase 4 account prerequisites (`DEPOSIT_ACCOUNT`, lifecycle table, sequences, constraints and indexes) before Phase 9 closure support.
+- Keeps the Phase 9 business contract unchanged: `ACTIVE -> CLOSED` with `CLOSE` append-only lifecycle event and `RECORD_VERSION` concurrency control.
+- Added an explicit source-layout migration/verification guard for stale root and backup files.
+- Relocated the obsolete root `README-FA.txt` to `docs/patches/PATCH-0.3.2-BUILD-FIX1-README-FA.txt`; stale `application.yml_` backup copies are removed from the active tree.
+- Clean release packaging excludes runtime/generated artifacts (`app`, logs, document storage, Angular cache, generated static frontend and database exports).
+- No new servicing states (Hold/Block/Dormancy/Reactivation) are introduced.
+
 # 0.7.1 — CIF Party Address COUNTY_CODE Hotfix
 
 - Province/county/district selectors now persist GEO reference codes directly in the reactive form; surrogate IDs are used only for child lookup loading.

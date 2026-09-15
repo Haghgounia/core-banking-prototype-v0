@@ -1,0 +1,50 @@
+Core Banking Prototype 0.9.2 Patch Manifest
+Baseline: 0.9.0
+Scope: DPS2 Phase 4/9 schema reconciliation + source/release layout synchronization
+
+ADDED:
+  database/oracle/dps2/migrations/0.9.2-phase4-phase9-account-schema-reconciliation.sql
+  docs/DPS2-0.9.2-PHASE4-PHASE9-ACCOUNT-SCHEMA-RECONCILIATION-QA.md
+  docs/install/INSTALL-0.9.2-FA.txt
+  docs/SOURCE-AUDIT-0.9.2.md
+  docs/patches/PATCH-0.3.2-BUILD-FIX1-README-FA.txt
+  docs/patches/PATCH-0.9.2-README-FA.txt
+  release/PATCH-MANIFEST-0.9.2.txt
+  release/QA-REPORT-0.9.2.md
+  release/RELEASE-NOTES-0.9.2.md
+  tools/migrate-root-layout.mjs
+  tools/verify-dps2-account-schema-reconciliation-092.mjs
+
+CHANGED:
+  CHANGELOG.md
+  README-FA.md
+  VERSION
+  backend/pom.xml
+  build-production.cmd
+  build-production.sh
+  docs/patches/PATCH-FILE-LIST.txt
+  frontend/package-lock.json
+  frontend/package.json
+  frontend/src/app/features/system-specification/system-version.generated.ts
+  package-release.cmd
+  tools/verify-dps2-four-deposits.mjs
+
+MIGRATED/REMOVED FROM ACTIVE LAYOUT:
+  README-FA.txt
+  config/application.yml_
+  backend/src/main/resources/application.yml_
+
+NOT INCLUDED IN CLEAN SOURCE PACKAGE:
+  .upgrade-backup/
+  logs/
+  data/document-storage/
+  backend/data/document-storage/
+  frontend/.angular/
+  frontend/dist/
+  backend/target/
+  backend/src/main/resources/static/
+  app/*.jar
+  app/BUILD-VERSION
+  database/oracle/exports/
+
+Counts: added=11, changed=12, migrated/removed=3

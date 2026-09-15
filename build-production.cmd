@@ -10,6 +10,8 @@ rem Synchronize generated system specification before any verifier reads it.
 node "%ROOT%tools\sync-system-specification.mjs" || exit /b 1
 rem FIX76 upgrade guard: clean legacy root INSTALL files left by overlay extraction from older releases.
 node "%ROOT%tools\migrate-release-layout.mjs" || exit /b 1
+rem 0.9.2 layout guard: relocate stale root/backup files left by raw or overlay source trees.
+node "%ROOT%tools\migrate-root-layout.mjs" || exit /b 1
 rem FIX100 upgrade guard: archive obsolete Product Builder source left by older overlay patches.
 node "%ROOT%tools\migrate-source-layout.mjs" || exit /b 1
 node "%ROOT%tools\verify-release-layout.mjs" || exit /b 1
@@ -117,6 +119,7 @@ node "%ROOT%tools\verify-dps2-deposit-opening-phase6.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-opening-phase7.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-account-operations-phase8.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-account-servicing-phase9.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-account-schema-reconciliation-092.mjs" || exit /b 1
 node "%ROOT%tools\verify-cif-address-hotfix-071.mjs" || exit /b 1
 
 rem FIX77 static guard: FEE Baseline 1.0 has 47 metadata-driven forms and 574 seed rows.

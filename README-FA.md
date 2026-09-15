@@ -1,3 +1,9 @@
+## همگام‌سازی حساب سپرده و ترمیم Schema — 0.9.2
+
+نسخه 0.9.2 بسته‌ی نگهداری هماهنگ با وضعیت واقعی Oracle پس از Reconciliation موفق Phase 4 + Phase 9 است. Migration جدید `database/oracle/dps2/migrations/0.9.2-phase4-phase9-account-schema-reconciliation.sql` درخت حساب سپرده، Sequenceها، Constraintها، Indexها و Lifecycle append-only را به‌صورت Idempotent تطبیق می‌دهد. منطق Business فاز 9 تغییر نکرده و تنها Transition واقعی `ACTIVE -> CLOSED` باقی می‌ماند.
+
+همچنین Layout سورس پاک‌سازی شده است: فایل قدیمی `README-FA.txt` از Root به `docs/patches` منتقل شده و Backupهای `application.yml_` از Source فعال حذف شده‌اند. Artifactهای Runtime/Generated نیز در بسته Source نهایی قرار نمی‌گیرند.
+
 ## Hotfix نشانی مشتری — 0.7.1
 
 نسخه 0.7.1 خطای ثبت نشانی CIF را که در آن شهرستان در UI انتخاب شده بود ولی `CIF.ADDRESS.COUNTY_CODE` می‌توانست خالی به Oracle برسد، اصلاح می‌کند. استان/شهرستان/بخش اکنون مستقیماً Code مرجع GEO را در فرم نگه می‌دارند و Backend نیز قبل از Insert/Update الزامی‌بودن و سازگاری سلسله‌مراتب جغرافیایی را کنترل می‌کند. این Hotfix Migration دیتابیس ندارد.

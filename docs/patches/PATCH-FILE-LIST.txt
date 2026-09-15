@@ -112,3 +112,37 @@ Database migration: NONE
 Database prerequisite: installed DPS2 schema and reference seeds from the supplied deposit-opening model
 Source prerequisite: 0.3.98 / DPS2 Four Deposits Phase 2
 Runtime artifact: NOT rebuilt in this package; app/BUILD-VERSION remains 0.3.96 until a real production build is completed.
+
+0.9.2 / DPS2 Phase 4 + Phase 9 schema reconciliation and source-layout cleanup (overlay on 0.9.0)
+
+CHANGELOG.md
+README-FA.md
+VERSION
+backend/pom.xml
+build-production.cmd
+build-production.sh
+database/oracle/dps2/migrations/0.9.2-phase4-phase9-account-schema-reconciliation.sql
+docs/DPS2-0.9.2-PHASE4-PHASE9-ACCOUNT-SCHEMA-RECONCILIATION-QA.md
+docs/SOURCE-AUDIT-0.9.2.md
+docs/install/INSTALL-0.9.2-FA.txt
+docs/patches/PATCH-0.3.2-BUILD-FIX1-README-FA.txt
+docs/patches/PATCH-0.9.2-README-FA.txt
+docs/patches/PATCH-FILE-LIST.txt
+frontend/package-lock.json
+frontend/package.json
+frontend/src/app/features/system-specification/system-version.generated.ts
+package-release.cmd
+release/PATCH-MANIFEST-0.9.2.txt
+release/QA-REPORT-0.9.2.md
+release/RELEASE-NOTES-0.9.2.md
+tools/migrate-root-layout.mjs
+tools/verify-dps2-account-schema-reconciliation-092.mjs
+tools/verify-dps2-four-deposits.mjs
+
+Layout cleanup performed by tools/migrate-root-layout.mjs:
+- README-FA.txt -> docs/patches/PATCH-0.3.2-BUILD-FIX1-README-FA.txt
+- config/application.yml_ -> .upgrade-backup/<version>/legacy-layout/...
+- backend/src/main/resources/application.yml_ -> .upgrade-backup/<version>/legacy-layout/...
+
+Database migration: database/oracle/dps2/migrations/0.9.2-phase4-phase9-account-schema-reconciliation.sql
+Business behavior: no new servicing state; Phase 9 remains ACTIVE -> CLOSED.

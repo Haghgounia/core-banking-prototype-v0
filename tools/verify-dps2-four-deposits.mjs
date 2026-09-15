@@ -32,8 +32,8 @@ const excludedAuditTables = [
 ];
 const familyKeys = ['QARD_SAVINGS','CURRENT_ACCOUNT','SHORT_TERM_DEPOSIT','LONG_TERM_DEPOSIT'];
 const configFiles = [
-  'config/application.yml','config/application.yml_',
-  'backend/src/main/resources/application.yml','backend/src/main/resources/application.yml_'
+  'config/application.yml',
+  'backend/src/main/resources/application.yml'
 ];
 
 const checks = [
@@ -42,7 +42,7 @@ const checks = [
   [refProvider.includes('CATEGORY = "DEPOSIT_OPENING_REFERENCE"') && refProvider.includes('schemas.deposit-opening:DPS2'), 'DPS2 reference category/schema contract missing'],
   [opProvider.includes('CATEGORY = "DEPOSIT_OPENING_OPERATIONAL"') && opProvider.includes('schemas.deposit-opening:DPS2'), 'DPS2 operational category/schema contract missing'],
   [excludedAuditTables.every(t => !opProvider.includes(`schemaName, "${t}"`)), 'append-only/change-controlled tables must not be generic operational CRUD descriptors'],
-  [configFiles.every(f => read(f).includes('deposit-opening: DPS2')), 'deposit-opening DPS2 schema property must exist in every application config copy'],
+  [configFiles.every(f => read(f).includes('deposit-opening: DPS2')), 'deposit-opening DPS2 schema property must exist in canonical application configs'],
   [routes.includes("path: 'four-deposits'") && routes.includes("path: 'four-deposits/opening'") && routes.includes("path: 'four-deposits/operations/:resource'") && routes.includes("path: 'four-deposits/reference-data/:resource'"), 'four-deposits routes are incomplete'],
   [shell.includes('>چهار سپرده</span>') && shell.includes('routerLink="/four-deposits/opening"') && shell.includes('routerLink="/four-deposits/operations"') && shell.includes('routerLink="/four-deposits/reference-data"'), 'sidebar Four Deposits menu is incomplete'],
   [menuTs.includes("'FOUR_DEPOSIT'") && menuTs.includes("DEPOSIT_OPENING_REFERENCE") && menuHtml.includes('اطلاعات پایه افتتاح چهار سپرده'), 'DPS2 reference menu scope is missing'],
