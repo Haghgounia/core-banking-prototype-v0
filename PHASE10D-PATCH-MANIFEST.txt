@@ -1,0 +1,27 @@
+Core Banking Prototype 0.10.0 - Phase 10D patch from Phase 10B candidate
+
+Added: 2
+Changed: 13
+Removed: 0
+
+[ADDED]
+docs/DPS2-0.10.0-PHASE10D-OPERATIONAL-WIZARD-V5-QA.md
+tools/verify-dps2-opening-operational-v5-phase10d.mjs
+
+[CHANGED]
+CHANGELOG.md
+README-FA.md
+build-production.cmd
+build-production.sh
+docs/SOURCE-AUDIT-0.10.0.md
+docs/install/INSTALL-0.10.0-FA.txt
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.html
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.scss
+frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts
+package-release.cmd
+release/PATCH-MANIFEST-0.10.0.txt
+release/QA-REPORT-0.10.0.md
+release/RELEASE-NOTES-0.10.0.md
+
+[REMOVED]
+(none)

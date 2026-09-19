@@ -24,7 +24,7 @@ const checks=[
  [packageJson.version===version,`frontend source version must match ${version}, got ${packageJson.version}`],
  [controller.includes('@PostMapping("/requests/{id}/account")')&&controller.includes('@PostMapping("/requests/{id}/account/activate")')&&controller.includes('@GetMapping("/requests/{id}/account")'),'Phase 4 account lifecycle endpoints are incomplete'],
  [service.includes('repository.lockOpening(openingRequestId)')&&repository.includes('FOR UPDATE'),'Opening-level SELECT FOR UPDATE concurrency guard is missing'],
- [service.includes('opening.createdAccountId() != null')&&service.includes('response(existing, true)'),'Account creation is not idempotent'],
+ [service.includes('opening.createdAccountId() != null')&&(service.includes('response(existing, true)')||service.includes('response(existing, opening.activationStatusCode(), true)')),'Account creation is not idempotent'],
  [service.includes('"PENDING_ACTIVATION".equals')&&repository.includes("ACCOUNT_STATUS_CODE = 'PENDING_ACTIVATION'")&&repository.includes("ACCOUNT_STATUS_CODE = 'ACTIVE'"),'PENDING_ACTIVATION -> ACTIVE transition contract missing'],
  [repository.includes('CREATED_ACCOUNT_ID = :accountId'),'CREATED_ACCOUNT_ID integration reference is not persisted'],
  [repository.includes("REQUEST_STATUS_CODE = 'COMPLETED'")&&repository.includes("'APPROVED', 'COMPLETED'")&&repository.includes('DEPOSIT_OPENING_STATUS_HISTORY'),'Opening completion/history transition missing'],

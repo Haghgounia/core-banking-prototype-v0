@@ -13,10 +13,11 @@ const opsRepo = read('backend/src/main/java/com/behsazan/corebanking/deposit/acc
 const servicingRepo = read('backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/oracle/DepositAccountServicingRepository.java');
 const config = read('backend/src/main/resources/application.yml');
 const version = read('VERSION').trim();
+const semverAtLeast=(actual,minimum)=>{const a=actual.split('.').map(Number),b=minimum.split('.').map(Number);for(let i=0;i<3;i++){if((a[i]||0)>(b[i]||0))return true;if((a[i]||0)<(b[i]||0))return false;}return true;};
 
 const rootInstall = fs.readdirSync(root).filter(name => /^INSTALL-.*\.txt$/i.test(name));
 const checks = [
-  [version === '0.9.2', `VERSION must be 0.9.2, got ${version}`],
+  [semverAtLeast(version,'0.9.2'), `VERSION must be >= 0.9.2, got ${version}`],
   [exists(migrationRel), '0.9.2 reconciliation migration is missing'],
   [migration.includes('WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK'), 'migration must stop on SQL error'],
   [migration.includes("DPS2.DEPOSIT_OPENING_REQUEST is missing"), 'migration must guard the Opening prerequisite'],

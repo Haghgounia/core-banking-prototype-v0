@@ -39,13 +39,28 @@ public class DepositAccountLifecycleService {
                             "Integration Reference حساب روی پرونده افتتاح ثبت شده، اما حساب متناظر یافت نشد.",
                             Map.of("DEPOSIT_OPENING_REQUEST.CREATED_ACCOUNT_ID", "شناسه حساب به رکورد معتبر DEPOSIT_ACCOUNT متصل نیست.")
                     ));
-            return response(existing, true);
+            return response(existing, opening.activationStatusCode(), true);
         }
 
         if (!"APPROVED".equals(upper(opening.requestStatusCode()))) {
             throw new DepositAccountLifecycleException(
                     "ایجاد حساب فقط برای Opening تأییدشده مجاز است.",
                     Map.of("DEPOSIT_OPENING_REQUEST.REQUEST_STATUS_CODE", "وضعیت مورد انتظار APPROVED است.")
+            );
+        }
+        int unresolvedCreateChecks = repository.unresolvedRequiredAccountCreationChecks(openingRequestId);
+        if (unresolvedCreateChecks > 0) {
+            throw new DepositAccountLifecycleException(
+                    "Create Account قبل از عبور کامل از Create Gate مجاز نیست.",
+                    Map.of("DEPOSIT_OPENING_CHECK",
+                            "تعداد کنترل‌های الزامی حل‌نشده Account Creation: " + unresolvedCreateChecks)
+            );
+        }
+        if (!repository.openingFinancialPlanReady(openingRequestId)) {
+            throw new DepositAccountLifecycleException(
+                    "برنامه مالی Opening برای Create Account آماده نیست.",
+                    Map.of("DEPOSIT_OPENING_FUNDING",
+                            "Funding Plan و Obligationها باید ثبت شده باشند و مجموع Funding حداقل برابر مجموع تعهدات باشد.")
             );
         }
 
@@ -69,7 +84,8 @@ public class DepositAccountLifecycleService {
                         "حساب ایجاد شد اما Read-back آن ناموفق بود.",
                         Map.of("DEPOSIT_ACCOUNT.ACCOUNT_ID", "Read-back حساب ایجادشده انجام نشد.")
                 ));
-        return response(created, false);
+        OpeningLink linkedOpening = repository.findOpening(openingRequestId).orElse(opening);
+        return response(created, linkedOpening.activationStatusCode(), false);
     }
 
     @Transactional
@@ -103,7 +119,17 @@ public class DepositAccountLifecycleService {
             );
         }
 
-        if (repository.activateAccount(account.accountId(), actor) != 1) {
+        if (!"READY".equals(upper(opening.activationStatusCode()))) {
+            throw new DepositAccountLifecycleException(
+                    "Activation قبل از تکمیل Activation Readiness Gate مجاز نیست.",
+                    Map.of("DEPOSIT_OPENING_REQUEST.ACTIVATION_STATUS_CODE",
+                            "وضعیت مورد انتظار READY است؛ وضعیت جاری: " + opening.activationStatusCode())
+            );
+        }
+
+        String debitCapabilityCode = repository.hasUnresolvedDebitCapabilityChecks(openingRequestId)
+                ? "BLOCKED_BY_RESTRICTION" : "ENABLED";
+        if (repository.activateAccount(account.accountId(), debitCapabilityCode, actor) != 1) {
             throw new DepositAccountLifecycleException(
                     "Transition حساب به ACTIVE انجام نشد.",
                     Map.of("DEPOSIT_ACCOUNT.ACCOUNT_STATUS_CODE", "Transition همزمان یا نامعتبر رخ داده است.")
@@ -126,7 +152,7 @@ public class DepositAccountLifecycleService {
                         "حساب فعال شد اما Read-back آن ناموفق بود.",
                         Map.of("DEPOSIT_ACCOUNT.ACCOUNT_ID", "Read-back حساب فعال‌شده انجام نشد.")
                 ));
-        return response(activated, false);
+        return response(activated, "ACTIVATED", false);
     }
 
     @Transactional(readOnly = true)
@@ -140,13 +166,16 @@ public class DepositAccountLifecycleService {
         }
         AccountRow account = repository.findAccount(opening.createdAccountId())
                 .orElseThrow(() -> new DepositAccountNotFoundException("حساب متصل به Opening یافت نشد."));
-        return response(account, false);
+        return response(account, opening.activationStatusCode(), false);
     }
 
-    private static AccountLifecycleResponse response(AccountRow row, boolean replay) {
+    private static AccountLifecycleResponse response(AccountRow row, String openingActivationStatusCode, boolean replay) {
         return new AccountLifecycleResponse(
                 row.accountId(), row.accountNo(), row.openingRequestId(), row.productVersionId(),
-                row.currencyCode(), row.openingAmount(), row.accountStatusCode(),
+                row.openedProductVersionId(), row.currentProductVersionId(), row.ownershipTypeCode(),
+                row.currencyCode(), row.openingAmount(), row.openedOn(), row.accountStatusCode(),
+                openingActivationStatusCode, row.activationDeadlineAt(), row.activationPolicyVersion(),
+                row.ledgerBalance(), row.availableBalance(), row.debitCapabilityCode(),
                 row.createdAt(), row.activatedAt(), replay
         );
     }

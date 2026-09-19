@@ -35,7 +35,11 @@ const persistedTables = [
   'DEPOSIT_OPENING_DECISION',
   'DEPOSIT_OPENING_STATUS_HISTORY'
 ];
-const sourceCheckCodes = [
+const sourceCheckCodes = versionAtLeast(version,'0.10.0') ? [
+  'CUSTOMER_IDENTITY','MOBILE_OWNERSHIP','LEGAL_CAPACITY','KYC_CDD','PEP_SANCTIONS',
+  'CUSTOMER_RISK','EXPECTED_ACTIVITY','ACCOUNT_COUNT_STATUS','PRODUCT_ELIGIBILITY','DOCUMENTS',
+  'INQUIRIES','SIGNATORY_AUTHORITY','TERMS_ACCEPTANCE','SHARIA_CONTRACT','TAX_PROFILE','DUPLICATE_REQUEST'
+] : [
   'PRODUCT_ELIGIBILITY','KYC_CDD','SANCTIONS','DOCUMENTS','INQUIRIES',
   'OPENING_RULES','SIGNATORY_AUTHORITY','TERMS_ACCEPTANCE','DUPLICATE_REQUEST'
 ];
@@ -47,14 +51,14 @@ const checks = [
   [models.includes('@JsonProperty("DEPOSIT_OPENING_REQUEST")') && models.includes('PersistedAggregateResponse'), 'typed aggregate JSON contract is incomplete'],
   [controller.includes('@RequestMapping("/api/v1/deposit-opening")') && controller.includes('@PostMapping("/requests")'), 'deposit-opening create endpoint missing'],
   [service.includes('@Transactional') && service.includes('findByIdempotencyKey') && service.includes('true, Map.of()'), 'transaction/idempotency service contract missing'],
-  [service.includes('جمع درصد مالکیت') && service.includes('همه کنترل‌ها باید PASS') && service.includes('تصمیم نهایی درخواست تأییدشده باید APPROVE'), 'business validation guards are incomplete'],
+  [service.includes('جمع درصد مالکیت') && (service.includes('همه کنترل‌ها باید PASS') || service.includes('همه کنترل‌های الزامی Account Creation')) && service.includes('تصمیم نهایی درخواست تأییدشده باید APPROVE'), 'business validation guards are incomplete'],
   [persistedTables.every(table => repository.includes(`INSERT INTO %s.${table}`)), 'repository does not cover the complete Phase 2 aggregate table set'],
   [repository.includes('SEQ_DEPOSIT_OPENING_REQUEST') && repository.includes('SEQ_DEPOSIT_OPENING_TERM'), 'explicit parent/term sequence allocation missing'],
   [(repository.includes('Initial aggregate persistence') && service.includes('insertInitialStatusHistory')) || (service.includes('recordOpeningCreated') && auditRepository.includes('insertStatusHistory')), 'system-managed initial status history is missing'],
   [handler.includes('DEPOSIT_OPENING_VALIDATION_FAILED'), 'global ProblemDetail mapping for deposit opening validation is missing'],
   [frontendService.includes("'/api/v1/deposit-opening'") && frontendService.includes('createAggregate'), 'Angular deposit opening API client is missing'],
   [wizardTs.includes('persistAggregate()') && (wizardHtml.includes('ثبت اتمیک Aggregate') || wizardHtml.includes('ثبت Opening')) && wizardHtml.includes('OPENING_REQUEST_ID='), 'wizard is not connected to atomic persistence'],
-  [sourceCheckCodes.every(code => wizardTs.includes(`code:'${code}'`)), 'wizard check codes are not aligned with the attached opening prototype'],
+  [sourceCheckCodes.every(code => wizardTs.includes(`code:'${code}'`)), 'wizard check codes are not aligned with the active opening prototype'],
   [wizardTs.includes("fundingMethod:new FormControl('TRANSFER'") && wizardTs.includes("ACCEPTANCE_SOURCE_CODE:v.channel==='BRANCH'?'BRANCH':v.channel==='API'?'API':'UI'"), 'funding/terms reference codes are not aligned with source contract'],
   [exists('docs/DPS2-0.3.98-FOUR-DEPOSITS-PHASE2-PERSISTENCE-QA.md') && exists('docs/install/INSTALL-0.3.98-FA.txt') && exists('docs/patches/PATCH-0.3.98-README-FA.txt'), '0.3.98 QA/install/patch documentation is incomplete']
 ];
@@ -65,4 +69,4 @@ if (failed.length) {
   for (const message of failed) console.error(`- ${message}`);
   process.exit(1);
 }
-console.log(`DPS2 Deposit Opening persistence verification OK: ${persistedTables.length} transactional table contracts, 9 source-aligned checks, idempotent create endpoint.`);
+console.log(`DPS2 Deposit Opening persistence verification OK: ${persistedTables.length} transactional table contracts, ${sourceCheckCodes.length} source-aligned checks, idempotent create endpoint.`);

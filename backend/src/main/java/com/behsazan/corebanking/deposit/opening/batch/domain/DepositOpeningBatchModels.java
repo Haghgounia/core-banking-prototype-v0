@@ -16,6 +16,9 @@ public final class DepositOpeningBatchModels {
             String idempotencyKey,
             String sourceTypeCode,
             String sourceReference,
+            String bulkOpeningBasisCode,
+            String legalBasisReference,
+            String cddApprovalReference,
             List<BatchItemCreateRequest> items
     ) {}
 
@@ -42,6 +45,9 @@ public final class DepositOpeningBatchModels {
             String idempotencyKey,
             String sourceTypeCode,
             String sourceReference,
+            String bulkOpeningBasisCode,
+            String legalBasisReference,
+            String cddApprovalReference,
             int totalCount,
             int successCount,
             int failedCount,

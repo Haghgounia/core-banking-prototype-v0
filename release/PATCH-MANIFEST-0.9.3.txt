@@ -1,0 +1,43 @@
+Core Banking Prototype 0.9.3 - Patch Manifest
+Baseline: 0.9.2 synchronized clean source
+Target  : 0.9.3 Reference Data + FK Reconciliation
+
+Added   : 11
+Changed : 12
+Removed : 0
+Total   : 23
+
+ADDED
+  + database/oracle/dps2/migrations/0.9.3-reference-data-fk-reconciliation.sql
+  + database/oracle/dps2/reference-data/Deposit_Account_Opening_Reference_Data_Seed_2026-09-19.sql
+  + docs/DPS2-0.9.3-REFERENCE-DATA-FK-RECONCILIATION-QA.md
+  + docs/SOURCE-AUDIT-0.9.3.md
+  + docs/install/INSTALL-0.9.3-FA.txt
+  + docs/patches/PATCH-0.9.3-README-FA.txt
+  + docs/patches/PATCH-LAYOUT-MIGRATION-0.9.2.txt
+  + release/PATCH-MANIFEST-0.9.3.txt
+  + release/QA-REPORT-0.9.3.md
+  + release/RELEASE-NOTES-0.9.3.md
+  + tools/verify-dps2-reference-fk-reconciliation-093.mjs
+
+CHANGED
+  * CHANGELOG.md
+  * README-FA.md
+  * VERSION
+  * backend/pom.xml
+  * build-production.cmd
+  * build-production.sh
+  * frontend/package-lock.json
+  * frontend/package.json
+  * frontend/src/app/features/system-specification/system-version.generated.ts
+  * package-release.cmd
+  * tools/migrate-root-layout.mjs
+  * tools/verify-dps2-account-schema-reconciliation-092.mjs
+
+REMOVED
+  (none)
+
+Patch overlay note:
+  Overlay the patch onto an exact 0.9.2 synchronized clean source tree.
+  Run node tools\migrate-root-layout.mjs after overlay (build-production.cmd does this automatically).
+  No business/runtime data files are included in the patch.

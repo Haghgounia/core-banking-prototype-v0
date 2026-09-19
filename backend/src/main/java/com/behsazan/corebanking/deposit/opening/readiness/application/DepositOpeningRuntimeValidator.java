@@ -38,6 +38,8 @@ public class DepositOpeningRuntimeValidator {
         checkRef(errors, "DEPOSIT_OPENING_REQUEST.SOURCE_OF_FUNDS_CODE", "REF_DEP_OPEN_SOURCE_OF_FUNDS", "SOURCE_OF_FUNDS_CODE", root.sourceOfFundsCode());
         checkRef(errors, "DEPOSIT_OPENING_REQUEST.PURPOSE_CODE", "REF_DEP_OPEN_PURPOSE", "PURPOSE_CODE", root.purposeCode());
         checkRef(errors, "DEPOSIT_OPENING_REQUEST.REQUEST_STATUS_CODE", "REF_DEP_OPEN_REQUEST_STATUS", "REQUEST_STATUS_CODE", root.requestStatusCode());
+        checkRef(errors, "DEPOSIT_OPENING_REQUEST.JOINT_ACCOUNT_BASIS_CODE", "REF_DEP_OPEN_JOINT_BASIS", "JOINT_ACCOUNT_BASIS_CODE", root.jointAccountBasisCode());
+        checkRef(errors, "DEPOSIT_OPENING_REQUEST.ACTIVATION_STATUS_CODE", "REF_DEP_OPEN_ACTIVATION_STATUS", "ACTIVATION_STATUS_CODE", root.activationStatusCode());
 
         for (OpeningParty value : safe(aggregate.parties())) {
             checkParty(errors, "DEPOSIT_OPENING_PARTY.PARTY_ID", value.partyId());
@@ -116,13 +118,20 @@ public class DepositOpeningRuntimeValidator {
         for (RewardEnrollment value : safe(aggregate.rewardEnrollments())) {
             checkRef(errors, "DEPOSIT_OPENING_REWARD_ENROLLMENT.ENROLLMENT_STATUS_CODE", "REF_DEP_OPEN_ENROLLMENT_STATUS", "ENROLLMENT_STATUS_CODE", value.enrollmentStatusCode());
         }
-        if (aggregate.funding() != null) {
-            checkRef(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_METHOD_CODE", "REF_DEP_OPEN_FUNDING_METHOD", "FUNDING_METHOD_CODE", aggregate.funding().fundingMethodCode());
-            checkRef(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_STATUS_CODE", "REF_DEP_OPEN_FUNDING_STATUS", "FUNDING_STATUS_CODE", aggregate.funding().fundingStatusCode());
+        for (Funding value : safe(aggregate.fundings())) {
+            checkRef(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_METHOD_CODE", "REF_DEP_OPEN_FUNDING_METHOD", "FUNDING_METHOD_CODE", value.fundingMethodCode());
+            checkRef(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_PURPOSE_CODE", "REF_DEP_OPEN_FUND_PURPOSE", "FUNDING_PURPOSE_CODE", value.fundingPurposeCode());
+            checkRef(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_STATUS_CODE", "REF_DEP_OPEN_FUNDING_STATUS", "FUNDING_STATUS_CODE", value.fundingStatusCode());
+        }
+        for (OpeningObligation value : safe(aggregate.obligations())) {
+            checkRef(errors, "DEPOSIT_OPENING_OBLIGATION.OBLIGATION_TYPE_CODE", "REF_DEP_OPEN_OBLIGATION_TYPE", "OBLIGATION_TYPE_CODE", value.obligationTypeCode());
+            checkRef(errors, "DEPOSIT_OPENING_OBLIGATION.SETTLEMENT_STATUS_CODE", "REF_DEP_OPEN_SETTLEMENT_STATUS", "SETTLEMENT_STATUS_CODE", value.settlementStatusCode());
         }
         for (OpeningCheck value : safe(aggregate.checks())) {
             checkRef(errors, "DEPOSIT_OPENING_CHECK.CHECK_CODE", "REF_DEP_OPEN_CHECK", "CHECK_CODE", value.checkCode());
             checkRef(errors, "DEPOSIT_OPENING_CHECK.CHECK_TYPE_CODE", "REF_DEP_OPEN_CHECK_TYPE", "CHECK_TYPE_CODE", value.checkTypeCode());
+            checkRef(errors, "DEPOSIT_OPENING_CHECK.CHECK_PHASE_CODE", "REF_DEP_OPEN_CHECK_PHASE", "CHECK_PHASE_CODE", value.checkPhaseCode());
+            checkRef(errors, "DEPOSIT_OPENING_CHECK.BLOCKING_SCOPE_CODE", "REF_DEP_OPEN_BLOCKING_SCOPE", "BLOCKING_SCOPE_CODE", value.blockingScopeCode());
             checkRef(errors, "DEPOSIT_OPENING_CHECK.RESULT_STATUS_CODE", "REF_DEP_OPEN_CHECK_RESULT", "RESULT_STATUS_CODE", value.resultStatusCode());
         }
         for (OpeningDocument value : safe(aggregate.documents())) {

@@ -1,0 +1,40 @@
+Core Banking Prototype 0.9.3
+DPS2 Reference Data + FK Reconciliation
+
+پيش نياز:
+- Source/Database حداقل در Baseline 0.9.2 باشد.
+- Migration 0.9.2 Account Schema Reconciliation قبلا با SUCCESS اجرا شده باشد.
+
+1) Source نسخه 0.9.3 را جايگزين/Overlay کنيد.
+
+2) براي همگام سازي کامل Reference Data افتتاح حساب، در SQL Developer با Run Script (F5) اجرا کنيد:
+   @database/oracle/dps2/reference-data/Deposit_Account_Opening_Reference_Data_Seed_2026-09-19.sql
+
+   اين Seed کاملا DPS2-qualified و idempotent است و به CURRENT_SCHEMA وابسته نيست.
+   REF_DEP_OPEN_CHANNEL_ORG_MAP مي تواند عمدا خالي بماند تا کد واقعي واحد سازماني بانک مشخص شود.
+
+3) سپس FK / delta reconciliation را اجرا کنيد:
+   @database/oracle/dps2/migrations/0.9.3-reference-data-fk-reconciliation.sql
+
+4) خروجی Migration بايد با پيام زير پايان يابد:
+   SUCCESS: DPS2 Reference Data + FK Reconciliation 0.9.3 completed.
+
+   حداقل شمارش هاي مورد انتظار:
+   REF_DEP_OPEN_SNAPSHOT_TYPE     = 5
+   REF_DEP_OPEN_AUDIT_ACTOR_TYPE  = 2
+   REF_DEP_OPEN_AUDIT_EVENT_TYPE  = 7
+   REF_DEP_OPEN_CHANGE_REASON     >= 1  (OTHER)
+   REF_DEP_OPEN_BATCH_ERROR_CODE  = 3
+   REF_DEP_OPEN_CHANNEL_ORG_MAP   = 0 مجاز است
+
+5) Build:
+   build-production.cmd
+
+Expected static gate:
+   DPS2 0.9.3 Reference Data / FK Reconciliation verification OK: 19/19 checks passed.
+
+6) برنامه را Restart کرده و Opening / Change Management / Batch Opening را Smoke Test کنيد.
+
+نکته:
+- اگر فقط Delta جداول خالي و FKهاي اين Hotfix مدنظر باشد، Migration مرحله 3 به تنهايي مقادير حياتي را Reconcile مي کند.
+- براي همگام سازي کامل همه Catalogهاي مرجع با Seed مورخ 2026-09-19، مراحل 2 و 3 هر دو اجرا شوند.

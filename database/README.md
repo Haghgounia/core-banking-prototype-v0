@@ -58,3 +58,7 @@ database/oracle/
 ### CAL2 FIX93 / 0.3.85
 
 برای تعریف گروهی ساعات شروع/پایان فعالیت بر اساس اطلاعیه‌های ماهانه، فصلی یا سالانه و Override تک‌روز، Migration `cal2/migrations/0.3.85-fix93-business-calendar-schedule-policy.sql` را روی Schema موجود اجرا کنید. این Migration سه جدول Policy/Weekly/Exception را اضافه و `BUSINESS_CALENDAR_DAY` را به خروجی Resolve‌شده مجهز می‌کند.
+
+### DPS2 Operational Opening v5 / 0.10.0
+
+برای ارتقا از 0.9.3، ابتدا `oracle/dps2/migrations/0.10.0-phase10-opening-operational-v5-foundation.sql` و سپس `oracle/dps2/migrations/0.10.0-phase10b-opening-operational-runtime-alignment.sql` اجرا شوند. Foundation نسخه R2 است و FKهای معادل را براساس رابطه شناسایی می‌کند. فایل `0.10.0-phase10a-constraint-reconciliation-repair.sql` فقط برای محیط‌هایی نگهداری می‌شود که نسخه اولیه Phase 10A را قبل از R2 اجرا کرده و با ORA-02275 متوقف شده‌اند.

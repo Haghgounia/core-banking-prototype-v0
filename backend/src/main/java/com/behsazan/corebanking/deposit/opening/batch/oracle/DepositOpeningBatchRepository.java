@@ -58,6 +58,7 @@ public class DepositOpeningBatchRepository {
     private Optional<BatchHeaderView> queryBatch(String predicate, Object value, boolean lock) {
         String sql = ("""
                 SELECT OPENING_BATCH_ID, BATCH_NO, IDEMPOTENCY_KEY, SOURCE_TYPE_CODE, SOURCE_REFERENCE,
+                       BULK_OPENING_BASIS_CODE, LEGAL_BASIS_REFERENCE, CDD_APPROVAL_REFERENCE,
                        TOTAL_COUNT, SUCCESS_COUNT, FAILED_COUNT, BATCH_STATUS_CODE,
                        STARTED_AT, COMPLETED_AT, RECORD_VERSION
                   FROM %s.DEPOSIT_OPENING_BATCH
@@ -67,6 +68,7 @@ public class DepositOpeningBatchRepository {
                 (rs, n) -> new BatchHeaderView(
                         rs.getLong("OPENING_BATCH_ID"), rs.getString("BATCH_NO"), rs.getString("IDEMPOTENCY_KEY"),
                         rs.getString("SOURCE_TYPE_CODE"), rs.getString("SOURCE_REFERENCE"),
+                        rs.getString("BULK_OPENING_BASIS_CODE"), rs.getString("LEGAL_BASIS_REFERENCE"), rs.getString("CDD_APPROVAL_REFERENCE"),
                         rs.getInt("TOTAL_COUNT"), rs.getInt("SUCCESS_COUNT"), rs.getInt("FAILED_COUNT"),
                         rs.getString("BATCH_STATUS_CODE"), localDateTime(rs.getTimestamp("STARTED_AT")),
                         localDateTime(rs.getTimestamp("COMPLETED_AT")), rs.getLong("RECORD_VERSION")
@@ -75,21 +77,27 @@ public class DepositOpeningBatchRepository {
     }
 
     public int insertBatch(long batchId, String batchNo, String idempotencyKey, String sourceTypeCode,
-                           String sourceReference, int totalCount, String actor) {
+                           String sourceReference, String bulkOpeningBasisCode, String legalBasisReference,
+                           String cddApprovalReference, int totalCount, String actor) {
         String sql = """
                 INSERT INTO %s.DEPOSIT_OPENING_BATCH (
                     OPENING_BATCH_ID, BATCH_NO, IDEMPOTENCY_KEY, SOURCE_TYPE_CODE, SOURCE_REFERENCE,
+                    BULK_OPENING_BASIS_CODE, LEGAL_BASIS_REFERENCE, CDD_APPROVAL_REFERENCE,
                     TOTAL_COUNT, SUCCESS_COUNT, FAILED_COUNT, BATCH_STATUS_CODE, CREATED_BY
                 ) VALUES (
                     :batchId, :batchNo, :idempotencyKey, :sourceTypeCode, :sourceReference,
+                    :bulkOpeningBasisCode, :legalBasisReference, :cddApprovalReference,
                     :totalCount, 0, 0, 'DRAFT', :actor
                 )
                 """.formatted(schema);
         return jdbc.update(sql, new MapSqlParameterSource()
                 .addValue("batchId", batchId).addValue("batchNo", batchNo)
                 .addValue("idempotencyKey", idempotencyKey).addValue("sourceTypeCode", sourceTypeCode)
-                .addValue("sourceReference", sourceReference).addValue("totalCount", totalCount)
-                .addValue("actor", actor));
+                .addValue("sourceReference", sourceReference)
+                .addValue("bulkOpeningBasisCode", bulkOpeningBasisCode)
+                .addValue("legalBasisReference", legalBasisReference)
+                .addValue("cddApprovalReference", cddApprovalReference)
+                .addValue("totalCount", totalCount).addValue("actor", actor));
     }
 
     public int insertItem(long itemId, long batchId, BatchItemCreateRequest item, int rowNo, String actor) {

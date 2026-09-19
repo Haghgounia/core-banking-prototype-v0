@@ -1,3 +1,13 @@
+## نسخه 0.10.0 — Operational Opening v5
+مسير افتتاح حساب اکنون Create Account را از Settlement و Activation Readiness جدا مي‌کند: `APPROVED -> PENDING_ACTIVATION -> Settlement -> READY -> ACTIVE`. Funding قبل از Create فقط Plan است و Activate بدون READY مجاز نيست.
+
+## تطبیق Reference Data و FKهای افتتاح سپرده — 0.9.3
+
+نسخه 0.9.3 مشکل محیط‌هایی را که جداول مرجع DPS2 موجود ولی بخشی از داده‌های Phase 5/6 در آن‌ها خالی است، برطرف می‌کند. Seed مرجع جدید کاملاً با Prefix `DPS2.` اجرا می‌شود و دیگر به `CURRENT_SCHEMA` وابسته نیست. همچنین شش FK معنایی صحیح برای نوع/وضعیت درخواست، تصمیم/علت تصمیم و منبع/وضعیت پذیرش شرایط اضافه می‌شود. `REF_DEP_OPEN_CHANNEL_ORG_MAP` عمداً تا زمان تعیین کد معتبر واحد سازمانی بانک خالی می‌ماند.
+
+Migration: `database/oracle/dps2/migrations/0.9.3-reference-data-fk-reconciliation.sql`  
+Master Seed: `database/oracle/dps2/reference-data/Deposit_Account_Opening_Reference_Data_Seed_2026-09-19.sql`
+
 ## همگام‌سازی حساب سپرده و ترمیم Schema — 0.9.2
 
 نسخه 0.9.2 بسته‌ی نگهداری هماهنگ با وضعیت واقعی Oracle پس از Reconciliation موفق Phase 4 + Phase 9 است. Migration جدید `database/oracle/dps2/migrations/0.9.2-phase4-phase9-account-schema-reconciliation.sql` درخت حساب سپرده، Sequenceها، Constraintها، Indexها و Lifecycle append-only را به‌صورت Idempotent تطبیق می‌دهد. منطق Business فاز 9 تغییر نکرده و تنها Transition واقعی `ACTIVE -> CLOSED` باقی می‌ماند.
@@ -697,3 +707,6 @@ Parser XML در برابر DTD/External Entity غیرفعال و سخت‌ساز
 
 ### چهار سپرده — نسخه 0.9.0
 Phase 9 عملیات حساب سپرده، اولین Servicing تغییردهنده را بر اساس مدل واقعی DPS2 اضافه می‌کند: بستن کنترل‌شده حساب از `ACTIVE` به `CLOSED`. وضعیت‌های Hold/Dormancy/Reactivation تا زمان تعریف مدل فیزیکی معتبر اضافه نشده‌اند.
+
+### 0.10.0 — Operational Opening v5 / Phase 10D
+Wizard افتتاح «چهار سپرده» اکنون با CIF Party Search، انتخاب حساب مبدأ ACTIVE و احراز مالکیت از Account Operations، Withdrawal Media محصول‌محور، تفکیک Payment Instrument، خلاصه Obligation/Funding و Evidence صریح Create Gate هم‌راستا شده است. مسیر فعال‌سازی همچنان `Create -> Settlement -> Readiness -> Activate` است و Batch مستقیم فعال نمی‌شود.

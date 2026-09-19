@@ -33,7 +33,9 @@ public class DepositAccountRepository {
     public Optional<OpeningLink> lockOpening(long openingRequestId) {
         String sql = """
                 SELECT OPENING_REQUEST_ID, REQUEST_NO, PRODUCT_VERSION_ID, CURRENCY_CODE,
-                       OPENING_AMOUNT, REQUEST_STATUS_CODE, CREATED_ACCOUNT_ID
+                       OPENING_AMOUNT, OWNERSHIP_TYPE_CODE, REQUESTED_OPENING_DATE,
+                       ACTIVATION_STATUS_CODE, ACTIVATION_DEADLINE_AT,
+                       REQUEST_STATUS_CODE, CREATED_ACCOUNT_ID
                   FROM %s.DEPOSIT_OPENING_REQUEST
                  WHERE OPENING_REQUEST_ID = :openingRequestId
                    FOR UPDATE
@@ -44,7 +46,9 @@ public class DepositAccountRepository {
     public Optional<OpeningLink> findOpening(long openingRequestId) {
         String sql = """
                 SELECT OPENING_REQUEST_ID, REQUEST_NO, PRODUCT_VERSION_ID, CURRENCY_CODE,
-                       OPENING_AMOUNT, REQUEST_STATUS_CODE, CREATED_ACCOUNT_ID
+                       OPENING_AMOUNT, OWNERSHIP_TYPE_CODE, REQUESTED_OPENING_DATE,
+                       ACTIVATION_STATUS_CODE, ACTIVATION_DEADLINE_AT,
+                       REQUEST_STATUS_CODE, CREATED_ACCOUNT_ID
                   FROM %s.DEPOSIT_OPENING_REQUEST
                  WHERE OPENING_REQUEST_ID = :openingRequestId
                 """.formatted(openingSchema);
@@ -60,6 +64,10 @@ public class DepositAccountRepository {
                         rs.getObject("PRODUCT_VERSION_ID", Long.class),
                         rs.getString("CURRENCY_CODE"),
                         rs.getBigDecimal("OPENING_AMOUNT"),
+                        rs.getString("OWNERSHIP_TYPE_CODE"),
+                        rs.getDate("REQUESTED_OPENING_DATE") == null ? null : rs.getDate("REQUESTED_OPENING_DATE").toLocalDate(),
+                        rs.getString("ACTIVATION_STATUS_CODE"),
+                        toOffsetDateTime(rs.getTimestamp("ACTIVATION_DEADLINE_AT")),
                         rs.getString("REQUEST_STATUS_CODE"),
                         rs.getObject("CREATED_ACCOUNT_ID", Long.class)
                 ));
@@ -77,7 +85,10 @@ public class DepositAccountRepository {
     private Optional<AccountRow> queryAccount(long accountId, boolean lock) {
         String sql = """
                 SELECT ACCOUNT_ID, ACCOUNT_NO, OPENING_REQUEST_ID, PRODUCT_VERSION_ID,
-                       CURRENCY_CODE, OPENING_AMOUNT, ACCOUNT_STATUS_CODE,
+                       OPENED_PRODUCT_VERSION_ID, CURRENT_PRODUCT_VERSION_ID, OWNERSHIP_TYPE_CODE,
+                       CURRENCY_CODE, OPENING_AMOUNT, OPENED_ON, ACCOUNT_STATUS_CODE,
+                       ACTIVATION_DEADLINE_AT, ACTIVATION_POLICY_VERSION,
+                       LEDGER_BALANCE, AVAILABLE_BALANCE, DEBIT_CAPABILITY_CODE,
                        CREATED_AT, ACTIVATED_AT
                   FROM %s.DEPOSIT_ACCOUNT
                  WHERE ACCOUNT_ID = :accountId
@@ -89,9 +100,18 @@ public class DepositAccountRepository {
                         rs.getString("ACCOUNT_NO"),
                         rs.getLong("OPENING_REQUEST_ID"),
                         rs.getObject("PRODUCT_VERSION_ID", Long.class),
+                        rs.getObject("OPENED_PRODUCT_VERSION_ID", Long.class),
+                        rs.getObject("CURRENT_PRODUCT_VERSION_ID", Long.class),
+                        rs.getString("OWNERSHIP_TYPE_CODE"),
                         rs.getString("CURRENCY_CODE"),
                         rs.getBigDecimal("OPENING_AMOUNT"),
+                        rs.getDate("OPENED_ON") == null ? null : rs.getDate("OPENED_ON").toLocalDate(),
                         rs.getString("ACCOUNT_STATUS_CODE"),
+                        toOffsetDateTime(rs.getTimestamp("ACTIVATION_DEADLINE_AT")),
+                        rs.getString("ACTIVATION_POLICY_VERSION"),
+                        rs.getBigDecimal("LEDGER_BALANCE"),
+                        rs.getBigDecimal("AVAILABLE_BALANCE"),
+                        rs.getString("DEBIT_CAPABILITY_CODE"),
                         toOffsetDateTime(rs.getTimestamp("CREATED_AT")),
                         toOffsetDateTime(rs.getTimestamp("ACTIVATED_AT"))
                 ));
@@ -115,11 +135,17 @@ public class DepositAccountRepository {
         String sql = """
                 INSERT INTO %s.DEPOSIT_ACCOUNT (
                     ACCOUNT_ID, ACCOUNT_NO, OPENING_REQUEST_ID, PRODUCT_VERSION_ID,
-                    CURRENCY_CODE, OPENING_AMOUNT, ACCOUNT_STATUS_CODE,
+                    OPENED_PRODUCT_VERSION_ID, CURRENT_PRODUCT_VERSION_ID, OWNERSHIP_TYPE_CODE,
+                    CURRENCY_CODE, OPENING_AMOUNT, OPENED_ON, ACCOUNT_STATUS_CODE,
+                    ACTIVATION_DEADLINE_AT, ACTIVATION_POLICY_VERSION,
+                    LEDGER_BALANCE, AVAILABLE_BALANCE, DEBIT_CAPABILITY_CODE,
                     CREATED_AT, CREATED_BY, RECORD_VERSION
                 ) VALUES (
                     :accountId, :accountNo, :openingRequestId, :productVersionId,
-                    :currencyCode, :openingAmount, 'PENDING_ACTIVATION',
+                    :productVersionId, :productVersionId, :ownershipTypeCode,
+                    :currencyCode, :openingAmount, :openedOn, 'PENDING_ACTIVATION',
+                    COALESCE(:activationDeadlineAt, SYSTIMESTAMP + INTERVAL '7' DAY), 'ACT-GATE-2026.09-v5',
+                    0, 0, 'DISABLED_PENDING_ACTIVATION',
                     SYSTIMESTAMP, :actor, 1
                 )
                 """.formatted(accountSchema);
@@ -128,32 +154,39 @@ public class DepositAccountRepository {
                 .addValue("accountNo", accountNo, Types.VARCHAR)
                 .addValue("openingRequestId", opening.openingRequestId(), Types.NUMERIC)
                 .addValue("productVersionId", opening.productVersionId(), Types.NUMERIC)
+                .addValue("ownershipTypeCode", opening.ownershipTypeCode(), Types.VARCHAR)
                 .addValue("currencyCode", opening.currencyCode(), Types.VARCHAR)
                 .addValue("openingAmount", opening.openingAmount(), Types.NUMERIC)
+                .addValue("openedOn", opening.requestedOpeningDate(), Types.DATE)
+                .addValue("activationDeadlineAt", opening.activationDeadlineAt() == null ? null : Timestamp.from(opening.activationDeadlineAt().toInstant()), Types.TIMESTAMP)
                 .addValue("actor", actor, Types.VARCHAR));
     }
 
     public int linkCreatedAccount(long openingRequestId, long accountId, String actor) {
         String sql = """
-                UPDATE %s.DEPOSIT_OPENING_REQUEST
+                UPDATE %s.DEPOSIT_OPENING_REQUEST r
                    SET CREATED_ACCOUNT_ID = :accountId,
+                       ACTIVATION_STATUS_CODE = 'PENDING_READINESS',
+                       ACTIVATION_DEADLINE_AT = COALESCE(r.ACTIVATION_DEADLINE_AT,
+                           (SELECT a.ACTIVATION_DEADLINE_AT FROM %s.DEPOSIT_ACCOUNT a WHERE a.ACCOUNT_ID = :accountId)),
                        UPDATED_AT = SYSTIMESTAMP,
                        UPDATED_BY = :actor,
                        RECORD_VERSION = NVL(RECORD_VERSION, 0) + 1
                  WHERE OPENING_REQUEST_ID = :openingRequestId
                    AND CREATED_ACCOUNT_ID IS NULL
-                """.formatted(openingSchema);
+                """.formatted(openingSchema, accountSchema);
         return jdbc.update(sql, new MapSqlParameterSource()
                 .addValue("openingRequestId", openingRequestId, Types.NUMERIC)
                 .addValue("accountId", accountId, Types.NUMERIC)
                 .addValue("actor", actor, Types.VARCHAR));
     }
 
-    public int activateAccount(long accountId, String actor) {
+    public int activateAccount(long accountId, String debitCapabilityCode, String actor) {
         String sql = """
                 UPDATE %s.DEPOSIT_ACCOUNT
                    SET ACCOUNT_STATUS_CODE = 'ACTIVE',
                        ACTIVATED_AT = SYSTIMESTAMP,
+                       DEBIT_CAPABILITY_CODE = :debitCapabilityCode,
                        UPDATED_AT = SYSTIMESTAMP,
                        UPDATED_BY = :actor,
                        RECORD_VERSION = NVL(RECORD_VERSION, 0) + 1
@@ -162,6 +195,7 @@ public class DepositAccountRepository {
                 """.formatted(accountSchema);
         return jdbc.update(sql, new MapSqlParameterSource()
                 .addValue("accountId", accountId, Types.NUMERIC)
+                .addValue("debitCapabilityCode", debitCapabilityCode, Types.VARCHAR)
                 .addValue("actor", actor, Types.VARCHAR));
     }
 
@@ -169,6 +203,7 @@ public class DepositAccountRepository {
         String sql = """
                 UPDATE %s.DEPOSIT_OPENING_REQUEST
                    SET REQUEST_STATUS_CODE = 'COMPLETED',
+                       ACTIVATION_STATUS_CODE = 'ACTIVATED',
                        UPDATED_AT = SYSTIMESTAMP,
                        UPDATED_BY = :actor,
                        RECORD_VERSION = NVL(RECORD_VERSION, 0) + 1
@@ -177,6 +212,115 @@ public class DepositAccountRepository {
                 """.formatted(openingSchema);
         return jdbc.update(sql, new MapSqlParameterSource()
                 .addValue("openingRequestId", openingRequestId, Types.NUMERIC)
+                .addValue("actor", actor, Types.VARCHAR));
+    }
+
+    public int updateActivationStatus(long openingRequestId, String activationStatusCode, String actor) {
+        String sql = """
+                UPDATE %s.DEPOSIT_OPENING_REQUEST
+                   SET ACTIVATION_STATUS_CODE = :activationStatusCode,
+                       UPDATED_AT = SYSTIMESTAMP,
+                       UPDATED_BY = :actor,
+                       RECORD_VERSION = NVL(RECORD_VERSION, 0) + 1
+                 WHERE OPENING_REQUEST_ID = :openingRequestId
+                """.formatted(openingSchema);
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("openingRequestId", openingRequestId, Types.NUMERIC)
+                .addValue("activationStatusCode", activationStatusCode, Types.VARCHAR)
+                .addValue("actor", actor, Types.VARCHAR));
+    }
+
+    public boolean hasUnresolvedDebitCapabilityChecks(long openingRequestId) {
+        String sql = """
+                SELECT COUNT(*)
+                  FROM %s.DEPOSIT_OPENING_CHECK c
+                 WHERE c.OPENING_REQUEST_ID = :openingRequestId
+                   AND c.BLOCKING_SCOPE_CODE = 'DEBIT_CAPABILITY'
+                   AND c.ATTEMPT_NO = (
+                       SELECT MAX(x.ATTEMPT_NO)
+                         FROM %s.DEPOSIT_OPENING_CHECK x
+                        WHERE x.OPENING_REQUEST_ID = c.OPENING_REQUEST_ID
+                          AND x.CHECK_CODE = c.CHECK_CODE
+                   )
+                   AND c.RESULT_STATUS_CODE NOT IN ('PASS','WAIVED','NOT_APPLICABLE')
+                """.formatted(openingSchema, openingSchema);
+        Integer count = jdbc.queryForObject(sql,
+                new MapSqlParameterSource().addValue("openingRequestId", openingRequestId, Types.NUMERIC),
+                Integer.class);
+        return count != null && count > 0;
+    }
+
+    public int unresolvedRequiredAccountCreationChecks(long openingRequestId) {
+        String sql = """
+                SELECT COUNT(*)
+                  FROM %s.REF_DEP_OPEN_CHECK r
+                 WHERE r.IS_ACTIVE = 1
+                   AND r.DEFAULT_REQUIRED_FLAG = 1
+                   AND r.DEFAULT_BLOCKING_SCOPE_CODE = 'ACCOUNT_CREATION'
+                   AND NOT EXISTS (
+                       SELECT 1
+                         FROM %s.DEPOSIT_OPENING_CHECK c
+                        WHERE c.OPENING_REQUEST_ID = :openingRequestId
+                          AND c.CHECK_CODE = r.CHECK_CODE
+                          AND c.ATTEMPT_NO = (
+                              SELECT MAX(x.ATTEMPT_NO)
+                                FROM %s.DEPOSIT_OPENING_CHECK x
+                               WHERE x.OPENING_REQUEST_ID = c.OPENING_REQUEST_ID
+                                 AND x.CHECK_CODE = c.CHECK_CODE
+                          )
+                          AND c.RESULT_STATUS_CODE IN ('PASS','WAIVED','NOT_APPLICABLE')
+                   )
+                """.formatted(openingSchema, openingSchema, openingSchema);
+        Integer count = jdbc.queryForObject(sql,
+                new MapSqlParameterSource().addValue("openingRequestId", openingRequestId, Types.NUMERIC),
+                Integer.class);
+        return count == null ? 0 : count;
+    }
+
+    public boolean openingFinancialPlanReady(long openingRequestId) {
+        String sql = """
+                SELECT
+                  (SELECT COUNT(*)
+                     FROM %s.DEPOSIT_OPENING_FUNDING f
+                    WHERE f.OPENING_REQUEST_ID = :openingRequestId) AS FUNDING_COUNT,
+                  (SELECT NVL(SUM(f.FUNDING_AMOUNT),0)
+                     FROM %s.DEPOSIT_OPENING_FUNDING f
+                    WHERE f.OPENING_REQUEST_ID = :openingRequestId) AS FUNDING_TOTAL,
+                  (SELECT COUNT(*)
+                     FROM %s.DEPOSIT_OPENING_OBLIGATION o
+                    WHERE o.OPENING_REQUEST_ID = :openingRequestId) AS OBLIGATION_COUNT,
+                  (SELECT COUNT(*)
+                     FROM %s.DEPOSIT_OPENING_OBLIGATION o
+                    WHERE o.OPENING_REQUEST_ID = :openingRequestId
+                      AND o.OBLIGATION_TYPE_CODE = 'INITIAL_BALANCE') AS INITIAL_BALANCE_COUNT,
+                  (SELECT NVL(SUM(o.FINAL_AMOUNT),0)
+                     FROM %s.DEPOSIT_OPENING_OBLIGATION o
+                    WHERE o.OPENING_REQUEST_ID = :openingRequestId) AS OBLIGATION_TOTAL
+                FROM dual
+                """.formatted(openingSchema, openingSchema, openingSchema, openingSchema, openingSchema);
+        return Boolean.TRUE.equals(jdbc.queryForObject(sql,
+                new MapSqlParameterSource().addValue("openingRequestId", openingRequestId, Types.NUMERIC),
+                (rs, rowNum) -> rs.getInt("FUNDING_COUNT") > 0
+                        && rs.getInt("OBLIGATION_COUNT") > 0
+                        && rs.getInt("INITIAL_BALANCE_COUNT") > 0
+                        && rs.getBigDecimal("FUNDING_TOTAL").compareTo(rs.getBigDecimal("OBLIGATION_TOTAL")) >= 0));
+    }
+
+    public int updateBalances(long accountId, BigDecimal ledgerBalance, BigDecimal availableBalance, String actor) {
+        String sql = """
+                UPDATE %s.DEPOSIT_ACCOUNT
+                   SET LEDGER_BALANCE = :ledgerBalance,
+                       AVAILABLE_BALANCE = :availableBalance,
+                       UPDATED_AT = SYSTIMESTAMP,
+                       UPDATED_BY = :actor,
+                       RECORD_VERSION = NVL(RECORD_VERSION, 0) + 1
+                 WHERE ACCOUNT_ID = :accountId
+                   AND ACCOUNT_STATUS_CODE = 'PENDING_ACTIVATION'
+                """.formatted(accountSchema);
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("accountId", accountId, Types.NUMERIC)
+                .addValue("ledgerBalance", ledgerBalance, Types.NUMERIC)
+                .addValue("availableBalance", availableBalance, Types.NUMERIC)
                 .addValue("actor", actor, Types.VARCHAR));
     }
 
@@ -255,6 +399,10 @@ public class DepositAccountRepository {
             Long productVersionId,
             String currencyCode,
             BigDecimal openingAmount,
+            String ownershipTypeCode,
+            java.time.LocalDate requestedOpeningDate,
+            String activationStatusCode,
+            OffsetDateTime activationDeadlineAt,
             String requestStatusCode,
             Long createdAccountId
     ) {
@@ -265,11 +413,21 @@ public class DepositAccountRepository {
             String accountNo,
             long openingRequestId,
             Long productVersionId,
+            Long openedProductVersionId,
+            Long currentProductVersionId,
+            String ownershipTypeCode,
             String currencyCode,
             BigDecimal openingAmount,
+            java.time.LocalDate openedOn,
             String accountStatusCode,
+            OffsetDateTime activationDeadlineAt,
+            String activationPolicyVersion,
+            BigDecimal ledgerBalance,
+            BigDecimal availableBalance,
+            String debitCapabilityCode,
             OffsetDateTime createdAt,
             OffsetDateTime activatedAt
     ) {
     }
+
 }

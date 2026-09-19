@@ -9,6 +9,11 @@ import com.behsazan.corebanking.deposit.opening.audit.application.DepositOpening
 import com.behsazan.corebanking.deposit.opening.audit.domain.DepositOpeningAuditModels.*;
 import com.behsazan.corebanking.deposit.opening.domain.DepositOpeningModels.AggregateRequest;
 import com.behsazan.corebanking.deposit.opening.domain.DepositOpeningModels.PersistedAggregateResponse;
+import com.behsazan.corebanking.deposit.opening.operational.application.DepositOpeningOperationalService;
+import com.behsazan.corebanking.deposit.opening.operational.domain.DepositOpeningOperationalModels.ActivationReadinessResponse;
+import com.behsazan.corebanking.deposit.opening.operational.domain.DepositOpeningOperationalModels.ReadinessEvaluationRequest;
+import com.behsazan.corebanking.deposit.opening.operational.domain.DepositOpeningOperationalModels.SettlementRequest;
+import com.behsazan.corebanking.deposit.opening.operational.domain.DepositOpeningOperationalModels.SettlementResponse;
 import com.behsazan.corebanking.deposit.opening.readiness.application.DepositOpeningReadinessService;
 import com.behsazan.corebanking.deposit.opening.readiness.domain.DepositOpeningRuntimeModels.ReadinessReport;
 import com.behsazan.corebanking.deposit.opening.readiness.domain.DepositOpeningRuntimeModels.RollbackProbeResult;
@@ -32,19 +37,22 @@ public class DepositOpeningController {
     private final DepositOpeningAuditService auditService;
     private final DepositOpeningBatchService batchService;
     private final DepositOpeningReadinessService readinessService;
+    private final DepositOpeningOperationalService operationalService;
 
     public DepositOpeningController(
             DepositOpeningAggregateService service,
             DepositAccountLifecycleService accountLifecycleService,
             DepositOpeningAuditService auditService,
             DepositOpeningBatchService batchService,
-            DepositOpeningReadinessService readinessService
+            DepositOpeningReadinessService readinessService,
+            DepositOpeningOperationalService operationalService
     ) {
         this.service = service;
         this.accountLifecycleService = accountLifecycleService;
         this.auditService = auditService;
         this.batchService = batchService;
         this.readinessService = readinessService;
+        this.operationalService = operationalService;
     }
 
     @PostMapping("/batches")
@@ -135,6 +143,39 @@ public class DepositOpeningController {
         return ResponseEntity.created(URI.create(
                 "/api/v1/deposit-opening/requests/" + openingRequestId + "/account"
         )).body(result);
+    }
+
+    @PostMapping({"/requests/{id}/account/settlement", "/requests/{id}/account/settle"})
+    ResponseEntity<SettlementResponse> settleOpening(
+            @PathVariable("id") long openingRequestId,
+            @RequestBody SettlementRequest request,
+            @RequestHeader(name = "X-User-Id", defaultValue = "opening.operator") String actor,
+            @RequestHeader(name = "X-Correlation-Id", required = false) String correlationId
+    ) {
+        return ResponseEntity.ok(operationalService.settle(
+                openingRequestId, request, normalizedActor(actor),
+                DepositOpeningAggregateService.correlationId(correlationId)
+        ));
+    }
+
+    @PostMapping("/requests/{id}/account/readiness")
+    ResponseEntity<ActivationReadinessResponse> evaluateActivationReadiness(
+            @PathVariable("id") long openingRequestId,
+            @RequestBody(required = false) ReadinessEvaluationRequest request,
+            @RequestHeader(name = "X-User-Id", defaultValue = "opening.operator") String actor,
+            @RequestHeader(name = "X-Correlation-Id", required = false) String correlationId
+    ) {
+        return ResponseEntity.ok(operationalService.evaluateReadiness(
+                openingRequestId, request, normalizedActor(actor),
+                DepositOpeningAggregateService.correlationId(correlationId)
+        ));
+    }
+
+    @GetMapping("/requests/{id}/account/readiness")
+    ResponseEntity<ActivationReadinessResponse> getActivationReadiness(
+            @PathVariable("id") long openingRequestId
+    ) {
+        return ResponseEntity.ok(operationalService.getReadiness(openingRequestId));
     }
 
     @PostMapping("/requests/{id}/account/activate")

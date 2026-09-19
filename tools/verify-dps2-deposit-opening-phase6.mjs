@@ -38,11 +38,11 @@ const checks=[
   [models.includes('record BatchCreateRequest')&&models.includes('record BatchItemView')&&models.includes('record BatchErrorView'),'Batch domain contracts are incomplete'],
   [repo.includes('DEPOSIT_OPENING_BATCH')&&repo.includes('DEPOSIT_OPENING_BATCH_ITEM')&&repo.includes('DEPOSIT_OPENING_BATCH_ERROR'),'Batch repository does not cover Header/Item/Error tables'],
   [repo.includes('${core-banking.schemas.cif:CIF}')&&repo.includes('${core-banking.schemas.product-definition:PDL}')&&repo.includes('.PARTY')&&repo.includes('.PRODUCT_VERSION'),'Batch validation does not use Party/Product integration contracts'],
-  [service.includes('PROPAGATION_REQUIRES_NEW')&&service.includes('requiresNew.executeWithoutResult'),'per-item transaction isolation is missing'],
-  [service.includes('new OpeningRequest(')&&service.includes('"BULK"')&&service.includes('"INDIVIDUAL"')&&service.includes('"APPROVED"'),'HTML-aligned normalized Opening Request creation is missing'],
+  [semverAtLeast(version,'0.10.0') ? service.includes('پردازش مستقیم Batch در Operational v5') : (service.includes('PROPAGATION_REQUIRES_NEW')&&service.includes('requiresNew.executeWithoutResult')),'per-item transaction isolation / v5 direct-processing guard is missing'],
+  [semverAtLeast(version,'0.10.0') ? service.includes('هر Batch Item باید ابتدا Opening مستقل') : (service.includes('new OpeningRequest(')&&service.includes('"BULK"')&&service.includes('"INDIVIDUAL"')&&service.includes('"APPROVED"')),'normalized Opening creation / v5 independent-opening guard is missing'],
   [aggregateRepo.includes('insertBatchRequest')&&aggregateRepo.includes('BATCH_ITEM_ID'),'Batch item -> Opening Request linkage is missing'],
-  [service.includes('new OpeningParty')&&service.includes('"OWNER"')&&service.includes('new BigDecimal("100")'),'HTML quick-grid primary Party normalization is missing'],
-  [service.includes('accountLifecycleService.createAccount')&&service.includes('accountLifecycleService.activateAccount'),'existing Account Lifecycle is not reused by Batch flow'],
+  [semverAtLeast(version,'0.10.0') ? service.includes('QARD_SAVINGS') : (service.includes('new OpeningParty')&&service.includes('"OWNER"')&&service.includes('new BigDecimal("100")')),'HTML quick-grid normalization / v5 QARD-only guard is missing'],
+  [semverAtLeast(version,'0.10.0') ? service.includes('فعال‌سازی مستقیم گروهی در Operational v5 مجاز نیست') : (service.includes('accountLifecycleService.createAccount')&&service.includes('accountLifecycleService.activateAccount')),'existing Account Lifecycle reuse / v5 direct-activation guard is missing'],
   [accountService.includes('PENDING_ACTIVATION')&&accountService.includes('ACTIVE'),'account create/activation lifecycle contract is missing'],
   [endpoints.every(x=>controller.includes(x)),'Batch API endpoints are incomplete'],
   [batchStatuses.every(x=>migration.includes(`'${x}'`)),'EA Batch status seed is incomplete'],
@@ -52,7 +52,7 @@ const checks=[
   [migration.includes("'ROW_INVALID'")&&migration.includes('Prototype provisional'),'HTML-aligned provisional ROW_INVALID governance note is missing'],
   [migration.includes("'PROCESSING_FAILED'")&&migration.includes("'ACTIVATION_FAILED'")&&migration.includes('Data-Governance'),'technical provisional error codes are not explicitly governed'],
   [frontendService.includes('createBatch(')&&frontendService.includes('validateBatch(')&&frontendService.includes('processBatch(')&&frontendService.includes('activateBatch('),'Angular Batch API service is incomplete'],
-  [uiHtml.includes('افتتاح گروهی حساب سپرده')&&uiHtml.includes('اعتبارسنجی Batch')&&uiHtml.includes('پردازش و ایجاد حساب')&&uiHtml.includes('فعال‌سازی حساب‌های موفق'),'supplied HTML Bulk actions are not preserved'],
+  [uiHtml.includes('افتتاح گروهی حساب سپرده')&&uiHtml.includes('اعتبارسنجی Batch')&&(uiHtml.includes('پردازش و ایجاد حساب')||uiHtml.includes('پردازش پس از CDD فردی'))&&(uiHtml.includes('فعال‌سازی حساب‌های موفق')||uiHtml.includes('فعال‌سازی فقط فردی')),'supplied HTML / Operational v5 Bulk actions are not represented'],
   [uiHtml.includes('Party ID')&&uiHtml.includes('Product Version')&&uiHtml.includes('Request No')&&uiHtml.includes('Account No'),'supplied HTML Bulk grid columns are incomplete'],
   [uiTs.includes('QARD_SAVINGS')&&uiTs.includes('CURRENT_ACCOUNT')&&uiTs.includes('SHORT_TERM_DEPOSIT')&&uiTs.includes('LONG_TERM_DEPOSIT'),'four deposit families are incomplete in Batch UI'],
   [routes.includes("path: 'four-deposits/batch-opening'")&&home.includes('/four-deposits/batch-opening')&&shell.includes('/four-deposits/batch-opening')&&breadcrumb.includes('/four-deposits/batch-opening'),'Batch route/navigation is incomplete'],
@@ -62,4 +62,4 @@ const checks=[
 ];
 const failed=checks.filter(([ok])=>!ok).map(([,msg])=>msg);
 if(failed.length){console.error('DPS2 Deposit Opening Phase 6 verification FAILED:');for(const msg of failed)console.error(`- ${msg}`);process.exit(1)}
-console.log('DPS2 Deposit Opening Phase 6 verification OK: supplied-HTML Batch Header/Item/Error flow, isolated item processing, Opening/Account linkage, activation and dedicated UI/API verified.');
+console.log(semverAtLeast(version,'0.10.0') ? 'DPS2 Deposit Opening Phase 6 compatibility verification OK: Header/Item/Error contracts preserved; Operational v5 blocks direct Batch processing/activation pending per-item Opening gates.' : 'DPS2 Deposit Opening Phase 6 verification OK: supplied-HTML Batch Header/Item/Error flow, isolated item processing, Opening/Account linkage, activation and dedicated UI/API verified.');

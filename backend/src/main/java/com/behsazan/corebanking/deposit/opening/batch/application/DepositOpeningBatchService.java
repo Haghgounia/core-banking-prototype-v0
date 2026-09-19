@@ -1,62 +1,35 @@
 package com.behsazan.corebanking.deposit.opening.batch.application;
 
-import com.behsazan.corebanking.deposit.account.application.DepositAccountLifecycleService;
-import com.behsazan.corebanking.deposit.account.domain.DepositAccountModels.AccountLifecycleResponse;
-import com.behsazan.corebanking.deposit.opening.audit.application.DepositOpeningAuditService;
 import com.behsazan.corebanking.deposit.opening.batch.domain.DepositOpeningBatchModels.*;
 import com.behsazan.corebanking.deposit.opening.batch.oracle.DepositOpeningBatchRepository;
-import com.behsazan.corebanking.deposit.opening.domain.DepositOpeningModels.OpeningParty;
-import com.behsazan.corebanking.deposit.opening.domain.DepositOpeningModels.OpeningRequest;
 import com.behsazan.corebanking.deposit.opening.error.DepositOpeningValidationException;
-import com.behsazan.corebanking.deposit.opening.oracle.DepositOpeningAggregateRepository;
 import com.behsazan.corebanking.deposit.opening.readiness.application.DepositOpeningRuntimeValidator;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW;
 
 @Service
 public class DepositOpeningBatchService {
     private static final Set<String> CREATEABLE_STATUSES = Set.of("DRAFT", "FAILED", "READY", "PARTIAL");
     
     private final DepositOpeningBatchRepository repository;
-    private final DepositOpeningAggregateRepository aggregateRepository;
-    private final DepositOpeningAuditService auditService;
-    private final DepositAccountLifecycleService accountLifecycleService;
     private final DepositOpeningRuntimeValidator runtimeValidator;
-    private final TransactionTemplate requiresNew;
 
     public DepositOpeningBatchService(
             DepositOpeningBatchRepository repository,
-            DepositOpeningAggregateRepository aggregateRepository,
-            DepositOpeningAuditService auditService,
-            DepositAccountLifecycleService accountLifecycleService,
-            DepositOpeningRuntimeValidator runtimeValidator,
-            PlatformTransactionManager transactionManager
+            DepositOpeningRuntimeValidator runtimeValidator
     ) {
         this.repository = repository;
-        this.aggregateRepository = aggregateRepository;
-        this.auditService = auditService;
-        this.accountLifecycleService = accountLifecycleService;
         this.runtimeValidator = runtimeValidator;
-        this.requiresNew = new TransactionTemplate(transactionManager);
-        this.requiresNew.setPropagationBehavior(PROPAGATION_REQUIRES_NEW);
     }
 
     @Transactional
@@ -75,7 +48,8 @@ public class DepositOpeningBatchService {
         String batchNo = blank(request.batchNo()) ? "BOP-" + batchId : request.batchNo();
         try {
             repository.insertBatch(batchId, batchNo, request.idempotencyKey(), request.sourceTypeCode(),
-                    request.sourceReference(), request.items().size(), actor);
+                    request.sourceReference(), request.bulkOpeningBasisCode(), request.legalBasisReference(),
+                    request.cddApprovalReference(), request.items().size(), actor);
         } catch (DuplicateKeyException ex) {
             BatchHeaderView concurrent = repository.findByIdempotencyKey(request.idempotencyKey()).orElse(null);
             if (concurrent != null) return view(concurrent.openingBatchId(), true);
@@ -135,109 +109,30 @@ public class DepositOpeningBatchService {
         BatchProcessRequest request = normalize(raw);
         validateProcessRequest(request);
         runtimeValidator.validateBatchProcessContract(request.openingChannelCode());
-
-        requiresNew.executeWithoutResult(status -> {
-            BatchHeaderView batch = repository.lockBatch(batchId)
-                    .orElseThrow(() -> validation("Batch یافت نشد.", "DEPOSIT_OPENING_BATCH.OPENING_BATCH_ID", String.valueOf(batchId)));
-            if (!Set.of("READY", "PARTIAL", "COMPLETED").contains(upper(batch.batchStatusCode()))) {
-                throw validation("Batch برای پردازش آماده نیست.", "DEPOSIT_OPENING_BATCH.BATCH_STATUS_CODE", batch.batchStatusCode());
-            }
-            repository.updateBatchStatus(batchId, "PROCESSING", actor, true, false);
-        });
-
-        List<BatchItemView> items = repository.listItems(batchId);
-        for (BatchItemView item : items) {
-            if ("SUCCESS".equals(upper(item.itemStatusCode()))) continue;
-            if (!"VALID".equals(upper(item.itemStatusCode()))) continue;
-            try {
-                requiresNew.executeWithoutResult(status -> processItem(batchId, item.openingBatchItemId(), request, actor, correlationId));
-            } catch (RuntimeException ex) {
-                requiresNew.executeWithoutResult(status -> failProcessingItem(item.openingBatchItemId(), actor, ex));
-            }
-        }
-
-        requiresNew.executeWithoutResult(status -> finalizeBatch(batchId, actor));
-        return view(batchId, false);
+        throw validation(
+                "پردازش مستقیم Batch در Operational v5 تا ثبت CDD/Risk/Funding Plan مستقل هر ردیف غیرفعال است.",
+                "DEPOSIT_OPENING_BATCH",
+                "هر Batch Item باید ابتدا Opening مستقل و Create Gate فردی را کامل کند؛ ایجاد Account مستقیم از Header مجاز نیست."
+        );
     }
 
     public BatchView activate(long batchId, String actor, String correlationId) {
-        BatchHeaderView batch = repository.findBatch(batchId)
+        repository.findBatch(batchId)
                 .orElseThrow(() -> validation("Batch یافت نشد.", "DEPOSIT_OPENING_BATCH.OPENING_BATCH_ID", String.valueOf(batchId)));
-        if (!Set.of("COMPLETED", "PARTIAL").contains(upper(batch.batchStatusCode()))) {
-            throw validation("فعال‌سازی حساب‌های Batch فقط پس از پایان پردازش مجاز است.",
-                    "DEPOSIT_OPENING_BATCH.BATCH_STATUS_CODE", batch.batchStatusCode());
-        }
-
-        for (BatchItemView item : repository.listItems(batchId)) {
-            if (!"SUCCESS".equals(upper(item.itemStatusCode())) || item.openingRequestId() == null || item.accountId() == null) continue;
-            try {
-                AccountLifecycleResponse account = accountLifecycleService.getAccount(item.openingRequestId());
-                if (!"ACTIVE".equals(upper(account.accountStatusCode()))) {
-                    accountLifecycleService.activateAccount(item.openingRequestId(), actor, correlationId + ":row:" + item.rowNo());
-                }
-            } catch (RuntimeException ex) {
-                requiresNew.executeWithoutResult(status -> {
-                    repository.clearErrors(item.openingBatchItemId(), "POSTING");
-                    repository.insertError(item.openingBatchItemId(), "POSTING", "ACTIVATION_FAILED", null,
-                            rootMessage(ex), true, actor);
-                });
-            }
-        }
-        return view(batchId, false);
-    }
-
-    private void processItem(long batchId, long itemId, BatchProcessRequest process, String actor, String correlationId) {
-        BatchItemView item = repository.lockItem(itemId)
-                .orElseThrow(() -> validation("ردیف Batch یافت نشد.", "DEPOSIT_OPENING_BATCH_ITEM.OPENING_BATCH_ITEM_ID", String.valueOf(itemId)));
-        if ("SUCCESS".equals(upper(item.itemStatusCode()))) return;
-        if (!"VALID".equals(upper(item.itemStatusCode()))) {
-            throw validation("ردیف در وضعیت VALID نیست.", "DEPOSIT_OPENING_BATCH_ITEM.ITEM_STATUS_CODE", item.itemStatusCode());
-        }
-        runtimeValidator.validateBatchItem(item.partyId(), item.productVersionId(), item.currencyCode(), process.requestedOpeningDate());
-        repository.updateItemStatus(itemId, "PROCESSING", actor);
-        repository.clearErrors(itemId, "PROCESSING");
-
-        BatchHeaderView batch = repository.findBatch(batchId)
-                .orElseThrow(() -> validation("Batch یافت نشد.", "DEPOSIT_OPENING_BATCH.OPENING_BATCH_ID", String.valueOf(batchId)));
-        long requestId = aggregateRepository.nextRequestId();
-        String requestNo = requestNo(batchId, item.rowNo());
-        String idempotency = itemIdempotencyKey(batch.idempotencyKey(), item.externalRowKey(), item.rowNo());
-        OpeningRequest opening = new OpeningRequest(
-                requestNo, idempotency, item.productVersionId(), "BULK", "INDIVIDUAL", item.currencyCode(),
-                process.openingChannelCode(), process.orgUnitCode(), process.requestedOpeningDate(),
-                item.openingAmount(), "OTHER", "SAVING", "APPROVED"
+        throw validation(
+                "فعال‌سازی مستقیم گروهی در Operational v5 مجاز نیست.",
+                "DEPOSIT_OPENING_BATCH",
+                "هر Opening تولیدشده باید Settlement و Activation Readiness Gate مستقل را طی کند."
         );
-        aggregateRepository.insertBatchRequest(requestId, opening, itemId, actor);
-        aggregateRepository.insertParty(requestId,
-                new OpeningParty(item.partyId(), "OWNER", 1, new BigDecimal("100"), 1), 1, actor);
-        auditService.recordOpeningCreated(requestId, opening, actor, correlationId + ":row:" + item.rowNo());
-
-        AccountLifecycleResponse account = accountLifecycleService.createAccount(
-                requestId, actor, correlationId + ":row:" + item.rowNo()
-        );
-        repository.linkItemResult(itemId, requestId, account.accountId(), actor);
-    }
-
-    private void failProcessingItem(long itemId, String actor, RuntimeException ex) {
-        BatchItemView item = repository.lockItem(itemId).orElse(null);
-        if (item == null || "SUCCESS".equals(upper(item.itemStatusCode()))) return;
-        repository.updateItemStatus(itemId, "FAILED", actor);
-        repository.clearErrors(itemId, "PROCESSING");
-        repository.insertError(itemId, "PROCESSING", "PROCESSING_FAILED", null, rootMessage(ex), true, actor);
-    }
-
-    private void finalizeBatch(long batchId, String actor) {
-        repository.lockBatch(batchId).orElseThrow(() -> validation("Batch یافت نشد.", "DEPOSIT_OPENING_BATCH.OPENING_BATCH_ID", String.valueOf(batchId)));
-        Counts counts = counts(repository.listItems(batchId));
-        String status = counts.failed > 0 ? (counts.success > 0 ? "PARTIAL" : "FAILED") : "COMPLETED";
-        repository.updateCounters(batchId, counts.total, counts.success, counts.failed, actor);
-        repository.updateBatchStatus(batchId, status, actor, true, true);
     }
 
     private Map<String, String> validateItem(BatchItemView item) {
         Map<String, String> errors = new LinkedHashMap<>();
         try {
-            runtimeValidator.validateBatchItem(item.partyId(), item.productVersionId(), item.currencyCode(), LocalDate.now());
+            var runtime = runtimeValidator.validateBatchItem(item.partyId(), item.productVersionId(), item.currencyCode(), LocalDate.now());
+            if (!"QARD_SAVINGS".equals(upper(runtime.productFamilyCode()))) {
+                errors.put("PRODUCT_VERSION_ID", "Operational v5 Batch فقط برای QARD_SAVINGS مجاز است.");
+            }
         } catch (DepositOpeningValidationException ex) {
             errors.putAll(ex.fieldErrors());
         }
@@ -264,7 +159,8 @@ public class DepositOpeningBatchService {
             seq++;
         }
         return new BatchCreateRequest(trim(value.batchNo()), trim(value.idempotencyKey()), upper(value.sourceTypeCode()),
-                trim(value.sourceReference()), List.copyOf(items));
+                trim(value.sourceReference()), upper(value.bulkOpeningBasisCode()), trim(value.legalBasisReference()),
+                trim(value.cddApprovalReference()), List.copyOf(items));
     }
 
     private static BatchProcessRequest normalize(BatchProcessRequest value) {
@@ -277,6 +173,8 @@ public class DepositOpeningBatchService {
         Map<String, String> errors = new LinkedHashMap<>();
         if (blank(request.idempotencyKey())) errors.put("DEPOSIT_OPENING_BATCH.IDEMPOTENCY_KEY", "کلید Idempotency الزامی است.");
         if (blank(request.sourceTypeCode())) errors.put("DEPOSIT_OPENING_BATCH.SOURCE_TYPE_CODE", "نوع منبع الزامی است.");
+        if (!"GOV_EMPLOYEE_SAVINGS_1376".equals(upper(request.bulkOpeningBasisCode()))) errors.put("DEPOSIT_OPENING_BATCH.BULK_OPENING_BASIS_CODE", "در Prototype v5 فقط GOV_EMPLOYEE_SAVINGS_1376 مجاز است.");
+        if (blank(request.legalBasisReference())) errors.put("DEPOSIT_OPENING_BATCH.LEGAL_BASIS_REFERENCE", "مرجع قانون/بخشنامه Batch الزامی است.");
         if (request.items() == null || request.items().isEmpty()) errors.put("DEPOSIT_OPENING_BATCH_ITEM", "حداقل یک ردیف Batch الزامی است.");
         if (request.idempotencyKey() != null && request.idempotencyKey().length() > 80) errors.put("DEPOSIT_OPENING_BATCH.IDEMPOTENCY_KEY", "حداکثر طول ۸۰ کاراکتر است.");
         if (request.items() != null) {
@@ -309,31 +207,6 @@ public class DepositOpeningBatchService {
             }
         }
         return new Counts(items.size(), valid, success, failed);
-    }
-
-    private static String requestNo(long batchId, int rowNo) {
-        return "DOP-B-" + batchId + "-" + rowNo;
-    }
-
-    private static String itemIdempotencyKey(String batchKey, String externalRowKey, int rowNo) {
-        String raw = batchKey + ":" + (blank(externalRowKey) ? "ROW-" + rowNo : externalRowKey);
-        if (raw.length() <= 80) return raw;
-        return raw.substring(0, 47) + ":" + sha256(raw).substring(0, 32);
-    }
-
-    private static String sha256(String value) {
-        try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException ex) {
-            throw new IllegalStateException("SHA-256 is not available", ex);
-        }
-    }
-
-    private static String rootMessage(Throwable value) {
-        Throwable current = value;
-        while (current.getCause() != null) current = current.getCause();
-        String message = current.getMessage();
-        return blank(message) ? current.getClass().getSimpleName() : message;
     }
 
     private static DepositOpeningValidationException validation(String message, String field, String detail) {

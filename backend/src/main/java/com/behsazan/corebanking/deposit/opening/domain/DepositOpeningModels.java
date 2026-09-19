@@ -32,7 +32,9 @@ public final class DepositOpeningModels {
             @JsonProperty("DEPOSIT_OPENING_PRICING_OVERRIDE_REQUEST") List<PricingOverrideRequest> pricingOverrideRequests,
             @JsonProperty("DEPOSIT_OPENING_TAX_STATUS") TaxStatus taxStatus,
             @JsonProperty("DEPOSIT_OPENING_REWARD_ENROLLMENT") List<RewardEnrollment> rewardEnrollments,
-            @JsonProperty("DEPOSIT_OPENING_FUNDING") Funding funding,
+            @JsonProperty("DEPOSIT_OPENING_OBLIGATION") List<OpeningObligation> obligations,
+            @JsonProperty("DEPOSIT_OPENING_FUNDING") List<Funding> fundings,
+            @JsonProperty("DEPOSIT_OPENING_FUND_ALLOC") List<FundAllocation> fundAllocations,
             @JsonProperty("DEPOSIT_OPENING_CHECK") List<OpeningCheck> checks,
             @JsonProperty("DEPOSIT_OPENING_DOCUMENT") List<OpeningDocument> documents,
             @JsonProperty("DEPOSIT_OPENING_TERMS_ACCEPTANCE") TermsAcceptance termsAcceptance,
@@ -54,8 +56,25 @@ public final class DepositOpeningModels {
             @JsonProperty("OPENING_AMOUNT") BigDecimal openingAmount,
             @JsonProperty("SOURCE_OF_FUNDS_CODE") String sourceOfFundsCode,
             @JsonProperty("PURPOSE_CODE") String purposeCode,
+            @JsonProperty("CUSTOMER_RISK_LEVEL_CODE") String customerRiskLevelCode,
+            @JsonProperty("RISK_ASSESSMENT_REFERENCE") String riskAssessmentReference,
+            @JsonProperty("EXPECTED_ACTIVITY_REFERENCE") String expectedActivityReference,
+            @JsonProperty("JOINT_ACCOUNT_BASIS_CODE") String jointAccountBasisCode,
+            @JsonProperty("JOINT_BASIS_REFERENCE") String jointBasisReference,
+            @JsonProperty("ACTIVATION_STATUS_CODE") String activationStatusCode,
+            @JsonProperty("ACTIVATION_DEADLINE_AT") OffsetDateTime activationDeadlineAt,
             @JsonProperty("REQUEST_STATUS_CODE") String requestStatusCode
     ) {
+        public OpeningRequest(
+                String requestNo, String idempotencyKey, Long productVersionId, String requestTypeCode,
+                String ownershipTypeCode, String currencyCode, String openingChannelCode, String orgUnitCode,
+                LocalDate requestedOpeningDate, BigDecimal openingAmount, String sourceOfFundsCode,
+                String purposeCode, String requestStatusCode
+        ) {
+            this(requestNo, idempotencyKey, productVersionId, requestTypeCode, ownershipTypeCode, currencyCode,
+                    openingChannelCode, orgUnitCode, requestedOpeningDate, openingAmount, sourceOfFundsCode, purposeCode,
+                    null, null, null, null, null, "NOT_CREATED", null, requestStatusCode);
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -244,13 +263,56 @@ public final class DepositOpeningModels {
     ) {
     }
 
+    /**
+     * OPENING_FUNDING_ID is a client-side correlation key on create; Oracle persistence allocates its own PK.
+     */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Funding(
+            @JsonProperty("OPENING_FUNDING_ID") Long openingFundingId,
             @JsonProperty("FUNDING_METHOD_CODE") String fundingMethodCode,
             @JsonProperty("FUNDING_AMOUNT") BigDecimal fundingAmount,
+            @JsonProperty("SOURCE_PARTY_ID") Long sourcePartyId,
+            @JsonProperty("SOURCE_ACCOUNT_ID") Long sourceAccountId,
             @JsonProperty("SOURCE_REFERENCE") String sourceReference,
+            @JsonProperty("FUNDING_PURPOSE_CODE") String fundingPurposeCode,
+            @JsonProperty("SOURCE_OWNERSHIP_VERIFIED_FLAG") Integer sourceOwnershipVerifiedFlag,
+            @JsonProperty("SOURCE_VERIFICATION_REFERENCE") String sourceVerificationReference,
+            @JsonProperty("CASH_MANAGEMENT_TXN_REF") String cashManagementTxnRef,
             @JsonProperty("FUNDING_STATUS_CODE") String fundingStatusCode,
-            @JsonProperty("TRANSACTION_REFERENCE") String transactionReference
+            @JsonProperty("TRANSACTION_REFERENCE") String transactionReference,
+            @JsonProperty("ATTEMPT_AT") OffsetDateTime attemptAt
+    ) {
+    }
+
+    /**
+     * OPENING_OBLIGATION_ID is a client-side correlation key on create; Oracle persistence allocates its own PK.
+     */
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record OpeningObligation(
+            @JsonProperty("OPENING_OBLIGATION_ID") Long openingObligationId,
+            @JsonProperty("OBLIGATION_TYPE_CODE") String obligationTypeCode,
+            @JsonProperty("SOURCE_SYSTEM_CODE") String sourceSystemCode,
+            @JsonProperty("SOURCE_REFERENCE") String sourceReference,
+            @JsonProperty("DESCRIPTION") String description,
+            @JsonProperty("GROSS_AMOUNT") BigDecimal grossAmount,
+            @JsonProperty("WAIVED_AMOUNT") BigDecimal waivedAmount,
+            @JsonProperty("FINAL_AMOUNT") BigDecimal finalAmount,
+            @JsonProperty("CURRENCY_CODE") String currencyCode,
+            @JsonProperty("MANDATORY_FOR_ACTIVATION_FLAG") Integer mandatoryForActivationFlag,
+            @JsonProperty("SETTLEMENT_STATUS_CODE") String settlementStatusCode,
+            @JsonProperty("SETTLEMENT_REFERENCE") String settlementReference,
+            @JsonProperty("WAIVER_REFERENCE") String waiverReference,
+            @JsonProperty("SETTLED_AT") OffsetDateTime settledAt
+    ) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record FundAllocation(
+            @JsonProperty("OPENING_FUNDING_ID") Long openingFundingId,
+            @JsonProperty("OPENING_OBLIGATION_ID") Long openingObligationId,
+            @JsonProperty("ALLOCATED_AMOUNT") BigDecimal allocatedAmount,
+            @JsonProperty("ALLOCATION_STATUS_CODE") String allocationStatusCode,
+            @JsonProperty("SETTLEMENT_REFERENCE") String settlementReference
     ) {
     }
 
@@ -259,8 +321,15 @@ public final class DepositOpeningModels {
             @JsonProperty("CHECK_CODE") String checkCode,
             @JsonProperty("CHECK_TYPE_CODE") String checkTypeCode,
             @JsonProperty("ATTEMPT_NO") Integer attemptNo,
+            @JsonProperty("CHECK_PHASE_CODE") String checkPhaseCode,
+            @JsonProperty("BLOCKING_SCOPE_CODE") String blockingScopeCode,
+            @JsonProperty("REQUIRED_FLAG") Integer requiredFlag,
+            @JsonProperty("RECHECK_REQUIRED_FLAG") Integer recheckRequiredFlag,
             @JsonProperty("RESULT_STATUS_CODE") String resultStatusCode,
             @JsonProperty("RESULT_REFERENCE") String resultReference,
+            @JsonProperty("CHECKED_AT") OffsetDateTime checkedAt,
+            @JsonProperty("VALID_UNTIL") OffsetDateTime validUntil,
+            @JsonProperty("SOURCE_EVALUATION_REFERENCE") String sourceEvaluationReference,
             @JsonProperty("WAIVER_REASON") String waiverReason
     ) {
     }

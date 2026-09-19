@@ -57,21 +57,41 @@ public class DepositOpeningAggregateRepository {
         return nextValue("SEQ_DEPOSIT_OPENING_SIGNATORY");
     }
 
+    public long nextFundingId() {
+        return nextValue("SEQ_DEPOSIT_OPENING_FUNDING");
+    }
+
+    public long nextObligationId() {
+        return nextValue("SEQ_DEP_OPEN_OBLIGATION");
+    }
+
+    public long nextFundAllocationId() {
+        return nextValue("SEQ_DEP_OPEN_FUND_ALLOC");
+    }
+
     public int insertRequest(long requestId, OpeningRequest value, String actor) {
         String sql = """
                 INSERT INTO %s.DEPOSIT_OPENING_REQUEST (
                     OPENING_REQUEST_ID, REQUEST_NO, IDEMPOTENCY_KEY, PRODUCT_VERSION_ID,
                     REQUEST_TYPE_CODE, OWNERSHIP_TYPE_CODE, CURRENCY_CODE, OPENING_CHANNEL_CODE,
                     ORG_UNIT_CODE, REQUESTED_OPENING_DATE, OPENING_AMOUNT, SOURCE_OF_FUNDS_CODE,
-                    PURPOSE_CODE, REQUEST_STATUS_CODE, CREATED_BY
+                    PURPOSE_CODE, CUSTOMER_RISK_LEVEL_CODE, RISK_ASSESSMENT_REFERENCE,
+                    EXPECTED_ACTIVITY_REFERENCE, JOINT_ACCOUNT_BASIS_CODE, JOINT_BASIS_REFERENCE,
+                    ACTIVATION_STATUS_CODE, ACTIVATION_DEADLINE_AT, REQUEST_STATUS_CODE, CREATED_BY
                 ) VALUES (
                     :requestId, :requestNo, :idempotencyKey, :productVersionId,
                     :requestTypeCode, :ownershipTypeCode, :currencyCode, :openingChannelCode,
                     :orgUnitCode, :requestedOpeningDate, :openingAmount, :sourceOfFundsCode,
-                    :purposeCode, :requestStatusCode, :createdBy
+                    :purposeCode, :customerRiskLevelCode, :riskAssessmentReference,
+                    :expectedActivityReference, :jointAccountBasisCode, :jointBasisReference,
+                    :activationStatusCode, :activationDeadlineAt, :requestStatusCode, :createdBy
                 )
                 """.formatted(schema);
-        return jdbc.update(sql, new MapSqlParameterSource()
+        return jdbc.update(sql, requestParams(requestId, value, actor));
+    }
+
+    private MapSqlParameterSource requestParams(long requestId, OpeningRequest value, String actor) {
+        return new MapSqlParameterSource()
                 .addValue("requestId", requestId, Types.NUMERIC)
                 .addValue("requestNo", value.requestNo(), Types.VARCHAR)
                 .addValue("idempotencyKey", value.idempotencyKey(), Types.VARCHAR)
@@ -85,8 +105,15 @@ public class DepositOpeningAggregateRepository {
                 .addValue("openingAmount", value.openingAmount(), Types.NUMERIC)
                 .addValue("sourceOfFundsCode", value.sourceOfFundsCode(), Types.VARCHAR)
                 .addValue("purposeCode", value.purposeCode(), Types.VARCHAR)
+                .addValue("customerRiskLevelCode", value.customerRiskLevelCode(), Types.VARCHAR)
+                .addValue("riskAssessmentReference", value.riskAssessmentReference(), Types.VARCHAR)
+                .addValue("expectedActivityReference", value.expectedActivityReference(), Types.VARCHAR)
+                .addValue("jointAccountBasisCode", value.jointAccountBasisCode(), Types.VARCHAR)
+                .addValue("jointBasisReference", value.jointBasisReference(), Types.VARCHAR)
+                .addValue("activationStatusCode", value.activationStatusCode() == null ? "NOT_CREATED" : value.activationStatusCode(), Types.VARCHAR)
+                .addValue("activationDeadlineAt", toTimestamp(value.activationDeadlineAt()), Types.TIMESTAMP)
                 .addValue("requestStatusCode", value.requestStatusCode(), Types.VARCHAR)
-                .addValue("createdBy", actor, Types.VARCHAR));
+                .addValue("createdBy", actor, Types.VARCHAR);
     }
 
     public int insertBatchRequest(long requestId, OpeningRequest value, long batchItemId, String actor) {
@@ -95,31 +122,22 @@ public class DepositOpeningAggregateRepository {
                     OPENING_REQUEST_ID, REQUEST_NO, IDEMPOTENCY_KEY, PRODUCT_VERSION_ID,
                     REQUEST_TYPE_CODE, OWNERSHIP_TYPE_CODE, CURRENCY_CODE, OPENING_CHANNEL_CODE,
                     ORG_UNIT_CODE, REQUESTED_OPENING_DATE, OPENING_AMOUNT, SOURCE_OF_FUNDS_CODE,
-                    PURPOSE_CODE, REQUEST_STATUS_CODE, BATCH_ITEM_ID, CREATED_BY
+                    PURPOSE_CODE, CUSTOMER_RISK_LEVEL_CODE, RISK_ASSESSMENT_REFERENCE,
+                    EXPECTED_ACTIVITY_REFERENCE, JOINT_ACCOUNT_BASIS_CODE, JOINT_BASIS_REFERENCE,
+                    ACTIVATION_STATUS_CODE, ACTIVATION_DEADLINE_AT, REQUEST_STATUS_CODE,
+                    BATCH_ITEM_ID, CREATED_BY
                 ) VALUES (
                     :requestId, :requestNo, :idempotencyKey, :productVersionId,
                     :requestTypeCode, :ownershipTypeCode, :currencyCode, :openingChannelCode,
                     :orgUnitCode, :requestedOpeningDate, :openingAmount, :sourceOfFundsCode,
-                    :purposeCode, :requestStatusCode, :batchItemId, :createdBy
+                    :purposeCode, :customerRiskLevelCode, :riskAssessmentReference,
+                    :expectedActivityReference, :jointAccountBasisCode, :jointBasisReference,
+                    :activationStatusCode, :activationDeadlineAt, :requestStatusCode,
+                    :batchItemId, :createdBy
                 )
                 """.formatted(schema);
-        return jdbc.update(sql, new MapSqlParameterSource()
-                .addValue("requestId", requestId, Types.NUMERIC)
-                .addValue("requestNo", value.requestNo(), Types.VARCHAR)
-                .addValue("idempotencyKey", value.idempotencyKey(), Types.VARCHAR)
-                .addValue("productVersionId", value.productVersionId(), Types.NUMERIC)
-                .addValue("requestTypeCode", value.requestTypeCode(), Types.VARCHAR)
-                .addValue("ownershipTypeCode", value.ownershipTypeCode(), Types.VARCHAR)
-                .addValue("currencyCode", value.currencyCode(), Types.VARCHAR)
-                .addValue("openingChannelCode", value.openingChannelCode(), Types.VARCHAR)
-                .addValue("orgUnitCode", value.orgUnitCode(), Types.VARCHAR)
-                .addValue("requestedOpeningDate", value.requestedOpeningDate(), Types.DATE)
-                .addValue("openingAmount", value.openingAmount(), Types.NUMERIC)
-                .addValue("sourceOfFundsCode", value.sourceOfFundsCode(), Types.VARCHAR)
-                .addValue("purposeCode", value.purposeCode(), Types.VARCHAR)
-                .addValue("requestStatusCode", value.requestStatusCode(), Types.VARCHAR)
-                .addValue("batchItemId", batchItemId, Types.NUMERIC)
-                .addValue("createdBy", actor, Types.VARCHAR));
+        return jdbc.update(sql, requestParams(requestId, value, actor)
+                .addValue("batchItemId", batchItemId, Types.NUMERIC));
     }
 
     public int insertParty(long requestId, OpeningParty value, int fallbackSequence, String actor) {
@@ -474,23 +492,88 @@ public class DepositOpeningAggregateRepository {
                 .addValue("createdBy", actor, Types.VARCHAR));
     }
 
-    public int insertFunding(long requestId, Funding value, String actor) {
+    public int insertFunding(long fundingId, long requestId, Funding value, String actor) {
         String sql = """
                 INSERT INTO %s.DEPOSIT_OPENING_FUNDING (
-                    OPENING_REQUEST_ID, FUNDING_METHOD_CODE, FUNDING_AMOUNT, SOURCE_REFERENCE,
-                    FUNDING_STATUS_CODE, TRANSACTION_REFERENCE, CREATED_BY
+                    OPENING_FUNDING_ID, OPENING_REQUEST_ID, FUNDING_METHOD_CODE, FUNDING_AMOUNT,
+                    SOURCE_PARTY_ID, SOURCE_ACCOUNT_ID, SOURCE_REFERENCE, FUNDING_PURPOSE_CODE,
+                    SOURCE_OWNERSHIP_VERIFIED_FLAG, SOURCE_VERIFICATION_REFERENCE,
+                    CASH_MANAGEMENT_TXN_REF, FUNDING_STATUS_CODE, TRANSACTION_REFERENCE, ATTEMPT_AT, CREATED_BY
                 ) VALUES (
-                    :requestId, :fundingMethodCode, :fundingAmount, :sourceReference,
-                    :fundingStatusCode, :transactionReference, :createdBy
+                    :fundingId, :requestId, :fundingMethodCode, :fundingAmount,
+                    :sourcePartyId, :sourceAccountId, :sourceReference, :fundingPurposeCode,
+                    :sourceOwnershipVerifiedFlag, :sourceVerificationReference,
+                    :cashManagementTxnRef, :fundingStatusCode, :transactionReference, :attemptAt, :createdBy
                 )
                 """.formatted(schema);
         return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("fundingId", fundingId, Types.NUMERIC)
                 .addValue("requestId", requestId, Types.NUMERIC)
                 .addValue("fundingMethodCode", value.fundingMethodCode(), Types.VARCHAR)
                 .addValue("fundingAmount", value.fundingAmount(), Types.NUMERIC)
+                .addValue("sourcePartyId", value.sourcePartyId(), Types.NUMERIC)
+                .addValue("sourceAccountId", value.sourceAccountId(), Types.NUMERIC)
                 .addValue("sourceReference", value.sourceReference(), Types.VARCHAR)
-                .addValue("fundingStatusCode", value.fundingStatusCode(), Types.VARCHAR)
+                .addValue("fundingPurposeCode", value.fundingPurposeCode(), Types.VARCHAR)
+                .addValue("sourceOwnershipVerifiedFlag", value.sourceOwnershipVerifiedFlag() == null ? 0 : value.sourceOwnershipVerifiedFlag(), Types.NUMERIC)
+                .addValue("sourceVerificationReference", value.sourceVerificationReference(), Types.VARCHAR)
+                .addValue("cashManagementTxnRef", value.cashManagementTxnRef(), Types.VARCHAR)
+                .addValue("fundingStatusCode", value.fundingStatusCode() == null ? "PENDING" : value.fundingStatusCode(), Types.VARCHAR)
                 .addValue("transactionReference", value.transactionReference(), Types.VARCHAR)
+                .addValue("attemptAt", toTimestamp(value.attemptAt()), Types.TIMESTAMP)
+                .addValue("createdBy", actor, Types.VARCHAR));
+    }
+
+    public int insertObligation(long obligationId, long requestId, OpeningObligation value, String actor) {
+        String sql = """
+                INSERT INTO %s.DEPOSIT_OPENING_OBLIGATION (
+                    OPENING_OBLIGATION_ID, OPENING_REQUEST_ID, OBLIGATION_TYPE_CODE, SOURCE_SYSTEM_CODE,
+                    SOURCE_REFERENCE, DESCRIPTION, GROSS_AMOUNT, WAIVED_AMOUNT, FINAL_AMOUNT, CURRENCY_CODE,
+                    MANDATORY_FOR_ACTIVATION_FLAG, SETTLEMENT_STATUS_CODE, SETTLEMENT_REFERENCE,
+                    WAIVER_REFERENCE, SETTLED_AT, CREATED_BY
+                ) VALUES (
+                    :obligationId, :requestId, :obligationTypeCode, :sourceSystemCode,
+                    :sourceReference, :description, :grossAmount, :waivedAmount, :finalAmount, :currencyCode,
+                    :mandatoryForActivationFlag, :settlementStatusCode, :settlementReference,
+                    :waiverReference, :settledAt, :createdBy
+                )
+                """.formatted(schema);
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("obligationId", obligationId, Types.NUMERIC)
+                .addValue("requestId", requestId, Types.NUMERIC)
+                .addValue("obligationTypeCode", value.obligationTypeCode(), Types.VARCHAR)
+                .addValue("sourceSystemCode", value.sourceSystemCode(), Types.VARCHAR)
+                .addValue("sourceReference", value.sourceReference(), Types.VARCHAR)
+                .addValue("description", value.description(), Types.VARCHAR)
+                .addValue("grossAmount", value.grossAmount(), Types.NUMERIC)
+                .addValue("waivedAmount", value.waivedAmount() == null ? java.math.BigDecimal.ZERO : value.waivedAmount(), Types.NUMERIC)
+                .addValue("finalAmount", value.finalAmount(), Types.NUMERIC)
+                .addValue("currencyCode", value.currencyCode(), Types.VARCHAR)
+                .addValue("mandatoryForActivationFlag", value.mandatoryForActivationFlag() == null ? 1 : value.mandatoryForActivationFlag(), Types.NUMERIC)
+                .addValue("settlementStatusCode", value.settlementStatusCode() == null ? "PENDING" : value.settlementStatusCode(), Types.VARCHAR)
+                .addValue("settlementReference", value.settlementReference(), Types.VARCHAR)
+                .addValue("waiverReference", value.waiverReference(), Types.VARCHAR)
+                .addValue("settledAt", toTimestamp(value.settledAt()), Types.TIMESTAMP)
+                .addValue("createdBy", actor, Types.VARCHAR));
+    }
+
+    public int insertFundAllocation(long allocationId, long fundingId, long obligationId, FundAllocation value, String actor) {
+        String sql = """
+                INSERT INTO %s.DEPOSIT_OPENING_FUND_ALLOC (
+                    OPENING_FUND_ALLOC_ID, OPENING_FUNDING_ID, OPENING_OBLIGATION_ID,
+                    ALLOCATED_AMOUNT, ALLOCATION_STATUS_CODE, SETTLEMENT_REFERENCE, CREATED_BY
+                ) VALUES (
+                    :allocationId, :fundingId, :obligationId,
+                    :allocatedAmount, :allocationStatusCode, :settlementReference, :createdBy
+                )
+                """.formatted(schema);
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("allocationId", allocationId, Types.NUMERIC)
+                .addValue("fundingId", fundingId, Types.NUMERIC)
+                .addValue("obligationId", obligationId, Types.NUMERIC)
+                .addValue("allocatedAmount", value.allocatedAmount(), Types.NUMERIC)
+                .addValue("allocationStatusCode", value.allocationStatusCode(), Types.VARCHAR)
+                .addValue("settlementReference", value.settlementReference(), Types.VARCHAR)
                 .addValue("createdBy", actor, Types.VARCHAR));
     }
 
@@ -498,12 +581,15 @@ public class DepositOpeningAggregateRepository {
         String sql = """
                 INSERT INTO %s.DEPOSIT_OPENING_CHECK (
                     OPENING_REQUEST_ID, CHECK_CODE, CHECK_TYPE_CODE, ATTEMPT_NO,
-                    RESULT_STATUS_CODE, RESULT_REFERENCE, CHECKED_AT, WAIVER_REASON, CREATED_BY
+                    CHECK_PHASE_CODE, BLOCKING_SCOPE_CODE, REQUIRED_FLAG, RECHECK_REQUIRED_FLAG,
+                    RESULT_STATUS_CODE, RESULT_REFERENCE, CHECKED_AT, VALID_UNTIL,
+                    SOURCE_EVALUATION_REFERENCE, WAIVER_REASON, CREATED_BY
                 ) VALUES (
                     :requestId, :checkCode, :checkTypeCode, :attemptNo,
+                    :checkPhaseCode, :blockingScopeCode, :requiredFlag, :recheckRequiredFlag,
                     :resultStatusCode, :resultReference,
-                    CASE WHEN :resultStatusCode = 'PENDING' THEN NULL ELSE SYSTIMESTAMP END,
-                    :waiverReason, :createdBy
+                    COALESCE(:checkedAt, CASE WHEN :resultStatusCode = 'PENDING' THEN NULL ELSE SYSTIMESTAMP END),
+                    :validUntil, :sourceEvaluationReference, :waiverReason, :createdBy
                 )
                 """.formatted(schema);
         return jdbc.update(sql, new MapSqlParameterSource()
@@ -511,8 +597,15 @@ public class DepositOpeningAggregateRepository {
                 .addValue("checkCode", value.checkCode(), Types.VARCHAR)
                 .addValue("checkTypeCode", value.checkTypeCode(), Types.VARCHAR)
                 .addValue("attemptNo", value.attemptNo() == null ? 1 : value.attemptNo(), Types.NUMERIC)
+                .addValue("checkPhaseCode", value.checkPhaseCode(), Types.VARCHAR)
+                .addValue("blockingScopeCode", value.blockingScopeCode(), Types.VARCHAR)
+                .addValue("requiredFlag", value.requiredFlag() == null ? 1 : value.requiredFlag(), Types.NUMERIC)
+                .addValue("recheckRequiredFlag", value.recheckRequiredFlag() == null ? 0 : value.recheckRequiredFlag(), Types.NUMERIC)
                 .addValue("resultStatusCode", value.resultStatusCode(), Types.VARCHAR)
                 .addValue("resultReference", value.resultReference(), Types.VARCHAR)
+                .addValue("checkedAt", toTimestamp(value.checkedAt()), Types.TIMESTAMP)
+                .addValue("validUntil", toTimestamp(value.validUntil()), Types.TIMESTAMP)
+                .addValue("sourceEvaluationReference", value.sourceEvaluationReference(), Types.VARCHAR)
                 .addValue("waiverReason", value.waiverReason(), Types.VARCHAR)
                 .addValue("createdBy", actor, Types.VARCHAR));
     }

@@ -167,8 +167,30 @@ public class DepositOpeningAggregateService {
             put(rows, "DEPOSIT_OPENING_REWARD_ENROLLMENT", repository.insertRewardEnrollment(requestId, value, actor));
         }
 
-        if (request.funding() != null) {
-            put(rows, "DEPOSIT_OPENING_FUNDING", repository.insertFunding(requestId, request.funding(), actor));
+        Map<Long, Long> persistedFundingIds = new HashMap<>();
+        for (Funding value : safe(request.fundings())) {
+            long persistedId = repository.nextFundingId();
+            put(rows, "DEPOSIT_OPENING_FUNDING", repository.insertFunding(persistedId, requestId, value, actor));
+            if (value.openingFundingId() != null) persistedFundingIds.put(value.openingFundingId(), persistedId);
+        }
+
+        Map<Long, Long> persistedObligationIds = new HashMap<>();
+        for (OpeningObligation value : safe(request.obligations())) {
+            long persistedId = repository.nextObligationId();
+            put(rows, "DEPOSIT_OPENING_OBLIGATION", repository.insertObligation(persistedId, requestId, value, actor));
+            if (value.openingObligationId() != null) persistedObligationIds.put(value.openingObligationId(), persistedId);
+        }
+        for (FundAllocation value : safe(request.fundAllocations())) {
+            Long fundingId = persistedFundingIds.get(value.openingFundingId());
+            Long obligationId = persistedObligationIds.get(value.openingObligationId());
+            if (fundingId == null || obligationId == null) {
+                throw new DepositOpeningValidationException(
+                        "Allocation تأمین وجه به شناسه‌های معتبر همین Payload متصل نیست.",
+                        Map.of("DEPOSIT_OPENING_FUND_ALLOC", "OPENING_FUNDING_ID و OPENING_OBLIGATION_ID باید correlation key معتبر همین Payload باشند.")
+                );
+            }
+            put(rows, "DEPOSIT_OPENING_FUND_ALLOC",
+                    repository.insertFundAllocation(repository.nextFundAllocationId(), fundingId, obligationId, value, actor));
         }
         for (OpeningCheck value : safe(request.checks())) {
             put(rows, "DEPOSIT_OPENING_CHECK", repository.insertCheck(requestId, value, actor));
@@ -222,6 +244,9 @@ public class DepositOpeningAggregateService {
                 upper(root.requestTypeCode()), upper(root.ownershipTypeCode()), upper(root.currencyCode()),
                 upper(root.openingChannelCode()), trim(root.orgUnitCode()), root.requestedOpeningDate(),
                 root.openingAmount(), upper(root.sourceOfFundsCode()), upper(root.purposeCode()),
+                upper(root.customerRiskLevelCode()), trim(root.riskAssessmentReference()), trim(root.expectedActivityReference()),
+                upper(root.jointAccountBasisCode()), trim(root.jointBasisReference()),
+                upper(root.activationStatusCode() == null ? "NOT_CREATED" : root.activationStatusCode()), root.activationDeadlineAt(),
                 upper(root.requestStatusCode())
         );
         return new AggregateRequest(
@@ -231,7 +256,8 @@ public class DepositOpeningAggregateService {
                 value.term(), value.maturityInstruction(), value.profitInstruction(),
                 value.withdrawalMedia(), value.serviceSelections(), value.paymentInstruments(),
                 value.pricingOverrideRequests(), value.taxStatus(), value.rewardEnrollments(),
-                value.funding(), value.checks(), value.documents(), value.termsAcceptance(), value.decision()
+                value.obligations(), value.fundings(), value.fundAllocations(),
+                value.checks(), value.documents(), value.termsAcceptance(), value.decision()
         );
     }
 
@@ -252,7 +278,15 @@ public class DepositOpeningAggregateService {
         required(errors, "DEPOSIT_OPENING_REQUEST.CURRENCY_CODE", root.currencyCode(), "ارز الزامی است.");
         required(errors, "DEPOSIT_OPENING_REQUEST.OPENING_CHANNEL_CODE", root.openingChannelCode(), "کانال افتتاح الزامی است.");
         required(errors, "DEPOSIT_OPENING_REQUEST.ORG_UNIT_CODE", root.orgUnitCode(), "واحد سازمانی الزامی است.");
+        required(errors, "DEPOSIT_OPENING_REQUEST.CUSTOMER_RISK_LEVEL_CODE", root.customerRiskLevelCode(), "سطح ریسک مشتری الزامی است.");
+        required(errors, "DEPOSIT_OPENING_REQUEST.RISK_ASSESSMENT_REFERENCE", root.riskAssessmentReference(), "مرجع ارزیابی ریسک الزامی است.");
+        required(errors, "DEPOSIT_OPENING_REQUEST.EXPECTED_ACTIVITY_REFERENCE", root.expectedActivityReference(), "مرجع فعالیت مورد انتظار الزامی است.");
+        required(errors, "DEPOSIT_OPENING_REQUEST.ACTIVATION_STATUS_CODE", root.activationStatusCode(), "وضعیت Activation الزامی است.");
         required(errors, "DEPOSIT_OPENING_REQUEST.REQUEST_STATUS_CODE", root.requestStatusCode(), "وضعیت درخواست الزامی است.");
+        if ("JOINT".equals(root.ownershipTypeCode())) {
+            required(errors, "DEPOSIT_OPENING_REQUEST.JOINT_ACCOUNT_BASIS_CODE", root.jointAccountBasisCode(), "مبنای حساب مشترک الزامی است.");
+            required(errors, "DEPOSIT_OPENING_REQUEST.JOINT_BASIS_REFERENCE", root.jointBasisReference(), "مرجع احراز مبنای حساب مشترک الزامی است.");
+        }
         if (root.productVersionId() == null || root.productVersionId() <= 0) {
             errors.put("DEPOSIT_OPENING_REQUEST.PRODUCT_VERSION_ID", "نسخه محصول معتبر نیست.");
         }
@@ -398,6 +432,59 @@ public class DepositOpeningAggregateService {
             required(errors, "DEPOSIT_OPENING_REWARD_ENROLLMENT.CONSENT_REFERENCE", value.consentReference(), "مرجع رضایت برای عضویت برنامه جایزه الزامی است.");
         }
 
+        BigDecimal obligationTotal = BigDecimal.ZERO;
+        Set<Long> obligationKeys = new HashSet<>();
+        for (OpeningObligation value : safe(aggregate.obligations())) {
+            required(errors, "DEPOSIT_OPENING_OBLIGATION.OBLIGATION_TYPE_CODE", value.obligationTypeCode(), "نوع تعهد الزامی است.");
+            required(errors, "DEPOSIT_OPENING_OBLIGATION.SOURCE_SYSTEM_CODE", value.sourceSystemCode(), "سامانه منبع تعهد الزامی است.");
+            required(errors, "DEPOSIT_OPENING_OBLIGATION.CURRENCY_CODE", value.currencyCode(), "ارز تعهد الزامی است.");
+            required(errors, "DEPOSIT_OPENING_OBLIGATION.SETTLEMENT_STATUS_CODE", value.settlementStatusCode(), "وضعیت تسویه تعهد الزامی است.");
+            if (value.openingObligationId() != null && !obligationKeys.add(value.openingObligationId())) {
+                errors.put("DEPOSIT_OPENING_OBLIGATION.OPENING_OBLIGATION_ID", "correlation key تعهد باید در Payload یکتا باشد.");
+            }
+            if (value.grossAmount() == null || value.grossAmount().signum() < 0) errors.put("DEPOSIT_OPENING_OBLIGATION.GROSS_AMOUNT", "مبلغ ناخالص تعهد نامعتبر است.");
+            if (value.finalAmount() == null || value.finalAmount().signum() < 0) errors.put("DEPOSIT_OPENING_OBLIGATION.FINAL_AMOUNT", "مبلغ نهایی تعهد نامعتبر است.");
+            flag(errors, "DEPOSIT_OPENING_OBLIGATION.MANDATORY_FOR_ACTIVATION_FLAG", value.mandatoryForActivationFlag());
+            if (value.finalAmount() != null) obligationTotal = obligationTotal.add(value.finalAmount());
+        }
+
+        BigDecimal fundingTotal = BigDecimal.ZERO;
+        Set<Long> fundingKeys = new HashSet<>();
+        for (Funding value : safe(aggregate.fundings())) {
+            required(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_METHOD_CODE", value.fundingMethodCode(), "روش تأمین وجه الزامی است.");
+            required(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_PURPOSE_CODE", value.fundingPurposeCode(), "هدف تأمین وجه الزامی است.");
+            required(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_STATUS_CODE", value.fundingStatusCode(), "وضعیت برنامه تأمین وجه الزامی است.");
+            if (value.openingFundingId() != null && !fundingKeys.add(value.openingFundingId())) {
+                errors.put("DEPOSIT_OPENING_FUNDING.OPENING_FUNDING_ID", "correlation key تأمین وجه باید در Payload یکتا باشد.");
+            }
+            if (value.fundingAmount() == null || value.fundingAmount().signum() <= 0) errors.put("DEPOSIT_OPENING_FUNDING.FUNDING_AMOUNT", "مبلغ تأمین وجه باید بزرگ‌تر از صفر باشد.");
+            flag(errors, "DEPOSIT_OPENING_FUNDING.SOURCE_OWNERSHIP_VERIFIED_FLAG", value.sourceOwnershipVerifiedFlag());
+            if (value.sourceAccountId() != null && !Integer.valueOf(1).equals(value.sourceOwnershipVerifiedFlag())) {
+                errors.put("DEPOSIT_OPENING_FUNDING.SOURCE_OWNERSHIP_VERIFIED_FLAG", "برای منبع حسابی، مالکیت منبع باید احراز شود.");
+            }
+            if (value.fundingAmount() != null) fundingTotal = fundingTotal.add(value.fundingAmount());
+        }
+        if (!safe(aggregate.obligations()).isEmpty() && fundingTotal.compareTo(obligationTotal) < 0) {
+            errors.put("DEPOSIT_OPENING_FUNDING.FUNDING_AMOUNT", "جمع منابع برنامه‌ریزی‌شده از کل تعهدات افتتاح کمتر است.");
+        }
+
+        for (FundAllocation value : safe(aggregate.fundAllocations())) {
+            if (value.openingFundingId() == null || !fundingKeys.contains(value.openingFundingId())) errors.put("DEPOSIT_OPENING_FUND_ALLOC.OPENING_FUNDING_ID", "Funding correlation key معتبر نیست.");
+            if (value.openingObligationId() == null || !obligationKeys.contains(value.openingObligationId())) errors.put("DEPOSIT_OPENING_FUND_ALLOC.OPENING_OBLIGATION_ID", "Obligation correlation key معتبر نیست.");
+            if (value.allocatedAmount() == null || value.allocatedAmount().signum() <= 0) errors.put("DEPOSIT_OPENING_FUND_ALLOC.ALLOCATED_AMOUNT", "مبلغ تخصیص باید بزرگ‌تر از صفر باشد.");
+            required(errors, "DEPOSIT_OPENING_FUND_ALLOC.ALLOCATION_STATUS_CODE", value.allocationStatusCode(), "وضعیت تخصیص الزامی است.");
+        }
+
+        for (OpeningCheck value : safe(aggregate.checks())) {
+            required(errors, "DEPOSIT_OPENING_CHECK.CHECK_CODE", value.checkCode(), "کد کنترل الزامی است.");
+            required(errors, "DEPOSIT_OPENING_CHECK.CHECK_TYPE_CODE", value.checkTypeCode(), "نوع کنترل الزامی است.");
+            required(errors, "DEPOSIT_OPENING_CHECK.CHECK_PHASE_CODE", value.checkPhaseCode(), "فاز کنترل الزامی است.");
+            required(errors, "DEPOSIT_OPENING_CHECK.BLOCKING_SCOPE_CODE", value.blockingScopeCode(), "دامنه Blocking الزامی است.");
+            required(errors, "DEPOSIT_OPENING_CHECK.RESULT_STATUS_CODE", value.resultStatusCode(), "نتیجه کنترل الزامی است.");
+            flag(errors, "DEPOSIT_OPENING_CHECK.REQUIRED_FLAG", value.requiredFlag());
+            flag(errors, "DEPOSIT_OPENING_CHECK.RECHECK_REQUIRED_FLAG", value.recheckRequiredFlag());
+        }
+
         for (OpeningDocument value : safe(aggregate.documents())) {
             required(errors, "DEPOSIT_OPENING_DOCUMENT.DOCUMENT_TYPE_CODE", value.documentTypeCode(), "نوع مدرک الزامی است.");
             required(errors, "DEPOSIT_OPENING_DOCUMENT.DOCUMENT_STATUS_CODE", value.documentStatusCode(), "وضعیت مدرک الزامی است.");
@@ -410,11 +497,19 @@ public class DepositOpeningAggregateService {
             if (root.requestedOpeningDate() == null) {
                 errors.put("DEPOSIT_OPENING_REQUEST.REQUESTED_OPENING_DATE", "تاریخ افتتاح برای درخواست تأییدشده الزامی است.");
             }
-            if (aggregate.funding() == null || !"SUCCESS".equals(upper(aggregate.funding().fundingStatusCode()))) {
-                errors.put("DEPOSIT_OPENING_FUNDING.FUNDING_STATUS_CODE", "برای درخواست تأییدشده، تأمین وجه باید SUCCESS باشد.");
+            if (safe(aggregate.obligations()).isEmpty()) {
+                errors.put("DEPOSIT_OPENING_OBLIGATION", "برای درخواست تأییدشده تعهدات مالی افتتاح باید ثبت شوند.");
+            } else if (safe(aggregate.obligations()).stream().noneMatch(o -> "INITIAL_BALANCE".equals(upper(o.obligationTypeCode())))) {
+                errors.put("DEPOSIT_OPENING_OBLIGATION.OBLIGATION_TYPE_CODE", "تعهد INITIAL_BALANCE برای Opening تأییدشده الزامی است.");
             }
-            if (safe(aggregate.checks()).isEmpty() || safe(aggregate.checks()).stream().anyMatch(c -> !"PASS".equals(upper(c.resultStatusCode())))) {
-                errors.put("DEPOSIT_OPENING_CHECK.RESULT_STATUS_CODE", "برای درخواست تأییدشده، همه کنترل‌ها باید PASS باشند.");
+            if (safe(aggregate.fundings()).isEmpty()) {
+                errors.put("DEPOSIT_OPENING_FUNDING", "برای درخواست تأییدشده حداقل یک منبع تأمین وجه باید برنامه‌ریزی شود.");
+            }
+            if (safe(aggregate.checks()).isEmpty() || safe(aggregate.checks()).stream().anyMatch(c ->
+                    Integer.valueOf(1).equals(c.requiredFlag())
+                            && "ACCOUNT_CREATION".equals(upper(c.blockingScopeCode()))
+                            && !("PASS".equals(upper(c.resultStatusCode())) || "WAIVED".equals(upper(c.resultStatusCode())) || "NOT_APPLICABLE".equals(upper(c.resultStatusCode()))))) {
+                errors.put("DEPOSIT_OPENING_CHECK.RESULT_STATUS_CODE", "برای درخواست تأییدشده، همه کنترل‌های الزامی Account Creation باید PASS/WAIVED/NOT_APPLICABLE باشند.");
             }
             if (safe(aggregate.documents()).stream().anyMatch(d -> "MISSING".equals(upper(d.documentStatusCode())) || "REJECTED".equals(upper(d.documentStatusCode())))) {
                 errors.put("DEPOSIT_OPENING_DOCUMENT.DOCUMENT_STATUS_CODE", "در درخواست تأییدشده مدرک MISSING/REJECTED مجاز نیست.");

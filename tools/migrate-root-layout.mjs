@@ -35,6 +35,30 @@ if (fs.existsSync(legacyRootReadme)) {
   }
 }
 
+for (const name of fs.readdirSync(root)) {
+  if (!/^PATCH-LAYOUT-MIGRATION-.*\.txt$/i.test(name)) continue;
+  const source = path.join(root, name);
+  const target = path.join(patchDir, name);
+  if (fs.existsSync(target)) {
+    const sourceBytes = fs.readFileSync(source);
+    const targetBytes = fs.readFileSync(target);
+    if (sourceBytes.equals(targetBytes)) {
+      fs.unlinkSync(source);
+      removed += 1;
+      console.log(`Root layout migration: removed duplicate ${name} from root.`);
+    } else {
+      fs.mkdirSync(backupRoot, {recursive: true});
+      fs.renameSync(source, path.join(backupRoot, name));
+      archived += 1;
+      console.log(`Root layout migration: archived conflicting ${name}.`);
+    }
+  } else {
+    fs.renameSync(source, target);
+    moved += 1;
+    console.log(`Root layout migration: moved ${name} to docs/patches.`);
+  }
+}
+
 for (const rel of ['config/application.yml_', 'backend/src/main/resources/application.yml_']) {
   const source = path.join(root, rel);
   if (!fs.existsSync(source)) continue;

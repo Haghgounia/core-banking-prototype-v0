@@ -1,0 +1,17 @@
+Patch 0.9.3 — DPS2 Reference Data + FK Reconciliation
+
+Baseline: 0.9.2
+
+تغییر اصلی:
+- Seed مرجع DPS2 کاملاً Schema-qualified
+- بازیابی کدهای Phase 5 Audit/Snapshot
+- حفظ/تطبیق کدهای Batch Error فاز 6
+- افزودن 6 FK معنایی صحیح
+- عدم Seed جدول REF_DEP_OPEN_CHANNEL_ORG_MAP تا زمان تعیین کد واحد سازمانی واقعی بانک
+- Root source hygiene تکمیل شده است
+
+Migration:
+  database/oracle/dps2/migrations/0.9.3-reference-data-fk-reconciliation.sql
+
+Master Seed:
+  database/oracle/dps2/reference-data/Deposit_Account_Opening_Reference_Data_Seed_2026-09-19.sql

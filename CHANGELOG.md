@@ -1,3 +1,18 @@
+## 0.10.0 — Deposit Opening Operational v5
+- Phase 10A schema foundation and semantic FK repair.
+- Phase 10B/10C Funding Plan, Obligation/Allocation persistence, Settlement, Activation Readiness and guarded Activation.
+- Operational v5 Batch restrictions and v5 Angular contract alignment.
+
+# 0.9.3 — DPS2 Reference Data & FK Reconciliation
+
+- Added a schema-qualified Deposit Opening reference-data seed for `DPS2`.
+- Restored source-defined Phase 5 Audit Actor/Event and Snapshot catalogs plus the explicit `OTHER` Change Reason contract.
+- Reconciled the three Phase 6 provisional Batch Error codes.
+- Added six correct semantic FKs for Request Type/Status, Decision/Reason and Terms Acceptance Source/Status, with orphan guards.
+- Detects and removes only the three specifically-known wrong XMI FK mappings when present.
+- Keeps `REF_DEP_OPEN_CHANNEL_ORG_MAP` environment-governed and intentionally unseeded.
+- Added 0.9.3 verifier to production build and packaging gates; moved stale patch-layout notes out of source root.
+
 # 0.9.2 — DPS2 Account Schema Reconciliation & Source Layout Cleanup
 
 - Added the successful idempotent DPS2 reconciliation migration `database/oracle/dps2/migrations/0.9.2-phase4-phase9-account-schema-reconciliation.sql`.
@@ -1417,3 +1432,11 @@
 - Added ACTIVE -> CLOSED account transition with row lock and optimistic Record Version.
 - Added CLOSE lifecycle event and append-only lifecycle trigger.
 - Added Account Operations closure action and model-gap guard for unsupported states.
+
+## 0.10.0 — Phase 10D Operational Wizard/UI v5
+- CIF Party search added to Deposit Opening.
+- Account-based Funding now lists ACTIVE deposit accounts and verifies Party ownership through Account Operations.
+- Withdrawal Media is Product-driven and separated from Payment Instrument issuance; cheque quantity added.
+- Opening Obligation/Funding coverage summary added without fabricating Fee/Tax obligations.
+- Required external Create-Gate controls now require explicit evidence references instead of UI auto-PASS.
+- Final Compliance readiness evidence supports validity timestamp; Account Opened SMS evidence is forwarded when supplied.
