@@ -63,7 +63,8 @@ public final class DepositOpeningModels {
             @JsonProperty("JOINT_BASIS_REFERENCE") String jointBasisReference,
             @JsonProperty("ACTIVATION_STATUS_CODE") String activationStatusCode,
             @JsonProperty("ACTIVATION_DEADLINE_AT") OffsetDateTime activationDeadlineAt,
-            @JsonProperty("REQUEST_STATUS_CODE") String requestStatusCode
+            @JsonProperty("REQUEST_STATUS_CODE") String requestStatusCode,
+            @JsonProperty("BATCH_ITEM_ID") Long batchItemId
     ) {
         public OpeningRequest(
                 String requestNo, String idempotencyKey, Long productVersionId, String requestTypeCode,
@@ -73,7 +74,7 @@ public final class DepositOpeningModels {
         ) {
             this(requestNo, idempotencyKey, productVersionId, requestTypeCode, ownershipTypeCode, currencyCode,
                     openingChannelCode, orgUnitCode, requestedOpeningDate, openingAmount, sourceOfFundsCode, purposeCode,
-                    null, null, null, null, null, "NOT_CREATED", null, requestStatusCode);
+                    null, null, null, null, null, "NOT_CREATED", null, requestStatusCode, null);
         }
     }
 

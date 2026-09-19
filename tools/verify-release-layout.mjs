@@ -16,6 +16,14 @@ const cmdMigration = buildCmd.indexOf('migrate-release-layout.mjs');
 const cmdVerify = buildCmd.indexOf('verify-release-layout.mjs');
 const shMigration = buildSh.indexOf('migrate-release-layout.mjs');
 const shVerify = buildSh.indexOf('verify-release-layout.mjs');
+const allowedRootFiles = new Set([
+  '.gitignore','CHANGELOG.md','README-FA.md','VERSION',
+  'build-production.cmd','build-production.sh','package-release.cmd'
+]);
+const unexpectedRootFiles = fs.readdirSync(root).filter(name => {
+  const candidate = path.join(root, name);
+  return fs.statSync(candidate).isFile() && !allowedRootFiles.has(name);
+});
 
 const checks = [
   [/^\d+\.\d+\.\d+$/.test(version), `VERSION must be semantic only (x.y.z), got ${version}`],
@@ -24,6 +32,7 @@ const checks = [
   [pom.includes(`<version>${version}-SNAPSHOT</version>`), `backend pom must contain ${version}-SNAPSHOT`],
   [generated.includes(version), 'generated system version must match VERSION'],
   [rootInstall.length === 0, `INSTALL files must not remain in root: ${rootInstall.join(', ')}`],
+  [unexpectedRootFiles.length === 0, `unexpected files must not remain in project root: ${unexpectedRootFiles.join(', ')}`],
   [fs.existsSync(docsInstall), 'docs/install directory is missing'],
   [fs.existsSync(path.join(docsInstall, `INSTALL-${version}-FA.txt`)), `current install guide docs/install/INSTALL-${version}-FA.txt is missing`],
   [fs.existsSync(migrationScript), 'tools/migrate-release-layout.mjs is missing'],

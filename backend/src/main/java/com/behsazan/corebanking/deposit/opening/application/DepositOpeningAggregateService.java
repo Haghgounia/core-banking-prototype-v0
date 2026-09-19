@@ -79,6 +79,16 @@ public class DepositOpeningAggregateService {
             );
         }
 
+        if (root.batchItemId() != null) {
+            int linked = repository.linkBatchItemOpening(root.batchItemId(), requestId, root.productVersionId(), actor);
+            if (linked != 1) {
+                throw new DepositOpeningValidationException(
+                        "Batch Item برای ایجاد Opening مستقل معتبر یا قابل اتصال نیست.",
+                        Map.of("DEPOSIT_OPENING_REQUEST.BATCH_ITEM_ID", "ردیف Batch باید VALID، متعلق به همان Product Version و هنوز بدون Opening باشد.")
+                );
+            }
+        }
+
         int partySequence = 1;
         for (OpeningParty party : safe(request.parties())) {
             put(rows, "DEPOSIT_OPENING_PARTY", repository.insertParty(requestId, party, partySequence++, actor));
@@ -247,7 +257,7 @@ public class DepositOpeningAggregateService {
                 upper(root.customerRiskLevelCode()), trim(root.riskAssessmentReference()), trim(root.expectedActivityReference()),
                 upper(root.jointAccountBasisCode()), trim(root.jointBasisReference()),
                 upper(root.activationStatusCode() == null ? "NOT_CREATED" : root.activationStatusCode()), root.activationDeadlineAt(),
-                upper(root.requestStatusCode())
+                upper(root.requestStatusCode()), root.batchItemId()
         );
         return new AggregateRequest(
                 normalizedRoot,
@@ -298,6 +308,10 @@ public class DepositOpeningAggregateService {
         }
         if (root.idempotencyKey() != null && root.idempotencyKey().length() > 80) {
             errors.put("DEPOSIT_OPENING_REQUEST.IDEMPOTENCY_KEY", "کلید Idempotency حداکثر ۸۰ کاراکتر است.");
+        }
+        if (root.batchItemId() != null) {
+            if (root.batchItemId() <= 0) errors.put("DEPOSIT_OPENING_REQUEST.BATCH_ITEM_ID", "شناسه Batch Item باید مثبت باشد.");
+            if (!"BULK".equals(upper(root.requestTypeCode()))) errors.put("DEPOSIT_OPENING_REQUEST.REQUEST_TYPE_CODE", "درخواست متصل به Batch باید REQUEST_TYPE_CODE=BULK داشته باشد.");
         }
 
         List<OpeningParty> parties = safe(aggregate.parties());

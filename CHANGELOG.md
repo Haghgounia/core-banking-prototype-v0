@@ -1,7 +1,11 @@
 ## 0.10.0 — Deposit Opening Operational v5
 - Phase 10A schema foundation and semantic FK repair.
 - Phase 10B/10C Funding Plan, Obligation/Allocation persistence, Settlement, Activation Readiness and guarded Activation.
-- Operational v5 Batch restrictions and v5 Angular contract alignment.
+- Phase 10D Angular Operational v5 alignment: CIF Party search, Product-driven Withdrawal Media, Funding ownership verification and explicit Create-Gate evidence.
+- Phase 10E hardens legal Bulk Opening as intake/orchestration only; every Batch Item hands off to an independent Opening and direct group processing/activation remains blocked.
+- Phase 10F adds a four-family Oracle runtime/E2E qualification harness with no fabricated external evidence.
+- Reconciled legacy Phase 6/10D static guards with the Operational v5 Batch contract so the production build verifies the current workflow instead of obsolete direct-Batch actions.
+- Hardened release-root hygiene and added Phase 10E/10F to the clean-package gate.
 
 # 0.9.3 — DPS2 Reference Data & FK Reconciliation
 
@@ -1440,3 +1444,9 @@
 - Opening Obligation/Funding coverage summary added without fabricating Fee/Tax obligations.
 - Required external Create-Gate controls now require explicit evidence references instead of UI auto-PASS.
 - Final Compliance readiness evidence supports validity timestamp; Account Opened SMS evidence is forwarded when supplied.
+
+
+### 0.10.0 Phase 10E/10F
+- Hardened Batch Opening handoff and progress reconciliation.
+- Added `BATCH_ITEM_ID` persistence in the normal Opening aggregate path.
+- Added Phase 10F four-family runtime E2E harness.

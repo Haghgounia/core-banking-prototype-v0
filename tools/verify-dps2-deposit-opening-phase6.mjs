@@ -52,7 +52,19 @@ const checks=[
   [migration.includes("'ROW_INVALID'")&&migration.includes('Prototype provisional'),'HTML-aligned provisional ROW_INVALID governance note is missing'],
   [migration.includes("'PROCESSING_FAILED'")&&migration.includes("'ACTIVATION_FAILED'")&&migration.includes('Data-Governance'),'technical provisional error codes are not explicitly governed'],
   [frontendService.includes('createBatch(')&&frontendService.includes('validateBatch(')&&frontendService.includes('processBatch(')&&frontendService.includes('activateBatch('),'Angular Batch API service is incomplete'],
-  [uiHtml.includes('افتتاح گروهی حساب سپرده')&&uiHtml.includes('اعتبارسنجی Batch')&&(uiHtml.includes('پردازش و ایجاد حساب')||uiHtml.includes('پردازش پس از CDD فردی'))&&(uiHtml.includes('فعال‌سازی حساب‌های موفق')||uiHtml.includes('فعال‌سازی فقط فردی')),'supplied HTML / Operational v5 Bulk actions are not represented'],
+  [semverAtLeast(version,'0.10.0')
+    ? (uiHtml.includes('افتتاح گروهی حساب سپرده')
+      &&uiHtml.includes('اعتبارسنجی Batch')
+      &&uiHtml.includes('به‌روزرسانی وضعیت ردیف‌ها')
+      &&uiHtml.includes('تکمیل Opening فردی')
+      &&uiHtml.includes('پردازش و فعال‌سازی مستقیم گروهی در Backend فعلاً مسدود است')
+      &&!uiHtml.includes('پردازش و ایجاد حساب')
+      &&!uiHtml.includes('فعال‌سازی حساب‌های موفق'))
+    : (uiHtml.includes('افتتاح گروهی حساب سپرده')
+      &&uiHtml.includes('اعتبارسنجی Batch')
+      &&(uiHtml.includes('پردازش و ایجاد حساب')||uiHtml.includes('پردازش پس از CDD فردی'))
+      &&(uiHtml.includes('فعال‌سازی حساب‌های موفق')||uiHtml.includes('فعال‌سازی فقط فردی'))),
+    'supplied HTML / Operational v5 Batch actions are not represented'],
   [uiHtml.includes('Party ID')&&uiHtml.includes('Product Version')&&uiHtml.includes('Request No')&&uiHtml.includes('Account No'),'supplied HTML Bulk grid columns are incomplete'],
   [uiTs.includes('QARD_SAVINGS')&&uiTs.includes('CURRENT_ACCOUNT')&&uiTs.includes('SHORT_TERM_DEPOSIT')&&uiTs.includes('LONG_TERM_DEPOSIT'),'four deposit families are incomplete in Batch UI'],
   [routes.includes("path: 'four-deposits/batch-opening'")&&home.includes('/four-deposits/batch-opening')&&shell.includes('/four-deposits/batch-opening')&&breadcrumb.includes('/four-deposits/batch-opening'),'Batch route/navigation is incomplete'],

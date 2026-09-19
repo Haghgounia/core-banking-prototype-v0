@@ -1,7 +1,7 @@
 Core Banking Prototype 0.10.0 - Patch Manifest from 0.9.3
 
-Added: 17
-Changed: 31
+Added: 24
+Changed: 33
 Removed: 0
 
 [ADDED]
@@ -22,6 +22,14 @@ release/RELEASE-NOTES-0.10.0.md
 tools/verify-dps2-opening-operational-v5-phase10.mjs
 tools/verify-dps2-opening-operational-v5-phase10b.mjs
 tools/verify-dps2-opening-operational-v5-phase10d.mjs
+
+docs/DPS2-0.10.0-PHASE10E-BATCH-HARDENING-QA.md
+docs/DPS2-0.10.0-PHASE10F-RUNTIME-E2E-QA.md
+docs/examples/phase10f-e2e-fixture.template.json
+docs/patches/PATCH-0.10.0-PHASE10D-ANGULAR-COMPILE-HOTFIX-README-FA.txt
+docs/patches/PATCH-0.10.0-PHASE10D-MANIFEST.txt
+tools/runtime-dps2-phase10f-e2e.mjs
+tools/verify-dps2-opening-v5-phase10e10f.mjs
 
 [CHANGED]
 CHANGELOG.md
@@ -55,6 +63,8 @@ package-release.cmd
 tools/verify-dps2-deposit-account-phase4.mjs
 tools/verify-dps2-deposit-opening-persistence.mjs
 tools/verify-dps2-deposit-opening-phase6.mjs
+tools/migrate-root-layout.mjs
+tools/verify-release-layout.mjs
 
 [REMOVED]
 (none)

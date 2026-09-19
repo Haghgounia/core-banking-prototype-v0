@@ -124,6 +124,7 @@ node "%ROOT%tools\verify-dps2-reference-fk-reconciliation-093.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-operational-v5-phase10.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-operational-v5-phase10b.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-operational-v5-phase10d.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-opening-v5-phase10e10f.mjs" || exit /b 1
 node "%ROOT%tools\verify-cif-address-hotfix-071.mjs" || exit /b 1
 
 rem FIX77 static guard: FEE Baseline 1.0 has 47 metadata-driven forms and 574 seed rows.

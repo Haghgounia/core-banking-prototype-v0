@@ -75,6 +75,33 @@ public class DepositOpeningBatchService {
     }
 
     @Transactional
+    public BatchView refresh(long batchId, String actor) {
+        BatchHeaderView batch = repository.lockBatch(batchId)
+                .orElseThrow(() -> validation("Batch یافت نشد.", "DEPOSIT_OPENING_BATCH.OPENING_BATCH_ID", String.valueOf(batchId)));
+        List<BatchItemView> before = repository.listItems(batchId);
+        for (BatchItemView item : before) {
+            String target = item.itemStatusCode();
+            if (item.openingRequestId() != null) {
+                target = "ACTIVE".equals(upper(item.accountStatusCode())) || "CLOSED".equals(upper(item.accountStatusCode()))
+                        ? "SUCCESS" : "PROCESSING";
+            }
+            if (!upper(target).equals(upper(item.itemStatusCode()))) {
+                repository.syncItemAccountLink(item.openingBatchItemId(), item.accountId(), target, actor);
+            } else if (item.accountId() != null && "SUCCESS".equals(upper(target))) {
+                repository.syncItemAccountLink(item.openingBatchItemId(), item.accountId(), target, actor);
+            }
+        }
+        List<BatchItemView> items = repository.listItems(batchId);
+        Counts counts = counts(items);
+        String finalStatus = deriveBatchStatus(items);
+        repository.updateCounters(batchId, counts.total, counts.success, counts.failed, actor);
+        repository.updateBatchStatus(batchId, finalStatus, actor,
+                items.stream().anyMatch(i -> i.openingRequestId() != null),
+                "COMPLETED".equals(finalStatus) || "FAILED".equals(finalStatus));
+        return view(batchId, false);
+    }
+
+    @Transactional
     public BatchView validate(long batchId, String actor) {
         BatchHeaderView batch = repository.lockBatch(batchId)
                 .orElseThrow(() -> validation("Batch یافت نشد.", "DEPOSIT_OPENING_BATCH.OPENING_BATCH_ID", String.valueOf(batchId)));
@@ -85,7 +112,7 @@ public class DepositOpeningBatchService {
 
         List<BatchItemView> items = repository.listItems(batchId);
         for (BatchItemView item : items) {
-            if ("SUCCESS".equals(upper(item.itemStatusCode()))) continue;
+            if ("SUCCESS".equals(upper(item.itemStatusCode())) || "PROCESSING".equals(upper(item.itemStatusCode()))) continue;
             repository.clearErrors(item.openingBatchItemId(), "VALIDATION");
             Map<String, String> errors = validateItem(item);
             if (errors.isEmpty()) {
@@ -102,7 +129,7 @@ public class DepositOpeningBatchService {
         String finalStatus = counts.valid > 0 ? "READY" : "FAILED";
         repository.updateCounters(batchId, counts.total, counts.success, counts.failed, actor);
         repository.updateBatchStatus(batchId, finalStatus, actor, false, "FAILED".equals(finalStatus));
-        return view(batchId, false);
+        return refresh(batchId, actor);
     }
 
     public BatchView process(long batchId, BatchProcessRequest raw, String actor, String correlationId) {
@@ -139,6 +166,20 @@ public class DepositOpeningBatchService {
         if (item.openingAmount() == null || item.openingAmount().signum() <= 0) errors.put("OPENING_AMOUNT", "مبلغ افتتاح باید بیشتر از صفر باشد.");
         if (blank(item.currencyCode()) || item.currencyCode().trim().length() != 3) errors.put("CURRENCY_CODE", "کد ارز سه‌حرفی الزامی است.");
         return errors;
+    }
+
+    static String deriveBatchStatus(List<BatchItemView> items) {
+        if (items == null || items.isEmpty()) return "FAILED";
+        long success = items.stream().filter(i -> "SUCCESS".equals(upper(i.itemStatusCode()))).count();
+        long failed = items.stream().filter(i -> "FAILED".equals(upper(i.itemStatusCode())) || "INVALID".equals(upper(i.itemStatusCode()))).count();
+        long processing = items.stream().filter(i -> "PROCESSING".equals(upper(i.itemStatusCode()))).count();
+        long valid = items.stream().filter(i -> "VALID".equals(upper(i.itemStatusCode()))).count();
+        if (success == items.size()) return "COMPLETED";
+        if (processing > 0) return success > 0 || failed > 0 ? "PARTIAL" : "PROCESSING";
+        if (valid > 0) return "READY";
+        if (success > 0 && failed > 0) return "PARTIAL";
+        if (success > 0) return "PARTIAL";
+        return "FAILED";
     }
 
     private BatchView view(long batchId, boolean replay) {
@@ -201,7 +242,7 @@ public class DepositOpeningBatchService {
         for (BatchItemView item : items) {
             switch (upper(item.itemStatusCode())) {
                 case "SUCCESS" -> { success++; valid++; }
-                case "VALID" -> valid++;
+                case "VALID", "PROCESSING" -> valid++;
                 case "INVALID", "FAILED" -> failed++;
                 default -> { }
             }

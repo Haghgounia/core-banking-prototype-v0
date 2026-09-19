@@ -59,6 +59,44 @@ for (const name of fs.readdirSync(root)) {
   }
 }
 
+
+const allowedRootFiles = new Set([
+  '.gitignore','CHANGELOG.md','README-FA.md','VERSION',
+  'build-production.cmd','build-production.sh','package-release.cmd'
+]);
+
+for (const name of fs.readdirSync(root)) {
+  const source = path.join(root, name);
+  if (!fs.statSync(source).isFile()) continue;
+  if (/^PATCH-.*\.txt$/i.test(name) || /^PHASE.*-PATCH-MANIFEST\.txt$/i.test(name)) {
+    const target = path.join(patchDir, name);
+    if (fs.existsSync(target)) {
+      const sourceBytes = fs.readFileSync(source);
+      const targetBytes = fs.readFileSync(target);
+      if (sourceBytes.equals(targetBytes)) {
+        fs.unlinkSync(source);
+        removed += 1;
+        console.log(`Root layout migration: removed duplicate ${name} from root.`);
+      } else {
+        fs.mkdirSync(backupRoot, {recursive: true});
+        fs.renameSync(source, path.join(backupRoot, name));
+        archived += 1;
+        console.log(`Root layout migration: archived conflicting ${name}.`);
+      }
+    } else {
+      fs.renameSync(source, target);
+      moved += 1;
+      console.log(`Root layout migration: moved ${name} to docs/patches.`);
+    }
+    continue;
+  }
+  if (!allowedRootFiles.has(name) && fs.statSync(source).size === 0) {
+    fs.unlinkSync(source);
+    removed += 1;
+    console.log(`Root layout migration: removed zero-byte root artifact ${name}.`);
+  }
+}
+
 for (const rel of ['config/application.yml_', 'backend/src/main/resources/application.yml_']) {
   const source = path.join(root, rel);
   if (!fs.existsSync(source)) continue;

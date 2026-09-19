@@ -78,6 +78,14 @@ public class DepositOpeningController {
         return ResponseEntity.ok(batchService.validate(batchId, normalizedActor(actor)));
     }
 
+    @PostMapping("/batches/{batchId}/refresh")
+    ResponseEntity<BatchView> refreshBatch(
+            @PathVariable("batchId") long batchId,
+            @RequestHeader(name = "X-User-Id", defaultValue = "opening.operator") String actor
+    ) {
+        return ResponseEntity.ok(batchService.refresh(batchId, normalizedActor(actor)));
+    }
+
     @PostMapping("/batches/{batchId}/process")
     ResponseEntity<BatchView> processBatch(
             @PathVariable("batchId") long batchId,

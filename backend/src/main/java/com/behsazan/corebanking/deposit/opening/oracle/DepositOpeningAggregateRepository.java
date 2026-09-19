@@ -77,14 +77,14 @@ public class DepositOpeningAggregateRepository {
                     ORG_UNIT_CODE, REQUESTED_OPENING_DATE, OPENING_AMOUNT, SOURCE_OF_FUNDS_CODE,
                     PURPOSE_CODE, CUSTOMER_RISK_LEVEL_CODE, RISK_ASSESSMENT_REFERENCE,
                     EXPECTED_ACTIVITY_REFERENCE, JOINT_ACCOUNT_BASIS_CODE, JOINT_BASIS_REFERENCE,
-                    ACTIVATION_STATUS_CODE, ACTIVATION_DEADLINE_AT, REQUEST_STATUS_CODE, CREATED_BY
+                    ACTIVATION_STATUS_CODE, ACTIVATION_DEADLINE_AT, REQUEST_STATUS_CODE, BATCH_ITEM_ID, CREATED_BY
                 ) VALUES (
                     :requestId, :requestNo, :idempotencyKey, :productVersionId,
                     :requestTypeCode, :ownershipTypeCode, :currencyCode, :openingChannelCode,
                     :orgUnitCode, :requestedOpeningDate, :openingAmount, :sourceOfFundsCode,
                     :purposeCode, :customerRiskLevelCode, :riskAssessmentReference,
                     :expectedActivityReference, :jointAccountBasisCode, :jointBasisReference,
-                    :activationStatusCode, :activationDeadlineAt, :requestStatusCode, :createdBy
+                    :activationStatusCode, :activationDeadlineAt, :requestStatusCode, :batchItemId, :createdBy
                 )
                 """.formatted(schema);
         return jdbc.update(sql, requestParams(requestId, value, actor));
@@ -113,6 +113,7 @@ public class DepositOpeningAggregateRepository {
                 .addValue("activationStatusCode", value.activationStatusCode() == null ? "NOT_CREATED" : value.activationStatusCode(), Types.VARCHAR)
                 .addValue("activationDeadlineAt", toTimestamp(value.activationDeadlineAt()), Types.TIMESTAMP)
                 .addValue("requestStatusCode", value.requestStatusCode(), Types.VARCHAR)
+                .addValue("batchItemId", value.batchItemId(), Types.NUMERIC)
                 .addValue("createdBy", actor, Types.VARCHAR);
     }
 
@@ -138,6 +139,24 @@ public class DepositOpeningAggregateRepository {
                 """.formatted(schema);
         return jdbc.update(sql, requestParams(requestId, value, actor)
                 .addValue("batchItemId", batchItemId, Types.NUMERIC));
+    }
+
+
+    public int linkBatchItemOpening(long batchItemId, long requestId, Long productVersionId, String actor) {
+        String sql = """
+                UPDATE %s.DEPOSIT_OPENING_BATCH_ITEM
+                   SET OPENING_REQUEST_ID=:requestId, ITEM_STATUS_CODE='PROCESSING',
+                       UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1
+                 WHERE OPENING_BATCH_ITEM_ID=:batchItemId
+                   AND PRODUCT_VERSION_ID=:productVersionId
+                   AND ITEM_STATUS_CODE='VALID'
+                   AND OPENING_REQUEST_ID IS NULL
+                """.formatted(schema);
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("requestId", requestId, Types.NUMERIC)
+                .addValue("actor", actor, Types.VARCHAR)
+                .addValue("batchItemId", batchItemId, Types.NUMERIC)
+                .addValue("productVersionId", productVersionId, Types.NUMERIC));
     }
 
     public int insertParty(long requestId, OpeningParty value, int fallbackSequence, String actor) {

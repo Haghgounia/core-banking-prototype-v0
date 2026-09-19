@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "family": "QARD_SAVINGS",
+      "aggregate": "REPLACE_ME_WITH_VALID_QARD_SAVINGS_AGGREGATE",
+      "settlement": {"SETTLEMENT_REFERENCE":"REPLACE_ME"},
+      "readinessEvidence": []
+    },
+    {
+      "family": "CURRENT_ACCOUNT",
+      "aggregate": "REPLACE_ME_WITH_VALID_CURRENT_ACCOUNT_AGGREGATE",
+      "settlement": {"SETTLEMENT_REFERENCE":"REPLACE_ME"},
+      "readinessEvidence": []
+    },
+    {
+      "family": "SHORT_TERM_DEPOSIT",
+      "aggregate": "REPLACE_ME_WITH_VALID_SHORT_TERM_DEPOSIT_AGGREGATE",
+      "settlement": {"SETTLEMENT_REFERENCE":"REPLACE_ME"},
+      "readinessEvidence": []
+    },
+    {
+      "family": "LONG_TERM_DEPOSIT",
+      "aggregate": "REPLACE_ME_WITH_VALID_LONG_TERM_DEPOSIT_AGGREGATE",
+      "settlement": {"SETTLEMENT_REFERENCE":"REPLACE_ME"},
+      "readinessEvidence": []
+    }
+  ]
+}

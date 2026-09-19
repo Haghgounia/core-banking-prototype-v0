@@ -121,11 +121,11 @@ public class DepositOpeningBatchRepository {
         String sql = """
                 SELECT I.OPENING_BATCH_ITEM_ID, I.OPENING_BATCH_ID, I.ROW_NO, I.EXTERNAL_ROW_KEY,
                        I.PARTY_ID, I.PRODUCT_VERSION_ID, I.CURRENCY_CODE, I.OPENING_AMOUNT,
-                       I.ITEM_STATUS_CODE, I.OPENING_REQUEST_ID, I.ACCOUNT_ID, I.RECORD_VERSION,
+                       I.ITEM_STATUS_CODE, I.OPENING_REQUEST_ID, COALESCE(I.ACCOUNT_ID, R.CREATED_ACCOUNT_ID) ACCOUNT_ID, I.RECORD_VERSION,
                        R.REQUEST_NO, A.ACCOUNT_NO, A.ACCOUNT_STATUS_CODE
                   FROM %s.DEPOSIT_OPENING_BATCH_ITEM I
                   LEFT JOIN %s.DEPOSIT_OPENING_REQUEST R ON R.OPENING_REQUEST_ID = I.OPENING_REQUEST_ID
-                  LEFT JOIN %s.DEPOSIT_ACCOUNT A ON A.ACCOUNT_ID = I.ACCOUNT_ID
+                  LEFT JOIN %s.DEPOSIT_ACCOUNT A ON A.ACCOUNT_ID = COALESCE(I.ACCOUNT_ID, R.CREATED_ACCOUNT_ID)
                  WHERE I.OPENING_BATCH_ID = :batchId
                  ORDER BY I.ROW_NO, I.OPENING_BATCH_ITEM_ID
                 """.formatted(schema, schema, schema);
@@ -218,6 +218,21 @@ public class DepositOpeningBatchRepository {
                 """.formatted(schema);
         return jdbc.update(sql, new MapSqlParameterSource().addValue("requestId", requestId).addValue("accountId", accountId)
                 .addValue("actor", actor).addValue("itemId", itemId));
+    }
+
+
+    public int syncItemAccountLink(long itemId, Long accountId, String status, String actor) {
+        String sql = """
+                UPDATE %s.DEPOSIT_OPENING_BATCH_ITEM
+                   SET ACCOUNT_ID=:accountId, ITEM_STATUS_CODE=:status,
+                       UPDATED_AT=SYSTIMESTAMP, UPDATED_BY=:actor, RECORD_VERSION=RECORD_VERSION+1
+                 WHERE OPENING_BATCH_ITEM_ID=:itemId
+                """.formatted(schema);
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("accountId", accountId, Types.NUMERIC)
+                .addValue("status", status, Types.VARCHAR)
+                .addValue("actor", actor, Types.VARCHAR)
+                .addValue("itemId", itemId, Types.NUMERIC));
     }
 
     public int clearErrors(long itemId, String stage) {

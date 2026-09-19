@@ -29,7 +29,7 @@ add('tax no-fabrication notice','frontend/src/app/features/four-deposits/deposit
 add('final compliance validity evidence','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts','finalComplianceValidUntil');
 add('account opened sms evidence forwarded','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts',"add('ACCOUNT_OPENED_SMS',v.accountOpenedSmsReference)");
 add('mandatory create-settle-readiness-activate order','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.html','ثبت Opening → ایجاد Account → Settlement → Activation Readiness → Activate');
-add('batch direct processing disabled UI','frontend/src/app/features/four-deposits/deposit-opening-batch.component.html','پردازش پس از CDD فردی');
+add('batch direct processing disabled UI','frontend/src/app/features/four-deposits/deposit-opening-batch.component.html','پردازش و فعال‌سازی مستقیم گروهی در Backend فعلاً مسدود است');
 add('batch direct activation disabled backend','backend/src/main/java/com/behsazan/corebanking/deposit/opening/batch/application/DepositOpeningBatchService.java','فعال‌سازی مستقیم گروهی در Operational v5 مجاز نیست.');
 
 let ok=0;
