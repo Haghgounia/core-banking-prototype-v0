@@ -7,9 +7,12 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,8 +31,11 @@ public class DepositOpeningRuntimeRepository {
             "REF_DEP_OPEN_WITHDRAWAL_MEDIA", "REF_DEP_OPEN_SERVICE", "REF_DEP_OPEN_PAYMENT_INSTRUMENT",
             "REF_DEP_OPEN_PRICING_OVERRIDE_TYPE", "REF_DEP_OPEN_AUTHORITY_LEVEL", "REF_DEP_OPEN_TAX_RESIDENCY",
             "REF_DEP_OPEN_TAX_STATUS_SOURCE", "REF_DEP_OPEN_ENROLLMENT_STATUS", "REF_DEP_OPEN_FUNDING_METHOD",
-            "REF_DEP_OPEN_FUNDING_STATUS", "REF_DEP_OPEN_CHECK", "REF_DEP_OPEN_CHECK_TYPE",
-            "REF_DEP_OPEN_CHECK_RESULT", "REF_DEP_OPEN_DOCUMENT_TYPE", "REF_DEP_OPEN_DOCUMENT_STATUS",
+            "REF_DEP_OPEN_FUNDING_STATUS", "REF_DEP_OPEN_FUND_PURPOSE", "REF_DEP_OPEN_OBLIGATION_TYPE",
+            "REF_DEP_OPEN_SETTLEMENT_STATUS", "REF_DEP_OPEN_CHECK", "REF_DEP_OPEN_CHECK_TYPE",
+            "REF_DEP_OPEN_CHECK_PHASE", "REF_DEP_OPEN_BLOCKING_SCOPE", "REF_DEP_OPEN_CHECK_RESULT",
+            "REF_DEP_OPEN_JOINT_BASIS", "REF_DEP_OPEN_ACTIVATION_STATUS",
+            "REF_DEP_OPEN_DOCUMENT_TYPE", "REF_DEP_OPEN_DOCUMENT_STATUS",
             "REF_DEP_OPEN_ACCEPTANCE_SOURCE", "REF_DEP_OPEN_ACCEPTANCE_STATUS", "REF_DEP_OPEN_DECISION",
             "REF_DEP_OPEN_DECISION_REASON", "REF_DEP_OPEN_BATCH_SOURCE_TYPE", "REF_DEP_OPEN_BATCH_STATUS",
             "REF_DEP_OPEN_BATCH_ITEM_STATUS", "REF_DEP_OPEN_BATCH_ERROR_STAGE", "REF_DEP_OPEN_BATCH_ERROR_CODE"
@@ -135,12 +141,34 @@ public class DepositOpeningRuntimeRepository {
         return count != null && count > 0;
     }
 
-    public boolean uniqueIndexExists(String owner, String indexName) {
-        Integer count = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM ALL_INDEXES WHERE OWNER=:owner AND INDEX_NAME=:name AND UNIQUENESS='UNIQUE'",
-                new MapSqlParameterSource().addValue("owner", requireIdentifier(owner)).addValue("name", requireIdentifier(indexName)),
-                Integer.class);
-        return count != null && count > 0;
+    public boolean uniqueGuardExists(String owner, String table, String... orderedColumns) {
+        String normalizedOwner = requireIdentifier(owner);
+        String normalizedTable = requireIdentifier(table);
+        List<String> expected = new ArrayList<>(orderedColumns.length);
+        for (String column : orderedColumns) expected.add(requireIdentifier(column));
+
+        List<Map<String, Object>> rows = jdbc.queryForList("""
+                SELECT I.INDEX_NAME, IC.COLUMN_NAME, IC.COLUMN_POSITION
+                  FROM ALL_INDEXES I
+                  JOIN ALL_IND_COLUMNS IC
+                    ON IC.INDEX_OWNER = I.OWNER
+                   AND IC.INDEX_NAME = I.INDEX_NAME
+                 WHERE I.OWNER = :owner
+                   AND I.TABLE_NAME = :tableName
+                   AND I.UNIQUENESS = 'UNIQUE'
+                   AND I.STATUS = 'VALID'
+                 ORDER BY I.INDEX_NAME, IC.COLUMN_POSITION
+                """, new MapSqlParameterSource()
+                .addValue("owner", normalizedOwner)
+                .addValue("tableName", normalizedTable));
+
+        Map<String, List<String>> columnsByIndex = new LinkedHashMap<>();
+        for (Map<String, Object> row : rows) {
+            String indexName = String.valueOf(row.get("INDEX_NAME"));
+            String columnName = String.valueOf(row.get("COLUMN_NAME"));
+            columnsByIndex.computeIfAbsent(indexName, ignored -> new ArrayList<>()).add(columnName);
+        }
+        return columnsByIndex.values().stream().anyMatch(expected::equals);
     }
 
     public long nextBatchId() {
@@ -153,8 +181,13 @@ public class DepositOpeningRuntimeRepository {
         return jdbc.update("""
                 INSERT INTO %s.DEPOSIT_OPENING_BATCH (
                     OPENING_BATCH_ID, BATCH_NO, IDEMPOTENCY_KEY, SOURCE_TYPE_CODE, SOURCE_REFERENCE,
+                    BULK_OPENING_BASIS_CODE, LEGAL_BASIS_REFERENCE, CDD_APPROVAL_REFERENCE,
                     TOTAL_COUNT, SUCCESS_COUNT, FAILED_COUNT, BATCH_STATUS_CODE, CREATED_BY
-                ) VALUES (:id, :batchNo, :key, 'MANUAL', 'PHASE7_ROLLBACK_PROBE', 0, 0, 0, 'DRAFT', 'PHASE7_PROBE')
+                ) VALUES (
+                    :id, :batchNo, :key, 'MANUAL', 'PHASE7_ROLLBACK_PROBE',
+                    'GOV_EMPLOYEE_SAVINGS_1376', 'PHASE10F_ROLLBACK_PROBE', 'PHASE10F_ROLLBACK_PROBE',
+                    0, 0, 0, 'DRAFT', 'PHASE7_PROBE'
+                )
                 """.formatted(schema), new MapSqlParameterSource()
                 .addValue("id", batchId).addValue("batchNo", "PROBE-" + batchId).addValue("key", idempotencyKey));
     }

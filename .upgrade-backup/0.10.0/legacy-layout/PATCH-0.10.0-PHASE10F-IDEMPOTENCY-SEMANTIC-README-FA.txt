@@ -1,0 +1,30 @@
+Core Banking Prototype 0.10.0 - Phase 10F Idempotency Semantic Guard Hotfix
+
+Problem:
+- Oracle may already enforce IDEMPOTENCY_KEY through a UNIQUE constraint-backed index whose physical name differs from Phase 7 canonical UX_* names.
+- Runtime Readiness incorrectly checked physical index names and returned IDEMPOTENCY=FAIL.
+- Migration 0.7.0 checked physical names and could raise ORA-01408 when an equivalent UNIQUE guard already existed.
+
+Fix:
+1) Runtime readiness now validates semantic unique guards by owner + table + ordered column set + UNIQUE + VALID.
+2) Migration 0.7.0 uses the same semantic rule before creating canonical UX_* indexes.
+3) Migration now fails fast on SQL errors instead of printing a misleading completion prompt after an error.
+4) Phase 7 static verifier requires semantic metadata inspection.
+
+Apply:
+- Extract this ZIP over D:\Projects\core-banking-prototype-v0 preserving paths.
+- Run build-production.cmd
+- Restart application.
+- Re-run database/oracle/dps2/migrations/0.7.0-phase7-opening-e2e-hardening.sql once.
+- Re-run GET /api/v1/deposit-opening/readiness.
+
+Expected:
+APPEND_ONLY = PASS
+IDEMPOTENCY = PASS
+status = READY_WITH_WARNINGS
+Only ACCOUNT_SERVICE and TAX_PROFILE_SERVICE should remain WARN.
+
+
+Phase 10F Rollback Probe compatibility addendum:
+- The rollback probe now populates BULK_OPENING_BASIS_CODE, LEGAL_BASIS_REFERENCE and CDD_APPROVAL_REFERENCE.
+- This keeps the Phase 7 transactional probe compatible with the Phase 10 batch contract and prevents REQUIRED_DATABASE_VALUE_MISSING before rollback is exercised.

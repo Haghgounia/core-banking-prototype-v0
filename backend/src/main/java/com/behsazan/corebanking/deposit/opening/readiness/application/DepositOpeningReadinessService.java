@@ -51,9 +51,9 @@ public class DepositOpeningReadinessService {
                         && repository.triggerEnabled(repository.schema(), "TRG_DEP_OPEN_STATUS_APPEND_ONLY"),
                 "Audit / field / snapshot / status history guards");
         check(checks, "IDEMPOTENCY", "Unique Guardهای Idempotency",
-                repository.uniqueIndexExists(repository.schema(), "UX_DEP_OPEN_REQ_IDEMPOTENCY")
-                        && repository.uniqueIndexExists(repository.schema(), "UX_DEP_OPEN_BATCH_IDEMPOTENCY")
-                        && repository.uniqueIndexExists(repository.schema(), "UX_DEP_OPEN_BATCH_EXT_ROW_KEY"),
+                repository.uniqueGuardExists(repository.schema(), "DEPOSIT_OPENING_REQUEST", "IDEMPOTENCY_KEY")
+                        && repository.uniqueGuardExists(repository.schema(), "DEPOSIT_OPENING_BATCH", "IDEMPOTENCY_KEY")
+                        && repository.uniqueGuardExists(repository.schema(), "DEPOSIT_OPENING_BATCH_ITEM", "OPENING_BATCH_ID", "EXTERNAL_ROW_KEY"),
                 "Phase 7 DB-level concurrency guards");
         check(checks, "REFERENCE", "Referenceهای Runtime پایه",
                 repository.referenceCodeExists("REF_DEP_OPEN_REQUEST_TYPE", "REQUEST_TYPE_CODE", "BULK")

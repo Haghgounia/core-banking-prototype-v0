@@ -50,6 +50,23 @@ DECLARE
     RETURN v_count > 0;
   END;
 
+  FUNCTION find_leading_index(
+      p_table VARCHAR2,
+      p_column VARCHAR2
+  ) RETURN VARCHAR2 IS
+    v_name VARCHAR2(128);
+  BEGIN
+    SELECT MIN(INDEX_NAME)
+      INTO v_name
+      FROM ALL_IND_COLUMNS
+     WHERE INDEX_OWNER='DPS2'
+       AND TABLE_OWNER='DPS2'
+       AND TABLE_NAME=UPPER(p_table)
+       AND COLUMN_POSITION=1
+       AND COLUMN_NAME=UPPER(p_column);
+    RETURN v_name;
+  END;
+
   PROCEDURE require_table(p_table VARCHAR2) IS
   BEGIN
     IF NOT table_exists(p_table) THEN
@@ -86,13 +103,23 @@ DECLARE
     END IF;
   END;
 
-  PROCEDURE add_index(p_name VARCHAR2, p_ddl VARCHAR2) IS
+  PROCEDURE add_index(
+      p_name VARCHAR2,
+      p_table VARCHAR2,
+      p_column VARCHAR2
+  ) IS
+    v_existing VARCHAR2(128);
   BEGIN
-    IF index_exists(p_name) THEN
-      DBMS_OUTPUT.PUT_LINE('OK  : index '||p_name);
+    v_existing := find_leading_index(p_table,p_column);
+    IF v_existing IS NOT NULL THEN
+      DBMS_OUTPUT.PUT_LINE('OK  : index coverage '||p_table||'.'||p_column||' via '||v_existing);
+    ELSIF index_exists(p_name) THEN
+      RAISE_APPLICATION_ERROR(-21034,
+        'Index DPS2.'||p_name||' exists but does not cover expected leading column '||
+        p_table||'.'||p_column);
     ELSE
-      EXECUTE IMMEDIATE p_ddl;
-      DBMS_OUTPUT.PUT_LINE('ADD : index '||p_name);
+      EXECUTE IMMEDIATE 'CREATE INDEX DPS2.'||p_name||' ON DPS2.'||p_table||' ('||p_column||')';
+      DBMS_OUTPUT.PUT_LINE('ADD : index '||p_name||' on '||p_table||'('||p_column||')');
     END IF;
   END;
 BEGIN
@@ -233,9 +260,9 @@ BEGIN
   add_constraint('FK_DOFA_FUNDING','ALTER TABLE DPS2.DEPOSIT_OPENING_FUND_ALLOC ADD CONSTRAINT FK_DOFA_FUNDING FOREIGN KEY (OPENING_FUNDING_ID) REFERENCES DPS2.DEPOSIT_OPENING_FUNDING (OPENING_FUNDING_ID)');
   add_constraint('FK_DOFA_OBLIGATION','ALTER TABLE DPS2.DEPOSIT_OPENING_FUND_ALLOC ADD CONSTRAINT FK_DOFA_OBLIGATION FOREIGN KEY (OPENING_OBLIGATION_ID) REFERENCES DPS2.DEPOSIT_OPENING_OBLIGATION (OPENING_OBLIGATION_ID)');
 
-  add_index('IX_DOO_REQUEST','CREATE INDEX DPS2.IX_DOO_REQUEST ON DPS2.DEPOSIT_OPENING_OBLIGATION (OPENING_REQUEST_ID)');
-  add_index('IX_DOFA_FUNDING','CREATE INDEX DPS2.IX_DOFA_FUNDING ON DPS2.DEPOSIT_OPENING_FUND_ALLOC (OPENING_FUNDING_ID)');
-  add_index('IX_DOFA_OBLIGATION','CREATE INDEX DPS2.IX_DOFA_OBLIGATION ON DPS2.DEPOSIT_OPENING_FUND_ALLOC (OPENING_OBLIGATION_ID)');
+  add_index('IX_DOO_REQUEST','DEPOSIT_OPENING_OBLIGATION','OPENING_REQUEST_ID');
+  add_index('IX_DOFA_FUNDING','DEPOSIT_OPENING_FUND_ALLOC','OPENING_FUNDING_ID');
+  add_index('IX_DOFA_OBLIGATION','DEPOSIT_OPENING_FUND_ALLOC','OPENING_OBLIGATION_ID');
 END;
 /
 

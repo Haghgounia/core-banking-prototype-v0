@@ -468,6 +468,9 @@ public class DepositOpeningAggregateService {
             required(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_METHOD_CODE", value.fundingMethodCode(), "روش تأمین وجه الزامی است.");
             required(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_PURPOSE_CODE", value.fundingPurposeCode(), "هدف تأمین وجه الزامی است.");
             required(errors, "DEPOSIT_OPENING_FUNDING.FUNDING_STATUS_CODE", value.fundingStatusCode(), "وضعیت برنامه تأمین وجه الزامی است.");
+            if ("CASH".equalsIgnoreCase(value.fundingMethodCode())) {
+                required(errors, "DEPOSIT_OPENING_FUNDING.CASH_MANAGEMENT_TXN_REF", value.cashManagementTxnRef(), "برای تأمین وجه نقدی، مرجع تراکنش مدیریت نقد الزامی است.");
+            }
             if (value.openingFundingId() != null && !fundingKeys.add(value.openingFundingId())) {
                 errors.put("DEPOSIT_OPENING_FUNDING.OPENING_FUNDING_ID", "correlation key تأمین وجه باید در Payload یکتا باشد.");
             }

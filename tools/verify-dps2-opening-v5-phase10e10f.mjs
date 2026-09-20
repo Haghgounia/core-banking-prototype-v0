@@ -17,6 +17,10 @@ const batchHtml=read('frontend/src/app/features/four-deposits/deposit-opening-ba
 const wizTs=read('frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts');
 const feSvc=read('frontend/src/app/features/four-deposits/deposit-opening.service.ts');
 const runtime=read('tools/runtime-dps2-phase10f-e2e.mjs');
+const runtimeValidator=read('backend/src/main/java/com/behsazan/corebanking/deposit/opening/readiness/application/DepositOpeningRuntimeValidator.java');
+const runtimeRepo=read('backend/src/main/java/com/behsazan/corebanking/deposit/opening/readiness/oracle/DepositOpeningRuntimeRepository.java');
+const validatorReferenceTables=[...runtimeValidator.matchAll(/checkRef\([\s\S]{0,300}?\"(REF_DEP_OPEN_[A-Z0-9_]+)\"/g)].map(m=>m[1]);
+const repositoryReferenceTables=new Set([...runtimeRepo.matchAll(/\"(REF_DEP_OPEN_[A-Z0-9_]+)\"/g)].map(m=>m[1]));
 
 ok('v5 batch legal basis enforced',batchSvc.includes('GOV_EMPLOYEE_SAVINGS_1376'));
 ok('v5 batch family QARD only',batchSvc.includes('QARD_SAVINGS'));
@@ -48,6 +52,12 @@ ok('runtime harness checks readiness',runtime.includes('/account/readiness'));
 ok('runtime harness activates',runtime.includes('/account/activate'));
 ok('runtime harness supports optional close',runtime.includes('/api/v1/deposit-accounts/') && runtime.includes('/close'));
 ok('runtime harness refuses placeholder evidence',runtime.includes('assertNoPlaceholders'));
+ok('runtime reference allow-list covers every validator reference',validatorReferenceTables.every(table=>repositoryReferenceTables.has(table)));
+ok('phase10 reference tables are explicitly allowed',['REF_DEP_OPEN_JOINT_BASIS','REF_DEP_OPEN_ACTIVATION_STATUS','REF_DEP_OPEN_FUND_PURPOSE','REF_DEP_OPEN_OBLIGATION_TYPE','REF_DEP_OPEN_SETTLEMENT_STATUS','REF_DEP_OPEN_CHECK_PHASE','REF_DEP_OPEN_BLOCKING_SCOPE'].every(table=>repositoryReferenceTables.has(table)));
+ok('cash funding requires cash-management transaction reference',aggSvc.includes('DEPOSIT_OPENING_FUNDING.CASH_MANAGEMENT_TXN_REF') && aggSvc.includes('\"CASH\".equalsIgnoreCase(value.fundingMethodCode())'));
+ok('wizard maps cash funding evidence to cash-management reference',wizTs.includes("CASH_MANAGEMENT_TXN_REF:x.method==='CASH'?(x.sourceReference||null):null"));
+const prepareRuntime=read('tools/prepare-dps2-phase10f-runtime.mjs');
+ok('phase10f qualification cash funding carries cash-management reference',prepareRuntime.includes('CASH_MANAGEMENT_TXN_REF:`${evidencePrefix}-CASH-MGMT`'));
 
 let failed=0;
 for(const [name,pass] of checks){console.log(`${pass?'OK ':'FAIL'} ${name}`);if(!pass)failed++;}
