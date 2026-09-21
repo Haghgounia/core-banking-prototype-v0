@@ -32,7 +32,14 @@ async function runCase(c){
   console.log(`[${c.family}] settlement`);
   await request('POST',`/api/v1/deposit-opening/requests/${id}/account/settlement`,c.settlement);
   console.log(`[${c.family}] readiness`);
-  const ready=await request('POST',`/api/v1/deposit-opening/requests/${id}/account/readiness`,{EVIDENCE:c.readinessEvidence||[]});
+  // Controlled Phase 10F evidence is test-only. Refresh its validity immediately
+  // before readiness so a long qualification/debugging session cannot expire a
+  // previously prepared fixture and produce a false BLOCKED result.
+  const readinessEvidence=(c.readinessEvidence||[]).map(e=>({
+    ...e,
+    VALID_UNTIL:e?.VALID_UNTIL ? new Date(Date.now()+2*3600_000).toISOString() : e?.VALID_UNTIL
+  }));
+  const ready=await request('POST',`/api/v1/deposit-opening/requests/${id}/account/readiness`,{EVIDENCE:readinessEvidence});
   assert(ready.activationStatusCode==='READY',`Expected READY, got ${ready.activationStatusCode}`);
   console.log(`[${c.family}] activate`);
   account=await request('POST',`/api/v1/deposit-opening/requests/${id}/account/activate`);

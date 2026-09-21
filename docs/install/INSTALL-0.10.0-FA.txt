@@ -1,65 +1,109 @@
-Core Banking Prototype 0.10.0
-Deposit Opening Operational v5 — Phase 10A/10B/10D
+Core Banking Prototype 0.10.0 - FINAL CLOSURE BASELINE
+Operational Opening v5 / Four Deposits / Phase 10F
 
-پيش‌نياز:
-- Source و Database حداقل در Baseline 0.9.3 باشند.
-- Reference Data / FK Reconciliation نسخه 0.9.3 قبلاً با SUCCESS اجرا شده باشد.
+پیش‌نیاز:
+- Java 21
+- Node/npm مطابق نسخه پروژه
+- Oracle target با دسترسی خواندن/اجرای Migration روی DPS2 و خواندن PDL/CIF
+- نسخه Source برابر 0.10.0
 
-نصب کامل از 0.9.3:
+نکته مهم:
+این بسته Final Baseline است و Hotfixهای Runtime Phase 10F را در خود Source ادغام کرده است.
+Hotfixهای ZIP قدیمی را بعد از این بسته مجدداً Overlay نکنید.
 
-1) Source نسخه 0.10.0 را Overlay/جايگزين کنيد.
+============================================================
+A) نصب/ارتقا Database
+============================================================
 
-2) Foundation مدل Operational v5 را با F5 اجرا کنيد:
-   @database/oracle/dps2/migrations/0.10.0-phase10-opening-operational-v5-foundation.sql
+ترتیب رسمی در این فایل ثبت شده است:
+release/FINAL-MIGRATION-MANIFEST-0.10.0.md
 
-   انتظار:
-   SUCCESS: Phase 10 Operational Opening v5 schema foundation reconciled.
+برای محیطی که تا 0.9.3 رسیده است، حداقل این مسیر 0.10.0 لازم است:
 
-   Migration نسخه R2 semantics-aware است و FK معادل را با نام متفاوت دوباره ايجاد نمي‌کند.
+1) database/oracle/dps2/migrations/0.10.0-phase10-opening-operational-v5-foundation.sql
+2) database/oracle/dps2/migrations/0.10.0-phase10a-constraint-reconciliation-repair.sql
+3) database/oracle/dps2/migrations/0.10.0-phase10b-opening-operational-runtime-alignment.sql
+4) database/oracle/dps2/migrations/0.10.0-phase10f-created-at-default-reconciliation.sql
+5) database/oracle/dps2/migrations/0.10.0-phase10f-created-account-reference-reconciliation.sql
+6) database/oracle/dps2/migrations/0.10.0-phase10f-fund-alloc-column-reconciliation.sql
+7) database/oracle/dps2/migrations/0.10.0-phase10f-fund-alloc-legacy-column-cleanup.sql
+8) database/oracle/dps2/migrations/0.10.0-phase10f-check-result-status-reconciliation.sql
 
-3) اگر Foundation اوليه شما در بخش Constraint با ORA-02275 اجرا شده، Repair را اجرا کنيد:
-   @database/oracle/dps2/migrations/0.10.0-phase10a-constraint-reconciliation-repair.sql
+Reference Seed رسمی:
+database/oracle/dps2/reference-data/Deposit_Account_Opening_Reference_Data_Seed_2026-09-19.sql
 
-4) Runtime Alignment را اجرا کنيد:
-   @database/oracle/dps2/migrations/0.10.0-phase10b-opening-operational-runtime-alignment.sql
+در Target فعلی پروژه این Runtime reconciliationها قبلاً با موفقیت اجرا شده‌اند؛ بنابراین برای همان Database دوباره اجرا کردن آنها جهت Closure لازم نیست. Final Verifier فقط وضعیت نهایی را Read-only بررسی می‌کند.
 
-   انتظار:
-   SUCCESS: Phase 10B runtime schema alignment completed.
+============================================================
+B) Build نهایی Source
+============================================================
 
-   ATTEMPT_AT در Funding Plan بايد تا اولين Settlement واقعي NULL بماند.
+از ریشه پروژه:
 
-5) Build:
-   build-production.cmd
+build-production.cmd
 
-Expected static gates:
-   DPS2 Operational Opening v5 Phase 10 verification OK: 34/34 schema-foundation checks passed.
-   DPS2 Operational Opening v5 Phase 10B verification OK: 31/31 backend/workflow checks passed.
-   DPS2 Operational Opening v5 Phase 10D verification OK: 25/25 UI/integration checks passed.
+انتظار می‌رود Gateهای مهم زیر PASS شوند:
+- Phase 7: 22/22
+- 0.9.2: 20/20
+- 0.9.3: 19/19
+- Phase 10: 34/34
+- Phase 10B: 31/31
+- Phase 10D: 25/25
+- Phase 10E/10F: 35/35
+- Phase 10F FUND_ALLOC: 16/16
 
-6) Runtime Smoke Test:
-   CIF Party Search
-      -> Product/Opening Request
-      -> Funding Plan with ACTIVE source-account ownership verification
-      -> Create Gate evidence + Runtime Preflight
-      -> APPROVED
-      -> Create Account
-      -> PENDING_ACTIVATION / PENDING_READINESS
-      -> Settlement
-      -> Activation Readiness
-      -> READY
-      -> Activate
-      -> ACTIVE / COMPLETED
+پس از Build:
+- app/core-banking-prototype.jar باید وجود داشته باشد.
+- app/BUILD-VERSION باید دقیقاً 0.10.0 باشد.
 
-براي Target فعلي اين پروژه:
-- Phase 10A Foundation: PASS
-- Phase 10A Constraint Repair: PASS
-- Phase 10B Runtime Alignment: PASS
-بنابراين Migration ديگري براي Phase 10D لازم نيست؛ Source جديد را Overlay کرده و build-production.cmd را اجرا کنيد.
+============================================================
+C) Restart Runtime
+============================================================
 
-نکات:
-- Activate قبل از READY بايد رد شود.
-- Funding قبل از Create Account فقط Plan است و SUCCESS ساختگي ندارد.
-- Required Compliance/Inquiry Create-Gate checks بدون Evidence واقعي در UI PASS نمي‌شوند.
-- Fee/Tax/Service-Charge Obligation ساختگي توليد نمي‌شود.
-- SIAH/Compliance/Restriction Evidence به صورت Reference/Status ثبت مي‌شود؛ Integration خارجي واقعي جعل نشده است.
-- Phase 9 Account Closure همچنان ACTIVE -> CLOSED باقي مي‌ماند.
+Runtime را با JAR جدید اجرا کنید و health را کنترل کنید:
+
+curl.exe -sS http://127.0.0.1:8091/actuator/health
+
+باید status=UP باشد.
+
+============================================================
+D) Final Closure Verifier
+============================================================
+
+Connection String یک Oracle user با دسترسی Read روی DPS2/PDL/CIF را تنظیم کنید:
+
+set CORE_BANKING_ORACLE_CONNECT=<user/password@//localhost:1521/FREEPDB1>
+set CORE_BANKING_BASE_URL=http://127.0.0.1:8091
+
+tools\final-verify-0.10.0.cmd
+
+خروجی نهایی مورد انتظار:
+
+FINAL_SOURCE_BASELINE_PASS
+FINAL_DB_BASELINE_PASS
+FINAL_RUNTIME_HEALTH_PASS
+FINAL_RELEASE_CLOSURE_PASS
+
+============================================================
+E) Phase 10F Business Qualification Evidence
+============================================================
+
+Qualification واقعی قبلاً برای هر چهار Family انجام شده و Marker زیر ثبت شده است:
+
+PHASE10F_RUNTIME_E2E_PASS
+
+QARD_SAVINGS       request=4 account=4 PASS
+CURRENT_ACCOUNT    request=5 account=5 PASS
+SHORT_TERM_DEPOSIT request=6 account=6 PASS
+LONG_TERM_DEPOSIT  request=7 account=7 PASS
+
+Harness اکنون Evidence کنترل‌شده تست را درست قبل از Readiness تازه می‌کند تا طولانی شدن جلسه تست باعث Expire شدن Fixture و BLOCKED کاذب نشود.
+
+============================================================
+F) Freeze
+============================================================
+
+بعد از FINAL_RELEASE_CLOSURE_PASS:
+- هیچ Feature یا تغییر functional جدیدی به 0.10.0 اضافه نشود.
+- تغییرات جدید به نسخه بعدی منتقل شوند.
+- Manifest و SHA-256 Baseline مرجع Release باشند.

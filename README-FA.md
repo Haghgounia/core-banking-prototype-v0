@@ -1,6 +1,8 @@
 ## نسخه 0.10.0 — Operational Opening v5
 مسير افتتاح حساب اکنون Create Account را از Settlement و Activation Readiness جدا مي‌کند: `APPROVED -> PENDING_ACTIVATION -> Settlement -> READY -> ACTIVE`. Funding قبل از Create فقط Plan است و Activate بدون READY مجاز نيست.
 
+**وضعيت Phase 10F:** چهار خانواده `QARD_SAVINGS`، `CURRENT_ACCOUNT`، `SHORT_TERM_DEPOSIT` و `LONG_TERM_DEPOSIT` در Runtime واقعي Oracle تا Activation با Marker نهایی `PHASE10F_RUNTIME_E2E_PASS` عبور کرده‌اند. Hotfixهای Runtime کشف‌شده در Baseline نهایی 0.10.0 ادغام شده‌اند. براي بستن Release، بعد از Build/Restart نهايي، `tools\final-verify-0.10.0.cmd` را اجرا کنيد؛ Marker مورد انتظار `FINAL_RELEASE_CLOSURE_PASS` است.
+
 ## تطبیق Reference Data و FKهای افتتاح سپرده — 0.9.3
 
 نسخه 0.9.3 مشکل محیط‌هایی را که جداول مرجع DPS2 موجود ولی بخشی از داده‌های Phase 5/6 در آن‌ها خالی است، برطرف می‌کند. Seed مرجع جدید کاملاً با Prefix `DPS2.` اجرا می‌شود و دیگر به `CURRENT_SCHEMA` وابسته نیست. همچنین شش FK معنایی صحیح برای نوع/وضعیت درخواست، تصمیم/علت تصمیم و منبع/وضعیت پذیرش شرایط اضافه می‌شود. `REF_DEP_OPEN_CHANNEL_ORG_MAP` عمداً تا زمان تعیین کد معتبر واحد سازمانی بانک خالی می‌ماند.

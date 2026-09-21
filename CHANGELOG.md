@@ -6,6 +6,9 @@
 - Phase 10F adds a four-family Oracle runtime/E2E qualification harness with no fabricated external evidence.
 - Reconciled legacy Phase 6/10D static guards with the Operational v5 Batch contract so the production build verifies the current workflow instead of obsolete direct-Batch actions.
 - Hardened release-root hygiene and added Phase 10E/10F to the clean-package gate.
+- Final Phase 10F Oracle qualification completed for all four deposit families with `PHASE10F_RUNTIME_E2E_PASS`.
+- Absorbed runtime-qualified Phase 10F schema/source hotfixes into the canonical 0.10.0 baseline and added final DB/source/runtime closure verifiers.
+- Added final migration manifest, SHA-256 baseline and release freeze policy; new functional changes move to the next release after closure.
 
 # 0.9.3 — DPS2 Reference Data & FK Reconciliation
 

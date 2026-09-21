@@ -1,32 +1,50 @@
-# Release Notes — 0.10.0
+# Release Notes — 0.10.0 FINAL
 
-## Deposit Opening Operational v5 Alignment
+## Deposit Opening Operational v5
 
-- Added Phase 10A Oracle foundation for Operational Opening v5 and semantic FK reconciliation.
-- Added Phase 10B runtime alignment: pre-settlement Funding Plans can keep `ATTEMPT_AT` null until an actual settlement attempt.
-- Extended the Opening aggregate with risk, expected-activity, joint-account and activation metadata.
-- Converted Funding persistence to a collection and added Obligation / Funding Allocation persistence.
-- Expanded Opening Check persistence with phase, blocking scope, recheck and validity metadata.
-- Added a hard Create Gate recheck immediately before Account creation.
-- Account creation remains `PENDING_ACTIVATION` and sets Opening activation status to `PENDING_READINESS`.
-- Added separate Settlement and Activation Readiness endpoints; Activation requires `READY`.
-- Expired PASS evidence is rejected by the readiness evaluator.
-- Phase 10D aligns the Angular Opening Wizard with Operational v5: CIF Party search, Product-driven Withdrawal Media, cheque quantity, live ACTIVE funding-account selection/ownership verification, Obligation coverage summary and explicit Create-Gate evidence capture.
-- The UI no longer treats required external Compliance/Inquiry checks as automatically PASS.
-- Fee/Tax/Service-Charge obligations are not fabricated; only currently supported obligations are materialized until the relevant service contracts are connected.
-- Digital channels route the prototype org unit to the configured virtual branch code `0205`.
-- Operational v5 Batch is restricted to `GOV_EMPLOYEE_SAVINGS_1376` / `QARD_SAVINGS`; direct group processing/activation is disabled.
-- Existing Phase 9 `ACTIVE -> CLOSED` servicing remains unchanged.
+- Added the Phase 10 Operational Opening v5 schema foundation and semantic FK/index reconciliation.
+- Expanded the Opening aggregate for risk, expected activity, joint-account, obligation, funding allocation and activation metadata.
+- Implemented guarded account lifecycle ordering: Create Account → Settlement → Activation Readiness → Activate.
+- Account creation remains `PENDING_ACTIVATION`; Activation requires a successful `READY` decision.
+- Expired PASS evidence is rejected by Readiness.
+- Angular Opening Wizard is aligned with Operational v5: CIF Party search, Product-driven Withdrawal Media, cheque quantity, ACTIVE funding-account selection/ownership verification, Obligation coverage and explicit Create-Gate evidence.
+- Fee/Tax/Service-Charge obligations are not fabricated while external service contracts are absent.
+- Operational Batch is intake/orchestration only for the approved legal basis/family and does not bypass the individual Opening workflow.
+- Existing Phase 9 account servicing remains intentionally limited; new Hold/Block/Dormancy/Reactivation capabilities are not introduced by 0.10.0.
 
+## Phase 10E / 10F final qualification
 
-## Final Phase 10E / 10F alignment
-- Batch Opening is now an intake/orchestration flow for the legal `GOV_EMPLOYEE_SAVINGS_1376` / `QARD_SAVINGS` exception only.
-- Every valid Batch Item is completed through an independent Opening aggregate and the standard Create -> Settlement -> Readiness -> Activate sequence.
-- Added runtime E2E qualification harness covering QARD_SAVINGS, CURRENT_ACCOUNT, SHORT_TERM_DEPOSIT and LONG_TERM_DEPOSIT without fabricated external evidence.
+- Four-family real runtime E2E qualification completed for:
+  - `QARD_SAVINGS`
+  - `CURRENT_ACCOUNT`
+  - `SHORT_TERM_DEPOSIT`
+  - `LONG_TERM_DEPOSIT`
+- Every family passed `Validate → Persist → Create Account → Settlement → Readiness → Activate`.
+- Final runtime marker: `PHASE10F_RUNTIME_E2E_PASS`.
 
-## Release-candidate hardening
-- Updated legacy Phase 6 and Phase 10D regression guards to validate the current Operational v5 Batch contract instead of obsolete direct Batch Process/Activate UI actions.
-- Strengthened project-root hygiene: unexpected root files now fail release-layout verification, and Phase 10D patch artifacts live under `docs/patches`.
-- Windows/Linux production builds and clean packaging now require the Phase 10E/10F static gate (30/30) before compile/archive progression.
-- Final release status is intentionally not claimed until the four-family Phase 10F Oracle runtime harness returns `PHASE10F_RUNTIME_E2E_PASS` in the target environment.
+## Runtime hotfixes absorbed into the final baseline
 
+The final source package no longer depends on keeping separate ad-hoc runtime ZIPs. It incorporates:
+
+- semantic Phase 7 idempotency/index detection;
+- Phase 10 semantic covering-index rerun handling;
+- full Operational v5 runtime reference allow-list;
+- CASH funding / cash-management transaction reference contract;
+- final metadata-aware Phase 10F fixture preparation;
+- `CREATED_AT DEFAULT SYSTIMESTAMP` reconciliation;
+- final created-account ID integration-reference constraint;
+- canonical FUND_ALLOC `ALLOCATED_AMOUNT NUMBER(19,4)` plus safe legacy-column cleanup;
+- canonical Opening Check result statuses `PASS`, `FAIL`, `PENDING`, `WAIVED`, `NOT_APPLICABLE`;
+- qualification-tool evidence-validity hardening.
+
+## Final closure artifacts
+
+- `release/FINAL-MIGRATION-MANIFEST-0.10.0.md`
+- `release/FINAL-FREEZE-0.10.0.md`
+- `release/FINAL-BASELINE-HASHES-0.10.0.sha256`
+- `database/oracle/dps2/verification/0.10.0-final-verifier.sql`
+- `tools/verify-final-closure-0.10.0.mjs`
+- `tools/final-verify-0.10.0.cmd`
+- `docs/DPS2-0.10.0-PHASE10F-FINAL-RUNTIME-QUALIFICATION-QA.md`
+
+No new business feature should be added to this release after the final closure marker. New servicing or domain work belongs to the next version.
