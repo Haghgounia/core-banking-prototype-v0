@@ -410,6 +410,9 @@ public class DepositOpeningAggregateService {
         }
         if (aggregate.term() != null) {
             OpeningTerm term = aggregate.term();
+            if (term.allowedTermId() == null || term.allowedTermId() <= 0) {
+                errors.put("DEPOSIT_OPENING_TERM.ALLOWED_TERM_ID", "شناسه مدت مجاز محصول باید معتبر و بزرگ‌تر از صفر باشد.");
+            }
             if (term.termValue() == null || term.termValue() <= 0) {
                 errors.put("DEPOSIT_OPENING_TERM.TERM_VALUE", "مقدار مدت باید بزرگ‌تر از صفر باشد.");
             }

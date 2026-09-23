@@ -1,0 +1,58 @@
+-- Core Banking Prototype 0.11.0
+-- DPS2 Phase 11E DB verifier
+SET DEFINE OFF;
+SET SERVEROUTPUT ON;
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+DECLARE
+  v_pass NUMBER:=0; v_fail NUMBER:=0; v NUMBER; v_ddl CLOB;
+  PROCEDURE ok(p VARCHAR2) IS BEGIN v_pass:=v_pass+1; DBMS_OUTPUT.PUT_LINE('PASS | '||p); END;
+  PROCEDURE bad(p VARCHAR2) IS BEGIN v_fail:=v_fail+1; DBMS_OUTPUT.PUT_LINE('FAIL | '||p); END;
+  PROCEDURE assert_table(p VARCHAR2) IS BEGIN SELECT COUNT(*) INTO v FROM ALL_TABLES WHERE OWNER='DPS2' AND TABLE_NAME=p; IF v=1 THEN ok(p||' exists'); ELSE bad(p||' missing'); END IF; END;
+  PROCEDURE assert_index_cols(p_table VARCHAR2,p_cols VARCHAR2,p_label VARCHAR2) IS BEGIN
+    SELECT COUNT(*) INTO v FROM (SELECT INDEX_NAME FROM ALL_IND_COLUMNS WHERE INDEX_OWNER='DPS2' AND TABLE_OWNER='DPS2' AND TABLE_NAME=p_table GROUP BY INDEX_NAME HAVING LISTAGG(COLUMN_NAME,',') WITHIN GROUP (ORDER BY COLUMN_POSITION)=p_cols);
+    IF v>0 THEN ok(p_label); ELSE bad(p_label); END IF;
+  END;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('============================================================');
+  DBMS_OUTPUT.PUT_LINE('DPS2 Phase 11E - Controlled Closure + Reopening DB Verifier');
+  DBMS_OUTPUT.PUT_LINE('============================================================');
+  assert_table('DEPOSIT_ACCOUNT_CLOSURE');
+  assert_table('DEPOSIT_ACCOUNT_CLOSURE_CHECK');
+  assert_table('DEPOSIT_ACCOUNT_CLOSURE_SETTLEMENT_ITEM');
+  assert_table('DEPOSIT_ACCOUNT_REOPENING');
+  assert_table('DEPOSIT_OPERATION_APPROVAL_REQUEST');
+  assert_table('DEPOSIT_ACCOUNT_BALANCE');
+  assert_table('DEPOSIT_ACCOUNT_HOLD');
+  assert_table('DEPOSIT_BALANCE_RESERVATION');
+  assert_table('DEPOSIT_SUBLEDGER_ENTRY');
+  assert_table('DEPOSIT_ACCOUNT_STATUS_HISTORY');
+  assert_table('DEPOSIT_ACCOUNT_LIFECYCLE_EVENT');
+  assert_table('DEPOSIT_OPERATION_IDEMPOTENCY');
+
+  SELECT DBMS_METADATA.GET_DDL('TABLE','DEPOSIT_ACCOUNT_LIFECYCLE_EVENT','DPS2') INTO v_ddl FROM DUAL;
+  IF DBMS_LOB.INSTR(UPPER(v_ddl),'''CLOSE''')>0 AND DBMS_LOB.INSTR(UPPER(v_ddl),'''REOPEN''')>0 THEN ok('lifecycle event contract supports CLOSE/REOPEN'); ELSE bad('lifecycle event contract supports CLOSE/REOPEN'); END IF;
+  SELECT DBMS_METADATA.GET_DDL('TABLE','DEPOSIT_ACCOUNT_CLOSURE','DPS2') INTO v_ddl FROM DUAL;
+  IF DBMS_LOB.INSTR(UPPER(v_ddl),'''REQUESTED''')>0 AND DBMS_LOB.INSTR(UPPER(v_ddl),'''APPROVED''')>0 AND DBMS_LOB.INSTR(UPPER(v_ddl),'''EXECUTED''')>0 THEN ok('closure status contract exists'); ELSE bad('closure status contract exists'); END IF;
+  SELECT DBMS_METADATA.GET_DDL('TABLE','DEPOSIT_ACCOUNT_REOPENING','DPS2') INTO v_ddl FROM DUAL;
+  IF DBMS_LOB.INSTR(UPPER(v_ddl),'''REQUESTED''')>0 AND DBMS_LOB.INSTR(UPPER(v_ddl),'''APPROVED''')>0 AND DBMS_LOB.INSTR(UPPER(v_ddl),'''EXECUTED''')>0 THEN ok('reopening status contract exists'); ELSE bad('reopening status contract exists'); END IF;
+
+  SELECT COUNT(*) INTO v FROM ALL_CONSTRAINTS WHERE OWNER='DPS2' AND TABLE_NAME='DEPOSIT_ACCOUNT_CLOSURE' AND CONSTRAINT_NAME='FK_DEPOSIT_ACCOUNT_CLOSURE_APPROVAL_REQUEST_ID' AND STATUS='ENABLED'; IF v=1 THEN ok('closure approval FK enabled'); ELSE bad('closure approval FK enabled'); END IF;
+  SELECT COUNT(*) INTO v FROM ALL_CONSTRAINTS WHERE OWNER='DPS2' AND TABLE_NAME='DEPOSIT_ACCOUNT_REOPENING' AND CONSTRAINT_NAME='FK_DEPOSIT_ACCOUNT_REOPENING_APPROVAL_REQUEST_ID' AND STATUS='ENABLED'; IF v=1 THEN ok('reopening approval FK enabled'); ELSE bad('reopening approval FK enabled'); END IF;
+  SELECT COUNT(*) INTO v FROM ALL_CONSTRAINTS WHERE OWNER='DPS2' AND TABLE_NAME='DEPOSIT_ACCOUNT_CLOSURE_CHECK' AND CONSTRAINT_NAME='UK_DEPOSIT_ACCOUNT_CLOSURE_CHECK_ACCOUNT_CLOSURE_ID_CHECK_CODE' AND STATUS='ENABLED'; IF v=1 THEN ok('one closure check per code enforced'); ELSE bad('one closure check per code enforced'); END IF;
+
+  assert_index_cols('DEPOSIT_ACCOUNT_CLOSURE','ACCOUNT_ID,CLOSURE_STATUS_CODE','closure account/status index coverage exists');
+  assert_index_cols('DEPOSIT_ACCOUNT_REOPENING','ACCOUNT_ID,REOPEN_STATUS_CODE','reopening account/status index coverage exists');
+  assert_index_cols('DEPOSIT_OPERATION_APPROVAL_REQUEST','ACCOUNT_ID,APPROVAL_STATUS_CODE','approval account/status index coverage exists');
+
+  SELECT COUNT(*) INTO v FROM (SELECT ACCOUNT_ID FROM DPS2.DEPOSIT_ACCOUNT_CLOSURE WHERE CLOSURE_STATUS_CODE IN ('REQUESTED','APPROVED') GROUP BY ACCOUNT_ID HAVING COUNT(*)>1); IF v=0 THEN ok('no account currently has multiple open closures'); ELSE bad('no account currently has multiple open closures'); END IF;
+  SELECT COUNT(*) INTO v FROM (SELECT ACCOUNT_ID FROM DPS2.DEPOSIT_ACCOUNT_REOPENING WHERE REOPEN_STATUS_CODE IN ('REQUESTED','APPROVED') GROUP BY ACCOUNT_ID HAVING COUNT(*)>1); IF v=0 THEN ok('no account currently has multiple open reopenings'); ELSE bad('no account currently has multiple open reopenings'); END IF;
+  SELECT COUNT(*) INTO v FROM DPS2.DEPOSIT_ACCOUNT_CLOSURE C JOIN DPS2.DEPOSIT_OPERATION_APPROVAL_REQUEST A ON A.APPROVAL_REQUEST_ID=C.APPROVAL_REQUEST_ID WHERE C.CLOSURE_STATUS_CODE='EXECUTED' AND A.APPROVAL_STATUS_CODE<>'APPROVED'; IF v=0 THEN ok('executed closures have approved approval request'); ELSE bad('executed closures have approved approval request'); END IF;
+  SELECT COUNT(*) INTO v FROM DPS2.DEPOSIT_ACCOUNT_REOPENING R JOIN DPS2.DEPOSIT_OPERATION_APPROVAL_REQUEST A ON A.APPROVAL_REQUEST_ID=R.APPROVAL_REQUEST_ID WHERE R.REOPEN_STATUS_CODE='EXECUTED' AND A.APPROVAL_STATUS_CODE<>'APPROVED'; IF v=0 THEN ok('executed reopenings have approved approval request'); ELSE bad('executed reopenings have approved approval request'); END IF;
+
+  DBMS_OUTPUT.PUT_LINE('------------------------------------------------------------');
+  DBMS_OUTPUT.PUT_LINE('PHASE11E_DB_VERIFIER_PASS='||v_pass);
+  DBMS_OUTPUT.PUT_LINE('PHASE11E_DB_VERIFIER_FAIL='||v_fail);
+  IF v_fail>0 THEN RAISE_APPLICATION_ERROR(-21159,'Phase 11E DB verifier failed: '||v_fail); END IF;
+  DBMS_OUTPUT.PUT_LINE('PHASE11E_DB_BASELINE_PASS');
+END;
+/

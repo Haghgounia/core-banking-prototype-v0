@@ -1,11 +1,13 @@
 package com.behsazan.corebanking.deposit.account.application;
 
+import com.behsazan.corebanking.deposit.account.balance.application.DepositBalanceService;
 import com.behsazan.corebanking.deposit.account.domain.DepositAccountModels.AccountLifecycleResponse;
 import com.behsazan.corebanking.deposit.account.error.DepositAccountLifecycleException;
 import com.behsazan.corebanking.deposit.account.error.DepositAccountNotFoundException;
 import com.behsazan.corebanking.deposit.account.oracle.DepositAccountRepository;
 import com.behsazan.corebanking.deposit.account.oracle.DepositAccountRepository.AccountRow;
 import com.behsazan.corebanking.deposit.account.oracle.DepositAccountRepository.OpeningLink;
+import com.behsazan.corebanking.deposit.account.term.application.DepositTermContractProvisioningService;
 import com.behsazan.corebanking.deposit.opening.audit.application.DepositOpeningAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,13 +19,19 @@ import java.util.Map;
 public class DepositAccountLifecycleService {
     private final DepositAccountRepository repository;
     private final DepositOpeningAuditService auditService;
+    private final DepositBalanceService balanceService;
+    private final DepositTermContractProvisioningService termContractProvisioningService;
 
     public DepositAccountLifecycleService(
             DepositAccountRepository repository,
-            DepositOpeningAuditService auditService
+            DepositOpeningAuditService auditService,
+            DepositBalanceService balanceService,
+            DepositTermContractProvisioningService termContractProvisioningService
     ) {
         this.repository = repository;
         this.auditService = auditService;
+        this.balanceService = balanceService;
+        this.termContractProvisioningService = termContractProvisioningService;
     }
 
     @Transactional
@@ -67,6 +75,7 @@ public class DepositAccountLifecycleService {
         long accountId = repository.nextAccountId();
         String accountNo = technicalPrototypeAccountNo(accountId);
         repository.insertAccount(accountId, accountNo, opening, actor);
+        balanceService.initializeAccount(accountId, opening.currencyCode(), actor);
         if (repository.linkCreatedAccount(openingRequestId, accountId, actor) != 1) {
             throw new DepositAccountLifecycleException(
                     "اتصال حساب ایجادشده به پرونده Opening انجام نشد.",
@@ -127,6 +136,10 @@ public class DepositAccountLifecycleService {
             );
         }
 
+        termContractProvisioningService.ensureForActivation(
+                account.accountId(), openingRequestId, account.currentProductVersionId(), actor
+        );
+
         String debitCapabilityCode = repository.hasUnresolvedDebitCapabilityChecks(openingRequestId)
                 ? "BLOCKED_BY_RESTRICTION" : "ENABLED";
         if (repository.activateAccount(account.accountId(), debitCapabilityCode, actor) != 1) {
@@ -169,13 +182,14 @@ public class DepositAccountLifecycleService {
         return response(account, opening.activationStatusCode(), false);
     }
 
-    private static AccountLifecycleResponse response(AccountRow row, String openingActivationStatusCode, boolean replay) {
+    private AccountLifecycleResponse response(AccountRow row, String openingActivationStatusCode, boolean replay) {
+        var balance = balanceService.currentBalance(row.accountId());
         return new AccountLifecycleResponse(
                 row.accountId(), row.accountNo(), row.openingRequestId(), row.productVersionId(),
                 row.openedProductVersionId(), row.currentProductVersionId(), row.ownershipTypeCode(),
                 row.currencyCode(), row.openingAmount(), row.openedOn(), row.accountStatusCode(),
                 openingActivationStatusCode, row.activationDeadlineAt(), row.activationPolicyVersion(),
-                row.ledgerBalance(), row.availableBalance(), row.debitCapabilityCode(),
+                balance.ledgerBalance(), balance.availableBalance(), row.debitCapabilityCode(),
                 row.createdAt(), row.activatedAt(), replay
         );
     }

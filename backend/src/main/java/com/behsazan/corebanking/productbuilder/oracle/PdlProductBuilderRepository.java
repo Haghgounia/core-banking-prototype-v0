@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 @Repository
 public class PdlProductBuilderRepository {
     private static final Pattern IDENTIFIER = Pattern.compile("[A-Z][A-Z0-9_$#]*");
-    private static final Pattern SIMPLE_IN = Pattern.compile("(?is)^\\s*\\(?\\s*([A-Z][A-Z0-9_$#]*)\\s+IN\\s*\\((.+)\\)\\s*\\)?\\s*$");
+    private static final Pattern IN_CLAUSE = Pattern.compile("(?is)([A-Z][A-Z0-9_$#]*)\\s+IN\\s*\\(([^()]*)\\)");
     private static final Set<String> SYSTEM_MANAGED = Set.of(
             "CREATED_AT", "CREATED_BY", "UPDATED_AT", "UPDATED_BY", "RECORD_VERSION", "MIGRATED_AT"
     );
@@ -290,10 +290,13 @@ public class PdlProductBuilderRepository {
                 + "AND CONSTRAINT_TYPE='C' AND SEARCH_CONDITION_VC IS NOT NULL";
         Map<String, LinkedHashSet<String>> raw = new LinkedHashMap<>();
         jdbcClient.sql(sql).param("owner", schemaName).param("table", table).query(String.class).list().forEach(condition -> {
-            Matcher matcher = SIMPLE_IN.matcher(condition);
-            if (!matcher.matches()) return;
-            String column = matcher.group(1).toUpperCase(Locale.ROOT);
-            for (String token : splitValues(matcher.group(2))) raw.computeIfAbsent(column, k -> new LinkedHashSet<>()).add(token);
+            Matcher matcher = IN_CLAUSE.matcher(condition);
+            while (matcher.find()) {
+                String column = matcher.group(1).toUpperCase(Locale.ROOT);
+                for (String token : splitValues(matcher.group(2))) {
+                    raw.computeIfAbsent(column, k -> new LinkedHashSet<>()).add(token);
+                }
+            }
         });
         Map<String, List<SelectOption>> result = new LinkedHashMap<>();
         raw.forEach((column, values) -> result.put(column, values.stream().map(this::checkOption).toList()));

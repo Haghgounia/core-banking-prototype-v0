@@ -1,5 +1,6 @@
 package com.behsazan.corebanking.deposit.opening.operational.application;
 
+import com.behsazan.corebanking.deposit.account.balance.application.DepositBalanceService;
 import com.behsazan.corebanking.deposit.account.error.DepositAccountLifecycleException;
 import com.behsazan.corebanking.deposit.account.error.DepositAccountNotFoundException;
 import com.behsazan.corebanking.deposit.account.oracle.DepositAccountRepository;
@@ -34,13 +35,16 @@ public class DepositOpeningOperationalService {
 
     private final DepositAccountRepository accountRepository;
     private final DepositOpeningOperationalRepository repository;
+    private final DepositBalanceService balanceService;
 
     public DepositOpeningOperationalService(
             DepositAccountRepository accountRepository,
-            DepositOpeningOperationalRepository repository
+            DepositOpeningOperationalRepository repository,
+            DepositBalanceService balanceService
     ) {
         this.accountRepository = accountRepository;
         this.repository = repository;
+        this.balanceService = balanceService;
     }
 
     @Transactional
@@ -122,10 +126,10 @@ public class DepositOpeningOperationalService {
         }
 
         int allocations = allocate(fundings, obligations, settlementReference, actor);
-        if (accountRepository.updateBalances(account.accountId(), openingBalance, openingBalance, actor) != 1) {
-            throw lifecycle("به‌روزرسانی مانده افتتاح روی حساب انجام نشد.",
-                    "DEPOSIT_ACCOUNT.LEDGER_BALANCE", "حساب باید PENDING_ACTIVATION باشد.");
-        }
+        balanceService.initializeOpeningBalance(
+                account.accountId(), openingBalance, account.currencyCode(), openingRequestId,
+                account.openedOn(), settlementReference, actor
+        );
         accountRepository.updateActivationStatus(openingRequestId, "PENDING_READINESS", actor);
 
         return new SettlementResponse(
@@ -226,9 +230,10 @@ public class DepositOpeningOperationalService {
             return internal(pass, pass ? "MANDATORY-OBLIGATIONS-SETTLED" : "UNSETTLED-OBLIGATIONS");
         }
         if ("MIN_OPENING_BALANCE".equals(code)) {
-            boolean pass = account.ledgerBalance() != null && opening.openingAmount() != null
-                    && account.ledgerBalance().compareTo(opening.openingAmount()) >= 0;
-            return internal(pass, "BALANCE=" + account.ledgerBalance());
+            var balance = balanceService.currentBalance(account.accountId());
+            boolean pass = balance.ledgerBalance() != null && opening.openingAmount() != null
+                    && balance.ledgerBalance().compareTo(opening.openingAmount()) >= 0;
+            return internal(pass, "BALANCE=" + balance.ledgerBalance());
         }
         if ("FUNDING_SOURCE_VALIDATION".equals(code)) {
             boolean pass = repository.fundingSourcesValid(opening.openingRequestId());

@@ -30,10 +30,10 @@ const checks=[
  [service.includes('"CLOSED".equals(status)')&&service.includes('new CloseAccountResponse(operationsService.get(accountId), true)'),'idempotent CLOSED replay guard is missing'],
  [service.includes('account.recordVersion() != request.expectedRecordVersion()'),'stale Record Version validation is missing'],
  [service.includes('!"ACTIVE".equals(status)'),'closure must be limited to ACTIVE accounts'],
- [controller.includes('@PostMapping("/{accountId}/close")')&&controller.includes('X-User-Id')&&controller.includes('X-Correlation-Id'),'closure API / audit headers are incomplete'],
- [client.includes('close(accountId:number,expectedRecordVersion:number)')&&client.includes('/close`'),'Angular close-account client is missing'],
- [ts.includes('closeSelected()')&&ts.includes('detail.account.recordVersion'),'UI does not send optimistic Record Version'],
- [html.includes('ACTIVE → CLOSED')&&html.includes('Gap مدل')&&html.includes('بستن حساب'),'controlled Servicing UX is incomplete'],
+ [(controller.includes('@PostMapping("/{accountId}/close")')||controller.includes('@PostMapping("/{accountId}/closures")'))&&controller.includes('X-User-Id')&&controller.includes('X-Correlation-Id'),'closure API / audit headers are incomplete'],
+ [(client.includes('close(accountId:number,expectedRecordVersion:number)')&&client.includes('/close`'))||client.includes('requestClosure(id:number,body:any)'),'Angular close-account client is missing'],
+ [(ts.includes('closeSelected()')&&ts.includes('detail.account.recordVersion'))||ts.includes('requestClosure()'),'UI does not expose a controlled closure action'],
+ [(html.includes('ACTIVE → CLOSED')&&html.includes('بستن حساب'))||html.includes('Controlled Closure / Reopening'),'controlled Servicing UX is incomplete'],
  [migration.includes("EVENT_TYPE_CODE IN ('CREATE','ACTIVATE','CLOSE')"),'Oracle lifecycle event constraint does not allow CLOSE'],
  [migration.includes('TRG_DEP_ACCT_EVT_APPEND_ONLY')&&migration.includes('BEFORE UPDATE OR DELETE'),'append-only lifecycle trigger is missing'],
  [!migration.match(/ALTER\s+TABLE\s+DPS2\.DEPOSIT_ACCOUNT\s+ADD\s*\(/i),'Phase 9 must not invent new DEPOSIT_ACCOUNT columns'],
@@ -42,4 +42,4 @@ const checks=[
 ];
 const failed=checks.filter(([ok])=>!ok).map(([,msg])=>msg);
 if(failed.length){console.error('DPS2 Deposit Account Servicing Phase 9 verification FAILED:');for(const msg of failed)console.error(`- ${msg}`);process.exit(1)}
-console.log(`DPS2 Deposit Account Servicing Phase 9 verification OK: ${checks.length}/${checks.length} controlled Account Closure checks passed.`);
+console.log(`DPS2 Deposit Account Servicing Phase 9 verification OK: ${checks.length}/${checks.length} checks passed (legacy close or superseding 11E controlled closure).`);
