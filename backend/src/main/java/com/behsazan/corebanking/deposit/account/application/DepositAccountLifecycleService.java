@@ -8,6 +8,7 @@ import com.behsazan.corebanking.deposit.account.oracle.DepositAccountRepository;
 import com.behsazan.corebanking.deposit.account.oracle.DepositAccountRepository.AccountRow;
 import com.behsazan.corebanking.deposit.account.oracle.DepositAccountRepository.OpeningLink;
 import com.behsazan.corebanking.deposit.account.term.application.DepositTermContractProvisioningService;
+import com.behsazan.corebanking.deposit.account.profit.application.DepositProfitContractProvisioningService;
 import com.behsazan.corebanking.deposit.opening.audit.application.DepositOpeningAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,17 +22,20 @@ public class DepositAccountLifecycleService {
     private final DepositOpeningAuditService auditService;
     private final DepositBalanceService balanceService;
     private final DepositTermContractProvisioningService termContractProvisioningService;
+    private final DepositProfitContractProvisioningService profitContractProvisioningService;
 
     public DepositAccountLifecycleService(
             DepositAccountRepository repository,
             DepositOpeningAuditService auditService,
             DepositBalanceService balanceService,
-            DepositTermContractProvisioningService termContractProvisioningService
+            DepositTermContractProvisioningService termContractProvisioningService,
+            DepositProfitContractProvisioningService profitContractProvisioningService
     ) {
         this.repository = repository;
         this.auditService = auditService;
         this.balanceService = balanceService;
         this.termContractProvisioningService = termContractProvisioningService;
+        this.profitContractProvisioningService = profitContractProvisioningService;
     }
 
     @Transactional
@@ -137,6 +141,9 @@ public class DepositAccountLifecycleService {
         }
 
         termContractProvisioningService.ensureForActivation(
+                account.accountId(), openingRequestId, account.currentProductVersionId(), actor
+        );
+        profitContractProvisioningService.ensureForActivation(
                 account.accountId(), openingRequestId, account.currentProductVersionId(), actor
         );
 

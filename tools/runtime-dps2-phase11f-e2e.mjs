@@ -75,6 +75,18 @@ async function resolveAllowedTerm(productVersionId){
   }
   throw new Error(`NO_USABLE_PDL_ALLOWED_TERM_FOR_PRODUCT_VERSION=${productVersionId}`);
 }
+
+function rateFrom(row,descriptor){const preferred=['RATE_VALUE','ANNUAL_RATE','PROFIT_RATE','INTEREST_RATE','PERCENTAGE_RATE','RATE_PERCENT','FIXED_RATE','BASE_RATE','COMPONENT_VALUE','VALUE'];for(const name of preferred){const v=number(row?.[name]);if(v!=null&&v>0)return v}for(const c of descriptor?.columns||[]){const name=text(c.name).toUpperCase();if(name.endsWith('_ID')||!text(c.dataType).toUpperCase().startsWith('NUMBER'))continue;if(/RATE|PERCENT/.test(name)){const v=number(row?.[name]);if(v!=null&&v>0)return v}}return null}
+function firstCode(rows,names,fallback){for(const row of rows){for(const name of names){const v=text(row?.[name]).toUpperCase();if(v)return v}}return fallback}
+async function resolveProfitConfiguration(productVersionId){
+  const [ruleDescriptor,componentDescriptor,tierDescriptor,paymentDescriptor]=await Promise.all([pdlDescriptor('PRODUCT_PRICING_RULE'),pdlDescriptor('PRODUCT_PRICING_COMPONENT'),pdlDescriptor('PRODUCT_RATE_TIER'),pdlDescriptor('DEPOSIT_PROFIT_PAYMENT_RULE')]);
+  const versionColumn=columnName(ruleDescriptor,['PRODUCT_VERSION_ID']);if(!versionColumn)throw new Error('PDL_PRICING_RULE_PRODUCT_VERSION_COLUMN_NOT_FOUND');
+  const rules=((await pdlRows('PRODUCT_PRICING_RULE',versionColumn,productVersionId)).items||[]).filter(activeNow);if(!rules.length)throw new Error(`NO_ACTIVE_PDL_PRICING_RULE_FOR_PRODUCT_VERSION=${productVersionId}`);
+  const paymentRows=((await pdlRows('DEPOSIT_PROFIT_PAYMENT_RULE','PRODUCT_VERSION_ID',productVersionId)).items||[]).filter(activeNow);if(!paymentRows.length)throw new Error(`NO_ACTIVE_PDL_PROFIT_PAYMENT_RULE_FOR_PRODUCT_VERSION=${productVersionId}`);
+  const payment=paymentRows[0];const profitPaymentRuleId=number(payment.PROFIT_PAYMENT_RULE_ID??payment[paymentDescriptor.primaryKeyColumn]);if(!(profitPaymentRuleId>0))throw new Error(`PDL_PROFIT_PAYMENT_RULE_ID_MISSING_FOR_PRODUCT_VERSION=${productVersionId}`);
+  for(const rule of rules){const pricingRuleId=number(rule.PRICING_RULE_ID??rule[ruleDescriptor.primaryKeyColumn]);if(!(pricingRuleId>0))continue;const components=((await pdlRows('PRODUCT_PRICING_COMPONENT','PRICING_RULE_ID',pricingRuleId)).items||[]).filter(activeNow);for(const component of components){const pricingComponentId=number(component.PRICING_COMPONENT_ID??component[componentDescriptor.primaryKeyColumn]);if(!(pricingComponentId>0))continue;const tiers=((await pdlRows('PRODUCT_RATE_TIER','PRICING_COMPONENT_ID',pricingComponentId)).items||[]).filter(activeNow);const tier=tiers[0]||null;const rateTierId=tier?number(tier.RATE_TIER_ID??tier[tierDescriptor.primaryKeyColumn]):null;const rateValue=rateFrom(tier||{},tierDescriptor)||rateFrom(component,componentDescriptor)||rateFrom(rule,ruleDescriptor);if(!(rateValue>0))continue;return {pricingRuleId,pricingComponentId,rateTierId:rateTierId>0?rateTierId:null,profitPaymentRuleId,rateValue,calculationMethodCode:firstCode([tier,component,rule].filter(Boolean),['CALCULATION_METHOD_CODE','PRICING_METHOD_CODE'],'PERCENTAGE'),dayCountBasisCode:firstCode([tier,component,rule].filter(Boolean),['DAY_COUNT_BASIS_CODE'],'ACT_365'),accrualFrequencyCode:firstCode([component,rule].filter(Boolean),['ACCRUAL_FREQUENCY_CODE'],'DAILY'),paymentFrequencyCode:firstCode([payment],['PAYMENT_FREQUENCY_CODE'],'MATURITY'),paymentDayRuleCode:firstCode([payment],['PAYMENT_DAY_RULE_CODE'],'MATURITY_DATE'),firstPaymentRuleCode:firstCode([payment],['FIRST_PAYMENT_RULE_CODE'],'MATURITY_ONLY'),holidayAdjustmentCode:firstCode([payment],['HOLIDAY_ADJUSTMENT_CODE'],'NEXT_BUSINESS_DAY'),paymentDestinationCode:firstCode([payment],['PAYMENT_DESTINATION_CODE'],'SAME_DEPOSIT')}}}
+  throw new Error(`NO_USABLE_PDL_PRICING_COMPONENT_RATE_FOR_PRODUCT_VERSION=${productVersionId}`);
+}
 async function candidateAccounts(){
   const all=[];
   for(const family of ['SHORT_TERM_DEPOSIT','LONG_TERM_DEPOSIT']){
@@ -112,8 +124,9 @@ async function governedPdlTermTemplate(primaryPartyId){
       const productVersionId=number(version.PRODUCT_VERSION_ID);if(!(productVersionId>0))continue;
       try{
         const allowedTerm=await resolveAllowedTerm(productVersionId);
+        const profitConfig=await resolveProfitConfiguration(productVersionId);
         console.log(`PHASE11F_RUNTIME_E2E_PDL_TEMPLATE_PRODUCT_VERSION=${productVersionId} family=${text(product.PRODUCT_FAMILY_CODE)}`);
-        return {template:{productVersionId,primaryPartyId,productFamilyCode:text(product.PRODUCT_FAMILY_CODE)},allowedTerm};
+        return {template:{productVersionId,primaryPartyId,productFamilyCode:text(product.PRODUCT_FAMILY_CODE)},allowedTerm,profitConfig};
       }catch(e){
         console.log(`PHASE11F_RUNTIME_E2E_SKIP_PDL_PRODUCT_VERSION=${productVersionId} reason=${String(e.message).slice(0,220)}`);
       }
@@ -128,7 +141,7 @@ async function bootstrapTemplate(){
     const productVersionId=number(template.productVersionId),primaryPartyId=number(template.primaryPartyId);
     if(!(productVersionId>0)||!(primaryPartyId>0)||seen.has(productVersionId))continue;
     seen.add(productVersionId);
-    try{return {template,allowedTerm:await resolveAllowedTerm(productVersionId)}}
+    try{const allowedTerm=await resolveAllowedTerm(productVersionId);return {template,allowedTerm,profitConfig:await resolveProfitConfiguration(productVersionId)}}
     catch(e){console.log(`PHASE11F_RUNTIME_E2E_SKIP_TEMPLATE_PRODUCT_VERSION=${productVersionId} reason=${String(e.message).slice(0,220)}`)}
   }
   const donor=templates.find(t=>number(t.primaryPartyId)>0);
@@ -136,17 +149,19 @@ async function bootstrapTemplate(){
     const governed=await governedPdlTermTemplate(number(donor.primaryPartyId));
     if(governed)return governed;
   }
-  throw new Error('NO_OPEN_TERM_PRODUCT_VERSION_WITH_GOVERNED_ALLOWED_TERM; run tools/reconcile-pdl-term-config-phase11f.mjs --apply');
+  throw new Error('NO_OPEN_TERM_PRODUCT_VERSION_WITH_GOVERNED_ALLOWED_TERM_OR_PROFIT_CONFIGURATION; run tools/reconcile-pdl-term-config-phase11f.mjs --apply then tools/reconcile-pdl-profit-config-phase11g.mjs --apply');
 }
 async function bootstrapTermAccount(){
-  const {template,allowedTerm}=await bootstrapTemplate();
+  const {template,allowedTerm,profitConfig}=await bootstrapTemplate();
   const run=uid();const amount=1000;const evidence=`P11F-${run}`;const actor='phase11f.qa';const start=today();const maturity=addTerm(start,allowedTerm.termValue,allowedTerm.termUnitCode);
   console.log(`PHASE11F_RUNTIME_E2E_ALLOWED_TERM=${allowedTerm.allowedTermId} code=${allowedTerm.termCode} value=${allowedTerm.termValue} unit=${allowedTerm.termUnitCode}`);
+  console.log(`PHASE11F_RUNTIME_E2E_PRICING rule=${profitConfig.pricingRuleId} component=${profitConfig.pricingComponentId} tier=${profitConfig.rateTierId||''} paymentRule=${profitConfig.profitPaymentRuleId} rate=${profitConfig.rateValue}`);
   const aggregate={
     DEPOSIT_OPENING_REQUEST:{REQUEST_NO:`P11F-${run}`.slice(0,40),IDEMPOTENCY_KEY:`P11F-${run}`.slice(0,80),PRODUCT_VERSION_ID:Number(template.productVersionId),REQUEST_TYPE_CODE:'CUSTOMER_REQUEST',OWNERSHIP_TYPE_CODE:'INDIVIDUAL',CURRENCY_CODE:'IRR',OPENING_CHANNEL_CODE:'BRANCH',ORG_UNIT_CODE:'001',REQUESTED_OPENING_DATE:start,OPENING_AMOUNT:amount,SOURCE_OF_FUNDS_CODE:'SAVINGS',PURPOSE_CODE:'INVESTMENT',CUSTOMER_RISK_LEVEL_CODE:'LOW',RISK_ASSESSMENT_REFERENCE:`${evidence}-RISK`.slice(0,120),EXPECTED_ACTIVITY_REFERENCE:`${evidence}-ACTIVITY`.slice(0,120),ACTIVATION_STATUS_CODE:'NOT_CREATED',REQUEST_STATUS_CODE:'APPROVED'},
     DEPOSIT_OPENING_PARTY:[{PARTY_ID:Number(template.primaryPartyId),ROLE_CODE:'OWNER',IS_PRIMARY:1,OWNERSHIP_PERCENT:100,SEQUENCE_NO:1}],
     DEPOSIT_OPENING_TERM:{ALLOWED_TERM_ID:allowedTerm.allowedTermId,TERM_CODE:allowedTerm.termCode,TERM_VALUE:allowedTerm.termValue,TERM_UNIT_CODE:allowedTerm.termUnitCode,START_DATE:start,MATURITY_DATE:maturity,AUTO_RENEW_FLAG:0},
     DEPOSIT_OPENING_MATURITY_INSTRUCTION:{MATURITY_ACTION_CODE:'RENEW_PRINCIPAL',INSTRUCTION_SOURCE_CODE:'CUSTOMER'},
+    DEPOSIT_OPENING_PROFIT_INSTRUCTION:{PRICING_RULE_ID:profitConfig.pricingRuleId,PRICING_COMPONENT_ID:profitConfig.pricingComponentId,RATE_TIER_ID:profitConfig.rateTierId,PROFIT_PAYMENT_RULE_ID:profitConfig.profitPaymentRuleId,RATE_VALUE:profitConfig.rateValue,CALCULATION_METHOD_CODE:profitConfig.calculationMethodCode,DAY_COUNT_BASIS_CODE:profitConfig.dayCountBasisCode,ACCRUAL_FREQUENCY_CODE:profitConfig.accrualFrequencyCode,PAYMENT_FREQUENCY_CODE:profitConfig.paymentFrequencyCode,PAYMENT_DAY_RULE_CODE:profitConfig.paymentDayRuleCode,FIRST_PAYMENT_RULE_CODE:profitConfig.firstPaymentRuleCode,HOLIDAY_ADJUSTMENT_CODE:profitConfig.holidayAdjustmentCode,PAYMENT_DESTINATION_CODE:profitConfig.paymentDestinationCode,DESTINATION_ACCOUNT_REFERENCE:null,DESTINATION_SELECTED_BY_CUSTOMER:0},
     DEPOSIT_OPENING_OBLIGATION:[{OPENING_OBLIGATION_ID:1,OBLIGATION_TYPE_CODE:'INITIAL_BALANCE',SOURCE_SYSTEM_CODE:'PHASE11F',SOURCE_REFERENCE:`${evidence}-INITIAL`.slice(0,120),DESCRIPTION:'Phase 11F funded term runtime account',GROSS_AMOUNT:amount,WAIVED_AMOUNT:0,FINAL_AMOUNT:amount,CURRENCY_CODE:'IRR',MANDATORY_FOR_ACTIVATION_FLAG:1,SETTLEMENT_STATUS_CODE:'PENDING'}],
     DEPOSIT_OPENING_FUNDING:[{OPENING_FUNDING_ID:1,FUNDING_METHOD_CODE:'CASH',FUNDING_AMOUNT:amount,SOURCE_PARTY_ID:Number(template.primaryPartyId),SOURCE_REFERENCE:`${evidence}-FUNDING`.slice(0,120),FUNDING_PURPOSE_CODE:'INITIAL_BALANCE',SOURCE_OWNERSHIP_VERIFIED_FLAG:1,SOURCE_VERIFICATION_REFERENCE:`${evidence}-SOURCE-VERIFIED`.slice(0,120),CASH_MANAGEMENT_TXN_REF:`${evidence}-CASH-MGMT`.slice(0,100),FUNDING_STATUS_CODE:'PENDING'}],
     DEPOSIT_OPENING_CHECK:createGateChecks.map(([code,type,phase],i)=>({CHECK_CODE:code,CHECK_TYPE_CODE:type,ATTEMPT_NO:1,CHECK_PHASE_CODE:phase,BLOCKING_SCOPE_CODE:'ACCOUNT_CREATION',REQUIRED_FLAG:1,RECHECK_REQUIRED_FLAG:0,RESULT_STATUS_CODE:'PASS',RESULT_REFERENCE:`${evidence}-CG-${String(i+1).padStart(2,'0')}`.slice(0,120),SOURCE_EVALUATION_REFERENCE:'PHASE11F_RUNTIME_BOOTSTRAP'})),
