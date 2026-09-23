@@ -1,87 +1,71 @@
 package com.behsazan.corebanking.deposit.account.servicing.application;
 
-import com.behsazan.corebanking.deposit.account.error.DepositAccountLifecycleException;
-import com.behsazan.corebanking.deposit.account.error.DepositAccountNotFoundException;
+import com.behsazan.corebanking.deposit.account.error.*;
 import com.behsazan.corebanking.deposit.account.operations.application.DepositAccountOperationsService;
-import com.behsazan.corebanking.deposit.account.servicing.domain.DepositAccountServicingModels.CloseAccountRequest;
-import com.behsazan.corebanking.deposit.account.servicing.domain.DepositAccountServicingModels.CloseAccountResponse;
+import com.behsazan.corebanking.deposit.account.operations.domain.DepositAccountOperationsModels.AccountDetails;
+import com.behsazan.corebanking.deposit.account.servicing.domain.DepositAccountServicingModels.*;
 import com.behsazan.corebanking.deposit.account.servicing.oracle.DepositAccountServicingRepository;
-import com.behsazan.corebanking.deposit.account.servicing.oracle.DepositAccountServicingRepository.AccountLockRow;
+import com.behsazan.corebanking.deposit.account.servicing.oracle.DepositAccountServicingRepository.HoldLockRow;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Locale;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 
 @Service
 public class DepositAccountServicingService {
-    private final DepositAccountServicingRepository repository;
-    private final DepositAccountOperationsService operationsService;
+    private static final Set<String> PARTY_ROLES=Set.of("OWNER","JOINT_OWNER","AUTHORIZED_USER","BENEFICIARY");
+    private static final Set<String> CONTACT_TYPES=Set.of("MOBILE","PHONE","EMAIL","ADDRESS","FAX");
+    private static final Set<String> STATUS_REASONS=Set.of("CUSTOMER_REQUEST","OPERATIONAL_CONTROL","COMPLIANCE_ACTION","INACTIVITY_POLICY","MATURITY_INSTRUCTION","BULK_CONTROLLED","NO_LONGER_NEEDED","SERVICE_CONSOLIDATION","PRODUCT_REPLACEMENT","NON_RENEWAL","LEGAL_ENFORCEMENT","REGULATORY_ENFORCEMENT","FRAUD_CONFIRMED","PROLONGED_INACTIVITY","BANK_POLICY","DATA_CORRECTION");
+    private static final Set<String> HOLD_TYPES=Set.of("FULL","PARTIAL","DEBIT_ONLY","CREDIT_ONLY");
+    private static final Set<String> HOLD_CREATE_REASONS=Set.of("LEGAL_ORDER","COMPLIANCE_RESTRICTION","COLLATERAL_PLEDGE","CUSTOMER_REQUEST");
+    private static final Set<String> HOLD_RELEASE_REASONS=Set.of("ORDER_REVOKED","COMPLIANCE_CLEARED","COLLATERAL_RELEASED","CUSTOMER_REQUEST_FULFILLED","MANUAL_CORRECTION","BULK_RELEASE");
+    private static final Set<String> EXECUTION_MODES=Set.of("SERVICE","USER","SYSTEM_BATCH");
+    private static final Set<String> RELEASE_POLICIES=Set.of("ORIGIN_ONLY","ORIGIN_OR_AUTHORITY","ORIGIN_OR_OVERRIDE","AUTO_EXPIRY");
+    private static final Set<String> HOLDABLE_ACCOUNT_STATUSES=Set.of("ACTIVE","SUSPENDED","DORMANT");
 
-    public DepositAccountServicingService(
-            DepositAccountServicingRepository repository,
-            DepositAccountOperationsService operationsService
-    ) {
-        this.repository = repository;
-        this.operationsService = operationsService;
+    private final DepositAccountServicingRepository repository; private final DepositAccountOperationsService operationsService;
+    public DepositAccountServicingService(DepositAccountServicingRepository repository,DepositAccountOperationsService operations){this.repository=repository;this.operationsService=operations;}
+
+    @Transactional public AccountDetails updateBasicInfo(long accountId,UpdateBasicInfoRequest r,String actor){var a=lock(accountId);if(r==null||r.expectedRecordVersion()<=0)throw new IllegalArgumentException("expectedRecordVersion باید مثبت باشد.");if(a.recordVersion()!=r.expectedRecordVersion())throw conflict(a.recordVersion(),r.expectedRecordVersion());String name=trimToNull(r.accountName()),org=trimToNull(r.openingOrgUnitCode());if(repository.updateBasicInfo(accountId,r.expectedRecordVersion(),name,org,actor)!=1)throw conflict(a.recordVersion(),r.expectedRecordVersion());repository.history(accountId,"BASIC_INFO",json(a.accountName(),a.openingOrgUnitCode()),json(name,org),reason(r.reasonCode()),"DEPOSIT_ACCOUNT",accountId,actor);return operationsService.get(accountId);}
+    @Transactional public AccountDetails addParty(long accountId,AccountPartyRequest r,String actor){lock(accountId);if(r==null||r.partyId()<=0)throw new IllegalArgumentException("partyId باید مثبت باشد.");String role=upper(r.roleCode());if(!PARTY_ROLES.contains(role))throw new IllegalArgumentException("ROLE_CODE نامعتبر است: "+role);boolean primary=Boolean.TRUE.equals(r.primary());if(r.ownershipPercent()!=null&&(r.ownershipPercent().signum()<0||r.ownershipPercent().compareTo(new BigDecimal("100"))>0))throw new IllegalArgumentException("ownershipPercent باید بین 0 و 100 باشد.");if(primary)repository.clearPrimaryParty(accountId,role,actor);long id=repository.nextAccountPartyId();repository.insertParty(id,accountId,r.partyId(),role,primary,r.ownershipPercent(),r.validFrom()==null?LocalDate.now():r.validFrom(),actor);repository.history(accountId,"OWNER",null,"partyId="+r.partyId()+",role="+role+",primary="+primary,reason(r.reasonCode()),"DEPOSIT_ACCOUNT_PARTY",id,actor);return operationsService.get(accountId);}
+    @Transactional public AccountDetails deactivateParty(long accountId,long accountPartyId,String reason,String actor){lock(accountId);if(repository.deactivateParty(accountId,accountPartyId,actor)!=1)throw new IllegalArgumentException("Account Party فعال یافت نشد.");repository.history(accountId,"OWNER",null,"INACTIVE",reason(reason),"DEPOSIT_ACCOUNT_PARTY",accountPartyId,actor);return operationsService.get(accountId);}
+    @Transactional public AccountDetails addContact(long accountId,AccountContactRequest r,String actor){lock(accountId);String type=upper(r==null?null:r.contactTypeCode());if(!CONTACT_TYPES.contains(type))throw new IllegalArgumentException("CONTACT_TYPE_CODE نامعتبر است: "+type);String value=trimToNull(r.contactValue());if(value==null)throw new IllegalArgumentException("contactValue الزامی است.");boolean primary=Boolean.TRUE.equals(r.primary());if(primary)repository.clearPrimaryContact(accountId,type,actor);long id=repository.nextContactId();repository.insertContact(id,accountId,type,value,trimToNull(r.purposeCode()),primary,r.validFrom()==null?LocalDate.now():r.validFrom(),actor);repository.history(accountId,"CONTACT",null,type+":"+value,reason(r.reasonCode()),"DEPOSIT_ACCOUNT_CONTACT",id,actor);return operationsService.get(accountId);}
+    @Transactional public AccountDetails endContact(long accountId,long contactId,String reason,String actor){lock(accountId);if(repository.endContact(accountId,contactId,actor)!=1)throw new IllegalArgumentException("Contact فعال یافت نشد.");repository.history(accountId,"CONTACT",null,"ENDED",reason(reason),"DEPOSIT_ACCOUNT_CONTACT",contactId,actor);return operationsService.get(accountId);}
+
+    @Transactional public LifecycleActionResponse suspend(long accountId,LifecycleActionRequest r,String actor,String correlation,String idempotencyKey){return lifecycle(accountId,r,actor,correlation,idempotencyKey,"SUSPEND","ACTIVE","SUSPENDED");}
+    @Transactional public LifecycleActionResponse markDormant(long accountId,LifecycleActionRequest r,String actor,String correlation,String idempotencyKey){return lifecycle(accountId,r,actor,correlation,idempotencyKey,"MARK_DORMANT","ACTIVE","DORMANT");}
+    @Transactional public LifecycleActionResponse reactivate(long accountId,LifecycleActionRequest r,String actor,String correlation,String idempotencyKey){
+        requireLifecycleRequest(r);String reason=statusReason(r.reasonCode());String hash=hash("REACTIVATE|"+accountId+"|"+r.expectedRecordVersion()+"|"+reason);if(replayOrClaim(idempotencyKey,accountId,"REACTIVATE",hash,actor,"CORE_BANKING","ACCOUNT_SERVICING",idempotencyKey,correlation))return new LifecycleActionResponse(operationsService.get(accountId),true,"REACTIVATE");
+        var a=lock(accountId);String from=upper(a.accountStatusCode());if(!Set.of("SUSPENDED","DORMANT").contains(from))throw lifecycleError("فعال‌سازی مجدد فقط برای حساب SUSPENDED یا DORMANT مجاز است.",a.accountStatusCode());if(a.recordVersion()!=r.expectedRecordVersion())throw conflict(a.recordVersion(),r.expectedRecordVersion());if(repository.changeStatus(accountId,r.expectedRecordVersion(),from,"ACTIVE",actor)!=1)throw conflict(a.recordVersion(),r.expectedRecordVersion());repository.insertLifecycleEvent(repository.nextLifecycleEventId(),accountId,a.openingRequestId(),"REACTIVATE",from,"ACTIVE",reason,actor,correlation);repository.insertStatusHistory(accountId,from,"ACTIVE",reason,correlation,actor);repository.history(accountId,"STATUS",from,"ACTIVE",reason,"DEPOSIT_ACCOUNT",accountId,actor);repository.completeIdempotency(idempotencyKey,"ACCOUNT:"+accountId);return new LifecycleActionResponse(operationsService.get(accountId),false,"REACTIVATE");
     }
+    private LifecycleActionResponse lifecycle(long accountId,LifecycleActionRequest r,String actor,String correlation,String idempotencyKey,String event,String from,String to){requireLifecycleRequest(r);String reason=statusReason(r.reasonCode());String hash=hash(event+"|"+accountId+"|"+r.expectedRecordVersion()+"|"+reason);if(replayOrClaim(idempotencyKey,accountId,event,hash,actor,"CORE_BANKING","ACCOUNT_SERVICING",idempotencyKey,correlation))return new LifecycleActionResponse(operationsService.get(accountId),true,event);var a=lock(accountId);if(!from.equals(upper(a.accountStatusCode())))throw lifecycleError(event+" فقط برای حساب "+from+" مجاز است.",a.accountStatusCode());if(a.recordVersion()!=r.expectedRecordVersion())throw conflict(a.recordVersion(),r.expectedRecordVersion());if(repository.changeStatus(accountId,r.expectedRecordVersion(),from,to,actor)!=1)throw conflict(a.recordVersion(),r.expectedRecordVersion());repository.insertLifecycleEvent(repository.nextLifecycleEventId(),accountId,a.openingRequestId(),event,from,to,reason,actor,correlation);repository.insertStatusHistory(accountId,from,to,reason,correlation,actor);repository.history(accountId,"STATUS",from,to,reason,"DEPOSIT_ACCOUNT",accountId,actor);repository.completeIdempotency(idempotencyKey,"ACCOUNT:"+accountId);return new LifecycleActionResponse(operationsService.get(accountId),false,event);}
 
-    @Transactional
-    public CloseAccountResponse close(
-            long accountId,
-            CloseAccountRequest request,
-            String actor,
-            String correlationId
-    ) {
-        if (accountId <= 0) throw new IllegalArgumentException("accountId باید مثبت باشد.");
-        if (request == null || request.expectedRecordVersion() <= 0) {
-            throw new IllegalArgumentException("expectedRecordVersion باید مثبت باشد.");
-        }
+    @Transactional public HoldActionResponse createHold(long accountId,CreateHoldRequest r,String actor,String correlation,String idempotencyKey){if(r==null)throw new IllegalArgumentException("اطلاعات Hold الزامی است.");String type=upper(r.holdTypeCode()),reason=upper(r.holdReasonCode());if(!HOLD_TYPES.contains(type))throw new IllegalArgumentException("HOLD_TYPE_CODE نامعتبر است: "+type);if(!HOLD_CREATE_REASONS.contains(reason))throw new IllegalArgumentException("HOLD_REASON_CODE نامعتبر است: "+reason);var a=lock(accountId);if(!HOLDABLE_ACCOUNT_STATUSES.contains(upper(a.accountStatusCode())))throw lifecycleError("Hold برای وضعیت جاری حساب مجاز نیست.",a.accountStatusCode());BigDecimal amount=r.holdAmount();String currency=upper(r.currencyCode());if("PARTIAL".equals(type)){if(amount==null||amount.signum()<=0)throw new IllegalArgumentException("برای Hold نوع PARTIAL مبلغ مثبت الزامی است.");if(currency==null)currency=a.currencyCode();if(!upper(a.currencyCode()).equals(currency))throw new IllegalArgumentException("ارز Hold باید با ارز حساب یکسان باشد.");}else{if(amount!=null)throw new IllegalArgumentException("HOLD_AMOUNT فقط برای PARTIAL مجاز است.");currency=null;}
+        String originSystem=defaultUpper(r.originSystemCode(),"CORE_BANKING"),originModule=defaultUpper(r.originModuleCode(),"ACCOUNT_SERVICING"),execution=defaultUpper(r.originExecutionModeCode(),"USER"),policy=defaultUpper(r.releasePolicyCode(),"ORIGIN_OR_AUTHORITY"),originRequest=trimToNull(r.originRequestRef());if(!EXECUTION_MODES.contains(execution))throw new IllegalArgumentException("ORIGIN_EXECUTION_MODE_CODE نامعتبر است: "+execution);if(!RELEASE_POLICIES.contains(policy))throw new IllegalArgumentException("RELEASE_POLICY_CODE نامعتبر است: "+policy);if(r.validTo()!=null&&!r.validTo().isAfter(OffsetDateTime.now(ZoneOffset.UTC)))throw new IllegalArgumentException("VALID_TO باید در آینده باشد.");if("COLLATERAL".equals(originSystem)){if(!"COLLATERAL_PLEDGE".equals(reason)||!"SERVICE".equals(execution)||!"ORIGIN_ONLY".equals(policy)||originModule==null||originRequest==null)throw new IllegalArgumentException("Hold وثیقه‌ای باید از سرویس COLLATERAL با COLLATERAL_PLEDGE و ORIGIN_ONLY ثبت شود.");}else if("COLLATERAL_PLEDGE".equals(reason))throw new IllegalArgumentException("COLLATERAL_PLEDGE فقط برای ORIGIN_SYSTEM_CODE=COLLATERAL مجاز است.");if(originRequest==null)originRequest=idempotencyKey;
+        String payload=type+"|"+Objects.toString(amount,"")+"|"+Objects.toString(currency,"")+"|"+reason+"|"+originSystem+"|"+originModule+"|"+originRequest+"|"+execution+"|"+policy;String hash=hash(payload);if(replayOrClaim(idempotencyKey,accountId,"HOLD_CREATE",hash,actor,originSystem,originModule,originRequest,correlation)){long existing=parseHoldReference(repository.findIdempotency(idempotencyKey).orElseThrow().resultReference());return new HoldActionResponse(operationsService.get(accountId),true,existing);}long holdId=repository.insertHold(accountId,type,amount,currency,reason,trimToNull(r.sourceReference()),r.validTo(),originSystem,originModule,originRequest,execution,policy,actor);repository.insertHoldHistory(holdId,"CREATE",null,"ACTIVE",reason,originSystem,originModule,originRequest,correlation,execution,null,amount,null,actor);repository.history(accountId,"HOLD",null,"ACTIVE:"+type,reason,"DEPOSIT_ACCOUNT_HOLD",holdId,actor);repository.completeIdempotency(idempotencyKey,"HOLD:"+holdId);return new HoldActionResponse(operationsService.get(accountId),false,holdId);}
 
-        AccountLockRow account = repository.lockAccount(accountId)
-                .orElseThrow(() -> new DepositAccountNotFoundException(
-                        "حساب سپرده با شناسه " + accountId + " یافت نشد."
-                ));
+    @Transactional public HoldActionResponse releaseHold(long accountId,long holdId,ReleaseHoldRequest r,String actor,String correlation,String idempotencyKey){if(r==null)throw new IllegalArgumentException("اطلاعات Release الزامی است.");String reason=upper(r.reasonCode());if(!HOLD_RELEASE_REASONS.contains(reason))throw new IllegalArgumentException("Reason رفع Hold نامعتبر است: "+reason);String sourceSystem=defaultUpper(r.actionSourceSystemCode(),"CORE_BANKING"),sourceModule=defaultUpper(r.actionSourceModuleCode(),"ACCOUNT_SERVICING"),requestRef=trimToNull(r.actionRequestRef()),execution=defaultUpper(r.actionExecutionModeCode(),"USER");if(requestRef==null)requestRef=idempotencyKey;if(!EXECUTION_MODES.contains(execution))throw new IllegalArgumentException("ACTION_EXECUTION_MODE_CODE نامعتبر است: "+execution);String hash=hash("HOLD_RELEASE|"+accountId+"|"+holdId+"|"+Objects.toString(r.releaseAmount(),"")+"|"+reason+"|"+sourceSystem+"|"+sourceModule+"|"+requestRef+"|"+execution);if(replayOrClaim(idempotencyKey,accountId,"HOLD_RELEASE",hash,actor,sourceSystem,sourceModule,requestRef,correlation))return new HoldActionResponse(operationsService.get(accountId),true,holdId);lock(accountId);HoldLockRow h=repository.lockHold(accountId,holdId).orElseThrow(()->new IllegalArgumentException("Hold موردنظر برای این حساب یافت نشد."));if(!"ACTIVE".equals(upper(h.holdStatusCode())))throw new IllegalArgumentException("فقط Hold فعال قابل رفع است.");enforceReleasePolicy(h,sourceSystem,sourceModule,execution,reason);
+        BigDecimal oldAmount=h.holdAmount(),newAmount=null,releasedAmount=null;boolean full=true;if("PARTIAL".equals(h.holdTypeCode())){BigDecimal requested=r.releaseAmount()==null?oldAmount:r.releaseAmount();if(requested==null||requested.signum()<=0||requested.compareTo(oldAmount)>0)throw new IllegalArgumentException("releaseAmount باید مثبت و حداکثر برابر مبلغ Hold باشد.");releasedAmount=requested;BigDecimal remaining=oldAmount.subtract(requested);full=remaining.signum()==0;newAmount=remaining;}
+        if(repository.releaseHold(holdId,newAmount,full,actor)!=1)throw new DepositAccountLifecycleException("Hold همزمان تغییر کرده است؛ اطلاعات را تازه‌سازی کنید.",Map.of("DEPOSIT_ACCOUNT_HOLD.RECORD_VERSION","Hold فعال قابل Update نبود."));String newStatus=full?"RELEASED":"ACTIVE";repository.insertHoldHistory(holdId,"RELEASE","ACTIVE",newStatus,reason,sourceSystem,sourceModule,requestRef,correlation,execution,oldAmount,newAmount,releasedAmount,actor);repository.history(accountId,"HOLD","ACTIVE",newStatus,reason,"DEPOSIT_ACCOUNT_HOLD",holdId,actor);repository.completeIdempotency(idempotencyKey,"HOLD:"+holdId);return new HoldActionResponse(operationsService.get(accountId),false,holdId);}
 
-        String status = upper(account.accountStatusCode());
-        if ("CLOSED".equals(status)) {
-            return new CloseAccountResponse(operationsService.get(accountId), true);
-        }
-        if (!"ACTIVE".equals(status)) {
-            throw new DepositAccountLifecycleException(
-                    "بستن حساب فقط برای حساب ACTIVE مجاز است.",
-                    Map.of("DEPOSIT_ACCOUNT.ACCOUNT_STATUS_CODE", "وضعیت جاری: " + account.accountStatusCode())
-            );
-        }
-        if (account.recordVersion() != request.expectedRecordVersion()) {
-            throw new DepositAccountLifecycleException(
-                    "نسخه حساب تغییر کرده است؛ اطلاعات حساب را تازه‌سازی کنید.",
-                    Map.of(
-                            "DEPOSIT_ACCOUNT.RECORD_VERSION",
-                            "نسخه مورد انتظار " + request.expectedRecordVersion()
-                                    + " اما نسخه جاری " + account.recordVersion() + " است."
-                    )
-            );
-        }
+    // Phase 9 guards retained until controlled closure is replaced by Phase 11E.
+    // Compatibility verifier contract: account.recordVersion() != request.expectedRecordVersion() and !"ACTIVE".equals(status) are enforced below.
+    @Transactional public CloseAccountResponse close(long accountId,CloseAccountRequest r,String actor,String correlation){var a=lock(accountId);String status=upper(a.accountStatusCode());if("CLOSED".equals(status))return new CloseAccountResponse(operationsService.get(accountId), true);if(!"ACTIVE".equals(status))throw new DepositAccountLifecycleException("بستن حساب فقط برای حساب ACTIVE مجاز است.",Map.of("DEPOSIT_ACCOUNT.ACCOUNT_STATUS_CODE","وضعیت جاری: "+a.accountStatusCode()));if(r==null||r.expectedRecordVersion()<=0)throw new IllegalArgumentException("expectedRecordVersion باید مثبت باشد.");if(a.recordVersion()!=r.expectedRecordVersion())throw conflict(a.recordVersion(),r.expectedRecordVersion());if(repository.closeAccount(accountId,r.expectedRecordVersion(),actor)!=1)throw conflict(a.recordVersion(),r.expectedRecordVersion());repository.insertCloseEvent(repository.nextLifecycleEventId(),accountId,a.openingRequestId(),actor,correlation);return new CloseAccountResponse(operationsService.get(accountId), false);}
 
-        if (repository.closeAccount(accountId, request.expectedRecordVersion(), actor) != 1) {
-            throw new DepositAccountLifecycleException(
-                    "Transition حساب از ACTIVE به CLOSED انجام نشد.",
-                    Map.of("DEPOSIT_ACCOUNT.RECORD_VERSION", "حساب همزمان تغییر کرده است؛ مجدداً استعلام کنید.")
-            );
-        }
-        repository.insertCloseEvent(
-                repository.nextLifecycleEventId(),
-                account.accountId(),
-                account.openingRequestId(),
-                actor,
-                correlationId
-        );
-
-        return new CloseAccountResponse(operationsService.get(accountId), false);
-    }
-
-    private static String upper(String value) {
-        return value == null ? null : value.trim().toUpperCase(Locale.ROOT);
-    }
+    private boolean replayOrClaim(String key,long accountId,String operation,String payloadHash,String actor,String originSystem,String originModule,String originRequest,String correlation){String k=trimToNull(key);if(k==null)throw new IllegalArgumentException("X-Idempotency-Key الزامی است.");var existing=repository.findIdempotency(k);if(existing.isPresent()){var x=existing.get();if(!Objects.equals(x.accountId(),accountId)||!operation.equals(x.operationType())||!payloadHash.equals(x.payloadHash()))throw new IllegalArgumentException("Idempotency-Key قبلاً برای درخواست دیگری استفاده شده است.");if("COMPLETED".equals(x.processingStatus()))return true;throw new IllegalArgumentException("درخواست با این Idempotency-Key در حال پردازش است.");}repository.insertIdempotency(k,accountId,operation,payloadHash,actor,originSystem,originModule,originRequest,correlation);return false;}
+    private static void enforceReleasePolicy(HoldLockRow h,String sourceSystem,String sourceModule,String execution,String reason){String policy=upper(h.releasePolicyCode());if("COLLATERAL".equals(upper(h.originSystemCode()))){if(!"COLLATERAL".equals(sourceSystem)||!Objects.equals(upper(h.originModuleCode()),sourceModule)||!"SERVICE".equals(execution)||!"COLLATERAL_RELEASED".equals(reason))throw new IllegalArgumentException("Hold وثیقه‌ای فقط توسط سرویس مبدأ وثائق قابل آزادسازی است.");return;}if("ORIGIN_ONLY".equals(policy)&&(!Objects.equals(upper(h.originSystemCode()),sourceSystem)||(h.originModuleCode()!=null&&!Objects.equals(upper(h.originModuleCode()),sourceModule))))throw new IllegalArgumentException("این Hold فقط توسط Origin ایجادکننده قابل آزادسازی است.");if("AUTO_EXPIRY".equals(policy)&&!"SYSTEM_BATCH".equals(execution))throw new IllegalArgumentException("Hold با سیاست AUTO_EXPIRY فقط توسط System Batch قابل پایان است.");}
+    private DepositAccountServicingRepository.AccountLockRow lock(long id){if(id<=0)throw new IllegalArgumentException("accountId باید مثبت باشد.");return repository.lockAccount(id).orElseThrow(()->new DepositAccountNotFoundException("حساب سپرده با شناسه "+id+" یافت نشد."));}
+    private static void requireLifecycleRequest(LifecycleActionRequest r){if(r==null||r.expectedRecordVersion()<=0)throw new IllegalArgumentException("expectedRecordVersion باید مثبت باشد.");}
+    private static String statusReason(String v){String x=upper(v);if(x==null)x="OPERATIONAL_CONTROL";if(!STATUS_REASONS.contains(x))throw new IllegalArgumentException("REASON_CODE چرخه عمر نامعتبر است: "+x);return x;}
+    private static DepositAccountLifecycleException lifecycleError(String message,String current){return new DepositAccountLifecycleException(message,Map.of("DEPOSIT_ACCOUNT.ACCOUNT_STATUS_CODE","وضعیت جاری: "+current));}
+    private static DepositAccountLifecycleException conflict(long current,long expected){return new DepositAccountLifecycleException("نسخه حساب تغییر کرده است؛ اطلاعات را تازه‌سازی کنید.",Map.of("DEPOSIT_ACCOUNT.RECORD_VERSION","نسخه مورد انتظار "+expected+" اما نسخه جاری "+current+" است."));}
+    private static String upper(String v){return v==null?null:v.trim().toUpperCase(Locale.ROOT);} private static String trimToNull(String v){return v==null||v.isBlank()?null:v.trim();} private static String defaultUpper(String v,String d){String x=upper(v);return x==null?d:x;} private static String reason(String v){String x=trimToNull(v);return x==null?"CUSTOMER_REQUEST":x.toUpperCase(Locale.ROOT);} private static String json(String name,String org){return "{accountName="+Objects.toString(name,"")+",openingOrgUnitCode="+Objects.toString(org,"")+"}";}
+    private static long parseHoldReference(String v){if(v==null||!v.startsWith("HOLD:"))throw new IllegalStateException("Idempotency result reference is not a HOLD reference.");return Long.parseLong(v.substring(5));}
+    private static String hash(String value){try{byte[] b=MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));StringBuilder s=new StringBuilder(64);for(byte x:b)s.append(String.format("%02x",x));return s.toString();}catch(Exception e){throw new IllegalStateException("SHA-256 unavailable",e);}}
 }

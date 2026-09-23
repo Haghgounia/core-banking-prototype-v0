@@ -6,12 +6,11 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const checks=[];
 const add=(name,file,token,neg=false)=>checks.push({name,file,token,neg});
 
-add('version 0.10.0','VERSION','0.10.0');
 add('CIF party search integration','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts','cifService.searchParties');
 add('party search only active','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts',"status:'ACTIVE'");
 add('party search UX','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.html','جستجو و انتخاب Party');
 add('funding account operations integration','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts','accountOperationsService.search');
-add('funding ownership verification','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts','details.owners.some');
+add('funding ownership verification','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts','details.parties.some');
 add('funding ownership source reference','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts','ACCOUNT_OPERATIONS:');
 add('funding active account selector','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.html','حساب مبدأ ACTIVE');
 add('org-unit digital routing','frontend/src/app/features/four-deposits/deposit-opening-wizard.component.ts',"channel==='INTERNET'||channel==='MOBILE'");

@@ -35,6 +35,30 @@ if (fs.existsSync(legacyRootReadme)) {
   }
 }
 
+
+const legacyVerifierReadme = path.join(root, 'README.txt');
+const verifierReadmeTarget = path.join(patchDir, 'PATCH-0.10.0-FINAL-VERIFIER-DOCKER-FALLBACK-README.txt');
+if (fs.existsSync(legacyVerifierReadme)) {
+  if (!fs.existsSync(verifierReadmeTarget)) {
+    fs.renameSync(legacyVerifierReadme, verifierReadmeTarget);
+    moved += 1;
+    console.log('Root layout migration: moved legacy Final Verifier README.txt to docs/patches.');
+  } else {
+    const source = fs.readFileSync(legacyVerifierReadme);
+    const target = fs.readFileSync(verifierReadmeTarget);
+    if (source.equals(target)) {
+      fs.unlinkSync(legacyVerifierReadme);
+      removed += 1;
+      console.log('Root layout migration: removed duplicate legacy Final Verifier README.txt from root.');
+    } else {
+      fs.mkdirSync(backupRoot, {recursive: true});
+      fs.renameSync(legacyVerifierReadme, path.join(backupRoot, 'README.txt'));
+      archived += 1;
+      console.log('Root layout migration: archived conflicting legacy README.txt.');
+    }
+  }
+}
+
 for (const name of fs.readdirSync(root)) {
   if (!/^PATCH-LAYOUT-MIGRATION-.*\.txt$/i.test(name)) continue;
   const source = path.join(root, name);

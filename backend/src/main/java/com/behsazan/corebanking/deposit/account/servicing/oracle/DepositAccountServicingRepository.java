@@ -4,111 +4,55 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-
+import java.math.BigDecimal;
 import java.sql.Types;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.*;
 
 @Repository
 public class DepositAccountServicingRepository {
-    private final NamedParameterJdbcTemplate jdbc;
-    private final String accountSchema;
+    private final NamedParameterJdbcTemplate jdbc; private final String schema;
+    public DepositAccountServicingRepository(NamedParameterJdbcTemplate jdbc,@Value("${core-banking.schemas.deposit-account:DPS2}") String schema){this.jdbc=jdbc;this.schema=requireIdentifier(schema);}
 
-    public DepositAccountServicingRepository(
-            NamedParameterJdbcTemplate jdbc,
-            @Value("${core-banking.schemas.deposit-account:DPS2}") String accountSchema
-    ) {
-        this.jdbc = jdbc;
-        this.accountSchema = requireIdentifier(accountSchema);
-    }
+    public Optional<AccountLockRow> lockAccount(long id){String sql="SELECT ACCOUNT_ID,OPENING_REQUEST_ID,ACCOUNT_STATUS_CODE,ACCOUNT_NAME,OPENING_ORG_UNIT_CODE,CURRENCY_CODE,RECORD_VERSION FROM "+schema+".DEPOSIT_ACCOUNT WHERE ACCOUNT_ID=:id FOR UPDATE";var rows=jdbc.query(sql,new MapSqlParameterSource("id",id),(r,n)->new AccountLockRow(r.getLong(1),r.getLong(2),r.getString(3),r.getString(4),r.getString(5),r.getString(6),r.getLong(7)));return rows.stream().findFirst();}
+    public int updateBasicInfo(long id,long version,String name,String org,String actor){return jdbc.update("UPDATE "+schema+".DEPOSIT_ACCOUNT SET ACCOUNT_NAME=:name,OPENING_ORG_UNIT_CODE=:org,UPDATED_AT=SYSTIMESTAMP,UPDATED_BY=:actor,RECORD_VERSION=RECORD_VERSION+1 WHERE ACCOUNT_ID=:id AND RECORD_VERSION=:version",new MapSqlParameterSource().addValue("name",name,Types.VARCHAR).addValue("org",org,Types.VARCHAR).addValue("actor",actor).addValue("id",id).addValue("version",version));}
+    public long nextAccountPartyId(){return next("SEQ_DEPOSIT_ACCOUNT_PARTY");}
+    public long nextContactId(){return next("SEQ_DEPOSIT_ACCOUNT_CONTACT");}
+    public long nextHistoryId(){return next("SEQ_DEPOSIT_ACCOUNT_SERVICING_HISTORY");}
+    public long nextLifecycleEventId(){return next("SEQ_DEP_ACCOUNT_LIFECYCLE_EVT");}
+    public long nextStatusHistoryId(){return next("SEQ_DEPOSIT_ACCOUNT_STATUS_HISTORY");}
+    public long nextHoldId(){return next("SEQ_DEPOSIT_ACCOUNT_HOLD");}
+    public long nextHoldHistoryId(){return next("SEQ_DEPOSIT_ACCOUNT_HOLD_HISTORY");}
+    public long nextIdempotencyId(){return next("SEQ_DEPOSIT_OPERATION_IDEMPOTENCY");}
+    private long next(String sequence){Long v=jdbc.getJdbcOperations().queryForObject("SELECT "+schema+"."+sequence+".NEXTVAL FROM DUAL",Long.class);if(v==null)throw new IllegalStateException(sequence+" returned null");return v;}
 
-    public Optional<AccountLockRow> lockAccount(long accountId) {
-        String sql = """
-                SELECT ACCOUNT_ID, OPENING_REQUEST_ID, ACCOUNT_STATUS_CODE, RECORD_VERSION
-                  FROM %s.DEPOSIT_ACCOUNT
-                 WHERE ACCOUNT_ID=:accountId
-                   FOR UPDATE
-                """.formatted(accountSchema);
-        List<AccountLockRow> rows = jdbc.query(
-                sql,
-                new MapSqlParameterSource().addValue("accountId", accountId, Types.NUMERIC),
-                (rs, rowNum) -> new AccountLockRow(
-                        rs.getLong("ACCOUNT_ID"),
-                        rs.getLong("OPENING_REQUEST_ID"),
-                        rs.getString("ACCOUNT_STATUS_CODE"),
-                        rs.getLong("RECORD_VERSION")
-                )
-        );
-        return rows.stream().findFirst();
-    }
+    public void clearPrimaryParty(long accountId,String roleCode,String actor){jdbc.update("UPDATE "+schema+".DEPOSIT_ACCOUNT_PARTY SET IS_PRIMARY=0,UPDATED_AT=SYSTIMESTAMP,UPDATED_BY=:actor,RECORD_VERSION=RECORD_VERSION+1 WHERE ACCOUNT_ID=:id AND ROLE_CODE=:role AND IS_PRIMARY=1 AND STATUS_CODE='ACTIVE'",new MapSqlParameterSource().addValue("id",accountId).addValue("role",roleCode).addValue("actor",actor));}
+    public void insertParty(long id,long accountId,long partyId,String role,boolean primary,BigDecimal pct,LocalDate validFrom,String actor){jdbc.update("INSERT INTO "+schema+".DEPOSIT_ACCOUNT_PARTY(ACCOUNT_PARTY_ID,ACCOUNT_ID,PARTY_ID,ROLE_CODE,IS_PRIMARY,OWNERSHIP_PERCENT,VALID_FROM,STATUS_CODE,CREATED_AT,CREATED_BY,RECORD_VERSION) VALUES(:id,:accountId,:partyId,:role,:primary,:pct,:validFrom,'ACTIVE',SYSTIMESTAMP,:actor,1)",new MapSqlParameterSource().addValue("id",id).addValue("accountId",accountId).addValue("partyId",partyId).addValue("role",role).addValue("primary",primary?1:0).addValue("pct",pct).addValue("validFrom",java.sql.Date.valueOf(validFrom)).addValue("actor",actor));}
+    public int deactivateParty(long accountId,long accountPartyId,String actor){return jdbc.update("UPDATE "+schema+".DEPOSIT_ACCOUNT_PARTY SET STATUS_CODE='INACTIVE',VALID_TO=NVL(VALID_TO,SYSDATE),UPDATED_AT=SYSTIMESTAMP,UPDATED_BY=:actor,RECORD_VERSION=RECORD_VERSION+1 WHERE ACCOUNT_ID=:accountId AND ACCOUNT_PARTY_ID=:id AND STATUS_CODE='ACTIVE'",new MapSqlParameterSource().addValue("accountId",accountId).addValue("id",accountPartyId).addValue("actor",actor));}
+    public void clearPrimaryContact(long accountId,String type,String actor){jdbc.update("UPDATE "+schema+".DEPOSIT_ACCOUNT_CONTACT SET IS_PRIMARY=0,UPDATED_AT=SYSTIMESTAMP,UPDATED_BY=:actor,RECORD_VERSION=RECORD_VERSION+1 WHERE ACCOUNT_ID=:id AND CONTACT_TYPE_CODE=:type AND IS_PRIMARY=1 AND VALID_TO IS NULL",new MapSqlParameterSource().addValue("id",accountId).addValue("type",type).addValue("actor",actor));}
+    public void insertContact(long id,long accountId,String type,String value,String purpose,boolean primary,LocalDate validFrom,String actor){jdbc.update("INSERT INTO "+schema+".DEPOSIT_ACCOUNT_CONTACT(ACCOUNT_CONTACT_ID,ACCOUNT_ID,CONTACT_TYPE_CODE,CONTACT_VALUE,PURPOSE_CODE,IS_PRIMARY,VALID_FROM,CREATED_AT,CREATED_BY,RECORD_VERSION) VALUES(:id,:accountId,:type,:value,:purpose,:primary,:validFrom,SYSTIMESTAMP,:actor,1)",new MapSqlParameterSource().addValue("id",id).addValue("accountId",accountId).addValue("type",type).addValue("value",value).addValue("purpose",purpose).addValue("primary",primary?1:0).addValue("validFrom",java.sql.Date.valueOf(validFrom)).addValue("actor",actor));}
+    public int endContact(long accountId,long contactId,String actor){return jdbc.update("UPDATE "+schema+".DEPOSIT_ACCOUNT_CONTACT SET VALID_TO=NVL(VALID_TO,SYSDATE),UPDATED_AT=SYSTIMESTAMP,UPDATED_BY=:actor,RECORD_VERSION=RECORD_VERSION+1 WHERE ACCOUNT_ID=:accountId AND ACCOUNT_CONTACT_ID=:id AND VALID_TO IS NULL",new MapSqlParameterSource().addValue("accountId",accountId).addValue("id",contactId).addValue("actor",actor));}
+    public void history(long accountId,String type,String oldValue,String newValue,String reason,String sourceType,Long sourceId,String actor){jdbc.update("INSERT INTO "+schema+".DEPOSIT_ACCOUNT_SERVICING_HISTORY(SERVICING_HISTORY_ID,ACCOUNT_ID,CHANGE_TYPE_CODE,OLD_VALUE,NEW_VALUE,REASON_CODE,EFFECTIVE_AT,SOURCE_ENTITY_TYPE,SOURCE_ENTITY_ID,CREATED_AT,CREATED_BY,RECORD_VERSION) VALUES(:hid,:aid,:type,:oldv,:newv,:reason,SYSTIMESTAMP,:stype,:sid,SYSTIMESTAMP,:actor,1)",new MapSqlParameterSource().addValue("hid",nextHistoryId()).addValue("aid",accountId).addValue("type",type).addValue("oldv",oldValue).addValue("newv",newValue).addValue("reason",reason).addValue("stype",sourceType).addValue("sid",sourceId).addValue("actor",actor));}
 
-    public int closeAccount(long accountId, long expectedRecordVersion, String actor) {
-        String sql = """
-                UPDATE %s.DEPOSIT_ACCOUNT
-                   SET ACCOUNT_STATUS_CODE='CLOSED',
-                       UPDATED_AT=SYSTIMESTAMP,
-                       UPDATED_BY=:actor,
-                       RECORD_VERSION=RECORD_VERSION+1
-                 WHERE ACCOUNT_ID=:accountId
-                   AND ACCOUNT_STATUS_CODE='ACTIVE'
-                   AND RECORD_VERSION=:expectedRecordVersion
-                """.formatted(accountSchema);
-        return jdbc.update(sql, new MapSqlParameterSource()
-                .addValue("accountId", accountId, Types.NUMERIC)
-                .addValue("expectedRecordVersion", expectedRecordVersion, Types.NUMERIC)
-                .addValue("actor", actor, Types.VARCHAR));
-    }
+    public int changeStatus(long accountId,long expectedVersion,String fromStatus,String toStatus,String actor){String dormancy="DORMANT".equals(toStatus)?"TRUNC(SYSDATE)":"ACTIVE".equals(toStatus)?"NULL":"DORMANCY_DATE";String sql="UPDATE "+schema+".DEPOSIT_ACCOUNT SET ACCOUNT_STATUS_CODE=:toStatus,DORMANCY_DATE="+dormancy+",UPDATED_AT=SYSTIMESTAMP,UPDATED_BY=:actor,RECORD_VERSION=RECORD_VERSION+1 WHERE ACCOUNT_ID=:id AND ACCOUNT_STATUS_CODE=:fromStatus AND RECORD_VERSION=:version";return jdbc.update(sql,new MapSqlParameterSource().addValue("toStatus",toStatus).addValue("actor",actor).addValue("id",accountId).addValue("fromStatus",fromStatus).addValue("version",expectedVersion));}
+    public void insertLifecycleEvent(long eid,long aid,long openingId,String eventType,String fromStatus,String toStatus,String reason,String actor,String correlation){jdbc.update("INSERT INTO "+schema+".DEPOSIT_ACCOUNT_LIFECYCLE_EVENT(LIFECYCLE_EVENT_ID,ACCOUNT_ID,OPENING_REQUEST_ID,EVENT_TYPE_CODE,FROM_STATUS_CODE,TO_STATUS_CODE,CORRELATION_ID,EVENT_AT,EVENT_BY,CREATED_AT,CREATED_BY,EVENT_STATUS_CODE,REQUESTED_AT,EFFECTIVE_AT,REASON_CODE,RECORD_VERSION) VALUES(:eid,:aid,:oid,:eventType,:fromStatus,:toStatus,:corr,SYSTIMESTAMP,:actor,SYSTIMESTAMP,:actor,'EXECUTED',SYSTIMESTAMP,SYSTIMESTAMP,:reason,1)",new MapSqlParameterSource().addValue("eid",eid).addValue("aid",aid).addValue("oid",openingId).addValue("eventType",eventType).addValue("fromStatus",fromStatus).addValue("toStatus",toStatus).addValue("corr",correlation).addValue("actor",actor).addValue("reason",reason));}
+    public void insertStatusHistory(long accountId,String fromStatus,String toStatus,String reason,String eventReference,String actor){jdbc.update("INSERT INTO "+schema+".DEPOSIT_ACCOUNT_STATUS_HISTORY(ACCOUNT_STATUS_HISTORY_ID,ACCOUNT_ID,FROM_STATUS_CODE,TO_STATUS_CODE,EFFECTIVE_AT,REASON_CODE,EVENT_REFERENCE,CREATED_AT,CREATED_BY,RECORD_VERSION) VALUES(:id,:aid,:fromStatus,:toStatus,SYSTIMESTAMP,:reason,:eventRef,SYSTIMESTAMP,:actor,1)",new MapSqlParameterSource().addValue("id",nextStatusHistoryId()).addValue("aid",accountId).addValue("fromStatus",fromStatus).addValue("toStatus",toStatus).addValue("reason",reason).addValue("eventRef",eventReference).addValue("actor",actor));}
 
-    public long nextLifecycleEventId() {
-        Long value = jdbc.getJdbcOperations().queryForObject(
-                "SELECT " + accountSchema + ".SEQ_DEP_ACCOUNT_LIFECYCLE_EVT.NEXTVAL FROM DUAL",
-                Long.class
-        );
-        if (value == null) throw new IllegalStateException("SEQ_DEP_ACCOUNT_LIFECYCLE_EVT returned null.");
-        return value;
-    }
+    public long insertHold(long accountId,String type,BigDecimal amount,String currency,String reason,String sourceReference,OffsetDateTime validTo,String originSystem,String originModule,String originRequestRef,String executionMode,String releasePolicy,String actor){long id=nextHoldId();jdbc.update("INSERT INTO "+schema+".DEPOSIT_ACCOUNT_HOLD(ACCOUNT_HOLD_ID,ACCOUNT_ID,HOLD_TYPE_CODE,HOLD_AMOUNT,CURRENCY_CODE,HOLD_REASON_CODE,SOURCE_REFERENCE,VALID_FROM,VALID_TO,HOLD_STATUS_CODE,ORIGIN_SYSTEM_CODE,ORIGIN_MODULE_CODE,ORIGIN_REQUEST_REF,ORIGIN_EXECUTION_MODE_CODE,RELEASE_POLICY_CODE,CREATED_AT,CREATED_BY,RECORD_VERSION) VALUES(:id,:aid,:type,:amount,:currency,:reason,:sourceRef,SYSTIMESTAMP,:validTo,'ACTIVE',:originSystem,:originModule,:originRequestRef,:executionMode,:releasePolicy,SYSTIMESTAMP,:actor,1)",new MapSqlParameterSource().addValue("id",id).addValue("aid",accountId).addValue("type",type).addValue("amount",amount).addValue("currency",currency).addValue("reason",reason).addValue("sourceRef",sourceReference).addValue("validTo",validTo==null?null:java.sql.Timestamp.from(validTo.toInstant())).addValue("originSystem",originSystem).addValue("originModule",originModule).addValue("originRequestRef",originRequestRef).addValue("executionMode",executionMode).addValue("releasePolicy",releasePolicy).addValue("actor",actor));return id;}
+    public Optional<HoldLockRow> lockHold(long accountId,long holdId){String sql="SELECT ACCOUNT_HOLD_ID,ACCOUNT_ID,HOLD_TYPE_CODE,HOLD_AMOUNT,CURRENCY_CODE,HOLD_REASON_CODE,HOLD_STATUS_CODE,ORIGIN_SYSTEM_CODE,ORIGIN_MODULE_CODE,ORIGIN_REQUEST_REF,ORIGIN_EXECUTION_MODE_CODE,RELEASE_POLICY_CODE,RECORD_VERSION FROM "+schema+".DEPOSIT_ACCOUNT_HOLD WHERE ACCOUNT_ID=:aid AND ACCOUNT_HOLD_ID=:hid FOR UPDATE";var rows=jdbc.query(sql,new MapSqlParameterSource().addValue("aid",accountId).addValue("hid",holdId),(r,n)->new HoldLockRow(r.getLong(1),r.getLong(2),r.getString(3),r.getBigDecimal(4),r.getString(5),r.getString(6),r.getString(7),r.getString(8),r.getString(9),r.getString(10),r.getString(11),r.getString(12),r.getLong(13)));return rows.stream().findFirst();}
+    public int releaseHold(long holdId,BigDecimal newAmount,boolean fullyReleased,String actor){String sql=fullyReleased?"UPDATE "+schema+".DEPOSIT_ACCOUNT_HOLD SET HOLD_STATUS_CODE='RELEASED',RELEASED_AT=SYSTIMESTAMP,UPDATED_AT=SYSTIMESTAMP,UPDATED_BY=:actor,RECORD_VERSION=RECORD_VERSION+1 WHERE ACCOUNT_HOLD_ID=:id AND HOLD_STATUS_CODE='ACTIVE'":"UPDATE "+schema+".DEPOSIT_ACCOUNT_HOLD SET HOLD_AMOUNT=:newAmount,UPDATED_AT=SYSTIMESTAMP,UPDATED_BY=:actor,RECORD_VERSION=RECORD_VERSION+1 WHERE ACCOUNT_HOLD_ID=:id AND HOLD_STATUS_CODE='ACTIVE'";return jdbc.update(sql,new MapSqlParameterSource().addValue("newAmount",newAmount).addValue("actor",actor).addValue("id",holdId));}
+    public void insertHoldHistory(long holdId,String action,String oldStatus,String newStatus,String reason,String sourceSystem,String sourceModule,String requestRef,String correlation,String executionMode,BigDecimal oldAmount,BigDecimal newAmount,BigDecimal releasedAmount,String actor){jdbc.update("INSERT INTO "+schema+".DEPOSIT_ACCOUNT_HOLD_HISTORY(HOLD_HISTORY_ID,ACCOUNT_HOLD_ID,ACTION_CODE,ACTION_AT,OLD_STATUS_CODE,NEW_STATUS_CODE,REASON_CODE,ACTION_SOURCE_SYSTEM_CODE,ACTION_SOURCE_MODULE_CODE,ACTION_REQUEST_REF,CORRELATION_ID,ACTION_EXECUTION_MODE_CODE,OLD_HOLD_AMOUNT,NEW_HOLD_AMOUNT,RELEASED_AMOUNT,CREATED_AT,CREATED_BY,RECORD_VERSION) VALUES(:id,:hid,:action,SYSTIMESTAMP,:oldStatus,:newStatus,:reason,:sourceSystem,:sourceModule,:requestRef,:corr,:executionMode,:oldAmount,:newAmount,:releasedAmount,SYSTIMESTAMP,:actor,1)",new MapSqlParameterSource().addValue("id",nextHoldHistoryId()).addValue("hid",holdId).addValue("action",action).addValue("oldStatus",oldStatus).addValue("newStatus",newStatus).addValue("reason",reason).addValue("sourceSystem",sourceSystem).addValue("sourceModule",sourceModule).addValue("requestRef",requestRef).addValue("corr",correlation).addValue("executionMode",executionMode).addValue("oldAmount",oldAmount).addValue("newAmount",newAmount).addValue("releasedAmount",releasedAmount).addValue("actor",actor));}
 
-    public int insertCloseEvent(
-            long lifecycleEventId,
-            long accountId,
-            long openingRequestId,
-            String actor,
-            String correlationId
-    ) {
-        String sql = """
-                INSERT INTO %s.DEPOSIT_ACCOUNT_LIFECYCLE_EVENT (
-                    LIFECYCLE_EVENT_ID, ACCOUNT_ID, OPENING_REQUEST_ID,
-                    EVENT_TYPE_CODE, FROM_STATUS_CODE, TO_STATUS_CODE,
-                    CORRELATION_ID, EVENT_AT, EVENT_BY, CREATED_AT, CREATED_BY
-                ) VALUES (
-                    :lifecycleEventId, :accountId, :openingRequestId,
-                    'CLOSE', 'ACTIVE', 'CLOSED',
-                    :correlationId, SYSTIMESTAMP, :actor, SYSTIMESTAMP, :actor
-                )
-                """.formatted(accountSchema);
-        return jdbc.update(sql, new MapSqlParameterSource()
-                .addValue("lifecycleEventId", lifecycleEventId, Types.NUMERIC)
-                .addValue("accountId", accountId, Types.NUMERIC)
-                .addValue("openingRequestId", openingRequestId, Types.NUMERIC)
-                .addValue("correlationId", correlationId, Types.VARCHAR)
-                .addValue("actor", actor, Types.VARCHAR));
-    }
+    public Optional<IdempotencyRow> findIdempotency(String key){String sql="SELECT IDEMPOTENCY_KEY,ACCOUNT_ID,OPERATION_TYPE_CODE,PAYLOAD_HASH,PROCESSING_STATUS_CODE,RESULT_REFERENCE FROM "+schema+".DEPOSIT_OPERATION_IDEMPOTENCY WHERE IDEMPOTENCY_KEY=:key";var rows=jdbc.query(sql,new MapSqlParameterSource("key",key),(r,n)->new IdempotencyRow(r.getString(1),r.getObject(2,Long.class),r.getString(3),r.getString(4),r.getString(5),r.getString(6)));return rows.stream().findFirst();}
+    public void insertIdempotency(String key,long accountId,String operationType,String payloadHash,String actor,String originSystem,String originModule,String originRequestRef,String correlation){jdbc.update("INSERT INTO "+schema+".DEPOSIT_OPERATION_IDEMPOTENCY(OPERATION_IDEMPOTENCY_ID,IDEMPOTENCY_KEY,ACCOUNT_ID,OPERATION_TYPE_CODE,PAYLOAD_HASH,PROCESSING_STATUS_CODE,REQUESTED_BY_USER_ID,REQUESTED_AT,ORIGIN_SYSTEM_CODE,ORIGIN_MODULE_CODE,ORIGIN_REQUEST_REF,CORRELATION_ID,RECORD_VERSION) VALUES(:id,:key,:aid,:op,:hash,'IN_PROGRESS',:actor,SYSTIMESTAMP,:originSystem,:originModule,:originRequestRef,:corr,1)",new MapSqlParameterSource().addValue("id",nextIdempotencyId()).addValue("key",key).addValue("aid",accountId).addValue("op",operationType).addValue("hash",payloadHash).addValue("actor",actor).addValue("originSystem",originSystem).addValue("originModule",originModule).addValue("originRequestRef",originRequestRef).addValue("corr",correlation));}
+    public void completeIdempotency(String key,String resultReference){jdbc.update("UPDATE "+schema+".DEPOSIT_OPERATION_IDEMPOTENCY SET PROCESSING_STATUS_CODE='COMPLETED',RESULT_REFERENCE=:ref,COMPLETED_AT=SYSTIMESTAMP,RECORD_VERSION=RECORD_VERSION+1 WHERE IDEMPOTENCY_KEY=:key AND PROCESSING_STATUS_CODE='IN_PROGRESS'",new MapSqlParameterSource().addValue("ref",resultReference).addValue("key",key));}
 
-    private static String requireIdentifier(String raw) {
-        if (raw == null) throw new IllegalArgumentException("Oracle identifier is required.");
-        String normalized = raw.trim().toUpperCase(Locale.ROOT);
-        if (!normalized.matches("[A-Z][A-Z0-9_$#]{0,127}")) {
-            throw new IllegalArgumentException("Invalid Oracle identifier: " + raw);
-        }
-        return normalized;
-    }
+    public int closeAccount(long id,long expectedRecordVersion,String actor){return jdbc.update("UPDATE "+schema+".DEPOSIT_ACCOUNT SET ACCOUNT_STATUS_CODE='CLOSED',CLOSED_AT=SYSTIMESTAMP,UPDATED_AT=SYSTIMESTAMP,UPDATED_BY=:actor,RECORD_VERSION=RECORD_VERSION+1 WHERE ACCOUNT_ID=:id AND ACCOUNT_STATUS_CODE='ACTIVE' AND RECORD_VERSION=:expectedRecordVersion",new MapSqlParameterSource().addValue("id",id).addValue("expectedRecordVersion",expectedRecordVersion).addValue("actor",actor));}
+    public void insertCloseEvent(long eid,long aid,long openingId,String actor,String correlation){jdbc.update("INSERT INTO "+schema+".DEPOSIT_ACCOUNT_LIFECYCLE_EVENT(LIFECYCLE_EVENT_ID,ACCOUNT_ID,OPENING_REQUEST_ID,EVENT_TYPE_CODE,FROM_STATUS_CODE,TO_STATUS_CODE,CORRELATION_ID,EVENT_AT,EVENT_BY,CREATED_AT,CREATED_BY,EVENT_STATUS_CODE,REQUESTED_AT,EFFECTIVE_AT,RECORD_VERSION) VALUES(:eid,:aid,:oid,'CLOSE', 'ACTIVE', 'CLOSED',:corr,SYSTIMESTAMP,:actor,SYSTIMESTAMP,:actor,'EXECUTED',SYSTIMESTAMP,SYSTIMESTAMP,1)",new MapSqlParameterSource().addValue("eid",eid).addValue("aid",aid).addValue("oid",openingId).addValue("corr",correlation).addValue("actor",actor));}
 
-    public record AccountLockRow(
-            long accountId,
-            long openingRequestId,
-            String accountStatusCode,
-            long recordVersion
-    ) {
-    }
+    private static String requireIdentifier(String raw){String n=raw==null?"":raw.trim().toUpperCase(Locale.ROOT);if(!n.matches("[A-Z][A-Z0-9_$#]{0,127}"))throw new IllegalArgumentException("Invalid Oracle identifier: "+raw);return n;}
+    public record AccountLockRow(long accountId,long openingRequestId,String accountStatusCode,String accountName,String openingOrgUnitCode,String currencyCode,long recordVersion){}
+    public record HoldLockRow(long accountHoldId,long accountId,String holdTypeCode,BigDecimal holdAmount,String currencyCode,String holdReasonCode,String holdStatusCode,String originSystemCode,String originModuleCode,String originRequestRef,String originExecutionModeCode,String releasePolicyCode,long recordVersion){}
+    public record IdempotencyRow(String key,Long accountId,String operationType,String payloadHash,String processingStatus,String resultReference){}
 }

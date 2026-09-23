@@ -1,0 +1,33 @@
+Core Banking Prototype 0.11.0 - Phase 11C
+Lifecycle + Hold/Block
+
+پیش‌نیاز: Phase 11A و Phase 11B روی Oracle هدف PASS شده باشند.
+
+1) اتصال Oracle:
+   set CORE_BANKING_ORACLE_CONNECT=SYSTEM/Oracle123@//10.1.60.51:1522/FREEPDB1
+
+2) Schema readiness + DB verification:
+   tools\apply-dps2-phase11c.cmd
+
+Marker مورد انتظار:
+   PHASE11C_STATIC_BASELINE_PASS
+   PHASE11C_SCHEMA_RUNTIME_READINESS_PASS
+   PHASE11C_DB_BASELINE_PASS
+   PHASE11C_IMPLEMENTATION_PASS
+
+3) Build نسخه جدید و Restart برنامه:
+   build-production.cmd
+
+4) پس از UP شدن برنامه:
+   set CORE_BANKING_BASE_URL=http://127.0.0.1:8091
+   node tools\runtime-dps2-phase11c-e2e.mjs
+
+Runtime marker مورد انتظار:
+   PHASE11C_RUNTIME_E2E_PASS
+
+این Runtime E2E یک حساب ACTIVE را انتخاب می‌کند، SUSPEND/REACTIVATE و DORMANT/REACTIVATE را اجرا می‌کند و یک Hold آزمایشی را ایجاد و سپس RELEASE می‌کند. حساب در پایان دوباره ACTIVE است؛ Hold آزمایشی به صورت RELEASED و History آن برای Audit باقی می‌ماند.
+
+مرزبندی:
+- Hold در 11C وضعیت حساب را تغییر نمی‌دهد.
+- اثر Hold بر AVAILABLE_BALANCE در 11D اضافه می‌شود.
+- Controlled Closure/Reopening در 11E جایگزین Close مستقیم Phase 9 می‌شود.

@@ -7,7 +7,6 @@ const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
 const checks=[];
 const add=(name,file,token,neg=false)=>checks.push({name,file,token,neg});
 
-add('version 0.10.0','VERSION','0.10.0');
 add('runtime migration present','database/oracle/dps2/migrations/0.10.0-phase10b-opening-operational-runtime-alignment.sql','ATTEMPT_AT NULL');
 add('runtime migration fail-fast','database/oracle/dps2/migrations/0.10.0-phase10b-opening-operational-runtime-alignment.sql','WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK');
 add('runtime migration success marker','database/oracle/dps2/migrations/0.10.0-phase10b-opening-operational-runtime-alignment.sql','SUCCESS: Phase 10B runtime schema alignment completed.');

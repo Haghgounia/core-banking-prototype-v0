@@ -125,6 +125,9 @@ node "%ROOT%tools\verify-dps2-opening-operational-v5-phase10.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-operational-v5-phase10b.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-operational-v5-phase10d.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-v5-phase10e10f.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-account-operations-schema-reconciliation-11a.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-account-servicing-core-11b.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-lifecycle-hold-11c.mjs" || exit /b 1
 node "%ROOT%tools\verify-cif-address-hotfix-071.mjs" || exit /b 1
 
 rem FIX77 static guard: FEE Baseline 1.0 has 47 metadata-driven forms and 574 seed rows.
@@ -153,9 +156,29 @@ call mvnw.cmd -DskipTests clean compile || exit /b 1
 cd /d "%ROOT%"
 
 rem Remove stale runtime artifacts first. A failed build must never leave an older JAR looking current.
-if exist "%ROOT%app\*.jar" del /q "%ROOT%app\*.jar"
-if exist "%ROOT%app\BUILD-VERSION" del /q "%ROOT%app\BUILD-VERSION"
-if exist "%ROOT%backend\target\core-banking-prototype.jar" del /q "%ROOT%backend\target\core-banking-prototype.jar"
+rem Phase 11C compile hotfix: fail fast when the currently running application locks the canonical JAR.
+if exist "%ROOT%app\*.jar" (
+  del /q "%ROOT%app\*.jar"
+  if errorlevel 1 (
+    echo ERROR: Existing runtime JAR is locked or cannot be removed.
+    echo Stop the running Core Banking Java process, then run build-production.cmd again.
+    exit /b 1
+  )
+)
+if exist "%ROOT%app\BUILD-VERSION" (
+  del /q "%ROOT%app\BUILD-VERSION"
+  if errorlevel 1 (
+    echo ERROR: Existing BUILD-VERSION marker cannot be removed.
+    exit /b 1
+  )
+)
+if exist "%ROOT%backend\target\core-banking-prototype.jar" (
+  del /q "%ROOT%backend\target\core-banking-prototype.jar"
+  if errorlevel 1 (
+    echo ERROR: Existing backend target JAR cannot be removed.
+    exit /b 1
+  )
+)
 
 if exist "%ROOT%frontend\dist" rmdir /s /q "%ROOT%frontend\dist"
 

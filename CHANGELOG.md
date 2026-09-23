@@ -1,3 +1,10 @@
+# 0.11.0 - Phase 11A Account Operations Schema Reconciliation
+
+- Reconciled Account status and lifecycle-event constraints for SUSPENDED/DORMANT/REOPEN flows.
+- Corrected Account Operations status defaults for activation runs and external registry state.
+- Added Phase 11A static and Oracle DB verifiers.
+- 0.10.0 remains the frozen Opening/Activation baseline.
+
 ## 0.10.0 — Deposit Opening Operational v5
 - Phase 10A schema foundation and semantic FK repair.
 - Phase 10B/10C Funding Plan, Obligation/Allocation persistence, Settlement, Activation Readiness and guarded Activation.
@@ -1453,3 +1460,12 @@
 - Hardened Batch Opening handoff and progress reconciliation.
 - Added `BATCH_ITEM_ID` persistence in the normal Opening aggregate path.
 - Added Phase 10F four-family runtime E2E harness.
+
+## 0.11.0 — Phase 11C
+- Added controlled `SUSPEND`, `MARK_DORMANT`, and `REACTIVATE` account lifecycle operations.
+- Added account status history and expanded Account 360 lifecycle visibility.
+- Added FULL/PARTIAL/DEBIT_ONLY/CREDIT_ONLY Hold creation and controlled release.
+- Added origin/release-policy enforcement and collateral origin-only protection.
+- Added `DEPOSIT_OPERATION_IDEMPOTENCY` integration for lifecycle/hold commands.
+- Added Phase 11C Oracle readiness indexes/verifier/apply helper.
+- Fixed Phase 11B Basic Info named-parameter typo (`expectedRecordVersionsion` -> `version`).

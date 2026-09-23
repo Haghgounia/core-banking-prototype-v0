@@ -19,6 +19,8 @@ node tools\verify-dps2-opening-operational-v5-phase10.mjs || exit /b 1
 node tools\verify-dps2-opening-operational-v5-phase10b.mjs || exit /b 1
 node tools\verify-dps2-opening-operational-v5-phase10d.mjs || exit /b 1
 node tools\verify-dps2-opening-v5-phase10e10f.mjs || exit /b 1
+node tools\verify-dps2-account-operations-schema-reconciliation-11a.mjs || exit /b 1
+node tools\verify-dps2-account-servicing-core-11b.mjs || exit /b 1
 
 echo Creating clean source package: %OUT%
 tar.exe -a -c -f "%OUT%" ^

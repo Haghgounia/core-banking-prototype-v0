@@ -1,0 +1,34 @@
+Core Banking Prototype 0.11.0 - Phase 11A Patch Manifest
+Base: 0.10.0 FINAL
+
+[ADDED]
+database/oracle/dps2/migrations/0.11.0-phase11a-account-operations-schema-reconciliation.sql
+database/oracle/dps2/verification/0.11.0-phase11a-account-operations-schema-verifier.sql
+docs/DPS2-0.11.0-PHASE11A-ACCOUNT-OPERATIONS-SCHEMA-RECONCILIATION-QA.md
+docs/install/INSTALL-0.11.0-FA.txt
+release/RELEASE-NOTES-0.11.0.md
+release/QA-REPORT-0.11.0-PHASE11A.md
+release/PATCH-MANIFEST-0.11.0-PHASE11A.txt
+tools/verify-dps2-account-operations-schema-reconciliation-11a.mjs
+tools/apply-dps2-phase11a.cmd
+docs/patches/PATCH-0.10.0-FINAL-VERIFIER-DOCKER-FALLBACK-README.txt
+
+[CHANGED]
+CHANGELOG.md
+VERSION
+backend/pom.xml
+frontend/package.json
+frontend/package-lock.json
+frontend/src/app/features/system-specification/system-version.generated.ts
+build-production.cmd
+build-production.sh
+package-release.cmd
+tools/migrate-root-layout.mjs
+tools/verify-dps2-opening-operational-v5-phase10b.mjs
+tools/verify-dps2-opening-operational-v5-phase10d.mjs
+
+[REMOVED]
+(none)
+
+[MIGRATED ON BUILD]
+README.txt -> docs/patches/PATCH-0.10.0-FINAL-VERIFIER-DOCKER-FALLBACK-README.txt

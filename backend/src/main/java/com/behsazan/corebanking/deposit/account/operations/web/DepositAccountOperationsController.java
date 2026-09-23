@@ -1,79 +1,30 @@
 package com.behsazan.corebanking.deposit.account.operations.web;
 
 import com.behsazan.corebanking.deposit.account.operations.application.DepositAccountOperationsService;
-import com.behsazan.corebanking.deposit.account.operations.domain.DepositAccountOperationsModels.AccountDetails;
-import com.behsazan.corebanking.deposit.account.operations.domain.DepositAccountOperationsModels.AccountSearchResponse;
+import com.behsazan.corebanking.deposit.account.operations.domain.DepositAccountOperationsModels.*;
 import com.behsazan.corebanking.deposit.account.servicing.application.DepositAccountServicingService;
-import com.behsazan.corebanking.deposit.account.servicing.domain.DepositAccountServicingModels.CloseAccountRequest;
-import com.behsazan.corebanking.deposit.account.servicing.domain.DepositAccountServicingModels.CloseAccountResponse;
+import com.behsazan.corebanking.deposit.account.servicing.domain.DepositAccountServicingModels.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/deposit-accounts")
 public class DepositAccountOperationsController {
-    private final DepositAccountOperationsService service;
-    private final DepositAccountServicingService servicingService;
-
-    public DepositAccountOperationsController(
-            DepositAccountOperationsService service,
-            DepositAccountServicingService servicingService
-    ) {
-        this.service = service;
-        this.servicingService = servicingService;
-    }
-
-    @GetMapping
-    public ResponseEntity<AccountSearchResponse> search(
-            @RequestParam(required = false) String accountNo,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) Long openingRequestId,
-            @RequestParam(required = false) Long partyId,
-            @RequestParam(required = false) String productFamilyCode,
-            @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "50") int limit
-    ) {
-        return ResponseEntity.ok(service.search(
-                accountNo, status, openingRequestId, partyId, productFamilyCode, offset, limit
-        ));
-    }
-
-    @GetMapping("/{accountId}")
-    public ResponseEntity<AccountDetails> get(@PathVariable long accountId) {
-        return ResponseEntity.ok(service.get(accountId));
-    }
-
-    @PostMapping("/{accountId}/close")
-    public ResponseEntity<CloseAccountResponse> close(
-            @PathVariable long accountId,
-            @RequestBody CloseAccountRequest request,
-            @RequestHeader(name = "X-User-Id", defaultValue = "deposit.operator") String actor,
-            @RequestHeader(name = "X-Correlation-Id", required = false) String correlationId
-    ) {
-        return ResponseEntity.ok(servicingService.close(
-                accountId,
-                request,
-                normalizeActor(actor),
-                normalizeCorrelationId(correlationId)
-        ));
-    }
-
-    private static String normalizeActor(String actor) {
-        return actor == null || actor.isBlank() ? "deposit.operator" : actor.trim();
-    }
-
-    private static String normalizeCorrelationId(String correlationId) {
-        return correlationId == null || correlationId.isBlank()
-                ? UUID.randomUUID().toString()
-                : correlationId.trim();
-    }
+    private final DepositAccountOperationsService service; private final DepositAccountServicingService servicing;
+    public DepositAccountOperationsController(DepositAccountOperationsService service,DepositAccountServicingService servicing){this.service=service;this.servicing=servicing;}
+    @GetMapping public ResponseEntity<AccountSearchResponse> search(@RequestParam(required=false) String accountNo,@RequestParam(required=false) String status,@RequestParam(required=false) Long openingRequestId,@RequestParam(required=false) Long partyId,@RequestParam(required=false) String productFamilyCode,@RequestParam(defaultValue="0") int offset,@RequestParam(defaultValue="50") int limit){return ResponseEntity.ok(service.search(accountNo,status,openingRequestId,partyId,productFamilyCode,offset,limit));}
+    @GetMapping("/{accountId}") public ResponseEntity<AccountDetails> get(@PathVariable long accountId){return ResponseEntity.ok(service.get(accountId));}
+    @PutMapping("/{accountId}/basic-info") public ResponseEntity<AccountDetails> updateBasicInfo(@PathVariable long accountId,@RequestBody UpdateBasicInfoRequest request,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor){return ResponseEntity.ok(servicing.updateBasicInfo(accountId,request,actor(actor)));}
+    @PostMapping("/{accountId}/parties") public ResponseEntity<AccountDetails> addParty(@PathVariable long accountId,@RequestBody AccountPartyRequest request,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor){return ResponseEntity.ok(servicing.addParty(accountId,request,actor(actor)));}
+    @DeleteMapping("/{accountId}/parties/{accountPartyId}") public ResponseEntity<AccountDetails> deactivateParty(@PathVariable long accountId,@PathVariable long accountPartyId,@RequestParam(required=false) String reasonCode,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor){return ResponseEntity.ok(servicing.deactivateParty(accountId,accountPartyId,reasonCode,actor(actor)));}
+    @PostMapping("/{accountId}/contacts") public ResponseEntity<AccountDetails> addContact(@PathVariable long accountId,@RequestBody AccountContactRequest request,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor){return ResponseEntity.ok(servicing.addContact(accountId,request,actor(actor)));}
+    @DeleteMapping("/{accountId}/contacts/{contactId}") public ResponseEntity<AccountDetails> endContact(@PathVariable long accountId,@PathVariable long contactId,@RequestParam(required=false) String reasonCode,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor){return ResponseEntity.ok(servicing.endContact(accountId,contactId,reasonCode,actor(actor)));}
+    @PostMapping("/{accountId}/lifecycle/suspend") public ResponseEntity<LifecycleActionResponse> suspend(@PathVariable long accountId,@RequestBody LifecycleActionRequest request,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor,@RequestHeader(name="X-Correlation-Id",required=false) String correlationId,@RequestHeader(name="X-Idempotency-Key") String idempotencyKey){return ResponseEntity.ok(servicing.suspend(accountId,request,actor(actor),correlation(correlationId),idempotencyKey));}
+    @PostMapping("/{accountId}/lifecycle/reactivate") public ResponseEntity<LifecycleActionResponse> reactivate(@PathVariable long accountId,@RequestBody LifecycleActionRequest request,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor,@RequestHeader(name="X-Correlation-Id",required=false) String correlationId,@RequestHeader(name="X-Idempotency-Key") String idempotencyKey){return ResponseEntity.ok(servicing.reactivate(accountId,request,actor(actor),correlation(correlationId),idempotencyKey));}
+    @PostMapping("/{accountId}/lifecycle/mark-dormant") public ResponseEntity<LifecycleActionResponse> markDormant(@PathVariable long accountId,@RequestBody LifecycleActionRequest request,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor,@RequestHeader(name="X-Correlation-Id",required=false) String correlationId,@RequestHeader(name="X-Idempotency-Key") String idempotencyKey){return ResponseEntity.ok(servicing.markDormant(accountId,request,actor(actor),correlation(correlationId),idempotencyKey));}
+    @PostMapping("/{accountId}/holds") public ResponseEntity<HoldActionResponse> createHold(@PathVariable long accountId,@RequestBody CreateHoldRequest request,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor,@RequestHeader(name="X-Correlation-Id",required=false) String correlationId,@RequestHeader(name="X-Idempotency-Key") String idempotencyKey){return ResponseEntity.ok(servicing.createHold(accountId,request,actor(actor),correlation(correlationId),idempotencyKey));}
+    @PostMapping("/{accountId}/holds/{holdId}/release") public ResponseEntity<HoldActionResponse> releaseHold(@PathVariable long accountId,@PathVariable long holdId,@RequestBody ReleaseHoldRequest request,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor,@RequestHeader(name="X-Correlation-Id",required=false) String correlationId,@RequestHeader(name="X-Idempotency-Key") String idempotencyKey){return ResponseEntity.ok(servicing.releaseHold(accountId,holdId,request,actor(actor),correlation(correlationId),idempotencyKey));}
+    @PostMapping("/{accountId}/close") public ResponseEntity<CloseAccountResponse> close(@PathVariable long accountId,@RequestBody CloseAccountRequest request,@RequestHeader(name="X-User-Id",defaultValue="deposit.operator") String actor,@RequestHeader(name="X-Correlation-Id",required=false) String correlationId){return ResponseEntity.ok(servicing.close(accountId,request,actor(actor),correlation(correlationId)));}
+    private static String actor(String v){return v==null||v.isBlank()?"deposit.operator":v.trim();} private static String correlation(String v){return v==null||v.isBlank()?UUID.randomUUID().toString():v.trim();}
 }

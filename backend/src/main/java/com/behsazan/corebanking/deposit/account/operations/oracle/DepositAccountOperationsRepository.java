@@ -1,14 +1,11 @@
 package com.behsazan.corebanking.deposit.account.operations.oracle;
 
-import com.behsazan.corebanking.deposit.account.operations.domain.DepositAccountOperationsModels.AccountSummary;
-import com.behsazan.corebanking.deposit.account.operations.domain.DepositAccountOperationsModels.LifecycleEvent;
-import com.behsazan.corebanking.deposit.account.operations.domain.DepositAccountOperationsModels.OwnerParty;
+import com.behsazan.corebanking.deposit.account.operations.domain.DepositAccountOperationsModels.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -18,176 +15,30 @@ import java.util.Optional;
 
 @Repository
 public class DepositAccountOperationsRepository {
+    // Phase 8 lineage: DEPOSIT_OPENING_PARTY was the original read source; Phase 11B materializes it into DEPOSIT_ACCOUNT_PARTY.
     private final NamedParameterJdbcTemplate jdbc;
-    private final String accountSchema;
-    private final String openingSchema;
-    private final String productSchema;
+    private final String accountSchema, openingSchema, productSchema;
+    public DepositAccountOperationsRepository(NamedParameterJdbcTemplate jdbc,@Value("${core-banking.schemas.deposit-account:DPS2}") String accountSchema,@Value("${core-banking.schemas.deposit-opening:DPS2}") String openingSchema,@Value("${core-banking.schemas.product-definition:PDL}") String productSchema){this.jdbc=jdbc;this.accountSchema=requireIdentifier(accountSchema);this.openingSchema=requireIdentifier(openingSchema);this.productSchema=requireIdentifier(productSchema);}
 
-    public DepositAccountOperationsRepository(
-            NamedParameterJdbcTemplate jdbc,
-            @Value("${core-banking.schemas.deposit-account:DPS2}") String accountSchema,
-            @Value("${core-banking.schemas.deposit-opening:DPS2}") String openingSchema,
-            @Value("${core-banking.schemas.product-definition:PDL}") String productSchema
-    ) {
-        this.jdbc = jdbc;
-        this.accountSchema = requireIdentifier(accountSchema);
-        this.openingSchema = requireIdentifier(openingSchema);
-        this.productSchema = requireIdentifier(productSchema);
-    }
+    public List<AccountSummary> search(String accountNo,String status,Long openingRequestId,Long partyId,String productFamilyCode,int offset,int limit){QueryParts q=queryParts(accountNo,status,openingRequestId,partyId,productFamilyCode);String sql=baseSelect()+q.whereClause()+" ORDER BY A.ACCOUNT_ID DESC OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";q.params().addValue("offset",offset).addValue("limit",limit);return jdbc.query(sql,q.params(),(rs,n)->mapSummary(rs));}
+    public long count(String accountNo,String status,Long openingRequestId,Long partyId,String productFamilyCode){QueryParts q=queryParts(accountNo,status,openingRequestId,partyId,productFamilyCode);Long v=jdbc.queryForObject("SELECT COUNT(*) FROM "+accountSchema+".DEPOSIT_ACCOUNT A JOIN "+openingSchema+".DEPOSIT_OPENING_REQUEST R ON R.OPENING_REQUEST_ID=A.OPENING_REQUEST_ID LEFT JOIN "+productSchema+".PRODUCT_VERSION PV ON PV.PRODUCT_VERSION_ID=A.CURRENT_PRODUCT_VERSION_ID LEFT JOIN "+productSchema+".PRODUCT P ON P.PRODUCT_ID=PV.PRODUCT_ID "+q.whereClause(),q.params(),Long.class);return v==null?0:v;}
+    public Optional<AccountSummary> find(long accountId){var rows=jdbc.query(baseSelect()+" WHERE A.ACCOUNT_ID=:accountId",new MapSqlParameterSource("accountId",accountId),(rs,n)->mapSummary(rs));return rows.stream().findFirst();}
 
-    public List<AccountSummary> search(
-            String accountNo,
-            String status,
-            Long openingRequestId,
-            Long partyId,
-            String productFamilyCode,
-            int offset,
-            int limit
-    ) {
-        QueryParts query = queryParts(accountNo, status, openingRequestId, partyId, productFamilyCode);
-        String sql = baseSelect() + query.whereClause()
-                + " ORDER BY A.ACCOUNT_ID DESC OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
-        query.params().addValue("offset", offset).addValue("limit", limit);
-        return jdbc.query(sql, query.params(), (rs, rowNum) -> mapSummary(rs));
-    }
+    public List<AccountParty> parties(long accountId){String sql="""
+      SELECT ACCOUNT_PARTY_ID,PARTY_ID,ROLE_CODE,IS_PRIMARY,OWNERSHIP_PERCENT,VALID_FROM,VALID_TO,STATUS_CODE,SOURCE_OPENING_PARTY_ID
+      FROM %s.DEPOSIT_ACCOUNT_PARTY WHERE ACCOUNT_ID=:accountId ORDER BY IS_PRIMARY DESC, ACCOUNT_PARTY_ID
+      """.formatted(accountSchema);return jdbc.query(sql,new MapSqlParameterSource("accountId",accountId),(rs,n)->new AccountParty(rs.getLong("ACCOUNT_PARTY_ID"),rs.getLong("PARTY_ID"),rs.getString("ROLE_CODE"),rs.getInt("IS_PRIMARY")==1,rs.getBigDecimal("OWNERSHIP_PERCENT"),rs.getDate("VALID_FROM").toLocalDate(),rs.getDate("VALID_TO")==null?null:rs.getDate("VALID_TO").toLocalDate(),rs.getString("STATUS_CODE"),rs.getObject("SOURCE_OPENING_PARTY_ID",Long.class)));}
+    public List<AccountContact> contacts(long accountId){String sql="SELECT ACCOUNT_CONTACT_ID,CONTACT_TYPE_CODE,CONTACT_VALUE,PURPOSE_CODE,IS_PRIMARY,VALID_FROM,VALID_TO FROM "+accountSchema+".DEPOSIT_ACCOUNT_CONTACT WHERE ACCOUNT_ID=:accountId ORDER BY IS_PRIMARY DESC,ACCOUNT_CONTACT_ID";return jdbc.query(sql,new MapSqlParameterSource("accountId",accountId),(rs,n)->new AccountContact(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getInt(5)==1,rs.getDate(6).toLocalDate(),rs.getDate(7)==null?null:rs.getDate(7).toLocalDate()));}
+    public List<ServicingHistory> servicingHistory(long accountId){String sql="SELECT SERVICING_HISTORY_ID,CHANGE_TYPE_CODE,OLD_VALUE,NEW_VALUE,REASON_CODE,EFFECTIVE_AT,SOURCE_ENTITY_TYPE,SOURCE_ENTITY_ID,CREATED_BY FROM "+accountSchema+".DEPOSIT_ACCOUNT_SERVICING_HISTORY WHERE ACCOUNT_ID=:accountId ORDER BY EFFECTIVE_AT DESC,SERVICING_HISTORY_ID DESC";return jdbc.query(sql,new MapSqlParameterSource("accountId",accountId),(rs,n)->new ServicingHistory(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),toOffsetDateTime(rs.getTimestamp(6)),rs.getString(7),rs.getObject(8,Long.class),rs.getString(9)));}
+    public List<LifecycleEvent> events(long accountId){String sql="SELECT LIFECYCLE_EVENT_ID,EVENT_TYPE_CODE,FROM_STATUS_CODE,TO_STATUS_CODE,CORRELATION_ID,EVENT_AT,EVENT_BY FROM "+accountSchema+".DEPOSIT_ACCOUNT_LIFECYCLE_EVENT WHERE ACCOUNT_ID=:accountId ORDER BY EVENT_AT,LIFECYCLE_EVENT_ID";return jdbc.query(sql,new MapSqlParameterSource("accountId",accountId),(rs,n)->new LifecycleEvent(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),toOffsetDateTime(rs.getTimestamp(6)),rs.getString(7)));}
+    public List<AccountStatusHistory> statusHistory(long accountId){String sql="SELECT ACCOUNT_STATUS_HISTORY_ID,FROM_STATUS_CODE,TO_STATUS_CODE,EFFECTIVE_AT,REASON_CODE,EVENT_REFERENCE,CREATED_BY FROM "+accountSchema+".DEPOSIT_ACCOUNT_STATUS_HISTORY WHERE ACCOUNT_ID=:accountId ORDER BY EFFECTIVE_AT DESC,ACCOUNT_STATUS_HISTORY_ID DESC";return jdbc.query(sql,new MapSqlParameterSource("accountId",accountId),(rs,n)->new AccountStatusHistory(rs.getLong(1),rs.getString(2),rs.getString(3),toOffsetDateTime(rs.getTimestamp(4)),rs.getString(5),rs.getString(6),rs.getString(7)));}
+    public List<AccountHold> holds(long accountId){String sql="SELECT ACCOUNT_HOLD_ID,HOLD_TYPE_CODE,HOLD_AMOUNT,CURRENCY_CODE,HOLD_REASON_CODE,SOURCE_REFERENCE,VALID_FROM,VALID_TO,HOLD_STATUS_CODE,RELEASED_AT,ORIGIN_SYSTEM_CODE,ORIGIN_MODULE_CODE,ORIGIN_REQUEST_REF,ORIGIN_EXECUTION_MODE_CODE,RELEASE_POLICY_CODE,RECORD_VERSION FROM "+accountSchema+".DEPOSIT_ACCOUNT_HOLD WHERE ACCOUNT_ID=:accountId ORDER BY CASE HOLD_STATUS_CODE WHEN 'ACTIVE' THEN 0 ELSE 1 END,ACCOUNT_HOLD_ID DESC";return jdbc.query(sql,new MapSqlParameterSource("accountId",accountId),(rs,n)->new AccountHold(rs.getLong(1),rs.getString(2),rs.getBigDecimal(3),rs.getString(4),rs.getString(5),rs.getString(6),toOffsetDateTime(rs.getTimestamp(7)),toOffsetDateTime(rs.getTimestamp(8)),rs.getString(9),toOffsetDateTime(rs.getTimestamp(10)),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getLong(16)));}
+    public List<HoldHistory> holdHistory(long accountId){String sql="SELECT H.HOLD_HISTORY_ID,H.ACCOUNT_HOLD_ID,H.ACTION_CODE,H.ACTION_AT,H.OLD_STATUS_CODE,H.NEW_STATUS_CODE,H.REASON_CODE,H.ACTION_SOURCE_SYSTEM_CODE,H.ACTION_SOURCE_MODULE_CODE,H.ACTION_REQUEST_REF,H.CORRELATION_ID,H.ACTION_EXECUTION_MODE_CODE,H.OLD_HOLD_AMOUNT,H.NEW_HOLD_AMOUNT,H.RELEASED_AMOUNT,H.CREATED_BY FROM "+accountSchema+".DEPOSIT_ACCOUNT_HOLD_HISTORY H JOIN "+accountSchema+".DEPOSIT_ACCOUNT_HOLD X ON X.ACCOUNT_HOLD_ID=H.ACCOUNT_HOLD_ID WHERE X.ACCOUNT_ID=:accountId ORDER BY H.ACTION_AT DESC,H.HOLD_HISTORY_ID DESC";return jdbc.query(sql,new MapSqlParameterSource("accountId",accountId),(rs,n)->new HoldHistory(rs.getLong(1),rs.getLong(2),rs.getString(3),toOffsetDateTime(rs.getTimestamp(4)),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getBigDecimal(13),rs.getBigDecimal(14),rs.getBigDecimal(15),rs.getString(16)));}
 
-    public long count(
-            String accountNo,
-            String status,
-            Long openingRequestId,
-            Long partyId,
-            String productFamilyCode
-    ) {
-        QueryParts query = queryParts(accountNo, status, openingRequestId, partyId, productFamilyCode);
-        String sql = "SELECT COUNT(*) FROM " + accountSchema + ".DEPOSIT_ACCOUNT A "
-                + "JOIN " + openingSchema + ".DEPOSIT_OPENING_REQUEST R ON R.OPENING_REQUEST_ID=A.OPENING_REQUEST_ID "
-                + "LEFT JOIN " + productSchema + ".PRODUCT_VERSION PV ON PV.PRODUCT_VERSION_ID=A.PRODUCT_VERSION_ID "
-                + "LEFT JOIN " + productSchema + ".PRODUCT P ON P.PRODUCT_ID=PV.PRODUCT_ID "
-                + query.whereClause();
-        Long value = jdbc.queryForObject(sql, query.params(), Long.class);
-        return value == null ? 0L : value;
-    }
-
-    public Optional<AccountSummary> find(long accountId) {
-        String sql = baseSelect() + " WHERE A.ACCOUNT_ID=:accountId";
-        List<AccountSummary> rows = jdbc.query(sql, new MapSqlParameterSource("accountId", accountId),
-                (rs, rowNum) -> mapSummary(rs));
-        return rows.stream().findFirst();
-    }
-
-    public List<OwnerParty> owners(long openingRequestId) {
-        String sql = """
-                SELECT PARTY_ID, ROLE_CODE, IS_PRIMARY, OWNERSHIP_PERCENT, SEQUENCE_NO
-                  FROM %s.DEPOSIT_OPENING_PARTY
-                 WHERE OPENING_REQUEST_ID=:openingRequestId
-                 ORDER BY IS_PRIMARY DESC, SEQUENCE_NO, OPENING_PARTY_ID
-                """.formatted(openingSchema);
-        return jdbc.query(sql, new MapSqlParameterSource("openingRequestId", openingRequestId), (rs, rowNum) ->
-                new OwnerParty(
-                        rs.getLong("PARTY_ID"),
-                        rs.getString("ROLE_CODE"),
-                        rs.getInt("IS_PRIMARY") == 1,
-                        rs.getBigDecimal("OWNERSHIP_PERCENT"),
-                        rs.getInt("SEQUENCE_NO")
-                ));
-    }
-
-    public List<LifecycleEvent> events(long accountId) {
-        String sql = """
-                SELECT LIFECYCLE_EVENT_ID, EVENT_TYPE_CODE, FROM_STATUS_CODE, TO_STATUS_CODE,
-                       CORRELATION_ID, EVENT_AT, EVENT_BY
-                  FROM %s.DEPOSIT_ACCOUNT_LIFECYCLE_EVENT
-                 WHERE ACCOUNT_ID=:accountId
-                 ORDER BY EVENT_AT, LIFECYCLE_EVENT_ID
-                """.formatted(accountSchema);
-        return jdbc.query(sql, new MapSqlParameterSource("accountId", accountId), (rs, rowNum) ->
-                new LifecycleEvent(
-                        rs.getLong("LIFECYCLE_EVENT_ID"),
-                        rs.getString("EVENT_TYPE_CODE"),
-                        rs.getString("FROM_STATUS_CODE"),
-                        rs.getString("TO_STATUS_CODE"),
-                        rs.getString("CORRELATION_ID"),
-                        toOffsetDateTime(rs.getTimestamp("EVENT_AT")),
-                        rs.getString("EVENT_BY")
-                ));
-    }
-
-    private String baseSelect() {
-        return "SELECT A.ACCOUNT_ID, A.ACCOUNT_NO, A.OPENING_REQUEST_ID, R.REQUEST_NO, "
-                + "(SELECT MAX(OP.PARTY_ID) KEEP (DENSE_RANK FIRST ORDER BY OP.IS_PRIMARY DESC, OP.SEQUENCE_NO, OP.OPENING_PARTY_ID) "
-                + "   FROM " + openingSchema + ".DEPOSIT_OPENING_PARTY OP WHERE OP.OPENING_REQUEST_ID=A.OPENING_REQUEST_ID) PRIMARY_PARTY_ID, "
-                + "A.PRODUCT_VERSION_ID, P.PRODUCT_FAMILY_CODE, A.CURRENCY_CODE, A.OPENING_AMOUNT, "
-                + "A.ACCOUNT_STATUS_CODE, A.CREATED_AT, A.ACTIVATED_AT, A.RECORD_VERSION "
-                + "FROM " + accountSchema + ".DEPOSIT_ACCOUNT A "
-                + "JOIN " + openingSchema + ".DEPOSIT_OPENING_REQUEST R ON R.OPENING_REQUEST_ID=A.OPENING_REQUEST_ID "
-                + "LEFT JOIN " + productSchema + ".PRODUCT_VERSION PV ON PV.PRODUCT_VERSION_ID=A.PRODUCT_VERSION_ID "
-                + "LEFT JOIN " + productSchema + ".PRODUCT P ON P.PRODUCT_ID=PV.PRODUCT_ID ";
-    }
-
-    private QueryParts queryParts(
-            String accountNo,
-            String status,
-            Long openingRequestId,
-            Long partyId,
-            String productFamilyCode
-    ) {
-        StringBuilder where = new StringBuilder(" WHERE 1=1");
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        if (accountNo != null && !accountNo.isBlank()) {
-            where.append(" AND UPPER(A.ACCOUNT_NO) LIKE :accountNo");
-            params.addValue("accountNo", "%" + accountNo.trim().toUpperCase(Locale.ROOT) + "%");
-        }
-        if (status != null && !status.isBlank()) {
-            where.append(" AND A.ACCOUNT_STATUS_CODE=:status");
-            params.addValue("status", status.trim().toUpperCase(Locale.ROOT));
-        }
-        if (openingRequestId != null) {
-            where.append(" AND A.OPENING_REQUEST_ID=:openingRequestId");
-            params.addValue("openingRequestId", openingRequestId);
-        }
-        if (partyId != null) {
-            where.append(" AND EXISTS (SELECT 1 FROM ").append(openingSchema)
-                    .append(".DEPOSIT_OPENING_PARTY OPF WHERE OPF.OPENING_REQUEST_ID=A.OPENING_REQUEST_ID AND OPF.PARTY_ID=:partyId)");
-            params.addValue("partyId", partyId);
-        }
-        if (productFamilyCode != null && !productFamilyCode.isBlank()) {
-            where.append(" AND P.PRODUCT_FAMILY_CODE=:productFamilyCode");
-            params.addValue("productFamilyCode", productFamilyCode.trim().toUpperCase(Locale.ROOT));
-        }
-        return new QueryParts(where.toString(), params);
-    }
-
-    private static AccountSummary mapSummary(java.sql.ResultSet rs) throws java.sql.SQLException {
-        return new AccountSummary(
-                rs.getLong("ACCOUNT_ID"),
-                rs.getString("ACCOUNT_NO"),
-                rs.getLong("OPENING_REQUEST_ID"),
-                rs.getString("REQUEST_NO"),
-                rs.getObject("PRIMARY_PARTY_ID", Long.class),
-                rs.getObject("PRODUCT_VERSION_ID", Long.class),
-                rs.getString("PRODUCT_FAMILY_CODE"),
-                rs.getString("CURRENCY_CODE"),
-                rs.getBigDecimal("OPENING_AMOUNT"),
-                rs.getString("ACCOUNT_STATUS_CODE"),
-                toOffsetDateTime(rs.getTimestamp("CREATED_AT")),
-                toOffsetDateTime(rs.getTimestamp("ACTIVATED_AT")),
-                rs.getLong("RECORD_VERSION")
-        );
-    }
-
-    private static OffsetDateTime toOffsetDateTime(Timestamp timestamp) {
-        return timestamp == null ? null : timestamp.toInstant().atOffset(ZoneOffset.UTC);
-    }
-
-    private static String requireIdentifier(String raw) {
-        if (raw == null) throw new IllegalArgumentException("Oracle identifier is required.");
-        String normalized = raw.trim().toUpperCase(Locale.ROOT);
-        if (!normalized.matches("[A-Z][A-Z0-9_$#]{0,127}")) {
-            throw new IllegalArgumentException("Invalid Oracle identifier: " + raw);
-        }
-        return normalized;
-    }
-
-    private record QueryParts(String whereClause, MapSqlParameterSource params) {
-    }
+    private String baseSelect(){return "SELECT A.ACCOUNT_ID,A.ACCOUNT_NO,A.OPENING_REQUEST_ID,R.REQUEST_NO,(SELECT MAX(AP.PARTY_ID) KEEP (DENSE_RANK FIRST ORDER BY AP.IS_PRIMARY DESC,AP.ACCOUNT_PARTY_ID) FROM "+accountSchema+".DEPOSIT_ACCOUNT_PARTY AP WHERE AP.ACCOUNT_ID=A.ACCOUNT_ID AND AP.STATUS_CODE='ACTIVE') PRIMARY_PARTY_ID,A.CURRENT_PRODUCT_VERSION_ID PRODUCT_VERSION_ID,P.PRODUCT_FAMILY_CODE,A.CURRENCY_CODE,A.OPENING_AMOUNT,A.ACCOUNT_STATUS_CODE,A.ACCOUNT_NAME,A.OPENING_ORG_UNIT_CODE,A.DORMANCY_DATE,A.CREATED_AT,A.ACTIVATED_AT,A.RECORD_VERSION FROM "+accountSchema+".DEPOSIT_ACCOUNT A JOIN "+openingSchema+".DEPOSIT_OPENING_REQUEST R ON R.OPENING_REQUEST_ID=A.OPENING_REQUEST_ID LEFT JOIN "+productSchema+".PRODUCT_VERSION PV ON PV.PRODUCT_VERSION_ID=A.CURRENT_PRODUCT_VERSION_ID LEFT JOIN "+productSchema+".PRODUCT P ON P.PRODUCT_ID=PV.PRODUCT_ID ";}
+    private QueryParts queryParts(String accountNo,String status,Long openingRequestId,Long partyId,String productFamilyCode){StringBuilder w=new StringBuilder(" WHERE 1=1");MapSqlParameterSource p=new MapSqlParameterSource();if(accountNo!=null&&!accountNo.isBlank()){w.append(" AND UPPER(A.ACCOUNT_NO) LIKE :accountNo");p.addValue("accountNo","%"+accountNo.trim().toUpperCase(Locale.ROOT)+"%");}if(status!=null&&!status.isBlank()){w.append(" AND A.ACCOUNT_STATUS_CODE=:status");p.addValue("status",status);}if(openingRequestId!=null){w.append(" AND A.OPENING_REQUEST_ID=:openingRequestId");p.addValue("openingRequestId",openingRequestId);}if(partyId!=null){w.append(" AND EXISTS (SELECT 1 FROM ").append(accountSchema).append(".DEPOSIT_ACCOUNT_PARTY APF WHERE APF.ACCOUNT_ID=A.ACCOUNT_ID AND APF.PARTY_ID=:partyId AND APF.STATUS_CODE='ACTIVE')");p.addValue("partyId",partyId);}if(productFamilyCode!=null&&!productFamilyCode.isBlank()){w.append(" AND P.PRODUCT_FAMILY_CODE=:productFamilyCode");p.addValue("productFamilyCode",productFamilyCode);}return new QueryParts(w.toString(),p);}
+    private static AccountSummary mapSummary(java.sql.ResultSet rs)throws java.sql.SQLException{return new AccountSummary(rs.getLong("ACCOUNT_ID"),rs.getString("ACCOUNT_NO"),rs.getLong("OPENING_REQUEST_ID"),rs.getString("REQUEST_NO"),rs.getObject("PRIMARY_PARTY_ID",Long.class),rs.getObject("PRODUCT_VERSION_ID",Long.class),rs.getString("PRODUCT_FAMILY_CODE"),rs.getString("CURRENCY_CODE"),rs.getBigDecimal("OPENING_AMOUNT"),rs.getString("ACCOUNT_STATUS_CODE"),rs.getString("ACCOUNT_NAME"),rs.getString("OPENING_ORG_UNIT_CODE"),rs.getDate("DORMANCY_DATE")==null?null:rs.getDate("DORMANCY_DATE").toLocalDate(),toOffsetDateTime(rs.getTimestamp("CREATED_AT")),toOffsetDateTime(rs.getTimestamp("ACTIVATED_AT")),rs.getLong("RECORD_VERSION"));}
+    private static OffsetDateTime toOffsetDateTime(Timestamp t){return t==null?null:t.toLocalDateTime().atOffset(ZoneOffset.UTC);}
+    private static String requireIdentifier(String raw){String n=raw==null?"":raw.trim().toUpperCase(Locale.ROOT);if(!n.matches("[A-Z][A-Z0-9_$#]{0,127}"))throw new IllegalArgumentException("Invalid Oracle identifier: "+raw);return n;}
+    private record QueryParts(String whereClause,MapSqlParameterSource params){}
 }
