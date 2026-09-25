@@ -1,0 +1,17 @@
+DPS2 0.11.0 - Phase 11N-B Activation Event Atomicity Hotfix
+============================================================
+
+Scope:
+- Fix real Runtime READY -> ACTIVE failure path in Phase 11N-B.
+- Persist ACTIVATE + ACTIVATION_RUN_ID + EXECUTED atomically.
+- Persist PENDING_ACTIVATION -> ACTIVE status history with ACTIVATION_RUN trace.
+- Remove post-insert linkLatestActivationEvent mutation.
+- Strengthen DB/static/runtime qualification guards.
+
+Apply:
+1. Extract this ZIP over D:\Projects\core-banking-prototype-v0
+2. Keep CORE_BANKING_ORACLE_CONNECT set to the real Oracle connection.
+3. Run: tools\qualify-dps2-phase11nb.cmd
+
+No new DDL is introduced by this hotfix. Existing 11N-B migration is rerunnable.
+Phase 11N-B remains IN_PROGRESS until DPS2_PHASE11NB_STEPS01_02_QUALIFICATION_PASS.

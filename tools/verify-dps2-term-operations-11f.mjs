@@ -17,7 +17,7 @@ check('partial withdrawal request API exists',text.ctrl.includes('/term-operatio
 check('partial withdrawal approval API exists',text.ctrl.includes('/partial-withdrawals/{id}/approve'));
 check('partial withdrawal execute API exists',text.ctrl.includes('/partial-withdrawals/{id}/execute'));
 check('partial withdrawal requires amount less than principal',text.svc.includes('کمتر از اصل قرارداد')&&text.svc.includes('از Early Termination استفاده کنید'));
-check('partial withdrawal uses 11D posting primitive',text.svc.includes('balanceService.post(accountId')&&text.svc.includes('TERM_PARTIAL_WITHDRAWAL'));
+check('partial withdrawal uses 11D directly or evolved 11N-C Step05 primitive',(text.svc.includes('balanceService.post(accountId')&&text.svc.includes('TERM_PARTIAL_WITHDRAWAL'))||(text.svc.includes('transactionService.postDerived')&&text.svc.includes('TERM_PARTIAL_WITHDRAWAL')));
 check('partial withdrawal updates contract principal only after posting',text.repo.includes('UPDATE "+schema+".DEPOSIT_TERM_CONTRACT SET PRINCIPAL_AMOUNT=:after'));
 check('renewal request/approve/execute APIs exist',text.ctrl.includes('/term-operations/renewals"')&&text.ctrl.includes('/renewals/{id}/approve')&&text.ctrl.includes('/renewals/{id}/execute'));
 check('renewal cannot execute before maturity',text.svc.includes('اجرای Renewal قبل از سررسید مجاز نیست'));
@@ -29,7 +29,7 @@ check('conversion updates account product history',text.repo.includes('DEPOSIT_A
 check('opened product version is not changed by conversion',!text.repo.includes('OPENED_PRODUCT_VERSION_ID='));
 check('early termination API exists',text.ctrl.includes('/term-operations/early-terminations'));
 check('full early termination hands off to 11E closure',text.svc.includes('closureService.requestClosure')&&text.svc.includes('EARLY_TERMINATION')&&text.svc.includes('TERM_EARLY_TERMINATION'));
-check('early termination creates term settlement calculation',text.svc.includes('insertSettlement')&&text.repo.includes('DEPOSIT_TERM_SETTLEMENT'));
+check('early termination creates term settlement calculation',((text.svc.includes('insertSettlement')||text.svc.includes('insertCalculatedSettlement'))&&text.repo.includes('DEPOSIT_TERM_SETTLEMENT')));
 check('11F does not implement profit engine',!text.svc.includes('PROFIT_ACCRUAL')&&!text.repo.includes('DEPOSIT_PROFIT_ACCRUAL'));
 check('11F does not create DEPOSIT_TRANSACTION rows',!text.repo.includes('INSERT INTO "+schema+".DEPOSIT_TRANSACTION'));
 check('maker-checker enforced for term mutations',text.svc.includes('makerChecker(actor,approver)')&&text.repo.includes('APPROVER_USER_ID=:actor'));
@@ -50,7 +50,7 @@ check('DB verifier checks early termination closure handoff',text.dbv.includes('
 check('Angular term operation contracts exist',text.ngs.includes('DepositTermOperations')&&text.ngs.includes('requestEarlyTermination'));
 check('Angular term operations state is loaded only for term families',text.ngc.includes("['SHORT_TERM_DEPOSIT','LONG_TERM_DEPOSIT']")&&text.ngc.includes('termOperations.set'));
 check('11F UI card exists',text.ngh.includes('Term Deposit Operations')&&text.ngh.includes('Phase 11F · Package 13'));
-check('11F UI communicates 11D/11E/11G/11H boundaries',text.ngh.includes('سود در 11G')&&text.ngh.includes('11H')&&text.ngh.includes('11E'));
+check('11F UI communicates document-driven Step 03/04/05 and closure boundaries',text.ngh.includes('عملیات مدت‌دار در Step 03')&&text.ngh.includes('Step 05 Transaction Processing')&&text.ngh.includes('Profit نیز در Step 04')&&text.ngh.includes('مرز 11E'));
 check('Windows 11F apply helper exists',text.cmd.includes('PHASE11F_IMPLEMENTATION_PASS'));
 check('11F runtime E2E exists',text.run.includes('PHASE11F_RUNTIME_E2E_PASS'));
 check('runtime E2E self-provisions a governed funded term account when legacy candidates lack contracts',text.run.includes('bootstrapTermAccount')&&text.run.includes('DEPOSIT_OPENING_TERM')&&text.run.includes('DEPOSIT_OPENING_MATURITY_INSTRUCTION')&&text.run.includes('PHASE11F_RUNTIME_E2E_BOOTSTRAP_ACCOUNT'));

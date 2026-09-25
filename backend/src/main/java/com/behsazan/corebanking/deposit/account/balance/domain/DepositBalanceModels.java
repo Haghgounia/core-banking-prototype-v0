@@ -78,8 +78,19 @@ public final class DepositBalanceModels {
             String sourceEntityType,
             Long sourceEntityId,
             Long reversalOfEntryId,
-            String glPostingReference
-    ) {}
+            String glPostingReference,
+            Long transactionId,
+            Long transactionLegId,
+            Integer entrySequenceNo
+    ) {
+        public PostEntryRequest(
+                String debitCreditCode, BigDecimal amount, String currencyCode, LocalDate bookingDate, LocalDate valueDate,
+                String postingReference, String sourceEntityType, Long sourceEntityId, Long reversalOfEntryId, String glPostingReference
+        ) {
+            this(debitCreditCode, amount, currencyCode, bookingDate, valueDate, postingReference, sourceEntityType, sourceEntityId,
+                    reversalOfEntryId, glPostingReference, null, null, null);
+        }
+    }
 
     public record PostEntryResponse(BalanceView state, long subledgerEntryId, boolean idempotentReplay) {}
 

@@ -1,3 +1,9 @@
+## چهار سپرده — وضعیت اجرایی DPS2 / 0.11.0 — 2026-09-24
+
+مرجع ادامه توسعه عملیات حساب سپرده، `docs/DPS2-CANONICAL-ROADMAP-FA.md` و `docs/DPS2-DELTA-AUDIT-2026-09-24.md` است. Phaseهای 11A تا 11H بسته شده‌اند؛ Phase 11I (Step 05 Transaction Processing) و Phase 11J (Wave A تکمیل Steps 01-02) در وضعیت `IN_PROGRESS` هستند. Snapshot واقعی Oracle مورخ 2026-09-24 نشان می‌دهد همه 107 جدول یکتای مورد استفاده در Action Trace گام‌های 00 تا 17 در Schema موجودند؛ بنابراین تمرکز ادامه کار روی Service/API/UI/Runtime orchestration است، نه ایجاد مجدد Schema.
+
+ترتیب Qualification بسته تجمیعی فعلی: `tools\apply-dps2-phase11i.cmd`، سپس `tools\apply-dps2-phase11j.cmd`، یک بار Build/Restart، سپس Runtimeهای 11I و 11J. هیچ Phase تا قبل از DB Gate و Runtime E2E واقعی `CLOSED` محسوب نمی‌شود.
+
 ## نسخه 0.10.0 — Operational Opening v5
 مسير افتتاح حساب اکنون Create Account را از Settlement و Activation Readiness جدا مي‌کند: `APPROVED -> PENDING_ACTIVATION -> Settlement -> READY -> ACTIVE`. Funding قبل از Create فقط Plan است و Activate بدون READY مجاز نيست.
 
@@ -712,3 +718,15 @@ Phase 9 عملیات حساب سپرده، اولین Servicing تغییردهن
 
 ### 0.10.0 — Operational Opening v5 / Phase 10D
 Wizard افتتاح «چهار سپرده» اکنون با CIF Party Search، انتخاب حساب مبدأ ACTIVE و احراز مالکیت از Account Operations، Withdrawal Media محصول‌محور، تفکیک Payment Instrument، خلاصه Obligation/Funding و Evidence صریح Create Gate هم‌راستا شده است. مسیر فعال‌سازی همچنان `Create -> Settlement -> Readiness -> Activate` است و Batch مستقیم فعال نمی‌شود.
+
+---
+
+## مرجع الزامی نقشه راه DPS2 / عملیات حساب سپرده
+
+از تاریخ 2026-09-23، مرجع رسمی و Single Source of Truth برای ادامه توسعه «چهار سپرده / Deposit Account Operations» فایل زیر است:
+
+`docs/DPS2-CANONICAL-ROADMAP-FA.md`
+
+هر Chat، Patch یا فاز جدید DPS2 باید قبل از شروع کار این Roadmap و سه سند مرجع موجود در `docs/dps2/reference/` را مبنا قرار دهد. بسته‌شدن Technical Phase به معنی تکمیل Operational Step سند نیست؛ وضعیت Coverage فقط در Canonical Roadmap تعیین می‌شود.
+
+وضعیت جاری: `11A..11H = CLOSED`؛ Phase `11I` برای **Step 05 - Deposit Transaction Processing** در وضعیت `IN_PROGRESS` است و Source Gate آن `56/56 PASS` شده؛ DB/Runtime qualification هنوز باز است. Step 04 از نظر فنی 11H PASS است ولی برای مقصدهای سود خارجی تا اتصال به Step 05 همچنان `PARTIAL` است؛ مرجع دقیق Scope و Gateها فقط Roadmap فوق است.

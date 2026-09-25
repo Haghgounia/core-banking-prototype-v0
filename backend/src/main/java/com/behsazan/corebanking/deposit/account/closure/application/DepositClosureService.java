@@ -109,6 +109,34 @@ public class DepositClosureService {
         return new ClosureActionResponse(closure(accountId,closureId),false);
     }
 
+    /**
+     * Internal closure execution for an owning operation that has already settled the deposit balance
+     * through Step 05. This preserves Package 16 as the only owner of ACTIVE -> CLOSED while keeping
+     * the financial transaction reference from the owning flow (maturity / early termination).
+     */
+    @Transactional
+    public ClosureActionResponse executePreSettledClosure(long accountId,long closureId,String settlementTransactionReference,String actor,String correlationId,String idempotencyKey){
+        String settlementRef=required(settlementTransactionReference,"SETTLEMENT_TRANSACTION_REFERENCE");
+        String hash=hash("EXECUTE_PRE_SETTLED|"+accountId+"|"+closureId+"|"+settlementRef);
+        if(replayOrClaim(idempotencyKey,accountId,"ACCOUNT_CLOSURE_EXECUTE_PRE_SETTLED",hash,actor,correlationId))return new ClosureActionResponse(closure(accountId,closureId),true);
+        AccountLock account=requireAccount(accountId,true);
+        ClosureLock c=repository.lockClosure(accountId,closureId).orElseThrow(()->new IllegalArgumentException("Closure یافت نشد."));
+        if(!"APPROVED".equals(upper(c.status())))throw lifecycle("Closure قبل از اجرای Pre-settled باید APPROVED باشد.","DEPOSIT_ACCOUNT_CLOSURE.CLOSURE_STATUS_CODE",c.status());
+        if(!"ACTIVE".equals(upper(account.status())))throw lifecycle("اجرای Closure فقط روی حساب ACTIVE مجاز است.","DEPOSIT_ACCOUNT.ACCOUNT_STATUS_CODE",account.status());
+        if(repository.activeHoldCount(accountId)>0)throw lifecycle("Hold فعال مانع بستن حساب است.","DEPOSIT_ACCOUNT_HOLD.HOLD_STATUS_CODE","ACTIVE");
+        if(repository.activeReservationCount(accountId)>0)throw lifecycle("Reservation فعال مانع بستن حساب است.","DEPOSIT_BALANCE_RESERVATION.RESERVATION_STATUS_CODE","ACTIVE");
+        balanceService.refreshBalance(accountId,actor);
+        BalanceRow afterSettlement=repository.lockBalance(accountId).orElseThrow(()->lifecycle("Balance عملیاتی حساب موجود نیست.","DEPOSIT_ACCOUNT_BALANCE","missing"));
+        if(nz(afterSettlement.ledger()).signum()!=0||nz(afterSettlement.available()).signum()!=0||nz(afterSettlement.blocked()).signum()!=0||nz(afterSettlement.pendingDebit()).signum()!=0)throw lifecycle("Pre-settled Closure فقط بعد از صفر شدن کامل مانده قابل اجرا است.","DEPOSIT_ACCOUNT_BALANCE","ledger="+afterSettlement.ledger()+", available="+afterSettlement.available()+", blocked="+afterSettlement.blocked()+", pendingDebit="+afterSettlement.pendingDebit());
+        repository.settleItems(closureId,actor);
+        if(repository.changeStatus(accountId,account.recordVersion(),"ACTIVE","CLOSED",actor)!=1)throw lifecycle("وضعیت حساب همزمان تغییر کرده است.","DEPOSIT_ACCOUNT.RECORD_VERSION",String.valueOf(account.recordVersion()));
+        repository.insertLifecycle(accountId,account.openingRequestId(),"CLOSE","ACTIVE","CLOSED",c.reason(),c.approvalId(),actor,correlationId);
+        repository.insertStatusHistory(accountId,"ACTIVE","CLOSED",c.reason(),"CLOSURE:"+closureId,actor);
+        if(repository.executeClosure(closureId,settlementRef,actor)!=1)throw lifecycle("Closure همزمان تغییر کرده است.","DEPOSIT_ACCOUNT_CLOSURE.CLOSURE_STATUS_CODE",c.status());
+        repository.completeIdempotency(idempotencyKey,"CLOSURE:"+closureId);
+        return new ClosureActionResponse(closure(accountId,closureId),false);
+    }
+
     @Transactional
     public ReopeningActionResponse requestReopening(long accountId,ReopeningRequest request,String actor,String correlationId,String idempotencyKey){
         String reason=upper(required(request==null?null:request.reopenReasonCode(),"REOPEN_REASON_CODE"));

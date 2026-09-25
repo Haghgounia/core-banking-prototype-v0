@@ -41,6 +41,6 @@ public final class DepositTermModels {
     public record RenewalRequest(Long newProductVersionId,LocalDate newMaturityDate,BigDecimal newRate,String approverUserId,String orgUnitCode) {}
     public record PartialWithdrawalRequest(BigDecimal amount,String approverUserId,String orgUnitCode) {}
     public record ConversionRequest(long toProductVersionId,LocalDate effectiveDate,String approverUserId,String orgUnitCode) {}
-    public record EarlyTerminationRequest(LocalDate terminationDate,String settlementAccountReference,String approverUserId,String orgUnitCode) {}
+    public record EarlyTerminationRequest(LocalDate terminationDate,String settlementAccountReference,BigDecimal earlyTerminationRate,String approverUserId,String orgUnitCode) {}
     public record TermActionResponse(TermOperationsView state,long entityId,boolean idempotentReplay) {}
 }

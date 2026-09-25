@@ -103,6 +103,11 @@ public class DepositAccountLifecycleService {
 
     @Transactional
     public AccountLifecycleResponse activateAccount(long openingRequestId, String actor, String correlationId) {
+        return activateAccount(openingRequestId, null, actor, correlationId);
+    }
+
+    @Transactional
+    public AccountLifecycleResponse activateAccount(long openingRequestId, Long activationRunId, String actor, String correlationId) {
         OpeningLink opening = repository.lockOpening(openingRequestId)
                 .orElseThrow(() -> new DepositAccountNotFoundException(
                         "پرونده افتتاح با شناسه " + openingRequestId + " یافت نشد."
@@ -155,9 +160,22 @@ public class DepositAccountLifecycleService {
                     Map.of("DEPOSIT_ACCOUNT.ACCOUNT_STATUS_CODE", "Transition همزمان یا نامعتبر رخ داده است.")
             );
         }
-        repository.insertLifecycleEvent(
-                repository.nextLifecycleEventId(), account.accountId(), openingRequestId,
-                "ACTIVATE", "PENDING_ACTIVATION", "ACTIVE", actor, correlationId
+        long lifecycleEventId = repository.nextLifecycleEventId();
+        if (activationRunId == null) {
+            repository.insertLifecycleEvent(
+                    lifecycleEventId, account.accountId(), openingRequestId,
+                    "ACTIVATE", "PENDING_ACTIVATION", "ACTIVE", actor, correlationId
+            );
+        } else {
+            repository.insertActivationLifecycleEvent(
+                    lifecycleEventId, account.accountId(), openingRequestId, activationRunId, actor, correlationId
+            );
+        }
+        repository.insertAccountStatusHistory(
+                account.accountId(), "PENDING_ACTIVATION", "ACTIVE",
+                "OPERATIONAL_CONTROL",
+                activationRunId == null ? correlationId : "ACTIVATION_RUN:" + activationRunId,
+                actor
         );
         if (repository.completeOpening(openingRequestId, actor) != 1) {
             throw new DepositAccountLifecycleException(

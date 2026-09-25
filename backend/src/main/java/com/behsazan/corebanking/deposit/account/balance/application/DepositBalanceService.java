@@ -109,8 +109,15 @@ public class DepositBalanceService {
         String currency = upper(required(request.currencyCode(), "CURRENCY_CODE"));
         LocalDate bookingDate = request.bookingDate() == null ? LocalDate.now(ZoneOffset.UTC) : request.bookingDate();
         LocalDate valueDate = request.valueDate() == null ? bookingDate : request.valueDate();
+        boolean hasTransactionTrace = request.transactionId() != null || request.transactionLegId() != null || request.entrySequenceNo() != null;
+        if (hasTransactionTrace) {
+            if (request.transactionId() == null || request.transactionId() <= 0) throw new IllegalArgumentException("TRANSACTION_ID باید مثبت باشد.");
+            if (request.transactionLegId() == null || request.transactionLegId() <= 0) throw new IllegalArgumentException("TRANSACTION_LEG_ID باید مثبت باشد.");
+            if (request.entrySequenceNo() == null || request.entrySequenceNo() <= 0) throw new IllegalArgumentException("ENTRY_SEQUENCE_NO باید مثبت باشد.");
+        }
         String payload = String.join("|", dc, amount.toPlainString(), currency, bookingDate.toString(), valueDate.toString(), postingReference,
-                sourceType, String.valueOf(request.sourceEntityId()), Objects.toString(request.reversalOfEntryId(), ""), Objects.toString(request.glPostingReference(), ""));
+                sourceType, String.valueOf(request.sourceEntityId()), Objects.toString(request.reversalOfEntryId(), ""), Objects.toString(request.glPostingReference(), ""),
+                Objects.toString(request.transactionId(), ""), Objects.toString(request.transactionLegId(), ""), Objects.toString(request.entrySequenceNo(), ""));
         String hash = hash(payload);
         if (replayOrClaim(idempotencyKey, accountId, "SUBLEDGER_POST", hash, actor, correlationId)) {
             long entryId = parseReference(repository.findIdempotency(idempotencyKey).orElseThrow().resultReference(), "SUBLEDGER:");
@@ -142,12 +149,20 @@ public class DepositBalanceService {
         }
 
         long entryId = repository.nextSubledgerId();
-        repository.insertSubledger(entryId, accountId, null, null, 1, postingReference, sourceType, request.sourceEntityId(), dc,
+        repository.insertSubledger(entryId, accountId, request.transactionId(), request.transactionLegId(),
+                request.entrySequenceNo() == null ? 1 : request.entrySequenceNo(), postingReference, sourceType, request.sourceEntityId(), dc,
                 amount, currency, bookingDate, valueDate, request.reversalOfEntryId(), trimToNull(request.glPostingReference()), actor);
         BigDecimal newLedger = "CREDIT".equals(dc) ? balance.ledgerBalance().add(amount) : balance.ledgerBalance().subtract(amount);
         refreshLocked(accountId, balance, newLedger, entryId, actor);
         repository.completeIdempotency(idempotencyKey, "SUBLEDGER:" + entryId);
         return new PostEntryResponse(get(accountId), entryId, false);
+    }
+
+    @Transactional
+    public void attachTransactionTrace(long subledgerEntryId,long transactionId,long transactionLegId) {
+        if (subledgerEntryId<=0 || transactionId<=0 || transactionLegId<=0) throw new IllegalArgumentException("شناسه Trace تراکنش نامعتبر است.");
+        if (repository.attachTransactionTrace(subledgerEntryId,transactionId,transactionLegId)!=1)
+            throw new DepositAccountLifecycleException("اتصال Subledger به Transaction/Leg ناموفق بود.",Map.of("DEPOSIT_SUBLEDGER_ENTRY.SUBLEDGER_ENTRY_ID",String.valueOf(subledgerEntryId)));
     }
 
     @Transactional

@@ -1,0 +1,19 @@
+Core Banking Prototype 0.11.0
+DPS2 Phase 11N-B - Oracle PL/SQL Declaration-Order Hotfix
+
+علت:
+در anonymous block مهاجرت 11N-B، متغیر v_missing بعد از local function col_exists تعریف شده بود و Oracle با PLS-00103 قبل از اجرای BEGIN متوقف می‌شد.
+
+اصلاح:
+- v_missing NUMBER قبل از FUNCTION col_exists منتقل شد.
+- Static verifier یک regression guard برای همین ترتیب اضافه می‌کند.
+- QA/Roadmap وضعیت تلاش ناموفق و rerun را ثبت می‌کنند.
+
+نحوه اعمال:
+این ZIP را روی ریشه D:\Projects\core-banking-prototype-v0 Extract/Replace کنید.
+سپس همان qualification معمول را دوباره اجرا کنید:
+  cd /d D:\Projects\core-banking-prototype-v0
+  tools\qualify-dps2-phase11nb.cmd
+
+ایمنی rerun:
+خطای قبلی در مرحله compile بلوک PL/SQL رخ داد؛ body بلوک اجرا نشده بود، بنابراین اجرای مجدد migration برای همین failure امن است.

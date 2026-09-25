@@ -31,7 +31,7 @@ check('VERSION remains 0.11.0',pkg.version==='0.11.0');
 check('profit contract domain exists',t.models.includes('record ProfitContract('));
 check('profit accrual domain exists',t.models.includes('record ProfitAccrual('));
 check('profit posting domain exists',t.models.includes('record ProfitPosting('));
-check('profit view aggregates contract/accrual/posting',t.models.includes('record ProfitView(ProfitContract contract,List<ProfitAccrual> accruals,List<ProfitPosting> postings)'));
+check('profit view retains 11G contract/accrual/posting while allowing canonical Step 04 extensions',t.models.includes('record ProfitView(')&&t.models.includes('ProfitContract contract')&&t.models.includes('List<ProfitAccrual> accruals')&&t.models.includes('List<ProfitPosting> postings'));
 check('activation provisions operational profit contract',t.lifecycle.includes('profitContractProvisioningService.ensureForActivation'));
 check('term families require profit snapshot at activation',t.provision.includes('SHORT_TERM_DEPOSIT')&&t.provision.includes('LONG_TERM_DEPOSIT')&&t.provision.includes('Activation حساب مدت‌دار بدون Profit Instruction'));
 check('profit contract is provisioned from Opening snapshot',t.repo.includes('DEPOSIT_OPENING_PROFIT_INSTRUCTION')&&t.repo.includes('SOURCE_OPENING_PROFIT_INSTRUCTION_ID'));
@@ -44,7 +44,7 @@ check('11G supports ACT_360 day count',t.svc.includes('ACT_360')&&t.svc.includes
 check('accrual is bounded by contract effective-to date',t.svc.includes('c.effectiveTo()!=null&&through.isAfter(c.effectiveTo())'));
 check('accrual stores calculation evidence',t.repo.includes('ACCRUAL_FROM_DATE')&&t.repo.includes('BASIS_AMOUNT')&&t.repo.includes('ANNUAL_RATE'));
 check('same-deposit profit posting uses 11D posting primitive',t.svc.includes('balanceService.post(')&&t.svc.includes('DEPOSIT_PROFIT_POSTING'));
-check('external profit destination is deferred to 11H',t.svc.includes('Phase 11H')&&t.svc.includes('SAME_DEPOSIT'));
+check('external profit destination remains outside direct 11D primitive or uses evolved 11N-C Step05 primitive',(t.svc.includes('Transaction Processing')&&t.svc.includes('SAME_DEPOSIT'))||(t.svc.includes('transactionService.postDerived')&&t.svc.includes('LINKED_ACCOUNT')&&t.svc.includes('CUSTOMER_SELECTED_ACCOUNT')));
 check('11G does not create DEPOSIT_TRANSACTION rows',!t.svc.includes('DEPOSIT_TRANSACTION')&&!t.repo.includes('INSERT INTO DPS2.DEPOSIT_TRANSACTION')&&!t.migration.includes('INSERT INTO DPS2.DEPOSIT_TRANSACTION'));
 check('accrual mutation requires idempotency',t.controller.includes('/profit/accruals')&&t.controller.includes('X-Idempotency-Key'));
 check('posting mutation requires idempotency',t.controller.includes('/profit/postings')&&t.controller.includes('X-Idempotency-Key'));
@@ -62,7 +62,7 @@ check('migration reconciles legacy profit table schemas before indexes and FKs',
 check('legacy profit reconciliation refuses to fabricate required financial data',t.migration.includes('Manual legacy-data mapping is required; no financial value was fabricated.'));
 check('legacy accrual PROFIT_PERIOD_ID is reconciled without fabricating period identity',t.migration.includes('PROFIT_PERIOD_ID legacy NOT NULL relaxed')&&t.migration.includes('Manual legacy-period mapping is required; no period identifier was fabricated.')&&t.dbver.includes('legacy PROFIT_PERIOD_ID does not block canonical accrual inserts'));
 check('legacy accrual compatibility is dual-written from canonical 11G values',t.repo.includes('hasLegacyAccrualProjection')&&t.repo.includes('ACCRUAL_DATE,BALANCE_BASIS_AMOUNT,RATE_VALUE,DAY_FRACTION,ACCRUAL_AMOUNT,ACCRUAL_STATUS_CODE,CREATED_BY')&&t.repo.includes("'CALCULATED'")&&t.repo.includes('dayFraction'));
-check('posting synchronizes canonical and legacy accrual statuses',t.repo.includes("ACCRUAL_STATUS_CODE='POSTED'")&&t.repo.includes('POSTING_REFERENCE=:ref')&&t.repo.includes('P11G-PROFIT-'));
+check('posting synchronizes canonical and legacy accrual statuses',t.repo.includes("ACCRUAL_STATUS_CODE='POSTED'")&&t.repo.includes('POSTING_REFERENCE=:ref')&&(t.repo.includes('P11G-PROFIT-')||t.repo.includes('P11H-PROFIT-')));
 check('DB verifier validates legacy/canonical accrual projection coherence',t.dbver.includes('legacy accrual projection is dual-written from canonical 11G values')&&t.dbver.includes('legacy accrual projection diverges from canonical 11G values'));
 check('legacy accrual schema detection rejects partial compatibility projection',t.repo.includes('expected 0 or 7 compatibility columns')&&t.repo.includes('Incomplete legacy DEPOSIT_PROFIT_ACCRUAL projection'));
 check('migration execute-immediate helper uses VARCHAR2',t.migration.includes('PROCEDURE ddl(p_sql VARCHAR2)'));
@@ -74,9 +74,9 @@ check('DB verifier checks 11D subledger traceability',t.dbver.includes('same-dep
 check('DB verifier checks profit FK and active-contract uniqueness',t.dbver.includes('accrual-to-posting FK enabled')&&t.dbver.includes('one-active-profit-contract unique index exists'));
 check('Angular profit contracts exist',t.uiService.includes('DepositProfitContract')&&t.uiService.includes('DepositProfitView'));
 check('Angular profit API methods exist',t.uiService.includes('accrueProfit(')&&t.uiService.includes('postProfit('));
-check('11G UI card exists',t.uiHtml.includes('Profit / Interest Processing')&&t.uiHtml.includes('Phase 11G'));
+check('11G UI capability remains present inside evolved Step 04 card',t.uiHtml.includes('مدیریت سود سپرده')&&t.uiHtml.includes('Accrual'));
 check('UI blocks external-destination posting',t.uiHtml.includes("paymentDestinationCode!=='SAME_DEPOSIT'"));
-check('UI communicates 11D/11H boundaries',t.uiHtml.includes('Subledger primitive فاز 11D')&&t.uiHtml.includes('Phase 11H'));
+check('UI communicates 11D and Step 05 boundaries',t.uiHtml.includes('Package 17')&&t.uiHtml.includes('Step 05'));
 check('UI defaults accrual-through to current date rather than last accrual date',t.uiTs.includes("const today=new Date().toISOString().slice(0,10)")&&t.uiTs.includes('this.profitAccrualThrough=p.contract.effectiveTo'));
 check('runtime bootstrap preserves governed maturity action',t.runtime.includes('maturityActionCode'));
 check('runtime bootstrap uses governed opening instruction source code',t.runtime.includes("INSTRUCTION_SOURCE_CODE:'PRODUCT_DEFAULT'")&&!t.runtime.includes("INSTRUCTION_SOURCE_CODE:'PRODUCT'"));

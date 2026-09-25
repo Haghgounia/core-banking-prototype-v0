@@ -1,0 +1,13 @@
+DPS2 0.11.0 - Phase 11N-B NOT NULL Rerun Hotfix
+==================================================
+
+Scope:
+- Make ORG_UNIT_CODE NOT NULL enforcement rerunnable.
+- If ALL_TAB_COLUMNS.NULLABLE='N', emit KEEP and do not re-run ALTER ... NOT NULL.
+- Add a static regression guard for dictionary-based nullability detection.
+- No business rollback and no new business DML.
+
+Apply over repository root and run:
+  tools\qualify-dps2-phase11nb.cmd
+
+Phase 11N-B remains IN_PROGRESS until final runtime qualification passes.

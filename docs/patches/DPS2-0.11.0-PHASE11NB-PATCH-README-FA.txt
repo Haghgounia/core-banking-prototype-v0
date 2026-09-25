@@ -1,0 +1,39 @@
+Core Banking Prototype 0.11.0
+DPS2 Phase 11N-B - Steps 01-02 Canonical Coverage Closure
+
+پیش‌نیاز:
+- Phase 11N-A باید با DPS2_PHASE11NA_STEP00_DASHBOARD_QUALIFICATION_PASS بسته شده باشد.
+- این Patch روی ریشه D:\Projects\core-banking-prototype-v0 Extract/Replace شود.
+
+Scope:
+- افزودن DEPOSIT_ACCOUNT.ORG_UNIT_CODE به‌عنوان واحد متولی جاری و حفظ OPENING_ORG_UNIT_CODE به‌عنوان snapshot افتتاح.
+- اصلاح مسیر creation/servicing/read model/UI برای تفکیک دو مفهوم.
+- Positive Product Version runtime branch بدون skip/fabrication.
+- Condition/Signatory approval/audit runtime coverage.
+- READY -> ACTIVE واقعی از Opening governed fixture.
+- Lifecycle/Bulk qualification.
+- Collateral create/release business-origin idempotency across different transport keys.
+
+Qualification:
+  cd /d D:\Projects\core-banking-prototype-v0
+  set CORE_BANKING_BASE_URL=http://127.0.0.1:8091
+  set "CORE_BANKING_ORACLE_CONNECT=<YOUR_REAL_ORACLE_CONNECT>"
+  tools\qualify-dps2-phase11nb.cmd
+
+Expected final marker:
+  DPS2_PHASE11NB_STEPS01_02_QUALIFICATION_PASS
+
+Important:
+- اگر Product Builder برای هیچ حساب ACTIVE نسخه جایگزین governed متعلق به همان Product نداشته باشد، Runtime عمداً با PHASE11NB_NO_SAME_PRODUCT_VERSION_CANDIDATE متوقف می‌شود. داده یا Product Version ساختگی تولید نمی‌شود.
+
+R2 hotfix:
+- Corrects Oracle anonymous-block declaration order in the 11N-B migration.
+- Moves v_missing before local FUNCTION col_exists.
+- Adds a static regression guard for PL/SQL declaration order.
+- The failed R1 Oracle attempt compiled no migration body, so normal qualification can be rerun safely.
+
+R3 hotfix:
+- Fixes Oracle compile-time name resolution for newly-added DEPOSIT_ACCOUNT.ORG_UNIT_CODE.
+- Backfill and null-count SQL that reference ORG_UNIT_CODE are dynamic until the DDL has executed.
+- Adds a static regression guard that rejects the prior compile-time-static patterns.
+- The failed R2 Oracle anonymous block did not execute its body, so the normal qualifier can be rerun safely.

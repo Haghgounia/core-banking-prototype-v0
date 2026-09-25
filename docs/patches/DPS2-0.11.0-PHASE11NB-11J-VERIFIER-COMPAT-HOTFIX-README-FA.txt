@@ -1,0 +1,19 @@
+DPS2 0.11.0 - Phase 11N-B / Phase 11J Verifier Compatibility Hotfix
+====================================================================
+
+Scope:
+- Fix the historical Phase 11J static verifier after Phase 11N-B changed activation to an atomic delegation.
+- Accept either the original 11J lifecycle delegation or the newer atomic 11N-B delegation with ACTIVATION_RUN_ID.
+- Add a Phase 11N-B regression guard proving the historical 11J verifier remains compatible.
+- No Java business logic change, no Oracle DDL/DML, and no rollback required.
+
+Apply over repository root and run:
+  tools\qualify-dps2-phase11nb.cmd
+
+Expected static evidence after apply:
+  PHASE11J_STATIC_VERIFIER_PASS=78
+  PHASE11J_STATIC_VERIFIER_FAIL=0
+  PHASE11NB_STATIC_VERIFIER_PASS=72
+  PHASE11NB_STATIC_VERIFIER_FAIL=0
+
+Phase 11N-B remains IN_PROGRESS until final Runtime E2E and qualification marker pass.

@@ -33,7 +33,7 @@ public class DepositAccountRepository {
     public Optional<OpeningLink> lockOpening(long openingRequestId) {
         String sql = """
                 SELECT OPENING_REQUEST_ID, REQUEST_NO, PRODUCT_VERSION_ID, CURRENCY_CODE,
-                       OPENING_AMOUNT, OWNERSHIP_TYPE_CODE, REQUESTED_OPENING_DATE,
+                       OPENING_AMOUNT, OWNERSHIP_TYPE_CODE, ORG_UNIT_CODE, REQUESTED_OPENING_DATE,
                        ACTIVATION_STATUS_CODE, ACTIVATION_DEADLINE_AT,
                        REQUEST_STATUS_CODE, CREATED_ACCOUNT_ID
                   FROM %s.DEPOSIT_OPENING_REQUEST
@@ -46,7 +46,7 @@ public class DepositAccountRepository {
     public Optional<OpeningLink> findOpening(long openingRequestId) {
         String sql = """
                 SELECT OPENING_REQUEST_ID, REQUEST_NO, PRODUCT_VERSION_ID, CURRENCY_CODE,
-                       OPENING_AMOUNT, OWNERSHIP_TYPE_CODE, REQUESTED_OPENING_DATE,
+                       OPENING_AMOUNT, OWNERSHIP_TYPE_CODE, ORG_UNIT_CODE, REQUESTED_OPENING_DATE,
                        ACTIVATION_STATUS_CODE, ACTIVATION_DEADLINE_AT,
                        REQUEST_STATUS_CODE, CREATED_ACCOUNT_ID
                   FROM %s.DEPOSIT_OPENING_REQUEST
@@ -65,6 +65,7 @@ public class DepositAccountRepository {
                         rs.getString("CURRENCY_CODE"),
                         rs.getBigDecimal("OPENING_AMOUNT"),
                         rs.getString("OWNERSHIP_TYPE_CODE"),
+                        rs.getString("ORG_UNIT_CODE"),
                         rs.getDate("REQUESTED_OPENING_DATE") == null ? null : rs.getDate("REQUESTED_OPENING_DATE").toLocalDate(),
                         rs.getString("ACTIVATION_STATUS_CODE"),
                         toOffsetDateTime(rs.getTimestamp("ACTIVATION_DEADLINE_AT")),
@@ -137,6 +138,7 @@ public class DepositAccountRepository {
                     ACCOUNT_ID, ACCOUNT_NO, OPENING_REQUEST_ID, PRODUCT_VERSION_ID,
                     OPENED_PRODUCT_VERSION_ID, CURRENT_PRODUCT_VERSION_ID, OWNERSHIP_TYPE_CODE,
                     CURRENCY_CODE, OPENING_AMOUNT, OPENED_ON, ACCOUNT_STATUS_CODE,
+                    OPENING_ORG_UNIT_CODE, ORG_UNIT_CODE,
                     ACTIVATION_DEADLINE_AT, ACTIVATION_POLICY_VERSION,
                     LEDGER_BALANCE, AVAILABLE_BALANCE, DEBIT_CAPABILITY_CODE,
                     CREATED_AT, CREATED_BY, RECORD_VERSION
@@ -144,6 +146,7 @@ public class DepositAccountRepository {
                     :accountId, :accountNo, :openingRequestId, :productVersionId,
                     :productVersionId, :productVersionId, :ownershipTypeCode,
                     :currencyCode, :openingAmount, :openedOn, 'PENDING_ACTIVATION',
+                    :orgUnitCode, :orgUnitCode,
                     COALESCE(:activationDeadlineAt, SYSTIMESTAMP + INTERVAL '7' DAY), 'ACT-GATE-2026.09-v5',
                     0, 0, 'DISABLED_PENDING_ACTIVATION',
                     SYSTIMESTAMP, :actor, 1
@@ -158,6 +161,7 @@ public class DepositAccountRepository {
                 .addValue("currencyCode", opening.currencyCode(), Types.VARCHAR)
                 .addValue("openingAmount", opening.openingAmount(), Types.NUMERIC)
                 .addValue("openedOn", opening.requestedOpeningDate(), Types.DATE)
+                .addValue("orgUnitCode", opening.orgUnitCode(), Types.VARCHAR)
                 .addValue("activationDeadlineAt", opening.activationDeadlineAt() == null ? null : Timestamp.from(opening.activationDeadlineAt().toInstant()), Types.TIMESTAMP)
                 .addValue("actor", actor, Types.VARCHAR));
     }
@@ -372,6 +376,64 @@ public class DepositAccountRepository {
                 .addValue("actor", actor, Types.VARCHAR));
     }
 
+    public int insertActivationLifecycleEvent(
+            long eventId,
+            long accountId,
+            long openingRequestId,
+            long activationRunId,
+            String actor,
+            String correlationId
+    ) {
+        String sql = """
+                INSERT INTO %s.DEPOSIT_ACCOUNT_LIFECYCLE_EVENT (
+                    LIFECYCLE_EVENT_ID, ACCOUNT_ID, OPENING_REQUEST_ID,
+                    EVENT_TYPE_CODE, FROM_STATUS_CODE, TO_STATUS_CODE,
+                    CORRELATION_ID, EVENT_AT, EVENT_BY, CREATED_AT, CREATED_BY,
+                    EVENT_STATUS_CODE, REQUESTED_AT, EFFECTIVE_AT, ACTIVATION_RUN_ID,
+                    UPDATED_AT, UPDATED_BY, RECORD_VERSION
+                ) VALUES (
+                    :eventId, :accountId, :openingRequestId,
+                    'ACTIVATE', 'PENDING_ACTIVATION', 'ACTIVE',
+                    :correlationId, SYSTIMESTAMP, :actor, SYSTIMESTAMP, :actor,
+                    'EXECUTED', SYSTIMESTAMP, SYSTIMESTAMP, :activationRunId,
+                    SYSTIMESTAMP, :actor, 1
+                )
+                """.formatted(accountSchema);
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("eventId", eventId, Types.NUMERIC)
+                .addValue("accountId", accountId, Types.NUMERIC)
+                .addValue("openingRequestId", openingRequestId, Types.NUMERIC)
+                .addValue("activationRunId", activationRunId, Types.NUMERIC)
+                .addValue("correlationId", correlationId, Types.VARCHAR)
+                .addValue("actor", actor, Types.VARCHAR));
+    }
+
+    public int insertAccountStatusHistory(
+            long accountId,
+            String fromStatusCode,
+            String toStatusCode,
+            String reasonCode,
+            String eventReference,
+            String actor
+    ) {
+        String sql = """
+                INSERT INTO %s.DEPOSIT_ACCOUNT_STATUS_HISTORY (
+                    ACCOUNT_STATUS_HISTORY_ID, ACCOUNT_ID, FROM_STATUS_CODE, TO_STATUS_CODE,
+                    EFFECTIVE_AT, REASON_CODE, EVENT_REFERENCE, CREATED_AT, CREATED_BY, RECORD_VERSION
+                ) VALUES (
+                    %s.SEQ_DEPOSIT_ACCOUNT_STATUS_HISTORY.NEXTVAL, :accountId, :fromStatusCode, :toStatusCode,
+                    SYSTIMESTAMP, :reasonCode, :eventReference, SYSTIMESTAMP, :actor, 1
+                )
+                """.formatted(accountSchema, accountSchema);
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("accountId", accountId, Types.NUMERIC)
+                .addValue("fromStatusCode", fromStatusCode, Types.VARCHAR)
+                .addValue("toStatusCode", toStatusCode, Types.VARCHAR)
+                .addValue("reasonCode", reasonCode, Types.VARCHAR)
+                .addValue("eventReference", eventReference, Types.VARCHAR)
+                .addValue("actor", actor, Types.VARCHAR));
+    }
+
     private long nextValue(String sequenceName) {
         String safeSequence = requireIdentifier(sequenceName);
         return jdbc.getJdbcOperations().queryForObject(
@@ -400,6 +462,7 @@ public class DepositAccountRepository {
             String currencyCode,
             BigDecimal openingAmount,
             String ownershipTypeCode,
+            String orgUnitCode,
             java.time.LocalDate requestedOpeningDate,
             String activationStatusCode,
             OffsetDateTime activationDeadlineAt,

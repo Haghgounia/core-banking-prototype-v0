@@ -12,7 +12,7 @@ import com.behsazan.corebanking.deposit.account.balance.domain.DepositBalanceMod
 public final class DepositAccountOperationsModels {
     private DepositAccountOperationsModels() {}
 
-    public record AccountSummary(long accountId,String accountNo,long openingRequestId,String requestNo,Long primaryPartyId,Long productVersionId,String productFamilyCode,String currencyCode,BigDecimal openingAmount,String accountStatusCode,String accountName,String openingOrgUnitCode,LocalDate dormancyDate,OffsetDateTime createdAt,OffsetDateTime activatedAt,long recordVersion) {}
+    public record AccountSummary(long accountId,String accountNo,long openingRequestId,String requestNo,Long primaryPartyId,Long productVersionId,String productFamilyCode,String currencyCode,BigDecimal openingAmount,String accountStatusCode,String accountName,String openingOrgUnitCode,String orgUnitCode,LocalDate dormancyDate,OffsetDateTime createdAt,OffsetDateTime activatedAt,long recordVersion) {}
     /* Phase 8 compatibility: OwnerParty evolved into persistent AccountParty. */
     public record OwnerParty(long partyId,String roleCode,boolean primary,BigDecimal ownershipPercent,int sequenceNo) {}
     public record AccountParty(long accountPartyId,long partyId,String roleCode,boolean primary,BigDecimal ownershipPercent,LocalDate validFrom,LocalDate validTo,String statusCode,Long sourceOpeningPartyId) {}

@@ -1,0 +1,21 @@
+DPS2 0.11.0 - Consolidated 11I + 11J Wave A Overlay
+Date: 2026-09-24
+
+Purpose
+- Carry latest Phase 11I transaction-aware Subledger runtime fixes.
+- Add Phase 11J Wave A completion for Operational Steps 01-02.
+- Persist 2026-09-24 Oracle DPS2 baseline snapshots and Delta Audit.
+- Provide one-command Windows qualification helper.
+
+Status before Windows qualification
+- 11A..11H: CLOSED
+- 11I: IN_PROGRESS; Static 64/64 PASS; Oracle target 29/29; Runtime pending
+- 11J: IN_PROGRESS; Static 70/70 PASS; Oracle target 29/29; Runtime pending
+
+Fast path
+1. Extract/Replace this ZIP at repository root.
+2. Ensure CORE_BANKING_ORACLE_CONNECT is set.
+3. Run: tools\qualify-dps2-wave-a-11i11j.cmd
+
+The helper runs both Oracle gates, one production build/restart, then both Runtime E2E suites.
+Do not mark 11I or 11J CLOSED until their Oracle and Runtime gates pass.

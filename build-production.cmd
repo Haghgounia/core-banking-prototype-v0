@@ -132,6 +132,15 @@ node "%ROOT%tools\verify-dps2-balance-subledger-11d.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-closure-reopening-11e.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-term-operations-11f.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-profit-processing-11g.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-step04-canonical-profit-11h.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-step05-transaction-processing-11i.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-wave-a-servicing-lifecycle-11j.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-wave-b-statements-limits-maturity-11k.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-wave-c-services-access-compliance-pricing-tax-11l.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-wave-d-reconciliation-exceptions-correspondent-rewards-11m.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-phase11na-step00-dashboard.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-phase11nb-steps01-02-canonical-closure.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-phase11nc-steps03-04-canonical-closure.mjs" || exit /b 1
 node "%ROOT%tools\verify-cif-address-hotfix-071.mjs" || exit /b 1
 
 rem FIX77 static guard: FEE Baseline 1.0 has 47 metadata-driven forms and 574 seed rows.

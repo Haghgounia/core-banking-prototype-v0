@@ -235,6 +235,11 @@ public class DepositBalanceRepository {
         jdbc.update("UPDATE "+schema+".DEPOSIT_OPERATION_IDEMPOTENCY SET PROCESSING_STATUS_CODE='COMPLETED',RESULT_REFERENCE=:ref,COMPLETED_AT=SYSTIMESTAMP,RECORD_VERSION=RECORD_VERSION+1 WHERE IDEMPOTENCY_KEY=:key AND PROCESSING_STATUS_CODE='IN_PROGRESS'",new MapSqlParameterSource().addValue("ref",resultReference).addValue("key",key));
     }
 
+    public int attachTransactionTrace(long subledgerEntryId,long transactionId,long transactionLegId) {
+        String sql = "UPDATE "+schema+".DEPOSIT_SUBLEDGER_ENTRY SET TRANSACTION_ID=:tx,TRANSACTION_LEG_ID=:leg WHERE SUBLEDGER_ENTRY_ID=:id AND (TRANSACTION_ID IS NULL OR TRANSACTION_ID=:tx) AND (TRANSACTION_LEG_ID IS NULL OR TRANSACTION_LEG_ID=:leg)";
+        return jdbc.update(sql,new MapSqlParameterSource().addValue("tx",transactionId).addValue("leg",transactionLegId).addValue("id",subledgerEntryId));
+    }
+
     private long next(String sequence) {
         Long value = jdbc.getJdbcOperations().queryForObject("SELECT "+schema+"."+sequence+".NEXTVAL FROM DUAL",Long.class);
         if(value==null) throw new IllegalStateException(sequence+" returned null.");
