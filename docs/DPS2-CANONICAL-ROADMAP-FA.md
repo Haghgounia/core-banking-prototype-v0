@@ -632,6 +632,24 @@ Coverage Audit result (2026-09-24):
 6. **AD-01 resolution for 11N-C:** canonical ownership is `DEPOSIT_ACCOUNT_PROFIT_PROFILE -> DEPOSIT_PROFIT_PERIOD -> DEPOSIT_PROFIT_ACCRUAL/DETAIL -> DEPOSIT_PROFIT_ADJUSTMENT -> DEPOSIT_PROFIT_PAYMENT`. `DEPOSIT_PROFIT_CONTRACT` and `DEPOSIT_PROFIT_POSTING` remain operational/compatibility projections (`MODEL_EXTENSION`) for 11G backward compatibility. Dual-write may remain, but closure evidence and future canonical behavior are governed by the canonical profile/period/payment chain.
 7. **Implementation boundary:** derived financial actions reuse the existing Step 05 Transaction Engine internally; the public customer transaction API remains limited to its existing user-facing types. No parallel posting engine will be introduced.
 
+#### Phase 11N-D — Steps 05–10 Canonical Regression / Audit
+
+**Status:** `IN_PROGRESS` — Coverage Audit started on 2026-09-25 from the post-11N-C qualified baseline.
+
+Audit result before implementation:
+
+1. **Steps 05, 06, 07, 09 and 10:** current 11I/11K/11L implementations cover every Action listed by the Traceability Guide. 11N-D treats them as regression targets; no new feature is introduced unless Runtime/DB evidence disproves this audit.
+2. **Step 08 real gap confirmed:** generic positive-balance Closure in 11E posts directly to Package 17 and does not create a `DEPOSIT_TRANSACTION`; however Step 08 Action Trace explicitly requires `DEPOSIT_TRANSACTION -> DEPOSIT_SUBLEDGER_ENTRY -> DEPOSIT_ACCOUNT_BALANCE` for financial closure execution.
+3. **Step 08 real gap confirmed:** `DEPOSIT_ACCOUNT_CLOSURE_SETTLEMENT_ITEM.TRANSACTION_ID` is a canonical FK to `DEPOSIT_TRANSACTION`, but historical generic Closure leaves it null. New executions must populate this trace; verified historical direct-11D rows may remain as legacy evidence and are not rewritten.
+4. **Step 08 real gap confirmed:** `DEPOSIT_ACCOUNT_STATUS_HISTORY.APPROVAL_REQUEST_ID` is the canonical maker/checker trace for approval-governed status changes. Closure/Reopening currently omit it even though their lifecycle events retain the approval. New status-history rows must persist the owning Approval ID.
+5. **Implementation boundary:** generic financial Closure reuses the existing internal Step 05 derived-transaction primitive; no parallel posting engine is introduced. Package 16 remains the sole owner of the final `ACTIVE -> CLOSED` transition.
+6. **Legacy compatibility:** no fabricated transaction/backfill is created for historical closures. DB audit accepts exact historical `ACCOUNT_CLOSURE` Package-17 posting trace, while all new qualified positive-balance closures must expose Step 05 transaction, leg, subledger, settlement-item and closure-reference coherence.
+7. Step 08 remains `PARTIAL` until 11N-D Static + Oracle + Production Build + Runtime qualification passes.
+8. **11N-D R1 scope correction:** the first qualifier incorrectly invoked full 11L apply/runtime (Steps09–13). The user's Windows run stopped before Oracle execution, so no out-of-scope Oracle migration was applied. R1 is superseded for qualification purposes.
+9. **11N-D R2 scope contract:** Oracle/runtime qualification is strictly Step05 via 11I, Steps06–08 via 11K, dedicated Steps09–10 audit/runtime, and evolved 11E controlled closure for Step08. Full 11L apply/runtime is forbidden by the 11N-D static guard; Steps11–13 remain owned by 11N-E/F/G.
+10. **Remote Oracle contract:** 11N-D uses `CORE_BANKING_ORACLE_CONNECT` against the configured Oracle host. Local SQL*Plus is preferred when present; otherwise the project OJDBC driver executes the SQL directly. Docker is not part of the remote-Oracle path.
+11. **11N-D R2 local static evidence:** `PHASE11ND_STATIC_VERIFIER_PASS=63`, `FAIL=0`; historical regression gates remain 11E=50/50, 11I=64/64, 11K=92/92. Java runner compiles locally. Oracle/Production Build/Runtime remain pending Windows qualification.
+
 ### Phase 11H runtime hotfix — reopened paid period
 - Runtime qualification on legacy/backfilled account 9 exposed a Step 04 state-transition defect: a previously `PAID` period could receive new accrual/approved adjustment but remain `PAID`, making its outstanding payable balance invisible to posting.
 - Hotfix: non-CLOSED periods reopen to `CALCULATED`/`APPROVED` when `PAYABLE_AMOUNT > PAID_AMOUNT`; payment selection excludes only `CLOSED`.

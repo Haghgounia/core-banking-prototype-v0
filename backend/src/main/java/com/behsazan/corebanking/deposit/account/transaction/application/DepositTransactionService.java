@@ -24,7 +24,7 @@ import java.util.HexFormat;
 @Service
 public class DepositTransactionService {
     private static final Set<String> TYPES=Set.of("CASH_DEPOSIT","CASH_WITHDRAWAL","TRANSFER");
-    private static final Set<String> DERIVED_TYPES=Set.of("TERM_PARTIAL_WITHDRAWAL","MATURITY_SETTLEMENT","TERM_EARLY_TERMINATION","PROFIT_PAYMENT");
+    private static final Set<String> DERIVED_TYPES=Set.of("TERM_PARTIAL_WITHDRAWAL","MATURITY_SETTLEMENT","TERM_EARLY_TERMINATION","PROFIT_PAYMENT","ACCOUNT_CLOSURE_SETTLEMENT");
     private static final Set<String> CHANNELS=Set.of("BRANCH","INTERNET","MOBILE","API");
     private final DepositTransactionRepository repository;
     private final DepositBalanceService balanceService;

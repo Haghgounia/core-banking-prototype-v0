@@ -1,12 +1,14 @@
 package com.behsazan.corebanking.deposit.account.closure.application;
 
 import com.behsazan.corebanking.deposit.account.balance.application.DepositBalanceService;
-import com.behsazan.corebanking.deposit.account.balance.domain.DepositBalanceModels.PostEntryRequest;
 import com.behsazan.corebanking.deposit.account.closure.domain.DepositClosureModels.*;
 import com.behsazan.corebanking.deposit.account.closure.oracle.DepositClosureRepository;
 import com.behsazan.corebanking.deposit.account.closure.oracle.DepositClosureRepository.*;
 import com.behsazan.corebanking.deposit.account.error.DepositAccountLifecycleException;
 import com.behsazan.corebanking.deposit.account.error.DepositAccountNotFoundException;
+import com.behsazan.corebanking.deposit.account.transaction.application.DepositTransactionService;
+import com.behsazan.corebanking.deposit.account.transaction.domain.DepositTransactionModels.DerivedTransactionLeg;
+import com.behsazan.corebanking.deposit.account.transaction.domain.DepositTransactionModels.DerivedTransactionRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +29,8 @@ public class DepositClosureService {
     );
     private final DepositClosureRepository repository;
     private final DepositBalanceService balanceService;
-    public DepositClosureService(DepositClosureRepository repository, DepositBalanceService balanceService){this.repository=repository;this.balanceService=balanceService;}
+    private final DepositTransactionService transactionService;
+    public DepositClosureService(DepositClosureRepository repository, DepositBalanceService balanceService, DepositTransactionService transactionService){this.repository=repository;this.balanceService=balanceService;this.transactionService=transactionService;}
 
     public ClosureWorkflowView get(long accountId){requireAccount(accountId,false);return new ClosureWorkflowView(repository.closures(accountId),repository.reopenings(accountId));}
 
@@ -93,17 +96,23 @@ public class DepositClosureService {
         BigDecimal ledger=nz(before.ledger()); String postingRef=null;
         if(ledger.signum()<0)throw lifecycle("حساب با Ledger منفی قابل بستن نیست.","DEPOSIT_ACCOUNT_BALANCE.LEDGER_BALANCE",ledger.toPlainString());
         if(ledger.signum()>0){
-            if(trimToNull(c.settlementRef())==null)throw lifecycle("Settlement Account Reference برای تسویه مانده الزامی است.","DEPOSIT_ACCOUNT_CLOSURE.SETTLEMENT_ACCOUNT_REFERENCE","missing");
+            String settlementRef=trimToNull(c.settlementRef());
+            if(settlementRef==null)throw lifecycle("Settlement Account Reference برای تسویه مانده الزامی است.","DEPOSIT_ACCOUNT_CLOSURE.SETTLEMENT_ACCOUNT_REFERENCE","missing");
             if(nz(before.available()).compareTo(ledger)<0)throw lifecycle("کل مانده برای تسویه Closure در دسترس نیست.","DEPOSIT_ACCOUNT_BALANCE.AVAILABLE_BALANCE",before.available().toPlainString());
-            postingRef="CLOSURE-"+closureId+"-PRINCIPAL";
-            balanceService.post(accountId,new PostEntryRequest("DEBIT",ledger,account.currency(),LocalDate.now(),LocalDate.now(),postingRef,"ACCOUNT_CLOSURE",closureId,null,null),actor,correlationId,postingKey(idempotencyKey));
-            repository.settleItems(closureId,actor);
+            var tx=transactionService.postDerived(
+                    new DerivedTransactionRequest(accountId,"ACCOUNT_CLOSURE_SETTLEMENT",ledger,account.currency(),LocalDate.now(),LocalDate.now(),"DEBIT","CLOSURE:"+closureId,"CLOSURE_APPROVAL",c.requestedBy(),c.approver(),c.reason(),List.of(
+                            new DerivedTransactionLeg(accountId,null,"DEBIT",ledger),
+                            new DerivedTransactionLeg(null,settlementRef,"CREDIT",ledger))),
+                    actor,correlationId,childKey(idempotencyKey,"CLOSURE-TX"));
+            long transactionId=tx.transaction().transaction().transactionId();
+            postingRef="TX-"+transactionId;
+            repository.settleItems(closureId,transactionId,actor);
         }
         BalanceRow after=repository.lockBalance(accountId).orElseThrow();
         if(nz(after.ledger()).signum()!=0||nz(after.available()).signum()!=0||nz(after.blocked()).signum()!=0||nz(after.pendingDebit()).signum()!=0)throw lifecycle("مانده‌های حساب پس از تسویه Closure صفر نیستند.","DEPOSIT_ACCOUNT_BALANCE","ledger="+after.ledger()+", available="+after.available()+", blocked="+after.blocked()+", pendingDebit="+after.pendingDebit());
         if(repository.changeStatus(accountId,account.recordVersion(),"ACTIVE","CLOSED",actor)!=1)throw lifecycle("وضعیت حساب همزمان تغییر کرده است.","DEPOSIT_ACCOUNT.RECORD_VERSION",String.valueOf(account.recordVersion()));
         repository.insertLifecycle(accountId,account.openingRequestId(),"CLOSE","ACTIVE","CLOSED",c.reason(),c.approvalId(),actor,correlationId);
-        repository.insertStatusHistory(accountId,"ACTIVE","CLOSED",c.reason(),"CLOSURE:"+closureId,actor);
+        repository.insertStatusHistory(accountId,"ACTIVE","CLOSED",c.reason(),"CLOSURE:"+closureId,c.approvalId(),actor);
         if(repository.executeClosure(closureId,postingRef,actor)!=1)throw lifecycle("Closure همزمان تغییر کرده است.","DEPOSIT_ACCOUNT_CLOSURE.CLOSURE_STATUS_CODE",c.status());
         repository.completeIdempotency(idempotencyKey,"CLOSURE:"+closureId);
         return new ClosureActionResponse(closure(accountId,closureId),false);
@@ -128,10 +137,10 @@ public class DepositClosureService {
         balanceService.refreshBalance(accountId,actor);
         BalanceRow afterSettlement=repository.lockBalance(accountId).orElseThrow(()->lifecycle("Balance عملیاتی حساب موجود نیست.","DEPOSIT_ACCOUNT_BALANCE","missing"));
         if(nz(afterSettlement.ledger()).signum()!=0||nz(afterSettlement.available()).signum()!=0||nz(afterSettlement.blocked()).signum()!=0||nz(afterSettlement.pendingDebit()).signum()!=0)throw lifecycle("Pre-settled Closure فقط بعد از صفر شدن کامل مانده قابل اجرا است.","DEPOSIT_ACCOUNT_BALANCE","ledger="+afterSettlement.ledger()+", available="+afterSettlement.available()+", blocked="+afterSettlement.blocked()+", pendingDebit="+afterSettlement.pendingDebit());
-        repository.settleItems(closureId,actor);
+        repository.settleItems(closureId,transactionIdFromReference(settlementRef),actor);
         if(repository.changeStatus(accountId,account.recordVersion(),"ACTIVE","CLOSED",actor)!=1)throw lifecycle("وضعیت حساب همزمان تغییر کرده است.","DEPOSIT_ACCOUNT.RECORD_VERSION",String.valueOf(account.recordVersion()));
         repository.insertLifecycle(accountId,account.openingRequestId(),"CLOSE","ACTIVE","CLOSED",c.reason(),c.approvalId(),actor,correlationId);
-        repository.insertStatusHistory(accountId,"ACTIVE","CLOSED",c.reason(),"CLOSURE:"+closureId,actor);
+        repository.insertStatusHistory(accountId,"ACTIVE","CLOSED",c.reason(),"CLOSURE:"+closureId,c.approvalId(),actor);
         if(repository.executeClosure(closureId,settlementRef,actor)!=1)throw lifecycle("Closure همزمان تغییر کرده است.","DEPOSIT_ACCOUNT_CLOSURE.CLOSURE_STATUS_CODE",c.status());
         repository.completeIdempotency(idempotencyKey,"CLOSURE:"+closureId);
         return new ClosureActionResponse(closure(accountId,closureId),false);
@@ -176,7 +185,7 @@ public class DepositClosureService {
         if(!"CLOSED".equals(upper(account.status())))throw lifecycle("اجرای Reopening فقط روی حساب CLOSED مجاز است.","DEPOSIT_ACCOUNT.ACCOUNT_STATUS_CODE",account.status());
         if(repository.changeStatus(accountId,account.recordVersion(),"CLOSED","ACTIVE",actor)!=1)throw lifecycle("وضعیت حساب همزمان تغییر کرده است.","DEPOSIT_ACCOUNT.RECORD_VERSION",String.valueOf(account.recordVersion()));
         repository.insertLifecycle(accountId,account.openingRequestId(),"REOPEN","CLOSED","ACTIVE",r.reason(),r.approvalId(),actor,correlationId);
-        repository.insertStatusHistory(accountId,"CLOSED","ACTIVE",r.reason(),"REOPENING:"+reopeningId,actor);
+        repository.insertStatusHistory(accountId,"CLOSED","ACTIVE",r.reason(),"REOPENING:"+reopeningId,r.approvalId(),actor);
         if(repository.executeReopening(reopeningId,actor)!=1)throw lifecycle("Reopening همزمان تغییر کرده است.","DEPOSIT_ACCOUNT_REOPENING.REOPEN_STATUS_CODE",r.status());
         repository.completeIdempotency(idempotencyKey,"REOPENING:"+reopeningId);
         return new ReopeningActionResponse(reopening(accountId,reopeningId),false);
@@ -190,7 +199,8 @@ public class DepositClosureService {
     private String resultRef(String key){return repository.findIdempotency(key).orElseThrow().resultReference();}
     private boolean replayOrClaim(String key,long accountId,String operation,String payloadHash,String actor,String correlation){String k=required(key,"X-Idempotency-Key");if(k.length()>128)throw new IllegalArgumentException("X-Idempotency-Key حداکثر 128 کاراکتر است.");var x=repository.findIdempotency(k);if(x.isPresent()){var v=x.get();if(!Objects.equals(v.accountId(),accountId)||!operation.equals(v.operationType())||!payloadHash.equals(v.payloadHash()))throw new IllegalArgumentException("Idempotency-Key قبلاً برای درخواست دیگری استفاده شده است.");if("COMPLETED".equals(v.processingStatus()))return true;throw new IllegalArgumentException("درخواست با این Idempotency-Key در حال پردازش است.");}repository.insertIdempotency(k,accountId,operation,payloadHash,actor,correlation);return false;}
     private static String approvalKey(String key){return key.length()<=120?key+"-APR":hash(key+"|APR");}
-    private static String postingKey(String key){return key.length()<=120?key+"-POST":hash(key+"|POST");}
+    private static String childKey(String key,String suffix){String candidate=key+"-"+suffix;return candidate.length()<=80?candidate:hash(key+"|"+suffix);}
+    private static Long transactionIdFromReference(String ref){String x=trimToNull(ref);if(x==null||!x.startsWith("TX-"))return null;try{return Long.parseLong(x.substring(3));}catch(NumberFormatException e){return null;}}
     private static long parseRef(String ref,String prefix){if(ref==null||!ref.startsWith(prefix))throw new IllegalStateException("Idempotency result reference نامعتبر است.");return Long.parseLong(ref.substring(prefix.length()));}
     private static BigDecimal nz(BigDecimal v){return v==null?BigDecimal.ZERO:v;}
     private static String upper(String v){String x=trimToNull(v);return x==null?null:x.toUpperCase(Locale.ROOT);}

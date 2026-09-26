@@ -9,7 +9,7 @@ const files={
  uiTs:'frontend/src/app/features/four-deposits/deposit-account-operations.component.ts',uiHtml:'frontend/src/app/features/four-deposits/deposit-account-operations.component.html',qa:'docs/DPS2-0.11.0-PHASE11H-STEP04-CANONICAL-PROFIT-QA.md',build:'build-production.cmd'};
 for(const [k,p] of Object.entries(files))check(`11H file exists: ${k}`,exists(p));const t={};for(const [k,p] of Object.entries(files))t[k]=exists(p)?read(p):'';
 check('canonical roadmap registers Phase 11H before implementation',t.roadmap.includes('Phase 11H — Step 04 Canonical Profit Completion')&&t.roadmap.includes('Operational Step 04'));
-check('roadmap keeps Step 04 PARTIAL until external destinations use Step 05',t.roadmap.includes('Step 04 تا زمانی')&&t.roadmap.includes('Step 05'));
+check('roadmap preserves historical Step 04 PARTIAL gate and records post-11N-C DONE closure',t.roadmap.includes('Step 04')&&t.roadmap.includes('PARTIAL')&&t.roadmap.includes('Step 05')&&t.roadmap.includes('Step 04 پس از qualification نهایی 2026-09-25 به `DONE` رسید'));
 check('profit profile domain exists',t.models.includes('record ProfitProfile('));
 check('profit period domain exists',t.models.includes('record ProfitPeriod('));
 check('profit accrual detail domain exists',t.models.includes('record ProfitAccrualDetail('));

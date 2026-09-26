@@ -1,15 +1,13 @@
-DPS2 0.11.0 - Phase 11N-C R9
-Early Termination Status-History Reason Reconciliation Hotfix
+DPS2 0.11.0 - Phase 11N-D R3 Hotfix
 
-علت:
-DEPOSIT_ACCOUNT_CLOSURE برای فسخ پیش از موعد REASON_CODE=TERM_EARLY_TERMINATION را الزام می‌کند،
-اما CHECK جدول immutable DEPOSIT_ACCOUNT_STATUS_HISTORY این reason مستند را نداشت و Execute با 409 DATA_CONFLICT متوقف می‌شد.
+هدف:
+- پذیرش فقط evidence معتبر تاریخی 11N-C برای pre-settled Maturity/Early-Termination Closure بدون backfill.
+- حفظ legacy 11E direct Package17 predicate.
+- نمایش DBMS_OUTPUT هنگام خطای Oracle JDBC verifier برای عیب‌یابی دقیق.
 
-اصلاح:
-- reconcile کردن CHK_DEPOSIT_ACCOUNT_STATUS_HISTORY_REASON_CODE و افزودن TERM_EARLY_TERMINATION
-- بدون INSERT/UPDATE/DELETE/MERGE روی business data
-- DB verifier مستقل برای کنترل constraint جدید
-- Static verifier جدید: 72/72 PASS
+پیش‌نیاز: R2 قبلاً روی repository اعمال شده باشد.
+پس از Extract روی root پروژه اجرا شود:
+  node tools\verify-dps2-phase11nd-steps05-10-canonical-audit.mjs
+  tools\qualify-dps2-phase11nd.cmd
 
-نصب:
-ZIP را روی root پروژه Extract/Replace کنید و tools\qualify-dps2-phase11nc.cmd را اجرا کنید.
+هیچ business DML در این hotfix وجود ندارد.

@@ -1,6 +1,5 @@
-bb9c55806ddd0cdade36dc1a6f8142ed2888a9d978a8b4d83566d4039af79db7  ./PATCH-README-FA.txt
-19f3caa5739ebfe3a1dc7fbd9ab342c059ab520b9be9960e76267541970ca4f4  ./database/oracle/dps2/migrations/0.11.0-phase11nc-steps03-04-canonical-closure.sql
-822cfdcff4f989bd61d83af564569ec5e3d2fa75d568c914774097f5a57fda65  ./database/oracle/dps2/verification/0.11.0-phase11nc-steps03-04-canonical-closure-verifier.sql
-f550811f6da3a0cdd9cb4ea04ccb423a109209a10af06e95b2f1f40c335140aa  ./docs/DPS2-0.11.0-PHASE11NC-STEPS03-04-CANONICAL-CLOSURE-QA.md
-9d098b6cfe06ddd8402f47b8eb50098931eb49c2cc6985bbc863d00e7ce54909  ./docs/DPS2-CANONICAL-ROADMAP-FA.md
-7952941e845b3855acc8e29dd7f52d8f33c914cef0b6563c73d182c181034ecd  ./tools/verify-dps2-phase11nc-steps03-04-canonical-closure.mjs
+1b27ba7055969974a80fc641674ae94717476d97ff8b1af9af1690f5940e563e  PATCH-README-FA.txt
+7ecbf824b523e758dc45bb47106efda077e403aee5b2ba608da818c85ec3305d  database/oracle/dps2/verification/0.11.0-phase11nd-steps05-10-canonical-audit-verifier.sql
+a3cab57559967e4c3ec5e9b74359ca0e92b3fda416a9d4cddf176d52fb2f6a9e  docs/DPS2-0.11.0-PHASE11ND-STEPS05-10-CANONICAL-AUDIT-QA.md
+09ea31b38fe6d528274855acd62528ed2a77472093f96155dc3d09acfc3ff6ef  tools/java/OracleJdbcSqlRunner.java
+a408f30e0838b5c6c411717aeab4df94563832c1c5c559bec47c409609c5bb24  tools/verify-dps2-phase11nd-steps05-10-canonical-audit.mjs
