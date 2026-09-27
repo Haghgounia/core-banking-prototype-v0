@@ -20,10 +20,22 @@ public final class DepositAccountWaveCModels {
     public record PaymentInstrumentRequest(String instrumentTypeCode,String instrumentReference,Long holderPartyId,OffsetDateTime issuedAt,OffsetDateTime expiresAt){}
     public record RegulatoryRestrictionRequest(Long regulatoryRuleId,String restrictionTypeCode,String transactionTypeCode,String channelCode,BigDecimal limitAmount,String legalOrderReference,String issuingAuthorityCode,OffsetDateTime validFrom,OffsetDateTime validTo,String releasePolicyCode){}
     public record ComplianceEvaluationRequest(long regulatoryRuleId,String resultStatusCode,String resultReasonCode,String engineReference,String waiverReference,String evaluationPhaseCode,OffsetDateTime validUntil,Boolean recheckRequired){}
+    public record ReservePositionRequest(long reserveRequirementId,LocalDate businessDate,BigDecimal actualReserveAmount){}
+    public record RegulatoryReportRequest(String reportTypeCode,String regulatorCode,LocalDate periodStart,LocalDate periodEnd,String measureCode,BigDecimal measureAmount,Long measureCount){}
     public record PricingOverrideRequest(Long pricingRuleId,String overrideTypeCode,BigDecimal baseValue,BigDecimal overrideValue,String authorityLevelCode,String approverUserId,LocalDate effectiveFrom,LocalDate effectiveTo){}
+    public record FeeOverrideRequest(long feeRuleId,String overrideTypeCode,BigDecimal overrideValue,String authorityLevelCode,String approverUserId,LocalDate effectiveFrom,LocalDate effectiveTo){}
+    public record PackageEnrollmentRequest(long partyId,long pricingPackageId,LocalDate validFrom,LocalDate validTo){}
+    public record FeeTierRequest(long tierNo,BigDecimal minBaseAmount,BigDecimal maxBaseAmount,BigDecimal feeAmount,BigDecimal feeRate){}
+    public record FeeRuleRequest(String feeCode,String feeEventCode,String calculationMethodCode,BigDecimal fixedAmount,BigDecimal rateValue,BigDecimal minFeeAmount,BigDecimal maxFeeAmount,long ruleVersionNo,LocalDate effectiveFrom,LocalDate effectiveTo,List<FeeTierRequest> tiers){}
+    public record FeeAssessmentRequest(long feeRuleId,Long transactionId,BigDecimal baseAmount,BigDecimal discountAmount,String collectionMethodCode,String waiverReference){}
+    public record ProfitabilityRequest(LocalDate periodStart,LocalDate periodEnd,BigDecimal averageBalance,BigDecimal otherRevenue,BigDecimal directCost){}
     public record TaxExemptionRequest(long partyId,String exemptionCode,String taxTypeCode,String documentReference,LocalDate validFrom,LocalDate validTo){}
     public record TaxCalculationRequest(long taxRuleId,Long profitPaymentId,Long transactionId,BigDecimal taxableBaseAmount){}
     public record TaxCertificateRequest(long partyId,String taxTypeCode,LocalDate periodStart,LocalDate periodEnd,BigDecimal grossAmount,BigDecimal taxAmount,String documentReference){}
+    public record TaxAdjustmentRequest(long taxCalculationId,String adjustmentTypeCode,BigDecimal adjustmentAmount,String reasonCode,LocalDate effectiveDate,String approverUserId){}
+    public record TaxLiabilityRequest(String jurisdictionCode,String taxTypeCode,LocalDate periodStart,LocalDate periodEnd){}
+    public record TaxPaymentRequest(long taxLiabilityId,BigDecimal paymentAmount,LocalDate paymentDate,String paymentReference){}
+    public record TaxReconciliationRequest(LocalDate businessDate,String taxTypeCode,BigDecimal externalAmount,String resolutionReference){}
 
     public record Inquiry(long accountInquiryId,long accountId,String inquiryTypeCode,String channelCode,String requestReference,Long requestedByPartyId,OffsetDateTime asOfTimestamp,String resultStatusCode,String responseReference){}
     public record Confirmation(long accountConfirmationId,long accountId,String confirmationNo,String confirmationTypeCode,LocalDate asOfDate,BigDecimal balanceAmount,String accountStatusCode,String currencyCode,OffsetDateTime issuedAt,String documentReference,String deliveryChannelCode){}
@@ -41,17 +53,30 @@ public final class DepositAccountWaveCModels {
 
     public record RegulatoryRestriction(long accountRegRestrictionId,long accountId,Long regulatoryRuleId,String restrictionTypeCode,String transactionTypeCode,String channelCode,BigDecimal limitAmount,String legalOrderReference,String issuingAuthorityCode,OffsetDateTime validFrom,OffsetDateTime validTo,String statusCode,String releasePolicyCode,long recordVersion){}
     public record ComplianceEvaluation(long complianceEvaluationId,long regulatoryRuleId,long accountId,String resultStatusCode,String resultReasonCode,OffsetDateTime evaluatedAt,String engineReference,String waiverReference,String evaluationPhaseCode,OffsetDateTime validUntil,boolean recheckRequired){}
-    public record ComplianceView(List<RegulatoryRestriction> restrictions,List<ComplianceEvaluation> evaluations){}
+    public record ReserveRequirement(long reserveRequirementId,String regulatorCode,Long productVersionId,String productFamilyCode,String currencyCode,BigDecimal reserveRatio,String eligibleBalanceRuleCode,LocalDate effectiveFrom,LocalDate effectiveTo,String statusCode){}
+    public record ReservePosition(long reservePositionId,long reserveRequirementId,LocalDate businessDate,String currencyCode,BigDecimal eligibleBalance,BigDecimal requiredReserveAmount,BigDecimal actualReserveAmount,String positionStatusCode){}
+    public record RegulatoryReportItem(long regulatoryReportItemId,long regulatoryReportId,long accountId,Long productVersionId,String measureCode,BigDecimal measureAmount,Long measureCount,String reportTypeCode,String regulatorCode,LocalDate periodStart,LocalDate periodEnd,String reportStatusCode,String fileReference,String submissionReference){}
+    public record ComplianceView(List<RegulatoryRestriction> restrictions,List<ComplianceEvaluation> evaluations,List<ReserveRequirement> reserveRequirements,List<ReservePosition> reservePositions,List<RegulatoryReportItem> regulatoryReportItems){}
 
     public record PricingOverride(long accountPricingOverrideId,long accountId,Long pricingRuleId,String overrideTypeCode,BigDecimal baseValue,BigDecimal overrideValue,String authorityLevelCode,Long approvalRequestId,String approvalStatusCode,String approverUserId,LocalDate effectiveFrom,LocalDate effectiveTo,String statusCode,long recordVersion){}
     public record FeeAssessment(long feeAssessmentId,long accountId,Long transactionId,long feeRuleId,BigDecimal baseAmount,BigDecimal calculatedFeeAmount,BigDecimal discountAmount,BigDecimal finalFeeAmount,String assessmentStatusCode,String postingReference,String collectionMethodCode,Long collectionTransactionId,String waiverReference){}
     public record ProfitabilitySnapshot(long profitabilitySnapshotId,Long accountId,Long productVersionId,Long partyId,LocalDate periodStart,LocalDate periodEnd,BigDecimal averageBalance,BigDecimal interestExpense,BigDecimal feeRevenue,BigDecimal otherRevenue,BigDecimal directCost,BigDecimal netMargin,OffsetDateTime calculatedAt){}
-    public record PricingView(List<PricingOverride> overrides,List<FeeAssessment> feeAssessments,List<ProfitabilitySnapshot> profitabilitySnapshots){}
+    public record FeeRule(long feeRuleId,Long productVersionId,String feeCode,String feeEventCode,String calculationMethodCode,BigDecimal fixedAmount,BigDecimal rateValue,BigDecimal minFeeAmount,BigDecimal maxFeeAmount,long ruleVersionNo,LocalDate effectiveFrom,LocalDate effectiveTo,boolean active){}
+    public record FeeTier(long feeTierId,long feeRuleId,long tierNo,BigDecimal minBaseAmount,BigDecimal maxBaseAmount,BigDecimal feeAmount,BigDecimal feeRate){}
+    public record FeeOverride(long accountFeeOverrideId,long accountId,long feeRuleId,String overrideTypeCode,BigDecimal overrideValue,String authorityLevelCode,Long approvalRequestId,String approvalStatusCode,LocalDate effectiveFrom,LocalDate effectiveTo,String statusCode,long recordVersion){}
+    public record PricingPackage(long pricingPackageId,String packageCode,String packageName,LocalDate effectiveFrom,LocalDate effectiveTo,String statusCode){}
+    public record PricingPackageBenefit(long packageBenefitId,long pricingPackageId,String benefitTypeCode,String targetCode,BigDecimal benefitValue,BigDecimal maxBenefitAmount){}
+    public record CustomerPackageEnrollment(long customerPackageEnrollmentId,long partyId,Long accountId,long pricingPackageId,LocalDate validFrom,LocalDate validTo,String statusCode,long recordVersion){}
+    public record PricingView(List<PricingOverride> overrides,List<FeeRule> feeRules,List<FeeTier> feeTiers,List<FeeOverride> feeOverrides,List<FeeAssessment> feeAssessments,List<PricingPackage> packages,List<PricingPackageBenefit> packageBenefits,List<CustomerPackageEnrollment> packageEnrollments,List<ProfitabilitySnapshot> profitabilitySnapshots){}
 
     public record TaxExemption(long taxExemptionId,long partyId,Long accountId,String exemptionCode,String taxTypeCode,String documentReference,LocalDate validFrom,LocalDate validTo,String statusCode,long recordVersion){}
     public record TaxCalculation(long taxCalculationId,long accountId,long taxRuleId,Long profitPaymentId,Long transactionId,BigDecimal taxableBaseAmount,BigDecimal exemptAmount,BigDecimal taxRate,BigDecimal taxAmount,String calculationStatusCode){}
     public record TaxCertificate(long taxCertificateId,long accountId,long partyId,String certificateNo,String taxTypeCode,LocalDate periodStart,LocalDate periodEnd,BigDecimal grossAmount,BigDecimal taxAmount,OffsetDateTime issuedAt,String documentReference){}
-    public record TaxView(List<TaxExemption> exemptions,List<TaxCalculation> calculations,List<TaxCertificate> certificates){}
+    public record TaxAdjustment(long taxAdjustmentId,long taxCalculationId,String adjustmentTypeCode,BigDecimal adjustmentAmount,String reasonCode,LocalDate effectiveDate,Long approvalRequestId,String approvalStatusCode,String postingReference){}
+    public record TaxLiability(long taxLiabilityId,String jurisdictionCode,String taxTypeCode,LocalDate periodStart,LocalDate periodEnd,BigDecimal liabilityAmount,BigDecimal paidAmount,String statusCode){}
+    public record TaxPayment(long taxPaymentId,long taxLiabilityId,BigDecimal paymentAmount,LocalDate paymentDate,String paymentStatusCode,String paymentReference){}
+    public record TaxReconciliation(long taxReconciliationId,LocalDate businessDate,String taxTypeCode,BigDecimal bookAmount,BigDecimal remittedAmount,BigDecimal externalAmount,BigDecimal differenceAmount,String statusCode,String resolutionReference){}
+    public record TaxView(List<TaxExemption> exemptions,List<TaxCalculation> calculations,List<TaxAdjustment> adjustments,List<TaxLiability> liabilities,List<TaxPayment> payments,List<TaxCertificate> certificates,List<TaxReconciliation> reconciliations){}
 
     public record WaveCView(AccountServicesView services,PartyAccessView partyAccess,ComplianceView compliance,PricingView pricing,TaxView tax){}
 }

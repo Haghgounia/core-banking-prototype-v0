@@ -1,9 +1,33 @@
+# 0.11.0 — Fast-Track Designer / Business RC Consolidation — 2026-09-27
+
+- Scope Freeze: only supplied Deposit Account Operations XML/Trace/Operational documents are authoritative.
+- Canonical Roadmap synchronized with the actual post-11N-K state.
+- Records 11N-K baseline full qualification PASS and Step 16 independent NOSTRO/VOSTRO qualification PASS.
+- Consolidates final Business Gap implementations for Steps 11–15 and 17.
+- Marks latest Delta regression/runtime as intentionally deferred; this artifact is a Designer/Business RC, not Production Final.
+- Phase 12 remains undefined because no provided reference document defines work after Step 17.
+
 # 0.11.0 - Phase 11A Account Operations Schema Reconciliation
+
+## 0.11.0 — Designer Remaining Business Gaps Implementation
+
+- Step 14 now follows the supplied RC action boundary: reconciliation creates Run/Item/Discrepancy, while `DEPOSIT_SUSPENSE_OPEN_ITEM` is created only by the explicit «ثبت قلم باز» action.
+- Step 14 source/target defaults align with the RC (`DEPOSIT_SUBLEDGER -> GL`), and an existing canonical daily run is reused instead of violating the run uniqueness contract.
+- Step 17 eligibility now honors `MIN_ACTIVE_DAYS` in addition to minimum balance and dormant exclusion.
+- Step 17 exposes one business action for «تثبیت & قرعه‌کشی»: eligible enrollments are frozen into Lottery Entries, a weighted Winner is selected, the Draw is verified, and prize payment remains delegated to Step 05.
+- Runtime/Qualification was intentionally deferred by project decision; implementation status is `IMPLEMENTATION_COMPLETE_TEST_DEFERRED`.
 
 - Reconciled Account status and lifecycle-event constraints for SUSPENDED/DORMANT/REOPEN flows.
 - Corrected Account Operations status defaults for activation runs and external registry state.
 - Added Phase 11A static and Oracle DB verifiers.
 - 0.10.0 remains the frozen Opening/Activation baseline.
+
+## 0.11.0 — Designer Step 16 Reconciliation Run Uniqueness Hotfix
+
+- Fixed NOSTRO/VOSTRO same-day reconciliation collision against the canonical `DEPOSIT_RECONCILIATION_RUN` unique key.
+- Reconciliation source codes are now account-scoped (`CORR_<ACCOUNT_ID>_<STATEMENT_SOURCE_CODE>`) while preserving the supplied 50-character column contract.
+- Designer UI reuses a completed same-day run for the same correspondent account instead of issuing a duplicate create.
+- Extended Step 16 runtime/static qualification to assert distinct NOSTRO/VOSTRO reconciliation sources; no DDL or business seed was added.
 
 ## 0.10.0 — Deposit Opening Operational v5
 - Phase 10A schema foundation and semantic FK repair.
@@ -1469,3 +1493,8 @@
 - Added `DEPOSIT_OPERATION_IDEMPOTENCY` integration for lifecycle/hold commands.
 - Added Phase 11C Oracle readiness indexes/verifier/apply helper.
 - Fixed Phase 11B Basic Info named-parameter typo (`expectedRecordVersionsion` -> `version`).
+
+### Designer Step 15 correction type closure
+- Added RC-aligned REVERSAL, CORRECTION, BACKDATED_CORRECTION and DUPLICATE_CANCEL UI/service paths.
+- REVERSAL and DUPLICATE_CANCEL remain non-destructive Step 05 reversals; non-financial correction types persist audited correction entries without fabricating postings.
+- Runtime/qualification intentionally deferred per project decision.

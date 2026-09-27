@@ -200,3 +200,10 @@ DPS2_PHASE11NB_STEPS01_02_QUALIFICATION_PASS
 ```
 
 The next canonical phase is **11N-C — Steps 03–04 Canonical Closure**. Work begins with source coverage audit only; implementation is permitted only for genuine XML/Trace/Operational gaps.
+
+
+## Final qualification rerun collision hotfix — 2026-09-26
+
+During `qualify-dps2-phase11nk-final.cmd`, a rerun could select an ACTIVE account that already retained Phase 11N-B signatory-authority evidence. Because `DEPOSIT_ACCOUNT_SIGNATORY_AUTHORITY` is unique on `(SIGNATORY_ID, OPERATION_CODE, CHANNEL_CODE, VALID_FROM)`, sending `validFrom=null` resolved to the current UTC business date and could raise ORA-00001 for `RUNTIME_11NB / API`.
+
+Correction is runtime-harness-only: `runtime-dps2-phase11nb-steps01-02-e2e.mjs` now reads existing signatory authorities and chooses the first unused ISO `VALID_FROM` in a bounded 366-day window for the same Party/Operation/Channel. Existing evidence is preserved; no delete/backfill is performed and production service/repository/DDL semantics are unchanged. The Phase 11N-B static verifier now guards this rerun-safe behavior.

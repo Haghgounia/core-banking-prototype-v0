@@ -10,12 +10,21 @@ public final class DepositAccountWaveDModels {
 
     public record ReconciliationRunRequest(LocalDate businessDate,String reconciliationTypeCode,String sourceSystemCode,String targetLedgerCode){}
     public record ReconciliationItemRequest(String sourceReference,String targetReference,BigDecimal sourceAmount,BigDecimal targetAmount,String discrepancyTypeCode,String severityCode){}
+    public record SuspenseOpenItemRequest(long reconciliationItemId,String suspenseAccountCode,String sourceReference,BigDecimal amount,OffsetDateTime slaDueAt){}
     public record ExceptionRequest(Long transactionId,String exceptionTypeCode,String reasonCode,String severityCode,String queueCode,OffsetDateTime slaDueAt){}
     public record AssignmentRequest(String queueCode,String assigneeReference,OffsetDateTime slaDueAt){}
     public record CorrectionRequest(Long originalTransactionId,Long exceptionCaseId,String correctionTypeCode,String reasonCode,LocalDate requestedEffectiveDate,String approverUserId){}
     public record RootCauseRequest(String rootCauseCode,String description,String correctiveAction,String preventiveAction,String ownerReference,LocalDate targetDate){}
     public record CorrespondentRequest(String accountTypeCode,long correspondentBankPartyId,String correspondentBic,String externalAccountReference,String settlementCurrencyCode,String statementSourceCode,String reconciliationFrequencyCode,Boolean autoMatchAllowed,BigDecimal toleranceAmount){}
+    public record CorrespondentReconciliationRequest(long reconciliationRunId){}
+    public record CorrespondentAccountCreation(long accountId,String accountNo,long productVersionId,WaveDView waveD){}
+    public record RewardProgramRequest(String programCode,String programName,String programTypeCode,LocalDate effectiveFrom,LocalDate effectiveTo,BigDecimal minAverageBalance,Integer minActiveDays,Boolean excludeDormant,BigDecimal entryUnitAmount){}
     public record RewardEnrollmentRequest(long programId,String consentReference){}
+    public record LotteryDrawRequest(long programId,String drawNo,LocalDate drawDate,LocalDate eligibilityCutoffDate,String randomSeedReference,String auditReference){}
+    public record LotteryEntryRequest(long lotteryDrawId,long rewardEnrollmentId,BigDecimal eligibleBalance,long entryCount){}
+    public record LotteryWinnerRequest(long lotteryDrawId,long lotteryEntryId,String prizeCode,String prizeDescription,BigDecimal prizeAmount){}
+    public record LotteryRunRequest(long programId,String prizeCode,BigDecimal prizeAmount){}
+    public record PrizePaymentRequest(String approverUserId,String paymentReference){}
 
     public record ReconciliationRun(long reconciliationRunId,LocalDate businessDate,String reconciliationTypeCode,String sourceSystemCode,String targetLedgerCode,String statusCode,BigDecimal totalSourceAmount,BigDecimal totalTargetAmount,BigDecimal differenceAmount,OffsetDateTime startedAt,OffsetDateTime completedAt){}
     public record ReconciliationItem(long reconciliationItemId,long reconciliationRunId,Long accountId,String sourceReference,String targetReference,BigDecimal sourceAmount,BigDecimal targetAmount,BigDecimal differenceAmount,String matchStatusCode,String discrepancyTypeCode){}
@@ -36,9 +45,11 @@ public final class DepositAccountWaveDModels {
 
     public record RewardProgram(long programId,String programCode,String programName,String programTypeCode,Long productVersionId,LocalDate effectiveFrom,LocalDate effectiveTo,String statusCode){}
     public record RewardEnrollment(long rewardEnrollmentId,long programId,long accountId,OffsetDateTime enrolledAt,String eligibilityStatusCode,String statusCode,String consentReference){}
+    public record LotteryDraw(long lotteryDrawId,long programId,String drawNo,LocalDate drawDate,LocalDate eligibilityCutoffDate,String statusCode,String randomSeedReference,String auditReference){}
     public record LotteryEntry(long lotteryEntryId,long lotteryDrawId,long rewardEnrollmentId,BigDecimal eligibleBalance,long entryCount,String entryStatusCode){}
     public record LotteryWinner(long lotteryWinnerId,long lotteryDrawId,long lotteryEntryId,String prizeCode,String prizeDescription,BigDecimal prizeAmount,String winnerStatusCode,Long paymentTransactionId,String paymentReference){}
-    public record RewardView(List<RewardProgram> programs,List<RewardEnrollment> enrollments,List<LotteryEntry> entries,List<LotteryWinner> winners){}
+    public record LotteryRunResult(long lotteryDrawId,long lotteryWinnerId,long winnerAccountId,String winnerAccountNo,long totalEntries,String drawNo,String auditReference,WaveDView context){}
+    public record RewardView(List<RewardProgram> programs,List<RewardEnrollment> enrollments,List<LotteryDraw> draws,List<LotteryEntry> entries,List<LotteryWinner> winners){}
 
     public record WaveDView(ReconciliationView reconciliation,ExceptionView exceptions,CorrespondentView correspondent,RewardView rewards){}
 }

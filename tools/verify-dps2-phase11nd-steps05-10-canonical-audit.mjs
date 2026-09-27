@@ -37,10 +37,10 @@ const files={
 for(const [k,p] of Object.entries(files))check(`11N-D file exists: ${k}`,fs.existsSync(path.join(root,p)));
 const t=Object.fromEntries(Object.entries(files).filter(([,p])=>fs.existsSync(path.join(root,p))).map(([k,p])=>[k,read(p)]));
 
-check('roadmap registers 11N-D as current Steps05-10 audit',/Phase 11N-D — Steps 05–10 Canonical Regression \/ Audit/.test(t.road||'')&&/Phase 11N-D[\s\S]{0,240}Status:[^\n]+IN_PROGRESS/.test(t.road||''));
+check('roadmap preserves 11N-D Steps05-10 scope and records qualification deferral',/Phase 11N-D — Steps 05–10 Canonical Regression \/ Audit/.test(t.road||'')&&/Phase 11N-D[\s\S]{0,260}Status:[^\n]+IMPLEMENTED \/ QUALIFICATION_DEFERRED_TO_11N_K/.test(t.road||''));
 check('roadmap preserves Steps05-07 and 09-10 DONE during audit',/[|] 05 [|][^\n]+[|] DONE [|]/.test(t.road||'')&&/[|] 06 [|][^\n]+[|] DONE [|]/.test(t.road||'')&&/[|] 07 [|][^\n]+[|] DONE [|]/.test(t.road||'')&&/[|] 09 [|][^\n]+[|] DONE [|]/.test(t.road||'')&&/[|] 10 [|][^\n]+[|] DONE [|]/.test(t.road||''));
-check('roadmap keeps Step08 partial until 11N-D qualification',/[|] 08 [|][^\n]+[|] PARTIAL [|]/.test(t.road||'')&&/11N-D audit\/regression/.test(t.road||''));
-check('roadmap keeps Steps11-13 outside 11N-D',/[|] 11 [|][^\n]+[|] PARTIAL [|]/.test(t.road||'')&&/[|] 12 [|][^\n]+[|] PARTIAL [|]/.test(t.road||'')&&/[|] 13 [|][^\n]+[|] PARTIAL [|]/.test(t.road||''));
+check('roadmap records historical Step08 deferral and current DONE after 11N-K',/[|] 08 [|][^\n]+[|] DONE [|]/.test(t.road||'')&&/Historical 11N-D gate:[^\n]+11N-K/.test(t.road||'')&&/[|] 11N-K [|][^\n]+[|] BASELINE QUALIFIED [|]/.test(t.road||''));
+check('roadmap keeps Steps11-13 owned by 11N-E/F/G with current delta-test status',/[|] 11N-E [|][^\n]+[|] IMPLEMENTATION COMPLETE \/ DELTA TEST DEFERRED [|]/.test(t.road||'')&&/[|] 11N-F [|][^\n]+[|] IMPLEMENTATION COMPLETE \/ DELTA TEST DEFERRED [|]/.test(t.road||'')&&/[|] 11N-G [|][^\n]+[|] IMPLEMENTATION COMPLETE \/ DELTA TEST DEFERRED [|]/.test(t.road||'')&&/Steps11–13 remain owned by 11N-E\/F\/G/.test(t.road||''));
 
 check('trace Step05 requires transaction validation authorization legs and reversal',/step-05/.test(t.trace||'')&&/DEPOSIT_TRANSACTION_VALIDATION/.test(t.trace||'')&&/DEPOSIT_TRANSACTION_AUTHORIZATION/.test(t.trace||'')&&/DEPOSIT_TRANSACTION_LEG/.test(t.trace||'')&&/DEPOSIT_TRANSACTION_REVERSAL/.test(t.trace||''));
 check('trace Steps09-10 are account services and party access only',/id="step-09"[\s\S]*DEPOSIT_ACCOUNT_API_ACCESS/.test(t.trace||'')&&/id="step-10"[\s\S]*DEPOSIT_ACCOUNT_PAYMENT_INSTRUMENT/.test(t.trace||''));

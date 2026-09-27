@@ -37,7 +37,7 @@ public class PdlProductBuilderRepository {
     private static final Pattern IDENTIFIER = Pattern.compile("[A-Z][A-Z0-9_$#]*");
     private static final Pattern IN_CLAUSE = Pattern.compile("(?is)([A-Z][A-Z0-9_$#]*)\\s+IN\\s*\\(([^()]*)\\)");
     private static final Set<String> SYSTEM_MANAGED = Set.of(
-            "CREATED_AT", "CREATED_BY", "UPDATED_AT", "UPDATED_BY", "RECORD_VERSION", "MIGRATED_AT"
+            "CREATED_AT", "CREATED_BY", "UPDATED_AT", "UPDATED_BY", "RECORD_VERSION", "MIGRATED_AT", "IS_DELETED"
     );
 
     private final JdbcClient jdbcClient;
@@ -358,6 +358,9 @@ public class PdlProductBuilderRepository {
         }
         if (hasColumn(descriptor, "MIGRATED_AT")) {
             columns.add("MIGRATED_AT"); placeholders.add("SYSTIMESTAMP");
+        }
+        if (hasColumn(descriptor, "IS_DELETED")) {
+            columns.add("IS_DELETED"); placeholders.add("0");
         }
     }
 

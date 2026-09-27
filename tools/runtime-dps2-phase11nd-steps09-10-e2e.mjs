@@ -1,6 +1,8 @@
 const base=(process.env.CORE_BANKING_BASE_URL||'http://127.0.0.1:8091').replace(/\/$/,'');
 const uid=()=>`${Date.now()}-${Math.random().toString(16).slice(2,10)}`;
 const today=()=>new Date().toISOString().slice(0,10);
+const isoDate=d=>d.toISOString().slice(0,10);
+const freeSignatureDate=rules=>{const used=new Set((rules||[]).map(x=>x.validFrom).filter(Boolean));const d=new Date();for(let i=0;i<366;i++){const v=isoDate(d);if(!used.has(v))return v;d.setUTCDate(d.getUTCDate()+1)}throw new Error('NO_FREE_SIGNATURE_RULE_VALID_FROM_WITHIN_366_DAYS')};
 async function req(method,path,body,actor='deposit.operator',idem=`11nd-0910-${uid()}`){
   const h={'Content-Type':'application/json','X-User-Id':actor,'X-Correlation-Id':idem};
   if(method!=='GET')h['X-Idempotency-Key']=idem;
@@ -36,7 +38,8 @@ async function main(){
   if(!(w.services.apiAccesses||[]).some(x=>x.accountApiAccessId===api.accountApiAccessId&&x.statusCode==='REVOKED'))throw new Error('STEP09_API_ACCESS_REVOKE_MISSING');
 
   // Step 10 - Party Access & Payment Instruments only.
-  w=await req('POST',`/api/v1/deposit-accounts/${aid}/signature-rules`,{signatureRuleCode:`RT${s}`.slice(0,30),minSignatureCount:1,validFrom:today(),validTo:null});
+  const accessBefore=await req('GET',`/api/v1/deposit-accounts/${aid}/wave-c`);const signatureValidFrom=freeSignatureDate(accessBefore.partyAccess?.signatureRules);
+  w=await req('POST',`/api/v1/deposit-accounts/${aid}/signature-rules`,{signatureRuleCode:`RT${s}`.slice(0,30),minSignatureCount:1,validFrom:signatureValidFrom,validTo:null});
   const sig=(w.partyAccess.signatureRules||[])[0]; if(!sig)throw new Error('STEP10_SIGNATURE_RULE_MISSING');
   let delegationMarker='DEFERRED_NO_SECOND_ACTIVE_ACCOUNT_PARTY';
   if(parties.length>1){

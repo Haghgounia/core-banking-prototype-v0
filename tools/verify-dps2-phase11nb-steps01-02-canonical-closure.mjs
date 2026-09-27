@@ -50,6 +50,7 @@ chk('runtime prefers freshly activated qualification account for positive Produc
 chk('runtime requires positive product version branch',has(rt,'PHASE11NB_NO_SAME_PRODUCT_VERSION_CANDIDATE','PHASE11NB_RUNTIME_PRODUCT_CHANGE')&&!rt.includes('SKIP_NO_SAME_PRODUCT_CANDIDATE'));
 chk('runtime verifies opening snapshot immutability during org transfer',has(rt,'PHASE11NB_OPENING_SNAPSHOT_MUTATED','PHASE11NB_RUNTIME_ORG_UNIT'));
 chk('runtime covers condition and signatory audit',has(rt,'PHASE11NB_RUNTIME_CONDITION','PHASE11NB_RUNTIME_SIGNATORY'));
+chk('runtime avoids signatory-authority rerun collisions with an unused VALID_FROM date',has(rt,'nextUnusedAuthorityValidFrom','PHASE11NB_NO_FREE_SIGNATORY_AUTHORITY_VALID_FROM','validFrom:authorityValidFrom'));
 chk('runtime covers lifecycle/bulk',rt.includes('PHASE11NB_RUNTIME_LIFECYCLE_BULK'));
 chk('runtime covers collateral create and release origin idempotency',has(rt,'PHASE11NB_COLLATERAL_CREATE_ORIGIN_IDEMPOTENCY_FAIL','PHASE11NB_COLLATERAL_RELEASE_ORIGIN_IDEMPOTENCY_FAIL','PHASE11NB_RUNTIME_COLLATERAL'));
 chk('runtime final PASS marker exists',rt.includes('PHASE11NB_RUNTIME_E2E_PASS'));

@@ -3,7 +3,7 @@
 **وضعیت سند:** Canonical / Single Source of Truth  
 **نسخه پروژه:** `0.11.0`  
 **تاریخ تثبیت:** 2026-09-23  
-**آخرین به‌روزرسانی اجرایی:** 2026-09-24  
+**آخرین به‌روزرسانی اجرایی:** 2026-09-27  
 **دامنه:** Deposit Account Operations / «چهار سپرده»  
 
 > این فایل مرجع رسمی ادامه توسعه DPS2 است. گفتگوهای ChatGPT، نام‌گذاری موقت فازها، یا پیشنهادهای معماری به‌تنهایی مجاز به تغییر مسیر پروژه نیستند. هر تغییر Roadmap باید ابتدا در این فایل ثبت شود.
@@ -113,6 +113,14 @@ Document Step 04 Deposit Profit Operations            = DONE
 | 11N-A | Step 00 Read-only Dashboard | CLOSED | Static 36/36 + Oracle DB 9/9 + Production Build + 51 Maven tests + Runtime E2E + `DPS2_PHASE11NA_STEP00_DASHBOARD_QUALIFICATION_PASS` در 2026-09-24 |
 | 11N-B | Steps 01–02 Canonical Closure | CLOSED | Qualification نهایی 2026-09-24: Static 77/77، Oracle reconciliation PASS، DB 20/20، Production Build + 51 Maven tests PASS؛ controlled Product Version `1->5` ساخته شد؛ Runtime واقعی READY→ACTIVE، ORG transfer، Condition/Signatory، Product Change، Lifecycle/Bulk و Collateral origin-idempotency همگی PASS؛ `DPS2_PHASE11NB_STEPS01_02_QUALIFICATION_PASS` |
 | 11N-C | Steps 03–04 Canonical Closure | CLOSED | Qualification نهایی 2026-09-25: Static 72/72، canonical CHECK reconciliation PASS، DB 18/18، `PHASE11NC_IMPLEMENTATION_PASS`، Production Build + Angular Build + Maven 51/51 PASS؛ Runtime واقعی External Profit `TX-39`، Partial Withdrawal `TX-40`، Maturity `TX-41` و Early Termination `TX-42/CLOSURE-9` همگی PASS؛ `PHASE11NC_RUNTIME_E2E_PASS` و `DPS2_PHASE11NC_STEPS03_04_QUALIFICATION_PASS`. |
+| 11N-D | Steps 05–10 Canonical Audit | CLOSED | در Final Qualification تجمیعی 11N-K پوشش شد؛ Transaction/Statement/Limit/Maturity/Services/Party Access baseline حفظ شد. |
+| 11N-E | Step 11 Regulatory Completion | IMPLEMENTATION COMPLETE / DELTA TEST DEFERRED | Reserve Position و Regulatory Report/Item به Action واقعی تبدیل شدند؛ تست Delta بعد از Fast-Track موکول است. |
+| 11N-F | Step 12 Pricing/Fee Completion | IMPLEMENTATION COMPLETE / DELTA TEST DEFERRED | Fee Rule/Tier authoring، Fee Assessment و Profitability Snapshot به Action واقعی تبدیل شدند؛ تست Delta موکول است. |
+| 11N-G | Step 13 Tax Completion | IMPLEMENTATION COMPLETE / DELTA TEST DEFERRED | Tax Adjustment execution، Liability، Payment و Reconciliation تکمیل شد؛ تست Delta موکول است. |
+| 11N-H | Steps 14–15 Reconciliation/Exception Completion | IMPLEMENTATION COMPLETE / DELTA TEST DEFERRED | Suspense مستقل مطابق RC و چهار Correction Type مستند پیاده شد؛ تست Delta موکول است. |
+| 11N-I | Step 16 Nostro/Vostro | CLOSED / QUALIFIED | Account Master مستقل، Extension/Profile و Reconciliation واقعی؛ NOSTRO/USD و VOSTRO/EUR در 2026-09-27 Runtime PASS شدند. |
+| 11N-J | Step 17 Rewards/Lottery | IMPLEMENTATION COMPLETE / DELTA TEST DEFERRED | Program/Eligibility/Enrollment/Entry Freeze/Weighted Draw/Winner/Prize Payment تکمیل شد؛ تست Delta موکول است. |
+| 11N-K | Cross-Step Final Qualification | BASELINE QUALIFIED | Full Steps 00–17 qualifier در 2026-09-26 با `DPS2_PHASE11NK_STEPS00_17_FINAL_QUALIFICATION_PASS` عبور کرد؛ تغییرات Delta پس از آن نیازمند Regression نهایی بعدی‌اند. |
 
 ### Qualification نهایی 11G
 
@@ -152,16 +160,16 @@ PHASE11G_IMPLEMENTATION_PASS
 | 05 | تراکنش‌های سپرده | 03, 17, 01C, 15, 07, 00 | DONE | 11I Source + Oracle + Runtime: Transaction lifecycle، Validation، Maker/Checker Authorization، Legs، Cash/Transfer Detail، transaction-aware 11D posting trace و non-destructive Reversal؛ Static 64/64، DB 29/29، Runtime PASS | — |
 | 06 | صورتحساب سپرده | 14, 03, 17 | DONE | Phase 11K: Template/version, Subledger-grounded Statement header/items, governed delivery + Static 92/92 + Oracle 34/34 + Runtime PASS | — |
 | 07 | سقف و محدودیت حساب | 15, 00 | DONE | Phase 11K: four prototype limit types, Restriction lifecycle + materialized Usage from actual POSTED status history + Runtime POST/Reversal PASS | — |
-| 08 | بستن حساب و پردازش سررسید | 16, 01A, 01B, 01C, 13, 03, 17, 00 | PARTIAL | 11E Closure/Reopening core + 11K Maturity Batch + 11N-C اجرای مالی واقعی maturity از Step 03/05/Package16 با Runtime PASS | 11N-D audit/regression نهایی Action-by-Action پیش از `DONE` |
+| 08 | بستن حساب و پردازش سررسید | 16, 01A, 01B, 01C, 13, 03, 17, 00 | DONE | Closure/Maturity baseline در 11N-K Final Qualification عبور کرده و بعد از آن Gap کسب‌وکاری جدیدی برای Step 08 ثبت نشده است. | — |
 | 09 | خدمات حساب | 05 | DONE | Phase 11L: Inquiry, Confirmation, Notification Preference/Event و API Access با Oracle/Build/Runtime PASS | — |
 | 10 | طرف، دسترسی و ابزار | 06 | DONE | Phase 11L: Signature Rule, Delegation, Authorized User, Beneficiary و Payment Instrument روی Party فعال حساب؛ Oracle/Build/Runtime PASS | — |
-| 11 | مقررات و انطباق | 07, 00 | PARTIAL | Phase 11L: Regulatory Restriction + Release و Compliance Evaluation از Rule فعال governed | Reserve Requirement/Position و Regulatory Report/Item هنوز خارج از 11L |
-| 12 | قیمت‌گذاری و کارمزد | 08, 00 | PARTIAL | Phase 11L: Account Pricing Override با Maker/Checker + Trace موجود Fee Assessment/Profitability | Fee Rule/Tier و Package Enrollment workflow کامل هنوز باز است |
-| 13 | مالیات و کسورات | 09, 02, 03, 00 | PARTIAL | Phase 11L: Exemption + governed Tax Calculation + Certificate با Transaction/Profit trace | Tax Adjustment, Liability/Payment, Reconciliation و Rule authoring هنوز باز است |
-| 14 | تطبیق و مغایرت | 10, 11 | PARTIAL | Phase 11M qualified: Run/Item، Match/Mismatch، Discrepancy، Suspense و Exception handoff | 11N-H audit/regression نهایی Action-by-Action پیش از `DONE` |
-| 15 | استثنا و اصلاح | 11, 03, 17 | PARTIAL | Phase 11M qualified: Exception/Assignment/RCA + Maker/Checker Correction؛ REVERSAL مالی از Step 05 | 11N-H audit نهایی؛ CORRECTION/BACKDATED_CORRECTION نیازمند instruction مالی مستقل در صورت الزام سند |
-| 16 | نوسترو / وسترو | 04, 01A, 10 | PARTIAL | Phase 11M source: Account Extension + Reconciliation Profile؛ تطبیق از Step14 reuse می‌شود | External settlement network همچنان boundary خارجی است؛ Runtime config فقط با داده معتبر |
-| 17 | جوایز و قرعه‌کشی | 12, 03 | PARTIAL | Phase 11M source: مصرف Program/Eligibility governed، Enrollment و مشاهده Entry/Winner با payment transaction trace | Program/Draw/Winner fabrication خارج از runtime؛ qualification با config واقعی یا defer صریح |
+| 11 | مقررات و انطباق | 07, 00 | PARTIAL | Business implementation کامل: Restriction/Evaluation + Reserve Requirement/Position + Regulatory Report/Item Action واقعی | `IMPLEMENTATION_COMPLETE_TEST_DEFERRED`؛ Delta Runtime/Regression بعداً |
+| 12 | قیمت‌گذاری و کارمزد | 08, 00 | PARTIAL | Business implementation کامل: Fee Rule/Tier authoring، Pricing Override، Fee Assessment، Package/Benefit/Enrollment، Profitability | `IMPLEMENTATION_COMPLETE_TEST_DEFERRED`؛ Delta Runtime/Regression بعداً |
+| 13 | مالیات و کسورات | 09, 02, 03, 00 | PARTIAL | Business implementation کامل: Exemption/Calculation/Certificate + Adjustment execution + Liability/Payment/Reconciliation | `IMPLEMENTATION_COMPLETE_TEST_DEFERRED`؛ Delta Runtime/Regression بعداً |
+| 14 | تطبیق و مغایرت | 10, 11 | PARTIAL | Run/Item/Discrepancy؛ «ثبت قلم باز» Action مستقل مطابق RC؛ Exception handoff | `IMPLEMENTATION_COMPLETE_TEST_DEFERRED` |
+| 15 | استثنا و اصلاح | 11, 03, 17 | PARTIAL | Exception/Assignment/RCA + Maker/Checker Correction؛ هر چهار نوع RC: REVERSAL/CORRECTION/BACKDATED_CORRECTION/DUPLICATE_CANCEL | `IMPLEMENTATION_COMPLETE_TEST_DEFERRED` |
+| 16 | نوسترو / وسترو | 04, 01A, 10 | DONE | Account Master مستقل + Extension/Profile + Reconciliation؛ هر دو NOSTRO/USD و VOSTRO/EUR Runtime Qualified در 2026-09-27 | — |
+| 17 | جوایز و قرعه‌کشی | 12, 03 | PARTIAL | Program/Eligibility + Enrollment + Entry Freeze + Weighted Draw + Winner + Prize Payment through Step05 | `IMPLEMENTATION_COMPLETE_TEST_DEFERRED` |
 
 ---
 
@@ -481,16 +489,42 @@ PROFIT_CONTRACT -> ACCRUAL -> PROFIT_POSTING
 
 ```text
 Project version: 0.11.0
-Technical delivery: 11A .. 11N-C CLOSED
-Document coverage: NOT COMPLETE
-Highest verified runtime milestone: Phase 11N-C PASS — `DPS2_PHASE11NC_STEPS03_04_QUALIFICATION_PASS`
-Current implementation scope: Phase 11N-D — Steps 05–10 Canonical Regression / Audit
-Current source baseline: Steps 00–07 and 09–10 are DONE; Step 08 remains PARTIAL pending 11N-D final action-by-action audit. 11N-C final Windows qualification on 2026-09-25 passed Static 72/72، schema reconciliation، DB 18/18، Production/Angular Build، Maven 51/51 and all Runtime branches: External Profit `TX-39`، Partial Withdrawal `TX-40`، Maturity `TX-41`، Early Termination `TX-42/CLOSURE-9`.
-Next action: Phase 11N-D — audit/regression of Steps 05–10 only; no new feature unless the canonical source audit proves a real document gap.
+Scope mode: FAST-TRACK / SCOPE FROZEN
+Reference scope: supplied XML + Traceability Guide + Operational HTML only
+
+Technical baseline: 11A .. 11N-K implemented; 11N-K baseline full qualification PASS on 2026-09-26
+Business gap audit: COMPLETE
+Business gap implementation: COMPLETE through Step 17
+Step 16 delta qualification: PASS on 2026-09-27 (NOSTRO/USD + VOSTRO/EUR)
+Latest delta implementation: Steps 11–15 and 17 completed; final Delta Regression intentionally deferred by project decision
+
+Current release state: FUNCTIONAL_IMPLEMENTATION_COMPLETE / FINAL_DELTA_TEST_DEFERRED
+Current delivery target: Designer / Business Release Candidate
+Phase 12: NOT DEFINED BY PROVIDED REFERENCE DOCUMENTS
+Allowed work until new requirement: consolidation, documentation, bug-fix-only after UAT, deferred regression/qualification
 Roadmap authority: docs/DPS2-CANONICAL-ROADMAP-FA.md
 ```
 
-این بخش باید در پایان هر فاز به‌روزرسانی شود.
+### Fast-Track Scope Freeze — 2026-09-27
+
+به‌دلیل تصمیم پروژه برای اتمام سریع تولید، Scope Functional روی سه سند مرجع همین Roadmap Freeze شده است.
+
+1. هیچ Feature خارج از XML/Trace/Operational HTML به Release Candidate افزوده نمی‌شود.
+2. تمام Business Actionهای شناسایی‌شده تا Step 17 در Source پیاده‌سازی شده‌اند.
+3. Baseline 00–17 قبلاً در 11N-K Qualification عبور کرده است؛ اما تغییرات Delta بعدی Steps 11–15 و 17 هنوز Regression/Runtime جامع جدید نگرفته‌اند.
+4. Step 16 پس از Deltaها به‌صورت مستقل روی هر دو NOSTRO و VOSTRO Qualified شده است.
+5. وضعیت Steps دارای Delta تست‌نشده در Coverage Matrix عمداً `PARTIAL` نگه داشته می‌شود، چون قاعده Canonical این سند `DONE = Implementation + Runtime Gate` است.
+6. تست‌های Deferred باید قبل از Final Production Baseline انجام شوند؛ Release فعلی برای Designer/Business UAT یک RC است، نه Production Final.
+7. هیچ Phase 12 یا Step 18+ از اسناد ارائه‌شده استخراج نشده است؛ Phase بعدی فقط با Requirement/File جدید تعریف می‌شود.
+
+### Evidence کلیدی Fast-Track
+
+```text
+Baseline cross-step: DPS2_PHASE11NK_STEPS00_17_FINAL_QUALIFICATION_PASS
+Step16 delta: DPS2_DESIGNER_STEP16_CORRESPONDENT_ACCOUNT_RUNTIME_PASS
+Step16 qualification: DPS2_DESIGNER_STEP16_QUALIFICATION_PASS
+Latest delta source state: IMPLEMENTATION_COMPLETE_TEST_DEFERRED
+```
 
 ### Phase 11L — Wave C Account Services, Party Access, Compliance, Pricing & Tax (Steps 09–13)
 
@@ -634,7 +668,7 @@ Coverage Audit result (2026-09-24):
 
 #### Phase 11N-D — Steps 05–10 Canonical Regression / Audit
 
-**Status:** `IN_PROGRESS` — Coverage Audit started on 2026-09-25 from the post-11N-C qualified baseline.
+**Status:** `IMPLEMENTED / QUALIFICATION_DEFERRED_TO_11N_K` — implementation complete; heavy Oracle/Build/Runtime qualification intentionally deferred to final cross-step gate.
 
 Audit result before implementation:
 
@@ -644,11 +678,17 @@ Audit result before implementation:
 4. **Step 08 real gap confirmed:** `DEPOSIT_ACCOUNT_STATUS_HISTORY.APPROVAL_REQUEST_ID` is the canonical maker/checker trace for approval-governed status changes. Closure/Reopening currently omit it even though their lifecycle events retain the approval. New status-history rows must persist the owning Approval ID.
 5. **Implementation boundary:** generic financial Closure reuses the existing internal Step 05 derived-transaction primitive; no parallel posting engine is introduced. Package 16 remains the sole owner of the final `ACTIVE -> CLOSED` transition.
 6. **Legacy compatibility:** no fabricated transaction/backfill is created for historical closures. DB audit accepts exact historical `ACCOUNT_CLOSURE` Package-17 posting trace, while all new qualified positive-balance closures must expose Step 05 transaction, leg, subledger, settlement-item and closure-reference coherence.
-7. Step 08 remains `PARTIAL` until 11N-D Static + Oracle + Production Build + Runtime qualification passes.
+7. **Historical 11N-D gate:** Step 08 remained `PARTIAL` while 11N-D was the active slice. Under the 2026-09-26 rapid-completion policy it is now `IMPLEMENTED` and its final DONE/CLOSED transition is deferred to 11N-K.
 8. **11N-D R1 scope correction:** the first qualifier incorrectly invoked full 11L apply/runtime (Steps09–13). The user's Windows run stopped before Oracle execution, so no out-of-scope Oracle migration was applied. R1 is superseded for qualification purposes.
 9. **11N-D R2 scope contract:** Oracle/runtime qualification is strictly Step05 via 11I, Steps06–08 via 11K, dedicated Steps09–10 audit/runtime, and evolved 11E controlled closure for Step08. Full 11L apply/runtime is forbidden by the 11N-D static guard; Steps11–13 remain owned by 11N-E/F/G.
 10. **Remote Oracle contract:** 11N-D uses `CORE_BANKING_ORACLE_CONNECT` against the configured Oracle host. Local SQL*Plus is preferred when present; otherwise the project OJDBC driver executes the SQL directly. Docker is not part of the remote-Oracle path.
 11. **11N-D R2 local static evidence:** `PHASE11ND_STATIC_VERIFIER_PASS=63`, `FAIL=0`; historical regression gates remain 11E=50/50, 11I=64/64, 11K=92/92. Java runner compiles locally. Oracle/Production Build/Runtime remain pending Windows qualification.
+12. **Rapid completion policy (2026-09-26):** per delivery priority, repeated per-slice Oracle/Runtime qualifications are deferred. 11N-E through 11N-J are implemented as one cumulative closure wave; no slice is marked `CLOSED` until 11N-K.
+13. **11N-E/F/G implementation:** Reserve/Report trace projection, Fee Override maker/checker, governed Fee Rule/Tier and Pricing Package consumption, Package Enrollment, Tax Adjustment approval trace and Tax Liability/Payment/Reconciliation projection are implemented.
+14. **11N-H implementation:** existing qualified Step14/15 reconciliation/exception/correction behavior is retained without a parallel correction posting engine.
+15. **11N-I implementation:** Correspondent profile can be marked reconciled only from a completed Step14 reconciliation run for the same account.
+16. **11N-J implementation (business-gap closure):** Program/Eligibility و Enrollment واقعی هستند؛ Action «تثبیت و قرعه‌کشی» شانس‌ها را از Balance/Entry Unit محاسبه و در Entryها Freeze می‌کند، Winner را به‌صورت weighted selection ثبت می‌کند و Draw را VERIFIED می‌سازد؛ Prize Payment همچنان derived Step05 transaction (`REWARD_PRIZE_PAYMENT`) با `PAYMENT_TRANSACTION_ID` است.
+17. **Historical final-state contract:** این شرط با PASS شدن 11N-K در 2026-09-26 برآورده شد. پس از آن Business Gap Audit تغییرات Delta جدیدی در Steps 11–15 و 17 ایجاد کرد؛ این Deltaها از نظر Source کامل‌اند ولی تا Regression نهایی جدید، طبق قواعد همین سند `PARTIAL` باقی می‌مانند. Step 16 Delta نیز در 2026-09-27 جداگانه Qualified شد.
 
 ### Phase 11H runtime hotfix — reopened paid period
 - Runtime qualification on legacy/backfilled account 9 exposed a Step 04 state-transition defect: a previously `PAID` period could receive new accrual/approved adjustment but remain `PAID`, making its outstanding payable balance invisible to posting.
@@ -750,3 +790,21 @@ Audit result before implementation:
 - Runtime final: `PHASE11NC_RUNTIME_E2E_PASS`.
 - Qualification final: `DPS2_PHASE11NC_STEPS03_04_QUALIFICATION_PASS`.
 - Closure consequence: Step 03=`DONE`, Step 04=`DONE`, 11N-C=`CLOSED`; next scope is 11N-D Steps 05–10 audit/regression.
+
+### Designer Business Gap Closure B — Step 16 Nostro/Vostro — 2026-09-27
+
+- Scope is limited to the supplied RC/Trace Step 16 contract; no unrelated feature was added.
+- Step 16 now creates a real independent `DEPOSIT_ACCOUNT` master before `CORRESPONDENT_ACCOUNT_EXTENSION` and `CORRESPONDENT_RECONCILIATION_PROFILE`.
+- Product Version is resolved from governed `PDL.CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE` by NOSTRO/VOSTRO type and settlement currency; no business seed/configuration is fabricated.
+- Correspondent account creation does not fabricate a Deposit Opening Request; account read/search supports the valid nullable Opening relationship.
+- Canonical zero balance infrastructure is initialized for the newly created account.
+- Designer UI exposes the RC fields and executes reconciliation directly through a real Step 14 Run/Item; manual Run ID entry is no longer required.
+- Static gate after Step 16 closure/hotfixes: `DESIGNER_STEP16_STATIC_PASS=71`, fail `0`.
+- User-run Windows/Oracle qualification on 2026-09-27 positively covered both NOSTRO/USD and VOSTRO/EUR and emitted `DPS2_DESIGNER_STEP16_QUALIFICATION_PASS`.
+- Step 16 status: `QUALIFIED_2026_09_27`.
+
+
+### Designer business gap closure — Step 15
+- Step 15 چهار نوع اصلاح فایل RC (`REVERSAL`, `CORRECTION`, `BACKDATED_CORRECTION`, `DUPLICATE_CANCEL`) را در UI/Service پشتیبانی می‌کند.
+- `REVERSAL` و `DUPLICATE_CANCEL` از Step 05 به‌صورت non-destructive عبور می‌کنند؛ دو نوع دیگر Correction Entry ممیزی‌شده ایجاد می‌کنند.
+- وضعیت: `IMPLEMENTATION_COMPLETE_TEST_DEFERRED`.

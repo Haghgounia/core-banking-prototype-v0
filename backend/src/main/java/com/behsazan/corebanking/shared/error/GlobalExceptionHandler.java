@@ -6,6 +6,7 @@ import com.behsazan.corebanking.system.modelcomparison.ModelComparisonValidation
 import com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException;
 import com.behsazan.corebanking.fee.admin.application.FeeAdminValidationException;
 import com.behsazan.corebanking.deposit.account.error.DepositAccountLifecycleException;
+import com.behsazan.corebanking.deposit.account.error.CorrespondentProductProfileNotFoundException;
 import com.behsazan.corebanking.deposit.account.error.DepositAccountNotFoundException;
 import com.behsazan.corebanking.deposit.opening.error.DepositOpeningValidationException;
 import org.slf4j.Logger;
@@ -93,6 +94,17 @@ public class GlobalExceptionHandler {
         problem.setType(URI.create("urn:core-banking:problem:deposit-account-not-found"));
         problem.setTitle("حساب سپرده یا پرونده افتتاح یافت نشد");
         problem.setProperty("errorCode", "DEPOSIT_ACCOUNT_NOT_FOUND");
+        return problem;
+    }
+
+    @ExceptionHandler(CorrespondentProductProfileNotFoundException.class)
+    ProblemDetail handleCorrespondentProductProfileNotFound(CorrespondentProductProfileNotFoundException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+        problem.setType(URI.create("urn:core-banking:problem:correspondent-product-profile-not-found"));
+        problem.setTitle("پروفایل محصول حساب کارگزاری یافت نشد");
+        problem.setProperty("errorCode", "CORRESPONDENT_PRODUCT_PROFILE_NOT_FOUND");
+        problem.setProperty("accountTypeCode", exception.accountTypeCode());
+        problem.setProperty("settlementCurrencyCode", exception.settlementCurrencyCode());
         return problem;
     }
 

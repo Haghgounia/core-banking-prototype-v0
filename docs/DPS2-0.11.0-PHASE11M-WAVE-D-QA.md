@@ -48,3 +48,8 @@ Runtime proves a real Step 05 cash deposit, reconciliation MATCH/MISMATCH, discr
 - Wave D Domain/Repository/Service compile check: Java 21 PASS.
 - TypeScript parse check: no TS1xxx syntax errors; full Angular dependency build remains the Windows production gate.
 - Oracle verifier target: `40/40` checks.
+
+
+## Fast-Track contract synchronization — 2026-09-27
+
+بعد از Business Gap Audit فایل RC، Step 14 اصلاح شد: ایجاد Mismatch فقط `DEPOSIT_DISCREPANCY` را تولید می‌کند و `DEPOSIT_SUSPENSE_OPEN_ITEM` فقط با Action مستقل «ثبت قلم باز» ساخته می‌شود. Runtime/Verifier 11M برای Regression آینده با این Action boundary همگام شده‌اند، اما طبق تصمیم پروژه در Fast-Track RC اجرا نشده‌اند. همچنین Step 15 چهار Correction Type و Step 17 Program/Integrated Draw را در قرارداد جدید پوشش می‌دهند.

@@ -1,8 +1,19 @@
-## چهار سپرده — وضعیت اجرایی DPS2 / 0.11.0 — 2026-09-24
+## چهار سپرده — Release Candidate Fast-Track / 0.11.0 — 2026-09-27
 
-مرجع ادامه توسعه عملیات حساب سپرده، `docs/DPS2-CANONICAL-ROADMAP-FA.md` و `docs/DPS2-DELTA-AUDIT-2026-09-24.md` است. Phaseهای 11A تا 11H بسته شده‌اند؛ Phase 11I (Step 05 Transaction Processing) و Phase 11J (Wave A تکمیل Steps 01-02) در وضعیت `IN_PROGRESS` هستند. Snapshot واقعی Oracle مورخ 2026-09-24 نشان می‌دهد همه 107 جدول یکتای مورد استفاده در Action Trace گام‌های 00 تا 17 در Schema موجودند؛ بنابراین تمرکز ادامه کار روی Service/API/UI/Runtime orchestration است، نه ایجاد مجدد Schema.
+مرجع رسمی Scope و وضعیت عملیات حساب سپرده `docs/DPS2-CANONICAL-ROADMAP-FA.md` است. دامنه Functional روی سه سند XML / Traceability Guide / Operational HTML ارسالی Freeze شده و هیچ Feature خارج از آن‌ها وارد این Release Candidate نشده است.
 
-ترتیب Qualification بسته تجمیعی فعلی: `tools\apply-dps2-phase11i.cmd`، سپس `tools\apply-dps2-phase11j.cmd`، یک بار Build/Restart، سپس Runtimeهای 11I و 11J. هیچ Phase تا قبل از DB Gate و Runtime E2E واقعی `CLOSED` محسوب نمی‌شود.
+وضعیت فعلی:
+
+- Baseline Canonical Steps 00–17: Final Qualification قبلی PASS (`DPS2_PHASE11NK_STEPS00_17_FINAL_QUALIFICATION_PASS`).
+- Business Gap Audit: تکمیل شده.
+- Business Gap Implementation تا Step 17: تکمیل شده.
+- Step 16 NOSTRO/VOSTRO: Runtime Qualification مستقل PASS در 2026-09-27.
+- Deltaهای جدید Steps 11–15 و 17: Source implementation complete؛ Regression/Runtime جامع جدید عمداً به بعد موکول شده است.
+- وضعیت Release: `FUNCTIONAL_IMPLEMENTATION_COMPLETE / FINAL_DELTA_TEST_DEFERRED`.
+- این بسته **Designer / Business RC** است، نه Production Final Baseline.
+- Phase 12 در اسناد ارائه‌شده تعریف نشده است.
+
+برای جزئیات تحویل Fast-Track: `docs/DPS2-0.11.0-DESIGNER-RC-FAST-TRACK-RELEASE-NOTES-FA.md`.
 
 ## نسخه 0.10.0 — Operational Opening v5
 مسير افتتاح حساب اکنون Create Account را از Settlement و Activation Readiness جدا مي‌کند: `APPROVED -> PENDING_ACTIVATION -> Settlement -> READY -> ACTIVE`. Funding قبل از Create فقط Plan است و Activate بدون READY مجاز نيست.

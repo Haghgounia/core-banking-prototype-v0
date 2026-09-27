@@ -53,6 +53,8 @@ must(repository.includes('ALL_CONSTRAINTS'), 'Oracle constraint metadata discove
 must(repository.includes('ALL_CONS_COLUMNS'), 'Oracle FK/PK metadata discovery missing');
 must(repository.includes('LOCK TABLE'), 'Prototype numeric PK allocator guard missing');
 must(repository.includes('IS_DELETED = 1'), 'Logical delete support missing');
+must(repository.includes('columns.add("IS_DELETED"); placeholders.add("0")'), 'Soft-delete default on insert missing');
+must(repository.includes('"MIGRATED_AT", "IS_DELETED"'), 'IS_DELETED must remain system-managed');
 must(service.includes('businessValidator.validate'), 'PDL business validator not wired into service');
 must(validator.includes('DEPOSIT_PROFIT_PAYMENT_RULE'), 'Profit-payment validator missing');
 must(validator.includes('CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE'), 'Correspondent settlement validator missing');

@@ -1,0 +1,37 @@
+DPS2 0.11.0 - Designer / Business UAT Handoff Manifest
+Date: 2026-09-27
+
+STATUS
+------
+SCOPE_FROZEN
+FUNCTIONAL_IMPLEMENTATION_COMPLETE
+BASELINE_00_17_QUALIFIED
+STEP16_DELTA_QUALIFIED
+LATEST_DELTA_TEST_DEFERRED
+DESIGNER_BUSINESS_UAT_HANDOFF_READY
+SOURCE_RC_BUILD_REQUIRED_ON_UAT_ENV
+
+REFERENCE SCOPE
+---------------
+Deposit Account Operations Steps 00-17 only.
+No Phase 12 / Step 18+ scope is defined by the provided reference documents.
+
+HANDOFF DOCUMENTS
+-----------------
+docs/uat/UAT-START-HERE-FA.md
+docs/uat/UAT-DEPLOYMENT-RUNBOOK-FA.md
+docs/uat/UAT-PRECONDITIONS-TEST-DATA-FA.md
+docs/uat/UAT-ACCEPTANCE-CHECKLIST-FA.md
+docs/uat/UAT-KNOWN-ISSUES-DEFERRED-FA.md
+docs/uat/UAT-DEFECT-LOG-TEMPLATE-FA.md
+docs/uat/UAT-HANDOFF-MANIFEST.txt
+
+NON-DESTRUCTIVE PREFLIGHT
+-------------------------
+tools/uat-preflight.cmd
+
+UAT POLICY
+----------
+PASS / FAIL / BLOCKED_BY_ENV_OR_DATA
+Bug-fix only after handoff.
+No new feature in this RC.
