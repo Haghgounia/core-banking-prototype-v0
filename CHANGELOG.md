@@ -1498,3 +1498,9 @@
 - Added RC-aligned REVERSAL, CORRECTION, BACKDATED_CORRECTION and DUPLICATE_CANCEL UI/service paths.
 - REVERSAL and DUPLICATE_CANCEL remain non-destructive Step 05 reversals; non-financial correction types persist audited correction entries without fabricating postings.
 - Runtime/qualification intentionally deferred per project decision.
+
+## Opening Reviewed Alignment 2026-09-29
+- Deposit Opening Wizard aligned with the reviewed 2026-09-20 operational HTML across Steps 1-7.
+- Added automatic signatory UX, Product-derived term/profit identifiers, target-aware Funding Allocation, reviewed Step 5 checks/documents/terms, and derived decision statuses.
+- Document checklist no longer requires `DOCUMENT_REFERENCE`; it remains an optional external DMS/reference field.
+- Exact persistence for four new Reviewed payload columns is intentionally deferred pending real Oracle metadata; no speculative DDL was added.

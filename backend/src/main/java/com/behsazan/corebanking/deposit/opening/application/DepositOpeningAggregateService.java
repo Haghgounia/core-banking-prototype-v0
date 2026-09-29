@@ -508,9 +508,8 @@ public class DepositOpeningAggregateService {
         for (OpeningDocument value : safe(aggregate.documents())) {
             required(errors, "DEPOSIT_OPENING_DOCUMENT.DOCUMENT_TYPE_CODE", value.documentTypeCode(), "نوع مدرک الزامی است.");
             required(errors, "DEPOSIT_OPENING_DOCUMENT.DOCUMENT_STATUS_CODE", value.documentStatusCode(), "وضعیت مدرک الزامی است.");
-            if (("RECEIVED".equals(upper(value.documentStatusCode())) || "VERIFIED".equals(upper(value.documentStatusCode()))) && blank(value.documentReference())) {
-                errors.put("DEPOSIT_OPENING_DOCUMENT.DOCUMENT_REFERENCE", "برای مدرک دریافت/تأییدشده، مرجع مدرک الزامی است.");
-            }
+            // Reviewed opening UX treats DOCUMENT_REFERENCE as an optional external DMS reference.
+            // A received/verified checklist item may therefore be persisted without a local document reference.
         }
 
         if ("APPROVED".equals(root.requestStatusCode())) {
