@@ -36,6 +36,23 @@ const configFiles = [
   'backend/src/main/resources/application.yml'
 ];
 
+const expectedOpeningSteps = [
+  'محصول و درخواست',
+  'Party و امضا',
+  'شرایط افتتاح',
+  'تأمین وجه',
+  'کنترل و شروط',
+  'بازبینی و تصمیم',
+  'ایجاد و فعال‌سازی'
+];
+const stepLiteral = wizardTs.match(/readonly\s+steps\s*=\s*\[([^\]]*)\]/s)?.[1] ?? '';
+const actualOpeningSteps = [...stepLiteral.matchAll(/'([^']+)'/g)].map(m => m[1]);
+const finalSevenStepContract =
+  actualOpeningSteps.length === expectedOpeningSteps.length &&
+  expectedOpeningSteps.every((label, index) => actualOpeningSteps[index] === label) &&
+  wizardHtml.includes('step()===7') &&
+  wizardHtml.includes('۷. ایجاد حساب، تسویه و فعال‌سازی کنترل‌شده');
+
 const checks = [
   [refCount === 59 && refResources.length === 59 && new Set(refResources).size === 59, `DPS2 reference descriptors must be 59 unique forms, got ${refCount}/${refResources.length}`],
   [opCount === 25 && opResources.length === 25 && new Set(opResources).size === 25, `DPS2 operational descriptors must be 25 unique forms, got ${opCount}/${opResources.length}`],
@@ -47,7 +64,7 @@ const checks = [
   [shell.includes('>چهار سپرده</span>') && shell.includes('routerLink="/four-deposits/opening"') && shell.includes('routerLink="/four-deposits/operations"') && shell.includes('routerLink="/four-deposits/reference-data"'), 'sidebar Four Deposits menu is incomplete'],
   [menuTs.includes("'FOUR_DEPOSIT'") && menuTs.includes("DEPOSIT_OPENING_REFERENCE") && menuHtml.includes('اطلاعات پایه افتتاح چهار سپرده'), 'DPS2 reference menu scope is missing'],
   [familyKeys.every(k => wizardTs.includes(`${k}:`)), 'wizard must contain exactly the four supported deposit family contracts'],
-  [(wizardTs.match(/readonly steps=\[/g) ?? []).length === 1 && (wizardTs.includes("'Payload و ثبت'") || wizardTs.includes("'ثبت و فعال‌سازی حساب'")) && wizardHtml.includes('step()===7'), 'seven-step opening wizard contract is incomplete'],
+  [finalSevenStepContract, `seven-step opening wizard contract is incomplete; expected final reviewed labels: ${expectedOpeningSteps.join(' | ')}`],
   [wizardTs.includes('DEPOSIT_OPENING_REQUEST') && wizardTs.includes('DEPOSIT_OPENING_PARTY') && wizardTs.includes('DEPOSIT_OPENING_FUNDING') && wizardTs.includes('DEPOSIT_OPENING_CHECK') && wizardTs.includes('DEPOSIT_OPENING_DECISION'), 'wizard payload must cover core DPS2 opening entities'],
   [home.includes('قرض‌الحسنه پس‌انداز') && home.includes('حساب جاری') && home.includes('سپرده کوتاه‌مدت') && home.includes('سپرده بلندمدت') && home.includes('گواهی سپرده'), 'Four Deposits landing scope text is incomplete'],
   [opsTs.includes('dps2-opening-request') && opsTs.includes('dps2-opening-decision') && opsTs.includes('dps2-opening-batch'), 'operational forms grouping is incomplete'],

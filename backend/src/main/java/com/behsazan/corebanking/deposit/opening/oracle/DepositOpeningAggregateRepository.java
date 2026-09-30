@@ -336,16 +336,17 @@ public class DepositOpeningAggregateRepository {
     public int insertMaturityInstruction(long termId, MaturityInstruction value, String actor) {
         String sql = """
                 INSERT INTO %s.DEPOSIT_OPENING_MATURITY_INSTRUCTION (
-                    OPENING_TERM_ID, MATURITY_ACTION_CODE, SETTLEMENT_ACCOUNT_REFERENCE,
+                    OPENING_TERM_ID, MATURITY_ACTION_CODE, SETTLEMENT_ACCOUNT_ID, SETTLEMENT_ACCOUNT_REFERENCE,
                     INSTRUCTION_SOURCE_CODE, CREATED_BY
                 ) VALUES (
-                    :termId, :maturityActionCode, :settlementAccountReference,
+                    :termId, :maturityActionCode, :settlementAccountId, :settlementAccountReference,
                     :instructionSourceCode, :createdBy
                 )
                 """.formatted(schema);
         return jdbc.update(sql, new MapSqlParameterSource()
                 .addValue("termId", termId, Types.NUMERIC)
                 .addValue("maturityActionCode", value.maturityActionCode(), Types.VARCHAR)
+                .addValue("settlementAccountId", value.settlementAccountId(), Types.NUMERIC)
                 .addValue("settlementAccountReference", value.settlementAccountReference(), Types.VARCHAR)
                 .addValue("instructionSourceCode", value.instructionSourceCode() == null ? "CUSTOMER" : value.instructionSourceCode(), Types.VARCHAR)
                 .addValue("createdBy", actor, Types.VARCHAR));
@@ -358,13 +359,13 @@ public class DepositOpeningAggregateRepository {
                     PROFIT_PAYMENT_RULE_ID, RATE_VALUE, CALCULATION_METHOD_CODE, DAY_COUNT_BASIS_CODE,
                     ACCRUAL_FREQUENCY_CODE, PAYMENT_FREQUENCY_CODE, PAYMENT_DAY_RULE_CODE,
                     FIRST_PAYMENT_RULE_CODE, HOLIDAY_ADJUSTMENT_CODE, PAYMENT_DESTINATION_CODE,
-                    DESTINATION_ACCOUNT_REFERENCE, DESTINATION_SELECTED_BY_CUSTOMER, CREATED_BY
+                    DESTINATION_ACCOUNT_ID, DESTINATION_ACCOUNT_REFERENCE, DESTINATION_SELECTED_BY_CUSTOMER, CREATED_BY
                 ) VALUES (
                     :requestId, :pricingRuleId, :pricingComponentId, :rateTierId,
                     :profitPaymentRuleId, :rateValue, :calculationMethodCode, :dayCountBasisCode,
                     :accrualFrequencyCode, :paymentFrequencyCode, :paymentDayRuleCode,
                     :firstPaymentRuleCode, :holidayAdjustmentCode, :paymentDestinationCode,
-                    :destinationAccountReference, :destinationSelectedByCustomer, :createdBy
+                    :destinationAccountId, :destinationAccountReference, :destinationSelectedByCustomer, :createdBy
                 )
                 """.formatted(schema);
         return jdbc.update(sql, new MapSqlParameterSource()
@@ -382,6 +383,7 @@ public class DepositOpeningAggregateRepository {
                 .addValue("firstPaymentRuleCode", value.firstPaymentRuleCode(), Types.VARCHAR)
                 .addValue("holidayAdjustmentCode", value.holidayAdjustmentCode(), Types.VARCHAR)
                 .addValue("paymentDestinationCode", value.paymentDestinationCode(), Types.VARCHAR)
+                .addValue("destinationAccountId", value.destinationAccountId(), Types.NUMERIC)
                 .addValue("destinationAccountReference", value.destinationAccountReference(), Types.VARCHAR)
                 .addValue("destinationSelectedByCustomer", value.destinationSelectedByCustomer() == null ? 0 : value.destinationSelectedByCustomer(), Types.NUMERIC)
                 .addValue("createdBy", actor, Types.VARCHAR));
@@ -427,10 +429,10 @@ public class DepositOpeningAggregateRepository {
         String sql = """
                 INSERT INTO %s.DEPOSIT_OPENING_PAYMENT_INSTRUMENT (
                     OPENING_REQUEST_ID, INSTRUMENT_TYPE_CODE, REQUESTED_QUANTITY,
-                    LINKED_PARTY_ID, REQUEST_STATUS_CODE, CREATED_BY
+                    LINKED_PARTY_ID, INSTRUMENT_HOLDER_ROLE_CODE, CHEQUEBOOK_LEAF_COUNT, REQUEST_STATUS_CODE, CREATED_BY
                 ) VALUES (
                     :requestId, :instrumentTypeCode, :requestedQuantity,
-                    :linkedPartyId, :requestStatusCode, :createdBy
+                    :linkedPartyId, :instrumentHolderRoleCode, :chequebookLeafCount, :requestStatusCode, :createdBy
                 )
                 """.formatted(schema);
         return jdbc.update(sql, new MapSqlParameterSource()
@@ -438,6 +440,8 @@ public class DepositOpeningAggregateRepository {
                 .addValue("instrumentTypeCode", value.instrumentTypeCode(), Types.VARCHAR)
                 .addValue("requestedQuantity", value.requestedQuantity() == null ? 1 : value.requestedQuantity(), Types.NUMERIC)
                 .addValue("linkedPartyId", value.linkedPartyId(), Types.NUMERIC)
+                .addValue("instrumentHolderRoleCode", value.instrumentHolderRoleCode(), Types.VARCHAR)
+                .addValue("chequebookLeafCount", value.chequebookLeafCount(), Types.NUMERIC)
                 .addValue("requestStatusCode", value.requestStatusCode() == null ? "REQUESTED" : value.requestStatusCode(), Types.VARCHAR)
                 .addValue("createdBy", actor, Types.VARCHAR));
     }

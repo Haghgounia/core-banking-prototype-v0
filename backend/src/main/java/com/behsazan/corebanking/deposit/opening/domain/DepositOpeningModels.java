@@ -177,6 +177,7 @@ public final class DepositOpeningModels {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record MaturityInstruction(
             @JsonProperty("MATURITY_ACTION_CODE") String maturityActionCode,
+            @JsonProperty("SETTLEMENT_ACCOUNT_ID") Long settlementAccountId,
             @JsonProperty("SETTLEMENT_ACCOUNT_REFERENCE") String settlementAccountReference,
             @JsonProperty("INSTRUCTION_SOURCE_CODE") String instructionSourceCode
     ) {
@@ -197,6 +198,7 @@ public final class DepositOpeningModels {
             @JsonProperty("FIRST_PAYMENT_RULE_CODE") String firstPaymentRuleCode,
             @JsonProperty("HOLIDAY_ADJUSTMENT_CODE") String holidayAdjustmentCode,
             @JsonProperty("PAYMENT_DESTINATION_CODE") String paymentDestinationCode,
+            @JsonProperty("DESTINATION_ACCOUNT_ID") Long destinationAccountId,
             @JsonProperty("DESTINATION_ACCOUNT_REFERENCE") String destinationAccountReference,
             @JsonProperty("DESTINATION_SELECTED_BY_CUSTOMER") Integer destinationSelectedByCustomer
     ) {
@@ -225,6 +227,8 @@ public final class DepositOpeningModels {
             @JsonProperty("INSTRUMENT_TYPE_CODE") String instrumentTypeCode,
             @JsonProperty("REQUESTED_QUANTITY") Integer requestedQuantity,
             @JsonProperty("LINKED_PARTY_ID") Long linkedPartyId,
+            @JsonProperty("INSTRUMENT_HOLDER_ROLE_CODE") String instrumentHolderRoleCode,
+            @JsonProperty("CHEQUEBOOK_LEAF_COUNT") Integer chequebookLeafCount,
             @JsonProperty("REQUEST_STATUS_CODE") String requestStatusCode
     ) {
     }

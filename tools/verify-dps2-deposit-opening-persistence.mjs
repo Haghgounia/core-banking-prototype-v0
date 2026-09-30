@@ -36,9 +36,13 @@ const persistedTables = [
   'DEPOSIT_OPENING_STATUS_HISTORY'
 ];
 const sourceCheckCodes = versionAtLeast(version,'0.10.0') ? [
-  'CUSTOMER_IDENTITY','MOBILE_OWNERSHIP','LEGAL_CAPACITY','KYC_CDD','PEP_SANCTIONS',
-  'CUSTOMER_RISK','EXPECTED_ACTIVITY','ACCOUNT_COUNT_STATUS','PRODUCT_ELIGIBILITY','DOCUMENTS',
-  'INQUIRIES','SIGNATORY_AUTHORITY','TERMS_ACCEPTANCE','SHARIA_CONTRACT','TAX_PROFILE','DUPLICATE_REQUEST'
+  // Final reviewed Opening UI contract (11(1).html): keep this list aligned with CHECKS,
+  // including conditional checks. EXPECTED_ACTIVITY is request metadata, not a CHECK_CODE.
+  'CUSTOMER_IDENTITY','MOBILE_OWNERSHIP','LEGAL_CAPACITY','RESIDENCY_ELIGIBILITY','REMOTE_IDENTITY_AUTH',
+  'LEGAL_ENTITY_REGISTRY_STATUS','BENEFICIAL_OWNER','REPRESENTATIVE_AUTHORITY','KYC_CDD','PEP_SANCTIONS',
+  'CUSTOMER_RISK','ACCOUNT_COUNT_STATUS','CURRENT_ACCOUNT_ELIGIBILITY','JOINT_ACCOUNT_ELIGIBILITY',
+  'PRODUCT_ELIGIBILITY','DOCUMENTS','INQUIRIES','SIGNATORY_AUTHORITY','TERMS_ACCEPTANCE','SHARIA_CONTRACT',
+  'TAX_PROFILE','DUPLICATE_REQUEST'
 ] : [
   'PRODUCT_ELIGIBILITY','KYC_CDD','SANCTIONS','DOCUMENTS','INQUIRIES',
   'OPENING_RULES','SIGNATORY_AUTHORITY','TERMS_ACCEPTANCE','DUPLICATE_REQUEST'
@@ -57,9 +61,9 @@ const checks = [
   [(repository.includes('Initial aggregate persistence') && service.includes('insertInitialStatusHistory')) || (service.includes('recordOpeningCreated') && auditRepository.includes('insertStatusHistory')), 'system-managed initial status history is missing'],
   [handler.includes('DEPOSIT_OPENING_VALIDATION_FAILED'), 'global ProblemDetail mapping for deposit opening validation is missing'],
   [frontendService.includes("'/api/v1/deposit-opening'") && frontendService.includes('createAggregate'), 'Angular deposit opening API client is missing'],
-  [wizardTs.includes('persistAggregate()') && (wizardHtml.includes('ثبت اتمیک Aggregate') || wizardHtml.includes('ثبت Opening')) && wizardHtml.includes('OPENING_REQUEST_ID='), 'wizard is not connected to atomic persistence'],
+  [wizardTs.includes('async persistAggregate()') && wizardTs.includes('this.openingService.createAggregate(this.payload())') && wizardHtml.includes('(click)="persistAggregate()"') && wizardHtml.includes('persisted()?.openingRequestId'), 'wizard is not connected to atomic persistence'],
   [sourceCheckCodes.every(code => wizardTs.includes(`code:'${code}'`)), 'wizard check codes are not aligned with the active opening prototype'],
-  [wizardTs.includes("fundingMethod:new FormControl('TRANSFER'") && wizardTs.includes("ACCEPTANCE_SOURCE_CODE:v.channel==='BRANCH'?'BRANCH':v.channel==='API'?'API':'UI'"), 'funding/terms reference codes are not aligned with source contract'],
+  [wizardHtml.includes('<option value="INTERNAL">') && wizardHtml.includes('<option value="TRANSFER">') && wizardHtml.includes('<option value="CASH">') && wizardHtml.includes('<option value="CARD">') && wizardTs.includes("syncAcceptanceSource(){const channel=this.form.controls.channel.value;this.form.controls.acceptanceSource.setValue(channel==='API'?'API':channel==='BRANCH'?'BRANCH':'UI'") && wizardTs.includes('ACCEPTANCE_SOURCE_CODE:v.acceptanceSource'), 'funding/terms reference codes are not aligned with source contract'],
   [exists('docs/DPS2-0.3.98-FOUR-DEPOSITS-PHASE2-PERSISTENCE-QA.md') && exists('docs/install/INSTALL-0.3.98-FA.txt') && exists('docs/patches/PATCH-0.3.98-README-FA.txt'), '0.3.98 QA/install/patch documentation is incomplete']
 ];
 

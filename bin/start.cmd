@@ -18,6 +18,14 @@ if defined RUNNING_PID (
 rem FIX64: the executable name is always canonical; BUILD-VERSION prevents stale JAR reuse.
 set "JAR=%ROOT%\app\core-banking-prototype.jar"
 set "BUILD_VERSION_FILE=%ROOT%\app\BUILD-VERSION"
+set "BUILD_DIRTY_FILE=%ROOT%\app\BUILD-DIRTY"
+if exist "%BUILD_DIRTY_FILE%" (
+  echo ERROR: The previous production build did not finish successfully.
+  echo Runtime JAR may contain an older UI and will not be started.
+  echo Fix the build error, then run: build-production.cmd
+  pause
+  exit /b 1
+)
 if not exist "%JAR%" (
   echo ERROR: Executable JAR was not found.
   echo Expected: %JAR%

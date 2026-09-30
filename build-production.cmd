@@ -6,6 +6,11 @@ cd /d "%ROOT%" || exit /b 1
 for /f "usebackq delims=" %%V in ("%ROOT%VERSION") do set "APP_VERSION=%%V"
 echo Building Core Banking Prototype %APP_VERSION%...
 
+rem Runtime freshness guard: mark source/runtime state dirty before any verifier or compile step.
+rem If the build stops anywhere below, bin\start.cmd must refuse to run the previous JAR.
+if not exist "%ROOT%app" mkdir "%ROOT%app"
+>"%ROOT%app\BUILD-DIRTY" echo BUILD_IN_PROGRESS_OR_FAILED
+
 rem Synchronize generated system specification before any verifier reads it.
 node "%ROOT%tools\sync-system-specification.mjs" || exit /b 1
 rem FIX76 upgrade guard: clean legacy root INSTALL files left by overlay extraction from older releases.
@@ -109,6 +114,9 @@ node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 rem FIX70 static guard: PDL unified product builder menu, metadata CRUD and product workspace.
 node "%ROOT%tools\verify-pdl-product-builder.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-four-deposits.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-opening-final-ui-11.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-opening-reviewed-alignment.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-opening-ui-reference-parity.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-opening-persistence.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-opening-phase3.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-account-phase4.mjs" || exit /b 1
@@ -226,6 +234,7 @@ if not exist "%ROOT%app\BUILD-VERSION" (
   echo ERROR: Build version marker was not created.
   exit /b 1
 )
+if exist "%ROOT%app\BUILD-DIRTY" del /q "%ROOT%app\BUILD-DIRTY"
 
 echo Built version: %APP_VERSION%
 echo JAR: %JAR%

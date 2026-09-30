@@ -426,6 +426,12 @@ public class DepositOpeningAggregateService {
             required(errors, "DEPOSIT_OPENING_PAYMENT_INSTRUMENT.INSTRUMENT_TYPE_CODE", value.instrumentTypeCode(), "نوع ابزار پرداخت الزامی است.");
             if (value.requestedQuantity() != null && value.requestedQuantity() <= 0) errors.put("DEPOSIT_OPENING_PAYMENT_INSTRUMENT.REQUESTED_QUANTITY", "تعداد ابزار باید بزرگ‌تر از صفر باشد.");
             if (value.linkedPartyId() != null && value.linkedPartyId() <= 0) errors.put("DEPOSIT_OPENING_PAYMENT_INSTRUMENT.LINKED_PARTY_ID", "Party ابزار پرداخت معتبر نیست.");
+            if ("CHEQUEBOOK".equalsIgnoreCase(value.instrumentTypeCode())) {
+                if (value.chequebookLeafCount() == null || value.chequebookLeafCount() <= 0) errors.put("DEPOSIT_OPENING_PAYMENT_INSTRUMENT.CHEQUEBOOK_LEAF_COUNT", "تعداد برگ دسته‌چک الزامی است.");
+                if (value.linkedPartyId() != null || !blank(value.instrumentHolderRoleCode())) errors.put("DEPOSIT_OPENING_PAYMENT_INSTRUMENT.LINKED_PARTY_ID", "دسته‌چک به حساب/صاحبان امضا مربوط است و دارنده شخصی ندارد.");
+            } else if (value.linkedPartyId() != null && blank(value.instrumentHolderRoleCode())) {
+                errors.put("DEPOSIT_OPENING_PAYMENT_INSTRUMENT.INSTRUMENT_HOLDER_ROLE_CODE", "مبنای مجاز بودن دارنده ابزار الزامی است.");
+            }
         }
 
         for (PricingOverrideRequest value : safe(aggregate.pricingOverrideRequests())) {
