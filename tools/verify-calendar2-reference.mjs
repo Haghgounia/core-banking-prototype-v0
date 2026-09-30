@@ -31,15 +31,16 @@ const schemas = read('backend/src/main/java/com/behsazan/corebanking/system/mode
 const ddl = read('database/oracle/cal2/01-create-cal2-tables.sql');
 const specification = read('frontend/src/app/features/system-specification/system-specification.data.ts');
 
-const expectedTables = [
+const expectedFormTables = [
   'CALENDAR_SYSTEM','SOURCE_AUTHORITY','DATASET_VERSION','CALENDAR_VARIANT','CALENDAR_MONTH','WEEKDAY',
   'CANONICAL_DAY','CALENDAR_DATE','EVENT_TYPE','EVENT','EVENT_RECURRENCE_RULE','EVENT_OCCURRENCE','BUSINESS_CALENDAR',
   'BUSINESS_CALENDAR_SCHEDULE','BUSINESS_CALENDAR_SCHEDULE_DAY','BUSINESS_CALENDAR_EXCEPTION','BUSINESS_CALENDAR_DAY','VALIDATION_RUN','VALIDATION_RESULT'
 ];
+const expectedPhysicalTables = [...expectedFormTables, 'EVENT_MEDIA'];
 
 const checks = [
-  [expectedTables.every(t => registry.includes(`\"${t}\"`)), '19 CAL2 descriptors'],
-  [expectedTables.every(t => ddl.includes(`CAL2.${t}`)), '19 CAL2 DDL tables'],
+  [expectedFormTables.every(t => registry.includes(`\"${t}\"`)), '19 CAL2 descriptors'],
+  [expectedPhysicalTables.every(t => ddl.includes(`CAL2.${t}`)), '20 CAL2 physical tables including EVENT_MEDIA'],
   [controller.includes('/api/v1/calendar2/reference'), 'CAL2 reference API'],
   [registry.includes('روزهای مرجع تقویم') && registry.includes('تاریخ مرجع') && !registry.includes('روزهای Canonical'), 'Persian canonical-day form naming'],
   [controller.includes('/canonical-days/explorer') && controller.includes('/canonical-days/filter-meta') && referenceService.includes('searchCanonicalDays') && referenceRepository.includes('searchCanonicalDays') && referenceRepository.includes('solarCentury') && referenceRepository.includes('W.NAME_FA AS WEEKDAY_NAME') && referenceRepository.includes('PM.NAME_FA AS SOLAR_MONTH_NAME'), 'canonical-day Persian year/century explorer API'],
@@ -78,11 +79,11 @@ const checks = [
   [config.includes('calendar2: CAL2') && resourceConfig.includes('calendar2: CAL2'), 'CAL2 schema configuration'],
   [schemas.includes('schemas.calendar2') && schemas.includes('تقویم دو (CAL2)'), 'CAL2 system tools schema option'],
   [exists('database/oracle/cal2/00-create-cal2-schema.sql') && exists('database/oracle/cal2/02-grant-cal2-to-application-user.sql'), 'CAL2 schema/grant scripts'],
-  [(ddl.match(/^COMMENT ON COLUMN CAL2\./gm) ?? []).length === 212, '212 CAL2 Persian column comments'],
+  [(ddl.match(/^COMMENT ON COLUMN CAL2\./gm) ?? []).length === 227, '227 CAL2 Persian column comments'],
   [!(/REFERENCES\s+CAL\./i.test(ddl)) && !registry.includes('schemaName = "CAL"') && !controller.includes('/api/v1/calendar/reference'), 'CAL2 runtime/DDL isolated from CAL'],
   [specification.includes('referenceForms: 208') && specification.includes('calendar2ReferenceForms: 19'), 'system specification includes CAL2 counts']
 ];
 
 const failed = checks.filter(([ok]) => !ok).map(([, label]) => label);
 if (failed.length) throw new Error(`CAL2 verification failed: ${failed.join(', ')}`);
-console.log(`CAL2 verification OK: ${expectedTables.length} independent tables/forms, recurrence rules, range-based business schedules, single-day exceptions, materialized business days, ZIP JDBC import, separate CAL2 schema and routes.`);
+console.log(`CAL2 verification OK: ${expectedPhysicalTables.length} physical tables and ${expectedFormTables.length} independent forms, recurrence rules, range-based business schedules, single-day exceptions, materialized business days, ZIP JDBC import, separate CAL2 schema and routes.`);

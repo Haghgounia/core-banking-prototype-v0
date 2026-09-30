@@ -4,6 +4,23 @@
     <p class="muted">نمای عملیاتی سامانه؛ فرم‌های اطلاعات پایه از طریق منوی مستقل «اطلاعات پایه» مدیریت می‌شوند.</p>
   </header>
 
+  @if (todayOccasionMedia().length) {
+    <section class="occasion-section" aria-label="مناسبت امروز">
+      <div class="occasion-grid">
+        @for (media of todayOccasionMedia(); track media.eventMediaId) {
+          <article class="occasion-card card">
+            <img [src]="occasionImageUrl(media.eventMediaId)" [alt]="media.altTextFa || media.captionFa || media.eventName">
+            <div class="occasion-overlay">
+              <span>{{ media.eventTypeName || 'مناسبت امروز' }}</span>
+              <strong>{{ media.eventName }}</strong>
+              @if (media.captionFa) { <p>{{ media.captionFa }}</p> }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
   <section class="cif-section">
     <header class="section-heading">
       <div>

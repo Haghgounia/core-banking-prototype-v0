@@ -1504,3 +1504,11 @@
 - Added automatic signatory UX, Product-derived term/profit identifiers, target-aware Funding Allocation, reviewed Step 5 checks/documents/terms, and derived decision statuses.
 - Document checklist no longer requires `DOCUMENT_REFERENCE`; it remains an optional external DMS/reference field.
 - Exact persistence for four new Reviewed payload columns is intentionally deferred pending real Oracle metadata; no speculative DDL was added.
+
+## 0.11.0 — CAL2 Occasion Image History
+
+- Added `CAL2.EVENT_MEDIA` for versioned occasion/event images stored as Oracle BLOB.
+- Enforced one active image per event while preserving all prior versions as inactive history.
+- Added admin upload/history/preview UX to `رویدادها و مناسبت‌ها`.
+- Added today's occasion media API and Dashboard display.
+- Added rerunnable Oracle migration and CAL2 static regression guard.

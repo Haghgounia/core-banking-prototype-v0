@@ -100,6 +100,9 @@ node "%ROOT%tools\verify-calendar2-business-calendar-schedule.mjs" || exit /b 1
 rem FIX88 static guard: recurrence rules preserve requested dates and explicitly resolve invalid month-days.
 node "%ROOT%tools\verify-calendar2-day-resolution-policy.mjs" || exit /b 1
 
+rem EVENT_MEDIA static guard: versioned occasion images and today display.
+node "%ROOT%tools\verify-calendar2-event-media.mjs" || exit /b 1
+
 rem FIX71 static guard: empty Persian date pickers open on the current Solar Hijri date.
 node "%ROOT%tools\verify-persian-date-picker-current-default.mjs" || exit /b 1
 

@@ -26,3 +26,14 @@
 @media (max-width: 1100px) { .cif-grid { grid-template-columns: repeat(2, minmax(180px, 1fr)); } }
 @media (max-width: 800px) { .quick-access-grid { grid-template-columns: 1fr; } }
 @media (max-width: 650px) { .cif-grid { grid-template-columns: 1fr; } .quick-card { grid-template-columns: auto 1fr; } .quick-card .link-arrow { display: none; } }
+
+/* Today's occasion media from CAL2.EVENT_MEDIA */
+.occasion-section { margin: 0 0 28px; }
+.occasion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.occasion-card { position: relative; min-height: 220px; overflow: hidden; padding: 0; background: var(--app-surface-muted); }
+.occasion-card img { display: block; width: 100%; height: 100%; min-height: 220px; max-height: 360px; object-fit: cover; }
+.occasion-overlay { position: absolute; inset-inline: 0; bottom: 0; padding: 34px 18px 16px; color: white; background: linear-gradient(to top, rgba(0,0,0,.72), rgba(0,0,0,0)); }
+.occasion-overlay span { display: block; font-size: .72rem; opacity: .88; }
+.occasion-overlay strong { display: block; margin-top: 3px; font-size: 1.15rem; }
+.occasion-overlay p { margin: 5px 0 0; font-size: .82rem; line-height: 1.7; }
+@media (max-width: 650px) { .occasion-grid { grid-template-columns: 1fr; } .occasion-card, .occasion-card img { min-height: 180px; } }

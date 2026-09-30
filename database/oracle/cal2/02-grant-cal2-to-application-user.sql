@@ -11,4 +11,6 @@ BEGIN
 END;
 /
 
-PROMPT CAL2 table grants completed.
+GRANT SELECT ON CAL2.SEQ_CAL2_EVENT_MEDIA TO &APP_USER;
+
+PROMPT CAL2 table and EVENT_MEDIA sequence grants completed.
