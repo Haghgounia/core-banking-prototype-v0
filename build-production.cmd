@@ -119,6 +119,7 @@ node "%ROOT%tools\verify-pdl-product-builder.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-four-deposits.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-final-ui-11.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-reviewed-alignment.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-opening-step7-create-flow.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-ui-reference-parity.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-opening-persistence.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-opening-phase3.mjs" || exit /b 1

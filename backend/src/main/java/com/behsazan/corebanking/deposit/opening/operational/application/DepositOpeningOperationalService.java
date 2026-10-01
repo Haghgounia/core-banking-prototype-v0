@@ -7,6 +7,7 @@ import com.behsazan.corebanking.deposit.account.oracle.DepositAccountRepository;
 import com.behsazan.corebanking.deposit.account.oracle.DepositAccountRepository.AccountRow;
 import com.behsazan.corebanking.deposit.account.oracle.DepositAccountRepository.OpeningLink;
 import com.behsazan.corebanking.deposit.opening.operational.domain.DepositOpeningOperationalModels.*;
+import com.behsazan.corebanking.deposit.opening.operational.integration.PrototypeActivationEvidenceAdapter;
 import com.behsazan.corebanking.deposit.opening.operational.oracle.DepositOpeningOperationalRepository;
 import com.behsazan.corebanking.deposit.opening.operational.oracle.DepositOpeningOperationalRepository.CheckDefinition;
 import com.behsazan.corebanking.deposit.opening.operational.oracle.DepositOpeningOperationalRepository.FundingRow;
@@ -36,15 +37,18 @@ public class DepositOpeningOperationalService {
     private final DepositAccountRepository accountRepository;
     private final DepositOpeningOperationalRepository repository;
     private final DepositBalanceService balanceService;
+    private final PrototypeActivationEvidenceAdapter prototypeActivationEvidenceAdapter;
 
     public DepositOpeningOperationalService(
             DepositAccountRepository accountRepository,
             DepositOpeningOperationalRepository repository,
-            DepositBalanceService balanceService
+            DepositBalanceService balanceService,
+            PrototypeActivationEvidenceAdapter prototypeActivationEvidenceAdapter
     ) {
         this.accountRepository = accountRepository;
         this.repository = repository;
         this.balanceService = balanceService;
+        this.prototypeActivationEvidenceAdapter = prototypeActivationEvidenceAdapter;
     }
 
     @Transactional
@@ -104,9 +108,16 @@ public class DepositOpeningOperationalService {
             );
         }
 
-        if (repository.countAllocations(openingRequestId) > 0) {
-            throw lifecycle("Allocation قبلی برای Opening وجود دارد ولی Settlement کامل نیست.",
-                    "DEPOSIT_OPENING_FUND_ALLOC", "برای جلوگیری از Double Posting ابتدا وضعیت قبلی بررسی شود.");
+        int pendingAllocations = repository.countPendingAllocations(openingRequestId);
+        int nonPendingAllocations = repository.countNonPendingAllocations(openingRequestId);
+        if (nonPendingAllocations > 0) {
+            throw lifecycle("Allocation غیر PENDING برای Opening وجود دارد ولی Settlement کامل نیست.",
+                    "DEPOSIT_OPENING_FUND_ALLOC", "برای جلوگیری از Double Posting ابتدا وضعیت Allocationهای قبلی بررسی شود.");
+        }
+        if (pendingAllocations > 0 && (repository.countPendingAllocationCoverageGaps(openingRequestId) > 0
+                || repository.countPendingAllocationFundingOverages(openingRequestId) > 0)) {
+            throw lifecycle("برنامه Allocation تأمین وجه با تعهدات/منابع Opening سازگار نیست.",
+                    "DEPOSIT_OPENING_FUND_ALLOC", "Allocationهای PENDING باید تمام تعهدات مثبت را دقیقاً پوشش دهند و از مبلغ منبع بیشتر نباشند.");
         }
 
         int fundingRows = 0;
@@ -125,7 +136,17 @@ public class DepositOpeningOperationalService {
             );
         }
 
-        int allocations = allocate(fundings, obligations, settlementReference, actor);
+        int allocations;
+        if (pendingAllocations > 0) {
+            allocations = repository.postPendingAllocations(openingRequestId, settlementReference, actor);
+            if (allocations != pendingAllocations) {
+                throw lifecycle("تبدیل Allocationهای برنامه‌ریزی‌شده به POSTED کامل نشد.",
+                        "DEPOSIT_OPENING_FUND_ALLOC.ALLOCATION_STATUS_CODE",
+                        "expected=" + pendingAllocations + ", posted=" + allocations);
+            }
+        } else {
+            allocations = allocate(fundings, obligations, settlementReference, actor);
+        }
         balanceService.initializeOpeningBalance(
                 account.accountId(), openingBalance, account.currencyCode(), openingRequestId,
                 account.openedOn(), settlementReference, actor
@@ -148,6 +169,9 @@ public class DepositOpeningOperationalService {
         OpeningLink opening = requireOpeningForUpdate(openingRequestId);
         AccountRow account = requirePendingAccount(opening);
         Map<String, ReadinessEvidence> evidence = normalizeEvidence(request == null ? null : request.evidence());
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        prototypeActivationEvidenceAdapter.evidence(openingRequestId, now)
+                .forEach(evidence::putIfAbsent);
 
         List<CheckDefinition> definitions = repository.activationDefinitions();
         if (definitions.isEmpty()) {
@@ -157,7 +181,6 @@ public class DepositOpeningOperationalService {
 
         Map<String, Eval> evaluated = new LinkedHashMap<>();
         TermReadiness term = repository.termReadiness(openingRequestId);
-        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         for (CheckDefinition definition : definitions) {
             String code = definition.checkCode();
             ReadinessEvidence supplied = evidence.get(code);

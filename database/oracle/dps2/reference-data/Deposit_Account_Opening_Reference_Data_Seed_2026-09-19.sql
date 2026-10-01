@@ -1209,6 +1209,28 @@ WHEN NOT MATCHED THEN
   VALUES ('TAX_SERVICE', 'سرویس مالیاتی', 'Tax Service', 'Seed مرجع مطابق Package «Deposit Account Opening - Reference Data» در XMI افتتاح حساب سپرده.', 10, 1, SYSTIMESTAMP, 'DEP_OPEN_REF_SEED', 1);
 
 MERGE INTO DPS2.REF_DEP_OPEN_TAX_STATUS_SOURCE t
+USING (SELECT 'CIF_FINANCIAL_PROFILE' AS TAX_STATUS_SOURCE_CODE FROM dual) s
+ON (t.TAX_STATUS_SOURCE_CODE = s.TAX_STATUS_SOURCE_CODE)
+WHEN MATCHED THEN
+  UPDATE SET
+    t.TITLE_FA = 'پروفایل مالی CIF',
+    t.TITLE_EN = 'CIF Financial Profile',
+    t.DESCRIPTION = 'وضعیت مالیاتی از آخرین پروفایل مالی معتبر Party در CIF.FINANCIAL_PROFILE دریافت شده است.',
+    t.DISPLAY_ORDER = 15,
+    t.IS_ACTIVE = 1,
+    t.UPDATED_AT = SYSTIMESTAMP,
+    t.UPDATED_BY = 'DEP_OPEN_REF_SEED',
+    t.RECORD_VERSION = NVL(t.RECORD_VERSION, 0) + 1
+  WHERE (NVL(t.TITLE_FA, CHR(0)) <> 'پروفایل مالی CIF' OR
+       NVL(t.TITLE_EN, CHR(0)) <> 'CIF Financial Profile' OR
+       NVL(t.DESCRIPTION, CHR(0)) <> 'وضعیت مالیاتی از آخرین پروفایل مالی معتبر Party در CIF.FINANCIAL_PROFILE دریافت شده است.' OR
+       NVL(t.DISPLAY_ORDER, -999999999) <> 15 OR
+       NVL(t.IS_ACTIVE, -999999999) <> 1)
+WHEN NOT MATCHED THEN
+  INSERT (TAX_STATUS_SOURCE_CODE, TITLE_FA, TITLE_EN, DESCRIPTION, DISPLAY_ORDER, IS_ACTIVE, CREATED_AT, CREATED_BY, RECORD_VERSION)
+  VALUES ('CIF_FINANCIAL_PROFILE', 'پروفایل مالی CIF', 'CIF Financial Profile', 'وضعیت مالیاتی از آخرین پروفایل مالی معتبر Party در CIF.FINANCIAL_PROFILE دریافت شده است.', 15, 1, SYSTIMESTAMP, 'DEP_OPEN_REF_SEED', 1);
+
+MERGE INTO DPS2.REF_DEP_OPEN_TAX_STATUS_SOURCE t
 USING (SELECT 'MANUAL_OVERRIDE' AS TAX_STATUS_SOURCE_CODE FROM dual) s
 ON (t.TAX_STATUS_SOURCE_CODE = s.TAX_STATUS_SOURCE_CODE)
 WHEN MATCHED THEN

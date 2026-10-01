@@ -13,6 +13,7 @@ import com.behsazan.corebanking.deposit.opening.audit.application.DepositOpening
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -60,12 +61,13 @@ public class DepositAccountLifecycleService {
                     Map.of("DEPOSIT_OPENING_REQUEST.REQUEST_STATUS_CODE", "وضعیت مورد انتظار APPROVED است.")
             );
         }
-        int unresolvedCreateChecks = repository.unresolvedRequiredAccountCreationChecks(openingRequestId);
-        if (unresolvedCreateChecks > 0) {
+        List<String> unresolvedCreateChecks = repository.unresolvedRequiredAccountCreationCheckDetails(openingRequestId);
+        if (!unresolvedCreateChecks.isEmpty()) {
             throw new DepositAccountLifecycleException(
                     "Create Account قبل از عبور کامل از Create Gate مجاز نیست.",
                     Map.of("DEPOSIT_OPENING_CHECK",
-                            "تعداد کنترل‌های الزامی حل‌نشده Account Creation: " + unresolvedCreateChecks)
+                            "کنترل‌های الزامی حل‌نشده Account Creation (" + unresolvedCreateChecks.size() + "): "
+                                    + String.join("، ", unresolvedCreateChecks))
             );
         }
         if (!repository.openingFinancialPlanReady(openingRequestId)) {

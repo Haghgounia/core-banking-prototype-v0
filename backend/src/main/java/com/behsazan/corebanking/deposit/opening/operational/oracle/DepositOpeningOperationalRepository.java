@@ -73,18 +73,93 @@ public class DepositOpeningOperationalRepository {
                 ));
     }
 
-    public int countAllocations(long openingRequestId) {
+    public int countPendingAllocations(long openingRequestId) {
         String sql = """
                 SELECT COUNT(*)
                   FROM %s.DEPOSIT_OPENING_FUND_ALLOC a
                   JOIN %s.DEPOSIT_OPENING_OBLIGATION o
                     ON o.OPENING_OBLIGATION_ID = a.OPENING_OBLIGATION_ID
                  WHERE o.OPENING_REQUEST_ID = :openingRequestId
+                   AND a.ALLOCATION_STATUS_CODE = 'PENDING'
                 """.formatted(schema, schema);
         Integer count = jdbc.queryForObject(sql,
                 new MapSqlParameterSource().addValue("openingRequestId", openingRequestId, Types.NUMERIC),
                 Integer.class);
         return count == null ? 0 : count;
+    }
+
+    public int countNonPendingAllocations(long openingRequestId) {
+        String sql = """
+                SELECT COUNT(*)
+                  FROM %s.DEPOSIT_OPENING_FUND_ALLOC a
+                  JOIN %s.DEPOSIT_OPENING_OBLIGATION o
+                    ON o.OPENING_OBLIGATION_ID = a.OPENING_OBLIGATION_ID
+                 WHERE o.OPENING_REQUEST_ID = :openingRequestId
+                   AND a.ALLOCATION_STATUS_CODE <> 'PENDING'
+                """.formatted(schema, schema);
+        Integer count = jdbc.queryForObject(sql,
+                new MapSqlParameterSource().addValue("openingRequestId", openingRequestId, Types.NUMERIC),
+                Integer.class);
+        return count == null ? 0 : count;
+    }
+
+    public int countPendingAllocationCoverageGaps(long openingRequestId) {
+        String sql = """
+                SELECT COUNT(*)
+                  FROM %s.DEPOSIT_OPENING_OBLIGATION o
+                 WHERE o.OPENING_REQUEST_ID = :openingRequestId
+                   AND NVL(o.FINAL_AMOUNT,0) > 0
+                   AND NVL((
+                       SELECT SUM(a.ALLOCATED_AMOUNT)
+                         FROM %s.DEPOSIT_OPENING_FUND_ALLOC a
+                        WHERE a.OPENING_OBLIGATION_ID = o.OPENING_OBLIGATION_ID
+                          AND a.ALLOCATION_STATUS_CODE = 'PENDING'
+                   ),0) <> NVL(o.FINAL_AMOUNT,0)
+                """.formatted(schema, schema);
+        Integer count = jdbc.queryForObject(sql,
+                new MapSqlParameterSource().addValue("openingRequestId", openingRequestId, Types.NUMERIC),
+                Integer.class);
+        return count == null ? 0 : count;
+    }
+
+    public int countPendingAllocationFundingOverages(long openingRequestId) {
+        String sql = """
+                SELECT COUNT(*)
+                  FROM %s.DEPOSIT_OPENING_FUNDING f
+                 WHERE f.OPENING_REQUEST_ID = :openingRequestId
+                   AND NVL((
+                       SELECT SUM(a.ALLOCATED_AMOUNT)
+                         FROM %s.DEPOSIT_OPENING_FUND_ALLOC a
+                        WHERE a.OPENING_FUNDING_ID = f.OPENING_FUNDING_ID
+                          AND a.ALLOCATION_STATUS_CODE = 'PENDING'
+                   ),0) > NVL(f.FUNDING_AMOUNT,0)
+                """.formatted(schema, schema);
+        Integer count = jdbc.queryForObject(sql,
+                new MapSqlParameterSource().addValue("openingRequestId", openingRequestId, Types.NUMERIC),
+                Integer.class);
+        return count == null ? 0 : count;
+    }
+
+    public int postPendingAllocations(long openingRequestId, String settlementReference, String actor) {
+        String sql = """
+                UPDATE %s.DEPOSIT_OPENING_FUND_ALLOC a
+                   SET ALLOCATION_STATUS_CODE = 'POSTED',
+                       SETTLEMENT_REFERENCE = COALESCE(SETTLEMENT_REFERENCE, :settlementReference || '-A' || TO_CHAR(OPENING_FUND_ALLOC_ID)),
+                       UPDATED_AT = SYSTIMESTAMP,
+                       UPDATED_BY = :actor,
+                       RECORD_VERSION = NVL(RECORD_VERSION,0) + 1
+                 WHERE a.ALLOCATION_STATUS_CODE = 'PENDING'
+                   AND EXISTS (
+                       SELECT 1
+                         FROM %s.DEPOSIT_OPENING_OBLIGATION o
+                        WHERE o.OPENING_OBLIGATION_ID = a.OPENING_OBLIGATION_ID
+                          AND o.OPENING_REQUEST_ID = :openingRequestId
+                   )
+                """.formatted(schema, schema);
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("openingRequestId", openingRequestId, Types.NUMERIC)
+                .addValue("settlementReference", settlementReference, Types.VARCHAR)
+                .addValue("actor", actor, Types.VARCHAR));
     }
 
     public long nextFundAllocationId() {

@@ -254,6 +254,33 @@ public class DepositAccountRepository {
         return count != null && count > 0;
     }
 
+    public List<String> unresolvedRequiredAccountCreationCheckDetails(long openingRequestId) {
+        String sql = """
+                SELECT r.CHECK_CODE || ' — ' || NVL(r.TITLE_FA, r.TITLE_EN)
+                  FROM %s.REF_DEP_OPEN_CHECK r
+                 WHERE r.IS_ACTIVE = 1
+                   AND r.DEFAULT_REQUIRED_FLAG = 1
+                   AND r.DEFAULT_BLOCKING_SCOPE_CODE = 'ACCOUNT_CREATION'
+                   AND NOT EXISTS (
+                       SELECT 1
+                         FROM %s.DEPOSIT_OPENING_CHECK c
+                        WHERE c.OPENING_REQUEST_ID = :openingRequestId
+                          AND c.CHECK_CODE = r.CHECK_CODE
+                          AND c.ATTEMPT_NO = (
+                              SELECT MAX(x.ATTEMPT_NO)
+                                FROM %s.DEPOSIT_OPENING_CHECK x
+                               WHERE x.OPENING_REQUEST_ID = c.OPENING_REQUEST_ID
+                                 AND x.CHECK_CODE = c.CHECK_CODE
+                          )
+                          AND c.RESULT_STATUS_CODE IN ('PASS','WAIVED','NOT_APPLICABLE')
+                   )
+                 ORDER BY r.EXECUTION_ORDER, r.DISPLAY_ORDER, r.CHECK_CODE
+                """.formatted(openingSchema, openingSchema, openingSchema);
+        return jdbc.queryForList(sql,
+                new MapSqlParameterSource().addValue("openingRequestId", openingRequestId, Types.NUMERIC),
+                String.class);
+    }
+
     public int unresolvedRequiredAccountCreationChecks(long openingRequestId) {
         String sql = """
                 SELECT COUNT(*)

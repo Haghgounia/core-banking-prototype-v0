@@ -1,0 +1,52 @@
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET DEFINE OFF
+SET VERIFY OFF
+SET FEEDBACK ON
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
+
+PROMPT ============================================================
+PROMPT Core Banking Prototype 0.11.0
+PROMPT DPS2 Opening Tax Source - CIF Financial Profile Hotfix
+PROMPT ============================================================
+
+MERGE INTO DPS2.REF_DEP_OPEN_TAX_STATUS_SOURCE t
+USING (SELECT 'CIF_FINANCIAL_PROFILE' AS TAX_STATUS_SOURCE_CODE FROM dual) s
+ON (t.TAX_STATUS_SOURCE_CODE = s.TAX_STATUS_SOURCE_CODE)
+WHEN MATCHED THEN
+  UPDATE SET
+    t.TITLE_FA = 'پروفایل مالی CIF',
+    t.TITLE_EN = 'CIF Financial Profile',
+    t.DESCRIPTION = 'وضعیت مالیاتی از آخرین پروفایل مالی معتبر Party در CIF.FINANCIAL_PROFILE دریافت شده است.',
+    t.DISPLAY_ORDER = 15,
+    t.IS_ACTIVE = 1,
+    t.UPDATED_AT = SYSTIMESTAMP,
+    t.UPDATED_BY = 'DPS2_OPEN_TAX_CIF_HOTFIX',
+    t.RECORD_VERSION = NVL(t.RECORD_VERSION, 0) + 1
+  WHERE (NVL(t.TITLE_FA, CHR(0)) <> 'پروفایل مالی CIF' OR
+         NVL(t.TITLE_EN, CHR(0)) <> 'CIF Financial Profile' OR
+         NVL(t.DESCRIPTION, CHR(0)) <> 'وضعیت مالیاتی از آخرین پروفایل مالی معتبر Party در CIF.FINANCIAL_PROFILE دریافت شده است.' OR
+         NVL(t.DISPLAY_ORDER, -999999999) <> 15 OR
+         NVL(t.IS_ACTIVE, -999999999) <> 1)
+WHEN NOT MATCHED THEN
+  INSERT (TAX_STATUS_SOURCE_CODE, TITLE_FA, TITLE_EN, DESCRIPTION, DISPLAY_ORDER, IS_ACTIVE, CREATED_AT, CREATED_BY, RECORD_VERSION)
+  VALUES ('CIF_FINANCIAL_PROFILE', 'پروفایل مالی CIF', 'CIF Financial Profile',
+          'وضعیت مالیاتی از آخرین پروفایل مالی معتبر Party در CIF.FINANCIAL_PROFILE دریافت شده است.',
+          15, 1, SYSTIMESTAMP, 'DPS2_OPEN_TAX_CIF_HOTFIX', 1);
+
+COMMIT;
+
+DECLARE
+  v_count NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_count
+    FROM DPS2.REF_DEP_OPEN_TAX_STATUS_SOURCE
+   WHERE TAX_STATUS_SOURCE_CODE='CIF_FINANCIAL_PROFILE'
+     AND IS_ACTIVE=1
+     AND (VALID_FROM IS NULL OR VALID_FROM<=TRUNC(SYSDATE))
+     AND (VALID_TO IS NULL OR VALID_TO>=TRUNC(SYSDATE));
+  IF v_count <> 1 THEN
+    RAISE_APPLICATION_ERROR(-20481, 'CIF_FINANCIAL_PROFILE tax-status source is not active/valid after hotfix.');
+  END IF;
+  DBMS_OUTPUT.PUT_LINE('DPS2_OPEN_TAX_CIF_SOURCE_MIGRATION_PASS');
+END;
+/

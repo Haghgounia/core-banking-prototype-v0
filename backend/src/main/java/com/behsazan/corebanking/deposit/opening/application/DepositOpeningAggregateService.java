@@ -271,7 +271,7 @@ public class DepositOpeningAggregateService {
         );
     }
 
-    private static void validate(AggregateRequest aggregate) {
+    private void validate(AggregateRequest aggregate) {
         Map<String, String> errors = new LinkedHashMap<>();
         if (aggregate == null || aggregate.request() == null) {
             throw new DepositOpeningValidationException(
@@ -499,6 +499,9 @@ public class DepositOpeningAggregateService {
             if (value.openingObligationId() == null || !obligationKeys.contains(value.openingObligationId())) errors.put("DEPOSIT_OPENING_FUND_ALLOC.OPENING_OBLIGATION_ID", "Obligation correlation key معتبر نیست.");
             if (value.allocatedAmount() == null || value.allocatedAmount().signum() <= 0) errors.put("DEPOSIT_OPENING_FUND_ALLOC.ALLOCATED_AMOUNT", "مبلغ تخصیص باید بزرگ‌تر از صفر باشد.");
             required(errors, "DEPOSIT_OPENING_FUND_ALLOC.ALLOCATION_STATUS_CODE", value.allocationStatusCode(), "وضعیت تخصیص الزامی است.");
+            if (!blank(value.allocationStatusCode()) && !Set.of("PENDING", "POSTED", "REVERSED", "REFUNDED", "FAILED").contains(upper(value.allocationStatusCode()))) {
+                errors.put("DEPOSIT_OPENING_FUND_ALLOC.ALLOCATION_STATUS_CODE", "وضعیت تخصیص نامعتبر است. مقادیر مجاز: PENDING/POSTED/REVERSED/REFUNDED/FAILED.");
+            }
         }
 
         for (OpeningCheck value : safe(aggregate.checks())) {
@@ -535,6 +538,18 @@ public class DepositOpeningAggregateService {
                             && "ACCOUNT_CREATION".equals(upper(c.blockingScopeCode()))
                             && !("PASS".equals(upper(c.resultStatusCode())) || "WAIVED".equals(upper(c.resultStatusCode())) || "NOT_APPLICABLE".equals(upper(c.resultStatusCode()))))) {
                 errors.put("DEPOSIT_OPENING_CHECK.RESULT_STATUS_CODE", "برای درخواست تأییدشده، همه کنترل‌های الزامی Account Creation باید PASS/WAIVED/NOT_APPLICABLE باشند.");
+            }
+            Set<String> suppliedCheckCodes = new HashSet<>();
+            for (OpeningCheck check : safe(aggregate.checks())) {
+                if (check.checkCode() != null) suppliedCheckCodes.add(upper(check.checkCode()));
+            }
+            List<String> missingRequiredChecks = repository.requiredAccountCreationCheckCodes().stream()
+                    .map(DepositOpeningAggregateService::upper)
+                    .filter(code -> !suppliedCheckCodes.contains(code))
+                    .toList();
+            if (!missingRequiredChecks.isEmpty()) {
+                errors.put("DEPOSIT_OPENING_CHECK.CHECK_CODE",
+                        "کنترل‌های الزامی Account Creation در Payload وجود ندارند: " + String.join(", ", missingRequiredChecks));
             }
             if (safe(aggregate.documents()).stream().anyMatch(d -> "MISSING".equals(upper(d.documentStatusCode())) || "REJECTED".equals(upper(d.documentStatusCode())))) {
                 errors.put("DEPOSIT_OPENING_DOCUMENT.DOCUMENT_STATUS_CODE", "در درخواست تأییدشده مدرک MISSING/REJECTED مجاز نیست.");

@@ -35,7 +35,7 @@ const checks=[
  [migration.includes('intentionally no physical cross-domain FK')||migration.includes('intentionally no physical cross-domain FK'.toUpperCase()),'cross-domain FK boundary is not documented'],
  [migration.includes('TECHNICAL PROTOTYPE NUMBERS'),'DPA prototype number warning is missing'],
  [frontendService.includes('createAccount(')&&frontendService.includes('activateAccount(')&&frontendService.includes('getAccount('),'Angular account lifecycle API client is incomplete'],
- [wizardTs.includes('createDepositAccount()')&&wizardTs.includes('activateDepositAccount()')&&wizardHtml.includes('ثبت Opening')&&wizardHtml.includes('ایجاد حساب')&&wizardHtml.includes('فعال‌سازی حساب'),'Step 7 three-stage lifecycle UI is incomplete'],
+ [wizardTs.includes('createOpeningAndAccount()')&&wizardTs.includes('activateDepositAccount()')&&wizardHtml.includes('۱. ایجاد حساب')&&wizardHtml.includes('۲. اجرای تأمین وجه و تسویه')&&wizardHtml.includes('۳. اجرای Gate آمادگی فعال‌سازی')&&wizardHtml.includes('۴. فعال‌سازی حساب'),'Step 7 controlled lifecycle UI is incomplete'],
  [exists('docs/DPS2-0.4.0-FOUR-DEPOSITS-PHASE4-ACCOUNT-LIFECYCLE-QA.md')&&exists('docs/install/INSTALL-0.4.0-FA.txt')&&exists('docs/patches/PATCH-0.4.0-README-FA.txt'),'0.4.0 release documentation is incomplete']
 ];
 const failed=checks.filter(([ok])=>!ok).map(([,message])=>message);

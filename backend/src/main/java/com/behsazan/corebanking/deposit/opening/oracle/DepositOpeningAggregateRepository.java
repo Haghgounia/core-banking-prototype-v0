@@ -713,6 +713,18 @@ public class DepositOpeningAggregateRepository {
                 .addValue("createdBy", actor, Types.VARCHAR));
     }
 
+    public List<String> requiredAccountCreationCheckCodes() {
+        String sql = """
+                SELECT CHECK_CODE
+                  FROM %s.REF_DEP_OPEN_CHECK
+                 WHERE IS_ACTIVE = 1
+                   AND DEFAULT_REQUIRED_FLAG = 1
+                   AND DEFAULT_BLOCKING_SCOPE_CODE = 'ACCOUNT_CREATION'
+                 ORDER BY EXECUTION_ORDER, DISPLAY_ORDER, CHECK_CODE
+                """.formatted(schema);
+        return jdbc.queryForList(sql, new MapSqlParameterSource(), String.class);
+    }
+
     private long nextValue(String sequenceName) {
         String safeSequence = requireIdentifier(sequenceName);
         return jdbc.getJdbcOperations().queryForObject(

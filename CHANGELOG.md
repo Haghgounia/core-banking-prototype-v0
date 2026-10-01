@@ -1512,3 +1512,10 @@
 - Added admin upload/history/preview UX to `رویدادها و مناسبت‌ها`.
 - Added today's occasion media API and Dashboard display.
 - Added rerunnable Oracle migration and CAL2 static regression guard.
+
+## 0.11.0 — CAL2 Event Media upload validation hotfix
+- Accept valid JPEG/PNG/WebP using binary-signature detection instead of strict browser multipart MIME metadata.
+- Show field-level event-media validation details in the CAL2 UI.
+- No database migration required.
+
+- CAL2 Event Media Hotfix 2: raised occasion-image upload cap from 5MB to 20MB, added selected-file size display and client-side 20MB validation; no DDL change.

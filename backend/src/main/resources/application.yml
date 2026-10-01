@@ -47,6 +47,10 @@ core-banking:
     calendar2: CAL2
     product-definition: PDL
   deposit-opening:
+    prototype-activation-evidence:
+      # Prototype-only controlled adapter. Disable when real SIAH/Compliance/Restriction integrations are connected.
+      enabled: ${DEPOSIT_OPENING_PROTOTYPE_ACTIVATION_EVIDENCE_ENABLED:true}
+      final-compliance-validity-hours: ${DEPOSIT_OPENING_PROTOTYPE_FINAL_COMPLIANCE_VALIDITY_HOURS:24}
     audit:
       # Comma-separated FIELD_NAME or ENTITY.FIELD_NAME values. Values are masked in Audit CLOBs while SHA-256 hashes are retained.
       sensitive-fields: ${DEPOSIT_OPENING_AUDIT_SENSITIVE_FIELDS:}
