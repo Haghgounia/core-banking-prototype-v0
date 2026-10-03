@@ -50,7 +50,7 @@ const checks=[
  [controller.includes('/{accountId}/balance')&&controller.includes('/balance/postings')&&controller.includes('/balance/reservations'),'11D APIs exist'],
  [controller.includes('@RequestHeader(name="X-Idempotency-Key")'),'11D mutation APIs require idempotency key'],
  [client.includes('DepositAccountBalance')&&client.includes('DepositSubledgerEntry')&&client.includes('DepositBalanceReservation'),'Angular Account 360 balance types exist'],
- [html.includes('Balance / Package 17')&&html.includes('Subledger')&&html.includes('Balance Reservations'),'Angular Account 360 shows Package 17'],
+ [(html.includes('Balance / Package 17')||html.includes('مانده و وضعیت قابل برداشت'))&&(html.includes('Subledger')||html.includes('دفتر معین سپرده'))&&(html.includes('Balance Reservations')||html.includes('رزروهای مانده')),'Angular Account 360 shows Package 17'],
  [html.includes('Hold و Reservation فقط')&&html.includes('LEDGER_BALANCE'),'UI communicates ledger/availability boundary'],
  [mig.includes("widen_number('DEPOSIT_ACCOUNT_BALANCE','LEDGER_BALANCE')")&&mig.includes("widen_number('DEPOSIT_SUBLEDGER_ENTRY','AMOUNT')")&&mig.includes("widen_number('DEPOSIT_BALANCE_RESERVATION','AMOUNT')"),'11D migration reconciles 4-decimal precision'],
  [mig.indexOf('v_entries NUMBER:=0;')>mig.indexOf('DECLARE')&&mig.indexOf('v_entries NUMBER:=0;')<mig.indexOf('FUNCTION table_exists'),'11D migration declares scalar state before local PL/SQL subprograms'],

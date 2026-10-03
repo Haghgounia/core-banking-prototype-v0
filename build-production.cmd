@@ -130,6 +130,10 @@ node "%ROOT%tools\verify-dps2-build-hotfix-052.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-opening-phase6.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-opening-phase7.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-account-operations-phase8.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-account-operations-ui-alignment.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-account-operations-reference-parity.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-account-maintenance-r7.mjs" || exit /b 1
+node "%ROOT%tools\verify-dps2-account-lifecycle-r8.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-deposit-account-servicing-phase9.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-account-schema-reconciliation-092.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-reference-fk-reconciliation-093.mjs" || exit /b 1

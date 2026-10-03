@@ -73,7 +73,7 @@ chk('Angular service exposes maturity APIs',has(us,'maturityRuns()','runMaturity
 chk('Angular component loads Wave B on account select/refresh',has(ut,'loadWaveB(row.accountId)','loadWaveB(d.account.accountId)'));
 chk('Angular Step 06 actions are wired',has(uh,'registerStatementTemplate()','generateStatement()','deliverLatestStatement()','Step 06 · Package 14'));
 chk('Angular Step 07 actions are wired',has(uh,'createAccountLimit()','revokeAccountLimit','createTransactionRestriction()','releaseTransactionRestriction','Step 07 · Package 15'));
-chk('Angular Step 08 maturity action is wired',has(uh,'runMaturityBatch()','Maturity Batch','Phase 11K'));
+chk('Angular Step 08 maturity action is wired',uh.includes('runMaturityBatch()')&&(uh.includes('Maturity Batch')||uh.includes('پردازش گروهی سررسید')||uh.includes('بستن حساب و پردازش سررسید'))&&uh.includes('Phase 11K'));
 chk('UI states maturity financial boundary',has(uh,'Maturity Event','Step 03/05/11E'));
 chk('runtime covers statement generation/delivery',has(run,'PHASE11K_RUNTIME_STATEMENT','STATEMENT_RUNNING_BALANCE_MISMATCH','STATEMENT_DELIVERY_EVIDENCE_MISSING'));
 chk('runtime covers limit usage post and reversal',has(run,'LIMIT_USAGE_POST_MISMATCH','LIMIT_USAGE_REVERSAL_MISMATCH','PHASE11K_RUNTIME_LIMIT'));

@@ -30,6 +30,6 @@ add(fe.includes('updateBasicInfo'),'Angular basic info API client exists');
 add(fe.includes('addParty'),'Angular account party client exists');
 add(fe.includes('addContact'),'Angular contact client exists');
 add(comp.includes('saveBasicInfo'),'Angular servicing actions wired');
-add(html.includes('Servicing History'),'UI shows servicing history');
+add(html.includes('Servicing History')||html.includes('تاریخچه نگهداری حساب'),'UI shows servicing history');
 let p=0,f=0;for(const [ok,msg] of checks){console.log(`${ok?'PASS':'FAIL'} | ${msg}`);ok?p++:f++;}
 console.log('------------------------------------------------------------');console.log(`PHASE11B_STATIC_VERIFIER_PASS=${p}`);console.log(`PHASE11B_STATIC_VERIFIER_FAIL=${f}`);if(f)process.exit(1);console.log('PHASE11B_STATIC_BASELINE_PASS');

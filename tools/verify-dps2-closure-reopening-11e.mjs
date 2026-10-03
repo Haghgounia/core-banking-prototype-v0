@@ -52,7 +52,7 @@ check('closure/reopening idempotency persisted',text.repo.includes('DEPOSIT_OPER
 check('closure workflow reads checks and settlement items',text.repo.includes('DEPOSIT_ACCOUNT_CLOSURE_CHECK')&&text.repo.includes('DEPOSIT_ACCOUNT_CLOSURE_SETTLEMENT_ITEM'));
 check('11E UI service methods exist',text.ngs.includes('requestClosure(')&&text.ngs.includes('executeReopening('));
 check('11E UI removes direct close client',!text.ngs.includes('`${this.base}/${accountId}/close`'));
-check('11E UI controlled workflow card exists',text.ngh.includes('Controlled Closure / Reopening'));
+check('11E UI controlled workflow card exists',text.ngh.includes('Controlled Closure / Reopening')||(text.ngh.includes('بستن و بازگشایی کنترل‌شده حساب')&&text.ngh.includes('ثبت درخواست بستن حساب')&&text.ngh.includes("detail.account.accountStatusCode==='CLOSED'")));
 check('11E UI shows closure checks',text.ngh.includes('ch.checkCode')&&text.ngh.includes('ch.resultStatusCode'));
 check('11E migration is DPS2 scoped',text.mig.includes('DPS2 Phase 11E')&&!text.mig.includes('CIF.'));
 check('11E migration has no business insert/update/delete',!/^\s*(INSERT|UPDATE|DELETE)\s+/mi.test(text.mig));

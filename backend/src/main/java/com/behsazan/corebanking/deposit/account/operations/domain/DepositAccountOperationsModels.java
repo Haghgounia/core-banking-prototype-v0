@@ -15,7 +15,7 @@ public final class DepositAccountOperationsModels {
     public record AccountSummary(long accountId,String accountNo,long openingRequestId,String requestNo,Long primaryPartyId,Long productVersionId,String productFamilyCode,String currencyCode,BigDecimal openingAmount,String accountStatusCode,String accountName,String openingOrgUnitCode,String orgUnitCode,LocalDate dormancyDate,OffsetDateTime createdAt,OffsetDateTime activatedAt,long recordVersion) {}
     /* Phase 8 compatibility: OwnerParty evolved into persistent AccountParty. */
     public record OwnerParty(long partyId,String roleCode,boolean primary,BigDecimal ownershipPercent,int sequenceNo) {}
-    public record AccountParty(long accountPartyId,long partyId,String roleCode,boolean primary,BigDecimal ownershipPercent,LocalDate validFrom,LocalDate validTo,String statusCode,Long sourceOpeningPartyId) {}
+    public record AccountParty(long accountPartyId,long partyId,String roleCode,boolean primary,BigDecimal ownershipPercent,LocalDate validFrom,LocalDate validTo,String statusCode,Long sourceOpeningPartyId,long recordVersion) {}
     public record AccountContact(long accountContactId,String contactTypeCode,String contactValue,String purposeCode,boolean primary,LocalDate validFrom,LocalDate validTo) {}
     public record ServicingHistory(long servicingHistoryId,String changeTypeCode,String oldValue,String newValue,String reasonCode,Long approvalRequestId,OffsetDateTime effectiveAt,String sourceEntityType,Long sourceEntityId,String createdBy) {}
     public record LifecycleEvent(long lifecycleEventId,String eventTypeCode,String fromStatusCode,String toStatusCode,String correlationId,OffsetDateTime eventAt,String eventBy) {}

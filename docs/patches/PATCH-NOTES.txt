@@ -1,0 +1,53 @@
+Core Banking Prototype 0.11.0
+Patch: DPS2 Account Maintenance R4
+Date: 2026-10-03
+Base: Account Maintenance R3 / current 0.11.0 source tree
+
+Purpose
+-------
+Fix the two Phase 11N-B static build failures without changing the agreed main Account Maintenance UX.
+
+Changes
+-------
+1) deposit-account-operations.component.ts
+   - Basic-info / maintenance payload now sends the canonical current ORG_UNIT_CODE from the component model.
+   - OPENING_ORG_UNIT_CODE remains immutable and is never updated by servicing.
+
+2) deposit-account-operations.component.html
+   - Main Account Maintenance UI remains aligned with the reviewed reference form.
+   - "واحد نگهدارنده" remains read-only in the primary form.
+   - Canonical 11N-B opening/current organizational-unit distinction is documented in a collapsed system-details section, so it does not clutter the primary operator workflow.
+
+Database Migration
+------------------
+NONE
+
+Apply
+-----
+Extract this ZIP over:
+D:\Projects\core-banking-prototype-v0
+Preserve the directory structure and overwrite the two existing frontend files.
+
+Build
+-----
+cd /d D:\Projects\core-banking-prototype-v0
+build-production.cmd
+
+Focused verification (optional)
+-------------------------------
+cd /d D:\Projects\core-banking-prototype-v0
+node tools\verify-dps2-phase11nb-steps01-02-canonical-closure.mjs
+node tools\verify-dps2-account-operations-ui-alignment.mjs
+node tools\verify-dps2-account-operations-reference-parity.mjs
+node tools\verify-dps2-wave-a-servicing-lifecycle-11j.mjs
+
+Expected focused results
+------------------------
+PHASE11NB_STATIC_VERIFIER_PASS=78
+PHASE11NB_STATIC_VERIFIER_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_UI_ALIGNMENT_PASS=103
+DPS2_ACCOUNT_OPERATIONS_UI_ALIGNMENT_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_PASS=72
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_FAIL=0
+PHASE11J_STATIC_VERIFIER_PASS=78
+PHASE11J_STATIC_VERIFIER_FAIL=0

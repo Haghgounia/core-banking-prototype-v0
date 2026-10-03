@@ -49,8 +49,8 @@ check('DB verifier checks approval integrity',text.dbv.includes('partial withdra
 check('DB verifier checks early termination closure handoff',text.dbv.includes('early termination handoff resolves to controlled closure'));
 check('Angular term operation contracts exist',text.ngs.includes('DepositTermOperations')&&text.ngs.includes('requestEarlyTermination'));
 check('Angular term operations state is loaded only for term families',text.ngc.includes("['SHORT_TERM_DEPOSIT','LONG_TERM_DEPOSIT']")&&text.ngc.includes('termOperations.set'));
-check('11F UI card exists',text.ngh.includes('Term Deposit Operations')&&text.ngh.includes('Phase 11F · Package 13'));
-check('11F UI communicates document-driven Step 03/04/05 and closure boundaries',text.ngh.includes('عملیات مدت‌دار در Step 03')&&text.ngh.includes('Step 05 Transaction Processing')&&text.ngh.includes('Profit نیز در Step 04')&&text.ngh.includes('مرز 11E'));
+check('11F UI card exists',(text.ngh.includes('Term Deposit Operations')||text.ngh.includes('عملیات سپرده مدت‌دار'))&&text.ngh.includes('Phase 11F · Package 13'));
+check('11F UI communicates document-driven Step 03/04/05 and closure boundaries',text.ngh.includes('عملیات مدت‌دار در Step 03')&&text.ngh.includes('Step 05 Transaction Processing')&&text.ngh.includes('Profit نیز در Step 04')&&(text.ngh.includes('مرز 11E')||text.ngh.includes('Step 03/05/11E')||text.ngh.includes('بستن و بازگشایی کنترل‌شده حساب')));
 check('Windows 11F apply helper exists',text.cmd.includes('PHASE11F_IMPLEMENTATION_PASS'));
 check('11F runtime E2E exists',text.run.includes('PHASE11F_RUNTIME_E2E_PASS'));
 check('runtime E2E self-provisions a governed funded term account when legacy candidates lack contracts',text.run.includes('bootstrapTermAccount')&&text.run.includes('DEPOSIT_OPENING_TERM')&&text.run.includes('DEPOSIT_OPENING_MATURITY_INSTRUCTION')&&text.run.includes('PHASE11F_RUNTIME_E2E_BOOTSTRAP_ACCOUNT'));

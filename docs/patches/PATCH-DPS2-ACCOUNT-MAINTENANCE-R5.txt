@@ -1,0 +1,42 @@
+PATCH-DPS2-ACCOUNT-MAINTENANCE-R5
+=================================
+Base: Account Maintenance R4 / Core Banking Prototype 0.11.0
+Date: 2026-10-03
+
+Purpose
+-------
+Fix Angular TypeScript compile error TS2322 in syncAttributeDefinition().
+The API model allows attributeValue to be string|null while the UI field is string.
+R5 normalizes the selected stored value with ?? '' before assigning it to the UI model.
+
+Changed files
+-------------
+frontend/src/app/features/four-deposits/deposit-account-operations.component.ts
+
+Database migration
+------------------
+NONE
+
+Apply
+-----
+Extract this ZIP over:
+D:\Projects\core-banking-prototype-v0
+
+Build
+-----
+cd /d D:\Projects\core-banking-prototype-v0
+build-production.cmd
+
+Focused verification (optional)
+-------------------------------
+node tools\verify-dps2-phase11nb-steps01-02-canonical-closure.mjs
+node tools\verify-dps2-account-operations-ui-alignment.mjs
+node tools\verify-dps2-account-operations-reference-parity.mjs
+node tools\verify-dps2-wave-a-servicing-lifecycle-11j.mjs
+
+Expected focused static results
+-------------------------------
+PHASE11NB_STATIC_VERIFIER_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_UI_ALIGNMENT_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_FAIL=0
+PHASE11J_STATIC_VERIFIER_FAIL=0

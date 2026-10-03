@@ -20,6 +20,7 @@ const buildCmd=read('build-production.cmd');
 const buildSh=read('build-production.sh');
 
 const semverAtLeast=(actual,minimum)=>{const a=actual.split('.').map(Number),b=minimum.split('.').map(Number);for(let i=0;i<3;i++){if((a[i]||0)>(b[i]||0))return true;if((a[i]||0)<(b[i]||0))return false;}return true;};
+const controlledClosureUx=(html.includes('ACTIVE → CLOSED')&&html.includes('بستن حساب'))||html.includes('Controlled Closure / Reopening')||(html.includes('بستن و بازگشایی کنترل‌شده حساب')&&html.includes('ثبت درخواست بستن حساب')&&html.includes("detail.account.accountStatusCode==='CLOSED'"));
 const checks=[
  [semverAtLeast(version,'0.9.0'),`VERSION must be >= 0.9.0, got ${version}`],
  [pom.includes(`<version>${version}-SNAPSHOT</version>`)&&pkg.version===version,'backend/frontend version sync is incomplete'],
@@ -33,7 +34,7 @@ const checks=[
  [(controller.includes('@PostMapping("/{accountId}/close")')||controller.includes('@PostMapping("/{accountId}/closures")'))&&controller.includes('X-User-Id')&&controller.includes('X-Correlation-Id'),'closure API / audit headers are incomplete'],
  [(client.includes('close(accountId:number,expectedRecordVersion:number)')&&client.includes('/close`'))||client.includes('requestClosure(id:number,body:any)'),'Angular close-account client is missing'],
  [(ts.includes('closeSelected()')&&ts.includes('detail.account.recordVersion'))||ts.includes('requestClosure()'),'UI does not expose a controlled closure action'],
- [(html.includes('ACTIVE → CLOSED')&&html.includes('بستن حساب'))||html.includes('Controlled Closure / Reopening'),'controlled Servicing UX is incomplete'],
+ [controlledClosureUx,'controlled Servicing UX is incomplete'],
  [migration.includes("EVENT_TYPE_CODE IN ('CREATE','ACTIVATE','CLOSE')"),'Oracle lifecycle event constraint does not allow CLOSE'],
  [migration.includes('TRG_DEP_ACCT_EVT_APPEND_ONLY')&&migration.includes('BEFORE UPDATE OR DELETE'),'append-only lifecycle trigger is missing'],
  [!migration.match(/ALTER\s+TABLE\s+DPS2\.DEPOSIT_ACCOUNT\s+ADD\s*\(/i),'Phase 9 must not invent new DEPOSIT_ACCOUNT columns'],

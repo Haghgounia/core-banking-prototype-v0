@@ -1,0 +1,35 @@
+PATCH: DPS2 Account Lifecycle R8A Template Hotfix
+BASE: PATCH-DPS2-ACCOUNT-LIFECYCLE-R8
+TYPE: Patch-only / no DDL / no backend change / no UX change
+
+ROOT CAUSE
+The R8 Angular template opened @if(servicingControls();as wa){ before Step 01 and kept the control-flow block open past the closing </section> of the selected-account detail grid. Static content checks did not detect this cross-boundary Angular template structure. Angular compiler therefore reported NG5002 Unexpected closing tag "section" near line 830.
+
+FIX
+1. Close the servicingControls Angular control-flow block immediately after the Step 02 lifecycle/hold article and before Step 03 / term operations.
+2. Extend the R8 verifier with a regression check that servicing control-flow closes before later Step sections.
+
+CHANGED FILES
+frontend/src/app/features/four-deposits/deposit-account-operations.component.html
+tools/verify-dps2-account-lifecycle-r8.mjs
+
+DATABASE
+NONE
+
+VERIFY
+cd /d D:\Projects\core-banking-prototype-v0
+node tools\verify-dps2-account-lifecycle-r8.mjs
+build-production.cmd
+
+EXPECTED R8 VERIFIER
+DPS2_ACCOUNT_LIFECYCLE_R8_PASS=34
+DPS2_ACCOUNT_LIFECYCLE_R8_FAIL=0
+DPS2_ACCOUNT_LIFECYCLE_R8_STATIC_PASS
+
+REGRESSION CHECKS EXECUTED
+DPS2_ACCOUNT_MAINTENANCE_R7_PASS=27 / FAIL=0
+DPS2_ACCOUNT_OPERATIONS_UI_ALIGNMENT_PASS=103 / FAIL=0
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_PASS=72 / FAIL=0
+PHASE11J_STATIC_VERIFIER_PASS=78 / FAIL=0
+PHASE11C_STATIC_VERIFIER_PASS=38 / FAIL=0
+PHASE11NB_STATIC_VERIFIER_PASS=78 / FAIL=0

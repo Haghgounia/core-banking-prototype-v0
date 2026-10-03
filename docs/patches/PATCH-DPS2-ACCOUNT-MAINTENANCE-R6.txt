@@ -1,0 +1,62 @@
+PATCH-DPS2-ACCOUNT-MAINTENANCE-R6
+=================================
+
+Base:
+- Core Banking Prototype 0.11.0
+- Apply after PATCH-DPS2-ACCOUNT-MAINTENANCE-R5
+
+Scope:
+- Deposit Account Operations / Step 01 / نگهداری حساب
+- Restore editable مالک و صاحب حساب section.
+- Show visible change/history grids for:
+  1) اطلاعات پایه و ویژگی‌ها
+  2) تغییر محصول / شرط حساب
+  3) مالک و صاحب حساب
+- Owner/account-holder maintenance supports add, edit/correction, and deactivate.
+- Owner/account-holder names are resolved through the existing CIF/Party integration.
+- Owner changes are audited in DEPOSIT_ACCOUNT_SERVICING_HISTORY.
+- Existing product/condition maker-checker actions are retained.
+- No changes are made to چرخه عمر و انسداد in this patch.
+
+Database Migration:
+- NONE
+- Uses existing DPS2 tables/contracts only.
+
+Changed Files:
+backend/src/main/java/com/behsazan/corebanking/deposit/account/operations/domain/DepositAccountOperationsModels.java
+backend/src/main/java/com/behsazan/corebanking/deposit/account/operations/oracle/DepositAccountOperationsRepository.java
+backend/src/main/java/com/behsazan/corebanking/deposit/account/operations/web/DepositAccountOperationsController.java
+backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/application/DepositAccountServicingService.java
+backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/domain/DepositAccountServicingModels.java
+backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/oracle/DepositAccountServicingRepository.java
+frontend/src/app/features/four-deposits/deposit-account-operations.component.html
+frontend/src/app/features/four-deposits/deposit-account-operations.component.scss
+frontend/src/app/features/four-deposits/deposit-account-operations.component.ts
+frontend/src/app/features/four-deposits/deposit-account-operations.service.ts
+tools/verify-dps2-account-maintenance-r6.mjs
+docs/patches/PATCH-DPS2-ACCOUNT-MAINTENANCE-R6.txt
+
+Focused Verification:
+cd /d D:\Projects\core-banking-prototype-v0
+node tools\verify-dps2-account-maintenance-r6.mjs
+
+Expected:
+DPS2_ACCOUNT_MAINTENANCE_R6_PASS=25
+DPS2_ACCOUNT_MAINTENANCE_R6_FAIL=0
+DPS2_ACCOUNT_MAINTENANCE_R6_STATIC_PASS
+
+Production Build:
+cd /d D:\Projects\core-banking-prototype-v0
+build-production.cmd
+
+Key Regression Gates Expected:
+PHASE11NB_STATIC_VERIFIER_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_UI_ALIGNMENT_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_FAIL=0
+PHASE11J_STATIC_VERIFIER_FAIL=0
+PHASE11B_STATIC_VERIFIER_FAIL=0
+PHASE11C_STATIC_VERIFIER_FAIL=0
+
+Note:
+- This package is patch-only. Extract it over the project root.
+- Full Maven/Angular production compilation must be executed in the Windows project environment where Maven/npm dependencies are available.

@@ -11,6 +11,7 @@ public final class DepositAccountServicingModels {
     public record CloseAccountResponse(AccountDetails account,boolean idempotentReplay) {}
     public record UpdateBasicInfoRequest(String accountName,String orgUnitCode,long expectedRecordVersion,String reasonCode) {}
     public record AccountPartyRequest(long partyId,String roleCode,Boolean primary,BigDecimal ownershipPercent,LocalDate validFrom,String reasonCode) {}
+    public record UpdateAccountPartyRequest(long partyId,String roleCode,Boolean primary,BigDecimal ownershipPercent,long expectedRecordVersion,String reasonCode) {}
     public record AccountContactRequest(String contactTypeCode,String contactValue,String purposeCode,Boolean primary,LocalDate validFrom,String reasonCode) {}
 
     public record LifecycleActionRequest(long expectedRecordVersion,String reasonCode) {}

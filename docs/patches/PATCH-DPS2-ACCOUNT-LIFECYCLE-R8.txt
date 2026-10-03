@@ -1,0 +1,69 @@
+PATCH-DPS2-ACCOUNT-LIFECYCLE-R8
+================================
+Base patch: PATCH-DPS2-ACCOUNT-MAINTENANCE-R7
+Scope: Account Operations / Step 02 / Lifecycle, Dormancy and Hold
+Reference UX: Main.html supplied by the project team
+Database migration: NONE
+Backend schema change: NONE
+
+Implemented
+-----------
+1. Controlled account activation is always visible and uses an independent selector for PENDING_ACTIVATION accounts.
+2. Activation flow is two-step: readiness Run, then controlled activation only when the Run is ready.
+3. Activation checks are shown in a grid: control, result, description.
+4. One-off lifecycle operation now uses event/reason selection and a dedicated change grid.
+5. Lifecycle status mutations update lifecycle state only; hold state is preserved to prevent unrelated hold-frame refresh/flicker.
+6. Hold balance summary added: ledger, blocked amount, active reservations, available balance.
+7. Current hold grid aligned with Main.html and includes origin-system ownership fields.
+8. Manual/controlled non-collateral hold frame aligned with Main.html, including explicit hold selection for release.
+9. Collateral-origin hold service simulator added for create and partial/full release, using:
+   ORIGIN_SYSTEM_CODE=COLLATERAL
+   ORIGIN_MODULE_CODE=COLLATERAL_MANAGEMENT
+   ORIGIN_EXECUTION_MODE_CODE=SERVICE
+   RELEASE_POLICY_CODE=ORIGIN_ONLY
+   actor=svc-collateral
+10. Account status history and hold history grids added.
+11. Grid headings/business labels are Persian; audit timestamps use Persian calendar with HH:mm:ss.
+12. Existing R7 Account Maintenance behavior remains unchanged.
+
+Changed files
+-------------
+frontend/src/app/features/four-deposits/deposit-account-operations.component.html
+frontend/src/app/features/four-deposits/deposit-account-operations.component.scss
+frontend/src/app/features/four-deposits/deposit-account-operations.component.ts
+frontend/src/app/features/four-deposits/deposit-account-operations.service.ts
+tools/verify-dps2-account-lifecycle-r8.mjs
+build-production.cmd
+build-production.sh
+docs/patches/PATCH-DPS2-ACCOUNT-LIFECYCLE-R8.txt
+
+Verification executed
+---------------------
+DPS2_ACCOUNT_LIFECYCLE_R8_PASS=33
+DPS2_ACCOUNT_LIFECYCLE_R8_FAIL=0
+DPS2_ACCOUNT_MAINTENANCE_R7_PASS=27
+DPS2_ACCOUNT_MAINTENANCE_R7_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_UI_ALIGNMENT_PASS=103
+DPS2_ACCOUNT_OPERATIONS_UI_ALIGNMENT_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_PASS=72
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_FAIL=0
+PHASE11J_STATIC_VERIFIER_PASS=78
+PHASE11J_STATIC_VERIFIER_FAIL=0
+PHASE11C_STATIC_VERIFIER_PASS=38
+PHASE11C_STATIC_VERIFIER_FAIL=0
+PHASE11NB_STATIC_VERIFIER_PASS=78
+PHASE11NB_STATIC_VERIFIER_FAIL=0
+TypeScript syntax: PASS (component + service)
+HTML tag balance: PASS
+
+Build / test commands on Windows
+--------------------------------
+cd /d D:\Projects\core-banking-prototype-v0
+node tools\verify-dps2-account-lifecycle-r8.mjs
+build-production.cmd
+
+Expected first verifier result
+------------------------------
+DPS2_ACCOUNT_LIFECYCLE_R8_PASS=33
+DPS2_ACCOUNT_LIFECYCLE_R8_FAIL=0
+DPS2_ACCOUNT_LIFECYCLE_R8_STATIC_PASS

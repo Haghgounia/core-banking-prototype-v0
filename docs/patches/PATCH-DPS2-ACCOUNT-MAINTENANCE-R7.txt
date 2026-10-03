@@ -1,0 +1,62 @@
+PATCH-DPS2-ACCOUNT-MAINTENANCE-R7
+==================================
+
+Base:
+- PATCH-DPS2-ACCOUNT-MAINTENANCE-R6 applied on Core Banking Prototype 0.11.0
+
+Scope:
+- Deposit Account Operations > نگهداری حساب > مالک و صاحب حساب
+- Business-facing history grids in Step 01
+
+Changes:
+1. Customer search added to Owner / Account Holder maintenance.
+   - Search by name, identifier or customer number through existing CIF search API.
+   - Only ACTIVE customers are selectable.
+   - Already-active owners are shown but cannot be selected again.
+2. Ownership percentage is mandatory for OWNER / JOINT_OWNER.
+   - UI save is disabled when empty/out of range.
+   - Component save handler rejects missing/out-of-range values.
+   - Backend independently enforces the same business rule for create/update.
+3. Owner create history now persists ownership percentage in the servicing audit value.
+4. Business-facing maintenance grids are localized.
+   - Customer/owner wording replaces Party wording in Step 01.
+   - Known technical source entity names and maintenance codes render in Persian.
+   - Servicing History wording replaced by Persian business wording.
+5. Date/time display uses Persian calendar.
+   - yyyy/month/day in Persian calendar.
+   - hour, minute and second included.
+   - Reusable persianDateTime() helper introduced for subsequent operational sections.
+   - Attribute / condition / product grids use physical CREATED_AT / UPDATED_AT / approval timestamps (lastActionAt); no synthetic midnight is used as an execution time.
+6. R7 static verifier is wired into build-production.cmd.
+
+Changed files:
+- build-production.cmd
+- frontend/src/app/features/four-deposits/deposit-account-operations.component.ts
+- frontend/src/app/features/four-deposits/deposit-account-operations.component.html
+- frontend/src/app/features/four-deposits/deposit-account-operations.component.scss
+- backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/application/DepositAccountServicingService.java
+- backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/domain/DepositAccountWaveAModels.java
+- backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/oracle/DepositAccountWaveARepository.java
+- frontend/src/app/features/four-deposits/deposit-account-operations.service.ts
+- tools/verify-dps2-account-maintenance-r7.mjs
+- docs/patches/PATCH-DPS2-ACCOUNT-MAINTENANCE-R7.txt
+
+Database migration:
+- NONE
+
+Focused verification:
+  node tools\verify-dps2-account-maintenance-r7.mjs
+  node tools\verify-dps2-account-maintenance-r6.mjs
+  node tools\verify-dps2-account-operations-ui-alignment.mjs
+  node tools\verify-dps2-account-operations-reference-parity.mjs
+  node tools\verify-dps2-wave-a-servicing-lifecycle-11j.mjs
+  node tools\verify-dps2-phase11nb-steps01-02-canonical-closure.mjs
+
+Production build:
+  cd /d D:\Projects\core-banking-prototype-v0
+  build-production.cmd
+
+Expected R7 marker:
+  DPS2_ACCOUNT_MAINTENANCE_R7_PASS=27
+  DPS2_ACCOUNT_MAINTENANCE_R7_FAIL=0
+  DPS2_ACCOUNT_MAINTENANCE_R7_STATIC_PASS

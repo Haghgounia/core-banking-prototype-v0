@@ -61,7 +61,7 @@ chk('Angular service exposes Wave A state',has(us,'DepositServicingControlsView'
 chk('Angular service exposes Step 01 mutation APIs',has(us,'upsertAttribute','requestConditionOverride','requestProductChange','addSignatoryAuthority'));
 chk('Angular service exposes Step 02 mutation APIs',has(us,'runActivationChecks','executeActivation','bulkAction'));
 chk('Angular component loads Wave A controls with account detail',has(ut,'servicingControls.set','refreshWaveA'));
-chk('Angular Step 01 buttons are wired',has(uh,'saveAttribute()','requestCondition()','requestProductVersionChange()','addSignatoryAuthority()'));
+chk('Angular Step 01 buttons are wired',has(uh,'saveMaintenance()','requestCondition()','requestProductVersionChange()','addSignatoryAuthority()'));
 chk('Angular Step 02 buttons are wired',has(uh,'runActivation()','executeActivationRun','runBulkAction()'));
 chk('UI states activation evidence comes from Opening Readiness',uh.includes('شواهد موجود Opening Readiness'));
 chk('runtime covers attribute condition signatory activation and bulk',has(runtime,'PHASE11J_RUNTIME_ATTRIBUTE','PHASE11J_RUNTIME_CONDITION','PHASE11J_RUNTIME_SIGNATORY','PHASE11J_RUNTIME_BULK','PHASE11J_RUNTIME_ACTIVATION'));

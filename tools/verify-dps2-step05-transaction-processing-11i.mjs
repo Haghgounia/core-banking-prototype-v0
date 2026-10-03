@@ -44,7 +44,7 @@ check('DB verifier checks Step 05 sequence high-water marks',t.dbver.includes('S
 check('DB verifier checks transaction leg sequence coherence',t.dbver.includes('transaction-linked subledger entry sequence matches leg number'));
 check('DB verifier isolates Step 05 operational evidence from opening funding rows',t.dbver.includes('SOURCE_OPENING_FUNDING_ID IS NULL'));
 check('Angular service exposes transaction APIs',t.uiService.includes('initiateTransaction')&&t.uiService.includes('validateTransaction')&&t.uiService.includes('authorizeTransaction')&&t.uiService.includes('postTransaction')&&t.uiService.includes('reverseTransaction'));
-check('Angular Step 05 UI exists',t.uiHtml.includes('Step 05 · Phase 11I')&&t.uiHtml.includes('Validation → Authorization → Legs/Subledger → Reversal'));
+check('Angular Step 05 UI exists',t.uiHtml.includes('Step 05 · Phase 11I')&&(t.uiHtml.includes('Validation → Authorization → Legs/Subledger → Reversal')||t.uiHtml.includes('Validation → Authorization → Legs/دفتر معین سپرده → Reversal')));
 check('Angular Step 05 buttons are wired',t.uiTs.includes('initiateTransaction()')&&t.uiTs.includes('validateTransaction(txId')&&t.uiTs.includes('authorizeTransaction(txId')&&t.uiTs.includes('postTransaction(txId')&&t.uiTs.includes('reverseTransaction(txId'));
 check('runtime covers cash deposit withdrawal transfer reversal rejection',t.runtime.includes('cash-deposit')&&t.runtime.includes('cash-withdrawal')&&t.runtime.includes("transactionTypeCode:'TRANSFER'")&&t.runtime.includes('REVERSAL_TRACE_FAIL')&&t.runtime.includes('VALIDATION_REJECTION_FAIL'));
 check('runtime verifies idempotency',t.runtime.includes('INIT_REPLAY_FAIL')&&t.runtime.includes('POST_REPLAY_FAIL')&&t.runtime.includes('REVERSAL_REPLAY_FAIL'));

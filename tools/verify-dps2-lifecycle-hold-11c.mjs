@@ -43,7 +43,7 @@ const checks=[
  [client.includes('createHold(id:number')&&client.includes('releaseHold(id:number'),'Angular hold client exists'],
  [ts.includes('suspendSelected()')&&ts.includes('markDormantSelected()')&&ts.includes('reactivateSelected()'),'Lifecycle UI actions are wired'],
  [ts.includes('createHold()')&&ts.includes('releaseHold(holdId:number)'),'Hold UI actions are wired'],
- [html.includes('Hold / Block')&&html.includes('Status History')&&(html.includes('مرزبندی Phase 11C')||html.includes('مرزبندی Phase 11E')),'11C Account Operations UI contract exists'],
+ [(html.includes('Hold / Block')||html.includes('مسدودی دستی/کنترلی غیر وثیقه‌ای'))&&(html.includes('Status History')||html.includes('تاریخچه وضعیت حساب'))&&(html.includes('مرزبندی Phase 11C')||html.includes('مرزبندی Phase 11E')),'11C Account Operations UI contract exists'],
  [mig.includes('IX_DEP_HOLD_ACCOUNT_STATUS')&&mig.includes('IX_DEP_STATUS_HIST_ACCOUNT_AT')&&mig.includes('IX_DEP_IDEMP_ACCOUNT_OP'),'11C operational indexes are declared'],
  [!/(INSERT\s+INTO|UPDATE\s+DPS2\.|DELETE\s+FROM|MERGE\s+INTO)/i.test(mig),'11C migration contains no business DML'],
  [dbv.includes('PHASE11C_DB_BASELINE_PASS')&&dbv.includes('idempotency unique guard enabled'),'11C DB verifier covers runtime contract'],

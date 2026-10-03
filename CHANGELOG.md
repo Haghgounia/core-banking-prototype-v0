@@ -1,3 +1,13 @@
+# 0.11.0 — Account Maintenance UX Parity — 2026-10-03
+
+- Reworked «نگهداری حساب سپرده» field-by-field against the reviewed maintenance reference instead of the broader technical servicing layout.
+- Account selector now presents account number/title together with the primary account-holder display name when Party data is available.
+- «اطلاعات پایه و ویژگی‌ها» is reduced to the intended business inputs: account title, read-only maintaining unit, sample attribute/value, contact type and its context-sensitive contact value, with one «ثبت تغییرات حساب» action.
+- Removed technical/ambiguous maintenance inputs from the visible form, including opening-unit snapshot, editable current-owner unit, value type and direct approver entry.
+- «تغییر محصول / شرط حساب» now follows the reference flow: target product version, account condition, base/override values and read-only approval tracking; technical APPROVAL_REQUEST_ID remains backend-managed.
+- Signatory-authority maintenance was moved out of Step 01 and kept under Step 10 Party Access so the account-maintenance screen remains focused on base/features and account-condition/product changes.
+- Existing histories remain available as collapsed details and do not compete with the primary maintenance workflow.
+
 # 0.11.0 — Fast-Track Designer / Business RC Consolidation — 2026-09-27
 
 - Scope Freeze: only supplied Deposit Account Operations XML/Trace/Operational documents are authoritative.
