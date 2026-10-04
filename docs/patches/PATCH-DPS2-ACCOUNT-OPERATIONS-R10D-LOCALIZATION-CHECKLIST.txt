@@ -1,0 +1,76 @@
+PATCH-DPS2-ACCOUNT-OPERATIONS-R10D-LOCALIZATION-PERSIAN-DATES-TAX-UX
+Base: R10C (R10 + R10A + R10B + R10C)
+Scope: Frontend Account Operations UX localization and regression guard
+Database migration: NONE
+Backend/API contract change: NONE
+
+CHECKLIST
+=========
+[PASS] سوابق اصلاح مالک / صاحب حساب: «ثبت‌کننده» از کد/شناسه لاتین به عنوان فارسی کاربر/سامانه تبدیل شد.
+[PASS] فعال‌سازی کنترل‌شده حساب: عنوان «کنترل» برای کدهای governed افتتاح/فعال‌سازی فارسی شد.
+[PASS] فعال‌سازی کنترل‌شده حساب: «نتیجه» برای PENDING / PASS / FAIL / WAIVED / NOT_APPLICABLE و وضعیت‌های مرتبط فارسی شد.
+[PASS] عملیات موردی چرخه عمر: «مرجع رویداد» از نمایش مستقیم token فنی خارج شد.
+[PASS] عملیات موردی چرخه عمر: «انجام‌دهنده» با عنوان فارسی کاربر/سامانه نمایش داده می‌شود.
+[PASS] وضعیت مسدودی: «مرجع درخواست» در Grid جاری با شرح فارسی نمایش داده می‌شود.
+[PASS] تاریخچه وضعیت حساب: «مرجع رویداد» و «ثبت‌کننده» فارسی شدند.
+[PASS] تاریخچه مسدودی: «مرجع درخواست» و «ثبت‌کننده» فارسی شدند.
+[PASS] شبیه‌ساز وثائق: شناسه درخواست ایجاد و رفع مسدودی Read-only شد؛ فقط دکمه «تولید شناسه آزمون جدید» آن را تغییر می‌دهد.
+[PASS] مدیریت صورتحساب: ورودی «از تاریخ / تا تاریخ» با Persian Date Picker مشترک جایگزین شد.
+[PASS] مدیریت صورتحساب: دوره صورتحساب‌های تولیدشده با تاریخ شمسی نمایش داده می‌شود.
+[PASS] بستن حساب و پردازش سررسید: تاریخ کاری با Persian Date Picker مشترک نمایش/ویرایش می‌شود.
+[PASS] پردازش سررسید: وضعیت، حالت اجرا، تعدادها، اقدام و نتیجه فارسی شدند.
+[PASS] بستن/بازگشایی: وضعیت‌ها، علت‌ها، تأییدکننده، کنترل‌های پیش‌نیاز و Frameهای نتیجه فارسی شدند.
+[PASS] بستن/بازگشایی: تاریخ درخواست/تاریخ مؤثر/زمان اجرا با تقویم فارسی نمایش داده می‌شود.
+[PASS] مدیریت مالیات و کسورات: Type آزاد با Combo فارسی [مالیات تکلیفی / عوارض / سایر کسورات] جایگزین شد.
+[PASS] مدیریت مالیات و کسورات: نوع معافیت، سند معافیت، قاعده، تراکنش مبنا، مبلغ مشمول و تأییدکننده Business-friendly شدند.
+[PASS] مدیریت مالیات و کسورات: تاریخ‌های گواهی و بدهی با Persian Date Picker نمایش داده می‌شوند.
+[PASS] مدیریت مالیات و کسورات: تعدیل، بدهی، پرداخت و تطبیق به گروه‌های روشن و فارسی تبدیل شدند.
+[PASS] خروجی‌های محاسبه/تعدیل/بدهی/تطبیق مالیاتی از نمایش raw English code خارج شدند.
+[PASS] Production build gate به verifier اختصاصی R10D مجهز شد.
+
+COLLATERAL REQUEST ID DECISION
+==============================
+شناسه درخواست سرویس وثائق شناسه idempotency/correlation متعلق به سامانه مبدأ است، نه داده‌ای که کاربر بانکی باید تایپ کند.
+در Prototype برای تکرار سناریوی QA، تولید شناسه جدید از دکمه اختصاصی انجام می‌شود؛ خود فیلدها Read-only هستند.
+Raw technical value همچنان در payload/backend حفظ می‌شود و فقط Presentation فارسی/کنترل‌شده شده است.
+
+VERIFICATION RESULTS
+====================
+DPS2_ACCOUNT_OPERATIONS_LOCALIZATION_R10D_PASS=35
+DPS2_ACCOUNT_OPERATIONS_LOCALIZATION_R10D_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_PASS=72
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_BUSINESS_UI_R10_PASS=41
+DPS2_ACCOUNT_OPERATIONS_BUSINESS_UI_R10_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_MAIN_PARITY_R9_PASS=44
+DPS2_ACCOUNT_OPERATIONS_MAIN_PARITY_R9_FAIL=0
+DPS2_ACCOUNT_LIFECYCLE_R8_PASS=34
+DPS2_ACCOUNT_LIFECYCLE_R8_FAIL=0
+PHASE11E_STATIC_VERIFIER_PASS=50
+PHASE11E_STATIC_VERIFIER_FAIL=0
+PHASE11I_STATIC_VERIFIER_PASS=64
+PHASE11I_STATIC_VERIFIER_FAIL=0
+PHASE11K_STATIC_VERIFIER_PASS=92
+PHASE11K_STATIC_VERIFIER_FAIL=0
+PHASE11L_STATIC_VERIFIER_PASS=89
+PHASE11L_STATIC_VERIFIER_FAIL=0
+PHASE11ND_STATIC_VERIFIER_PASS=64
+PHASE11ND_STATIC_VERIFIER_FAIL=0
+PHASE11N_RAPID_STATIC_VERIFIER_PASS=39
+PHASE11N_RAPID_STATIC_VERIFIER_FAIL=0
+TS_PARSE_DIAGNOSTICS=0
+ANGULAR_CONTROL_FLOW_BRACE_DELTA=0
+HTML_STACK_REGRESSION=NONE (same baseline parser result as R10C)
+
+BUILD / TEST
+============
+cd /d D:\Projects\core-banking-prototype-v0
+node tools\verify-dps2-account-operations-localization-r10d.mjs
+node tools\verify-dps2-wave-b-statements-limits-maturity-11k.mjs
+node tools\verify-dps2-wave-c-services-access-compliance-pricing-tax-11l.mjs
+build-production.cmd
+
+Expected R10D marker:
+DPS2_ACCOUNT_OPERATIONS_LOCALIZATION_R10D_PASS=35
+DPS2_ACCOUNT_OPERATIONS_LOCALIZATION_R10D_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_LOCALIZATION_R10D_STATIC_PASS

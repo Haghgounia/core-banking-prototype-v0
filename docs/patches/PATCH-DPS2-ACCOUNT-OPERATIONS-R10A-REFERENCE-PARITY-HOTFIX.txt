@@ -1,0 +1,26 @@
+PATCH-DPS2-ACCOUNT-OPERATIONS-R10A-REFERENCE-PARITY-HOTFIX
+Base: R10 Business UI / Duplicate Guard
+Database migration: NONE
+Backend change: NONE
+TypeScript service change: NONE
+
+Reason
+- R10 business verifier passes 41/41.
+- Production build then stops in the pre-existing reference-parity verifier on:
+  "no accidental Persian text inside TypeScript-style property identifiers".
+- The failure is caused by Persian fallback labels embedded inside Angular interpolation/ternary expressions and by a brittle verifier normalization rule.
+
+Fix
+- Preserve the same visible Persian business labels.
+- Move Persian fallback labels out of {{ ... }} expressions and into Angular @if/@else control-flow text.
+- No business code, payload value, API call, database structure or duplicate rule is changed.
+
+Apply over R10, then run:
+cd /d D:\Projects\core-banking-prototype-v0
+node tools\verify-dps2-account-operations-reference-parity-r10a.mjs
+node tools\verify-dps2-account-operations-business-ui-r10.mjs
+node tools\verify-dps2-account-operations-reference-parity.mjs
+build-production.cmd
+
+Expected hotfix verifier marker:
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_R10A_STATIC_PASS

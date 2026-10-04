@@ -1,0 +1,77 @@
+PATCH-DPS2-ACCOUNT-OPERATIONS-R9-MAIN-PARITY
+=============================================
+Base: R8A Template Hotfix
+Reference: Main.html uploaded 2026-10-03
+DDL/Migration: NONE
+
+Scope
+-----
+1) Dashboard resilience
+- GET /api/v1/deposit-accounts/dashboard remains the primary source.
+- A dashboard service failure no longer raises the global "unexpected service error" banner.
+- Fallback uses the operational account search to render account-status counts.
+- Hold/transaction/balance aggregates are explicitly marked unavailable in degraded mode; no fabricated business values are presented.
+
+2) MAIN navigation parity
+- Sidebar now exposes Dashboard 00 plus all 17 account-operation entries 01..17 individually.
+- Labels align with Main.html:
+  01 Account maintenance
+  02 Lifecycle and hold
+  03 Term operations
+  04 Profit
+  05 Transactions
+  06 Statements
+  07 Limits/restrictions
+  08 Closure/maturity
+  09 Account services
+  10 Party/access/instruments
+  11 Regulatory/compliance
+  12 Pricing/fees
+  13 Tax/deductions
+  14 Reconciliation
+  15 Exceptions/corrections
+  16 Nostro/Vostro
+  17 Rewards/lottery
+- Internal operation guide is aligned to the same 17 destinations.
+
+3) Form reachability
+- Step 03 and Step 04 no longer disappear when the selected account has no Term Contract / Profit Profile.
+- The section remains visible with a clear applicability message so menu navigation never lands on a missing target.
+- Existing Runtime-backed forms appear automatically when the selected account is eligible.
+
+4) Regression gates
+- Updated R8 verifier to understand the always-visible Step 03 shell.
+- Added verify-dps2-account-operations-main-parity-r9.mjs.
+- build-production.cmd executes the R9 verifier.
+
+Verification expected
+---------------------
+DPS2_ACCOUNT_LIFECYCLE_R8_PASS=34
+DPS2_ACCOUNT_LIFECYCLE_R8_FAIL=0
+DPS2_ACCOUNT_LIFECYCLE_R8_STATIC_PASS
+
+DPS2_ACCOUNT_OPERATIONS_MAIN_PARITY_R9_PASS=44
+DPS2_ACCOUNT_OPERATIONS_MAIN_PARITY_R9_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_MAIN_PARITY_R9_STATIC_PASS
+
+Apply
+-----
+Extract/copy this patch over:
+D:\Projects\core-banking-prototype-v0
+
+Commands
+--------
+cd /d D:\Projects\core-banking-prototype-v0
+node tools\verify-dps2-account-lifecycle-r8.mjs
+node tools\verify-dps2-account-operations-main-parity-r9.mjs
+build-production.cmd
+
+Runtime check
+-------------
+1. Start the built runtime.
+2. Open Four Deposits > Account Operations.
+3. Click "نمای عملیاتی". It must render without the global unexpected-service error.
+4. Select an account.
+5. Open each menu 01 through 17 and confirm the target form is reachable.
+6. For a non-term account, Step 03 must remain visible with an applicability notice.
+7. For an account without a profit profile, Step 04 must remain visible with an applicability notice.

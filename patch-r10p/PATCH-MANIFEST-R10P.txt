@@ -1,0 +1,18 @@
+DPS2 Account Operations R10P
+Baseline: core-banking-prototype-v0-2026-10-04-1409
+Scope: cumulative R10N + R10O + R10P
+DDL/Migration: none
+
+R10P navigation/scope files:
+- frontend/src/app/features/four-deposits/deposit-account-operations.component.html
+- frontend/src/app/features/four-deposits/deposit-account-operations.component.ts
+- frontend/src/app/features/four-deposits/deposit-account-operations.component.scss
+- frontend/src/app/features/four-deposits/deposit-account-operations.service.ts
+- backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/domain/DepositAccountWaveAModels.java
+- backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/application/DepositAccountWaveAService.java
+- tools/verify-dps2-account-operations-r10p-workspace-navigation.mjs
+- build-production.cmd
+- docs/DPS2-0.11.0-ACCOUNT-OPERATIONS-R10P-WORKSPACE-NAVIGATION-FA.md
+
+Cumulative R10N/R10O backend files are included to make the patch safe for baseline 14:09.
+Installer does not copy itself into the project root.

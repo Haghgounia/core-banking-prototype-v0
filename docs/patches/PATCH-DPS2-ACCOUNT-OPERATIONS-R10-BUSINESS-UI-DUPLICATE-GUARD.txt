@@ -1,0 +1,27 @@
+PATCH-DPS2-ACCOUNT-OPERATIONS-R10-BUSINESS-UI-DUPLICATE-GUARD
+Base: R9 MAIN Parity (after R8A)
+Database migration: NONE
+
+Scope
+- Step 05 Transaction Processing: Persian/business-facing source of funds, authorizer, statuses, validation results and financial-leg trace.
+- Step 06 Statements: Persian template selection and business-facing statement history/audit explanation.
+- Step 07 Limits/Restrictions: Persian result frames and prevention of repeated identical ACTIVE limits/restrictions from the operational form.
+
+Canonical source-of-funds values used by the reviewed Opening contract:
+SALARY   -> حقوق و درآمد
+SAVINGS  -> پس‌انداز قبلی
+BUSINESS -> فعالیت تجاری
+OTHER    -> سایر
+The code is persisted; the bank user sees only the Persian title.
+
+Duplicate rule
+A new ACTIVE limit is rejected by the UI before the POST request when an ACTIVE row with the same limit type, transaction scope, channel scope, value and (when returned by API) source already exists. The same rule is applied to transaction restrictions. Existing duplicate rows are not deleted or changed by this patch.
+
+Build
+cd /d D:\Projects\core-banking-prototype-v0
+node tools\verify-dps2-account-operations-business-ui-r10.mjs
+build-production.cmd
+
+Existing duplicate diagnostic (read-only):
+database\diagnostics\dps2-account-limit-duplicate-report-r10.sql
+This report does not delete or update business data.

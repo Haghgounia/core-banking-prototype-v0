@@ -1,0 +1,19 @@
+PATCH-DPS2-ACCOUNT-OPERATIONS-R10I-BUSINESS-INPUT-UX
+==================================================
+Base: R10H
+Scope: Frontend UX / presentation contracts only. No DDL or backend API change.
+
+Changes:
+- Lifecycle/status history no longer displays UUID/correlation fragments as user-facing event references.
+- Manual non-collateral hold no longer accepts a free-text source reference; this matches Main.html.
+- Cash-management reference renamed to a bank-user friendly label and made readonly/system-generated in the prototype.
+- Statement From/To and maturity business date use a shared 270px visual width.
+- Statement "Destination" renamed to "Statement delivery destination" with channel-aware disabled explanation.
+- Closure/term settlement account references are controlled account selectors instead of free-text references.
+- Account-service notification event reference is selected from real lifecycle/transaction events, not typed/fabricated.
+- Party access replaces raw grantor/delegate IDs with account-party select + CIF party search and uses the selected party for authorized-user/beneficiary actions.
+- Legacy static regression compatibility is preserved.
+
+Verification:
+- tools/verify-dps2-account-operations-r10i-business-input-ux.mjs
+- existing R10A/R10/R9/UI-alignment/11I/11K/11L/11M static gates rerun.

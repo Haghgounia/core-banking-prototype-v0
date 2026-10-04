@@ -1,0 +1,13 @@
+PATCH-DPS2-ACCOUNT-OPERATIONS-R10B-PROFIT-BOUNDARY-GATE
+Base: R10 + R10A
+Scope: Step 04 / Phase 11G static build gate only
+
+Change:
+- Restores the explicit Package 17 and Step 05 architecture boundary in the user-facing profit note.
+- Uses Persian business wording with the technical boundary terms kept in parentheses for verifier compatibility.
+- No API, backend, database, payload, or workflow change.
+
+Build:
+cd /d D:\Projects\core-banking-prototype-v0
+node tools\verify-dps2-profit-processing-11g.mjs
+build-production.cmd

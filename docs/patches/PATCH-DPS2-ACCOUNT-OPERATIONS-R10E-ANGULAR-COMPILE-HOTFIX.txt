@@ -1,0 +1,19 @@
+PATCH-DPS2-ACCOUNT-OPERATIONS-R10E-ANGULAR-COMPILE-HOTFIX
+=========================================================
+Base: R10D
+Scope: Angular template compile hotfix only.
+
+Problem
+-------
+The Step 13 tax transaction selector referenced
+`t.transaction.transactionAmount`, but DepositTransactionRecord exposes
+`amount`. Angular strict template checking therefore failed with TS2339.
+
+Fix
+---
+- Use `t.transaction.amount` in the tax transaction selector.
+- Add a regression verifier that checks the service contract and rejects the
+  obsolete `transactionAmount` binding.
+- Wire the verifier into build-production.cmd.
+
+No backend/API/DDL/migration/business-rule change.

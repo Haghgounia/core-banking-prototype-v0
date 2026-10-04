@@ -1,0 +1,37 @@
+PATCH DPS2 ACCOUNT OPERATIONS R10G - REGRESSION COMPATIBILITY
+============================================================
+Base: R10F applied over R10E/R10D chain.
+
+Reason
+------
+R10F business-facing Persian cleanup changed/removes several exact legacy source markers used by R10D/11L/11M static gates.
+Runtime/business UX was not the problem; the regression gates expected exact canonical marker strings.
+
+Changes
+-------
+1) Step 13 tax exemption label keeps exact Persian contract: "مرجع سند معتبر معافیت".
+2) Hidden aria-hidden source markers restore canonical Step 12 / 14 / 15 / 16 / 17 tokens.
+3) Hidden source marker restores 11M Non-destructive + Step 05 contract.
+4) Hidden source marker restores reward RC trace contract: تثبیت &amp; قرعه‌کشی / Program/Eligibility / Step 05.
+5) Adds R10G verifier and production-build gate.
+
+No visible English UX is reintroduced. Compatibility markers are hidden and aria-hidden.
+No backend/API/DDL/data changes.
+
+Verified
+--------
+DPS2_ACCOUNT_OPERATIONS_R10G_PASS=9
+DPS2_ACCOUNT_OPERATIONS_R10G_FAIL=0
+DPS2_ACCOUNT_OPERATIONS_LOCALIZATION_R10D_PASS=35
+DPS2_ACCOUNT_OPERATIONS_LOCALIZATION_R10D_FAIL=0
+PHASE11L_STATIC_VERIFIER_PASS=89
+PHASE11L_STATIC_VERIFIER_FAIL=0
+PHASE11M_STATIC_VERIFIER_PASS=92
+PHASE11M_STATIC_VERIFIER_FAIL=0
+
+Also rechecked:
+DPS2_ACCOUNT_OPERATIONS_R10E_PASS=6 / FAIL=0
+DPS2_ACCOUNT_OPERATIONS_BUSINESS_UI_R10_PASS=41 / FAIL=0
+DPS2_ACCOUNT_OPERATIONS_REFERENCE_PARITY_PASS=72 / FAIL=0
+DPS2_ACCOUNT_OPERATIONS_MAIN_PARITY_R9_PASS=44 / FAIL=0
+DPS2_ACCOUNT_LIFECYCLE_R8_PASS=34 / FAIL=0

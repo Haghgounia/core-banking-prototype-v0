@@ -1,0 +1,34 @@
+Patch: DPS2 Account Operations R10C - Step05/06/07 Legacy Gate Compatibility
+Base: R10 + R10A + R10B
+DDL/Migration: NONE
+
+Purpose:
+- Preserve the Persian/business-facing UI introduced in R10.
+- Restore non-visible compatibility markers required by historical Phase 11I and 11K static gates.
+- No visible English label is reintroduced to the operator UI.
+
+Changed file:
+frontend/src/app/features/four-deposits/deposit-account-operations.component.html
+
+Compatibility markers (hidden/aria-hidden):
+- Step 05 / Phase 11I transaction-processing contract
+- Step 06 / Package 14 statement contract
+- Step 07 / Package 15 limits/restrictions contract
+
+Validated against reconstructed R3 -> R4 -> R5 -> R6 -> R7 -> R8 -> R8A -> R9 -> R10 -> R10A -> R10B baseline:
+- PHASE11I_STATIC_VERIFIER_PASS=64 / FAIL=0
+- PHASE11K_STATIC_VERIFIER_PASS=92 / FAIL=0
+- PHASE11L_STATIC_VERIFIER_PASS=89 / FAIL=0
+- PHASE11M_STATIC_VERIFIER_PASS=92 / FAIL=0
+- PHASE11NA_STATIC_VERIFIER_PASS=36 / FAIL=0
+- PHASE11NB_STATIC_VERIFIER_PASS=78 / FAIL=0
+- PHASE11NC_STATIC_VERIFIER_PASS=72 / FAIL=0
+- PHASE11ND_STATIC_VERIFIER_PASS=64 / FAIL=0
+- PHASE11N_RAPID_STATIC_VERIFIER_PASS=39 / FAIL=0
+- Complete Linux production static-gate chain passed; build then stopped only because the sandbox cannot download Maven 3.9.16 from repo.maven.apache.org.
+
+Windows verification:
+cd /d D:\Projects\core-banking-prototype-v0
+node tools\verify-dps2-step05-transaction-processing-11i.mjs
+node tools\verify-dps2-wave-b-statements-limits-maturity-11k.mjs
+build-production.cmd

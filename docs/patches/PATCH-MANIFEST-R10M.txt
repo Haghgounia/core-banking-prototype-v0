@@ -1,0 +1,21 @@
+DPS2 ACCOUNT OPERATIONS R10M - CUMULATIVE PATCH MANIFEST
+Baseline: core-banking-prototype-v0-2026-10-04-0809
+Includes: R10L + R10M
+DDL: no change
+
+R10M changed/new files:
+- frontend/src/app/features/four-deposits/deposit-account-operations.component.html
+- frontend/src/app/features/four-deposits/deposit-account-operations.component.ts
+- backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/application/DepositAccountServicingService.java
+- backend/src/main/java/com/behsazan/corebanking/deposit/account/servicing/application/DepositAccountWaveAService.java
+- tools/verify-dps2-account-operations-r10m-maintenance-delta.mjs
+- build-production.cmd
+- docs/patches/PATCH-DPS2-ACCOUNT-OPERATIONS-R10M-MAINTENANCE-DELTA-FA.md
+
+Cumulative R10L files also included:
+- frontend/src/app/features/four-deposits/deposit-account-operations.service.ts
+- backend/src/main/java/com/behsazan/corebanking/deposit/account/wavec/application/DepositAccountWaveCService.java
+- backend/src/main/java/com/behsazan/corebanking/deposit/account/wavec/domain/DepositAccountWaveCModels.java
+- backend/src/main/java/com/behsazan/corebanking/deposit/account/wavec/oracle/DepositAccountWaveCRepository.java
+- tools/verify-dps2-account-operations-localization-r10d.mjs
+- tools/verify-dps2-account-operations-r10l-fk-reference-selectors.mjs
