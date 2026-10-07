@@ -41,7 +41,9 @@ public final class ProductBuilderModels {
             String parentColumn,
             boolean readOnly,
             String defaultValue,
-            List<SelectOption> options
+            List<SelectOption> options,
+            boolean referenceControlled,
+            String referenceSource
     ) {}
 
     public record TableDescriptor(
@@ -67,5 +69,12 @@ public final class ProductBuilderModels {
             Map<String, Object> product,
             List<Map<String, Object>> versions,
             Map<String, Long> relatedCounts
+    ) {}
+
+    public record ProductVersionDefaults(
+            long nextVersionNo,
+            String systemDate,
+            String systemDateTime,
+            String approvalActor
     ) {}
 }

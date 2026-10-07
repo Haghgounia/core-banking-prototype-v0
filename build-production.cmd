@@ -116,6 +116,13 @@ node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 
 rem FIX70 static guard: PDL unified product builder menu, metadata CRUD and product workspace.
 node "%ROOT%tools\verify-pdl-product-builder.mjs" || exit /b 1
+rem R10R static guard: governed Product Version defaults, Persian status labels and system-managed approval audit.
+node "%ROOT%tools\verify-pdl-product-version-r10r.mjs" || exit /b 1
+rem R10S static guard: common-rule reference selectors and Persian grid values.
+node "%ROOT%tools\verify-pdl-common-rules-r10s.mjs" || exit /b 1
+node "%ROOT%tools\verify-pdl-ui-alignment-r10t.mjs" || exit /b 1
+rem R10T-HF1 static guard: Java-valid governed reference map syntax before Maven compilation.
+node "%ROOT%tools\verify-pdl-r10t-hf1-java-compile.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-four-deposits.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-final-ui-11.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-reviewed-alignment.mjs" || exit /b 1

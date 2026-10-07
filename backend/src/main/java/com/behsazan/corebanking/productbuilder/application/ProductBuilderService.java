@@ -3,6 +3,7 @@ package com.behsazan.corebanking.productbuilder.application;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.CatalogResponse;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.PackageCatalogItem;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.ProductWorkspace;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.ProductVersionDefaults;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.SelectOption;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.TableCatalogItem;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.TableDescriptor;
@@ -20,11 +21,14 @@ import java.util.Map;
 public class ProductBuilderService {
     private final PdlProductBuilderRepository repository;
     private final ProductBuilderBusinessValidator businessValidator;
+    private final PdlReferenceOptionService referenceOptionService;
 
     public ProductBuilderService(PdlProductBuilderRepository repository,
-                                 ProductBuilderBusinessValidator businessValidator) {
+                                 ProductBuilderBusinessValidator businessValidator,
+                                 PdlReferenceOptionService referenceOptionService) {
         this.repository = repository;
         this.businessValidator = businessValidator;
+        this.referenceOptionService = referenceOptionService;
     }
 
     public CatalogResponse catalog() {
@@ -46,7 +50,7 @@ public class ProductBuilderService {
     }
 
     public TableDescriptor descriptor(String table) {
-        return repository.descriptor(table);
+        return referenceOptionService.enrich(repository.descriptor(table));
     }
 
     public TablePage search(String table, String text, int page, int size, String filterColumn, String filterValue) {
@@ -60,17 +64,24 @@ public class ProductBuilderService {
 
     @Transactional
     public Map<String, Object> create(String table, Map<String, Object> values, String actor) {
-        businessValidator.validate(table, values);
-        long id = repository.insert(table, values, actorName(actor));
+        String resolvedActor = actorName(actor);
+        Map<String, Object> prepared = prepareCreateValues(table, values, resolvedActor);
+        referenceOptionService.validateChangedValues(descriptor(table), prepared, null);
+        businessValidator.validate(table, prepared);
+        long id = repository.insert(table, prepared, resolvedActor);
         return findById(table, id);
     }
 
     @Transactional
     public Map<String, Object> update(String table, long id, Map<String, Object> values, String actor) {
-        Map<String, Object> merged = new LinkedHashMap<>(findById(table, id));
-        merged.putAll(values);
+        String resolvedActor = actorName(actor);
+        Map<String, Object> existing = findById(table, id);
+        Map<String, Object> prepared = prepareUpdateValues(table, existing, values, resolvedActor);
+        Map<String, Object> merged = new LinkedHashMap<>(existing);
+        merged.putAll(prepared);
+        referenceOptionService.validateChangedValues(descriptor(table), prepared, existing);
         businessValidator.validate(table, merged);
-        if (!repository.update(table, id, values, actorName(actor))) {
+        if (!repository.update(table, id, prepared, resolvedActor)) {
             throw new ProductBuilderValidationException("PDL row not found: " + table + "/" + id);
         }
         return findById(table, id);
@@ -94,6 +105,68 @@ public class ProductBuilderService {
         counts.put("PRODUCT_VERSION", versionPage.totalElements());
         counts.put("PRODUCT_LEGACY_MAPPING", repository.search("PRODUCT_LEGACY_MAPPING", null, 0, 1, "PRODUCT_ID", String.valueOf(productId)).totalElements());
         return new ProductWorkspace(product, versionPage.items(), counts);
+    }
+
+    public ProductVersionDefaults productVersionDefaults(long productId, String actor) {
+        findById("PRODUCT", productId);
+        return new ProductVersionDefaults(
+                repository.previewNextProductVersionNo(productId),
+                repository.currentDatabaseDate().toString(),
+                repository.currentDatabaseDateTime().toString(),
+                actorName(actor)
+        );
+    }
+
+    private Map<String, Object> prepareCreateValues(String table, Map<String, Object> values, String actor) {
+        Map<String, Object> prepared = new LinkedHashMap<>(values);
+        if (!"PRODUCT_VERSION".equals(normalizeTable(table))) return prepared;
+
+        long productId = number(prepared.get("PRODUCT_ID"));
+        if (productId <= 0) throw new ProductBuilderValidationException("PRODUCT_ID برای ثبت نسخه محصول الزامی است.");
+        prepared.remove("APPROVED_AT");
+        prepared.remove("APPROVED_BY");
+        prepared.put("VERSION_NO", repository.lockAndNextProductVersionNo(productId));
+        applyApprovalAudit(prepared, null, actor);
+        return prepared;
+    }
+
+    private Map<String, Object> prepareUpdateValues(String table, Map<String, Object> existing,
+                                                     Map<String, Object> values, String actor) {
+        Map<String, Object> prepared = new LinkedHashMap<>(values);
+        if (!"PRODUCT_VERSION".equals(normalizeTable(table))) return prepared;
+
+        prepared.remove("VERSION_NO");
+        prepared.remove("APPROVED_AT");
+        prepared.remove("APPROVED_BY");
+        applyApprovalAudit(prepared, text(existing.get("VERSION_STATUS_CODE")), actor);
+        return prepared;
+    }
+
+    private void applyApprovalAudit(Map<String, Object> values, String previousStatus, String actor) {
+        String requestedStatus = values.containsKey("VERSION_STATUS_CODE")
+                ? text(values.get("VERSION_STATUS_CODE")) : previousStatus;
+        if ("APPROVED".equals(requestedStatus) && !"APPROVED".equals(previousStatus)) {
+            values.put("APPROVED_AT", repository.currentDatabaseDateTime());
+            values.put("APPROVED_BY", actor);
+        } else if ("DRAFT".equals(requestedStatus) && "APPROVED".equals(previousStatus)) {
+            values.put("APPROVED_AT", null);
+            values.put("APPROVED_BY", null);
+        }
+    }
+
+    private static String normalizeTable(String table) {
+        return table == null ? "" : table.trim().toUpperCase();
+    }
+
+    private static String text(Object value) {
+        return value == null ? "" : value.toString().trim().toUpperCase();
+    }
+
+    private static long number(Object value) {
+        if (value == null) return 0;
+        if (value instanceof Number n) return n.longValue();
+        try { return Long.parseLong(value.toString().trim()); }
+        catch (NumberFormatException ex) { return 0; }
     }
 
     private static String actorName(String actor) {

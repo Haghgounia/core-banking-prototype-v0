@@ -3,6 +3,7 @@ package com.behsazan.corebanking.productbuilder.web;
 import com.behsazan.corebanking.productbuilder.application.ProductBuilderService;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.CatalogResponse;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.ProductWorkspace;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.ProductVersionDefaults;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.SelectOption;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.TableDescriptor;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.TablePage;
@@ -38,6 +39,13 @@ public class ProductBuilderController {
     @GetMapping("/products/{productId}/workspace")
     ProductWorkspace productWorkspace(@PathVariable long productId) {
         return service.productWorkspace(productId);
+    }
+
+    @GetMapping("/products/{productId}/versions/new-defaults")
+    ProductVersionDefaults productVersionDefaults(
+            @PathVariable long productId,
+            @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        return service.productVersionDefaults(productId, actor);
     }
 
     @GetMapping("/tables/{table}/descriptor")

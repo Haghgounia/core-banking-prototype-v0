@@ -64,6 +64,31 @@ public class PdlProductBuilderRepository {
         return jdbcClient.sql("SELECT COUNT(*) FROM " + qualified(table)).query(Long.class).single();
     }
 
+    public long previewNextProductVersionNo(long productId) {
+        return jdbcClient.sql("SELECT NVL(MAX(VERSION_NO), 0) + 1 FROM " + qualified("PRODUCT_VERSION")
+                        + " WHERE PRODUCT_ID = :productId")
+                .param("productId", productId)
+                .query(Long.class)
+                .single();
+    }
+
+    public long lockAndNextProductVersionNo(long productId) {
+        jdbcClient.sql("LOCK TABLE " + qualified("PRODUCT_VERSION") + " IN SHARE ROW EXCLUSIVE MODE").update();
+        return previewNextProductVersionNo(productId);
+    }
+
+    public LocalDate currentDatabaseDate() {
+        return jdbcClient.sql("SELECT TRUNC(SYSDATE) AS SYSTEM_DATE FROM DUAL")
+                .query((rs, rowNum) -> rs.getDate("SYSTEM_DATE").toLocalDate())
+                .single();
+    }
+
+    public LocalDateTime currentDatabaseDateTime() {
+        return jdbcClient.sql("SELECT CAST(SYSTIMESTAMP AS TIMESTAMP) AS SYSTEM_DATE_TIME FROM DUAL")
+                .query((rs, rowNum) -> rs.getTimestamp("SYSTEM_DATE_TIME").toLocalDateTime())
+                .single();
+    }
+
     public TablePage search(String requestedTable, String text, int page, int size,
                             String filterColumn, String filterValue) {
         TableDescriptor descriptor = descriptor(requestedTable);
@@ -255,7 +280,9 @@ public class PdlProductBuilderRepository {
                             fk == null ? null : fk.parentColumn(),
                             name.equals(pk) || SYSTEM_MANAGED.contains(name),
                             defaultValue == null ? null : defaultValue.trim(),
-                            checkOptions.getOrDefault(name, List.of())
+                            checkOptions.getOrDefault(name, List.of()),
+                            false,
+                            null
                     );
                 }).list();
         if (columns.isEmpty()) throw new ProductBuilderValidationException("PDL table not visible to datasource user: " + table);
