@@ -1,3 +1,13 @@
+# 0.11.0 — ORG Branch Network Forms — 2026-10-07
+
+- Added the «ساختار سازمانی و شبکه شعب» frontend section and grouped ORG navigation.
+- Added generic CRUD descriptors for all 35 tables in Schema `ORG`, with Persian titles/field labels and internal FK lookups.
+- Added controlled selectors for unit/POS/terminal statuses, schedules, weekdays, location/coverage roles, operating exceptions and assignment roles.
+- Added cross-field date validation for effective, lifecycle and terminal date ranges.
+- Generic Oracle insert now supports `createdAt`/`SYSTIMESTAMP`, required by `ORG.ORGANIZATION_UNITS`.
+- Added `tools/verify-org-forms.mjs` and ORG implementation QA notes.
+- Shared Employee, Contact Point and GEO masters remain external to ORG; their IDs are retained without duplicating master tables.
+
 # 0.11.0 — Account Maintenance UX Parity — 2026-10-03
 
 - Reworked «نگهداری حساب سپرده» field-by-field against the reviewed maintenance reference instead of the broader technical servicing layout.

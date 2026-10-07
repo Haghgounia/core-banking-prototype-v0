@@ -110,6 +110,12 @@ public class OracleReferenceRepository implements ReferenceRepository {
             columns.add(OracleSqlNames.identifier(field.columnName()));
             placeholders.add("SYSTIMESTAMP");
         });
+        if (descriptor.optionalField("createdDate").isEmpty()) {
+            descriptor.optionalField("createdAt").ifPresent(field -> {
+                columns.add(OracleSqlNames.identifier(field.columnName()));
+                placeholders.add("SYSTIMESTAMP");
+            });
+        }
 
         String sql = "INSERT INTO " + table(descriptor)
                 + " (" + String.join(", ", columns) + ")"

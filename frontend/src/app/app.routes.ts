@@ -59,6 +59,9 @@ export const routes: Routes = [
       {path: 'cif/reference-data/:resource', loadComponent: () => import('./features/cif-reference/party-reference-page.component').then(m => m.PartyReferencePageComponent)},
       {path: 'cif/reference/:resource', redirectTo: 'cif/reference-data/:resource'},
 
+      {path: 'organization', loadComponent: () => import('./features/organization/organization-menu.component').then(m => m.OrganizationMenuComponent)},
+      {path: 'organization/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
+
       {path: 'geography-tree', loadComponent: () => import('./features/geography-tree/geography-tree.component').then(m => m.GeographyTreeComponent)},
       {path: 'system-specification', loadComponent: () => import('./features/system-specification/system-specification.component').then(m => m.SystemSpecificationComponent)},
       {path: 'system/database-model-comparison', loadComponent: () => import('./features/database-model-comparison/database-model-comparison.component').then(m => m.DatabaseModelComparisonComponent)},

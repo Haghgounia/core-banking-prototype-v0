@@ -89,6 +89,11 @@ export class ReferencePageComponent {
   readonly hierarchyComplete = computed(() =>
     this.hierarchy().every(item => this.hierarchyValues()[item.resource] !== null)
   );
+  readonly pageSubtitle = computed(() =>
+    this.store.descriptor()?.category === 'ORGANIZATION'
+      ? 'مدیریت اطلاعات Schema ‏ORG با کنترل روابط و مقادیر مرجع'
+      : 'جست‌وجو، ثبت، ویرایش و حذف با Query پارامتری Oracle'
+  );
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {

@@ -151,14 +151,16 @@ public class ReferenceService {
             Map<String, Object> values,
             Map<String, String> errors
     ) {
-        if (descriptor.optionalField("validFrom").isPresent()
-                && descriptor.optionalField("validTo").isPresent()) {
-            LocalDate validFrom = (LocalDate) values.get("validFrom");
-            LocalDate validTo = (LocalDate) values.get("validTo");
-            if (validFrom != null && validTo != null && validTo.isBefore(validFrom)) {
-                errors.put("validTo", "پایان اعتبار نباید قبل از شروع اعتبار باشد.");
-            }
-        }
+        validateDateOrder(descriptor, values, errors, "validFrom", "validTo",
+                "پایان اعتبار نباید قبل از شروع اعتبار باشد.");
+        validateDateOrder(descriptor, values, errors, "effectiveFrom", "effectiveTo",
+                "پایان اعتبار نباید قبل از شروع اعتبار باشد.");
+        validateDateOrder(descriptor, values, errors, "openingDate", "closingDate",
+                "تاریخ خاتمه نباید قبل از تاریخ افتتاح باشد.");
+        validateDateOrder(descriptor, values, errors, "installationDate", "activationDate",
+                "تاریخ فعال‌سازی نباید قبل از تاریخ نصب باشد.");
+        validateDateOrder(descriptor, values, errors, "installationDate", "decommissionDate",
+                "تاریخ جمع‌آوری نباید قبل از تاریخ نصب باشد.");
         if (descriptor.optionalField("parentCode").isPresent()) {
             Object code = values.get("code");
             Object parentCode = values.get("parentCode");
@@ -189,6 +191,22 @@ public class ReferenceService {
                 && Boolean.TRUE.equals(values.get("autoApplyAllowed"))
                 && Boolean.TRUE.equals(values.get("contextSensitive"))) {
             errors.put("autoApplyAllowed", "جزء وابسته به Context نمی‌تواند بدون بازبینی به‌صورت خودکار اعمال شود.");
+        }
+    }
+
+    private static void validateDateOrder(
+            ReferenceTableDescriptor descriptor,
+            Map<String, Object> values,
+            Map<String, String> errors,
+            String fromField,
+            String toField,
+            String message
+    ) {
+        if (descriptor.optionalField(fromField).isEmpty() || descriptor.optionalField(toField).isEmpty()) return;
+        LocalDate from = (LocalDate) values.get(fromField);
+        LocalDate to = (LocalDate) values.get(toField);
+        if (from != null && to != null && to.isBefore(from)) {
+            errors.put(toField, message);
         }
     }
 

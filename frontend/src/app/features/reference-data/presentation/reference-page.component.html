@@ -2,7 +2,7 @@
   <header class="page-header">
     <div>
       <h1 class="page-title">{{ store.descriptor()?.title ?? 'اطلاعات پایه' }}</h1>
-      <p class="muted">جست‌وجو، ثبت، ویرایش و حذف با Query پارامتری Oracle</p>
+      <p class="muted">{{ pageSubtitle() }}</p>
       @if (store.descriptor(); as d) {
         <app-database-tables [tables]="[d.schemaName + '.' + d.tableName]" />
       }

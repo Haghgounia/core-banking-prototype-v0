@@ -77,6 +77,14 @@
       </a>
     </mat-nav-list>
 
+    <div class="menu-section-label">ساختار سازمانی و شبکه شعب</div>
+    <mat-nav-list class="section-list">
+      <a mat-list-item routerLink="/organization" routerLinkActive="active-link" matTooltip="ساختار سازمانی و شبکه شعب" matTooltipPosition="before">
+        <mat-icon matListItemIcon>account_tree</mat-icon>
+        <span matListItemTitle>شبکه شعب و واحدها</span>
+      </a>
+    </mat-nav-list>
+
     <div class="menu-section-label">داده‌های مرجع</div>
     <mat-nav-list class="section-list reference-root-menu">
       <a mat-list-item routerLink="/reference-data" [class.active-link]="isReferenceSection()" matTooltip="اطلاعات پایه" matTooltipPosition="before">

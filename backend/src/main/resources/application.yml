@@ -46,6 +46,7 @@ core-banking:
     calendar: CAL
     calendar2: CAL2
     product-definition: PDL
+    organization: ORG
   deposit-opening:
     prototype-activation-evidence:
       # Prototype-only controlled adapter. Disable when real SIAH/Compliance/Restriction integrations are connected.
