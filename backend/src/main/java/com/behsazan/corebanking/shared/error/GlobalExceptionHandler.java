@@ -174,13 +174,14 @@ public class GlobalExceptionHandler {
         boolean parentMissing = message.contains("ORA-02291");
         boolean duplicate = message.contains("ORA-00001");
         boolean requiredMissing = message.contains("ORA-01400");
+        boolean checkFailed = message.contains("ORA-02290");
         String requiredColumn = requiredMissing ? oracleColumnFromNotNullViolation(rootMessage(exception)) : null;
 
         HttpStatus status = HttpStatus.CONFLICT;
         String title = dependent ? "امکان حذف وجود ندارد"
                 : parentMissing ? "مقدار مرجع نامعتبر است"
                 : requiredMissing ? "مقدار اجباری ثبت نشده است"
-                : "تعارض اطلاعات";
+                : checkFailed ? "مقدار خارج از دامنه مجاز" : "تعارض اطلاعات";
         String detail = dependent
                 ? "برای این رکورد، اطلاعات وابسته ثبت شده است."
                 : parentMissing
@@ -191,11 +192,13 @@ public class GlobalExceptionHandler {
                 ? (requiredColumn == null
                     ? "یکی از فیلدهای اجباری پایگاه داده بدون مقدار ارسال شده است."
                     : "فیلد اجباری پایگاه داده «" + requiredColumn + "» بدون مقدار ارسال شده است.")
+                : checkFailed ? "یکی از مقادیر انتخاب‌شده با فهرست مجاز قاعده در پایگاه داده سازگار نیست. لطفاً فرم را تازه‌سازی و مقدار را از فهرست انتخاب کنید."
                 : "عملیات با محدودیت‌های پایگاه داده سازگار نیست.";
         String code = dependent ? "DEPENDENT_RECORDS_EXIST"
                 : parentMissing ? "REFERENCE_VALUE_NOT_FOUND"
                 : duplicate ? "DUPLICATE_VALUE"
-                : requiredMissing ? "REQUIRED_DATABASE_VALUE_MISSING" : "DATA_CONFLICT";
+                : requiredMissing ? "REQUIRED_DATABASE_VALUE_MISSING"
+                : checkFailed ? "DATABASE_CHECK_CONSTRAINT" : "DATA_CONFLICT";
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
         problem.setType(URI.create("urn:reference-data:problem:data-conflict"));

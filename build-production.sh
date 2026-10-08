@@ -43,6 +43,8 @@ node "$ROOT/tools/verify-node-tool-path-portability.mjs"
 node "$ROOT/tools/verify-org-forms.mjs"
 node "$ROOT/tools/verify-cif-isic2.mjs"
 node "$ROOT/tools/verify-pdl-product-builder.mjs"
+# PB-R13: audited deposit form parity with reviewed standalone HTML.
+node "$ROOT/tools/verify-pb-r13.mjs"
 node "$ROOT/tools/verify-pdl-product-version-r10r.mjs"
 node "$ROOT/tools/verify-pdl-common-rules-r10s.mjs"
 node "$ROOT/tools/verify-pdl-ui-alignment-r10t.mjs"
@@ -99,6 +101,8 @@ node "$ROOT/tools/verify-global-breadcrumb.mjs"
 node "$ROOT/tools/verify-edu-reference-ui.mjs"
 node "$ROOT/tools/verify-calendar-display-labels.mjs"
 node "$ROOT/tools/verify-runtime-artifact-contract.mjs"
+node "$ROOT/tools/verify-pb-r15.mjs"
+node "$ROOT/tools/verify-pb-r16.mjs"
 
 cd "$ROOT/backend"
 sh ./mvnw -DskipTests compile

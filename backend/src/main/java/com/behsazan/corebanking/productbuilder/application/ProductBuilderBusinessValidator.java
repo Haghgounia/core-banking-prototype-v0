@@ -20,10 +20,63 @@ public class ProductBuilderBusinessValidator {
         if (table == null || values == null) return;
         switch (table.trim().toUpperCase()) {
             case "DEPOSIT_PROFIT_PAYMENT_RULE" -> validateProfitPayment(values);
+            case "DEPOSIT_PRODUCT_JOINT_RULE" -> validateJointOwnerCounts(values);
+            case "PRODUCT_PRICING_RULE" -> validatePricingRule(values);
+            case "PRODUCT_RELATIONSHIP" -> validateRelationship(values);
             case "CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE" -> validateCorrespondentProfile(values);
             case "CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE" -> validateCorrespondentSettlement(values);
             default -> validateGenericDateRange(values);
         }
+    }
+
+    private void validateJointOwnerCounts(Map<String, Object> values) {
+        Integer minimumOwners = integer(values, "MIN_JOINT_OWNER_COUNT");
+        Integer maximumOwners = integer(values, "MAX_JOINT_OWNER_COUNT");
+        Integer requiredSigners = integer(values, "MIN_REQUIRED_SIGNER_COUNT");
+        if (minimumOwners == null || minimumOwners < 1) {
+            fail("حداقل تعداد صاحبان حساب باید عدد صحیح مثبت باشد.");
+        }
+        if (maximumOwners == null || maximumOwners < minimumOwners) {
+            fail("حداکثر تعداد صاحبان حساب نباید از حداقل تعداد کمتر باشد.");
+        }
+        if (requiredSigners == null || requiredSigners < 1 || requiredSigners > maximumOwners) {
+            fail("حداقل تعداد امضاکنندگان باید بین ۱ و حداکثر تعداد صاحبان حساب باشد.");
+        }
+        validateGenericDateRange(values);
+    }
+
+    private void validatePricingRule(Map<String, Object> values) {
+        String purpose = text(values, "PRICING_PURPOSE_CODE");
+        if (purpose.isBlank()) fail("هدف قیمت‌گذاری باید از فهرست انتخاب شود.");
+        String method = text(values, "PRICING_METHOD_CODE");
+        if (method.isBlank()) fail("روش محاسبه قیمت‌گذاری باید انتخاب شود.");
+        BigDecimal base = decimal(values, "BASE_RATE");
+        BigDecimal early = decimal(values, "EARLY_TERMINATION_RATE");
+        if (base != null && (base.signum() < 0 || base.compareTo(BigDecimal.ONE) > 0))
+            fail("نرخ پایه به صورت اعشاری بین صفر و یک ثبت می‌شود؛ مثلاً ۰٫۱۸ معادل ۱۸ درصد است.");
+        if (!bool(values, "EARLY_TERMINATION_ALLOWED") && early != null)
+            fail("هنگامی که خاتمه پیش از موعد مجاز نیست، نرخ خاتمه زودهنگام باید خالی باشد.");
+        if (early != null && (early.signum() < 0 || early.compareTo(BigDecimal.ONE) > 0))
+            fail("نرخ خاتمه زودهنگام باید بین صفر و یک باشد؛ مثلاً ۰٫۱۰ معادل ۱۰ درصد.");
+        Integer maxDest = integer(values, "MAX_DESTINATION_COUNT");
+        if (maxDest != null && maxDest < 1) fail("حداکثر تعداد مقصد پرداخت باید عدد صحیح مثبت باشد.");
+        if ("SINGLE_ACCOUNT".equals(text(values, "DESTINATION_RULE_CODE")) && maxDest != null && maxDest > 1)
+            fail("در قاعده «یک حساب مقصد»، حداکثر تعداد مقصد نمی‌تواند بیش از یک باشد.");
+        validateGenericDateRange(values);
+    }
+
+    private void validateRelationship(Map<String, Object> values) {
+        Integer priority = integer(values, "PRIORITY_NO");
+        if (priority == null || priority < 1) fail("اولویت رابطه باید یک عدد صحیح مثبت باشد (۱ یعنی اولویت بالاتر).");
+        BigDecimal min = decimal(values, "MIN_RELATION_AMOUNT");
+        BigDecimal max = decimal(values, "MAX_RELATION_AMOUNT");
+        if ((min != null && min.signum() < 0) || (max != null && max.signum() < 0))
+            fail("مبالغ رابطه بین محصولات نمی‌توانند منفی باشند.");
+        if (min != null && max != null && max.compareTo(min) < 0)
+            fail("حداکثر مبلغ رابطه نباید کمتر از حداقل مبلغ باشد.");
+        Integer targetProduct = integer(values, "TARGET_PRODUCT_ID");
+        if (targetProduct == null || targetProduct <= 0) fail("انتخاب محصول مقصد الزامی است.");
+        validateGenericDateRange(values);
     }
 
     private void validateProfitPayment(Map<String, Object> values) {

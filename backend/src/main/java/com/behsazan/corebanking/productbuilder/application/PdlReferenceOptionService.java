@@ -66,9 +66,75 @@ public class PdlReferenceOptionService {
             Map.entry("APPROVAL_LEVEL_CODE", "dps-approval-levels"),
             Map.entry("TERM_UNIT_CODE", "dps-term-units"),
             Map.entry("DOCUMENT_TYPE_CODE", "dps-document-types"),
-            Map.entry("INQUIRY_TYPE_CODE", "dps-inquiry-types")
+            Map.entry("INQUIRY_TYPE_CODE", "dps-inquiry-types"),
+            // PB-R13: governed deposit module references. Persist the reference CODE, never surrogate ID.
+            Map.entry("DEPOSIT_GROUP_CODE", "dps-deposit-groups"),
+            Map.entry("DEPOSIT_TYPE_CODE", "dps-deposit-types"),
+            Map.entry("WITHDRAWAL_MEDIA_CODE", "dps-withdrawal-media"),
+            Map.entry("OWNERSHIP_TYPE_CODE", "dps-ownership-types"),
+            Map.entry("SIGNING_RULE_CODE", "dps-signing-rules"),
+            Map.entry("PROFIT_DISTRIBUTION_CODE", "dps-profit-distributions"),
+            Map.entry("INACTIVITY_PERIOD_UNIT_CODE", "dps-inactivity-period-units"),
+            Map.entry("WARNING_PERIOD_UNIT_CODE", "dps-warning-period-units"),
+            Map.entry("REACTIVATION_METHOD_CODE", "dps-reactivation-methods"),
+            Map.entry("HOLD_TYPE_CODE", "dps-hold-types"),
+            Map.entry("CLOSURE_TYPE_CODE", "dps-closure-types"),
+            Map.entry("BALANCE_DESTINATION_CODE", "dps-balance-destinations"),
+            Map.entry("SETTLEMENT_METHOD_CODE", "dps-settlement-methods"),
+            Map.entry("DESTINATION_CODE", "dps-destinations")
     );
 
+
+    private static final Set<String> GOVERNED_DEPOSIT_TABLES = Set.of(
+            "DEPOSIT_PRODUCT_PROFILE", "DEPOSIT_PRODUCT_WITHDRAWAL_MEDIA",
+            "DEPOSIT_PRODUCT_JOINT_RULE", "DEPOSIT_PRODUCT_DORMANCY_RULE",
+            "DEPOSIT_PRODUCT_HOLD_RULE", "DEPOSIT_PRODUCT_CLOSURE_RULE",
+            "DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE"
+    );
+
+    // DPS historical seeds use numeric business codes for these three reference tables,
+    // while PDL may use semantic or legacy numeric codes depending on migration.
+    // The actual Oracle PDL CHECK is the final authority. This does not mutate DPS.
+    // Values with no exact business equivalent are deliberately excluded.
+    private static final Map<String, Map<String, String>> JOINT_CODE_TRANSLATIONS = Map.of(
+            "OWNERSHIP_TYPE_CODE", Map.of("1", "SINGLE", "2", "JOINT"),
+            "SIGNING_RULE_CODE", Map.of("1", "ANY_TO_SIGN", "2", "BOTH_TO_SIGN"),
+            "PROFIT_DISTRIBUTION_CODE", Map.of("1", "EQUAL", "2", "OWNERSHIP_SHARE", "3", "CUSTOM_PERCENT")
+    );
+
+    // Labels come from the signed-off interactive Product Builder contract. These
+    // options are *only* exposed when the actual PDL database CHECK permits them.
+    private static final Map<String, String> PDL_DEPOSIT_CHECK_LABELS = Map.ofEntries(
+            Map.entry("LEGAL", "قضایی / قانونی"),
+            Map.entry("COLLATERAL", "وثیقه‌ای"),
+            Map.entry("INTERNAL", "کنترلی / داخلی بانک"),
+            Map.entry("CUSTOMER_REQUEST", "به درخواست مشتری"),
+            Map.entry("NORMAL", "عادی"),
+            Map.entry("EARLY", "پیش از موعد"),
+            Map.entry("FORCED", "اجباری"),
+            Map.entry("PARTIAL", "جزئی"),
+            Map.entry("CUSTOMER_ACCOUNT", "انتقال به حساب مشتری"),
+            Map.entry("CASH", "پرداخت نقدی طبق ضوابط"),
+            Map.entry("SUSPENSE", "انتقال به حساب واسط / معلق"),
+            Map.entry("CUSTOMER_SELECTED", "مقصد انتخابی مشتری"),
+            Map.entry("BANK_ACCOUNT", "حساب داخلی بانک"),
+            Map.entry("PAY", "پرداخت به مشتری"),
+            Map.entry("DEDUCT", "کسر از مانده"),
+            Map.entry("TRANSFER", "انتقال به حساب مقصد"),
+            Map.entry("WAIVE", "بخشودگی با مجوز"),
+            Map.entry("DRAFT", "پیش‌نویس"),
+            Map.entry("ACTIVE", "فعال"),
+            Map.entry("INACTIVE", "غیرفعال")
+    );
+
+    private static final Set<String> CHECK_BACKED_FIELDS = Set.of(
+            "DEPOSIT_PRODUCT_HOLD_RULE.HOLD_TYPE_CODE",
+            "DEPOSIT_PRODUCT_CLOSURE_RULE.CLOSURE_TYPE_CODE",
+            "DEPOSIT_PRODUCT_CLOSURE_RULE.BALANCE_DESTINATION_CODE",
+            "DEPOSIT_PRODUCT_CLOSURE_RULE.STATUS_CODE",
+            "DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE.SETTLEMENT_METHOD_CODE",
+            "DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE.DESTINATION_CODE"
+    );
 
     private static final Map<String, String> PARTY_RESOURCE_BY_COLUMN = Map.ofEntries(
             Map.entry("PARTY_TYPE_CODE", "ref-party-type"),
@@ -131,6 +197,42 @@ public class PdlReferenceOptionService {
             Map.entry("NO_ADJUSTMENT", "بدون جابه‌جایی"), Map.entry("NONE", "بدون جابه‌جایی")
     );
 
+    // PB-R15: bank-user form contract. These codes are defined by the reviewed Product Builder
+    // HTML and are intersected with live Oracle CHECK choices, when a CHECK exists.
+    // They are not reference-table surrogate IDs and must never be displayed as input text.
+    private static final Map<String, List<SelectOption>> BUSINESS_FORM_OPTIONS = Map.ofEntries(
+            Map.entry("PRODUCT_PRICING_RULE.PRICING_PURPOSE_CODE", optsLabeled(
+                    "DEPOSIT_PROFIT", "سود سپرده", "LOAN_INTEREST", "سود / نرخ تسهیلات",
+                    "COMMISSION", "کارمزد", "PENALTY", "وجه التزام / جریمه")),
+            Map.entry("PRODUCT_PRICING_RULE.PRICING_METHOD_CODE", optsLabeled(
+                    "FIXED", "ثابت", "FLOATING", "شناور", "TIERED", "پلکانی", "FORMULA", "فرمولی")),
+            Map.entry("PRODUCT_PRICING_RULE.DAY_COUNT_BASIS_CODE", optsLabeled(
+                    "ACT_365", "روز واقعی / سال ۳۶۵ روزه", "ACT_360", "روز واقعی / سال ۳۶۰ روزه", "30_360", "ماه ۳۰ روزه / سال ۳۶۰ روزه")),
+            Map.entry("PRODUCT_PRICING_RULE.ACCRUAL_FREQUENCY_CODE", optsLabeled(
+                    "DAILY", "روزانه", "MONTHLY", "ماهانه", "MATURITY", "در سررسید")),
+            Map.entry("PRODUCT_PRICING_RULE.SETTLEMENT_FREQUENCY_CODE", optsLabeled(
+                    "MONTHLY", "ماهانه", "QUARTERLY", "سه‌ماهه", "ANNUAL", "سالانه", "MATURITY", "در سررسید")),
+            Map.entry("PRODUCT_PRICING_RULE.DESTINATION_RULE_CODE", optsLabeled(
+                    "SINGLE_ACCOUNT", "یک حساب مقصد", "MULTIPLE_ACCOUNTS", "چند حساب مقصد",
+                    "CUSTOMER_SELECTED", "انتخاب مقصد توسط مشتری", "SYSTEM_DEFINED", "تعیین مقصد توسط سامانه")),
+            Map.entry("PRODUCT_PRICING_RULE.RULE_STATUS_CODE", optsLabeled(
+                    "DRAFT", "پیش‌نویس", "ACTIVE", "فعال", "INACTIVE", "غیرفعال")),
+            Map.entry("PRODUCT_RELATIONSHIP.RELATIONSHIP_TYPE_CODE", optsLabeled(
+                    "REQUIRES", "محصول پیش‌نیاز", "BUNDLE", "بسته محصولات",
+                    "RATE_DEPENDENCY", "وابستگی نرخ", "COLLATERAL_ACCOUNT", "حساب وثیقه")),
+            Map.entry("PRODUCT_RELATIONSHIP.RECORD_STATUS_CODE", optsLabeled(
+                    "ACTIVE", "فعال", "INACTIVE", "غیرفعال"))
+    );
+
+    static List<SelectOption> businessFormOptions(String table, String field, List<SelectOption> databaseChoices) {
+        List<SelectOption> declared = BUSINESS_FORM_OPTIONS.getOrDefault(normalize(table) + "." + normalize(field), List.of());
+        if (declared.isEmpty()) return List.of();
+        if (databaseChoices == null || databaseChoices.isEmpty()) return declared;
+        Set<String> allowed = new LinkedHashSet<>();
+        for (SelectOption option : databaseChoices) allowed.add(normalize(option.code() == null ? option.value() : option.code()));
+        return declared.stream().filter(option -> allowed.contains(normalize(option.code()))).toList();
+    }
+
     private static final Map<String, List<SelectOption>> FALLBACKS = Map.ofEntries(
             Map.entry("CUSTOMER_TYPE_CODE", opts("PERSON", "ORGANIZATION", "GOVERNMENT", "BANK")),
             Map.entry("PARTY_TYPE_CODE", opts("PERSON", "ORGANIZATION", "GOVERNMENT", "BANK")),
@@ -178,10 +280,13 @@ public class PdlReferenceOptionService {
 
     private final ReferenceService referenceService;
     private final PartyReferenceService partyReferenceService;
+    private final PdlDormancyFeePlanReference feePlanReference;
 
-    public PdlReferenceOptionService(ReferenceService referenceService, PartyReferenceService partyReferenceService) {
+    public PdlReferenceOptionService(ReferenceService referenceService, PartyReferenceService partyReferenceService,
+                                     PdlDormancyFeePlanReference feePlanReference) {
         this.referenceService = referenceService;
         this.partyReferenceService = partyReferenceService;
+        this.feePlanReference = feePlanReference;
     }
 
     public List<SelectOption> eligibilityCriterionOptions(String criterionType) {
@@ -269,19 +374,92 @@ public class PdlReferenceOptionService {
 
     private ColumnDescriptor enrichColumn(String table, ColumnDescriptor column) {
         String name = normalize(column.name());
+        String businessField = normalize(table) + "." + name;
+        if (BUSINESS_FORM_OPTIONS.containsKey(businessField)) {
+            List<SelectOption> choices = businessFormOptions(table, name, column.options());
+            return copy(column, true, "PDL_FORM_CONTRACT", choices);
+        }
         String resource = RESOURCE_BY_COLUMN.get(name);
+        // STATUS_CODE is ambiguous globally: only the closure rule represents a rule status.
+        if ("DEPOSIT_PRODUCT_CLOSURE_RULE".equals(normalize(table)) && "STATUS_CODE".equals(name)) {
+            resource = "dps-rule-statuses";
+        }
         String partyResource = PARTY_RESOURCE_BY_COLUMN.get(name);
+        boolean depositField = GOVERNED_DEPOSIT_TABLES.contains(normalize(table)) && resource != null;
+        boolean feePlanField = "DEPOSIT_PRODUCT_DORMANCY_RULE".equals(normalize(table))
+                && "MAINTENANCE_FEE_PLAN_ID".equals(name);
         boolean checkedCode = isCommonRuleTable(table) && name.endsWith("_CODE") && !column.options().isEmpty();
-        boolean controlled = resource != null || partyResource != null || checkedCode || FALLBACKS.containsKey(name);
+        boolean controlled = resource != null || partyResource != null || checkedCode || FALLBACKS.containsKey(name) || feePlanField;
         if (!controlled) return column;
 
+        // Do not invent DPS reference entries. Closure and hold fields can use actual
+        // Oracle PDL CHECK options when the corresponding DPS reference is unpopulated.
+        if (feePlanField) {
+            return copy(column, true, "FEE:ACTIVE_DORMANCY_FEE_VERSIONS", feePlanReference.options());
+        }
         List<SelectOption> governed = partyResource != null ? partyReferenceOptions(partyResource) : referenceOptions(resource);
+        if (depositField) {
+            String fieldKey = normalize(table) + "." + name;
+            if ("DEPOSIT_PRODUCT_JOINT_RULE".equals(normalize(table))) {
+                // Resolve numeric DPS codes to their corresponding PDL semantic CHECK values.
+                // Persist the exact code accepted by the live PDL CHECK, not a guessed code.
+                return copy(column, true, "DPS_MAPPED:" + resource,
+                        mapJointOptions(name, column.options(), governed));
+            }
+            List<SelectOption> compatible = intersection(column.options(), governed.stream()
+                    .filter(option -> !"عنوان فارسی مرجع تعریف نشده".equals(option.label()))
+                    .toList());
+            if (CHECK_BACKED_FIELDS.contains(fieldKey) && !column.options().isEmpty()) {
+                // Several DPS reference tables have zero seeds in the supplied baseline.
+                // Fall back to actual Oracle CHECK values, never to mock HTML values alone.
+                return copy(column, true, compatible.isEmpty() ? "PDL_CHECK_CONSTRAINT" : "DPS:" + resource,
+                        compatible.isEmpty() ? checkedDepositOptions(column.options()) : compatible);
+            }
+            return copy(column, true, "DPS:" + resource, compatible);
+        }
         List<SelectOption> options = mergeOptions(column.options(), governed, FALLBACKS.getOrDefault(name, List.of()));
         if (options.isEmpty() && checkedCode) options = localize(column.options());
         String source = partyResource != null ? "CIF:" + partyResource
                 : resource != null ? "REF:" + resource
                 : checkedCode ? "PDL_CHECK_CONSTRAINT" : "PDL_COMMON_RULE";
         return copy(column, true, source, options);
+    }
+
+    static List<SelectOption> mapJointOptions(String columnName, List<SelectOption> constraints,
+                                               List<SelectOption> governed) {
+        // Without DB CHECK options there is no verified PDL value domain to translate to.
+        if (constraints == null || constraints.isEmpty()) return List.of();
+        Map<String, String> translations = JOINT_CODE_TRANSLATIONS.getOrDefault(columnName, Map.of());
+        Set<String> allowed = new LinkedHashSet<>();
+        for (SelectOption check : constraints) allowed.add(normalize(check.code() == null ? check.value() : check.code()));
+        LinkedHashMap<String, SelectOption> mapped = new LinkedHashMap<>();
+        for (SelectOption reference : governed) {
+            String incoming = normalize(reference.code() == null ? reference.value() : reference.code());
+            String semantic = translations.getOrDefault(incoming, incoming);
+            String persistedCode = allowed.contains(semantic) ? semantic :
+                    allowed.contains(incoming) ? incoming : null;
+            if (persistedCode == null) continue;
+            if ("عنوان فارسی مرجع تعریف نشده".equals(reference.label())) continue;
+            mapped.putIfAbsent(persistedCode, new SelectOption(persistedCode, persistedCode, reference.label()));
+        }
+        return List.copyOf(mapped.values());
+    }
+
+    private static List<SelectOption> checkedDepositOptions(List<SelectOption> constraints) {
+        LinkedHashMap<String, SelectOption> result = new LinkedHashMap<>();
+        for (SelectOption check : constraints) {
+            String code = normalize(check.code() == null ? check.value() : check.code());
+            String label = PDL_DEPOSIT_CHECK_LABELS.get(code);
+            if (label != null) result.putIfAbsent(code, new SelectOption(code, code, label));
+        }
+        return List.copyOf(result.values());
+    }
+
+    private static List<SelectOption> intersection(List<SelectOption> constraints, List<SelectOption> governed) {
+        if (constraints == null || constraints.isEmpty()) return governed;
+        Set<String> allowed = new LinkedHashSet<>();
+        for (SelectOption option : constraints) allowed.add(normalize(option.code() == null ? option.value() : option.code()));
+        return governed.stream().filter(option -> allowed.contains(normalize(option.code()))).toList();
     }
 
     private List<SelectOption> partyReferenceOptions(String resource) {

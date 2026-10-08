@@ -13,6 +13,7 @@ node tools\migrate-release-layout.mjs || exit /b 1
 node tools\migrate-root-layout.mjs || exit /b 1
 node tools\migrate-source-layout.mjs || exit /b 1
 node tools\verify-release-layout.mjs || exit /b 1
+node tools\verify-pb-r16.mjs || exit /b 1
 node tools\verify-dps2-account-schema-reconciliation-092.mjs || exit /b 1
 node tools\verify-dps2-reference-fk-reconciliation-093.mjs || exit /b 1
 node tools\verify-dps2-opening-operational-v5-phase10.mjs || exit /b 1

@@ -1,8 +1,10 @@
 import {Component, DestroyRef, computed, inject, signal} from '@angular/core';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {ActivatedRoute} from '@angular/router';
 import {FormControl, FormRecord, ReactiveFormsModule, Validators} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {debounceTime, distinctUntilChanged} from 'rxjs';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -21,12 +23,13 @@ import {ReferenceGateway} from '../application/reference.gateway';
 import {ReferenceStore} from '../application/reference.store';
 import {LookupOption, ReferenceRecordResponse} from '../domain/reference.model';
 import {DatabaseTablesComponent} from '../../../shared/ui/database-tables.component';
+import {OrganizationLocationService} from '../../organization/organization-location.service';
 
 @Component({
   selector: 'app-reference-page',
   standalone: true,
   imports: [
-    ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule,
+    ReactiveFormsModule, MatAutocompleteModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule,
     MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule,
     MatSlideToggleModule, MatSortModule, MatTableModule, MatTooltipModule, DatabaseTablesComponent
   ],
@@ -40,6 +43,8 @@ export class ReferencePageComponent {
   private readonly catalog = inject(CatalogService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly organizationLocationService = inject(OrganizationLocationService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   private readonly eduFilterFields: Readonly<Record<string, readonly string[]>> = {
     'edu-education-levels': ['educationSystemCode', 'isSelectable', 'activeFlag'],
@@ -62,6 +67,37 @@ export class ReferencePageComponent {
   readonly lookupOptions = signal<Partial<Record<string, readonly LookupOption[]>>>({});
   readonly parentFilterOptions = signal<readonly LookupOption[]>([]);
   readonly hierarchyValues = signal<Readonly<Record<string, number | null>>>({});
+
+  readonly locationProvinceControl = new FormControl<number | null>(null);
+  readonly locationCitySearchControl = new FormControl('', {nonNullable: true});
+  readonly locationProvinceOptions = signal<readonly LookupOption[]>([]);
+  readonly locationCityOptions = signal<readonly LookupOption[]>([]);
+  readonly locationCityLoading = signal(false);
+  readonly selectedLocationCity = signal<LookupOption | null>(null);
+  readonly locationLatitude = signal<number | null>(null);
+  readonly locationLongitude = signal<number | null>(null);
+  readonly locationMapVisible = signal(false);
+
+  readonly organizationLocationPage = computed(() =>
+    this.store.descriptor()?.category === 'ORGANIZATION' && this.store.resource() === 'locations'
+  );
+  readonly locationCoordinatesValid = computed(() => {
+    const latitude = this.locationLatitude();
+    const longitude = this.locationLongitude();
+    return latitude !== null && longitude !== null
+      && Number.isFinite(latitude) && Number.isFinite(longitude)
+      && latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
+  });
+  readonly locationMapEmbedUrl = computed<SafeResourceUrl | null>(() => {
+    if (!this.locationCoordinatesValid()) return null;
+    const latitude = this.locationLatitude() as number;
+    const longitude = this.locationLongitude() as number;
+    const delta = 0.006;
+    const bbox = [longitude - delta, latitude - delta, longitude + delta, latitude + delta]
+      .map(value => value.toFixed(7)).join(',');
+    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${latitude.toFixed(7)}%2C${longitude.toFixed(7)}`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  });
 
   readonly editableFields = computed(() => {
     const descriptor = this.store.descriptor();
@@ -110,6 +146,28 @@ export class ReferencePageComponent {
 
     this.parentFilterControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(parentId => void this.store.search({parentId, page: 0}));
+
+    this.locationProvinceControl.valueChanges.pipe(
+      distinctUntilChanged(), takeUntilDestroyed(this.destroyRef)
+    ).subscribe(provinceId => {
+      if (!this.organizationLocationPage()) return;
+      this.selectedLocationCity.set(null);
+      this.form.controls['geoEntityId']?.setValue(null);
+      this.locationCitySearchControl.setValue('', {emitEvent: false});
+      void this.loadLocationCities(provinceId, '');
+    });
+
+    this.locationCitySearchControl.valueChanges.pipe(
+      debounceTime(250), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef)
+    ).subscribe(text => {
+      if (!this.organizationLocationPage()) return;
+      const selected = this.selectedLocationCity();
+      if (selected && text !== this.locationCityDisplay(selected)) {
+        this.selectedLocationCity.set(null);
+        this.form.controls['geoEntityId']?.setValue(null);
+      }
+      void this.loadLocationCities(this.locationProvinceControl.value, text);
+    });
   }
 
   async create(): Promise<void> {
@@ -117,6 +175,7 @@ export class ReferencePageComponent {
     this.buildForm(null);
     this.editorVisible.set(true);
     await Promise.all([this.initializeHierarchy([]), this.initializeLookupFields()]);
+    await this.initializeOrganizationLocationEditor(null);
   }
 
   async edit(row: Readonly<Record<string, unknown>>): Promise<void> {
@@ -128,12 +187,18 @@ export class ReferencePageComponent {
     this.buildForm(record);
     this.editorVisible.set(true);
     await Promise.all([this.initializeHierarchy(record.ancestors), this.initializeLookupFields()]);
+    await this.initializeOrganizationLocationEditor(record);
   }
 
   closeEditor(): void {
     this.editorVisible.set(false);
     this.store.clearSelection();
     this.form.reset();
+    this.locationMapVisible.set(false);
+    this.locationProvinceControl.setValue(null, {emitEvent: false});
+    this.locationCitySearchControl.setValue('', {emitEvent: false});
+    this.selectedLocationCity.set(null);
+    this.locationCityOptions.set([]);
   }
 
   async save(): Promise<void> {
@@ -190,6 +255,29 @@ export class ReferencePageComponent {
     if (next && value !== null) await this.loadOptions(next.resource, value);
   }
 
+  selectLocationCity(cityId: number): void {
+    const selected = this.locationCityOptions().find(option => Number(option.value) === Number(cityId)) ?? null;
+    this.selectedLocationCity.set(selected);
+    this.form.controls['geoEntityId']?.setValue(selected?.value ?? null);
+    this.locationCitySearchControl.setValue(selected ? this.locationCityDisplay(selected) : '', {emitEvent: false});
+  }
+
+  showLocationMap(): void {
+    if (this.locationCoordinatesValid()) this.locationMapVisible.set(true);
+  }
+
+  hideLocationMap(): void {
+    this.locationMapVisible.set(false);
+  }
+
+  openLocationMap(): void {
+    if (!this.locationCoordinatesValid()) return;
+    const latitude = this.locationLatitude() as number;
+    const longitude = this.locationLongitude() as number;
+    const url = `https://www.openstreetmap.org/?mlat=${latitude.toFixed(7)}&mlon=${longitude.toFixed(7)}#map=18/${latitude.toFixed(7)}/${longitude.toFixed(7)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
   cell(row: Readonly<Record<string, unknown>>, field: ReferenceFieldDescriptor): string {
     const value = row[field.apiName];
     if (field.type === 'BOOLEAN') {
@@ -223,6 +311,12 @@ export class ReferencePageComponent {
     this.parentFilterControl.setValue(null, {emitEvent: false});
     this.parentFilterOptions.set([]);
     this.lookupOptions.set({});
+    this.locationProvinceOptions.set([]);
+    this.locationCityOptions.set([]);
+    this.locationProvinceControl.setValue(null, {emitEvent: false});
+    this.locationCitySearchControl.setValue('', {emitEvent: false});
+    this.selectedLocationCity.set(null);
+    this.locationMapVisible.set(false);
     await Promise.all([this.initializeParentFilter(), this.initializeGridLookupFields(), this.initializeAdvancedFilters(resource)]);
     this.editorVisible.set(false);
   }
@@ -296,6 +390,7 @@ export class ReferencePageComponent {
     }
     this.wirePersianNormalization('persianName', 'normalizedPersianName');
     this.wirePersianNormalization('persianAffix', 'normalizedPersianAffix');
+    this.wireOrganizationLocationCoordinates();
   }
 
   private wirePersianNormalization(sourceField: string, targetField: string): void {
@@ -329,12 +424,90 @@ export class ReferencePageComponent {
     if (!descriptor) return;
     const fields = descriptor.fields.filter(field =>
       !field.readOnly && field.type === 'LOOKUP' && field.apiName !== descriptor.parent?.apiField && field.lookupResource
+      && !(this.organizationLocationPage() && field.apiName === 'geoEntityId')
     );
     const entries = await Promise.all(fields.map(async field => [
       field.apiName,
       await this.gateway.lookup(field.lookupResource as string)
     ] as const));
     this.lookupOptions.update(current => ({...current, ...Object.fromEntries(entries)}));
+  }
+
+  private async initializeOrganizationLocationEditor(record: ReferenceRecordResponse | null): Promise<void> {
+    if (!this.organizationLocationPage()) return;
+    this.locationProvinceOptions.set(await this.gateway.lookup('provinces'));
+    this.locationMapVisible.set(false);
+
+    const cityIdRaw = record?.values['geoEntityId'] ?? this.form.controls['geoEntityId']?.value;
+    const cityId = cityIdRaw === null || cityIdRaw === undefined || cityIdRaw === '' ? null : Number(cityIdRaw);
+    if (cityId === null || !Number.isFinite(cityId)) {
+      this.locationProvinceControl.setValue(null, {emitEvent: false});
+      this.locationCitySearchControl.setValue('', {emitEvent: false});
+      this.locationCityOptions.set([]);
+      this.selectedLocationCity.set(null);
+      return;
+    }
+
+    try {
+      const city = await this.gateway.findById('cities', cityId);
+      const provinceId = city.ancestors.find(ancestor => ancestor.resource === 'provinces')?.id ?? null;
+      const option: LookupOption = {
+        value: cityId,
+        code: String(city.values['cityCode'] ?? ''),
+        label: String(city.values['cityName'] ?? cityId)
+      };
+      this.locationProvinceControl.setValue(provinceId, {emitEvent: false});
+      this.selectedLocationCity.set(option);
+      this.locationCitySearchControl.setValue(this.locationCityDisplay(option), {emitEvent: false});
+      await this.loadLocationCities(provinceId, option.label);
+      if (!this.locationCityOptions().some(item => Number(item.value) === cityId)) {
+        this.locationCityOptions.update(items => [option, ...items]);
+      }
+    } catch {
+      this.locationProvinceControl.setValue(null, {emitEvent: false});
+      this.locationCitySearchControl.setValue(String(cityId), {emitEvent: false});
+      this.locationCityOptions.set([]);
+      this.selectedLocationCity.set(null);
+    }
+  }
+
+  private async loadLocationCities(provinceId: number | null, text: string): Promise<void> {
+    if (!this.organizationLocationPage()) return;
+    const query = text.trim();
+    if (provinceId === null && query.length < 2) {
+      this.locationCityOptions.set([]);
+      return;
+    }
+    this.locationCityLoading.set(true);
+    try {
+      this.locationCityOptions.set(await this.organizationLocationService.searchCities(provinceId, query, provinceId === null ? 120 : 500));
+    } catch {
+      this.locationCityOptions.set([]);
+    } finally {
+      this.locationCityLoading.set(false);
+    }
+  }
+
+  private locationCityDisplay(option: LookupOption): string {
+    return option.code ? `${option.label} (${option.code})` : option.label;
+  }
+
+  private wireOrganizationLocationCoordinates(): void {
+    if (!this.organizationLocationPage()) return;
+    const latitude = this.form.controls['latitude'];
+    const longitude = this.form.controls['longitude'];
+    const updateLatitude = (value: unknown) => this.locationLatitude.set(this.parseCoordinate(value));
+    const updateLongitude = (value: unknown) => this.locationLongitude.set(this.parseCoordinate(value));
+    updateLatitude(latitude?.value);
+    updateLongitude(longitude?.value);
+    latitude?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(updateLatitude);
+    longitude?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(updateLongitude);
+  }
+
+  private parseCoordinate(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   private async initializeGridLookupFields(): Promise<void> {

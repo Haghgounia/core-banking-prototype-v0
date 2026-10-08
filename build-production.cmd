@@ -20,6 +20,10 @@ node "%ROOT%tools\migrate-root-layout.mjs" || exit /b 1
 rem FIX100 upgrade guard: archive obsolete Product Builder source left by older overlay patches.
 node "%ROOT%tools\migrate-source-layout.mjs" || exit /b 1
 node "%ROOT%tools\verify-release-layout.mjs" || exit /b 1
+rem PB-R15 business selector/clone/duplicate and pricing domain guard.
+node "%ROOT%tools\verify-pb-r15.mjs" || exit /b 1
+rem PB-R16 Product/Version distinction, child navigation and Persian Product Builder grids.
+node "%ROOT%tools\verify-pb-r16.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.
 if not exist "%ROOT%frontend\src\app\app.component.ts" (
@@ -118,6 +122,8 @@ node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 
 rem FIX70 static guard: PDL unified product builder menu, metadata CRUD and product workspace.
 node "%ROOT%tools\verify-pdl-product-builder.mjs" || exit /b 1
+rem PB-R13: compare reviewed deposit UX/contracts to the tested standalone reference.
+node "%ROOT%tools\verify-pb-r13.mjs" || exit /b 1
 rem R10R static guard: governed Product Version defaults, Persian status labels and system-managed approval audit.
 node "%ROOT%tools\verify-pdl-product-version-r10r.mjs" || exit /b 1
 rem R10S static guard: common-rule reference selectors and Persian grid values.

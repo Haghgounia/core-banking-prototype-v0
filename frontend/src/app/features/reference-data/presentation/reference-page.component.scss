@@ -33,3 +33,12 @@ td, th { padding-inline: 14px !important; }
 .advanced-filters__title mat-icon { font-size: 20px; width: 20px; height: 20px; }
 .advanced-filters__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
 @media (max-width: 700px) { .advanced-filters__grid { grid-template-columns: 1fr; } }
+
+/* ORG.LOCATIONS only: searchable geography and coordinate map preview. */
+.org-location-geo-picker { display: grid; gap: 12px; }
+.org-location-map-panel { margin: -4px 0 16px; padding: 12px; border: 1px solid var(--app-border); border-radius: 12px; background: var(--app-surface-muted); }
+.org-location-map-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.org-location-map-frame { margin-top: 12px; border: 1px solid var(--app-border); border-radius: 10px; overflow: hidden; background: #fff; }
+.org-location-map-frame iframe { display: block; width: 100%; height: 320px; border: 0; }
+.org-location-map-hint { margin-top: 8px; color: var(--app-muted); font-size: .78rem; line-height: 1.7; }
+@media (max-width: 700px) { .org-location-map-frame iframe { height: 250px; } }

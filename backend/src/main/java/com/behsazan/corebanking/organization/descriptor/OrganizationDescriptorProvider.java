@@ -96,6 +96,9 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
             new SelectOption("POSTAL", "نشانی پستی"),
             new SelectOption("MAILING", "نشانی مکاتبات")
     );
+    private static final List<SelectOption> COORDINATE_REFERENCE_SYSTEMS = List.of(
+            new SelectOption("WGS84", "WGS 84 (EPSG:4326)")
+    );
 
     @Value("${core-banking.schemas.organization:ORG}")
     private String schemaName = "ORG";
@@ -341,10 +344,10 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                 "locationId", "LOCATION_ID", "geoEntityId", "descriptionFa", null,
                 fields(
                         id("locationId", "LOCATION_ID", "شناسه"),
-                        number("geoEntityId", "GEO_ENTITY_ID", "شناسه موجودیت جغرافیایی GEO", true, true, null),
+                        lookup("geoEntityId", "GEO_ENTITY_ID", "شهر / موجودیت جغرافیایی GEO", "cities", true, true),
                         number("latitude", "LATITUDE", "عرض جغرافیایی", true, true, null),
                         number("longitude", "LONGITUDE", "طول جغرافیایی", true, true, null),
-                        text("coordinateReferenceSystemCode", "COORDINATE_REFERENCE_SYSTEM_CODE", "سامانه مختصات", true, false, false, 20),
+                        stringSelect("coordinateReferenceSystemCode", "COORDINATE_REFERENCE_SYSTEM_CODE", "سامانه مرجع مختصات", true, false, "WGS84", COORDINATE_REFERENCE_SYSTEMS),
                         text("descriptionFa", "DESCRIPTION_FA", "شرح مکان", true, true, true, 500),
                         text("descriptionEn", "DESCRIPTION_EN", "شرح انگلیسی", false, false, true, 500)
                 ));

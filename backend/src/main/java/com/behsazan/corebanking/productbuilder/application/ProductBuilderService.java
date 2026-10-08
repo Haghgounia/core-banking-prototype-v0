@@ -74,6 +74,8 @@ public class ProductBuilderService {
             validateGenderCriterionScope(prepared);
         }
         referenceOptionService.validateChangedValues(descriptor(table), prepared, null);
+        validateVersionScopedCreate(table, prepared);
+        validateRelationshipTargets(table, prepared);
         businessValidator.validate(table, prepared);
         long id = repository.insert(table, prepared, resolvedActor);
         return findById(table, id);
@@ -91,6 +93,7 @@ public class ProductBuilderService {
             validateGenderCriterionScope(merged);
         }
         referenceOptionService.validateChangedValues(descriptor(table), prepared, existing);
+        validateRelationshipTargets(table, merged);
         businessValidator.validate(table, merged);
         if (!repository.update(table, id, prepared, resolvedActor)) {
             throw new ProductBuilderValidationException("PDL row not found: " + table + "/" + id);
@@ -284,8 +287,51 @@ public class ProductBuilderService {
         }
     }
 
+    /** A profile and an opening policy are owned by one product version. Use edit, not a duplicate INSERT. */
+    private void validateVersionScopedCreate(String table, Map<String, Object> values) {
+        String name = normalizeTable(table);
+        if (!Set.of("DEPOSIT_PRODUCT_PROFILE", "DEPOSIT_PRODUCT_OPENING_RULE").contains(name)) return;
+        long version = number(values.get("PRODUCT_VERSION_ID"));
+        if (version <= 0) throw new ProductBuilderValidationException("نسخه محصول معتبر انتخاب نشده است.");
+        if (repository.search(name, null, 0, 1, "PRODUCT_VERSION_ID", String.valueOf(version)).totalElements() > 0) {
+            throw new ProductBuilderValidationException(name.equals("DEPOSIT_PRODUCT_PROFILE")
+                    ? "برای این نسخه محصول پروفایل سپرده قبلاً ثبت شده است. رکورد موجود را ویرایش کنید یا نسخه محصول دیگری را برای کپی انتخاب کنید."
+                    : "قاعده افتتاح برای این نسخه محصول قبلاً ثبت شده است. به جای افزودن رکورد تکراری، قاعده موجود را ویرایش کنید.");
+        }
+    }
+
+    private void validateRelationshipTargets(String table, Map<String, Object> values) {
+        if (!"PRODUCT_RELATIONSHIP".equals(normalizeTable(table))) return;
+        long sourceVersion = number(values.get("SOURCE_PRODUCT_VERSION_ID"));
+        long targetProduct = number(values.get("TARGET_PRODUCT_ID"));
+        if (sourceVersion <= 0 || targetProduct <= 0)
+            throw new ProductBuilderValidationException("نسخه محصول مبدأ و محصول مقصد الزامی هستند.");
+        Map<String, Object> source = findById("PRODUCT_VERSION", sourceVersion);
+        findById("PRODUCT", targetProduct);
+        if (number(source.get("PRODUCT_ID")) == targetProduct)
+            throw new ProductBuilderValidationException("محصول مقصد نباید همان محصول مبدأ باشد.");
+        long targetVersion = number(values.get("TARGET_PRODUCT_VERSION_ID"));
+        if (targetVersion > 0) {
+            Map<String, Object> target = findById("PRODUCT_VERSION", targetVersion);
+            if (number(target.get("PRODUCT_ID")) != targetProduct)
+                throw new ProductBuilderValidationException("نسخه انتخاب‌شده متعلق به محصول مقصد نیست.");
+        }
+    }
+
     private Map<String, Object> prepareCreateValues(String table, Map<String, Object> values, String actor) {
         Map<String, Object> prepared = new LinkedHashMap<>(values);
+        if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table))) {
+            var identity = depositIdentity(number(prepared.get("PRODUCT_VERSION_ID")));
+            String enteredGroup = text(prepared.get("DEPOSIT_GROUP_CODE"));
+            String enteredType = text(prepared.get("DEPOSIT_TYPE_CODE"));
+            if ((!enteredGroup.isBlank() && !enteredGroup.equals(identity[0])) ||
+                    (!enteredType.isBlank() && !enteredType.equals(identity[1]))) {
+                throw new ProductBuilderValidationException("گروه یا نوع سپرده با خانواده نسخه محصول سازگار نیست.");
+            }
+            prepared.put("DEPOSIT_GROUP_CODE", identity[0]);
+            prepared.put("DEPOSIT_TYPE_CODE", identity[1]);
+            return prepared;
+        }
         if (!"PRODUCT_VERSION".equals(normalizeTable(table))) return prepared;
 
         long productId = number(prepared.get("PRODUCT_ID"));
@@ -300,6 +346,16 @@ public class ProductBuilderService {
     private Map<String, Object> prepareUpdateValues(String table, Map<String, Object> existing,
                                                      Map<String, Object> values, String actor) {
         Map<String, Object> prepared = new LinkedHashMap<>(values);
+        if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table))) {
+            // Identity is immutable after creation, regardless of client-side disabled fields.
+            for (String code : List.of("DEPOSIT_GROUP_CODE", "DEPOSIT_TYPE_CODE")) {
+                if (prepared.containsKey(code) && !text(prepared.get(code)).equals(text(existing.get(code)))) {
+                    throw new ProductBuilderValidationException("گروه و نوع سپرده پس از ثبت قابل تغییر نیستند.");
+                }
+                prepared.remove(code);
+            }
+            return prepared;
+        }
         if (!"PRODUCT_VERSION".equals(normalizeTable(table))) return prepared;
 
         prepared.remove("VERSION_NO");
@@ -307,6 +363,23 @@ public class ProductBuilderService {
         prepared.remove("APPROVED_BY");
         applyApprovalAudit(prepared, text(existing.get("VERSION_STATUS_CODE")), actor);
         return prepared;
+    }
+
+    /** The FIX96 DPS product-family classification is the authoritative server-side identity. */
+    private String[] depositIdentity(long versionId) {
+        if (versionId <= 0) throw new ProductBuilderValidationException("نسخه محصول برای پروفایل سپرده الزامی است.");
+        Map<String, Object> version = findById("PRODUCT_VERSION", versionId);
+        Map<String, Object> product = findById("PRODUCT", number(version.get("PRODUCT_ID")));
+        String family = text(product.get("PRODUCT_FAMILY_CODE"));
+        return switch (family) {
+            case "SAVINGS", "QARD_SAVINGS" -> new String[]{"QARD_HASAN", "SAVINGS"};
+            case "CURRENT", "CURRENT_ACCOUNT" -> new String[]{"CURRENT", "CURRENT_NO_INTEREST"};
+            case "SHORT_TERM_DEPOSIT" -> new String[]{"SHORT_TERM", "SHORT_TERM_DEPOSIT"};
+            case "LONG_TERM_DEPOSIT" -> new String[]{"LONG_TERM", "LONG_TERM_DEPOSIT"};
+            case "CERTIFICATE_OF_DEPOSIT" -> new String[]{"CERTIFICATE", "CERTIFICATE_OF_DEPOSIT"};
+            default -> throw new ProductBuilderValidationException(
+                    "برای خانواده این محصول، نگاشت گروه و نوع سپرده تعریف نشده است. اطلاعات پایه را اصلاح کنید.");
+        };
     }
 
     private void applyApprovalAudit(Map<String, Object> values, String previousStatus, String actor) {
