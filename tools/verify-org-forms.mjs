@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = process.cwd();
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fail = (message) => { console.error(`ORG_FORMS_VERIFY_FAIL: ${message}`); process.exit(1); };
 const ok = (message) => console.log(`PASS ${message}`);
 const read = (relative) => {

@@ -71,6 +71,17 @@ public final class ProductBuilderModels {
             Map<String, Long> relatedCounts
     ) {}
 
+
+    public record EligibilityRuleSaveRequest(
+            Map<String, Object> rule,
+            List<Map<String, Object>> criteria
+    ) {}
+
+    public record EligibilityRuleSaveResponse(
+            Map<String, Object> rule,
+            List<Map<String, Object>> criteria
+    ) {}
+
     public record ProductVersionDefaults(
             long nextVersionNo,
             String systemDate,

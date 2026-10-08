@@ -9,10 +9,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PdlCatalogTest {
     @Test
-    void containsFiftyBusinessTablesPlusThreeCodeInfrastructureTables() {
-        assertThat(PdlCatalog.entries()).hasSize(53);
+    void containsFiftyOneBusinessTablesPlusThreeCodeInfrastructureTables() {
+        assertThat(PdlCatalog.entries()).hasSize(54);
         assertThat(PdlCatalog.contains("PRODUCT")).isTrue();
         assertThat(PdlCatalog.contains("PRODUCT_VERSION")).isTrue();
+        assertThat(PdlCatalog.contains("PRODUCT_ELIGIBILITY_RULE")).isTrue();
+        assertThat(PdlCatalog.contains("PRODUCT_ELIGIBILITY_CRITERION")).isTrue();
         assertThat(PdlCatalog.contains("DEPOSIT_PROFIT_PAYMENT_RULE")).isTrue();
         assertThat(PdlCatalog.contains("CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE")).isTrue();
         assertThat(PdlCatalog.contains("CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE")).isTrue();
@@ -25,7 +27,7 @@ class PdlCatalogTest {
                 .collect(Collectors.groupingBy(PdlCatalog.Entry::packageCode, Collectors.counting()));
         assertThat(counts).containsExactlyInAnyOrderEntriesOf(Map.of(
                 "01", 5L,
-                "02", 9L,
+                "02", 10L,
                 "03", 14L,
                 "04", 6L,
                 "05", 14L,
@@ -35,6 +37,6 @@ class PdlCatalogTest {
         long businessCount = PdlCatalog.entries().stream()
                 .filter(entry -> !entry.packageCode().equals("90"))
                 .count();
-        assertThat(businessCount).isEqualTo(50L);
+        assertThat(businessCount).isEqualTo(51L);
     }
 }

@@ -2,6 +2,8 @@ package com.behsazan.corebanking.productbuilder.web;
 
 import com.behsazan.corebanking.productbuilder.application.ProductBuilderService;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.CatalogResponse;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.EligibilityRuleSaveRequest;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.EligibilityRuleSaveResponse;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.ProductWorkspace;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.ProductVersionDefaults;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.SelectOption;
@@ -46,6 +48,26 @@ public class ProductBuilderController {
             @PathVariable long productId,
             @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
         return service.productVersionDefaults(productId, actor);
+    }
+
+    @GetMapping("/eligibility-rules/{id}")
+    EligibilityRuleSaveResponse eligibilityRule(@PathVariable long id) {
+        return service.eligibilityRule(id);
+    }
+
+    @PostMapping("/eligibility-rules")
+    EligibilityRuleSaveResponse createEligibilityRule(
+            @RequestBody EligibilityRuleSaveRequest request,
+            @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        return service.saveEligibilityRule(null, request, actor);
+    }
+
+    @PutMapping("/eligibility-rules/{id}")
+    EligibilityRuleSaveResponse updateEligibilityRule(
+            @PathVariable long id,
+            @RequestBody EligibilityRuleSaveRequest request,
+            @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        return service.saveEligibilityRule(id, request, actor);
     }
 
     @GetMapping("/tables/{table}/descriptor")

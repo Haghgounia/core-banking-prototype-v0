@@ -7,6 +7,7 @@ import com.behsazan.corebanking.referencedata.management.application.ReferenceSe
 import com.behsazan.corebanking.cif.reference.application.PartyReferenceService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -27,6 +28,7 @@ import java.util.Set;
 public class PdlReferenceOptionService {
     private static final Set<String> COMMON_RULE_TABLES = Set.of(
             "PRODUCT_ELIGIBILITY_RULE",
+            "PRODUCT_ELIGIBILITY_CRITERION",
             "PRODUCT_CHANNEL_RULE",
             "PRODUCT_CHANNEL_OPERATION",
             "PRODUCT_ORG_SCOPE",
@@ -45,6 +47,7 @@ public class PdlReferenceOptionService {
             Map.entry("MIN_KYC_LEVEL_CODE", "dps-kyc-levels"),
             Map.entry("REQUIRED_KYC_LEVEL_CODE", "dps-kyc-levels"),
             Map.entry("NATIONALITY_SCOPE_CODE", "dps-nationality-scopes"),
+            Map.entry("GENDER_CODE", "dps-genders"),
             Map.entry("CHANNEL_CODE", "dps-channels"),
             Map.entry("OPENING_CHANNEL_CODE", "dps-channels"),
             Map.entry("OPERATION_CODE", "dps2-operation"),
@@ -153,7 +156,24 @@ public class PdlReferenceOptionService {
             Map.entry("CURRENCY_CODE", opts("IRR", "USD", "EUR", "AED")),
             Map.entry("DEFAULT_CURRENCY_CODE", opts("IRR", "USD", "EUR", "AED")),
             Map.entry("SETTLEMENT_CURRENCY_CODE", opts("IRR", "USD", "EUR", "AED")),
+            Map.entry("GENDER_CODE", optsLabeled("1", "مرد", "2", "زن", "4", "نامشخص")),
+            Map.entry("CRITERION_TYPE_CODE", optsLabeled(
+                    "CUSTOMER_TYPE", "نوع مشتری", "CUSTOMER_SEGMENT", "بخش مشتری",
+                    "CUSTOMER_STATUS", "وضعیت مشتری", "GENDER", "جنسیت",
+                    "RESIDENCY_STATUS", "وضعیت اقامت", "NATIONALITY_SCOPE", "دامنه تابعیت",
+                    "CUSTOMER_TENURE", "حداقل سابقه مشتری نزد بانک", "ACCOUNT_TENURE", "حداقل سابقه حساب")),
+            Map.entry("OPERATOR_CODE", optsLabeled("IN", "یکی از مقادیر", "EQ", "برابر", "MIN", "حداقل", "MAX", "حداکثر")),
+            Map.entry("VALUE_UNIT_CODE", optsLabeled("DAY", "روز", "MONTH", "ماه", "YEAR", "سال")),
             Map.entry("RULE_STATUS_CODE", opts("DRAFT", "ACTIVE", "INACTIVE"))
+    );
+
+    private static final Map<String, String> ELIGIBILITY_COLUMN_BY_TYPE = Map.ofEntries(
+            Map.entry("CUSTOMER_TYPE", "CUSTOMER_TYPE_CODE"),
+            Map.entry("CUSTOMER_SEGMENT", "CUSTOMER_SEGMENT_CODE"),
+            Map.entry("CUSTOMER_STATUS", "CUSTOMER_STATUS_CODE"),
+            Map.entry("GENDER", "GENDER_CODE"),
+            Map.entry("RESIDENCY_STATUS", "RESIDENCY_STATUS_CODE"),
+            Map.entry("NATIONALITY_SCOPE", "NATIONALITY_SCOPE_CODE")
     );
 
     private final ReferenceService referenceService;
@@ -162,6 +182,57 @@ public class PdlReferenceOptionService {
     public PdlReferenceOptionService(ReferenceService referenceService, PartyReferenceService partyReferenceService) {
         this.referenceService = referenceService;
         this.partyReferenceService = partyReferenceService;
+    }
+
+    public List<SelectOption> eligibilityCriterionOptions(String criterionType) {
+        String type = normalize(criterionType);
+        String column = ELIGIBILITY_COLUMN_BY_TYPE.get(type);
+        if (column == null) return List.of();
+        String resource = RESOURCE_BY_COLUMN.get(column);
+        String partyResource = PARTY_RESOURCE_BY_COLUMN.get(column);
+        List<SelectOption> governed = partyResource != null
+                ? partyReferenceOptions(partyResource)
+                : referenceOptions(resource);
+        return mergeOptions(List.of(), governed, FALLBACKS.getOrDefault(column, List.of()));
+    }
+
+    public void validateEligibilityCriterion(Map<String, Object> values) {
+        String type = normalize(values.get("CRITERION_TYPE_CODE"));
+        String operator = normalize(values.get("OPERATOR_CODE"));
+        if (type.isBlank()) throw new ProductBuilderValidationException("نوع معیار اهلیت الزامی است.");
+        if (operator.isBlank()) operator = "IN";
+
+        if (Set.of("CUSTOMER_TENURE", "ACCOUNT_TENURE").contains(type)) {
+            if (!"MIN".equals(operator)) {
+                throw new ProductBuilderValidationException("معیار سابقه باید با عملگر حداقل ثبت شود.");
+            }
+            Object number = values.get("CRITERION_VALUE_NUMBER");
+            if (number == null || number.toString().isBlank()) {
+                throw new ProductBuilderValidationException("مقدار سابقه الزامی است.");
+            }
+            try {
+                if (new BigDecimal(number.toString()).signum() < 0) {
+                    throw new ProductBuilderValidationException("مقدار سابقه نمی‌تواند منفی باشد.");
+                }
+            } catch (NumberFormatException ex) {
+                throw new ProductBuilderValidationException("مقدار سابقه باید عددی باشد.");
+            }
+            String unit = normalize(values.get("VALUE_UNIT_CODE"));
+            if (!Set.of("DAY", "MONTH", "YEAR").contains(unit)) {
+                throw new ProductBuilderValidationException("واحد سابقه باید روز، ماه یا سال باشد.");
+            }
+            return;
+        }
+
+        if (!Set.of("IN", "EQ").contains(operator)) {
+            throw new ProductBuilderValidationException("عملگر معیار دامنه‌ای باید IN یا EQ باشد.");
+        }
+        String code = values.get("CRITERION_VALUE_CODE") == null ? "" : values.get("CRITERION_VALUE_CODE").toString().trim();
+        if (code.isBlank()) throw new ProductBuilderValidationException("مقدار معیار اهلیت الزامی است.");
+        List<SelectOption> options = eligibilityCriterionOptions(type);
+        if (options.isEmpty() || options.stream().noneMatch(o -> same(code, o.value()) || same(code, o.code()))) {
+            throw new ProductBuilderValidationException("مقدار معیار اهلیت باید از داده مرجع معتبر انتخاب شود.");
+        }
     }
 
     public TableDescriptor enrich(TableDescriptor descriptor) {

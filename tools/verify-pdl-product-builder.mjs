@@ -23,6 +23,7 @@ const validator = read('backend/src/main/java/com/behsazan/corebanking/productbu
 const yml = read('backend/src/main/resources/application.yml');
 const pdlMigration = read('database/oracle/pdl/migrations/0.3.88-fix96-unified-product-builder-baseline.sql');
 const dpsSeed = read('database/oracle/dps/migrations/0.3.88-fix96-unified-product-builder-reference-seed.sql');
+const eligibilityR10u = read('database/oracle/pdl/migrations/0.11.0-r10u-eligibility-rule-business-ux.sql');
 
 must(routes.includes("path: 'product-builder'"), 'Product builder home route missing');
 must(routes.includes("path: 'product-builder/products/:productId'"), 'Product workspace route missing');
@@ -91,13 +92,17 @@ for (const family of ['SHORT_TERM_DEPOSIT','LONG_TERM_DEPOSIT','NOSTRO_ACCOUNT',
   must(dpsSeed.includes(`'${family}'`), `DPS semantic seed missing: ${family}`);
 }
 
+must(catalog.includes('register("PRODUCT_ELIGIBILITY_CRITERION"'), 'R10U eligibility criterion catalog table missing');
+must(eligibilityR10u.includes('CREATE TABLE PDL.PRODUCT_ELIGIBILITY_CRITERION'), 'R10U eligibility criterion migration DDL missing');
+must(eligibilityR10u.includes('CRITERIA_MODEL_VERSION'), 'R10U eligibility model version marker DDL missing');
+
 const registrations = [...catalog.matchAll(/register\("([A-Z0-9_$#]+)"[^\n]*"([0-9]+)"/g)].map(m => ({table:m[1], pkg:m[2]}));
-must(registrations.length === 53, `Expected 53 physical PDL catalog tables, found ${registrations.length}`);
+must(registrations.length === 54, `Expected 54 physical PDL catalog tables, found ${registrations.length}`);
 const counts = registrations.reduce((m, item) => (m[item.pkg] = (m[item.pkg] ?? 0) + 1, m), {});
-const expected = {'01':5,'02':9,'03':14,'04':6,'05':14,'11':2,'90':3};
+const expected = {'01':5,'02':10,'03':14,'04':6,'05':14,'11':2,'90':3};
 for (const [pkg, count] of Object.entries(expected)) must(counts[pkg] === count, `Package ${pkg}: expected ${count}, found ${counts[pkg] ?? 0}`);
 const businessCount = registrations.filter(item => item.pkg !== '90').length;
-must(businessCount === 50, `Expected 50 business-model tables, found ${businessCount}`);
+must(businessCount === 51, `Expected 51 business-model tables, found ${businessCount}`);
 for (const table of ['CODE_SET','CODE_VALUE','CODE_VALUE_TRANSITION']) {
   const entry = registrations.find(item => item.table === table);
   must(entry?.pkg === '90', `${table} must be isolated in package 90`);
@@ -105,7 +110,8 @@ for (const table of ['CODE_SET','CODE_VALUE','CODE_VALUE_TRANSITION']) {
 
 for (const rel of [
   'database/oracle/pdl/migrations/0.3.88-fix96-unified-product-builder-baseline.sql',
-  'database/oracle/dps/migrations/0.3.88-fix96-unified-product-builder-reference-seed.sql'
+  'database/oracle/dps/migrations/0.3.88-fix96-unified-product-builder-reference-seed.sql',
+  'database/oracle/pdl/migrations/0.11.0-r10u-eligibility-rule-business-ux.sql'
 ]) must(exists(rel), `Missing migration: ${rel}`);
 
 console.log('PDL unified product builder static verification: OK');

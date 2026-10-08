@@ -111,6 +111,8 @@ node "%ROOT%tools\verify-time-picker.mjs" || exit /b 1
 
 rem FIX74 static guard: Node verifier filesystem roots must be Windows-safe and cwd-independent.
 node "%ROOT%tools\verify-node-tool-path-portability.mjs" || exit /b 1
+rem ORG 0.11.0 static guard: all 35 organization/network forms, routes, descriptors and CRUD metadata.
+node "%ROOT%tools\verify-org-forms.mjs" || exit /b 1
 echo [VERIFY] CIF ISIC2 clean hierarchy...
 node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 
@@ -123,6 +125,13 @@ node "%ROOT%tools\verify-pdl-common-rules-r10s.mjs" || exit /b 1
 node "%ROOT%tools\verify-pdl-ui-alignment-r10t.mjs" || exit /b 1
 rem R10T-HF1 static guard: Java-valid governed reference map syntax before Maven compilation.
 node "%ROOT%tools\verify-pdl-r10t-hf1-java-compile.mjs" || exit /b 1
+node "%ROOT%tools\verify-pdl-eligibility-r10u.mjs" || exit /b 1
+rem R10U-HF3 static guard: preserve Map<String,Object> stream target typing before Maven compilation.
+node "%ROOT%tools\verify-pdl-r10u-hf3-java-generic.mjs" || exit /b 1
+rem R10U-HF4 static guard: catalog unit-test expectations follow the normalized eligibility criterion model.
+node "%ROOT%tools\verify-pdl-r10u-hf4-catalog-test.mjs" || exit /b 1
+rem R10U-HF5 static guard: governed default currency reference, ISO business codes and ProblemDetail UX.
+node "%ROOT%tools\verify-pdl-r10u-hf5-currency-reference.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-four-deposits.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-final-ui-11.mjs" || exit /b 1
 node "%ROOT%tools\verify-dps2-opening-reviewed-alignment.mjs" || exit /b 1
