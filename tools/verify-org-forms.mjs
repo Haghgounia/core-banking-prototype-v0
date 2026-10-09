@@ -93,6 +93,56 @@ for (const resource of expected) {
 if (menuResourceMatches.length !== 35) fail(`menu expected 35 resources, found ${menuResourceMatches.length}`);
 ok('menu contains all 35 ORG forms exactly once');
 
+const referencePageTs = read('frontend/src/app/features/reference-data/presentation/reference-page.component.ts');
+const referencePageHtml = read('frontend/src/app/features/reference-data/presentation/reference-page.component.html');
+for (const token of ['organizationUnitsPage', 'organizationUnitTypeFilterControl', 'organizationUnitTypeId']) {
+  if (!referencePageTs.includes(token)) fail(`ORGANIZATION_UNITS type filter logic missing: ${token}`);
+}
+for (const token of ['نوع واحد', 'همه انواع واحد', "lookupOptions()['organizationUnitTypeId']"]) {
+  if (!referencePageHtml.includes(token)) fail(`ORGANIZATION_UNITS type filter UI missing: ${token}`);
+}
+ok('ORGANIZATION_UNITS unit-type filter');
+
+const expectedOrgFilters = {
+  'organizations': ['statusCode'],
+  'organization-units': ['organizationId', 'statusCode'],
+  'organization-unit-relationship-types': ['hierarchicalFlag'],
+  'organization-unit-relationships': ['sourceOrganizationUnitId', 'targetOrganizationUnitId', 'organizationUnitRelationshipTypeId'],
+  'organization-unit-relationship-rules': ['organizationUnitRelationshipTypeId', 'sourceOrganizationUnitTypeId', 'targetOrganizationUnitTypeId'],
+  'organization-unit-lifecycle-events': ['organizationUnitLifecycleEventTypeId', 'successorOrganizationUnitId'],
+  'postal-addresses': ['addressTypeCode'],
+  'organization-unit-locations': ['locationId', 'locationRoleCode'],
+  'organization-unit-geo-coverages': ['coverageTypeCode'],
+  'operating-schedules': ['scheduleTypeCode'],
+  'operating-schedule-intervals': ['dayOfWeekCode', 'shiftNo'],
+  'organization-unit-operating-schedules': ['operatingScheduleId', 'scheduleRoleCode'],
+  'organization-unit-operating-exceptions': ['exceptionTypeCode'],
+  'organization-unit-operating-exception-intervals': ['shiftNo'],
+  'employee-assignments': ['employeeAssignmentRoleId', 'primaryFlag'],
+  'organization-unit-service-capabilities': ['serviceCapabilityId', 'statusCode'],
+  'foreign-exchange-service-profiles': ['recordIncomeFlag', 'statusCode'],
+  'points-of-service': ['pointOfServiceTypeId', 'locationId', 'statusCode'],
+  'organization-unit-point-of-service-assignments': ['pointOfServiceId', 'assignmentRoleCode'],
+  'point-of-service-contact-points': ['contactRoleId', 'primaryFlag'],
+  'point-of-service-operating-schedules': ['operatingScheduleId'],
+  'point-of-service-operating-exceptions': ['exceptionTypeCode'],
+  'point-of-service-operating-exception-intervals': ['shiftNo'],
+  'self-service-terminals': ['selfServiceTerminalTypeId', 'statusCode'],
+  'self-service-terminal-assignments': ['organizationUnitId', 'assignmentRoleCode'],
+  'organization-unit-contact-points': ['contactRoleId', 'primaryFlag']
+};
+for (const [resource, fields] of Object.entries(expectedOrgFilters)) {
+  const expectedMapping = `'${resource}': [${fields.map(field => `'${field}'`).join(', ')}]`;
+  if (!referencePageTs.includes(expectedMapping)) fail(`ORG specialized filter mapping mismatch for ${resource}`);
+}
+for (const token of ['organizationFilterFields', 'collectAdvancedFilters', 'applyAdvancedFilters']) {
+  if (!referencePageTs.includes(token)) fail(`ORG filter orchestration missing: ${token}`);
+}
+for (const token of ["field.type === 'BOOLEAN' && store.descriptor()?.category === 'ORGANIZATION'", '[value]="true"', '[value]="false"']) {
+  if (!referencePageHtml.includes(token)) fail(`ORG boolean filter UI missing: ${token}`);
+}
+ok('contextual filters across ORG forms');
+
 const repository = read('backend/src/main/java/com/behsazan/corebanking/referencedata/management/oracle/OracleReferenceRepository.java');
 if (!repository.includes('optionalField("createdAt")') || !repository.includes('SYSTIMESTAMP')) fail('generic insert does not support createdAt/SYSTIMESTAMP');
 ok('generic repository createdAt support');

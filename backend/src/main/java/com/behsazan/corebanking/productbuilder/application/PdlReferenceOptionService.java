@@ -102,6 +102,17 @@ public class PdlReferenceOptionService {
             "PROFIT_DISTRIBUTION_CODE", Map.of("1", "EQUAL", "2", "OWNERSHIP_SHARE", "3", "CUSTOM_PERCENT")
     );
 
+    // The approved Product Builder form specifies semantic choices even when DPS
+    // reference tables are not seeded. Never show numeric DPS surrogates to users.
+    // When Oracle publishes CHECK choices, constrain this contract to those codes.
+    private static final Map<String, List<SelectOption>> JOINT_FORM_CONTRACT = Map.of(
+            "OWNERSHIP_TYPE_CODE", optsLabeled("SINGLE", "انفرادی", "JOINT", "مشترک"),
+            "SIGNING_RULE_CODE", optsLabeled("ANY_TO_SIGN", "امضای هر یک کافی است",
+                    "BOTH_TO_SIGN", "امضای همه لازم است", "N_OF_M", "تعداد مشخصی از امضاکنندگان"),
+            "PROFIT_DISTRIBUTION_CODE", optsLabeled("OWNERSHIP_SHARE", "بر اساس سهم مالکیت",
+                    "EQUAL", "به نسبت مساوی", "CUSTOM_PERCENT", "بر اساس درصد توافق‌شده")
+    );
+
     // Labels come from the signed-off interactive Product Builder contract. These
     // options are *only* exposed when the actual PDL database CHECK permits them.
     private static final Map<String, String> PDL_DEPOSIT_CHECK_LABELS = Map.ofEntries(
@@ -427,11 +438,16 @@ public class PdlReferenceOptionService {
 
     static List<SelectOption> mapJointOptions(String columnName, List<SelectOption> constraints,
                                                List<SelectOption> governed) {
-        // Without DB CHECK options there is no verified PDL value domain to translate to.
-        if (constraints == null || constraints.isEmpty()) return List.of();
+        // The model-approved form contract is the fallback for incomplete DPS seeds;
+        // database CHECK codes, when supplied, always restrict the selectable domain.
+        List<SelectOption> declared = JOINT_FORM_CONTRACT.getOrDefault(columnName, List.of());
+        if (declared.isEmpty()) return List.of();
+        boolean hasCheck = constraints != null && !constraints.isEmpty();
         Map<String, String> translations = JOINT_CODE_TRANSLATIONS.getOrDefault(columnName, Map.of());
         Set<String> allowed = new LinkedHashSet<>();
-        for (SelectOption check : constraints) allowed.add(normalize(check.code() == null ? check.value() : check.code()));
+        if (hasCheck) for (SelectOption check : constraints)
+            allowed.add(normalize(check.code() == null ? check.value() : check.code()));
+        else for (SelectOption choice : declared) allowed.add(normalize(choice.code()));
         LinkedHashMap<String, SelectOption> mapped = new LinkedHashMap<>();
         for (SelectOption reference : governed) {
             String incoming = normalize(reference.code() == null ? reference.value() : reference.code());
@@ -441,6 +457,27 @@ public class PdlReferenceOptionService {
             if (persistedCode == null) continue;
             if ("عنوان فارسی مرجع تعریف نشده".equals(reference.label())) continue;
             mapped.putIfAbsent(persistedCode, new SelectOption(persistedCode, persistedCode, reference.label()));
+        }
+        // If the reference is empty or entirely incompatible, use the reviewed
+        // semantic form contract. Where CHECK exists, it is still the authority.
+        if (mapped.isEmpty()) {
+            for (SelectOption choice : declared) {
+                String semantic = normalize(choice.code());
+                if (allowed.contains(semantic)) mapped.putIfAbsent(semantic, choice);
+            }
+            // Some legacy PDL installations CHECK numeric codes rather than semantics.
+            // Only actual CHECK-permitted numbers are eligible; labels stay Persian.
+            for (Map.Entry<String, String> entry : translations.entrySet()) {
+                String numeric = entry.getKey();
+                String semantic = entry.getValue();
+                if (!allowed.contains(numeric)) continue;
+                for (SelectOption choice : declared) {
+                    if (semantic.equals(normalize(choice.code()))) {
+                        mapped.putIfAbsent(numeric, new SelectOption(numeric, numeric, choice.label()));
+                        break;
+                    }
+                }
+            }
         }
         return List.copyOf(mapped.values());
     }

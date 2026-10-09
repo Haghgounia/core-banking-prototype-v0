@@ -5,6 +5,7 @@ import com.behsazan.corebanking.cif.error.CifValidationException;
 import com.behsazan.corebanking.system.modelcomparison.ModelComparisonValidationException;
 import com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException;
 import com.behsazan.corebanking.fee.admin.application.FeeAdminValidationException;
+import com.behsazan.corebanking.fee2.application.Fee2ValidationException;
 import com.behsazan.corebanking.deposit.account.error.DepositAccountLifecycleException;
 import com.behsazan.corebanking.deposit.account.error.CorrespondentProductProfileNotFoundException;
 import com.behsazan.corebanking.deposit.account.error.DepositAccountNotFoundException;
@@ -84,6 +85,16 @@ public class GlobalExceptionHandler {
         problem.setType(URI.create("urn:core-banking:problem:fee-admin-validation"));
         problem.setTitle("اطلاعات کارمزد معتبر نیست");
         problem.setProperty("errorCode", "FEE_ADMIN_VALIDATION_FAILED");
+        return problem;
+    }
+
+    @ExceptionHandler(Fee2ValidationException.class)
+    ProblemDetail handleFee2Validation(Fee2ValidationException exception) {
+        log.warn("FEE2 validation failed: {}", exception.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
+        problem.setType(URI.create("urn:core-banking:problem:fee2-validation"));
+        problem.setTitle("اطلاعات موتور کارمزد معتبر نیست");
+        problem.setProperty("errorCode", "FEE2_VALIDATION_FAILED");
         return problem;
     }
 

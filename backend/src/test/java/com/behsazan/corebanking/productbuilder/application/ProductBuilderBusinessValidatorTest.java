@@ -37,4 +37,20 @@ class ProductBuilderBusinessValidatorTest {
                 "VALID_FROM", "2026-09-10"
         ))).isInstanceOf(ProductBuilderValidationException.class);
     }
+    @Test
+    void openingAmountsAllowNullButNotNegativeOrReversedBounds() {
+        validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of());
+        validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of(
+                "MIN_OPENING_AMOUNT", 1000, "MAX_OPENING_AMOUNT", 2000,
+                "MIN_REQUIRED_BALANCE", 100, "MAX_ALLOWED_BALANCE", 500));
+        assertThatThrownBy(() -> validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of(
+                "MIN_OPENING_AMOUNT", 2000, "MAX_OPENING_AMOUNT", 1000)))
+                .isInstanceOf(ProductBuilderValidationException.class);
+        assertThatThrownBy(() -> validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of(
+                "MIN_REQUIRED_BALANCE", 1000, "MAX_ALLOWED_BALANCE", 900)))
+                .isInstanceOf(ProductBuilderValidationException.class);
+        assertThatThrownBy(() -> validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of(
+                "MIN_OPENING_AMOUNT", -1)))
+                .isInstanceOf(ProductBuilderValidationException.class);
+    }
 }

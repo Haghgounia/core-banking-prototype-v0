@@ -44,6 +44,7 @@ core-banking:
     cif: CIF
     party-reference: CIF
     fee: FEE
+    fee2: FEE2
     calendar: CAL
     calendar2: CAL2
   database-export:

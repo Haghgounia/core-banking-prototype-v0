@@ -24,6 +24,7 @@ rem PB-R15 business selector/clone/duplicate and pricing domain guard.
 node "%ROOT%tools\verify-pb-r15.mjs" || exit /b 1
 rem PB-R16 Product/Version distinction, child navigation and Persian Product Builder grids.
 node "%ROOT%tools\verify-pb-r16.mjs" || exit /b 1
+node "%ROOT%tools\verify-pb-r17.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.
 if not exist "%ROOT%frontend\src\app\app.component.ts" (
@@ -201,6 +202,8 @@ node "%ROOT%tools\verify-cif-address-hotfix-071.mjs" || exit /b 1
 
 rem FIX77 static guard: FEE Baseline 1.0 has 47 metadata-driven forms and 574 seed rows.
 node "%ROOT%tools\verify-fee-admin-baseline.mjs" || exit /b 1
+rem FEE2 static guard: independent 19-table fee engine forms, UUID persistence and version workflow.
+node "%ROOT%tools\verify-fee2-forms.mjs" || exit /b 1
 
 rem FIX81 static guard: complete CBI 1404 tariff import is normalized, non-destructive and fully verified.
 node "%ROOT%tools\verify-cbi-fee-1404-import.mjs" || exit /b 1

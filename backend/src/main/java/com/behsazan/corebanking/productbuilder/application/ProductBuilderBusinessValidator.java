@@ -20,6 +20,7 @@ public class ProductBuilderBusinessValidator {
         if (table == null || values == null) return;
         switch (table.trim().toUpperCase()) {
             case "DEPOSIT_PROFIT_PAYMENT_RULE" -> validateProfitPayment(values);
+            case "DEPOSIT_PRODUCT_OPENING_RULE" -> validateOpeningAmounts(values);
             case "DEPOSIT_PRODUCT_JOINT_RULE" -> validateJointOwnerCounts(values);
             case "PRODUCT_PRICING_RULE" -> validatePricingRule(values);
             case "PRODUCT_RELATIONSHIP" -> validateRelationship(values);
@@ -27,6 +28,26 @@ public class ProductBuilderBusinessValidator {
             case "CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE" -> validateCorrespondentSettlement(values);
             default -> validateGenericDateRange(values);
         }
+    }
+
+    private void validateOpeningAmounts(Map<String, Object> values) {
+        // Nullable limits mean "not configured", never 0. The bank's approval
+        // policy may later require explicit values before product activation.
+        BigDecimal minOpening = decimal(values, "MIN_OPENING_AMOUNT");
+        BigDecimal maxOpening = decimal(values, "MAX_OPENING_AMOUNT");
+        BigDecimal minBalance = decimal(values, "MIN_REQUIRED_BALANCE");
+        BigDecimal maxBalance = decimal(values, "MAX_ALLOWED_BALANCE");
+        if ((minOpening != null && minOpening.signum() < 0)
+                || (maxOpening != null && maxOpening.signum() < 0)
+                || (minBalance != null && minBalance.signum() < 0)
+                || (maxBalance != null && maxBalance.signum() < 0)) {
+            fail("حدود مالی افتتاح و نگهداری مانده نمی‌توانند منفی باشند.");
+        }
+        if (minOpening != null && maxOpening != null && maxOpening.compareTo(minOpening) < 0)
+            fail("حداکثر مبلغ افتتاح نباید کمتر از حداقل مبلغ افتتاح باشد.");
+        if (minBalance != null && maxBalance != null && maxBalance.compareTo(minBalance) < 0)
+            fail("حداکثر مانده مجاز نباید کمتر از حداقل مانده لازم باشد.");
+        validateGenericDateRange(values);
     }
 
     private void validateJointOwnerCounts(Map<String, Object> values) {

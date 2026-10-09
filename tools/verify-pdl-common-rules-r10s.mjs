@@ -29,7 +29,15 @@ check(service.includes('validateChangedValues(descriptor(table), prepared, null)
 check(service.includes('validateChangedValues(descriptor(table), prepared, existing)'),'update validates changed governed selections');
 check(fm.includes('referenceControlled: boolean')&&fm.includes('referenceSource: string | null'),'frontend receives reference governance metadata');
 check(ts.includes('column.referenceControlled || column.foreignKey || column.options.length > 0'),'reference-controlled fields always render as selectors');
-check(ts.includes('await this.loadLookups();\n      await this.search(0);'),'FK labels load before initial grid rendering');
+// PB-R17 may add an async navigation-generation guard between lookup loading and
+// row retrieval. Assert the real ordering within initialize(), not exact adjacency.
+const initializeStart = ts.indexOf('async initialize(): Promise<void> {');
+const initializeEnd = initializeStart < 0 ? -1 : ts.indexOf('\n  async search(', initializeStart);
+const initializeBody = initializeEnd > initializeStart ? ts.slice(initializeStart, initializeEnd) : '';
+const lookupIndex = initializeBody.indexOf('await this.loadLookups();');
+const rowsIndex = initializeBody.indexOf('await this.search(0);');
+check(initializeStart >= 0 && initializeEnd > initializeStart && lookupIndex >= 0 && rowsIndex > lookupIndex,
+  'FK labels load before initial grid rendering');
 check(ts.includes('.filter(c => c.foreignKey)'),'FK labels load even for context-locked/read-only grid values');
 check(ts.includes("return this.hasPersian(option.label) ? option.label.trim() : 'عنوان فارسی مرجع تعریف نشده';"),'selector text never falls back to raw Latin code');
 check(ts.includes("if (column.referenceControlled) return 'مقدار قدیمی؛ عنوان فارسی مرجع برای آن یافت نشد';"),'legacy unresolved codes are hidden from bank-user grid');

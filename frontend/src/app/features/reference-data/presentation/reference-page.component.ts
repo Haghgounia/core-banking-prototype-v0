@@ -55,9 +55,39 @@ export class ReferencePageComponent {
     'edu-education-source-mappings': ['sourceId', 'entityTypeCode', 'mappingTypeCode', 'matchStatusCode', 'activeFlag']
   };
 
+  private readonly organizationFilterFields: Readonly<Record<string, readonly string[]>> = {
+    'organizations': ['statusCode'],
+    'organization-units': ['organizationId', 'statusCode'],
+    'organization-unit-relationship-types': ['hierarchicalFlag'],
+    'organization-unit-relationships': ['sourceOrganizationUnitId', 'targetOrganizationUnitId', 'organizationUnitRelationshipTypeId'],
+    'organization-unit-relationship-rules': ['organizationUnitRelationshipTypeId', 'sourceOrganizationUnitTypeId', 'targetOrganizationUnitTypeId'],
+    'organization-unit-lifecycle-events': ['organizationUnitLifecycleEventTypeId', 'successorOrganizationUnitId'],
+    'postal-addresses': ['addressTypeCode'],
+    'organization-unit-locations': ['locationId', 'locationRoleCode'],
+    'organization-unit-geo-coverages': ['coverageTypeCode'],
+    'operating-schedules': ['scheduleTypeCode'],
+    'operating-schedule-intervals': ['dayOfWeekCode', 'shiftNo'],
+    'organization-unit-operating-schedules': ['operatingScheduleId', 'scheduleRoleCode'],
+    'organization-unit-operating-exceptions': ['exceptionTypeCode'],
+    'organization-unit-operating-exception-intervals': ['shiftNo'],
+    'employee-assignments': ['employeeAssignmentRoleId', 'primaryFlag'],
+    'organization-unit-service-capabilities': ['serviceCapabilityId', 'statusCode'],
+    'foreign-exchange-service-profiles': ['recordIncomeFlag', 'statusCode'],
+    'points-of-service': ['pointOfServiceTypeId', 'locationId', 'statusCode'],
+    'organization-unit-point-of-service-assignments': ['pointOfServiceId', 'assignmentRoleCode'],
+    'point-of-service-contact-points': ['contactRoleId', 'primaryFlag'],
+    'point-of-service-operating-schedules': ['operatingScheduleId'],
+    'point-of-service-operating-exceptions': ['exceptionTypeCode'],
+    'point-of-service-operating-exception-intervals': ['shiftNo'],
+    'self-service-terminals': ['selfServiceTerminalTypeId', 'statusCode'],
+    'self-service-terminal-assignments': ['organizationUnitId', 'assignmentRoleCode'],
+    'organization-unit-contact-points': ['contactRoleId', 'primaryFlag']
+  };
+
   readonly searchControl = new FormControl('', {nonNullable: true});
   readonly activeControl = new FormControl<boolean | null>(null);
   readonly parentFilterControl = new FormControl<number | null>(null);
+  readonly organizationUnitTypeFilterControl = new FormControl<number | null>(null);
   readonly advancedFilterForm = new FormRecord<FormControl<unknown>>({});
   readonly advancedFilterFields = signal<readonly ReferenceFieldDescriptor[]>([]);
   readonly advancedFilterLookupOptions = signal<Partial<Record<string, readonly LookupOption[]>>>({});
@@ -80,6 +110,9 @@ export class ReferencePageComponent {
 
   readonly organizationLocationPage = computed(() =>
     this.store.descriptor()?.category === 'ORGANIZATION' && this.store.resource() === 'locations'
+  );
+  readonly organizationUnitsPage = computed(() =>
+    this.store.descriptor()?.category === 'ORGANIZATION' && this.store.resource() === 'organization-units'
   );
   readonly locationCoordinatesValid = computed(() => {
     const latitude = this.locationLatitude();
@@ -146,6 +179,13 @@ export class ReferencePageComponent {
 
     this.parentFilterControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(parentId => void this.store.search({parentId, page: 0}));
+
+    this.organizationUnitTypeFilterControl.valueChanges.pipe(
+      distinctUntilChanged(), takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      if (!this.organizationUnitsPage()) return;
+      void this.applyAdvancedFilters();
+    });
 
     this.locationProvinceControl.valueChanges.pipe(
       distinctUntilChanged(), takeUntilDestroyed(this.destroyRef)
@@ -309,6 +349,7 @@ export class ReferencePageComponent {
     this.searchControl.setValue('', {emitEvent: false});
     this.activeControl.setValue(null, {emitEvent: false});
     this.parentFilterControl.setValue(null, {emitEvent: false});
+    this.organizationUnitTypeFilterControl.setValue(null, {emitEvent: false});
     this.parentFilterOptions.set([]);
     this.lookupOptions.set({});
     this.locationProvinceOptions.set([]);
@@ -325,7 +366,25 @@ export class ReferencePageComponent {
     for (const control of Object.values(this.advancedFilterForm.controls)) {
       control.setValue(null, {emitEvent: false});
     }
-    void this.store.search({filters: {}, page: 0});
+    void this.applyAdvancedFilters();
+  }
+
+  private collectAdvancedFilters(): Record<string, string | number | boolean> {
+    const filters: Record<string, string | number | boolean> = {};
+    for (const filterField of this.advancedFilterFields()) {
+      const value = this.advancedFilterForm.controls[filterField.apiName]?.value;
+      if (value !== null && value !== undefined && value !== '') {
+        filters[filterField.apiName] = value as string | number | boolean;
+      }
+    }
+    if (this.organizationUnitsPage() && this.organizationUnitTypeFilterControl.value !== null) {
+      filters['organizationUnitTypeId'] = this.organizationUnitTypeFilterControl.value;
+    }
+    return filters;
+  }
+
+  private applyAdvancedFilters(): Promise<void> {
+    return this.store.search({filters: this.collectAdvancedFilters(), page: 0});
   }
 
   private async initializeAdvancedFilters(resource: string): Promise<void> {
@@ -336,8 +395,11 @@ export class ReferencePageComponent {
     this.advancedFilterLookupOptions.set({});
 
     const descriptor = this.store.descriptor();
-    const names = this.eduFilterFields[resource] ?? [];
-    if (!descriptor || !names.length) return;
+    if (!descriptor) return;
+    const names = descriptor.category === 'ORGANIZATION'
+      ? (this.organizationFilterFields[resource] ?? [])
+      : (this.eduFilterFields[resource] ?? []);
+    if (!names.length) return;
 
     const fields = names
       .map(name => descriptor.fields.find(field => field.apiName === name))
@@ -351,16 +413,7 @@ export class ReferencePageComponent {
         debounceTime(field.type === 'NUMBER' ? 350 : 0),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef)
-      ).subscribe(() => {
-        const filters: Record<string, string | number | boolean> = {};
-        for (const filterField of this.advancedFilterFields()) {
-          const value = this.advancedFilterForm.controls[filterField.apiName]?.value;
-          if (value !== null && value !== undefined && value !== '') {
-            filters[filterField.apiName] = value as string | number | boolean;
-          }
-        }
-        void this.store.search({filters, page: 0});
-      });
+      ).subscribe(() => void this.applyAdvancedFilters());
     }
 
     const lookupEntries = await Promise.all(fields

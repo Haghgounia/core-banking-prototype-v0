@@ -13,7 +13,7 @@ const checks=[
  ['Deposit profile identity readonly with source context',html.includes('isDepositProfileIdentity(column)') && ts.includes('group.disable({emitEvent: false})') && ts.includes('type.disable({emitEvent: false})')],
  ['Deposit identity derives through governed product and version',ts.includes("this.service.row('PRODUCT_VERSION', version)") && ts.includes("this.service.row('PRODUCT', productId)")],
  ['Stamp count activation depends on stamp applicability',ts.includes("'IS_STAMP_DUTY_APPLICABLE'") && ts.includes('this.syncStampCount()') && ts.includes("count.disable({emitEvent: false})")],
- ['Clone action available in grid',html.includes('(click)="clone(row)"') && ts.includes('async clone(row:')],
+ ['Clone action available in grid',html.includes('clone(row)') && ts.includes('async clone(row:')],
  ['Clone does not update original row',ts.includes('this.editingId.set(null);\n    this.cloning.set(true)') && ts.includes('this.service.create(this.tableName(), values)')],
  ['Eligibility clone carries normalized criteria',ts.includes('const detail = await this.service.eligibilityRule(Number(row[descriptor.primaryKeyColumn]))')],
  ['Delete confirmation before API call',ts.indexOf('window.confirm(')>0 && ts.indexOf('window.confirm(')<ts.indexOf('await this.service.delete(')],

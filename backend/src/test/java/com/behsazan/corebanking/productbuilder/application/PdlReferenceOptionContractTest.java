@@ -39,9 +39,11 @@ class PdlReferenceOptionContractTest {
     }
 
     @Test
-    void doesNotPersistNumericCodeWithoutAnActualPdlConstraint() {
+    void fallsBackToApprovedSemanticCodeWithoutAnOracleCheck() {
         assertThat(PdlReferenceOptionService.mapJointOptions("OWNERSHIP_TYPE_CODE", List.of(),
-                List.of(ref("2", "مشترک")))).isEmpty();
+                List.of(ref("2", "مشترک")))).extracting(SelectOption::code).containsExactly("JOINT");
+        assertThat(PdlReferenceOptionService.mapJointOptions("OWNERSHIP_TYPE_CODE", List.of(), List.of()))
+                .extracting(SelectOption::code).containsExactly("SINGLE", "JOINT");
     }
 
     @Test

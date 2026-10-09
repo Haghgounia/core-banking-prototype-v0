@@ -34,6 +34,17 @@
             </mat-select>
           </mat-form-field>
         }
+        @if (organizationUnitsPage()) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>نوع واحد</mat-label>
+            <mat-select [formControl]="organizationUnitTypeFilterControl">
+              <mat-option [value]="null">همه انواع واحد</mat-option>
+              @for (option of lookupOptions()['organizationUnitTypeId'] ?? []; track option.value) {
+                <mat-option [value]="option.value">{{ option.code }} — {{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
         @if (hasActiveField()) {
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>وضعیت</mat-label>
@@ -72,6 +83,15 @@
                     @for (option of advancedFilterLookupOptions()[field.apiName] ?? []; track option.value) {
                       <mat-option [value]="option.value">{{ option.label }}</mat-option>
                     }
+                  </mat-select>
+                </mat-form-field>
+              } @else if (field.type === 'BOOLEAN' && store.descriptor()?.category === 'ORGANIZATION') {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <mat-select [formControlName]="field.apiName">
+                    <mat-option [value]="null">همه</mat-option>
+                    <mat-option [value]="true">بله</mat-option>
+                    <mat-option [value]="false">خیر</mat-option>
                   </mat-select>
                 </mat-form-field>
               } @else if (field.type === 'NUMBER') {

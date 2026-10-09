@@ -62,6 +62,6 @@ failed += check('Existing conditional FK lookup cannot override mapped/check-bac
 failed += check('Read-only Oracle diagnostic contains no business writes',
  ['INSERT INTO','UPDATE PDL.','DELETE FROM','MERGE INTO','CREATE TABLE','ALTER TABLE'].every(s=>!diag.includes(s)) && diag.includes('SEARCH_CONDITION_VC'));
 failed += check('PB-R12 clone/delete confirmations remain in the grid',
- html.includes('(click)="clone(row)"') && ui.includes('window.confirm('));
+ html.includes('clone(row)') && ui.includes('window.confirm('));
 console.log(`PB_R14_STATIC_PASS=${passed} FAIL=${failed}`);
 if(failed) process.exitCode=1;

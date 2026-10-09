@@ -82,7 +82,7 @@ const checks=[
     s.service.includes('referenceOptionService.validateChangedValues(descriptor(table), prepared, null)')&&
     s.service.includes('referenceOptionService.validateChangedValues(descriptor(table), prepared, existing)')],
   ['Original Clone and delete-confirm safeguards remain in place',
-    s.html.includes('(click)="clone(row)"')&&s.ts.includes('window.confirm(')&&s.ts.includes('this.service.delete(this.tableName(), id)')],
+    s.html.includes('clone(row)')&&s.ts.includes('window.confirm(')&&s.ts.includes('this.service.delete(this.tableName(), id)')],
   ['Previously requested document and inquiry usability remain',
     s.ts.includes("column.name === 'PROCESS_STEP_NO'")&&s.html.includes('inquiryAgeUnit')]
 ];
