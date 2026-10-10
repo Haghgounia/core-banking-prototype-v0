@@ -42,7 +42,15 @@ for (const token of ['UUID.randomUUID().toString()','core-banking.schemas.fee2:F
   if (!repo.includes(token)) fail(`FEE2 repository contract missing: ${token}`);
 }
 if (repo.includes('Long id') || repo.includes('@PathVariable long id')) fail('FEE2 must not use numeric IDs for UUID primary keys');
-ok('UUID persistence and optimistic locking');
+const dataDefaultRead = repo.indexOf('rs.getString("DATA_DEFAULT")');
+const commentsRead = repo.indexOf('rs.getString("COMMENTS")');
+if (dataDefaultRead < 0 || commentsRead < 0 || dataDefaultRead > commentsRead) {
+  fail('Oracle ALL_TAB_COLUMNS.DATA_DEFAULT (LONG) must be read before later COMMENTS column to avoid ORA-17027');
+}
+if (!repo.includes('Oracle exposes ALL_TAB_COLUMNS.DATA_DEFAULT as LONG')) {
+  fail('FEE2 descriptor LONG-column JDBC guard comment missing');
+}
+ok('UUID persistence, optimistic locking and Oracle LONG metadata read order');
 
 const service = read('backend/src/main/java/com/behsazan/corebanking/fee2/application/Fee2Service.java');
 for (const token of ['VERSION_CHILDREN','DRAFT', 'READY', 'APPROVED', 'ACTIVE', 'RETIRED', 'requireDraftVersion']) {

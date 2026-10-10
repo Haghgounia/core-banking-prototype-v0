@@ -147,6 +147,44 @@ const repository = read('backend/src/main/java/com/behsazan/corebanking/referenc
 if (!repository.includes('optionalField("createdAt")') || !repository.includes('SYSTIMESTAMP')) fail('generic insert does not support createdAt/SYSTIMESTAMP');
 ok('generic repository createdAt support');
 
+for (const token of [
+  '"ORGANIZATION".equals(descriptor.category())',
+  'appendOrganizationLookupSearch(descriptor, search)',
+  'field.type() != FieldType.LOOKUP',
+  'EXISTS (SELECT 1 FROM ',
+  'lookupDescriptor.codeApiName()',
+  'lookupDescriptor.nameApiName()'
+]) {
+  if (!repository.includes(token)) fail(`ORG lookup-label text search missing: ${token}`);
+}
+ok('ORG text search includes displayed lookup code/name labels');
+
+for (const token of [
+  "field.lookupResource === 'organization-units'",
+  'organizationUnitGridValue(value, code, label)',
+  "row[`${field.apiName}__unitCode`]",
+  "row[`${field.apiName}__unitName`]",
+  "descriptor.parent?.resource === 'organization-units'",
+  "row['parentId']",
+  "row['parentUnitCode']",
+  "field.apiName === 'unitCode'"
+]) {
+  if (!referencePageTs.includes(token)) fail(`ORG unit id/code grid rendering missing: ${token}`);
+}
+if (!referencePageHtml.includes('{{ parentCell(row) }}')) fail('ORG parent unit grid cell does not use id/code renderer');
+for (const token of [
+  'organizationUnitGridDisplayColumns(selected)',
+  '"organization-units".equals(field.lookupResource())',
+  '__unitCode',
+  '__unitName',
+  'AS \\\"parentId\\\"',
+  'AS \\\"parentUnitCode\\\"',
+  'mapSearchFields(rs, selected, descriptor)'
+]) {
+  if (!repository.includes(token)) fail(`ORG unit id/code backend projection missing: ${token}`);
+}
+ok('organization-unit id and unit code are shown together across ORG grids');
+
 const service = read('backend/src/main/java/com/behsazan/corebanking/referencedata/management/application/ReferenceService.java');
 for (const pair of [['effectiveFrom','effectiveTo'], ['openingDate','closingDate'], ['installationDate','decommissionDate']]) {
   if (!service.includes(`"${pair[0]}"`) || !service.includes(`"${pair[1]}"`)) fail(`date validation missing for ${pair[0]}/${pair[1]}`);

@@ -6,6 +6,10 @@ import com.behsazan.corebanking.fee2.domain.Fee2Models.CatalogResponse;
 import com.behsazan.corebanking.fee2.domain.Fee2Models.SelectOption;
 import com.behsazan.corebanking.fee2.domain.Fee2Models.TableDescriptor;
 import com.behsazan.corebanking.fee2.domain.Fee2Models.TablePage;
+import com.behsazan.corebanking.fee2.domain.Fee2Models.StudioCatalogItem;
+import com.behsazan.corebanking.fee2.domain.Fee2Models.StudioCreateRequest;
+import com.behsazan.corebanking.fee2.domain.Fee2Models.StudioCreateResponse;
+import com.behsazan.corebanking.fee2.domain.Fee2Models.StudioSummary;
 import com.behsazan.corebanking.fee2.domain.Fee2Models.VersionTransitionRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +34,18 @@ public class Fee2Controller {
 
     @GetMapping("/catalog")
     CatalogResponse catalog() { return service.catalog(); }
+
+    @GetMapping("/studio/summary")
+    StudioSummary studioSummary(@RequestParam String scopeId) { return service.studioSummary(scopeId); }
+
+    @GetMapping("/studio/catalog")
+    List<StudioCatalogItem> studioCatalog(@RequestParam String scopeId) { return service.studioCatalog(scopeId); }
+
+    @PostMapping("/studio/fees")
+    StudioCreateResponse createStudioFee(@RequestBody StudioCreateRequest request,
+                                         @RequestHeader(name="X-User-Name",defaultValue="prototype-ui") String actor) {
+        return service.createStudioFee(request, actor);
+    }
 
     @GetMapping("/tables/{table}/descriptor")
     TableDescriptor descriptor(@PathVariable String table) { return service.descriptor(table); }

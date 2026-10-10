@@ -320,6 +320,10 @@ public class ProductBuilderService {
 
     private Map<String, Object> prepareCreateValues(String table, Map<String, Object> values, String actor) {
         Map<String, Object> prepared = new LinkedHashMap<>(values);
+        if ("PRODUCT_ORG_SCOPE".equals(normalizeTable(table))) {
+            resolveOrgUnitCode(prepared);
+            return prepared;
+        }
         if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table))) {
             var identity = depositIdentity(number(prepared.get("PRODUCT_VERSION_ID")));
             String enteredGroup = text(prepared.get("DEPOSIT_GROUP_CODE"));
@@ -346,6 +350,13 @@ public class ProductBuilderService {
     private Map<String, Object> prepareUpdateValues(String table, Map<String, Object> existing,
                                                      Map<String, Object> values, String actor) {
         Map<String, Object> prepared = new LinkedHashMap<>(values);
+        if ("PRODUCT_ORG_SCOPE".equals(normalizeTable(table))) {
+            Map<String, Object> scope = new LinkedHashMap<>(existing);
+            scope.putAll(prepared);
+            resolveOrgUnitCode(scope);
+            prepared.put("ORG_UNIT_CODE", scope.get("ORG_UNIT_CODE"));
+            return prepared;
+        }
         if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table))) {
             // Identity is immutable after creation, regardless of client-side disabled fields.
             for (String code : List.of("DEPOSIT_GROUP_CODE", "DEPOSIT_TYPE_CODE")) {
@@ -363,6 +374,12 @@ public class ProductBuilderService {
         prepared.remove("APPROVED_BY");
         applyApprovalAudit(prepared, text(existing.get("VERSION_STATUS_CODE")), actor);
         return prepared;
+    }
+
+    /** Never trust a typed ORG_UNIT_CODE; derive it from governed organizational selection. */
+    private void resolveOrgUnitCode(Map<String, Object> values) {
+        long orgUnitId = number(values.get("ORG_UNIT_ID"));
+        values.put("ORG_UNIT_CODE", orgUnitId > 0 ? referenceOptionService.governedOrgUnitCode(orgUnitId) : null);
     }
 
     /** The FIX96 DPS product-family classification is the authoritative server-side identity. */

@@ -121,7 +121,7 @@
           @if (store.descriptor()?.parent) {
             <ng-container matColumnDef="parentName">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ parentLabel() }}</th>
-              <td mat-cell *matCellDef="let row">{{ row['parentName'] ?? '—' }}</td>
+              <td mat-cell *matCellDef="let row">{{ parentCell(row) }}</td>
             </ng-container>
           }
 

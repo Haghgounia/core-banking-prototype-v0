@@ -46,9 +46,19 @@ public class OracleReferenceRepository implements ReferenceRepository {
 
         List<ReferenceFieldDescriptor> selected = descriptor.gridFields();
         String select = selectList(selected, "T");
+        if ("ORGANIZATION".equals(descriptor.category())) {
+            select += organizationUnitGridDisplayColumns(selected);
+        }
         if (descriptor.parent() != null) {
-            select += ", P." + parentDescriptor(descriptor).field(parentDescriptor(descriptor).nameApiName()).columnName()
+            ReferenceTableDescriptor parent = parentDescriptor(descriptor);
+            select += ", P." + OracleSqlNames.identifier(parent.field(parent.nameApiName()).columnName())
                     + " AS \"parentName\"";
+            if ("ORGANIZATION".equals(descriptor.category())
+                    && "organization-units".equals(descriptor.parent().resource())) {
+                select += ", T." + OracleSqlNames.identifier(descriptor.parent().columnName()) + " AS \"parentId\"";
+                select += ", P." + OracleSqlNames.identifier(parent.field(parent.codeApiName()).columnName())
+                        + " AS \"parentUnitCode\"";
+            }
         }
 
         String orderBy = orderBy(descriptor, query.sortBy());
@@ -62,7 +72,7 @@ public class OracleReferenceRepository implements ReferenceRepository {
 
         List<Map<String, Object>> rows = jdbcClient.sql(sql)
                 .params(params)
-                .query((rs, rowNum) -> mapFields(rs, selected, descriptor.parent() != null))
+                .query((rs, rowNum) -> mapSearchFields(rs, selected, descriptor))
                 .list();
 
         return new PageResponse<>(rows, total, query.page(), query.size());
@@ -215,14 +225,17 @@ public class OracleReferenceRepository implements ReferenceRepository {
 
         List<String> where = new ArrayList<>();
         Map<String, Object> params = new LinkedHashMap<>();
-        if (query.text() != null) {
+        if (query.text() != null && !query.text().isBlank()) {
             StringJoiner search = new StringJoiner(" OR ", "(", ")");
             for (ReferenceFieldDescriptor field : descriptor.searchableFields()) {
                 search.add("UPPER(T." + OracleSqlNames.identifier(field.columnName()) + ") LIKE :searchText");
             }
+            if ("ORGANIZATION".equals(descriptor.category())) {
+                appendOrganizationLookupSearch(descriptor, search);
+            }
             if (search.length() > 2) {
                 where.add(search.toString());
-                params.put("searchText", "%" + query.text().toUpperCase() + "%");
+                params.put("searchText", "%" + query.text().trim().toUpperCase() + "%");
             }
         }
         if (descriptor.parent() != null && query.parentId() != null) {
@@ -245,6 +258,67 @@ public class OracleReferenceRepository implements ReferenceRepository {
         }
 
         return new QueryParts(from + (where.isEmpty() ? "" : " WHERE " + String.join(" AND ", where)), params);
+    }
+
+    private void appendOrganizationLookupSearch(ReferenceTableDescriptor descriptor, StringJoiner search) {
+        int lookupIndex = 0;
+        for (ReferenceFieldDescriptor field : descriptor.gridFields()) {
+            if (field.type() != FieldType.LOOKUP || field.lookupResource() == null || field.lookupResource().isBlank()) {
+                continue;
+            }
+            ReferenceTableDescriptor lookupDescriptor = registry.require(field.lookupResource());
+            String alias = "LS" + lookupIndex++;
+            ReferenceFieldDescriptor codeField = lookupDescriptor.field(lookupDescriptor.codeApiName());
+            ReferenceFieldDescriptor nameField = lookupDescriptor.field(lookupDescriptor.nameApiName());
+
+            StringJoiner lookupText = new StringJoiner(" OR ", "(", ")");
+            lookupText.add(lookupTextPredicate(alias, codeField));
+            if (!nameField.columnName().equals(codeField.columnName())) {
+                lookupText.add(lookupTextPredicate(alias, nameField));
+            }
+
+            search.add("EXISTS (SELECT 1 FROM " + table(lookupDescriptor) + " " + alias
+                    + " WHERE " + alias + "." + OracleSqlNames.identifier(lookupDescriptor.idColumnName())
+                    + " = T." + OracleSqlNames.identifier(field.columnName())
+                    + " AND " + lookupText + ")");
+        }
+    }
+
+    private static String lookupTextPredicate(String alias, ReferenceFieldDescriptor field) {
+        String column = alias + "." + OracleSqlNames.identifier(field.columnName());
+        return switch (field.type()) {
+            case TEXT, STRING_SELECT -> "UPPER(" + column + ") LIKE :searchText";
+            default -> "UPPER(TO_CHAR(" + column + ")) LIKE :searchText";
+        };
+    }
+
+    private String organizationUnitGridDisplayColumns(List<ReferenceFieldDescriptor> selected) {
+        ReferenceTableDescriptor organizationUnits = registry.require("organization-units");
+        ReferenceFieldDescriptor codeField = organizationUnits.field(organizationUnits.codeApiName());
+        ReferenceFieldDescriptor nameField = organizationUnits.field(organizationUnits.nameApiName());
+        StringBuilder extra = new StringBuilder();
+        int index = 0;
+        for (ReferenceFieldDescriptor field : selected) {
+            if (field.type() != FieldType.LOOKUP || !"organization-units".equals(field.lookupResource())) {
+                continue;
+            }
+            String alias = "OUG" + index++;
+            extra.append(", (SELECT ").append(alias).append(".")
+                    .append(OracleSqlNames.identifier(codeField.columnName()))
+                    .append(" FROM ").append(table(organizationUnits)).append(" ").append(alias)
+                    .append(" WHERE ").append(alias).append(".")
+                    .append(OracleSqlNames.identifier(organizationUnits.idColumnName()))
+                    .append(" = T.").append(OracleSqlNames.identifier(field.columnName()))
+                    .append(") AS \"").append(field.apiName()).append("__unitCode\"");
+            extra.append(", (SELECT ").append(alias).append(".")
+                    .append(OracleSqlNames.identifier(nameField.columnName()))
+                    .append(" FROM ").append(table(organizationUnits)).append(" ").append(alias)
+                    .append(" WHERE ").append(alias).append(".")
+                    .append(OracleSqlNames.identifier(organizationUnits.idColumnName()))
+                    .append(" = T.").append(OracleSqlNames.identifier(field.columnName()))
+                    .append(") AS \"").append(field.apiName()).append("__unitName\"");
+        }
+        return extra.toString();
     }
 
     private static Object queryFilterValue(ReferenceFieldDescriptor field, String raw) {
@@ -288,6 +362,29 @@ public class OracleReferenceRepository implements ReferenceRepository {
                         + " AS \"" + field.apiName() + "\"")
                 .reduce((left, right) -> left + ", " + right)
                 .orElseThrow();
+    }
+
+    private static Map<String, Object> mapSearchFields(ResultSet rs, List<ReferenceFieldDescriptor> fields,
+                                                        ReferenceTableDescriptor descriptor) throws SQLException {
+        Map<String, Object> values = new LinkedHashMap<>();
+        for (ReferenceFieldDescriptor field : fields) {
+            values.put(field.apiName(), readValue(rs, field));
+            if ("ORGANIZATION".equals(descriptor.category())
+                    && field.type() == FieldType.LOOKUP
+                    && "organization-units".equals(field.lookupResource())) {
+                values.put(field.apiName() + "__unitCode", rs.getString(field.apiName() + "__unitCode"));
+                values.put(field.apiName() + "__unitName", rs.getString(field.apiName() + "__unitName"));
+            }
+        }
+        if (descriptor.parent() != null) {
+            values.put("parentName", rs.getString("parentName"));
+            if ("ORGANIZATION".equals(descriptor.category())
+                    && "organization-units".equals(descriptor.parent().resource())) {
+                values.put("parentId", rs.getBigDecimal("parentId"));
+                values.put("parentUnitCode", rs.getString("parentUnitCode"));
+            }
+        }
+        return values;
     }
 
     private static Map<String, Object> mapFields(ResultSet rs, List<ReferenceFieldDescriptor> fields,

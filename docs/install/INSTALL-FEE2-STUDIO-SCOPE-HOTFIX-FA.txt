@@ -1,0 +1,22 @@
+FEE2 Studio cumulative hotfix for core-banking-prototype-v0-2026-10-10-1111
+
+1) Extract this ZIP over D:\Projects\core-banking-prototype-v0
+2) Run the database reconciliation once:
+   sqlplus <your-connect-string> @database\oracle\fee2\FEE2_Studio_Bank_Scope_Baseline_2026-10-10.sql
+   or execute that SQL file with your Oracle client while connected with access to schema FEE2.
+3) Verify:
+   node tools\verify-fee2-forms.mjs
+   node tools\verify-fee2-studio.mjs
+   node tools\verify-node-tool-path-portability.mjs
+4) Build:
+   build-production.cmd
+5) Start and refresh FEE2 Studio.
+
+Expected selector after SQL:
+BANK · بانک
+
+This patch is cumulative over 2026-10-10-1111 for:
+- Angular Studio build hotfix already present in 1111
+- Oracle LONG metadata read-order hotfix
+- Core Banking global theme alignment for Studio
+- FEE_SCOPE active lookup + BANK baseline + empty-state recovery

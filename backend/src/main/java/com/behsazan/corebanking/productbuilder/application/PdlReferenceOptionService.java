@@ -351,6 +351,32 @@ public class PdlReferenceOptionService {
         }
     }
 
+    private static boolean referenceEnabled(Object value) {
+        if (value instanceof Boolean enabled) return enabled;
+        if (value instanceof Number n) return n.intValue() == 1;
+        return "1".equals(String.valueOf(value)) || "Y".equalsIgnoreCase(String.valueOf(value))
+                || "TRUE".equalsIgnoreCase(String.valueOf(value));
+    }
+
+    /** Resolve a PDL organization scope ID against the authoritative DPS organization-unit reference. */
+    public String governedOrgUnitCode(long orgUnitId) {
+        if (orgUnitId <= 0) throw new ProductBuilderValidationException("واحد سازمانی انتخاب‌شده معتبر نیست.");
+        try {
+            var record = referenceService.findById("dps-org-units", orgUnitId);
+            Map<String, Object> values = record.values();
+            if (!referenceEnabled(values.get("isActive")) || !referenceEnabled(values.get("isCurrent"))) {
+                throw new ProductBuilderValidationException("واحد سازمانی انتخاب‌شده فعال و جاری نیست.");
+            }
+            String code = normalize(values.get("code"));
+            if (code.isBlank()) throw new ProductBuilderValidationException("کد واحد سازمانی در اطلاعات پایه مشخص نشده است.");
+            return code;
+        } catch (ProductBuilderValidationException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new ProductBuilderValidationException("واحد سازمانی انتخاب‌شده در اطلاعات پایه معتبر یافت نشد.");
+        }
+    }
+
     public TableDescriptor enrich(TableDescriptor descriptor) {
         List<ColumnDescriptor> columns = descriptor.columns().stream()
                 .map(column -> enrichColumn(descriptor.tableName(), column))
@@ -386,6 +412,16 @@ public class PdlReferenceOptionService {
     private ColumnDescriptor enrichColumn(String table, ColumnDescriptor column) {
         String name = normalize(column.name());
         String businessField = normalize(table) + "." + name;
+        if ("PRODUCT_ORG_SCOPE".equals(normalize(table)) && "ORG_UNIT_ID".equals(name)) {
+            try {
+                List<SelectOption> units = referenceService.lookup("dps-org-units", null, null, 1000).stream()
+                        .filter(o -> o.label() != null && o.label().matches(".*[\u0600-\u06ff].*"))
+                        .map(o -> new SelectOption(o.value(), o.code(), o.label())).toList();
+                return copy(column, true, "DPS:dps-org-units", units);
+            } catch (RuntimeException ignored) {
+                return copy(column, true, "DPS:dps-org-units", List.of());
+            }
+        }
         if (BUSINESS_FORM_OPTIONS.containsKey(businessField)) {
             List<SelectOption> choices = businessFormOptions(table, name, column.options());
             return copy(column, true, "PDL_FORM_CONTRACT", choices);

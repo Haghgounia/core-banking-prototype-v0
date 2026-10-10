@@ -38,4 +38,75 @@ public final class Fee2Models {
             String dayBasis,
             Map<String,Object> operatorConfig
     ) {}
+
+    public record StudioSummary(
+            long feeDefinitions,
+            long draftVersions,
+            long readyVersions,
+            long approvedVersions,
+            long activeVersions,
+            int calculationTypesCovered,
+            long simulationRuns,
+            long calculationLogs
+    ) {}
+
+    public record StudioCatalogItem(
+            String feeId,
+            String feeCode,
+            String nameFa,
+            String nameEn,
+            String feeTypeCode,
+            String categoryCode,
+            String ownerUnit,
+            String definitionStatus,
+            String latestVersionId,
+            Long latestVersionNo,
+            String versionStatus,
+            String calculationType,
+            String currency,
+            String effectiveFrom,
+            String effectiveTo
+    ) {}
+
+    public record StudioCreateRequest(
+            String scopeId,
+            String feeCode,
+            String nameFa,
+            String nameEn,
+            String feeTypeCode,
+            String categoryCode,
+            String ownerUnit,
+            String descriptionFa,
+            String calculationType,
+            String currency,
+            String basisCode,
+            String basisUnit,
+            BigDecimal fixedAmount,
+            BigDecimal rateValue,
+            BigDecimal minAmount,
+            BigDecimal maxAmount,
+            String roundingMode,
+            BigDecimal roundingQuantum,
+            String periodPolicy,
+            String dayBasis,
+            Map<String,Object> operatorConfig,
+            String effectiveFrom,
+            String bindingLevel,
+            Integer priority,
+            String serviceCode,
+            String eventType,
+            String operationCode,
+            Boolean taxEnabled,
+            String taxCode,
+            String taxType,
+            BigDecimal taxRate,
+            String taxBasisType
+    ) {}
+
+    public record StudioCreateResponse(
+            String definitionId,
+            String versionId,
+            String bindingId,
+            String taxId
+    ) {}
 }

@@ -7,6 +7,8 @@ import com.behsazan.corebanking.fee2.domain.Fee2Models.ColumnDescriptor;
 import com.behsazan.corebanking.fee2.domain.Fee2Models.SelectOption;
 import com.behsazan.corebanking.fee2.domain.Fee2Models.TableDescriptor;
 import com.behsazan.corebanking.fee2.domain.Fee2Models.TablePage;
+import com.behsazan.corebanking.fee2.domain.Fee2Models.StudioCatalogItem;
+import com.behsazan.corebanking.fee2.domain.Fee2Models.StudioSummary;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -205,6 +207,7 @@ public class Fee2Repository {
         String labelExpression = labelExpression(table, "T");
         List<String> where = new ArrayList<>();
         Map<String,Object> params = new LinkedHashMap<>();
+        if ("FEE_SCOPE".equals(table)) where.add("T.STATUS='ACTIVE'");
         if (text != null && !text.isBlank()) {
             where.add("UPPER(" + labelExpression + ") LIKE :q");
             params.put("q", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
@@ -303,6 +306,55 @@ public class Fee2Repository {
                 .param("id", versionId).query(Long.class).single();
     }
 
+    public StudioSummary studioSummary(String scopeId) {
+        String scope = requireText(scopeId, "دامنه کارمزد انتخاب نشده است.");
+        long definitions = scalarLong("SELECT COUNT(*) FROM " + qualified("FEE_DEFINITION") + " WHERE SCOPE_ID=:scope", scope);
+        Map<String,Long> statuses = new HashMap<>();
+        String statusSql = "SELECT V.STATUS,COUNT(*) C FROM " + qualified("FEE_VERSION") + " V "
+                + "JOIN " + qualified("FEE_DEFINITION") + " D ON D.ID=V.FEE_ID WHERE D.SCOPE_ID=:scope GROUP BY V.STATUS";
+        jdbc.sql(statusSql).param("scope", scope).query((rs,rowNum) -> Map.entry(rs.getString("STATUS"), rs.getLong("C")))
+                .list().forEach(e -> statuses.put(e.getKey(), e.getValue()));
+        int types = jdbc.sql("SELECT COUNT(DISTINCT V.CALCULATION_TYPE) FROM " + qualified("FEE_VERSION") + " V "
+                        + "JOIN " + qualified("FEE_DEFINITION") + " D ON D.ID=V.FEE_ID WHERE D.SCOPE_ID=:scope")
+                .param("scope", scope).query(Integer.class).single();
+        long simulationRuns = scalarLong("SELECT COUNT(*) FROM " + qualified("FEE_SIMULATION_RUN") + " R "
+                + "JOIN " + qualified("FEE_VERSION") + " V ON V.ID=R.FEE_VERSION_ID "
+                + "JOIN " + qualified("FEE_DEFINITION") + " D ON D.ID=V.FEE_ID WHERE D.SCOPE_ID=:scope", scope);
+        long calcLogs = scalarLong("SELECT COUNT(*) FROM " + qualified("FEE_CALC_LOG") + " WHERE SCOPE_ID=:scope", scope);
+        return new StudioSummary(definitions, statuses.getOrDefault("DRAFT",0L), statuses.getOrDefault("READY",0L),
+                statuses.getOrDefault("APPROVED",0L), statuses.getOrDefault("ACTIVE",0L), types, simulationRuns, calcLogs);
+    }
+
+    public List<StudioCatalogItem> studioCatalog(String scopeId) {
+        String scope = requireText(scopeId, "دامنه کارمزد انتخاب نشده است.");
+        String sql = "SELECT D.ID FEE_ID,D.FEE_CODE,D.NAME_FA,D.NAME_EN,D.FEE_TYPE_CODE,D.CATEGORY_CODE,D.OWNER_UNIT,D.STATUS DEFINITION_STATUS,"
+                + "V.ID VERSION_ID,V.VERSION_NO,V.STATUS VERSION_STATUS,V.CALCULATION_TYPE,V.CURRENCY,"
+                + "TO_CHAR(V.EFFECTIVE_FROM,'YYYY-MM-DD\"T\"HH24:MI:SS') EFFECTIVE_FROM,"
+                + "TO_CHAR(V.EFFECTIVE_TO,'YYYY-MM-DD\"T\"HH24:MI:SS') EFFECTIVE_TO "
+                + "FROM " + qualified("FEE_DEFINITION") + " D LEFT JOIN " + qualified("FEE_VERSION") + " V ON V.FEE_ID=D.ID "
+                + "AND V.VERSION_NO=(SELECT MAX(V2.VERSION_NO) FROM " + qualified("FEE_VERSION") + " V2 WHERE V2.FEE_ID=D.ID) "
+                + "WHERE D.SCOPE_ID=:scope ORDER BY D.FEE_CODE";
+        return jdbc.sql(sql).param("scope",scope).query((rs,rowNum) -> new StudioCatalogItem(
+                rs.getString("FEE_ID"), rs.getString("FEE_CODE"), rs.getString("NAME_FA"), rs.getString("NAME_EN"),
+                rs.getString("FEE_TYPE_CODE"), rs.getString("CATEGORY_CODE"), rs.getString("OWNER_UNIT"), rs.getString("DEFINITION_STATUS"),
+                rs.getString("VERSION_ID"), longOrNull(rs.getObject("VERSION_NO")), rs.getString("VERSION_STATUS"),
+                rs.getString("CALCULATION_TYPE"), rs.getString("CURRENCY"), rs.getString("EFFECTIVE_FROM"), rs.getString("EFFECTIVE_TO")
+        )).list();
+    }
+
+    private long scalarLong(String sql, String scopeId) {
+        return jdbc.sql(sql).param("scope", scopeId).query(Long.class).single();
+    }
+
+    private static Long longOrNull(Object value) {
+        return value == null ? null : ((Number)value).longValue();
+    }
+
+    private static String requireText(String value, String message) {
+        if (value == null || value.isBlank()) throw new Fee2ValidationException(message);
+        return value.trim();
+    }
+
     public boolean updateCalculation(String id, CalculationConfigRequest request, String configJson, String actor) {
         String sql = "UPDATE " + qualified("FEE_VERSION") + " SET "
                 + "CALCULATION_TYPE=:calculationType, BASIS_CODE=:basisCode, BASIS_UNIT=:basisUnit, "
@@ -356,16 +408,26 @@ public class Fee2Repository {
                 + "WHERE C.OWNER=:owner AND C.TABLE_NAME=:table ORDER BY C.COLUMN_ID";
         List<ColumnDescriptor> columns = jdbc.sql(sql).param("owner",schemaName).param("table",table)
                 .query((rs,rowNum) -> {
+                    // Oracle exposes ALL_TAB_COLUMNS.DATA_DEFAULT as LONG. LONG values must be read
+                    // in select-list order before advancing to later columns such as COMMENTS; otherwise
+                    // the Oracle JDBC driver can close the LONG stream and raise ORA-17027.
                     String name = rs.getString("COLUMN_NAME");
+                    String rawType = rs.getString("DATA_TYPE");
+                    Integer charLength = integerOrNull(rs.getObject("CHAR_LENGTH"));
+                    Integer precision = integerOrNull(rs.getObject("DATA_PRECISION"));
+                    Integer scale = integerOrNull(rs.getObject("DATA_SCALE"));
+                    boolean nullable = "Y".equals(rs.getString("NULLABLE"));
+                    String dataDefault = trimOrNull(rs.getString("DATA_DEFAULT"));
+                    String comments = rs.getString("COMMENTS");
+
                     ForeignKeyInfo fk = fks.get(name);
-                    String type = normalizeType(rs.getString("DATA_TYPE"));
+                    String type = normalizeType(rawType);
                     boolean readOnly = isReadOnly(entry, table, name);
                     List<SelectOption> options = checks.getOrDefault(name, List.of());
-                    return new ColumnDescriptor(name, label(name, rs.getString("COMMENTS")), type,
-                            integerOrNull(rs.getObject("CHAR_LENGTH")), integerOrNull(rs.getObject("DATA_PRECISION")), integerOrNull(rs.getObject("DATA_SCALE")),
-                            "Y".equals(rs.getString("NULLABLE")), name.equals(pk), fk != null,
+                    return new ColumnDescriptor(name, label(name, comments), type,
+                            charLength, precision, scale, nullable, name.equals(pk), fk != null,
                             fk == null ? null : fk.parentTable(), fk == null ? null : fk.parentColumn(),
-                            readOnly, trimOrNull(rs.getString("DATA_DEFAULT")), options);
+                            readOnly, dataDefault, options);
                 }).list();
         return new TableDescriptor(schemaName, table, entry.title(), entry.description(), entry.groupCode(), entry.groupTitle(), entry.editable(), pk, columns);
     }
@@ -437,7 +499,7 @@ public class Fee2Repository {
 
     private String labelExpression(String table, String alias) {
         return switch (table) {
-            case "FEE_SCOPE" -> "NVL("+alias+".NAME_FA,"+alias+".SCOPE_CODE)";
+            case "FEE_SCOPE" -> alias+".SCOPE_CODE||' · '||NVL("+alias+".NAME_FA,"+alias+".SCOPE_CODE)";
             case "FEE_DEFINITION" -> "NVL("+alias+".NAME_FA,"+alias+".FEE_CODE)";
             case "FEE_VERSION" -> "'نسخه '||TO_CHAR("+alias+".VERSION_NO)||' - '||"+alias+".STATUS";
             case "FEE_REGULATION" -> "NVL("+alias+".TITLE_FA,"+alias+".REGULATION_CODE)";

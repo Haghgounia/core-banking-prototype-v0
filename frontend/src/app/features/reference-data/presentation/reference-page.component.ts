@@ -138,7 +138,20 @@ export class ReferencePageComponent {
       !field.readOnly && !(field.type === 'LOOKUP' && field.apiName === descriptor?.parent?.apiField)
     );
   });
-  readonly gridFields = computed(() => (this.store.descriptor()?.fields ?? []).filter(field => field.grid));
+  readonly gridFields = computed(() => {
+    const descriptor = this.store.descriptor();
+    const fields = [...(descriptor?.fields ?? []).filter(field => field.grid)];
+    if (descriptor?.category !== 'ORGANIZATION' || descriptor.resource !== 'organization-units') return fields;
+
+    const unitCodeIndex = fields.findIndex(field => field.apiName === 'unitCode');
+    const idIndex = fields.findIndex(field => field.apiName === descriptor.idApiName);
+    if (unitCodeIndex >= 0 && idIndex >= 0 && unitCodeIndex !== idIndex + 1) {
+      const [unitCodeField] = fields.splice(unitCodeIndex, 1);
+      const currentIdIndex = fields.findIndex(field => field.apiName === descriptor.idApiName);
+      fields.splice(currentIdIndex + 1, 0, unitCodeField);
+    }
+    return fields;
+  });
   readonly systemFields = computed(() => {
     const descriptor = this.store.descriptor();
     return (descriptor?.fields ?? []).filter(field =>
@@ -328,10 +341,35 @@ export class ReferencePageComponent {
     if (field.type === 'STRING_SELECT') return field.options.find(option => String(option.value) === String(value))?.label ?? String(value ?? '');
     if (field.type === 'LOOKUP') {
       if (value === null || value === undefined) return '—';
-      return this.lookupOptions()[field.apiName]?.find(option => Number(option.value) === Number(value))?.label
-        ?? String(value);
+      const option = this.lookupOptions()[field.apiName]?.find(item => Number(item.value) === Number(value));
+      if (this.isOrganizationUnitLookup(field)) {
+        const code = row[`${field.apiName}__unitCode`] ?? option?.code;
+        const label = row[`${field.apiName}__unitName`] ?? option?.label;
+        return this.organizationUnitGridValue(value, code, label);
+      }
+      return option?.label ?? String(value);
     }
     return value === null || value === undefined ? '—' : String(value);
+  }
+
+  parentCell(row: Readonly<Record<string, unknown>>): string {
+    const descriptor = this.store.descriptor();
+    if (descriptor?.category === 'ORGANIZATION' && descriptor.parent?.resource === 'organization-units') {
+      return this.organizationUnitGridValue(row['parentId'], row['parentUnitCode'], row['parentName']);
+    }
+    const value = row['parentName'];
+    return value === null || value === undefined || value === '' ? '—' : String(value);
+  }
+
+  private isOrganizationUnitLookup(field: ReferenceFieldDescriptor): boolean {
+    return field.type === 'LOOKUP' && field.lookupResource === 'organization-units';
+  }
+
+  private organizationUnitGridValue(id: unknown, code: unknown, label: unknown): string {
+    const idText = id === null || id === undefined || id === '' ? '—' : String(id);
+    const codeText = code === null || code === undefined || code === '' ? '—' : String(code);
+    const labelText = label === null || label === undefined || label === '' ? '' : ` — ${String(label)}`;
+    return `شناسه ${idText} | کد ${codeText}${labelText}`;
   }
 
   isInvalid(field: ReferenceFieldDescriptor): boolean {
