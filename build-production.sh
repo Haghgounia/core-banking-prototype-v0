@@ -105,6 +105,8 @@ node "$ROOT/tools/verify-pb-r15.mjs"
 node "$ROOT/tools/verify-pb-r16.mjs"
 node "$ROOT/tools/verify-pb-r17.mjs"
 node "$ROOT/tools/verify-pb-r18.mjs"
+node "$ROOT/tools/verify-pb-r19.mjs"
+node "$ROOT/tools/verify-rgl-lite-r20.mjs"
 
 cd "$ROOT/backend"
 sh ./mvnw -DskipTests compile

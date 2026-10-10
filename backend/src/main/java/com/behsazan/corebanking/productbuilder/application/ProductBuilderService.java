@@ -25,13 +25,19 @@ public class ProductBuilderService {
     private final PdlProductBuilderRepository repository;
     private final ProductBuilderBusinessValidator businessValidator;
     private final PdlReferenceOptionService referenceOptionService;
+    private final ProductRuleGovernanceService governance;
+    private final ProductGovernanceWriteGuard writeGuard;
 
     public ProductBuilderService(PdlProductBuilderRepository repository,
                                  ProductBuilderBusinessValidator businessValidator,
-                                 PdlReferenceOptionService referenceOptionService) {
+                                 PdlReferenceOptionService referenceOptionService,
+                                 ProductRuleGovernanceService governance,
+                                 ProductGovernanceWriteGuard writeGuard) {
         this.repository = repository;
         this.businessValidator = businessValidator;
         this.referenceOptionService = referenceOptionService;
+        this.governance = governance;
+        this.writeGuard = writeGuard;
     }
 
     public CatalogResponse catalog() {
@@ -68,6 +74,19 @@ public class ProductBuilderService {
     @Transactional
     public Map<String, Object> create(String table, Map<String, Object> values, String actor) {
         String resolvedActor = actorName(actor);
+        if ("PRODUCT_VERSION".equals(normalizeTable(table)) && values.containsKey("RULE_POLICY_VERSION_ID")) {
+            throw new ProductBuilderValidationException("اتصال سیاست فقط از مسیر اختصاصی Rule Governance Lite مجاز است.");
+        }
+        if ("PRODUCT_VERSION".equals(normalizeTable(table))) {
+            String requestedStatus = text(values.get("VERSION_STATUS_CODE"));
+            if (!requestedStatus.isBlank() && !"DRAFT".equals(requestedStatus)) {
+                throw new ProductBuilderValidationException("نسخه جدید ابتدا باید به صورت پیش‌نویس ثبت شود. تصویب فقط پس از بازبینی حاکمیت مجاز است.");
+            }
+            if ("OPEN".equals(text(values.get("ORIGINATION_STATUS_CODE")))) {
+                throw new ProductBuilderValidationException("افتتاح محصول برای نسخه ثبت‌نشده مجاز نیست؛ ابتدا پیش‌نویس و قواعد آن را تکمیل کنید.");
+            }
+        }
+        writeGuard.assertCreateAllowed(table, values);
         Map<String, Object> prepared = prepareCreateValues(table, values, resolvedActor);
         if ("PRODUCT_ELIGIBILITY_CRITERION".equals(normalizeTable(table))) {
             referenceOptionService.validateEligibilityCriterion(prepared);
@@ -84,15 +103,22 @@ public class ProductBuilderService {
     @Transactional
     public Map<String, Object> update(String table, long id, Map<String, Object> values, String actor) {
         String resolvedActor = actorName(actor);
+        if ("PRODUCT_VERSION".equals(normalizeTable(table)) && values.containsKey("RULE_POLICY_VERSION_ID")) {
+            throw new ProductBuilderValidationException("تغییر سیاست نسخه تنها از مسیر اختصاصی مجاز است.");
+        }
         Map<String, Object> existing = findById(table, id);
         Map<String, Object> prepared = prepareUpdateValues(table, existing, values, resolvedActor);
         Map<String, Object> merged = new LinkedHashMap<>(existing);
         merged.putAll(prepared);
+        writeGuard.assertUpdateAllowed(table, existing, prepared);
         if ("PRODUCT_ELIGIBILITY_CRITERION".equals(normalizeTable(table))) {
             referenceOptionService.validateEligibilityCriterion(merged);
             validateGenderCriterionScope(merged);
         }
         referenceOptionService.validateChangedValues(descriptor(table), prepared, existing);
+        if ("PRODUCT_VERSION".equals(normalizeTable(table))) {
+            governance.assertPromotionAllowed(id, existing, merged);
+        }
         validateRelationshipTargets(table, merged);
         businessValidator.validate(table, merged);
         if (!repository.update(table, id, prepared, resolvedActor)) {
@@ -103,6 +129,7 @@ public class ProductBuilderService {
 
     @Transactional
     public void delete(String table, long id, String actor) {
+        writeGuard.assertDeleteAllowed(table, findById(table, id));
         if (!repository.delete(table, id, actorName(actor))) {
             throw new ProductBuilderValidationException("PDL row not found: " + table + "/" + id);
         }
@@ -134,10 +161,12 @@ public class ProductBuilderService {
 
         long ruleId;
         if (existing == null) {
+            writeGuard.assertCreateAllowed("PRODUCT_ELIGIBILITY_RULE", prepared);
             referenceOptionService.validateChangedValues(descriptor("PRODUCT_ELIGIBILITY_RULE"), prepared, null);
             businessValidator.validate("PRODUCT_ELIGIBILITY_RULE", prepared);
             ruleId = repository.insert("PRODUCT_ELIGIBILITY_RULE", prepared, resolvedActor);
         } else {
+            writeGuard.assertUpdateAllowed("PRODUCT_ELIGIBILITY_RULE", existing, prepared);
             referenceOptionService.validateChangedValues(descriptor("PRODUCT_ELIGIBILITY_RULE"), prepared, existing);
             Map<String, Object> merged = new LinkedHashMap<>(existing);
             merged.putAll(prepared);

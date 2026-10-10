@@ -1,7 +1,6 @@
 package com.behsazan.corebanking.productbuilder.web;
 
 import com.behsazan.corebanking.productbuilder.application.ProductBuilderService;
-import com.behsazan.corebanking.productbuilder.application.ProductRuleGovernanceService;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.CatalogResponse;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.EligibilityRuleSaveRequest;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.EligibilityRuleSaveResponse;
@@ -29,16 +28,9 @@ import java.util.Map;
 @RequestMapping("/api/v1/product-builder")
 public class ProductBuilderController {
     private final ProductBuilderService service;
-    private final ProductRuleGovernanceService governance;
 
-    public ProductBuilderController(ProductBuilderService service, ProductRuleGovernanceService governance) {
+    public ProductBuilderController(ProductBuilderService service) {
         this.service = service;
-        this.governance = governance;
-    }
-
-    @GetMapping("/versions/{versionId}/rule-governance")
-    ProductRuleGovernanceService.GovernanceReport ruleGovernance(@PathVariable long versionId) {
-        return governance.report(versionId);
     }
 
     @GetMapping("/catalog")

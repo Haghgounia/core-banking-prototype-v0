@@ -27,6 +27,10 @@ node "%ROOT%tools\verify-pb-r16.mjs" || exit /b 1
 node "%ROOT%tools\verify-pb-r17.mjs" || exit /b 1
 rem PB-R18 governed organization scope, capability-aware rules and responsive profile editor.
 node "%ROOT%tools\verify-pb-r18.mjs" || exit /b 1
+rem PB-R19 governance categories, applicability, control presence/absence and release gates.
+node "%ROOT%tools\verify-pb-r19.mjs" || exit /b 1
+rem R20 Lite: two-table policy management and binding without a rule DSL.
+node "%ROOT%tools\verify-rgl-lite-r20.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.
 if not exist "%ROOT%frontend\src\app\app.component.ts" (

@@ -58,12 +58,6 @@ public class ProductGovernanceWriteGuard {
             assertProductIdentityMutable(existing, changes);
             return;
         }
-        if ("PRODUCT_VERSION".equals(normalized) && !"DRAFT".equals(text(existing.get("VERSION_STATUS_CODE")))) {
-            // An approved version is immutable, but emergency tightening must
-            // remain possible (halt origination, suspend servicing, expire).
-            assertNonDraftVersionStopOnly(existing, changes);
-            return;
-        }
 
         Long existingVersionId = resolveVersionId(normalized, existing);
         Long targetVersionId = resolveVersionId(normalized, merged);
@@ -75,42 +69,6 @@ public class ProductGovernanceWriteGuard {
         String normalized = normalize(table);
         Long versionId = resolveVersionId(normalized, existing);
         if (versionId != null) assertDraft(versionId, normalized);
-    }
-
-    private void assertNonDraftVersionStopOnly(Map<String, Object> existing, Map<String, Object> changes) {
-        Set<String> safeKeys = Set.of("ORIGINATION_STATUS_CODE", "SERVICING_STATUS_CODE",
-                "IS_CURRENT", "VERSION_STATUS_CODE", "CHANGE_REASON", "RECORD_STATUS_CODE");
-        for (var change : changes.entrySet()) {
-            if (same(existing.get(change.getKey()), change.getValue())) continue;
-            if (!safeKeys.contains(change.getKey())) {
-                throw new ProductBuilderValidationException("نسخه مصوب فقط از مسیر توقف/انقضای ایمن قابل تغییر است؛ برای تغییر قواعد یا تاریخ نسخه جدید بسازید.");
-            }
-            String oldValue = text(existing.get(change.getKey()));
-            String newValue = text(change.getValue());
-            switch (change.getKey()) {
-                case "ORIGINATION_STATUS_CODE" -> {
-                    if (!Set.of("CLOSED", "SUSPENDED").contains(newValue))
-                        throw new ProductBuilderValidationException("بازگشایی افتتاح نسخه مصوب از ویرایش عمومی مجاز نیست.");
-                }
-                case "SERVICING_STATUS_CODE" -> {
-                    if (!Set.of("CLOSED", "SUSPENDED").contains(newValue))
-                        throw new ProductBuilderValidationException("افزایش مجوز خدمت‌رسانی نسخه مصوب از ویرایش عمومی مجاز نیست.");
-                }
-                case "IS_CURRENT" -> {
-                    if (number(change.getValue()) != 0)
-                        throw new ProductBuilderValidationException("فعالسازی مجدد نسخه مصوب باید از گردش کار حاکمیتی انجام شود.");
-                }
-                case "VERSION_STATUS_CODE" -> {
-                    if (!"APPROVED".equals(oldValue) || !"EXPIRED".equals(newValue))
-                        throw new ProductBuilderValidationException("از وضعیت مصوب فقط انتقال به «منقضی» در مسیر عمومی مجاز است.");
-                }
-                case "RECORD_STATUS_CODE" -> {
-                    if (!"INACTIVE".equals(newValue))
-                        throw new ProductBuilderValidationException("رکورد نسخه مصوب فقط می‌تواند غیرفعال شود.");
-                }
-                default -> { /* change reason is an explanatory audit field */ }
-            }
-        }
     }
 
     private void assertProductIdentityMutable(Map<String, Object> existing, Map<String, Object> changes) {

@@ -1,0 +1,31 @@
+{
+  "base": "core-banking-prototype-v0-2026-10-10-PB-R19.zip",
+  "release": "PB-R20-LITE",
+  "modified_or_added": [
+    "R20-LITE-RELEASE-FA.md",
+    "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderService.java",
+    "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleEvidenceEvaluator.java",
+    "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceService.java",
+    "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/RuleGovernanceLiteService.java",
+    "backend/src/main/java/com/behsazan/corebanking/productbuilder/web/RuleGovernanceLiteController.java",
+    "backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleEvidenceR19Test.java",
+    "backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceR19Test.java",
+    "backend/src/test/java/com/behsazan/corebanking/productbuilder/application/RuleGovernanceLiteR20Test.java",
+    "build-production.cmd",
+    "build-production.sh",
+    "docs/PRODUCT-BUILDER-R20-RULE-GOVERNANCE-LITE-QA-FA.md",
+    "docs/oracle/rgl-lite-installed-contract.sql",
+    "frontend/src/app/features/product-builder/product-builder.models.ts",
+    "frontend/src/app/features/product-builder/product-builder.service.ts",
+    "frontend/src/app/features/product-builder/product-workspace.component.html",
+    "frontend/src/app/features/product-builder/product-workspace.component.ts",
+    "frontend/src/app/features/product-builder/rule-policy-lite.component.html",
+    "frontend/src/app/features/product-builder/rule-policy-lite.component.scss",
+    "frontend/src/app/features/product-builder/rule-policy-lite.component.ts",
+    "tools/runtime-rgl-lite-r20-smoke.mjs",
+    "tools/verify-pb-r19.mjs",
+    "tools/verify-rgl-lite-r20.mjs"
+  ],
+  "deleted": [],
+  "no_new_oracle_ddl": true
+}
