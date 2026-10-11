@@ -64,7 +64,7 @@ public final class PdlCatalog {
         register("ECONOMIC_SECTION", "\u062c\u062f\u0648\u0644 \u0628\u062e\u0634 \u0627\u0642\u062a\u0635\u0627\u062f\u06cc", "05", "Reference Data");
         register("LOAN_USAGE", "\u0646\u062d\u0648\u0647 \u0627\u0633\u062a\u0641\u0627\u062f\u0647", "05", "Reference Data");
         register("ECONOMIC_SUB_SECTION", "\u062c\u062f\u0648\u0644 \u0632\u06cc\u0631 \u0628\u062e\u0634 \u0627\u0642\u062a\u0635\u0627\u062f\u06cc", "05", "Reference Data");
-        register("LOAN_PRODUCT_COLLATERAL", "\u0627\u0642\u0644\u0627\u0645 \u0627\u0644\u06af\u0648\u06cc \u0648\u062b\u0627\u06cc\u0642 \u0645\u062d\u0635\u0648\u0644", "05", "Reference Data");
+        register("LOAN_PRODUCT_COLLATERAL", "انواع وثیقه (اطلاعات پایه موقت)", "05", "Reference Data");
         register("DOCUMENT_TYPE", "\u0646\u0648\u0639 \u0645\u062f\u0631\u06a9", "05", "Reference Data");
         register("PATTERN_OPERATION", "\u0627\u0644\u06af\u0648\u06cc \u0639\u0645\u0644\u06cc\u0627\u062a", "05", "Reference Data");
         register("OPERATION", "\u0627\u0646\u0648\u0627\u0639 \u0639\u0645\u0644\u06cc\u0627\u062a", "05", "Reference Data");

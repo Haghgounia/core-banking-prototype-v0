@@ -1,0 +1,55 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const read = p => fs.readFileSync(path.join(root, p), 'utf8');
+const routes = read('frontend/src/app/app.routes.ts');
+const menu = read('frontend/src/app/features/reference-menu/reference-menu.component.ts');
+const template = read('frontend/src/app/features/reference-menu/reference-menu.component.html');
+const hub = read('frontend/src/app/features/reference-hub/reference-hub.component.html');
+const page = read('frontend/src/app/features/product-builder/loan-type-plan-reference.component.ts');
+const pageHtml = read('frontend/src/app/features/product-builder/loan-type-plan-reference.component.html');
+const pageCss = read('frontend/src/app/features/product-builder/loan-type-plan-reference.component.scss');
+const editor = read('frontend/src/app/features/product-builder/pdl-table.component.ts');
+const editorHtml = read('frontend/src/app/features/product-builder/pdl-table.component.html');
+const repo = read('backend/src/main/java/com/behsazan/corebanking/productbuilder/oracle/PdlProductBuilderRepository.java');
+const service = read('backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderService.java');
+const catalog = read('backend/src/main/java/com/behsazan/corebanking/productbuilder/application/PdlCatalog.java');
+const script = read('tools/runtime-pb-r22-loan-reference-readonly.mjs');
+let ok = 0, failed = 0;
+function check(label, result) {
+  if (result) { ok++; console.log('PASS | '+label); }
+  else { failed++; console.error('FAIL | '+label); }
+}
+check('loan reference domain is exposed in main reference hub', hub.includes('routerLink="/loan/reference-data"') && hub.includes('اطلاعات پایه محصول تسهیلات'));
+check('Product Builder home also links loan reference domain', read('frontend/src/app/features/product-builder/product-builder-home.component.html').includes('routerLink="/loan/reference-data"'));
+check('menu defines independent LOAN scope', menu.includes("'FOUR_DEPOSIT' | 'LOAN'") && menu.includes("case 'LOAN'"));
+check('menu retains deposit reference cards', template.includes("scope === 'DEPOSIT'"));
+check('loan reference cards are rendered from explicit PDL allowlist', template.includes('filteredLoanReferenceForms()') && template.includes('PDL.{{ form.table }}'));
+const tableNames = ['LOAN_TYPE','PLAN_TYPE','LOAN_TYPE_PLAN_TYPE','LOAN_USAGE','ECONOMIC_SECTION','ECONOMIC_SUB_SECTION','FACILITY_OPERATION_PARAMETER','LOAN_PRODUCT_COLLATERAL'];
+for (const table of tableNames) check('PDL reference page '+table, menu.includes("table: '" + table + "'") && catalog.includes('register("' + table + '"'));
+check('specific relation route precedes generic table route', routes.indexOf("loan/reference-data/LOAN_TYPE_PLAN_TYPE") < routes.indexOf("loan/reference-data/:table"));
+check('specific relation route points to dedicated page', routes.includes('LoanTypePlanReferenceComponent'));
+check('regular loan references reuse existing PDL metadata CRUD', routes.includes("loan/reference-data/:table") && routes.includes('PdlTableComponent'));
+check('loan breadcrumb and return navigation are consistent', read('frontend/src/app/shared/ui/app-breadcrumb.component.ts').includes("path.startsWith('/loan/reference-data')") && editorHtml.includes('بازگشت به اطلاعات پایه محصول تسهیلات') && editor.includes('isLoanReferencePage()'));
+check('loan sidebar section remains registered', read('frontend/src/app/layout/app-shell.component.ts').includes("url.startsWith('/loan/reference-data')"));
+check('type reference remains informed by real Oracle schema', editorHtml.includes('ثبت نوع عقد مطابق جدول PDL') && editor.includes('LOAN_TYPE_CBI_CODE'));
+check('plan reference requires real rate values', editorHtml.includes('هشت نرخ موجود در ساختار Oracle اجباری‌اند') && editor.includes('PLAN_TYPE_CBI_CODE'));
+check('relation page fetches type plan and relation using existing APIs', ['LOAN_TYPE', 'PLAN_TYPE', 'LOAN_TYPE_PLAN_TYPE'].every(t => page.includes("this.allRows('" + t + "')")));
+check('only active parents are offered as selectable', page.includes('activeTypes = computed') && page.includes('activePlans = computed'));
+check('relation page supports multi-plan creation', pageHtml.includes('<mat-select multiple') && page.includes('async addMappings()'));
+check('existing inactive relation reactivation avoids duplicate insert', page.includes("if (existing) await this.service.update") && page.includes("else await this.service.create('LOAN_TYPE_PLAN_TYPE'"));
+check('relation page retains history with non-deleting status transitions', page.includes('async changeStatus') && page.includes("'INACTIVE' : 'ACTIVE'") && !page.includes('this.service.delete('));
+check('archived relations are not selectable for reactivation', page.includes("l.status === 'ARCHIVED'") && pageHtml.includes("link.status === 'ARCHIVED'"));
+check('page rejects creating relation when parents are unavailable', pageHtml.includes('هیچ نوع عقد فعالی') && pageHtml.includes('هیچ طرح فعالی'));
+check('page shows database errors and write results', pageHtml.includes('role="alert"') && pageHtml.includes('notice()') && page.includes('HttpErrorResponse'));
+check('page uses theme tokens with responsive layout', pageCss.includes('var(--app-surface-muted)') && pageCss.includes('@media(max-width:700px)') && !/#[a-fA-F0-9]{3,8}\b/.test(pageCss));
+check('backend validates reference codes both insert and update', service.includes('validateLoanReferenceMaintenance(table, prepared, null)') && service.includes('validateLoanReferenceMaintenance(table, merged, id)'));
+check('duplicate type and plan codes checked in Oracle', service.includes('loanReferenceCodeExists') && repo.includes('UPPER(TRIM('));
+check('mapping validates references active in Oracle', service.includes('repository.findById(relation.getKey()') && service.includes('ثبت رابطه فقط با عقد و طرح فعال'));
+check('duplicate mapping rejected across statuses', service.includes('loanTypePlanPairExists') && repo.includes('LOAN_TYPE_PLAN_TYPE_ID <> :id'));
+check('mapping serialization uses transaction-scoped row lock', service.includes('repository.lockLoanTypeForMapping') && repo.includes('FOR UPDATE'));
+check('no new schema or seed data is introduced', !/\b(CREATE TABLE|INSERT INTO PDL|ALTER TABLE)\b/i.test(script));
+check('runtime probe only reads API and offers no business writes', script.includes('GET') && !/\b(POST|PUT|PATCH|DELETE)\b/.test(script));
+console.log(`PB_R22_LOAN_REFERENCE_STATIC_PASS=${ok} FAIL=${failed}`);
+if (failed) process.exitCode = 1;

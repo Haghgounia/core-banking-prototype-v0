@@ -46,6 +46,7 @@ export class AppShellComponent {
     const url = this.router.url;
     return url.startsWith('/reference-data')
       || url.startsWith('/cif/reference')
+      || url.startsWith('/loan/reference-data')
       || url.startsWith('/deposit/reference-data')
       || url.startsWith('/four-deposits/reference-data')
       || url.startsWith('/geography-tree')

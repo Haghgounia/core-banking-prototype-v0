@@ -58,6 +58,7 @@ public class PdlReferenceOptionService {
             Map.entry("RELATIONSHIP_TYPE_CODE", "dps-relationship-types"),
             Map.entry("CURRENCY_CODE", "dps-default-currencies"),
             Map.entry("DEFAULT_CURRENCY_CODE", "dps-default-currencies"),
+            Map.entry("CURRENCY_TYPE_CODE", "dps-default-currencies"),
             Map.entry("SETTLEMENT_CURRENCY_CODE", "dps-default-currencies"),
             Map.entry("DAY_COUNT_BASIS_CODE", "dps-day-count-bases"),
             Map.entry("PAYMENT_FREQUENCY_CODE", "dps-payment-frequencies"),
@@ -81,9 +82,19 @@ public class PdlReferenceOptionService {
             Map.entry("CLOSURE_TYPE_CODE", "dps-closure-types"),
             Map.entry("BALANCE_DESTINATION_CODE", "dps-balance-destinations"),
             Map.entry("SETTLEMENT_METHOD_CODE", "dps-settlement-methods"),
-            Map.entry("DESTINATION_CODE", "dps-destinations")
+            Map.entry("DESTINATION_CODE", "dps-destinations"),
+            // The underlying persisted DPS reference codes are the authority for loan durations.
+            Map.entry("INSTALLMENT_FREQUENCY_CODE", "dps-payment-frequencies"),
+            Map.entry("INSTALLMENT_INTERVAL_UNIT_CODE", "dps-term-units"),
+            Map.entry("GRACE_UNIT_CODE", "dps-term-units"),
+            Map.entry("OVERRIDE_APPROVAL_LEVEL_CODE", "dps-approval-levels")
     );
 
+
+    private static final Set<String> GOVERNED_LOAN_TABLES = Set.of(
+            "LOAN_PRODUCT_PROFILE", "LOAN_PRODUCT_REPAYMENT_RULE", "LOAN_PRODUCT_PROCESS_RULE",
+            "LOAN_PRODUCT_COLLATERAL_RULE", "LOAN_FINANCIAL_EXTENSION", "LOAN_ELIGIBILITY_EXTENSION"
+    );
 
     private static final Set<String> GOVERNED_DEPOSIT_TABLES = Set.of(
             "DEPOSIT_PRODUCT_PROFILE", "DEPOSIT_PRODUCT_WITHDRAWAL_MEDIA",
@@ -164,7 +175,7 @@ public class PdlReferenceOptionService {
             Map.entry("GOVERNMENT", "نهاد دولتی"), Map.entry("BANK", "بانک / مؤسسه اعتباری"),
             Map.entry("STANDARD", "استاندارد"), Map.entry("VIP", "ارزنده / ویژه"),
             Map.entry("WELFARE_SUPPORT", "گروه حمایتی"), Map.entry("KNOWLEDGE_BASED", "دانش‌بنیان"),
-            Map.entry("ACTIVE", "فعال"), Map.entry("INACTIVE", "غیرفعال"), Map.entry("MERGED", "ادغام‌شده"),
+            Map.entry("ACTIVE", "فعال"), Map.entry("INACTIVE", "غیرفعال"), Map.entry("ARCHIVED", "بایگانی‌شده"), Map.entry("MERGED", "ادغام‌شده"),
             Map.entry("SUSPENDED", "تعلیق‌شده"), Map.entry("BLOCKED", "مسدود"),
             Map.entry("OPEN", "مجاز"), Map.entry("CLOSED", "بسته"),
             Map.entry("DRAFT", "پیش‌نویس"), Map.entry("APPROVED", "تصویب‌شده"),
@@ -232,7 +243,21 @@ public class PdlReferenceOptionService {
                     "REQUIRES", "محصول پیش‌نیاز", "BUNDLE", "بسته محصولات",
                     "RATE_DEPENDENCY", "وابستگی نرخ", "COLLATERAL_ACCOUNT", "حساب وثیقه")),
             Map.entry("PRODUCT_RELATIONSHIP.RECORD_STATUS_CODE", optsLabeled(
-                    "ACTIVE", "فعال", "INACTIVE", "غیرفعال"))
+                    "ACTIVE", "فعال", "INACTIVE", "غیرفعال")),
+            Map.entry("LOAN_ELIGIBILITY_EXTENSION.MAX_RISK_GRADE_CODE", optsLabeled(
+                    "A", "A - ریسک کم", "B", "B - ریسک قابل قبول", "C", "C - ریسک متوسط", "D", "D - ریسک زیاد")),
+            Map.entry("LOAN_ELIGIBILITY_EXTENSION.EMPLOYMENT_TYPE_CODE", optsLabeled(
+                    "SALARIED", "حقوق‌بگیر", "SELF_EMPLOYED", "خویش‌فرما", "BUSINESS_OWNER", "صاحب کسب‌وکار", "RETIRED", "بازنشسته", "OTHER", "سایر")),
+            Map.entry("LOAN_PRODUCT_PROCESS_RULE.OVERRIDE_APPROVAL_LEVEL_CODE", optsLabeled(
+                    "BRANCH_MANAGER", "رئیس شعبه", "REGION_MANAGER", "مدیریت منطقه", "CREDIT_COMMITTEE", "کمیته اعتباری", "HEAD_OFFICE", "ستاد / مدیریت مرکزی")),
+            Map.entry("LOAN_PRODUCT_PROFILE.PARTY_NATURE_CODE", optsLabeled(
+                    "ALL", "همه موارد", "NATURAL", "حقیقی", "LEGAL", "حقوقی")),
+            Map.entry("LOAN_PRODUCT_REPAYMENT_RULE.REPAYMENT_RULE_CODE", optsLabeled(
+                    "EQUAL_INSTALLMENT", "اقساط مساوی", "EQUAL_PRINCIPAL", "اصل مساوی با سود نزولی", "BULLET", "تسویه یکجا در سررسید", "INTEREST_ONLY", "پرداخت دوره‌ای سود و اصل در سررسید", "CUSTOM", "الگوی سفارشی")),
+            Map.entry("LOAN_PRODUCT_REPAYMENT_RULE.REPAYMENT_METHOD_CODE", optsLabeled(
+                    "EQUAL_INSTALLMENT", "اقساط مساوی", "EQUAL_PRINCIPAL", "اصل مساوی", "BULLET", "یکجا", "CUSTOM", "سفارشی")),
+            Map.entry("LOAN_PRODUCT_REPAYMENT_RULE.GRACE_METHOD_CODE", optsLabeled(
+                    "NO_PAYMENT", "عدم پرداخت در دوره تنفس", "PRINCIPAL_ONLY_GRACE", "تنفس فقط برای اصل", "FULL_GRACE", "تنفس برای اصل و سود", "CAPITALIZE_INTEREST", "افزودن سود دوره تنفس به مانده"))
     );
 
     static List<SelectOption> businessFormOptions(String table, String field, List<SelectOption> databaseChoices) {
@@ -412,6 +437,14 @@ public class PdlReferenceOptionService {
     private ColumnDescriptor enrichColumn(String table, ColumnDescriptor column) {
         String name = normalize(column.name());
         String businessField = normalize(table) + "." + name;
+        if ("LOAN_TYPE".equals(normalize(table))) {
+            if ("LOAN_GROUP".equals(name))
+                return copy(column, true, "PDL_FIXED_ENUM", LoanTypeClassification.loanGroupOptions());
+            if ("OBLIGATION_TYPE".equals(name))
+                return copy(column, true, "PDL_FIXED_ENUM", LoanTypeClassification.obligationOptions());
+            if ("INTEREST_METHOD".equals(name))
+                return copy(column, true, "PDL_DISABLED_FEATURE", LoanTypeClassification.disabledInterestOptions());
+        }
         if ("PRODUCT_ORG_SCOPE".equals(normalize(table)) && "ORG_UNIT_ID".equals(name)) {
             try {
                 List<SelectOption> units = referenceService.lookup("dps-org-units", null, null, 1000).stream()
@@ -421,6 +454,21 @@ public class PdlReferenceOptionService {
             } catch (RuntimeException ignored) {
                 return copy(column, true, "DPS:dps-org-units", List.of());
             }
+        }
+        // Actual PDL foreign keys are resolved through the catalog lookup endpoint,
+        // so LOAN_TYPE_ID / PLAN_TYPE_ID / collateral IDs cannot become mocked options.
+        if (GOVERNED_LOAN_TABLES.contains(normalize(table)) && column.foreignKey()) return column;
+        if (GOVERNED_LOAN_TABLES.contains(normalize(table)) &&
+                Set.of("CURRENCY_TYPE_CODE", "INSTALLMENT_FREQUENCY_CODE", "TERM_UNIT_CODE", "INSTALLMENT_INTERVAL_UNIT_CODE",
+                        "GRACE_UNIT_CODE", "OVERRIDE_APPROVAL_LEVEL_CODE").contains(name)) {
+            String loanResource = RESOURCE_BY_COLUMN.get(name);
+            List<SelectOption> actual = referenceOptions(loanResource);
+            // No fallback to fabricated reference codes: if DPS is unseeded, the UI warns and saving fails.
+            return copy(column, true, "DPS:" + loanResource, actual.stream()
+                    .filter(o -> o.label() != null && o.label().codePoints().anyMatch(ch -> ch >= 0x0600 && ch <= 0x06ff)
+                            && !o.label().contains("عنوان فارسی مرجع تعریف نشده")
+                            && (!"CURRENCY_TYPE_CODE".equals(name) || normalize(o.code()).matches("[A-Z]{3}")))
+                    .toList());
         }
         if (BUSINESS_FORM_OPTIONS.containsKey(businessField)) {
             List<SelectOption> choices = businessFormOptions(table, name, column.options());
@@ -435,7 +483,8 @@ public class PdlReferenceOptionService {
         boolean depositField = GOVERNED_DEPOSIT_TABLES.contains(normalize(table)) && resource != null;
         boolean feePlanField = "DEPOSIT_PRODUCT_DORMANCY_RULE".equals(normalize(table))
                 && "MAINTENANCE_FEE_PLAN_ID".equals(name);
-        boolean checkedCode = isCommonRuleTable(table) && name.endsWith("_CODE") && !column.options().isEmpty();
+        boolean checkedCode = (isCommonRuleTable(table) || GOVERNED_LOAN_TABLES.contains(normalize(table)))
+                && name.endsWith("_CODE") && !column.options().isEmpty();
         boolean controlled = resource != null || partyResource != null || checkedCode || FALLBACKS.containsKey(name) || feePlanField;
         if (!controlled) return column;
 

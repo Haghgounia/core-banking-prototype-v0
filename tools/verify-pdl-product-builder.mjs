@@ -39,10 +39,20 @@ must(tableTs.includes('TimeInputComponent'), 'Clock TIME control missing from ge
 must(tableHtml.includes('<app-persian-date-input'), 'Persian date input not rendered by generic PDL form');
 must(tableHtml.includes('<app-time-input'), 'Clock time input not rendered by generic PDL form');
 must(tableTs.includes("tableName() !== 'DEPOSIT_PROFIT_PAYMENT_RULE'"), 'Profit-payment UI synchronization missing');
-must(workspace.includes('TARGET_PRODUCT_FAMILIES'), 'Target product-family catalog missing');
-for (const family of ['CURRENT_ACCOUNT','QARD_SAVINGS','SHORT_TERM_DEPOSIT','LONG_TERM_DEPOSIT','CERTIFICATE_OF_DEPOSIT','NOSTRO_ACCOUNT','VOSTRO_ACCOUNT','RETAIL_LOAN','QARD_HASAN_LOAN']) {
-  must(workspace.includes(family), `Target family missing: ${family}`);
+// FIX PB-R24: deposits remain a static catalog; loan families are derived from ACTIVE PDL.LOAN_TYPE groups.
+// RETAIL_LOAN is a legacy persisted family only and must NOT be offered to new products.
+const staticFamilyBlock = workspace.split('const TARGET_PRODUCT_FAMILIES:')[1]?.split('const LOAN_FAMILY_FROM_GROUP:')[0];
+must(staticFamilyBlock !== undefined, 'Static deposit family catalog missing');
+for (const family of ['CURRENT_ACCOUNT','QARD_SAVINGS','SHORT_TERM_DEPOSIT','LONG_TERM_DEPOSIT','CERTIFICATE_OF_DEPOSIT','NOSTRO_ACCOUNT','VOSTRO_ACCOUNT']) {
+  must(staticFamilyBlock.includes(`code: '${family}'`), `Static deposit family missing: ${family}`);
 }
+must(!staticFamilyBlock.includes("domain: 'LOAN'"), 'Loan family must not be static');
+for (const family of ['QARD_HASAN_LOAN','EXCHANGE_LOAN','PARTICIPATORY_LOAN','COMMITMENT_LOAN']) {
+  must(workspace.includes(`code: '${family}'`), `Loan group family mapping missing: ${family}`);
+}
+must(workspace.includes("this.service.rows('LOAN_TYPE', {page, size: 200})"), 'Dynamic loan family source missing');
+must(workspace.includes("String(row['RECORD_STATUS_CODE']).trim().toUpperCase() === 'ACTIVE'"), 'Inactive loan types must not create loan families');
+must(!workspace.includes("{code: 'RETAIL_LOAN', label:"), 'Legacy RETAIL_LOAN must not be offered on create');
 must(workspace.includes('DEPOSIT_PROFIT_PAYMENT_RULE'), 'Profit payment navigation missing');
 must(workspace.includes('CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE'), 'Correspondent profile navigation missing');
 must(workspace.includes('PRODUCT_RELATIONSHIP'), 'Product relationship navigation missing');

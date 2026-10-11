@@ -231,24 +231,107 @@ public class PdlProductBuilderRepository {
         TableDescriptor parent = descriptor(fk.parentTable());
         ColumnDescriptor label = labelColumn(parent);
         ColumnDescriptor code = codeColumn(parent).orElse(label);
+        // Facility operation parameters have no name column; use actual persisted periods,
+        // never a status code or a synthetic reference description as the display label.
+        boolean facilityParameter = "FACILITY_OPERATION_PARAMETER".equals(parent.tableName());
+        String labelSql = facilityParameter
+                ? "'پارامتر ' || TO_CHAR(T.OPERATION_PARAMETER_ID) || ' - سررسید گذشته ' || TO_CHAR(T.OVERDUE_DURATION) || ' / معوق ' || TO_CHAR(T.PASTDUE_DURATION)"
+                : "TO_CHAR(T." + identifier(label.name()) + ")";
         int safeLimit = Math.min(Math.max(limit, 1), 1000);
         List<String> where = new ArrayList<>();
         Map<String, Object> params = new LinkedHashMap<>();
         if (text != null && !text.isBlank()) {
-            where.add("(UPPER(TO_CHAR(T." + identifier(code.name()) + ")) LIKE :q OR UPPER(TO_CHAR(T."
-                    + identifier(label.name()) + ")) LIKE :q)");
+            where.add("(UPPER(TO_CHAR(T." + identifier(code.name()) + ")) LIKE :q OR UPPER(" + labelSql + ") LIKE :q)");
             params.put("q", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
         }
         if (hasColumn(parent, "IS_ACTIVE")) where.add("NVL(T.IS_ACTIVE, 1) = 1");
         if (hasColumn(parent, "IS_DELETED")) where.add("NVL(T.IS_DELETED, 0) = 0");
+        if (hasColumn(parent, "RECORD_STATUS_CODE")) where.add("T.RECORD_STATUS_CODE = 'ACTIVE'");
         params.put("limit", safeLimit);
         String sql = "SELECT T." + identifier(parent.primaryKeyColumn()) + " AS V, TO_CHAR(T."
-                + identifier(code.name()) + ") AS C, TO_CHAR(T." + identifier(label.name()) + ") AS L FROM "
+                + identifier(code.name()) + ") AS C, " + labelSql + " AS L FROM "
                 + qualified(parent.tableName()) + " T"
                 + (where.isEmpty() ? "" : " WHERE " + String.join(" AND ", where))
                 + " ORDER BY T." + identifier(label.name()) + " FETCH FIRST :limit ROWS ONLY";
         return jdbcClient.sql(sql).params(params).query((rs, rowNum) ->
                 new SelectOption(rs.getObject("V"), rs.getString("C"), rs.getString("L"))).list();
+    }
+
+    public boolean loanReferenceCodeExists(String table, String column, String code, Long exceptId) {
+        // Table and column names are fixed by our service allowlist, not user input.
+        if (!("LOAN_TYPE".equals(table) && "LOAN_TYPE_CODE".equals(column)) &&
+            !("PLAN_TYPE".equals(table) && "PLAN_TYPE_CODE".equals(column)) &&
+            !("LOAN_PRODUCT_COLLATERAL".equals(table) && "PRODUCT_COLLATERAL_CODE".equals(column)))
+            throw new ProductBuilderValidationException("Invalid reference key.");
+        String idColumn = "LOAN_PRODUCT_COLLATERAL".equals(table) ? "LOAN_PRODUCT_COLLATERAL_ID" : table + "_ID";
+        String sql = "SELECT COUNT(*) FROM " + qualified(table)
+            + " WHERE UPPER(TRIM(" + column + ")) = UPPER(TRIM(:code))"
+            + (exceptId == null ? "" : " AND " + idColumn + " <> :id");
+        var spec = jdbcClient.sql(sql).param("code", code);
+        if (exceptId != null) spec = spec.param("id", exceptId);
+        Long count = spec.query(Long.class).single();
+        return count != null && count > 0;
+    }
+
+    public void lockLoanTypeForMapping(long loanTypeId) {
+        // Called inside ProductBuilderService's @Transactional create/update boundary.
+        jdbcClient.sql("SELECT LOAN_TYPE_ID FROM " + qualified("LOAN_TYPE")
+                + " WHERE LOAN_TYPE_ID = :id FOR UPDATE")
+            .param("id", loanTypeId).query(Long.class).single();
+    }
+
+    public boolean loanTypePlanPairExists(long loanTypeId, long planTypeId, Long exceptId) {
+        String sql = "SELECT COUNT(*) FROM " + qualified("LOAN_TYPE_PLAN_TYPE")
+            + " WHERE LOAN_TYPE_ID=:loan AND PLAN_TYPE_ID=:plan"
+            + (exceptId == null ? "" : " AND LOAN_TYPE_PLAN_TYPE_ID <> :id");
+        var spec = jdbcClient.sql(sql).param("loan", loanTypeId).param("plan", planTypeId);
+        if (exceptId != null) spec = spec.param("id", exceptId);
+        Long count = spec.query(Long.class).single();
+        return count != null && count > 0;
+    }
+
+    /** Only active PDL loan types make a loan-group family available for NEW products. */
+    public boolean activeLoanGroupExists(int groupCode) {
+        if (groupCode < 1 || groupCode > 4) return false;
+        Long count = jdbcClient.sql("SELECT COUNT(*) FROM " + qualified("LOAN_TYPE")
+                        + " WHERE LOAN_GROUP = :groupCode AND RECORD_STATUS_CODE = 'ACTIVE'")
+                .param("groupCode", groupCode).query(Long.class).single();
+        return count != null && count > 0;
+    }
+
+    public boolean loanProductHasProfiles(long productId) {
+        Long count = jdbcClient.sql("SELECT COUNT(*) FROM " + qualified("LOAN_PRODUCT_PROFILE") + " L JOIN "
+                        + qualified("PRODUCT_VERSION") + " V ON V.PRODUCT_VERSION_ID = L.PRODUCT_VERSION_ID"
+                        + " WHERE V.PRODUCT_ID = :productId")
+                .param("productId", productId).query(Long.class).single();
+        return count != null && count > 0;
+    }
+
+    public boolean loanTypeHasProfiles(long loanTypeId) {
+        Long count = jdbcClient.sql("SELECT COUNT(*) FROM " + qualified("LOAN_PRODUCT_PROFILE")
+                        + " WHERE LOAN_TYPE_ID = :loanTypeId")
+                .param("loanTypeId", loanTypeId).query(Long.class).single();
+        return count != null && count > 0;
+    }
+
+    public boolean loanTypePlanAllowed(long loanTypeId, long planTypeId) {
+        if (loanTypeId <= 0 || planTypeId <= 0) return false;
+        String sql = "SELECT COUNT(*) FROM " + qualified("LOAN_TYPE_PLAN_TYPE")
+                + " WHERE LOAN_TYPE_ID=:loan AND PLAN_TYPE_ID=:plan AND RECORD_STATUS_CODE='ACTIVE'";
+        Integer count = jdbcClient.sql(sql).param("loan", loanTypeId).param("plan", planTypeId)
+                .query(Integer.class).single();
+        return count != null && count > 0;
+    }
+
+    public boolean loanEconomicSubSectionAllowed(long planTypeId, long subSectionId) {
+        if (planTypeId <= 0 || subSectionId <= 0) return false;
+        String sql = "SELECT COUNT(*) FROM " + qualified("ECONOMIC_SUB_SECTION") + " D JOIN "
+                + qualified("ECONOMIC_SECTION") + " S ON S.ECONOMIC_SECTION_ID=D.ECONOMIC_SECTION_ID "
+                + "WHERE D.ECONOMIC_SUB_SECTION_ID=:sub AND S.PLAN_TYPE_ID=:plan "
+                + "AND D.RECORD_STATUS_CODE='ACTIVE' AND S.RECORD_STATUS_CODE='ACTIVE'";
+        Integer count = jdbcClient.sql(sql).param("sub", subSectionId).param("plan", planTypeId)
+                .query(Integer.class).single();
+        return count != null && count > 0;
     }
 
     private TableDescriptor loadDescriptor(String table) {

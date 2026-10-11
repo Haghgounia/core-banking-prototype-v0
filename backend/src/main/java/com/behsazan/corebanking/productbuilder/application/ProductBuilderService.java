@@ -92,9 +92,15 @@ public class ProductBuilderService {
             referenceOptionService.validateEligibilityCriterion(prepared);
             validateGenderCriterionScope(prepared);
         }
+        if ("LOAN_TYPE".equals(normalizeTable(table))) LoanTypeClassification.validateForSave(prepared, null);
+        validateLoanProductFamily(table, prepared, null);
         referenceOptionService.validateChangedValues(descriptor(table), prepared, null);
         validateVersionScopedCreate(table, prepared);
         validateRelationshipTargets(table, prepared);
+        validateLoanReferenceRows(table, prepared, null);
+        validateCivilPartnershipContribution(table, prepared);
+        validateLoanTermUnit(table, prepared, null);
+        validateLoanReferenceMaintenance(table, prepared, null);
         businessValidator.validate(table, prepared);
         long id = repository.insert(table, prepared, resolvedActor);
         return findById(table, id);
@@ -115,11 +121,23 @@ public class ProductBuilderService {
             referenceOptionService.validateEligibilityCriterion(merged);
             validateGenderCriterionScope(merged);
         }
+        if ("LOAN_TYPE".equals(normalizeTable(table))) {
+            LoanTypeClassification.validateForSave(merged, existing);
+            if (number(merged.get("LOAN_GROUP")) != number(existing.get("LOAN_GROUP"))
+                    && repository.loanTypeHasProfiles(id)) {
+                throw new ProductBuilderValidationException("گروه عقد دارای پروفایل تسهیلات قابل تغییر نیست؛ نسخه‌های محصول به این گروه وابسته‌اند.");
+            }
+        }
+        validateLoanProductFamily(table, merged, existing);
         referenceOptionService.validateChangedValues(descriptor(table), prepared, existing);
         if ("PRODUCT_VERSION".equals(normalizeTable(table))) {
             governance.assertPromotionAllowed(id, existing, merged);
         }
         validateRelationshipTargets(table, merged);
+        validateLoanReferenceRows(table, merged, existing);
+        validateCivilPartnershipContribution(table, merged);
+        validateLoanTermUnit(table, merged, existing);
+        validateLoanReferenceMaintenance(table, merged, id);
         businessValidator.validate(table, merged);
         if (!repository.update(table, id, prepared, resolvedActor)) {
             throw new ProductBuilderValidationException("PDL row not found: " + table + "/" + id);
@@ -133,6 +151,151 @@ public class ProductBuilderService {
         if (!repository.delete(table, id, actorName(actor))) {
             throw new ProductBuilderValidationException("PDL row not found: " + table + "/" + id);
         }
+    }
+
+    /** Protects loan reference data against duplicate codes/pairs and inactive parents.
+     *  PDL has PK/FK constraints but no uniqueness constraint on business code or type/plan pair. */
+    private void validateLoanReferenceMaintenance(String table, Map<String, Object> values, Long editingId) {
+        String target = normalizeTable(table);
+        if ("LOAN_TYPE".equals(target) || "PLAN_TYPE".equals(target) || "LOAN_PRODUCT_COLLATERAL".equals(target)) {
+            String key = "LOAN_PRODUCT_COLLATERAL".equals(target) ? "PRODUCT_COLLATERAL_CODE" : target + "_CODE";
+            String code = text(values.get(key)).trim();
+            if (code.isBlank()) throw new ProductBuilderValidationException(
+                "LOAN_PRODUCT_COLLATERAL".equals(target) ? "کد نوع وثیقه الزامی است." : "کد نوع عقد یا طرح الزامی است.");
+            if (repository.loanReferenceCodeExists(target, key, code, editingId))
+                throw new ProductBuilderValidationException("کد «" + code + "» قبلاً ثبت شده است. رکورد موجود را ویرایش کنید.");
+        }
+        if (!"LOAN_TYPE_PLAN_TYPE".equals(target)) return;
+        long loanType = requiredLoanId(values, "LOAN_TYPE_ID");
+        long planType = requiredLoanId(values, "PLAN_TYPE_ID");
+        if (loanType <= 0 || planType <= 0) throw new ProductBuilderValidationException("انتخاب نوع عقد و طرح معتبر الزامی است.");
+        // Serializing per loan type prevents concurrent inserts of the same relation pair.
+        repository.lockLoanTypeForMapping(loanType);
+        // Deactivation remains possible even if a parent is later retired; activation must have active parents.
+        if ("ACTIVE".equals(String.valueOf(values.get("RECORD_STATUS_CODE")))) {
+            for (var relation : Map.of("LOAN_TYPE", loanType, "PLAN_TYPE", planType).entrySet()) {
+                Map<String, Object> reference = repository.findById(relation.getKey(), relation.getValue())
+                    .orElseThrow(() -> new ProductBuilderValidationException("رکورد مرجع عقد/طرح یافت نشد."));
+                if (!"ACTIVE".equals(String.valueOf(reference.get("RECORD_STATUS_CODE"))))
+                    throw new ProductBuilderValidationException("ثبت رابطه فقط با عقد و طرح فعال مجاز است.");
+            }
+        }
+        if (repository.loanTypePlanPairExists(loanType, planType, editingId))
+            throw new ProductBuilderValidationException("این رابطه عقد و طرح قبلاً ثبت شده است؛ همان رکورد را فعال یا ویرایش کنید.");
+    }
+
+    /** A loan PRODUCT family represents the active LOAN_GROUP, not the individual loan contract. */
+    private void validateLoanProductFamily(String table, Map<String, Object> values, Map<String, Object> previous) {
+        if (!"PRODUCT".equals(normalizeTable(table))) return;
+        String domain = text(values.get("PRODUCT_CLASS_CODE"));
+        if (previous != null && !domain.equals(text(previous.get("PRODUCT_CLASS_CODE")))
+                && repository.loanProductHasProfiles(number(previous.get("PRODUCT_ID")))) {
+            throw new ProductBuilderValidationException("دامنه محصول دارای پروفایل تسهیلات قابل تغییر نیست.");
+        }
+        if (!"LOAN".equals(domain)) return;
+        String family = text(values.get("PRODUCT_FAMILY_CODE"));
+        if (previous != null) {
+            long id = number(previous.get("PRODUCT_ID"));
+            if (repository.loanProductHasProfiles(id)
+                    && (!family.equals(text(previous.get("PRODUCT_FAMILY_CODE")))
+                    || !text(values.get("DEFAULT_CURRENCY_CODE")).equals(text(previous.get("DEFAULT_CURRENCY_CODE"))))) {
+                throw new ProductBuilderValidationException("پس از ثبت پروفایل تسهیلات، خانواده و ارز اصلی محصول نباید بی‌صدا تغییر کنند؛ ابتدا فرایند اصلاح نسخه را مشخص کنید.");
+            }
+            if ("LOAN".equals(text(previous.get("PRODUCT_CLASS_CODE")))
+                    && family.equals(text(previous.get("PRODUCT_FAMILY_CODE")))) return; // historical loan codes remain readable/editable
+        }
+        int groupCode = LoanTypeClassification.groupForProductFamily(family);
+        if (groupCode == 0 || !repository.activeLoanGroupExists(groupCode)) {
+            throw new ProductBuilderValidationException("خانواده محصول تسهیلات باید از گروه دارای نوع عقد فعال در اطلاعات پایه انتخاب شود.");
+        }
+    }
+
+    /** Source-of-truth currency and group for a loan profile: PRODUCT -> VERSION -> LOAN_TYPE. */
+    private String loanProfileCurrency(long versionId, long loanTypeId) {
+        if (versionId <= 0) throw new ProductBuilderValidationException("نسخه محصول تسهیلات مشخص نشده است.");
+        Map<String, Object> version = findById("PRODUCT_VERSION", versionId);
+        Map<String, Object> product = findById("PRODUCT", number(version.get("PRODUCT_ID")));
+        if (!"LOAN".equals(text(product.get("PRODUCT_CLASS_CODE"))))
+            throw new ProductBuilderValidationException("پروفایل تسهیلات باید به نسخه یک محصول تسهیلات تعلق داشته باشد.");
+        if (loanTypeId <= 0) throw new ProductBuilderValidationException("انتخاب نوع عقد معتبر الزامی است.");
+        Map<String, Object> type = findById("LOAN_TYPE", loanTypeId);
+        int group = LoanTypeClassification.groupForProductFamily(text(product.get("PRODUCT_FAMILY_CODE")));
+        if (group != 0 && group != number(type.get("LOAN_GROUP")))
+            throw new ProductBuilderValidationException("نوع عقد انتخابی با خانواده محصول سازگار نیست؛ خانواده بر اساس گروه نوع عقد تعیین می‌شود.");
+        if (group == 0 && !LoanTypeClassification.isLegacyRetailFamily(text(product.get("PRODUCT_FAMILY_CODE"))))
+            throw new ProductBuilderValidationException("خانواده محصول تسهیلات معتبر نیست.");
+        String currency = text(product.get("DEFAULT_CURRENCY_CODE"));
+        if (!currency.matches("[A-Z]{3}")) throw new ProductBuilderValidationException("ارز پیش‌فرض محصول باید کد سه‌حرفی معتبر باشد.");
+        return currency;
+    }
+
+    private void validateLoanReferenceRows(String table, Map<String, Object> values, Map<String, Object> previous) {
+        Map<String, String> foreigns;
+        if ("LOAN_PRODUCT_PROFILE".equals(normalizeTable(table))) {
+            foreigns = Map.of("LOAN_TYPE_ID", "LOAN_TYPE", "LOAN_USAGE_ID", "LOAN_USAGE",
+                    "PLAN_TYPE_ID", "PLAN_TYPE", "ECONOMIC_SUB_SECTION_ID", "ECONOMIC_SUB_SECTION",
+                    "OPERATION_PARAMETER_ID", "FACILITY_OPERATION_PARAMETER");
+        } else if ("LOAN_PRODUCT_COLLATERAL_RULE".equals(normalizeTable(table))) {
+            foreigns = Map.of("LOAN_PRODUCT_COLLATERAL_ID", "LOAN_PRODUCT_COLLATERAL");
+        } else return;
+        for (var entry : foreigns.entrySet()) {
+            Object value = values.get(entry.getKey());
+            if (value == null || value.toString().isBlank()) continue;
+            if (previous != null && java.util.Objects.equals(value.toString(), String.valueOf(previous.get(entry.getKey())))) continue;
+            long id;
+            try { id = new java.math.BigDecimal(value.toString()).longValueExact(); }
+            catch (NumberFormatException | ArithmeticException ex) { throw new ProductBuilderValidationException("شناسه مرجع تسهیلات باید عدد صحیح معتبر باشد."); }
+            if (id <= 0) throw new ProductBuilderValidationException("شناسه مرجع تسهیلات نامعتبر است.");
+            Map<String, Object> ref = repository.findById(entry.getValue(), id)
+                    .orElseThrow(() -> new ProductBuilderValidationException("گزینه انتخاب‌شده در جدول مرجع " + entry.getValue() + " یافت نشد."));
+            if (ref.containsKey("RECORD_STATUS_CODE") && !"ACTIVE".equals(String.valueOf(ref.get("RECORD_STATUS_CODE"))))
+                throw new ProductBuilderValidationException("گزینه انتخابی در اطلاعات پایه تسهیلات فعال نیست.");
+        }
+        if ("LOAN_PRODUCT_PROFILE".equals(normalizeTable(table))) {
+            long type = requiredLoanId(values, "LOAN_TYPE_ID"), plan = requiredLoanId(values, "PLAN_TYPE_ID");
+            String masterCurrency = loanProfileCurrency(requiredLoanId(values, "PRODUCT_VERSION_ID"), type);
+            if (!masterCurrency.equals(text(values.get("CURRENCY_TYPE_CODE")))) {
+                throw new ProductBuilderValidationException("ارز پروفایل باید از ارز پیش‌فرض هویت محصول به‌صورت سیستمی تأمین شود.");
+            }
+            if (!repository.loanTypePlanAllowed(type, plan))
+                throw new ProductBuilderValidationException("طرح انتخاب‌شده برای نوع عقد تسهیلات در جدول LOAN_TYPE_PLAN_TYPE مجاز نیست.");
+            Object sub = values.get("ECONOMIC_SUB_SECTION_ID");
+            if (sub != null && !sub.toString().isBlank()) {
+                long subId = requiredLoanId(values, "ECONOMIC_SUB_SECTION_ID");
+                if (!repository.loanEconomicSubSectionAllowed(plan, subId))
+                    throw new ProductBuilderValidationException("زیربخش اقتصادی انتخاب‌شده به طرح تسهیلات جاری تعلق ندارد.");
+            }
+        }
+    }
+
+    private void validateLoanTermUnit(String table, Map<String, Object> values, Map<String, Object> existing) {
+        if (!"LOAN_PRODUCT_REPAYMENT_RULE".equals(normalizeTable(table))) return;
+        String unit = text(values.get("TERM_UNIT_CODE"));
+        if (unit.isBlank()) return; // permitted if no term duration is configured
+        if (!Set.of("DAY", "MONTH").contains(unit) &&
+                (existing == null || !unit.equals(text(existing.get("TERM_UNIT_CODE"))))) {
+            throw new ProductBuilderValidationException("واحد مدت تسهیلات فقط روز یا ماه است؛ سایر واحدها در قواعد جدید پذیرفته نمی‌شوند.");
+        }
+    }
+
+    /** Contribution is a ratio in Oracle, but belongs only to a real civil partnership contract.
+     *  A participatory family alone is not sufficient. No schema changes or test fixtures. */
+    private void validateCivilPartnershipContribution(String table, Map<String,Object> values) {
+        if (!"LOAN_FINANCIAL_EXTENSION".equals(normalizeTable(table))) return;
+        if (values.get("MIN_CUSTOMER_CONTRIBUTION") == null && values.get("MAX_CUSTOMER_CONTRIBUTION") == null) return;
+        long versionId = requiredLoanId(values, "PRODUCT_VERSION_ID");
+        TablePage profiles = repository.search("LOAN_PRODUCT_PROFILE", null, 0, 2, "PRODUCT_VERSION_ID", String.valueOf(versionId));
+        if (profiles.totalElements() != 1 || profiles.items().size() != 1)
+            throw new ProductBuilderValidationException("برای ثبت درصد آورده، ابتدا پروفایل تسهیلات این نسخه و عقد مشارکت مدنی را مشخص کنید.");
+        long typeId = requiredLoanId(profiles.items().get(0), "LOAN_TYPE_ID");
+        Map<String,Object> contract = findById("LOAN_TYPE", typeId);
+        if (!LoanCivilPartnershipPolicy.matches(contract))
+            throw new ProductBuilderValidationException("درصد سهم / آورده مشتری فقط برای عقد مشارکت مدنی قابل ثبت است.");
+    }
+
+    private static long requiredLoanId(Map<String, Object> values, String key) {
+        try { return new java.math.BigDecimal(String.valueOf(values.get(key))).longValueExact(); }
+        catch (NumberFormatException | ArithmeticException e) { throw new ProductBuilderValidationException("نوع عقد و طرح تسهیلات باید از اطلاعات پایه انتخاب شوند."); }
     }
 
     public List<SelectOption> lookup(String table, String column, String text, int limit) {
@@ -353,6 +516,15 @@ public class ProductBuilderService {
             resolveOrgUnitCode(prepared);
             return prepared;
         }
+        if ("LOAN_PRODUCT_PROFILE".equals(normalizeTable(table))) {
+            String currency = loanProfileCurrency(number(prepared.get("PRODUCT_VERSION_ID")), number(prepared.get("LOAN_TYPE_ID")));
+            String entered = text(prepared.get("CURRENCY_TYPE_CODE"));
+            if (!entered.isBlank() && !currency.equals(entered)) {
+                throw new ProductBuilderValidationException("ارز پروفایل قابل انتخاب مستقل نیست؛ ارز از هویت محصول تأمین می‌شود.");
+            }
+            prepared.put("CURRENCY_TYPE_CODE", currency);
+            return prepared;
+        }
         if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table))) {
             var identity = depositIdentity(number(prepared.get("PRODUCT_VERSION_ID")));
             String enteredGroup = text(prepared.get("DEPOSIT_GROUP_CODE"));
@@ -384,6 +556,20 @@ public class ProductBuilderService {
             scope.putAll(prepared);
             resolveOrgUnitCode(scope);
             prepared.put("ORG_UNIT_CODE", scope.get("ORG_UNIT_CODE"));
+            return prepared;
+        }
+        if ("LOAN_PRODUCT_PROFILE".equals(normalizeTable(table))) {
+            if (prepared.containsKey("PRODUCT_VERSION_ID")
+                    && number(prepared.get("PRODUCT_VERSION_ID")) != number(existing.get("PRODUCT_VERSION_ID")))
+                throw new ProductBuilderValidationException("نسخه پروفایل موجود ثابت است؛ از گزینه کپی به نسخه دیگر استفاده کنید.");
+            String canonicalCurrency = loanProfileCurrency(number(existing.get("PRODUCT_VERSION_ID")),
+                    number(prepared.getOrDefault("LOAN_TYPE_ID", existing.get("LOAN_TYPE_ID"))));
+            if (!canonicalCurrency.equals(text(existing.get("CURRENCY_TYPE_CODE"))))
+                throw new ProductBuilderValidationException("ارز پروفایل موجود با هویت محصول مغایرت دارد؛ اصلاح کنترل‌شده داده لازم است.");
+            if (prepared.containsKey("CURRENCY_TYPE_CODE")
+                    && !canonicalCurrency.equals(text(prepared.get("CURRENCY_TYPE_CODE"))))
+                throw new ProductBuilderValidationException("ارز پروفایل مستقلاً قابل تغییر نیست.");
+            prepared.remove("CURRENCY_TYPE_CODE");
             return prepared;
         }
         if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table))) {

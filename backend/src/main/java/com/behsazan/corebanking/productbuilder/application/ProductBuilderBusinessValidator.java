@@ -24,10 +24,107 @@ public class ProductBuilderBusinessValidator {
             case "DEPOSIT_PRODUCT_JOINT_RULE" -> validateJointOwnerCounts(values);
             case "PRODUCT_PRICING_RULE" -> validatePricingRule(values);
             case "PRODUCT_RELATIONSHIP" -> validateRelationship(values);
+            case "LOAN_PRODUCT_PROFILE" -> validateLoanProfile(values);
+            case "FACILITY_OPERATION_PARAMETER" -> validateFacilityOperationParameter(values);
+            case "LOAN_PRODUCT_REPAYMENT_RULE" -> validateLoanRepayment(values);
+            case "LOAN_PRODUCT_PROCESS_RULE" -> validateLoanProcess(values);
+            case "LOAN_PRODUCT_COLLATERAL_RULE" -> validateLoanCollateral(values);
+            case "LOAN_FINANCIAL_EXTENSION" -> validateLoanFinancial(values);
+            case "LOAN_ELIGIBILITY_EXTENSION" -> validateLoanEligibility(values);
             case "CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE" -> validateCorrespondentProfile(values);
             case "CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE" -> validateCorrespondentSettlement(values);
             default -> validateGenericDateRange(values);
         }
+    }
+
+    private void nonnegative(Map<String, Object> values, String key, String caption) {
+        BigDecimal number = decimal(values, key);
+        if (number != null && number.signum() < 0) fail(caption + " نمی‌تواند منفی باشد.");
+    }
+    private void durationRange(Map<String, Object> values, String minKey, String maxKey, String caption) {
+        nonnegative(values, minKey, caption);
+        nonnegative(values, maxKey, caption);
+        BigDecimal min = decimal(values, minKey), max = decimal(values, maxKey);
+        if (min != null && max != null && max.compareTo(min) < 0) fail("حداکثر " + caption + " نمی‌تواند کمتر از حداقل باشد.");
+    }
+    private void validateLoanProfile(Map<String, Object> values) {
+        String nature = text(values, "PARTY_NATURE_CODE");
+        if (!java.util.Set.of("ALL", "NATURAL", "LEGAL").contains(nature))
+            fail("ماهیت متقاضی باید «همه موارد»، «حقیقی» یا «حقوقی» باشد.");
+    }
+
+    /** This table is already present in PDL; no invented meanings for METHOD numeric codes. */
+    private void validateFacilityOperationParameter(Map<String, Object> values) {
+        for (String column : new String[]{"OVERDUE_DURATION", "PASTDUE_DURATION", "DOUBTFUL_DURATION"}) {
+            Integer days = integer(values, column);
+            if (days == null || days < 1 || days > 99)
+                fail("مدت‌های طبقه‌بندی مطالبات باید عدد صحیح مثبت بین ۱ تا ۹۹ باشند.");
+        }
+        Integer method = integer(values, "TRANSFER_CATEGORY_METHOD");
+        if (method == null || method < 0 || method > 9)
+            fail("کد روش انتقال طبقه باید یک رقم صحیح طبق دستورالعمل بانک باشد.");
+        for (String column : new String[]{"TRANSFER_PRINCIPLE", "TRANSFER_INTEREST", "TRANSFER_PENALTY", "TRANSFER_COMMISSION"}) {
+            Integer flag = integer(values, column);
+            if (flag == null || (flag != 0 && flag != 1))
+                fail("اقلام انتقال مطالبات فقط مقدار بله/خیر (۱ یا ۰) می‌پذیرند.");
+        }
+        if (text(values, "PARAMETER_STATUS_CODE").isBlank())
+            fail("کد وضعیت پارامتر عملیاتی الزامی است؛ مطابق دستورالعمل بانک وارد کنید.");
+    }
+
+    private void validateLoanRepayment(Map<String, Object> values) {
+        if (text(values, "REPAYMENT_RULE_CODE").isBlank() || text(values, "REPAYMENT_METHOD_CODE").isBlank())
+            fail("انتخاب الگوی بازپرداخت و روش بازپرداخت الزامی است.");
+        if (text(values, "REPAYMENT_RULE_NAME").isBlank()) fail("عنوان الگوی بازپرداخت باید از الگوی انتخابی تعیین شود.");
+        durationRange(values, "MIN_TERM_DURATION", "MAX_TERM_DURATION", "مدت تسهیلات");
+        String unit = text(values, "TERM_UNIT_CODE");
+        if ((decimal(values, "MIN_TERM_DURATION") != null || decimal(values, "MAX_TERM_DURATION") != null) && unit.isBlank())
+            fail("برای حداقل و حداکثر مدت تسهیلات، واحد روز یا ماه را تعیین کنید.");
+        durationRange(values, "MIN_INSTALLMENT_COUNT", "MAX_INSTALLMENT_COUNT", "تعداد اقساط");
+        durationRange(values, "MIN_GRACE_DURATION", "MAX_GRACE_DURATION", "دوره تنفس");
+        Integer interval = integer(values, "INSTALLMENT_INTERVAL");
+        if (interval != null && interval <= 0) fail("فاصله اقساط باید عدد صحیح مثبت باشد.");
+        if (interval != null && text(values, "INSTALLMENT_INTERVAL_UNIT_CODE").isBlank())
+            fail("واحد فاصله اقساط را انتخاب کنید.");
+        if (!bool(values, "GRACE_ALLOWED")) {
+            if (values.get("MIN_GRACE_DURATION") != null || values.get("MAX_GRACE_DURATION") != null ||
+                    !text(values, "GRACE_METHOD_CODE").isBlank() || !text(values, "GRACE_UNIT_CODE").isBlank())
+                fail("در صورت غیرفعال بودن دوره تنفس، جزئیات دوره تنفس باید خالی باشند.");
+        } else if (text(values, "GRACE_METHOD_CODE").isBlank() || text(values, "GRACE_UNIT_CODE").isBlank())
+            fail("وقتی تنفس مجاز است، روش و واحد مدت تنفس باید انتخاب شوند.");
+        if (bool(values, "PARTIAL_PREPAYMENT_ALLOWED") && !bool(values, "PREPAYMENT_ALLOWED"))
+            fail("پیش‌پرداخت جزئی فقط زمانی مجاز است که اصل پیش‌پرداخت مجاز باشد.");
+        validateGenericDateRange(values);
+    }
+    private void validateLoanProcess(Map<String, Object> values) {
+        for (String key : new String[]{"APPLICATION_VALIDITY_DAYS", "APPROVAL_VALIDITY_DAYS", "CONTRACT_VALIDITY_DAYS"})
+            nonnegative(values, key, "مدت اعتبار");
+        if (!bool(values, "ALLOW_OVERRIDE") && !text(values, "OVERRIDE_APPROVAL_LEVEL_CODE").isBlank())
+            fail("سطح تأیید استثناء فقط وقتی قابل ثبت است که استثناء مجاز باشد.");
+        if (bool(values, "ALLOW_OVERRIDE") && text(values, "OVERRIDE_APPROVAL_LEVEL_CODE").isBlank())
+            fail("در صورت مجاز بودن استثناء، سطح تأیید آن باید تعیین شود.");
+        validateGenericDateRange(values);
+    }
+    private void validateLoanCollateral(Map<String, Object> values) {
+        durationRange(values, "MIN_COVERAGE_PERCENT", "MAX_COVERAGE_PERCENT", "پوشش وثیقه");
+        Integer priority = integer(values, "PRIORITY_NO");
+        if (priority == null || priority < 0) fail("اولویت وثیقه باید صفر یا عدد صحیح مثبت باشد.");
+        // In the supplied PDL contract 1.20 means 120 percent; never silently multiply by 100.
+    }
+    private void validateLoanFinancial(Map<String, Object> values) {
+        durationRange(values, "MIN_FACILITY_AMOUNT", "MAX_FACILITY_AMOUNT", "مبلغ تسهیلات");
+        durationRange(values, "MIN_CUSTOMER_CONTRIBUTION", "MAX_CUSTOMER_CONTRIBUTION", "آورده مشتری");
+        BigDecimal max = decimal(values, "MAX_CUSTOMER_CONTRIBUTION");
+        BigDecimal min = decimal(values, "MIN_CUSTOMER_CONTRIBUTION");
+        if ((min != null && min.compareTo(BigDecimal.ONE) > 0) ||
+                (max != null && max.compareTo(BigDecimal.ONE) > 0)) fail("درصد آورده مشتری باید بین صفر و صد درصد باشد (در ذخیره‌سازی به نسبت صفر تا یک تبدیل می‌شود).");
+        nonnegative(values, "INTEREST_DISCOUNT_DAY", "روز اعمال تخفیف سود");
+        validateGenericDateRange(values);
+    }
+    private void validateLoanEligibility(Map<String, Object> values) {
+        nonnegative(values, "MIN_INCOME_AMOUNT", "حداقل درآمد");
+        nonnegative(values, "MIN_CREDIT_SCORE", "حداقل امتیاز اعتباری");
+        nonnegative(values, "REQUIRED_GUARANTOR_COUNT", "تعداد ضامنان");
     }
 
     private void validateOpeningAmounts(Map<String, Object> values) {

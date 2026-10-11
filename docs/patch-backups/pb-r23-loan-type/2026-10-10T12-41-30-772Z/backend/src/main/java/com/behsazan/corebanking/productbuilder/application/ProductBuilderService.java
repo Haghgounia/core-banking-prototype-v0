@@ -1,0 +1,535 @@
+package com.behsazan.corebanking.productbuilder.application;
+
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.CatalogResponse;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.EligibilityRuleSaveRequest;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.EligibilityRuleSaveResponse;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.PackageCatalogItem;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.ProductWorkspace;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.ProductVersionDefaults;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.SelectOption;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.TableCatalogItem;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.TableDescriptor;
+import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.TablePage;
+import com.behsazan.corebanking.productbuilder.oracle.PdlProductBuilderRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+@Service
+public class ProductBuilderService {
+    private final PdlProductBuilderRepository repository;
+    private final ProductBuilderBusinessValidator businessValidator;
+    private final PdlReferenceOptionService referenceOptionService;
+    private final ProductRuleGovernanceService governance;
+    private final ProductGovernanceWriteGuard writeGuard;
+
+    public ProductBuilderService(PdlProductBuilderRepository repository,
+                                 ProductBuilderBusinessValidator businessValidator,
+                                 PdlReferenceOptionService referenceOptionService,
+                                 ProductRuleGovernanceService governance,
+                                 ProductGovernanceWriteGuard writeGuard) {
+        this.repository = repository;
+        this.businessValidator = businessValidator;
+        this.referenceOptionService = referenceOptionService;
+        this.governance = governance;
+        this.writeGuard = writeGuard;
+    }
+
+    public CatalogResponse catalog() {
+        Map<String, List<TableCatalogItem>> grouped = new LinkedHashMap<>();
+        Map<String, String> packageTitles = new LinkedHashMap<>();
+        long totalRows = 0;
+        for (PdlCatalog.Entry entry : PdlCatalog.entries()) {
+            long count = repository.count(entry.tableName());
+            totalRows += count;
+            grouped.computeIfAbsent(entry.packageCode(), k -> new ArrayList<>())
+                    .add(new TableCatalogItem(entry.tableName(), entry.title(), entry.packageCode(), entry.packageTitle(), count));
+            packageTitles.put(entry.packageCode(), entry.packageTitle());
+        }
+        List<PackageCatalogItem> packages = grouped.entrySet().stream().map(group -> {
+            long rows = group.getValue().stream().mapToLong(TableCatalogItem::rowCount).sum();
+            return new PackageCatalogItem(group.getKey(), packageTitles.get(group.getKey()), rows, List.copyOf(group.getValue()));
+        }).toList();
+        return new CatalogResponse(repository.schemaName(), totalRows, packages);
+    }
+
+    public TableDescriptor descriptor(String table) {
+        return referenceOptionService.enrich(repository.descriptor(table));
+    }
+
+    public TablePage search(String table, String text, int page, int size, String filterColumn, String filterValue) {
+        return repository.search(table, text, page, size, filterColumn, filterValue);
+    }
+
+    public Map<String, Object> findById(String table, long id) {
+        return repository.findById(table, id)
+                .orElseThrow(() -> new ProductBuilderValidationException("PDL row not found: " + table + "/" + id));
+    }
+
+    @Transactional
+    public Map<String, Object> create(String table, Map<String, Object> values, String actor) {
+        String resolvedActor = actorName(actor);
+        if ("PRODUCT_VERSION".equals(normalizeTable(table)) && values.containsKey("RULE_POLICY_VERSION_ID")) {
+            throw new ProductBuilderValidationException("اتصال سیاست فقط از مسیر اختصاصی Rule Governance Lite مجاز است.");
+        }
+        if ("PRODUCT_VERSION".equals(normalizeTable(table))) {
+            String requestedStatus = text(values.get("VERSION_STATUS_CODE"));
+            if (!requestedStatus.isBlank() && !"DRAFT".equals(requestedStatus)) {
+                throw new ProductBuilderValidationException("نسخه جدید ابتدا باید به صورت پیش‌نویس ثبت شود. تصویب فقط پس از بازبینی حاکمیت مجاز است.");
+            }
+            if ("OPEN".equals(text(values.get("ORIGINATION_STATUS_CODE")))) {
+                throw new ProductBuilderValidationException("افتتاح محصول برای نسخه ثبت‌نشده مجاز نیست؛ ابتدا پیش‌نویس و قواعد آن را تکمیل کنید.");
+            }
+        }
+        writeGuard.assertCreateAllowed(table, values);
+        Map<String, Object> prepared = prepareCreateValues(table, values, resolvedActor);
+        if ("PRODUCT_ELIGIBILITY_CRITERION".equals(normalizeTable(table))) {
+            referenceOptionService.validateEligibilityCriterion(prepared);
+            validateGenderCriterionScope(prepared);
+        }
+        referenceOptionService.validateChangedValues(descriptor(table), prepared, null);
+        validateVersionScopedCreate(table, prepared);
+        validateRelationshipTargets(table, prepared);
+        validateLoanReferenceRows(table, prepared, null);
+        validateLoanReferenceMaintenance(table, prepared, null);
+        businessValidator.validate(table, prepared);
+        long id = repository.insert(table, prepared, resolvedActor);
+        return findById(table, id);
+    }
+
+    @Transactional
+    public Map<String, Object> update(String table, long id, Map<String, Object> values, String actor) {
+        String resolvedActor = actorName(actor);
+        if ("PRODUCT_VERSION".equals(normalizeTable(table)) && values.containsKey("RULE_POLICY_VERSION_ID")) {
+            throw new ProductBuilderValidationException("تغییر سیاست نسخه تنها از مسیر اختصاصی مجاز است.");
+        }
+        Map<String, Object> existing = findById(table, id);
+        Map<String, Object> prepared = prepareUpdateValues(table, existing, values, resolvedActor);
+        Map<String, Object> merged = new LinkedHashMap<>(existing);
+        merged.putAll(prepared);
+        writeGuard.assertUpdateAllowed(table, existing, prepared);
+        if ("PRODUCT_ELIGIBILITY_CRITERION".equals(normalizeTable(table))) {
+            referenceOptionService.validateEligibilityCriterion(merged);
+            validateGenderCriterionScope(merged);
+        }
+        referenceOptionService.validateChangedValues(descriptor(table), prepared, existing);
+        if ("PRODUCT_VERSION".equals(normalizeTable(table))) {
+            governance.assertPromotionAllowed(id, existing, merged);
+        }
+        validateRelationshipTargets(table, merged);
+        validateLoanReferenceRows(table, merged, existing);
+        validateLoanReferenceMaintenance(table, merged, id);
+        businessValidator.validate(table, merged);
+        if (!repository.update(table, id, prepared, resolvedActor)) {
+            throw new ProductBuilderValidationException("PDL row not found: " + table + "/" + id);
+        }
+        return findById(table, id);
+    }
+
+    @Transactional
+    public void delete(String table, long id, String actor) {
+        writeGuard.assertDeleteAllowed(table, findById(table, id));
+        if (!repository.delete(table, id, actorName(actor))) {
+            throw new ProductBuilderValidationException("PDL row not found: " + table + "/" + id);
+        }
+    }
+
+    /** Protects loan reference data against duplicate codes/pairs and inactive parents.
+     *  PDL has PK/FK constraints but no uniqueness constraint on business code or type/plan pair. */
+    private void validateLoanReferenceMaintenance(String table, Map<String, Object> values, Long editingId) {
+        String target = normalizeTable(table);
+        if ("LOAN_TYPE".equals(target) || "PLAN_TYPE".equals(target)) {
+            String key = target + "_CODE";
+            String code = text(values.get(key)).trim();
+            if (code.isBlank()) throw new ProductBuilderValidationException("کد مرجع عقد یا طرح الزامی است.");
+            if (repository.loanReferenceCodeExists(target, key, code, editingId))
+                throw new ProductBuilderValidationException("کد «" + code + "» قبلاً ثبت شده است. رکورد موجود را ویرایش کنید.");
+        }
+        if (!"LOAN_TYPE_PLAN_TYPE".equals(target)) return;
+        long loanType = requiredLoanId(values, "LOAN_TYPE_ID");
+        long planType = requiredLoanId(values, "PLAN_TYPE_ID");
+        if (loanType <= 0 || planType <= 0) throw new ProductBuilderValidationException("انتخاب نوع عقد و طرح معتبر الزامی است.");
+        // Serializing per loan type prevents concurrent inserts of the same relation pair.
+        repository.lockLoanTypeForMapping(loanType);
+        // Deactivation remains possible even if a parent is later retired; activation must have active parents.
+        if ("ACTIVE".equals(String.valueOf(values.get("RECORD_STATUS_CODE")))) {
+            for (var relation : Map.of("LOAN_TYPE", loanType, "PLAN_TYPE", planType).entrySet()) {
+                Map<String, Object> reference = repository.findById(relation.getKey(), relation.getValue())
+                    .orElseThrow(() -> new ProductBuilderValidationException("رکورد مرجع عقد/طرح یافت نشد."));
+                if (!"ACTIVE".equals(String.valueOf(reference.get("RECORD_STATUS_CODE"))))
+                    throw new ProductBuilderValidationException("ثبت رابطه فقط با عقد و طرح فعال مجاز است.");
+            }
+        }
+        if (repository.loanTypePlanPairExists(loanType, planType, editingId))
+            throw new ProductBuilderValidationException("این رابطه عقد و طرح قبلاً ثبت شده است؛ همان رکورد را فعال یا ویرایش کنید.");
+    }
+
+    private void validateLoanReferenceRows(String table, Map<String, Object> values, Map<String, Object> previous) {
+        Map<String, String> foreigns;
+        if ("LOAN_PRODUCT_PROFILE".equals(normalizeTable(table))) {
+            foreigns = Map.of("LOAN_TYPE_ID", "LOAN_TYPE", "LOAN_USAGE_ID", "LOAN_USAGE",
+                    "PLAN_TYPE_ID", "PLAN_TYPE", "ECONOMIC_SUB_SECTION_ID", "ECONOMIC_SUB_SECTION",
+                    "OPERATION_PARAMETER_ID", "FACILITY_OPERATION_PARAMETER");
+        } else if ("LOAN_PRODUCT_COLLATERAL_RULE".equals(normalizeTable(table))) {
+            foreigns = Map.of("LOAN_PRODUCT_COLLATERAL_ID", "LOAN_PRODUCT_COLLATERAL");
+        } else return;
+        for (var entry : foreigns.entrySet()) {
+            Object value = values.get(entry.getKey());
+            if (value == null || value.toString().isBlank()) continue;
+            if (previous != null && java.util.Objects.equals(value.toString(), String.valueOf(previous.get(entry.getKey())))) continue;
+            long id;
+            try { id = new java.math.BigDecimal(value.toString()).longValueExact(); }
+            catch (NumberFormatException | ArithmeticException ex) { throw new ProductBuilderValidationException("شناسه مرجع تسهیلات باید عدد صحیح معتبر باشد."); }
+            if (id <= 0) throw new ProductBuilderValidationException("شناسه مرجع تسهیلات نامعتبر است.");
+            Map<String, Object> ref = repository.findById(entry.getValue(), id)
+                    .orElseThrow(() -> new ProductBuilderValidationException("گزینه انتخاب‌شده در جدول مرجع " + entry.getValue() + " یافت نشد."));
+            if (ref.containsKey("RECORD_STATUS_CODE") && !"ACTIVE".equals(String.valueOf(ref.get("RECORD_STATUS_CODE"))))
+                throw new ProductBuilderValidationException("گزینه انتخابی در اطلاعات پایه تسهیلات فعال نیست.");
+        }
+        if ("LOAN_PRODUCT_PROFILE".equals(normalizeTable(table))) {
+            long type = requiredLoanId(values, "LOAN_TYPE_ID"), plan = requiredLoanId(values, "PLAN_TYPE_ID");
+            if (!repository.loanTypePlanAllowed(type, plan))
+                throw new ProductBuilderValidationException("طرح انتخاب‌شده برای نوع عقد تسهیلات در جدول LOAN_TYPE_PLAN_TYPE مجاز نیست.");
+            Object sub = values.get("ECONOMIC_SUB_SECTION_ID");
+            if (sub != null && !sub.toString().isBlank()) {
+                long subId = requiredLoanId(values, "ECONOMIC_SUB_SECTION_ID");
+                if (!repository.loanEconomicSubSectionAllowed(plan, subId))
+                    throw new ProductBuilderValidationException("زیربخش اقتصادی انتخاب‌شده به طرح تسهیلات جاری تعلق ندارد.");
+            }
+        }
+    }
+
+    private static long requiredLoanId(Map<String, Object> values, String key) {
+        try { return new java.math.BigDecimal(String.valueOf(values.get(key))).longValueExact(); }
+        catch (NumberFormatException | ArithmeticException e) { throw new ProductBuilderValidationException("نوع عقد و طرح تسهیلات باید از اطلاعات پایه انتخاب شوند."); }
+    }
+
+    public List<SelectOption> lookup(String table, String column, String text, int limit) {
+        return repository.lookup(table, column, text, limit);
+    }
+
+    public EligibilityRuleSaveResponse eligibilityRule(long id) {
+        Map<String, Object> rule = findById("PRODUCT_ELIGIBILITY_RULE", id);
+        TablePage page = repository.search("PRODUCT_ELIGIBILITY_CRITERION", null, 0, 500,
+                "ELIGIBILITY_RULE_ID", String.valueOf(id));
+        return new EligibilityRuleSaveResponse(rule, page.items());
+    }
+
+    @Transactional
+    public EligibilityRuleSaveResponse saveEligibilityRule(Long id, EligibilityRuleSaveRequest request, String actor) {
+        if (request == null || request.rule() == null) {
+            throw new ProductBuilderValidationException("اطلاعات قاعده اهلیت الزامی است.");
+        }
+        String resolvedActor = actorName(actor);
+        List<Map<String, Object>> requestedCriteria = request.criteria() == null ? List.of() : request.criteria();
+        Map<String, Object> existing = id == null ? null : findById("PRODUCT_ELIGIBILITY_RULE", id);
+        Map<String, Object> prepared = existing == null
+                ? new LinkedHashMap<>(request.rule())
+                : new LinkedHashMap<>(request.rule());
+        applyEligibilityLegacyProjection(prepared, existing, requestedCriteria);
+
+        long ruleId;
+        if (existing == null) {
+            writeGuard.assertCreateAllowed("PRODUCT_ELIGIBILITY_RULE", prepared);
+            referenceOptionService.validateChangedValues(descriptor("PRODUCT_ELIGIBILITY_RULE"), prepared, null);
+            businessValidator.validate("PRODUCT_ELIGIBILITY_RULE", prepared);
+            ruleId = repository.insert("PRODUCT_ELIGIBILITY_RULE", prepared, resolvedActor);
+        } else {
+            writeGuard.assertUpdateAllowed("PRODUCT_ELIGIBILITY_RULE", existing, prepared);
+            referenceOptionService.validateChangedValues(descriptor("PRODUCT_ELIGIBILITY_RULE"), prepared, existing);
+            Map<String, Object> merged = new LinkedHashMap<>(existing);
+            merged.putAll(prepared);
+            businessValidator.validate("PRODUCT_ELIGIBILITY_RULE", merged);
+            if (!repository.update("PRODUCT_ELIGIBILITY_RULE", id, prepared, resolvedActor)) {
+                throw new ProductBuilderValidationException("قاعده اهلیت یافت نشد: " + id);
+            }
+            ruleId = id;
+        }
+
+        TablePage current = repository.search("PRODUCT_ELIGIBILITY_CRITERION", null, 0, 1000,
+                "ELIGIBILITY_RULE_ID", String.valueOf(ruleId));
+        for (Map<String, Object> row : current.items()) {
+            long criterionId = number(row.get("ELIGIBILITY_CRITERION_ID"));
+            if (criterionId > 0) repository.delete("PRODUCT_ELIGIBILITY_CRITERION", criterionId, resolvedActor);
+        }
+
+        List<Map<String, Object>> normalized = requestedCriteria.stream()
+                .<Map<String, Object>>map(row -> new LinkedHashMap<>(row))
+                .peek(row -> row.put("ELIGIBILITY_RULE_ID", ruleId))
+                .sorted((left, right) -> Integer.compare(criterionSort(left), criterionSort(right)))
+                .toList();
+
+        for (Map<String, Object> criterion : normalized) {
+            referenceOptionService.validateEligibilityCriterion(criterion);
+            validateGenderCriterionScopeAgainstRequest(criterion, normalized);
+            businessValidator.validate("PRODUCT_ELIGIBILITY_CRITERION", criterion);
+            repository.insert("PRODUCT_ELIGIBILITY_CRITERION", criterion, resolvedActor);
+        }
+        return eligibilityRule(ruleId);
+    }
+
+    private void applyEligibilityLegacyProjection(Map<String, Object> values, Map<String, Object> existing,
+                                                   List<Map<String, Object>> criteria) {
+        TableDescriptor descriptor = descriptor("PRODUCT_ELIGIBILITY_RULE");
+        Map<String, String> projectionColumns = Map.of(
+                "CUSTOMER_TYPE", "CUSTOMER_TYPE_CODE",
+                "CUSTOMER_SEGMENT", "CUSTOMER_SEGMENT_CODE",
+                "CUSTOMER_STATUS", "CUSTOMER_STATUS_CODE",
+                "GENDER", "GENDER_CODE",
+                "RESIDENCY_STATUS", "RESIDENCY_STATUS_CODE",
+                "NATIONALITY_SCOPE", "NATIONALITY_SCOPE_CODE"
+        );
+        for (Map.Entry<String, String> projection : projectionColumns.entrySet()) {
+            var column = descriptor.columns().stream().filter(c -> projection.getValue().equals(c.name())).findFirst().orElse(null);
+            if (column == null) continue;
+            List<String> selected = criteria.stream()
+                    .filter(row -> projection.getKey().equals(text(row.get("CRITERION_TYPE_CODE"))))
+                    .filter(row -> "IN".equals(text(row.get("OPERATOR_CODE"))) || "EQ".equals(text(row.get("OPERATOR_CODE"))))
+                    .map(row -> row.get("CRITERION_VALUE_CODE") == null ? "" : row.get("CRITERION_VALUE_CODE").toString().trim())
+                    .filter(v -> !v.isBlank())
+                    .toList();
+            if (!selected.isEmpty()) {
+                values.put(projection.getValue(), selected.get(0));
+                continue;
+            }
+            if (column.nullable()) {
+                values.put(projection.getValue(), null);
+                continue;
+            }
+            if (existing != null && existing.get(projection.getValue()) != null) {
+                values.put(projection.getValue(), existing.get(projection.getValue()));
+                continue;
+            }
+            String unrestricted = column.options().stream()
+                    .filter(o -> Set.of("ALL", "ANY", "3").contains(text(o.code())) || Set.of("ALL", "ANY", "3").contains(text(o.value())))
+                    .map(o -> o.value().toString()).findFirst().orElse(null);
+            if (unrestricted != null) {
+                values.put(projection.getValue(), unrestricted);
+            } else if (!column.options().isEmpty()) {
+                values.put(projection.getValue(), column.options().get(0).value());
+            }
+        }
+
+        descriptor.columns().stream()
+                .filter(c -> Set.of("PRIORITY_NO", "RULE_PRIORITY", "PRIORITY").contains(c.name()))
+                .findFirst()
+                .ifPresent(column -> {
+                    if (!values.containsKey(column.name()) || values.get(column.name()) == null || values.get(column.name()).toString().isBlank()) {
+                        values.put(column.name(), 100);
+                    }
+                });
+    }
+
+    private void validateGenderCriterionScopeAgainstRequest(Map<String, Object> criterion, List<Map<String, Object>> allCriteria) {
+        if (!"GENDER".equals(text(criterion.get("CRITERION_TYPE_CODE")))) return;
+        List<String> customerTypes = allCriteria.stream()
+                .filter(row -> "CUSTOMER_TYPE".equals(text(row.get("CRITERION_TYPE_CODE"))))
+                .map(row -> text(row.get("CRITERION_VALUE_CODE")))
+                .filter(v -> !v.isBlank())
+                .distinct().toList();
+        if (customerTypes.isEmpty() || customerTypes.stream().anyMatch(v -> !Set.of("PERSON", "INDIVIDUAL").contains(v))) {
+            throw new ProductBuilderValidationException("معیار جنسیت فقط برای دامنه صرفاً «شخص حقیقی» قابل ثبت است.");
+        }
+    }
+
+    private static int criterionSort(Map<String, Object> row) {
+        return switch (text(row.get("CRITERION_TYPE_CODE"))) {
+            case "CUSTOMER_TYPE" -> 10;
+            case "CUSTOMER_SEGMENT" -> 20;
+            case "CUSTOMER_STATUS" -> 30;
+            case "GENDER" -> 40;
+            case "RESIDENCY_STATUS" -> 50;
+            case "NATIONALITY_SCOPE" -> 60;
+            case "CUSTOMER_TENURE" -> 70;
+            case "ACCOUNT_TENURE" -> 80;
+            default -> 100;
+        };
+    }
+
+    public ProductWorkspace productWorkspace(long productId) {
+        Map<String, Object> product = findById("PRODUCT", productId);
+        TablePage versionPage = repository.search("PRODUCT_VERSION", null, 0, 200, "PRODUCT_ID", String.valueOf(productId));
+        Map<String, Long> counts = new LinkedHashMap<>();
+        counts.put("PRODUCT_VERSION", versionPage.totalElements());
+        counts.put("PRODUCT_LEGACY_MAPPING", repository.search("PRODUCT_LEGACY_MAPPING", null, 0, 1, "PRODUCT_ID", String.valueOf(productId)).totalElements());
+        return new ProductWorkspace(product, versionPage.items(), counts);
+    }
+
+    public ProductVersionDefaults productVersionDefaults(long productId, String actor) {
+        findById("PRODUCT", productId);
+        return new ProductVersionDefaults(
+                repository.previewNextProductVersionNo(productId),
+                repository.currentDatabaseDate().toString(),
+                repository.currentDatabaseDateTime().toString(),
+                actorName(actor)
+        );
+    }
+
+    private void validateGenderCriterionScope(Map<String, Object> criterion) {
+        if (!"GENDER".equals(text(criterion.get("CRITERION_TYPE_CODE")))) return;
+        long ruleId = number(criterion.get("ELIGIBILITY_RULE_ID"));
+        if (ruleId <= 0) throw new ProductBuilderValidationException("قاعده اهلیت والد برای معیار جنسیت الزامی است.");
+        TablePage criteria = repository.search("PRODUCT_ELIGIBILITY_CRITERION", null, 0, 500,
+                "ELIGIBILITY_RULE_ID", String.valueOf(ruleId));
+        List<String> customerTypes = criteria.items().stream()
+                .filter(row -> "CUSTOMER_TYPE".equals(text(row.get("CRITERION_TYPE_CODE"))))
+                .filter(row -> !row.containsKey("IS_ACTIVE") || number(row.get("IS_ACTIVE")) != 0)
+                .map(row -> text(row.get("CRITERION_VALUE_CODE")))
+                .filter(value -> !value.isBlank())
+                .distinct()
+                .toList();
+        if (customerTypes.isEmpty() || customerTypes.stream().anyMatch(value -> !Set.of("PERSON", "INDIVIDUAL").contains(value))) {
+            throw new ProductBuilderValidationException(
+                    "معیار جنسیت فقط زمانی مجاز است که دامنه نوع مشتری صرفاً «شخص حقیقی» باشد."
+            );
+        }
+    }
+
+    /** A profile and an opening policy are owned by one product version. Use edit, not a duplicate INSERT. */
+    private void validateVersionScopedCreate(String table, Map<String, Object> values) {
+        String name = normalizeTable(table);
+        if (!Set.of("DEPOSIT_PRODUCT_PROFILE", "DEPOSIT_PRODUCT_OPENING_RULE").contains(name)) return;
+        long version = number(values.get("PRODUCT_VERSION_ID"));
+        if (version <= 0) throw new ProductBuilderValidationException("نسخه محصول معتبر انتخاب نشده است.");
+        if (repository.search(name, null, 0, 1, "PRODUCT_VERSION_ID", String.valueOf(version)).totalElements() > 0) {
+            throw new ProductBuilderValidationException(name.equals("DEPOSIT_PRODUCT_PROFILE")
+                    ? "برای این نسخه محصول پروفایل سپرده قبلاً ثبت شده است. رکورد موجود را ویرایش کنید یا نسخه محصول دیگری را برای کپی انتخاب کنید."
+                    : "قاعده افتتاح برای این نسخه محصول قبلاً ثبت شده است. به جای افزودن رکورد تکراری، قاعده موجود را ویرایش کنید.");
+        }
+    }
+
+    private void validateRelationshipTargets(String table, Map<String, Object> values) {
+        if (!"PRODUCT_RELATIONSHIP".equals(normalizeTable(table))) return;
+        long sourceVersion = number(values.get("SOURCE_PRODUCT_VERSION_ID"));
+        long targetProduct = number(values.get("TARGET_PRODUCT_ID"));
+        if (sourceVersion <= 0 || targetProduct <= 0)
+            throw new ProductBuilderValidationException("نسخه محصول مبدأ و محصول مقصد الزامی هستند.");
+        Map<String, Object> source = findById("PRODUCT_VERSION", sourceVersion);
+        findById("PRODUCT", targetProduct);
+        if (number(source.get("PRODUCT_ID")) == targetProduct)
+            throw new ProductBuilderValidationException("محصول مقصد نباید همان محصول مبدأ باشد.");
+        long targetVersion = number(values.get("TARGET_PRODUCT_VERSION_ID"));
+        if (targetVersion > 0) {
+            Map<String, Object> target = findById("PRODUCT_VERSION", targetVersion);
+            if (number(target.get("PRODUCT_ID")) != targetProduct)
+                throw new ProductBuilderValidationException("نسخه انتخاب‌شده متعلق به محصول مقصد نیست.");
+        }
+    }
+
+    private Map<String, Object> prepareCreateValues(String table, Map<String, Object> values, String actor) {
+        Map<String, Object> prepared = new LinkedHashMap<>(values);
+        if ("PRODUCT_ORG_SCOPE".equals(normalizeTable(table))) {
+            resolveOrgUnitCode(prepared);
+            return prepared;
+        }
+        if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table))) {
+            var identity = depositIdentity(number(prepared.get("PRODUCT_VERSION_ID")));
+            String enteredGroup = text(prepared.get("DEPOSIT_GROUP_CODE"));
+            String enteredType = text(prepared.get("DEPOSIT_TYPE_CODE"));
+            if ((!enteredGroup.isBlank() && !enteredGroup.equals(identity[0])) ||
+                    (!enteredType.isBlank() && !enteredType.equals(identity[1]))) {
+                throw new ProductBuilderValidationException("گروه یا نوع سپرده با خانواده نسخه محصول سازگار نیست.");
+            }
+            prepared.put("DEPOSIT_GROUP_CODE", identity[0]);
+            prepared.put("DEPOSIT_TYPE_CODE", identity[1]);
+            return prepared;
+        }
+        if (!"PRODUCT_VERSION".equals(normalizeTable(table))) return prepared;
+
+        long productId = number(prepared.get("PRODUCT_ID"));
+        if (productId <= 0) throw new ProductBuilderValidationException("PRODUCT_ID برای ثبت نسخه محصول الزامی است.");
+        prepared.remove("APPROVED_AT");
+        prepared.remove("APPROVED_BY");
+        prepared.put("VERSION_NO", repository.lockAndNextProductVersionNo(productId));
+        applyApprovalAudit(prepared, null, actor);
+        return prepared;
+    }
+
+    private Map<String, Object> prepareUpdateValues(String table, Map<String, Object> existing,
+                                                     Map<String, Object> values, String actor) {
+        Map<String, Object> prepared = new LinkedHashMap<>(values);
+        if ("PRODUCT_ORG_SCOPE".equals(normalizeTable(table))) {
+            Map<String, Object> scope = new LinkedHashMap<>(existing);
+            scope.putAll(prepared);
+            resolveOrgUnitCode(scope);
+            prepared.put("ORG_UNIT_CODE", scope.get("ORG_UNIT_CODE"));
+            return prepared;
+        }
+        if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table))) {
+            // Identity is immutable after creation, regardless of client-side disabled fields.
+            for (String code : List.of("DEPOSIT_GROUP_CODE", "DEPOSIT_TYPE_CODE")) {
+                if (prepared.containsKey(code) && !text(prepared.get(code)).equals(text(existing.get(code)))) {
+                    throw new ProductBuilderValidationException("گروه و نوع سپرده پس از ثبت قابل تغییر نیستند.");
+                }
+                prepared.remove(code);
+            }
+            return prepared;
+        }
+        if (!"PRODUCT_VERSION".equals(normalizeTable(table))) return prepared;
+
+        prepared.remove("VERSION_NO");
+        prepared.remove("APPROVED_AT");
+        prepared.remove("APPROVED_BY");
+        applyApprovalAudit(prepared, text(existing.get("VERSION_STATUS_CODE")), actor);
+        return prepared;
+    }
+
+    /** Never trust a typed ORG_UNIT_CODE; derive it from governed organizational selection. */
+    private void resolveOrgUnitCode(Map<String, Object> values) {
+        long orgUnitId = number(values.get("ORG_UNIT_ID"));
+        values.put("ORG_UNIT_CODE", orgUnitId > 0 ? referenceOptionService.governedOrgUnitCode(orgUnitId) : null);
+    }
+
+    /** The FIX96 DPS product-family classification is the authoritative server-side identity. */
+    private String[] depositIdentity(long versionId) {
+        if (versionId <= 0) throw new ProductBuilderValidationException("نسخه محصول برای پروفایل سپرده الزامی است.");
+        Map<String, Object> version = findById("PRODUCT_VERSION", versionId);
+        Map<String, Object> product = findById("PRODUCT", number(version.get("PRODUCT_ID")));
+        String family = text(product.get("PRODUCT_FAMILY_CODE"));
+        return switch (family) {
+            case "SAVINGS", "QARD_SAVINGS" -> new String[]{"QARD_HASAN", "SAVINGS"};
+            case "CURRENT", "CURRENT_ACCOUNT" -> new String[]{"CURRENT", "CURRENT_NO_INTEREST"};
+            case "SHORT_TERM_DEPOSIT" -> new String[]{"SHORT_TERM", "SHORT_TERM_DEPOSIT"};
+            case "LONG_TERM_DEPOSIT" -> new String[]{"LONG_TERM", "LONG_TERM_DEPOSIT"};
+            case "CERTIFICATE_OF_DEPOSIT" -> new String[]{"CERTIFICATE", "CERTIFICATE_OF_DEPOSIT"};
+            default -> throw new ProductBuilderValidationException(
+                    "برای خانواده این محصول، نگاشت گروه و نوع سپرده تعریف نشده است. اطلاعات پایه را اصلاح کنید.");
+        };
+    }
+
+    private void applyApprovalAudit(Map<String, Object> values, String previousStatus, String actor) {
+        String requestedStatus = values.containsKey("VERSION_STATUS_CODE")
+                ? text(values.get("VERSION_STATUS_CODE")) : previousStatus;
+        if ("APPROVED".equals(requestedStatus) && !"APPROVED".equals(previousStatus)) {
+            values.put("APPROVED_AT", repository.currentDatabaseDateTime());
+            values.put("APPROVED_BY", actor);
+        } else if ("DRAFT".equals(requestedStatus) && "APPROVED".equals(previousStatus)) {
+            values.put("APPROVED_AT", null);
+            values.put("APPROVED_BY", null);
+        }
+    }
+
+    private static String normalizeTable(String table) {
+        return table == null ? "" : table.trim().toUpperCase();
+    }
+
+    private static String text(Object value) {
+        return value == null ? "" : value.toString().trim().toUpperCase();
+    }
+
+    private static long number(Object value) {
+        if (value == null) return 0;
+        if (value instanceof Number n) return n.longValue();
+        try { return Long.parseLong(value.toString().trim()); }
+        catch (NumberFormatException ex) { return 0; }
+    }
+
+    private static String actorName(String actor) {
+        return actor == null || actor.isBlank() ? "prototype-ui" : actor.trim();
+    }
+}

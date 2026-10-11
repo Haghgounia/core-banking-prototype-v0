@@ -10,6 +10,12 @@ node "$ROOT/tools/migrate-release-layout.mjs"
 node "$ROOT/tools/migrate-root-layout.mjs"
 node "$ROOT/tools/migrate-source-layout.mjs"
 node "$ROOT/tools/verify-release-layout.mjs"
+# PB-R23: fixed loan group/commitment values and disabled interest method.
+node "$ROOT/tools/verify-pb-r23-loan-type.mjs"
+# PB-R24: loan reference, applicant, classification and currency coherence.
+node "$ROOT/tools/verify-pb-r24-loan-integrity.mjs"
+# PB-R25: Persian loan UAT, optional repayment and collateral reference coherence.
+node "$ROOT/tools/verify-pb-r25-loan-final-ux.mjs"
 
 for required in \
   "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/domain/DepositAccountModels.java" \

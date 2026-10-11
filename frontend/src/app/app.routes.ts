@@ -55,6 +55,9 @@ export const routes: Routes = [
       {path: 'calendar2/reference-data/:resource', loadComponent: () => import('./features/calendar2-reference/calendar2-reference-page.component').then(m => m.Calendar2ReferencePageComponent)},
       {path: 'reference-data/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
 
+      {path: 'loan/reference-data', data: {scope: 'LOAN'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},
+      {path: 'loan/reference-data/LOAN_TYPE_PLAN_TYPE', loadComponent: () => import('./features/product-builder/loan-type-plan-reference.component').then(m => m.LoanTypePlanReferenceComponent)},
+      {path: 'loan/reference-data/:table', loadComponent: () => import('./features/product-builder/pdl-table.component').then(m => m.PdlTableComponent)},
       {path: 'deposit/reference-data', data: {scope: 'DEPOSIT'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},
       {path: 'deposit/reference-data/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
 

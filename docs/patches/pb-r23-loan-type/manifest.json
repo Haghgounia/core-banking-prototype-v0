@@ -1,0 +1,147 @@
+{
+  "patches": {
+    "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderService.java": [
+      {
+        "before": "        referenceOptionService.validateChangedValues(descriptor(table), prepared, null);\n        validateVersionScopedCreate",
+        "after": "        if (\"LOAN_TYPE\".equals(normalizeTable(table))) LoanTypeClassification.validateForSave(prepared, null);\n        referenceOptionService.validateChangedValues(descriptor(table), prepared, null);\n        validateVersionScopedCreate"
+      },
+      {
+        "before": "        referenceOptionService.validateChangedValues(descriptor(table), prepared, existing);\n        if (\"PRODUCT_VERSION\".equals(normalizeTable(table)))",
+        "after": "        if (\"LOAN_TYPE\".equals(normalizeTable(table))) LoanTypeClassification.validateForSave(merged, existing);\n        referenceOptionService.validateChangedValues(descriptor(table), prepared, existing);\n        if (\"PRODUCT_VERSION\".equals(normalizeTable(table)))"
+      }
+    ],
+    "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/PdlReferenceOptionService.java": [
+      {
+        "before": "        String businessField = normalize(table) + \".\" + name;\n        if (\"PRODUCT_ORG_SCOPE\".equals(normalize(table))",
+        "after": "        String businessField = normalize(table) + \".\" + name;\n        if (\"LOAN_TYPE\".equals(normalize(table))) {\n            if (\"LOAN_GROUP\".equals(name))\n                return copy(column, true, \"PDL_FIXED_ENUM\", LoanTypeClassification.loanGroupOptions());\n            if (\"OBLIGATION_TYPE\".equals(name))\n                return copy(column, true, \"PDL_FIXED_ENUM\", LoanTypeClassification.obligationOptions());\n            if (\"INTEREST_METHOD\".equals(name))\n                return copy(column, true, \"PDL_DISABLED_FEATURE\", LoanTypeClassification.disabledInterestOptions());\n        }\n        if (\"PRODUCT_ORG_SCOPE\".equals(normalize(table))"
+      }
+    ],
+    "frontend/src/app/features/product-builder/pdl-table.component.ts": [
+      {
+        "before": "        LOAN_GROUP: 'کد عددی یک‌رقمی طبق قرارداد مرجع بانک؛ چون DDL فهرست مقادیر ندارد، مقدار پیشنهادی ساخته نمی‌شود.',\n        OBLIGATION_TYPE: 'کد عددی یک‌رقمی نوع تعهد طبق طبقه‌بندی مصوب بانک.',\n        INTEREST_METHOD: 'کد عددی یک‌رقمی روش محاسبه سود طبق ضوابط بانک.'",
+        "after": "        LOAN_GROUP: 'یکی از چهار گروه ثابت کسب‌وکاری انتخاب شود؛ کد داخلی با کد بانک مرکزی متفاوت است.',\n        OBLIGATION_TYPE: 'فقط در گروه «تعهدات» قابل انتخاب است؛ در گروه‌های دیگر به‌صورت سیستمی «فاقد کاربرد» ثبت می‌شود.',\n        INTEREST_METHOD: 'فعلاً غیرفعال است. برای عقد جدید مقدار سیستمی ۰ ذخیره می‌شود و مقدار رکوردهای قبلی حفظ خواهد شد.'"
+      },
+      {
+        "before": "    if (this.tableName() === 'LOAN_PRODUCT_PROFILE' && column.name === 'LOAN_TYPE_ID') void this.loadLoanPlans(true);",
+        "after": "    if (this.tableName() === 'LOAN_TYPE' && column.name === 'LOAN_GROUP') this.syncLoanTypeGroup();\n    if (this.tableName() === 'LOAN_PRODUCT_PROFILE' && column.name === 'LOAN_TYPE_ID') void this.loadLoanPlans(true);"
+      },
+      {
+        "before": "  isLoanForm(): boolean { return LOAN_TABLES.has(this.tableName()); }",
+        "after": "  isLoanTypeInterestPaused(column: PdlColumnDescriptor): boolean {\n    return this.tableName() === 'LOAN_TYPE' && column.name === 'INTEREST_METHOD';\n  }\n\n  loanTypeObligationOptions(column: PdlColumnDescriptor): readonly PdlSelectOption[] {\n    const base = this.options(column);\n    if (this.tableName() !== 'LOAN_TYPE' || column.name !== 'OBLIGATION_TYPE') return base;\n    return this.loanTypeHasCommitment() ? base.filter(opt => Number(opt.value) === 1 || Number(opt.value) === 2)\n      : base.filter(opt => Number(opt.value) === 0);\n  }\n\n  loanTypeHasCommitment(): boolean { return Number(this.form.controls['LOAN_GROUP']?.value) === 4; }\n\n  pausedInterestDescription(): string {\n    return this.editingId() !== null && Number(this.form.controls['INTEREST_METHOD']?.value) !== 0\n      ? 'فعلاً غیرفعال است. مقدار موجود در این رکورد بدون تغییر حفظ می‌شود.'\n      : 'فعلاً غیرفعال است؛ مقدار سیستمی «پیکربندی‌نشده» ثبت می‌شود.';\n  }\n\n  private syncLoanTypeGroup(): void {\n    if (this.tableName() !== 'LOAN_TYPE') return;\n    const obligation = this.form.controls['OBLIGATION_TYPE'];\n    if (!obligation) return;\n    if (this.loanTypeHasCommitment()) {\n      obligation.enable({emitEvent: false});\n      if (Number(obligation.value) === 0) obligation.setValue(null, {emitEvent: false});\n      obligation.setValidators([Validators.required]);\n    } else {\n      obligation.setValue(0, {emitEvent: false});\n      obligation.clearValidators();\n      obligation.disable({emitEvent: false});\n    }\n    obligation.updateValueAndValidity({emitEvent: false});\n  }\n\n  isLoanForm(): boolean { return LOAN_TABLES.has(this.tableName()); }"
+      },
+      {
+        "before": "    if (this.tableName() === 'LOAN_PRODUCT_PROFILE') {\n      const plan = Number(this.form.controls['PLAN_TYPE_ID']?.value);",
+        "after": "    if (this.tableName() === 'LOAN_TYPE') {\n      const group = Number(this.form.controls['LOAN_GROUP']?.value);\n      const obligation = Number(this.form.controls['OBLIGATION_TYPE']?.value);\n      if (![1,2,3,4].includes(group) || (group === 4 && ![1,2].includes(obligation)) || (group !== 4 && obligation !== 0)) {\n        this.error.set('گروه تسهیلات یا نوع تعهد نامعتبر است؛ برای گروه تعهدات، نوع تعهد الزامی است.');\n        return;\n      }\n    }\n    if (this.tableName() === 'LOAN_PRODUCT_PROFILE') {\n      const plan = Number(this.form.controls['PLAN_TYPE_ID']?.value);"
+      },
+      {
+        "before": "        if (this.tableName() === 'PRODUCT_RELATIONSHIP' && column.name === 'PRIORITY_NO') value = 1;",
+        "after": "        if (this.tableName() === 'LOAN_TYPE' && column.name === 'INTEREST_METHOD') value = 0;\n        if (this.tableName() === 'PRODUCT_RELATIONSHIP' && column.name === 'PRIORITY_NO') value = 1;"
+      },
+      {
+        "before": "    this.bindBusinessRules();\n    if (this.tableName() === 'PRODUCT_REQUIRED_INQUIRY')",
+        "after": "    this.bindBusinessRules();\n    if (this.tableName() === 'LOAN_TYPE') {\n      this.form.controls['INTEREST_METHOD']?.disable({emitEvent: false});\n    }\n    if (this.tableName() === 'PRODUCT_REQUIRED_INQUIRY')"
+      },
+      {
+        "before": "  private bindBusinessRules(): void {\n    if (this.tableName() === 'DEPOSIT_PRODUCT_OPENING_RULE') {",
+        "after": "  private bindBusinessRules(): void {\n    if (this.tableName() === 'LOAN_TYPE') {\n      this.form.controls['LOAN_GROUP']?.valueChanges.subscribe(() => this.syncLoanTypeGroup());\n      this.syncLoanTypeGroup();\n    }\n    if (this.tableName() === 'DEPOSIT_PRODUCT_OPENING_RULE') {"
+      }
+    ],
+    "frontend/src/app/features/product-builder/pdl-table.component.html": [
+      {
+        "before": "<strong>ثبت نوع عقد مطابق جدول PDL</strong><span>کد و نام عقد، کد بانک مرکزی و سه ویژگی عددیِ «گروه تسهیلات»، «نوع تعهد» و «روش سود» اجباری‌اند. برای سه کد عددی، DDL فهرست مقادیر مجاز ارائه نکرده است؛ مقدار را از مستندات مصوب بانک وارد کنید.</span>",
+        "after": "<strong>ثبت نوع عقد مطابق جدول PDL</strong><span>گروه تسهیلات را از چهار گزینه ثابت انتخاب کنید. فقط برای گروه «تعهدات»، یکی از «اعتبارات اسنادی» یا «ضمانت‌نامه» الزامی است. روش محاسبه سود فعلاً غیرفعال و سیستمی است؛ کد بانک مرکزی مستقل ثبت می‌شود.</span>"
+      },
+      {
+        "before": "                } @else if (isLoanSwitch(column)) {",
+        "after": "                } @else if (isLoanTypeInterestPaused(column)) {\n                  <label class=\"standalone-label\">{{ fieldLabel(column) }}</label>\n                  <div class=\"context-lock\"><mat-icon>lock_clock</mat-icon><span>{{ pausedInterestDescription() }}</span></div>\n                } @else if (isLoanSwitch(column)) {"
+      },
+      {
+        "before": "@for (option of options(column); track option.value) { <mat-option [value]=\"option.value\">{{ optionText(option, column) }}</mat-option> }",
+        "after": "@for (option of loanTypeObligationOptions(column); track option.value) { <mat-option [value]=\"option.value\">{{ optionText(option, column) }}</mat-option> }"
+      },
+      {
+        "before": "<small class=\"reference-hint\"><mat-icon>verified</mat-icon>{{ column.referenceSource === 'PDL_CHECK_CONSTRAINT' ? 'انتخاب از مقادیر مجاز ثبت‌شده در پایگاه داده محصول' : column.referenceSource === 'PDL_FORM_CONTRACT' ? 'گزینه‌های فرم مصوب؛ در صورت وجود، محدود به قید پایگاه داده' : 'انتخاب کنترل‌شده از داده مرجع' }}</small>",
+        "after": "<small class=\"reference-hint\"><mat-icon>verified</mat-icon>{{ column.referenceSource === 'PDL_FIXED_ENUM' ? 'طبقه‌بندی ثابت و کنترل‌شده محصول تسهیلات' : column.referenceSource === 'PDL_DISABLED_FEATURE' ? 'این ویژگی فعلاً غیرفعال است' : column.referenceSource === 'PDL_CHECK_CONSTRAINT' ? 'انتخاب از مقادیر مجاز ثبت‌شده در پایگاه داده محصول' : column.referenceSource === 'PDL_FORM_CONTRACT' ? 'گزینه‌های فرم مصوب؛ در صورت وجود، محدود به قید پایگاه داده' : 'انتخاب کنترل‌شده از داده مرجع' }}</small>"
+      },
+      {
+        "before": "فرم‌های مرجع محصول تسهیلات",
+        "after": "اطلاعات پایه محصول تسهیلات"
+      },
+      {
+        "before": "بازگشت به فرم‌های مرجع تسهیلات",
+        "after": "بازگشت به اطلاعات پایه محصول تسهیلات"
+      }
+    ],
+    "frontend/src/app/features/product-builder/loan-type-plan-reference.component.html": [
+      {
+        "before": "فرم‌های مرجع محصول تسهیلات",
+        "after": "اطلاعات پایه محصول تسهیلات"
+      }
+    ],
+    "frontend/src/app/features/product-builder/product-builder-home.component.html": [
+      {
+        "before": "فرم‌های مرجع محصول تسهیلات",
+        "after": "اطلاعات پایه محصول تسهیلات"
+      }
+    ],
+    "frontend/src/app/features/reference-menu/reference-menu.component.html": [
+      {
+        "before": "فرم‌های مرجع محصول تسهیلات",
+        "after": "اطلاعات پایه محصول تسهیلات"
+      },
+      {
+        "before": "فرم‌های مرجع محصول سپرده",
+        "after": "اطلاعات پایه محصول سپرده"
+      }
+    ],
+    "frontend/src/app/features/reference-menu/reference-menu.component.ts": [
+      {
+        "before": "فرم‌های مرجع محصول تسهیلات",
+        "after": "اطلاعات پایه محصول تسهیلات"
+      }
+    ],
+    "frontend/src/app/features/reference-hub/reference-hub.component.html": [
+      {
+        "before": "فرم‌های مرجع محصول تسهیلات",
+        "after": "اطلاعات پایه محصول تسهیلات"
+      }
+    ],
+    "frontend/src/app/shared/ui/app-breadcrumb.component.ts": [
+      {
+        "before": "items.push({label: 'فرم‌های مرجع محصول تسهیلات', link: '/loan/reference-data'",
+        "after": "items.push({label: 'اطلاعات پایه محصول تسهیلات', link: '/loan/reference-data'"
+      },
+      {
+        "before": "'/loan/reference-data': 'فرم‌های مرجع محصول تسهیلات'",
+        "after": "'/loan/reference-data': 'اطلاعات پایه محصول تسهیلات'"
+      }
+    ],
+    "tools/verify-pb-r22-loan-reference.mjs": [
+      {
+        "before": "hub.includes('فرم‌های مرجع محصول تسهیلات')",
+        "after": "hub.includes('اطلاعات پایه محصول تسهیلات')"
+      },
+      {
+        "before": "editorHtml.includes('بازگشت به فرم‌های مرجع تسهیلات')",
+        "after": "editorHtml.includes('بازگشت به اطلاعات پایه محصول تسهیلات')"
+      }
+    ],
+    "build-production.cmd": [
+      {
+        "before": "node \"%ROOT%tools\\verify-rgl-lite-r20.mjs\" || exit /b 1\n",
+        "after": "node \"%ROOT%tools\\verify-rgl-lite-r20.mjs\" || exit /b 1\nrem PB-R23: fixed loan group/commitment values and disabled interest method.\nnode \"%ROOT%tools\\verify-pb-r23-loan-type.mjs\" || exit /b 1\n"
+      }
+    ],
+    "build-production.sh": [
+      {
+        "before": "node \"$ROOT/tools/verify-release-layout.mjs\"\n",
+        "after": "node \"$ROOT/tools/verify-release-layout.mjs\"\n# PB-R23: fixed loan group/commitment values and disabled interest method.\nnode \"$ROOT/tools/verify-pb-r23-loan-type.mjs\"\n"
+      }
+    ]
+  },
+  "new_files": [
+    "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/LoanTypeClassification.java",
+    "backend/src/test/java/com/behsazan/corebanking/productbuilder/application/LoanTypeClassificationR23Test.java",
+    "tools/verify-pb-r23-loan-type.mjs"
+  ]
+}

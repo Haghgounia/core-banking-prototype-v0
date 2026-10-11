@@ -31,6 +31,12 @@ rem PB-R19 governance categories, applicability, control presence/absence and re
 node "%ROOT%tools\verify-pb-r19.mjs" || exit /b 1
 rem R20 Lite: two-table policy management and binding without a rule DSL.
 node "%ROOT%tools\verify-rgl-lite-r20.mjs" || exit /b 1
+rem PB-R23: fixed loan group/commitment values and disabled interest method.
+node "%ROOT%tools\verify-pb-r23-loan-type.mjs" || exit /b 1
+rem PB-R24: integrated loan-family source, applicant ALL, inherited currency and collection classification.
+node "%ROOT%tools\verify-pb-r24-loan-integrity.mjs" || exit /b 1
+rem PB-R25: reviewed Persian loan UAT and civil-partnership/collateral contract.
+node "%ROOT%tools\verify-pb-r25-loan-final-ux.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.
 if not exist "%ROOT%frontend\src\app\app.component.ts" (
@@ -271,7 +277,20 @@ if exist "%ROOT%frontend\dist\core-banking-ui\browser" (
 )
 
 cd /d "%ROOT%backend"
-call mvnw.cmd clean package || exit /b 1
+rem PB-R21-HF5: reuse the Maven executable resolved during the early compile
+rem Keep the early compile through Maven Wrapper. It resolves __MVNW_CMD__ in this CMD process.
+rem A second PowerShell wrapper startup has been observed to crash after Angular production build.
+if defined __MVNW_CMD__ (
+  if exist "%__MVNW_CMD__%" (
+    call "%__MVNW_CMD__%" clean package || exit /b 1
+  ) else (
+    echo WARNING: Resolved Maven executable is not available. Retrying Maven Wrapper.
+    call mvnw.cmd clean package || exit /b 1
+  )
+) else (
+  echo WARNING: Maven Wrapper did not expose a resolved executable. Retrying wrapper.
+  call mvnw.cmd clean package || exit /b 1
+)
 if not exist "%ROOT%app" mkdir "%ROOT%app"
 set "JAR=%ROOT%app\core-banking-prototype.jar"
 copy /y "%ROOT%backend\target\core-banking-prototype.jar" "%JAR%" >nul
