@@ -38,7 +38,7 @@ const lookupIndex = initializeBody.indexOf('await this.loadLookups();');
 const rowsIndex = initializeBody.indexOf('await this.search(0);');
 check(initializeStart >= 0 && initializeEnd > initializeStart && lookupIndex >= 0 && rowsIndex > lookupIndex,
   'FK labels load before initial grid rendering');
-check(ts.includes('.filter(c => c.foreignKey)'),'FK labels load even for context-locked/read-only grid values');
+check(ts.includes('.filter(c => c.foreignKey || this.isLoanCollateralReference(c))'),'FK labels load even for context-locked/read-only grid values');
 check(ts.includes("return this.hasPersian(option.label) ? option.label.trim() : 'عنوان فارسی مرجع تعریف نشده';"),'selector text never falls back to raw Latin code');
 check(ts.includes("if (column.referenceControlled) return 'مقدار قدیمی؛ عنوان فارسی مرجع برای آن یافت نشد';"),'legacy unresolved codes are hidden from bank-user grid');
 check(ts.includes("return translated ?? 'عنوان فارسی این کد تعریف نشده';"),'unresolved business codes do not leak raw code into grid');

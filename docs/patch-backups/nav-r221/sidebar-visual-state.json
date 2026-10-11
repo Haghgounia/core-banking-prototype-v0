@@ -1,0 +1,17 @@
+{
+  "version": "NAV-R22.1",
+  "previous": {
+    "/fee": {
+      "title": "مدیریت کارمزد — FEE",
+      "tooltip": "مدیریت کارمزد — FEE",
+      "newTitle": "مدیریت کارمزد (FEE)",
+      "newTooltip": "مدیریت کارمزد — FEE"
+    },
+    "/fee2": {
+      "title": "موتور جدید کارمزد — FEE2",
+      "tooltip": "موتور کارمزد جدید — FEE2",
+      "newTitle": "موتور کارمزد (FEE2)",
+      "newTooltip": "موتور جدید کارمزد — FEE2 (موتور کارمزد جدید)"
+    }
+  }
+}

@@ -13,44 +13,46 @@
       </button>
     </div>
 
-    <div class="menu-section-label">عملیات</div>
-    <mat-nav-list class="section-list">
+    <!-- R22:SIDEBAR:BEGIN -->
+    <mat-nav-list class="section-list r22-dashboard">
       <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link" matTooltip="داشبورد" matTooltipPosition="before">
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <span matListItemTitle>داشبورد</span>
       </a>
-      <a mat-list-item routerLink="/cif/parties" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" matTooltip="جست‌وجو و پرونده Party" matTooltipPosition="before">
-        <mat-icon matListItemIcon>group</mat-icon>
-        <span matListItemTitle>جست‌وجو و پرونده Party</span>
-      </a>
-      <a mat-list-item routerLink="/cif/parties/new" routerLinkActive="active-link" matTooltip="ایجاد Party جدید" matTooltipPosition="before">
-        <mat-icon matListItemIcon>person_add</mat-icon>
-        <span matListItemTitle>ایجاد Party جدید</span>
-      </a>
     </mat-nav-list>
 
-    <div class="menu-section-label">محصولات و قیمت‌گذاری</div>
-    <mat-nav-list class="section-list">
-      <a mat-list-item routerLink="/fee" routerLinkActive="active-link" matTooltip="مدیریت کارمزد" matTooltipPosition="before">
+    <app-sidebar-r22-group groupId="parties" label="اشخاص و مشتریان" icon="groups" [collapsed]="sidebarCollapsed()">
+      <mat-nav-list class="section-list">
+      <a mat-list-item routerLink="/cif/parties" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" matTooltip="جست‌وجو و پرونده اشخاص" matTooltipPosition="before">
+        <mat-icon matListItemIcon>group</mat-icon>
+        <span matListItemTitle>جست‌وجو و پرونده اشخاص</span>
+      </a>
+      <a mat-list-item routerLink="/cif/parties/new" routerLinkActive="active-link" matTooltip="ایجاد شخص جدید" matTooltipPosition="before">
+        <mat-icon matListItemIcon>person_add</mat-icon>
+        <span matListItemTitle>ایجاد شخص جدید</span>
+      </a>
+    </mat-nav-list>
+    </app-sidebar-r22-group>
+
+    <app-sidebar-r22-group groupId="products" label="محصولات و قیمت‌گذاری" icon="sell" [collapsed]="sidebarCollapsed()">
+      <mat-nav-list class="section-list">
+      <a mat-list-item routerLink="/fee" routerLinkActive="active-link" matTooltip="مدیریت کارمزد — FEE" matTooltipPosition="before">
         <mat-icon matListItemIcon>price_check</mat-icon>
-        <span matListItemTitle>مدیریت کارمزد</span>
+        <span matListItemTitle>مدیریت کارمزد (FEE)</span>
       </a>
-      <a mat-list-item routerLink="/fee2" routerLinkActive="active-link" matTooltip="موتور کارمزد جدید" matTooltipPosition="before">
+      <a mat-list-item routerLink="/fee2" routerLinkActive="active-link" matTooltip="موتور جدید کارمزد — FEE2 (موتور کارمزد جدید)" matTooltipPosition="before">
         <mat-icon matListItemIcon>price_change</mat-icon>
-        <span matListItemTitle>موتور کارمزد جدید</span>
-      </a>
-      <a mat-list-item routerLink="/fee2/studio" routerLinkActive="active-link" matTooltip="استودیوی کارمزد FEE2" matTooltipPosition="before">
-        <mat-icon matListItemIcon>dashboard_customize</mat-icon>
-        <span matListItemTitle>استودیوی کارمزد FEE2</span>
+        <span matListItemTitle>موتور کارمزد (FEE2)</span>
       </a>
       <a mat-list-item routerLink="/product-builder" routerLinkActive="active-link" matTooltip="&#1605;&#1581;&#1589;&#1608;&#1604;&#8204;&#1587;&#1575;&#1586; &#1740;&#1705;&#1662;&#1575;&#1585;&#1670;&#1607;" matTooltipPosition="before">
         <mat-icon matListItemIcon>account_tree</mat-icon>
         <span matListItemTitle>&#1605;&#1581;&#1589;&#1608;&#1604;&#8204;&#1587;&#1575;&#1586; &#1740;&#1705;&#1662;&#1575;&#1585;&#1670;&#1607;</span>
       </a>
     </mat-nav-list>
+    </app-sidebar-r22-group>
 
-    <div class="menu-section-label">چهار سپرده</div>
-    <mat-nav-list class="section-list">
+    <app-sidebar-r22-group groupId="deposits" label="سپرده و حساب" icon="account_balance_wallet" [collapsed]="sidebarCollapsed()">
+      <mat-nav-list class="section-list">
       <a mat-list-item routerLink="/four-deposits" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" matTooltip="چهار سپرده" matTooltipPosition="before">
         <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
         <span matListItemTitle>چهار سپرده</span>
@@ -67,9 +69,9 @@
         <mat-icon matListItemIcon>history_edu</mat-icon>
         <span matListItemTitle>ممیزی و تغییرات</span>
       </a>
-      <a mat-list-item routerLink="/four-deposits/runtime-readiness" routerLinkActive="active-link" matTooltip="آمادگی Runtime افتتاح حساب" matTooltipPosition="before">
+      <a mat-list-item routerLink="/four-deposits/runtime-readiness" routerLinkActive="active-link" matTooltip="آمادگی اجرا" matTooltipPosition="before">
         <mat-icon matListItemIcon>health_and_safety</mat-icon>
-        <span matListItemTitle>آمادگی Runtime</span>
+        <span matListItemTitle>آمادگی اجرا</span>
       </a>
       <a mat-list-item routerLink="/four-deposits/account-operations" routerLinkActive="active-link" matTooltip="عملیات حساب سپرده" matTooltipPosition="before">
         <mat-icon matListItemIcon>account_balance</mat-icon>
@@ -79,43 +81,48 @@
         <mat-icon matListItemIcon>table_view</mat-icon>
         <span matListItemTitle>فرم‌های عملیاتی</span>
       </a>
-      <a mat-list-item routerLink="/four-deposits/reference-data" routerLinkActive="active-link" matTooltip="اطلاعات پایه DPS2" matTooltipPosition="before">
+      <a mat-list-item routerLink="/four-deposits/reference-data" routerLinkActive="active-link" matTooltip="اطلاعات پایه سپرده" matTooltipPosition="before">
         <mat-icon matListItemIcon>dataset</mat-icon>
-        <span matListItemTitle>اطلاعات پایه</span>
+        <span matListItemTitle>اطلاعات پایه سپرده</span>
       </a>
     </mat-nav-list>
+    </app-sidebar-r22-group>
 
-    <div class="menu-section-label">ساختار سازمانی و شبکه شعب</div>
-    <mat-nav-list class="section-list">
+    <app-sidebar-r22-group groupId="organization" label="سازمان و شعب" icon="account_tree" [collapsed]="sidebarCollapsed()">
+      <mat-nav-list class="section-list">
       <a mat-list-item routerLink="/organization" routerLinkActive="active-link" matTooltip="ساختار سازمانی و شبکه شعب" matTooltipPosition="before">
         <mat-icon matListItemIcon>account_tree</mat-icon>
         <span matListItemTitle>شبکه شعب و واحدها</span>
       </a>
     </mat-nav-list>
+    </app-sidebar-r22-group>
 
-    <div class="menu-section-label">داده‌های مرجع</div>
-    <mat-nav-list class="section-list reference-root-menu">
-      <a mat-list-item routerLink="/reference-data" [class.active-link]="isReferenceSection()" matTooltip="اطلاعات پایه" matTooltipPosition="before">
+    <app-sidebar-r22-group groupId="references" label="داده‌های مرجع" icon="dataset" [collapsed]="sidebarCollapsed()">
+      <mat-nav-list class="section-list reference-root-menu">
+      <a mat-list-item routerLink="/reference-data" [class.active-link]="isReferenceSection()" matTooltip="اطلاعات پایه عمومی" matTooltipPosition="before">
         <mat-icon matListItemIcon>dataset</mat-icon>
-        <span matListItemTitle>اطلاعات پایه</span>
+        <span matListItemTitle>اطلاعات پایه عمومی</span>
       </a>
     </mat-nav-list>
+    </app-sidebar-r22-group>
 
-    <div class="menu-section-label">مدیریت و سیستم</div>
-    <mat-nav-list class="section-list">
-      <a mat-list-item routerLink="/system/database-model-comparison" routerLinkActive="active-link" matTooltip="مقایسه مدل EA با Oracle" matTooltipPosition="before">
+    <app-sidebar-r22-group groupId="technical" label="مدیریت و ابزارهای فنی" icon="settings" [collapsed]="sidebarCollapsed()">
+      <mat-nav-list class="section-list">
+      <a mat-list-item routerLink="/system/database-model-comparison" routerLinkActive="active-link" matTooltip="مقایسه مدل داده EA و Oracle" matTooltipPosition="before">
         <mat-icon matListItemIcon>difference</mat-icon>
-        <span matListItemTitle>مقایسه مدل EA / Oracle</span>
+        <span matListItemTitle>مقایسه مدل داده EA و Oracle</span>
       </a>
-      <a mat-list-item routerLink="/system/oracle-ea-xmi-export" routerLinkActive="active-link" matTooltip="استخراج Oracle به XML استاندارد Enterprise Architect" matTooltipPosition="before">
+      <a mat-list-item routerLink="/system/oracle-ea-xmi-export" routerLinkActive="active-link" matTooltip="استخراج Oracle به EA XML (استخراج مدل Oracle به XML)" matTooltipPosition="before">
         <mat-icon matListItemIcon>account_tree</mat-icon>
-        <span matListItemTitle>استخراج Oracle به EA XML</span>
+        <span matListItemTitle>استخراج مدل Oracle به XML</span>
       </a>
       <a mat-list-item routerLink="/system-specification" routerLinkActive="active-link" matTooltip="مشخصات فنی سیستم" matTooltipPosition="before">
         <mat-icon matListItemIcon>info</mat-icon>
         <span matListItemTitle>مشخصات فنی سیستم</span>
       </a>
     </mat-nav-list>
+    </app-sidebar-r22-group>
+    <!-- R22:SIDEBAR:END -->
   </mat-sidenav>
 
   <mat-sidenav-content>

@@ -50,8 +50,8 @@ must(!staticFamilyBlock.includes("domain: 'LOAN'"), 'Loan family must not be sta
 for (const family of ['QARD_HASAN_LOAN','EXCHANGE_LOAN','PARTICIPATORY_LOAN','COMMITMENT_LOAN']) {
   must(workspace.includes(`code: '${family}'`), `Loan group family mapping missing: ${family}`);
 }
-must(workspace.includes("this.service.rows('LOAN_TYPE', {page, size: 200})"), 'Dynamic loan family source missing');
-must(workspace.includes("String(row['RECORD_STATUS_CODE']).trim().toUpperCase() === 'ACTIVE'"), 'Inactive loan types must not create loan families');
+must(workspace.includes('this.service.loanProductFamilies()') && service.includes('repository.activeLoanGroupCodes()') && repository.includes('SELECT DISTINCT LOAN_GROUP FROM'), 'Dynamic loan family source missing');
+must(repository.includes("WHERE RECORD_STATUS_CODE='ACTIVE' AND LOAN_GROUP BETWEEN 1 AND 4"), 'Inactive loan types must not create loan families');
 must(!workspace.includes("{code: 'RETAIL_LOAN', label:"), 'Legacy RETAIL_LOAN must not be offered on create');
 must(workspace.includes('DEPOSIT_PROFIT_PAYMENT_RULE'), 'Profit payment navigation missing');
 must(workspace.includes('CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE'), 'Correspondent profile navigation missing');

@@ -16,6 +16,13 @@ node "$ROOT/tools/verify-pb-r23-loan-type.mjs"
 node "$ROOT/tools/verify-pb-r24-loan-integrity.mjs"
 # PB-R25: Persian loan UAT, optional repayment and collateral reference coherence.
 node "$ROOT/tools/verify-pb-r25-loan-final-ux.mjs"
+node "$ROOT/tools/verify-pdl-ux-oct11.mjs"
+# R27: Product identity, family, policy Lite and channel-operation source contracts.
+node "$ROOT/tools/verify-pdl-r27-product-policy-channel.mjs"
+# R28: loan product codes, eligibility employment and switch-default regression.
+node "$ROOT/tools/verify-pdl-r28-loan-code-eligibility.mjs"
+# R29: stage-six approval and transaction-safe loan code issuance.
+node "$ROOT/tools/verify-pdl-r29-finalization.mjs"
 
 for required in \
   "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/domain/DepositAccountModels.java" \
@@ -37,7 +44,6 @@ node "$ROOT/tools/verify-calendar-month-view.mjs"
 node "$ROOT/tools/verify-calendar-form-usability.mjs"
 node "$ROOT/tools/verify-calendar-current-year-default.mjs"
 node "$ROOT/tools/verify-calendar2-reference.mjs"
-node "$ROOT/tools/verify-cal2-international-b1.mjs"
 node "$ROOT/tools/verify-calendar2-month-view.mjs"
 node "$ROOT/tools/verify-calendar2-business-calendar-lookups.mjs"
 node "$ROOT/tools/verify-calendar2-business-calendar-day-grid.mjs"

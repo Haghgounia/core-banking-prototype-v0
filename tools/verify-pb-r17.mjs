@@ -28,7 +28,7 @@ const uniqueFieldLabels = !!fieldLabelMap && labelKeys.length > 0 && new Set(lab
 const checks = [
   ['field label map has no duplicate object keys (TS1117)', uniqueFieldLabels],
   ['closure details are not mixed with CRUD actions', html.includes('<th class="child-cell">جزئیات وابسته</th>') && html.includes('<th class="actions-cell">عملیات رکورد</th>')],
-  ['closure details link invokes navigation, not delete', html.includes('$event.stopPropagation(); openChild(row, child)') && ts.includes('await this.router.navigate')],
+  ['closure details link invokes navigation, not delete', html.includes(`[routerLink]="['/product-builder/tables', child.table]"`) && html.includes('childQueryParams(row, child)')],
   ['row delete can only be invoked by its distinct action', html.includes('$event.stopPropagation(); remove(row)') && html.includes('class="row-action delete-action"')],
   ['delete confirmation remains before actual service deletion', ts.indexOf('window.confirm(') !== -1 && ts.indexOf('window.confirm(') < ts.indexOf('await this.service.delete(')],
   ['clone cannot be mistaken for child navigation', html.includes('class="row-action"') && html.includes('کپی</span>') && html.includes('جزئیات وابسته')],

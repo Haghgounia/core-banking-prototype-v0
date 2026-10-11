@@ -41,6 +41,22 @@ public class PdlReferenceOptionService {
             "LOAN_ELIGIBILITY_EXTENSION"
     );
 
+    /** Reviewed PDL operation vocabulary; deposit-specific legacy codes are retained for old rows.
+     *  These are business codes, NOT operation IDs or surrogates from a deposit operation table. */
+    private static final List<SelectOption> CHANNEL_OPERATION_CHOICES = optsLabeled(
+            "OPENING", "افتتاح حساب سپرده",
+            "APPLICATION", "ثبت و پیگیری درخواست تسهیلات",
+            "DISBURSEMENT", "پرداخت و واریز تسهیلات",
+            "REPAYMENT", "بازپرداخت اقساط یا بدهی",
+            "SERVICING", "خدمات پس از افتتاح / اعطا",
+            "CLOSURE", "خاتمه / تسویه محصول",
+            "INQUIRY", "استعلام و مشاهده اطلاعات محصول",
+            "TRANSFER_OUT", "انتقال وجه خروجی از سپرده",
+            "CASH_WITHDRAWAL", "برداشت نقدی از سپرده",
+            "CHEQUE", "عملیات چک سپرده",
+            "ALL_OPERATIONS", "تمام عملیات حساب سپرده"
+    );
+
     private static final Map<String, String> RESOURCE_BY_COLUMN = Map.ofEntries(
             Map.entry("CUSTOMER_SEGMENT_CODE", "dps-customer-segments"),
             Map.entry("KYC_LEVEL_CODE", "dps-kyc-levels"),
@@ -455,6 +471,13 @@ public class PdlReferenceOptionService {
                 return copy(column, true, "DPS:dps-org-units", List.of());
             }
         }
+        // The channel-operation vocabulary is cross-domain. Generic DPS2 deposit
+        // operation lookups must never supply withdrawal/transfer codes to loan forms.
+        // Oracle CHECK values, when present, remain the authority.
+        if ("PRODUCT_CHANNEL_OPERATION".equals(normalize(table)) && "OPERATION_CODE".equals(name)) {
+            return copy(column, true, "PDL_FORM_CONTRACT",
+                    mergeOptions(column.options(), List.of(), CHANNEL_OPERATION_CHOICES));
+        }
         // Actual PDL foreign keys are resolved through the catalog lookup endpoint,
         // so LOAN_TYPE_ID / PLAN_TYPE_ID / collateral IDs cannot become mocked options.
         if (GOVERNED_LOAN_TABLES.contains(normalize(table)) && column.foreignKey()) return column;
@@ -592,6 +615,20 @@ public class PdlReferenceOptionService {
         } catch (RuntimeException ignored) {
             return List.of();
         }
+    }
+
+    /** No guessed numeric unit codes. Resolve the persisted CODE against governed DPS rows. */
+    public boolean matchesDurationUnit(String code, String kind) {
+        String raw = normalize(code), expected = normalize(kind);
+        if (raw.isBlank() || !("DAY".equals(expected) || "MONTH".equals(expected))) return false;
+        return referenceOptions("dps-term-units").stream().anyMatch(option -> {
+            if (!raw.equals(normalize(option.code()))) return false;
+            String name = option.label() == null ? "" : option.label().trim();
+            String canonical = normalize(option.code());
+            return "DAY".equals(expected)
+                    ? "روز".equals(name) || "DAY".equals(canonical) || "D".equals(canonical)
+                    : "ماه".equals(name) || "MONTH".equals(canonical) || "M".equals(canonical);
+        });
     }
 
     private List<SelectOption> referenceOptions(String resource) {

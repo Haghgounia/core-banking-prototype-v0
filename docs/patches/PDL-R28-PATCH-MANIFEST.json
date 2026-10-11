@@ -1,0 +1,96 @@
+{
+  "release": "PDL R28, Core Banking Prototype 0.11.0",
+  "based_on": "core-banking-prototype-v0-2026-10-11-r27-product-policy-fixed.zip",
+  "based_on_sha256": "314df5dbf3b55dc5345ae1feb73d714fb12da7618bf636fd093c0743ff1734b9",
+  "installation": "Apply patch over exact R27 baseline; run PDL R28 DDL migration before starting backend; configure approved work year; build and UAT",
+  "oracle_migration": "database/oracle/pdl/migrations/0.11.0-r28-loan-code-employment-normalization.sql",
+  "working_year_example": "database/oracle/pdl/migrations/0.11.0-r28-loan-working-year-setup-example.sql",
+  "runtime_verified": false,
+  "file_count": 21,
+  "changed_or_new_files": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "90215d88caf86495a875149720f54717ea82a67ff850c994e23670e4e9a14232"
+    },
+    {
+      "path": "README-FA.md",
+      "sha256": "10cc0c88bf36f320adf109d6593a6b51021d2b83daea1758f651675d8e2438b6"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/LoanBooleanDefaults.java",
+      "sha256": "ad486d71a33494a88f498da58ac54c25e57ffe3c28f66b1b4cfea36178d32c88"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/LoanEmploymentSelectionPolicy.java",
+      "sha256": "bb58ea7945586e2ea8c686db7e31162089a165767c4226178633aea075376f7f"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/LoanProductCodePolicy.java",
+      "sha256": "1375a2e9b12cdaefb3fdb11b81ebca2794ec6fcc49a228b95e602ef38249de86"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderService.java",
+      "sha256": "6fd1dfe27f1741f2b4fb074b8809c1e658a03878b572144faa16f0e60c8843f6"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/productbuilder/oracle/PdlProductBuilderRepository.java",
+      "sha256": "e834a429ffdb7039cbb69300230f7b04c2e09d88e5ce97eab51648fcdaeb0a00"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/productbuilder/web/ProductBuilderController.java",
+      "sha256": "8dfb6a6c198f3c8da5807e918a8f4bc0a08dccd4a142418a805f7641f37571e9"
+    },
+    {
+      "path": "build-production.cmd",
+      "sha256": "e7df8b75367ba3d82236e9c63c7b46415f2428019448828ddd9329a79478ebfa"
+    },
+    {
+      "path": "build-production.sh",
+      "sha256": "70578cf8fa2d47fd896ccf909440f2308caa291f77d1f0a5560ab871fa1e0a58"
+    },
+    {
+      "path": "database/oracle/pdl/migrations/0.11.0-r28-loan-code-employment-normalization.sql",
+      "sha256": "b81a0d5fb5ffddb6dc3a5e084a8f08d2c5bbb09576f84d8d8d8b982282b523be"
+    },
+    {
+      "path": "database/oracle/pdl/migrations/0.11.0-r28-loan-working-year-setup-example.sql",
+      "sha256": "ebeb6df33dfba5d77d69a2f6f2bb793696a4e0c80089ecf86730e7389e411938"
+    },
+    {
+      "path": "docs/PDL-2026-10-11-R28-LOAN-CODE-ELIGIBILITY-CONTRACT-QA-FA.md",
+      "sha256": "31239a6f154d082bc6a99b7ecef5d64dfab867648384bd4ad61190c12830f347"
+    },
+    {
+      "path": "docs/patches/PDL-R28-LOAN-ELIGIBILITY-DIAGNOSTIC-READONLY.sql",
+      "sha256": "2bcc85f654d7a16027b11866950396c4fc7ab4bb31016e76cc5fcc385c17b021"
+    },
+    {
+      "path": "frontend/src/app/features/product-builder/pdl-table.component.html",
+      "sha256": "07e5e24f406a41a5bbdef0fc3ce1aded0d6af897ed1047aa68dae80be1062cc3"
+    },
+    {
+      "path": "frontend/src/app/features/product-builder/pdl-table.component.scss",
+      "sha256": "be34b6ed5914f8f1bc3abe9deb9539923adbbae4a4025055e69c7e144566249e"
+    },
+    {
+      "path": "frontend/src/app/features/product-builder/pdl-table.component.ts",
+      "sha256": "764745f0a4208f239f580b71f99171ba9dda31e7b6e737430d91ad74203e7e64"
+    },
+    {
+      "path": "frontend/src/app/features/product-builder/product-builder.service.ts",
+      "sha256": "a9da11de6f3ed4e5b8e282ae7892e0ddba9d6725642891c5b1a896c49ce090e0"
+    },
+    {
+      "path": "frontend/src/app/features/product-builder/product-workspace.component.html",
+      "sha256": "4121700401ff8cb2bdda3cb3a49351c0808da8d63fa926db367980a7988d4db2"
+    },
+    {
+      "path": "frontend/src/app/features/product-builder/product-workspace.component.ts",
+      "sha256": "2ab9856373e0b360b7718636a6fd764293231689e210202b8b524325754ce9ae"
+    },
+    {
+      "path": "tools/verify-pdl-r28-loan-code-eligibility.mjs",
+      "sha256": "d7782a1f6bb047ac5d72c753b6947fb05495215e3ada8f95a260e2e1ad9e8ddc"
+    }
+  ]
+}

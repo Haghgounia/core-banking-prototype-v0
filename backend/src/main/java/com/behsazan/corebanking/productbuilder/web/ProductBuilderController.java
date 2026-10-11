@@ -41,6 +41,56 @@ public class ProductBuilderController {
         return governance.report(versionId);
     }
 
+    @GetMapping("/loan-product-families")
+    List<SelectOption> loanProductFamilies() {
+        return service.loanProductFamilies();
+    }
+
+    @GetMapping("/loan-code-types")
+    List<Map<String, Object>> loanCodeTypes() {
+        return service.activeLoanTypesForCode();
+    }
+
+    @GetMapping("/loan-eligibility-extensions/{id}/employment-types")
+    List<String> loanEligibilityEmploymentTypes(@PathVariable long id) {
+        return service.loanEligibilityEmploymentTypes(id);
+    }
+
+    @PostMapping("/loan-eligibility-extensions/employment-types")
+    Map<String, Object> saveLoanEligibilityEmploymentTypes(
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        if (!(body.get("values") instanceof Map<?, ?> raw) || !(body.get("employmentTypes") instanceof List<?> types))
+            throw new com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException(
+                    "اطلاعات افزونه اهلیت و انواع اشتغال الزامی است.");
+        Map<String, Object> values = new java.util.LinkedHashMap<>();
+        raw.forEach((key, value) -> { if (key instanceof String k) values.put(k, value); });
+        Long id = body.get("id") == null ? null : ((Number) body.get("id")).longValue();
+        return service.saveLoanEligibilityEmployment(id, values, types, actor);
+    }
+
+    /** Explicit stage-six command; never issue a product code from generic CRUD. */
+    @PostMapping("/products/{productId}/finalize-loan")
+    Map<String, Object> finalizeLoanProduct(
+            @PathVariable long productId,
+            @RequestBody Map<String, Object> request,
+            @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        Object requestedVersion = request.get("versionId");
+        if (requestedVersion == null)
+            throw new com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException(
+                    "نسخه مصوب برای صدور کد محصول ضروری است.");
+        long versionId;
+        try { versionId = new java.math.BigDecimal(String.valueOf(requestedVersion)).longValueExact(); }
+        catch (RuntimeException ex) {
+            throw new com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException(
+                    "شناسه نسخه برای نهایی‌سازی معتبر نیست.");
+        }
+        if (versionId <= 0)
+            throw new com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException(
+                    "شناسه نسخه برای نهایی‌سازی معتبر نیست.");
+        return service.finalizeLoanProduct(productId, versionId, actor);
+    }
+
     @GetMapping("/catalog")
     CatalogResponse catalog() {
         return service.catalog();
@@ -104,6 +154,24 @@ public class ProductBuilderController {
                               @RequestParam(required = false) String text,
                               @RequestParam(defaultValue = "200") int limit) {
         return service.lookup(table, column, text, limit);
+    }
+
+    /** Persist one normalized PDL scope per selected organization, atomically. */
+    @PostMapping("/org-scopes/bulk")
+    List<Map<String, Object>> saveOrgScopes(
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        Object raw = body.get("orgUnitIds");
+        if (!(raw instanceof List<?> ids))
+            throw new com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException(
+                    "فهرست واحدهای سازمانی معتبر ارسال نشده است.");
+        if (!(body.get("values") instanceof Map<?, ?> fields))
+            throw new com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException(
+                    "اطلاعات محدوده سازمانی ارسال نشده است.");
+        Map<String, Object> values = new java.util.LinkedHashMap<>();
+        fields.forEach((key, value) -> { if (key instanceof String name) values.put(name, value); });
+        Long editingId = body.get("existingId") == null ? null : ((Number) body.get("existingId")).longValue();
+        return service.saveOrgScopes(values, ids, editingId, actor);
     }
 
     @PostMapping("/tables/{table}/rows")

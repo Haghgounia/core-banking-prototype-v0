@@ -97,6 +97,12 @@ public class ProductBuilderBusinessValidator {
         validateGenericDateRange(values);
     }
     private void validateLoanProcess(Map<String, Object> values) {
+        int selectedApprovalModes = 0;
+        for (String flag : new String[]{"MANUAL_APPROVAL_REQUIRED", "COMMITTEE_APPROVAL_REQUIRED", "MULTI_LEVEL_APPROVAL_REQUIRED"}) {
+            if (bool(values, flag)) selectedApprovalModes++;
+        }
+        if (selectedApprovalModes > 1)
+            fail("روش اصلی تصویب باید یکتا باشد: دستی، کمیته یا چندسطحی. مراحل ترکیبی باید در گردش کار مصوب تعریف شوند، نه با فعال‌کردن هم‌زمان سه گزینه.");
         for (String key : new String[]{"APPLICATION_VALIDITY_DAYS", "APPROVAL_VALIDITY_DAYS", "CONTRACT_VALIDITY_DAYS"})
             nonnegative(values, key, "مدت اعتبار");
         if (!bool(values, "ALLOW_OVERRIDE") && !text(values, "OVERRIDE_APPROVAL_LEVEL_CODE").isBlank())
@@ -119,6 +125,8 @@ public class ProductBuilderBusinessValidator {
         if ((min != null && min.compareTo(BigDecimal.ONE) > 0) ||
                 (max != null && max.compareTo(BigDecimal.ONE) > 0)) fail("درصد آورده مشتری باید بین صفر و صد درصد باشد (در ذخیره‌سازی به نسبت صفر تا یک تبدیل می‌شود).");
         nonnegative(values, "INTEREST_DISCOUNT_DAY", "روز اعمال تخفیف سود");
+        if (!bool(values, "INTEREST_DISCOUNT_ALLOWED") && values.get("INTEREST_DISCOUNT_DAY") != null)
+            fail("تعداد روز مبنای تخفیف سود فقط زمانی قابل ثبت است که سوئیچ مجاز بودن تخفیف سود فعال باشد.");
         validateGenericDateRange(values);
     }
     private void validateLoanEligibility(Map<String, Object> values) {

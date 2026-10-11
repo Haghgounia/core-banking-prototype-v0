@@ -10,6 +10,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {ThemePreference, ThemeService} from '../core/theme/theme.service';
 import {GENERATED_SYSTEM_VERSIONS} from '../features/system-specification/system-version.generated';
 import {AppBreadcrumbComponent} from '../shared/ui/app-breadcrumb.component';
+import {SidebarR22GroupComponent} from './sidebar-r22/sidebar-r22-group.component';
 
 @Component({
   selector: 'app-shell',
@@ -17,7 +18,7 @@ import {AppBreadcrumbComponent} from '../shared/ui/app-breadcrumb.component';
   imports: [
     RouterOutlet, RouterLink, RouterLinkActive,
     MatToolbarModule, MatSidenavModule, MatListModule,
-    MatIconModule, MatButtonModule, MatMenuModule, MatTooltipModule, AppBreadcrumbComponent
+    MatIconModule, MatButtonModule, MatMenuModule, MatTooltipModule, AppBreadcrumbComponent, SidebarR22GroupComponent
   ],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss'

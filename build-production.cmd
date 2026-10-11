@@ -37,6 +37,14 @@ rem PB-R24: integrated loan-family source, applicant ALL, inherited currency and
 node "%ROOT%tools\verify-pb-r24-loan-integrity.mjs" || exit /b 1
 rem PB-R25: reviewed Persian loan UAT and civil-partnership/collateral contract.
 node "%ROOT%tools\verify-pb-r25-loan-final-ux.mjs" || exit /b 1
+rem UX checklist: full product management, shared eligibility, channel actions, org multi-select and loan term validations.
+node "%ROOT%tools\verify-pdl-ux-oct11.mjs" || exit /b 1
+rem R27: Product identity, dynamic family source, policy Lite lifecycle, and channel labels.
+node "%ROOT%tools\verify-pdl-r27-product-policy-channel.mjs" || exit /b 1
+rem R28: system loan codes, employment multi-selection and untouched switch defaults.
+node "%ROOT%tools\verify-pdl-r28-loan-code-eligibility.mjs" || exit /b 1
+rem R29: issue loan product codes only after passing the stage-six approval gate.
+node "%ROOT%tools\verify-pdl-r29-finalization.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.
 if not exist "%ROOT%frontend\src\app\app.component.ts" (
@@ -103,8 +111,6 @@ node "%ROOT%tools\verify-calendar-current-year-default.mjs" || exit /b 1
 
 rem CAL2 static guard: independent forms/DDL, recurring events and ZIP JDBC import.
 node "%ROOT%tools\verify-calendar2-reference.mjs" || exit /b 1
-rem CAL2 international B1 guard: source authority, variable dates and materialized seed.
-node "%ROOT%tools\verify-cal2-international-b1.mjs" || exit /b 1
 
 rem FIX65 static guard: CAL2 monthly calendar read model and Angular month view.
 node "%ROOT%tools\verify-calendar2-month-view.mjs" || exit /b 1

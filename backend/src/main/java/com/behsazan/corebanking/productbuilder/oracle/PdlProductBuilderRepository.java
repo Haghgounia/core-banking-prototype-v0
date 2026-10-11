@@ -64,6 +64,14 @@ public class PdlProductBuilderRepository {
         return jdbcClient.sql("SELECT COUNT(*) FROM " + qualified(table)).query(Long.class).single();
     }
 
+    /** Fail closed if multiple versions claim IS_CURRENT for the same product. */
+    public long currentProductVersionCount(long productId) {
+        Long count = jdbcClient.sql("SELECT COUNT(*) FROM " + qualified("PRODUCT_VERSION")
+                        + " WHERE PRODUCT_ID = :productId AND IS_CURRENT = 1")
+                .param("productId", productId).query(Long.class).single();
+        return count == null ? 0L : count;
+    }
+
     public long previewNextProductVersionNo(long productId) {
         return jdbcClient.sql("SELECT NVL(MAX(VERSION_NO), 0) + 1 FROM " + qualified("PRODUCT_VERSION")
                         + " WHERE PRODUCT_ID = :productId")
@@ -72,9 +80,109 @@ public class PdlProductBuilderRepository {
                 .single();
     }
 
+    /** Guard against a version-status change racing with finalization. */
+    public void lockProductVersion(long versionId) {
+        jdbcClient.sql("SELECT PRODUCT_VERSION_ID FROM " + qualified("PRODUCT_VERSION")
+                        + " WHERE PRODUCT_VERSION_ID = :versionId FOR UPDATE")
+                .param("versionId", versionId).query(Long.class)
+                .optional().orElseThrow(() -> new ProductBuilderValidationException(
+                        "نسخه برای نهایی‌سازی پیدا نشد."));
+    }
+
+    /** Serialize collateral ordering per version, rather than locking the whole PDL table. */
+    /** Serializes finalization per product. A second request sees the already-issued code. */
+    public void lockProduct(long productId) {
+        jdbcClient.sql("SELECT PRODUCT_ID FROM " + qualified("PRODUCT")
+                        + " WHERE PRODUCT_ID = :productId FOR UPDATE")
+                .param("productId", productId).query(Long.class)
+                .optional().orElseThrow(() -> new ProductBuilderValidationException(
+                        "محصول برای نهایی‌سازی پیدا نشد."));
+    }
+
+    public void lockCollateralProductVersion(long versionId) {
+        jdbcClient.sql("SELECT PRODUCT_VERSION_ID FROM " + qualified("PRODUCT_VERSION")
+                        + " WHERE PRODUCT_VERSION_ID = :versionId FOR UPDATE")
+                .param("versionId", versionId).query(Long.class).single();
+    }
+
     public long lockAndNextProductVersionNo(long productId) {
         jdbcClient.sql("LOCK TABLE " + qualified("PRODUCT_VERSION") + " IN SHARE ROW EXCLUSIVE MODE").update();
         return previewNextProductVersionNo(productId);
+    }
+
+    /** One row maintained by bank operations, not inferred from the OS or the Jalali year. */
+    public int activeLoanProductWorkingYear() {
+        Integer year = jdbcClient.sql("SELECT WORK_YEAR FROM " + schemaName
+                        + ".PRODUCT_LOAN_WORK_YEAR WHERE SETTING_ID = 1 FOR UPDATE")
+                .query(Integer.class).optional().orElse(null);
+        if (year == null) throw new ProductBuilderValidationException(
+                "سال کاری صدور کد محصول تسهیلات تنظیم نشده است؛ ابتدا PDL.PRODUCT_LOAN_WORK_YEAR را با مجوز راهبر تنظیم کنید.");
+        return year;
+    }
+
+    /** This lookup is for first-step product identity, before a version/profile exists. */
+    public List<Map<String, Object>> activeLoanTypesForCode() {
+        return jdbcClient.sql("SELECT LOAN_TYPE_ID, LOAN_TYPE_CODE, LOAN_TYPE_NAME, LOAN_GROUP FROM "
+                        + qualified("LOAN_TYPE") + " WHERE RECORD_STATUS_CODE = 'ACTIVE' ORDER BY LOAN_GROUP, LOAN_TYPE_NAME")
+                .query((rs, n) -> {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("id", rs.getLong("LOAN_TYPE_ID"));
+                    row.put("code", rs.getString("LOAN_TYPE_CODE"));
+                    row.put("label", rs.getString("LOAN_TYPE_NAME"));
+                    row.put("group", rs.getInt("LOAN_GROUP"));
+                    return row;
+                }).list();
+    }
+
+    public record GeneratedLoanCode(long typeId, int year, int serial, String code) { }
+
+    /** Call only from finalization's @Transactional boundary. FOR UPDATE lock on
+     *  LOAN_TYPE serializes every generator for a contract, including annual reset.
+     */
+    public GeneratedLoanCode allocateLoanProductCode(long typeId, String contractCode) {
+        lockLoanTypeForMapping(typeId);
+        int year = activeLoanProductWorkingYear();
+        Integer maximum = jdbcClient.sql("SELECT NVL(MAX(SERIAL_NO), 0) FROM " + schemaName
+                        + ".PRODUCT_LOAN_CODE_REGISTRY WHERE LOAN_TYPE_ID = :typeId AND WORK_YEAR = :workYear")
+                .param("typeId", typeId).param("workYear", year).query(Integer.class).single();
+        for (int serial = maximum + 1; serial <= 999; serial++) {
+            String code = com.behsazan.corebanking.productbuilder.application.LoanProductCodePolicy.format(contractCode, year, serial);
+            Long existing = jdbcClient.sql("SELECT COUNT(*) FROM " + qualified("PRODUCT") + " WHERE PRODUCT_CODE = :code")
+                    .param("code", code).query(Long.class).single();
+            if (existing == 0) return new GeneratedLoanCode(typeId, year, serial, code);
+        }
+        throw new ProductBuilderValidationException("ظرفیت ۹۹۹ کد برای این عقد در سال کاری تکمیل است.");
+    }
+
+    public void registerLoanProductCode(long productId, GeneratedLoanCode code, String actor) {
+        jdbcClient.sql("INSERT INTO " + schemaName + ".PRODUCT_LOAN_CODE_REGISTRY"
+                + " (PRODUCT_ID, LOAN_TYPE_ID, WORK_YEAR, SERIAL_NO, PRODUCT_CODE, CREATED_BY)"
+                + " VALUES (:product, :loan, :year, :serial, :code, :actor)")
+                .param("product", productId).param("loan", code.typeId())
+                .param("year", code.year()).param("serial", code.serial())
+                .param("code", code.code()).param("actor", actor).update();
+    }
+
+    /** Legacy products have no registry row and keep their original, immutable code. */
+    public Optional<Long> registeredLoanType(long productId) {
+        return jdbcClient.sql("SELECT LOAN_TYPE_ID FROM " + schemaName
+                        + ".PRODUCT_LOAN_CODE_REGISTRY WHERE PRODUCT_ID = :product")
+                .param("product", productId).query(Long.class).optional();
+    }
+
+    public List<String> loanEligibilityEmploymentTypes(long eligibilityRuleId) {
+        return jdbcClient.sql("SELECT EMPLOYMENT_TYPE_CODE FROM " + schemaName
+                        + ".LOAN_ELIGIBLE_EMPLOYMENT_TYPE WHERE ELIGIBILITY_RULE_ID = :id ORDER BY EMPLOYMENT_TYPE_CODE")
+                .param("id", eligibilityRuleId).query(String.class).list();
+    }
+
+    public void replaceLoanEligibilityEmploymentTypes(long eligibilityRuleId, List<String> codes, String actor) {
+        jdbcClient.sql("DELETE FROM " + schemaName + ".LOAN_ELIGIBLE_EMPLOYMENT_TYPE WHERE ELIGIBILITY_RULE_ID = :id")
+                .param("id", eligibilityRuleId).update();
+        for (String code : codes)
+            jdbcClient.sql("INSERT INTO " + schemaName + ".LOAN_ELIGIBLE_EMPLOYMENT_TYPE"
+                    + " (ELIGIBILITY_RULE_ID, EMPLOYMENT_TYPE_CODE, CREATED_BY) VALUES (:id, :code, :actor)")
+                    .param("id", eligibilityRuleId).param("code", code).param("actor", actor).update();
     }
 
     public LocalDate currentDatabaseDate() {
@@ -126,8 +234,12 @@ public class PdlProductBuilderRepository {
                 + (where.isEmpty() ? "" : " WHERE " + String.join(" AND ", where));
         long total = jdbcClient.sql("SELECT COUNT(*)" + fromWhere).params(params).query(Long.class).single();
 
-        String sql = "SELECT T.*" + fromWhere
-                + " ORDER BY T." + identifier(descriptor.primaryKeyColumn()) + " DESC"
+        // Collateral priorities are scoped per product version. Show ascending rank,
+        // not reverse insertion order; keep other PDL lists unchanged.
+        String order = "LOAN_PRODUCT_COLLATERAL_RULE".equals(descriptor.tableName())
+                ? " ORDER BY T.PRODUCT_VERSION_ID DESC, T.PRIORITY_NO ASC, T.LOAN_COLLATERAL_RULE_ID ASC"
+                : " ORDER BY T." + identifier(descriptor.primaryKeyColumn()) + " DESC";
+        String sql = "SELECT T.*" + fromWhere + order
                 + " OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
         Map<String, Object> pageParams = new LinkedHashMap<>(params);
         pageParams.put("offset", safePage * safeSize);
@@ -225,12 +337,18 @@ public class PdlProductBuilderRepository {
     public List<SelectOption> lookup(String requestedTable, String requestedColumn, String text, int limit) {
         TableDescriptor child = descriptor(requestedTable);
         ColumnDescriptor fk = column(child, requestedColumn);
-        if (!fk.foreignKey() || fk.parentTable() == null) {
+        // Some deployed PDL schemas omit the physical FK for this legacy field.
+        // Its logical master is nevertheless governed by ProductBuilderService.
+        boolean loanCollateral = "LOAN_PRODUCT_COLLATERAL_RULE".equals(child.tableName())
+                && "LOAN_PRODUCT_COLLATERAL_ID".equals(fk.name());
+        if (!loanCollateral && (!fk.foreignKey() || fk.parentTable() == null)) {
             throw new ProductBuilderValidationException("Column is not a foreign key: " + requestedColumn);
         }
-        TableDescriptor parent = descriptor(fk.parentTable());
-        ColumnDescriptor label = labelColumn(parent);
-        ColumnDescriptor code = codeColumn(parent).orElse(label);
+        TableDescriptor parent = descriptor(loanCollateral ? "LOAN_PRODUCT_COLLATERAL" : fk.parentTable());
+        // DESCRIPTION is nullable and may be blank: the collateral reference must
+        // display its official PRODUCT_COLLATERAL_NAME and business code instead.
+        ColumnDescriptor label = loanCollateral ? column(parent, "PRODUCT_COLLATERAL_NAME") : labelColumn(parent);
+        ColumnDescriptor code = loanCollateral ? column(parent, "PRODUCT_COLLATERAL_CODE") : codeColumn(parent).orElse(label);
         // Facility operation parameters have no name column; use actual persisted periods,
         // never a status code or a synthetic reference description as the display label.
         boolean facilityParameter = "FACILITY_OPERATION_PARAMETER".equals(parent.tableName());
@@ -288,6 +406,16 @@ public class PdlProductBuilderRepository {
         if (exceptId != null) spec = spec.param("id", exceptId);
         Long count = spec.query(Long.class).single();
         return count != null && count > 0;
+    }
+
+    /** Source-of-truth for family selection: the four business loan groups
+     *  represented by ACTIVE loan contracts in the actual PDL catalog.
+     *  A DISTINCT query prevents empty/truncated choices from UI paging.
+     */
+    public List<Integer> activeLoanGroupCodes() {
+        return jdbcClient.sql("SELECT DISTINCT LOAN_GROUP FROM " + qualified("LOAN_TYPE")
+                        + " WHERE RECORD_STATUS_CODE='ACTIVE' AND LOAN_GROUP BETWEEN 1 AND 4 ORDER BY LOAN_GROUP")
+                .query(Integer.class).list();
     }
 
     /** Only active PDL loan types make a loan-group family available for NEW products. */

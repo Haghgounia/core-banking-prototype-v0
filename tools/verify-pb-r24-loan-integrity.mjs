@@ -32,9 +32,9 @@ ck('deposit and loan reference routes exist', routes.includes("path: 'deposit/re
 ck('existing product and code-set cards unchanged', home.includes('routerLink="/product-builder/products"') && home.includes("'CODE_SET'"));
 ck('Product Builder uses existing quick-card theme', home.includes('class="quick-grid"') && home.includes('class="quick-card card"'));
 ck('new LOAN families removed from stale static TARGET list', !/const TARGET_PRODUCT_FAMILIES[\s\S]*?const LOAN_FAMILY_FROM_GROUP/.exec(work)?.[0].includes("domain: 'LOAN'},"));
-ck('live LOAN_TYPE reference accessed by Product Builder', work.includes("this.service.rows('LOAN_TYPE', {page, size: 200})"));
-ck('only ACTIVE loan types contribute to family list', work.includes("String(row['RECORD_STATUS_CODE']).trim().toUpperCase() === 'ACTIVE'"));
-ck('family list paginates and rejects incomplete lookup', work.includes('received >= result.totalElements') && work.includes('فهرست انواع عقود کامل بارگذاری نشد'));
+ck('live LOAN_TYPE reference accessed by Product Builder', work.includes('this.service.loanProductFamilies()') && backend.includes('repository.activeLoanGroupCodes()'));
+ck('only ACTIVE loan types contribute to family list', repo.includes("WHERE RECORD_STATUS_CODE='ACTIVE' AND LOAN_GROUP BETWEEN 1 AND 4"));
+ck('family list uses unpaged server DISTINCT query', repo.includes('SELECT DISTINCT LOAN_GROUP FROM') && backend.includes('loanProductFamilies()') && work.includes('this.loanFamilyLoadError.set(this.message(e))'));
 ck('new family selection blocked before lookup completes', work.includes('this.loanFamilyLoading()') && work.includes('this.productId() === null && !this.loanFamilyOptions().some'));
 ck('old families retained for existing products only', work.includes('this.productId() !== null && current') && work.includes('PRODUCT_FAMILY_LABELS[current]'));
 ck('family selector describes Mudaraba correctly', workHtml.includes('مضاربه') && workHtml.includes('تسهیلات مشارکتی'));
@@ -61,7 +61,7 @@ ck('type plan mapping check retained', backend.includes('loanTypePlanAllowed(typ
 ck('classification reference form is in LOAN reference menu', menu.includes("table: 'FACILITY_OPERATION_PARAMETER', title: 'الگوی طبقه‌بندی و انتقال مطالبات'"));
 ck('classification reference has create/update generic route', routes.includes("path: 'loan/reference-data/:table'") && routes.includes('PdlTableComponent'));
 ck('classification editor groups durations, transfer, and status', pdl.includes('FACILITY_OPERATION_PARAMETER: {') && pdl.includes('آستانه‌های طبقه‌بندی مطالبات') && pdl.includes('روش انتقال مطالبات به طبقات'));
-ck('four transfer dimensions are controlled switches', ['TRANSFER_PRINCIPLE','TRANSFER_INTEREST','TRANSFER_PENALTY','TRANSFER_COMMISSION'].every(x=>pdl.includes("'"+x+"'")) && pdlHtml.includes('انتقال می‌یابد'));
+ck('four transfer dimensions are controlled switches', ['TRANSFER_PRINCIPLE','TRANSFER_INTEREST','TRANSFER_PENALTY','TRANSFER_COMMISSION'].every(x=>pdl.includes("'"+x+"'")) && pdl.includes("return this.booleanFieldChecked(column) ? 'انتقال می‌یابد'") && pdlHtml.includes('loanSwitchLabel(column)'));
 ck('classification status and method not fabricated', pdl.includes('معنای کدهای ۰ تا ۹ در DDL تعریف نشده') && pdl.includes('PARAMETER_STATUS_CODE'));
 ck('classifier has 1..99 Oracle NUMBER2 range check', validator.includes('days < 1 || days > 99'));
 ck('classifier has NUMBER1 transfer method bounds', validator.includes('method < 0 || method > 9'));

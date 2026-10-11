@@ -27,8 +27,8 @@ check('grid can resolve references outside active lookup page', ui.includes('res
 check('grid historical references never expose raw numeric ID', ui.includes('loanGridReferenceNames') && ui.includes('اطلاعات مرجع این رکورد یافت نشد'));
 check('grid FK resolution has navigation guard', ui.includes('generation === this.navigationGeneration && table === this.tableName()'));
 check('loan type first tab and linked profile table preserved', ui.includes('LOAN_PRODUCT_PROFILE') && html.includes('loan-reference-state'));
-check('loan-specific card identifies only applicant eligibility', work.includes("label: 'اهلیت متقاضی'"));
-check('eligibility extension remains separate child', workspace.includes('اعتبارسنجی تکمیلی تسهیلات') && workspace.includes('این دو دسته قاعده مستقل‌اند'));
+check('loan-specific rules do not duplicate shared eligibility', !work.includes("{table: 'PRODUCT_ELIGIBILITY_RULE', label: 'اهلیت متقاضی'"));
+check('eligibility extension remains a child of common eligibility', workspace.includes('اعتبارسنجی تکمیلی تسهیلات') && ui.includes("{table: 'LOAN_ELIGIBILITY_EXTENSION'"));
 check('family displayed with localized business label', workspace.includes('familyDisplayLabel(productFamily())'));
 check('loan-specific guidance excludes old TERM/CORRESPONDENT claim', !workspace.includes('فقط در خانواده‌های TERM_PROFIT_PAYMENT و CORRESPONDENT'));
 check('contribution switch is real Material control', html.includes('loanContributionEnabled.value') && html.includes('mat-slide-toggle'));
@@ -46,8 +46,8 @@ check('civil partnership backend validates persisted loan type', service.include
 check('civil partnership backend validates UPDATE', service.includes('validateCivilPartnershipContribution(table, merged)'));
 check('financial business validator rejects ratio > 1', validator.includes('max.compareTo(BigDecimal.ONE) > 0'));
 check('finance error explains user percentage', validator.includes('درصد آورده مشتری باید بین صفر و صد درصد باشد'));
-check('duration unit appears before min term', ui.includes("other.splice(at, 0, unit)"));
-check('term unit only DAY and MONTH selector', ui.includes("/^(DAY|MONTH)$/.test(String(opt.code).toUpperCase())"));
+check('unit-before-value ordering is generalized across PDL', ui.includes('private unitFirst(') && ui.includes("TERM_UNIT_CODE: ['TERM_VALUE', 'MIN_TERM_DURATION'"));
+check('term unit matches governed DAY/MONTH reference semantics', ui.includes('this.unitMeaning(opt)') && service.includes('referenceOptionService.matchesDurationUnit(unit, "DAY")'));
 check('repayment title names facility minimum', titles.includes('LOAN_PRODUCT_REPAYMENT_RULE.MIN_TERM_DURATION') && titles.includes('حداقل مدت تسهیلات'));
 check('repayment title names facility maximum', titles.includes('LOAN_PRODUCT_REPAYMENT_RULE.MAX_TERM_DURATION') && titles.includes('حداکثر مدت تسهیلات'));
 check('unit required when duration entered', validator.includes('برای حداقل و حداکثر مدت تسهیلات'));
@@ -71,7 +71,7 @@ check('collateral duplicate guard exists backend', service.includes('"LOAN_PRODU
 check('collateral rule points to master form', html.includes('routerLink="/loan/reference-data/LOAN_PRODUCT_COLLATERAL"'));
 check('collateral priority is business text', titles.includes('اولویت استفاده از نوع وثیقه'));
 check('collateral priority zero is permitted in Oracle and validator', validator.includes('priority == null || priority < 0'));
-check('collateral priority is explained to user', ui.includes('۰ یعنی اولویت مشخص نشده است'));
+check('collateral priority is explained to user', ui.includes('اولویت پیش‌فرض از تعداد وثایق نسخه محاسبه می‌شود') && html.includes('اولویت استفاده از وثیقه'));
 check('RTL styling uses system theme', css.includes('var(--app-primary)') && css.includes('var(--app-border)'));
 check('contribution switch styles reusable system token', css.includes('.loan-contribution-gate') && css.includes('var(--app-surface-muted)'));
 check('R25 JUnit covers civil participation', tests.includes('civilPartnershipIsNotEveryParticipatoryContract'));

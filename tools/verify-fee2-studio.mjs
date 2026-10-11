@@ -19,8 +19,11 @@ pass('studio route family is registered while legacy FEE2 routes remain');
 if (!routes.includes("path: 'fee2'" ) || !routes.includes("path: 'fee2/versions'") || !routes.includes("path: 'fee2/tables/:table'")) fail('existing FEE2 routes were removed');
 
 const shell = read('frontend/src/app/layout/app-shell.component.html');
-if (!shell.includes('routerLink="/fee2"') || !shell.includes('routerLink="/fee2/studio"')) fail('existing and studio FEE2 menu entries must coexist');
-pass('existing FEE2 menu is preserved and studio menu is additive');
+const fee2Home = read('frontend/src/app/features/fee2/fee2-home.component.html');
+if (!shell.includes('routerLink="/fee2"')) fail('New Fee Engine menu entry was removed');
+if (shell.includes('routerLink="/fee2/studio"')) fail('duplicate FEE2 Studio shortcut still appears in main sidebar');
+if (!fee2Home.includes('routerLink="/fee2/studio"')) fail('Studio link inside New Fee Engine was removed');
+pass('New Fee Engine sidebar entry remains, while Studio remains accessible from its home page');
 
 const controller = read('backend/src/main/java/com/behsazan/corebanking/fee2/web/Fee2Controller.java');
 const service = read('backend/src/main/java/com/behsazan/corebanking/fee2/application/Fee2Service.java');

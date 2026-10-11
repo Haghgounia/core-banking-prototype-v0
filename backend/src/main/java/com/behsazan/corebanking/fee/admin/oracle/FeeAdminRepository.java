@@ -211,6 +211,7 @@ public class FeeAdminRepository {
         validateRequiredColumns(descriptor, values, columns);
         jdbc.sql("INSERT INTO " + qualified(descriptor.tableName()) + " (" + String.join(", ", columns)
                 + ") VALUES (" + String.join(", ", placeholders) + ")").params(params).update();
+        invalidateReferenceDescriptors(descriptor.tableName());
         return id;
     }
 
@@ -230,13 +231,24 @@ public class FeeAdminRepository {
         params.put("id", id);
         String sql = "UPDATE " + qualified(descriptor.tableName()) + " SET " + String.join(", ", assignments)
                 + " WHERE " + identifier(descriptor.primaryKeyColumn()) + " = :id";
-        return jdbc.sql(sql).params(params).update() == 1;
+        boolean updated = jdbc.sql(sql).params(params).update() == 1;
+        if (updated) invalidateReferenceDescriptors(descriptor.tableName());
+        return updated;
     }
 
     public boolean delete(String requestedTable, long id) {
         TableDescriptor descriptor = descriptor(requestedTable);
-        return jdbc.sql("DELETE FROM " + qualified(descriptor.tableName()) + " WHERE "
+        boolean deleted = jdbc.sql("DELETE FROM " + qualified(descriptor.tableName()) + " WHERE "
                 + identifier(descriptor.primaryKeyColumn()) + " = :id").param("id", id).update() == 1;
+        if (deleted) invalidateReferenceDescriptors(descriptor.tableName());
+        return deleted;
+    }
+
+    private void invalidateReferenceDescriptors(String tableName) {
+        if ("FEE_REF_DOMAIN".equals(tableName) || "FEE_REF_VALUE".equals(tableName)) {
+            // Domain-code select options are embedded in cached table descriptors.
+            descriptorCache.clear();
+        }
     }
 
     public List<SelectOption> lookup(String requestedTable, String requestedColumn, String text, int limit) {
@@ -257,6 +269,10 @@ public class FeeAdminRepository {
             params.put("q", "%" + text.trim().toUpperCase(Locale.ROOT) + "%");
         }
         if (hasColumn(parent, "IS_ACTIVE")) where.add("NVL(T.IS_ACTIVE, 'Y') = 'Y'");
+        if ("FEE_REF_VALUE".equals(parent.tableName())) {
+            where.add("(T.EFFECTIVE_FROM IS NULL OR TRUNC(T.EFFECTIVE_FROM) <= TRUNC(SYSDATE))");
+            where.add("(T.EFFECTIVE_TO IS NULL OR TRUNC(T.EFFECTIVE_TO) >= TRUNC(SYSDATE))");
+        }
         params.put("limit", safeLimit);
         String sql = "SELECT T." + identifier(parent.primaryKeyColumn()) + " AS V, TO_CHAR(T."
                 + identifier(code.name()) + ") AS C, TO_CHAR(T." + identifier(label.name()) + ") AS L FROM "
@@ -312,6 +328,8 @@ public class FeeAdminRepository {
         String sql = "SELECT V.VALUE_CODE AS V, V.VALUE_CODE AS C, NVL(V.NAME_FA, NVL(V.NAME_EN, V.VALUE_CODE)) AS L "
                 + "FROM " + qualified("FEE_REF_VALUE") + " V JOIN " + qualified("FEE_REF_DOMAIN") + " D ON D.DOMAIN_ID=V.DOMAIN_ID "
                 + "WHERE D.DOMAIN_CODE=:domain AND NVL(D.IS_ACTIVE,'Y')='Y' AND NVL(V.IS_ACTIVE,'Y')='Y' "
+                + "AND (V.EFFECTIVE_FROM IS NULL OR TRUNC(V.EFFECTIVE_FROM) <= TRUNC(SYSDATE)) "
+                + "AND (V.EFFECTIVE_TO IS NULL OR TRUNC(V.EFFECTIVE_TO) >= TRUNC(SYSDATE)) "
                 + "ORDER BY NVL(V.SORT_ORDER,999999), V.VALUE_CODE";
         try {
             return jdbc.sql(sql).param("domain", domainCode).query((rs, rowNum) ->

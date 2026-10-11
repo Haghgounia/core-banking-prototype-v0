@@ -46,6 +46,15 @@ class LoanProductFinalUxR25Test {
                 .isInstanceOf(ProductBuilderValidationException.class);
     }
 
+    @Test void interestDiscountDaysFollowTheExplicitPermissionSwitch() {
+        validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of("INTEREST_DISCOUNT_ALLOWED", 1,
+                "INTEREST_DISCOUNT_DAY", 30));
+        validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of("INTEREST_DISCOUNT_ALLOWED", 0));
+        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of(
+                "INTEREST_DISCOUNT_ALLOWED", 0, "INTEREST_DISCOUNT_DAY", 30)))
+                .isInstanceOf(ProductBuilderValidationException.class);
+    }
+
     private static Map<String, Object> repayment() {
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("REPAYMENT_RULE_CODE", "EQUAL_INSTALLMENT");

@@ -34,7 +34,7 @@ const checks = [
  ['version validity is presented in Persian calendar', workspaceTs.includes("fa-IR-u-ca-persian") && workspace.includes('persianValidityDate(')],
  ['pricing children have visible labelled navigation', table.includes('class="child-action"') && table.includes('{{ child.label }}') && tableTs.includes('PRODUCT_PRICING_COMPONENT')],
  ['closing prechecks, settlement and approvals retain distinct child tables', ['DEPOSIT_PRODUCT_CLOSURE_PRECHECK','DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE','DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE'].every(x=>tableTs.includes(x))],
- ['child action navigates programmatically and handles failure', table.includes('openChild(row, child)') && tableTs.includes('await this.router.navigate') && tableTs.includes('اگر نه')===false && tableTs.includes('باز کردن جزئیات انجام نشد')],
+ ['child action uses direct Angular routerLink and retains programmatic error handling', table.includes('childQueryParams(row, child)') && table.includes("['/product-builder/tables', child.table]") && tableTs.includes('await this.router.navigate') && tableTs.includes('باز کردن جزئیات انجام نشد')],
  ['actual child route exists in Angular router', routes.includes('product-builder/tables/:table')],
  ['child page can return to parent rule', table.includes('returnToParentRule()') && tableTs.includes('parentFilterColumn')],
  ['pricing/closing child purpose explained in business language', tableTs.includes('childSectionHelp()') && tableTs.includes('پیش‌شرط‌های بستن') && tableTs.includes('تشکیل‌دهنده این قاعده')],

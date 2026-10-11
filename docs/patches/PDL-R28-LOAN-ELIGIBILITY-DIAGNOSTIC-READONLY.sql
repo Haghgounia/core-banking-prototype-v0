@@ -1,0 +1,39 @@
+-- R28 read-only Oracle diagnostics. Does not change data.
+-- 1. Confirm required tables were created in the PDL schema.
+SELECT OWNER, TABLE_NAME
+FROM ALL_TABLES
+WHERE OWNER = 'PDL'
+  AND TABLE_NAME IN ('PRODUCT_LOAN_WORK_YEAR', 'PRODUCT_LOAN_CODE_REGISTRY', 'LOAN_ELIGIBLE_EMPLOYMENT_TYPE')
+ORDER BY TABLE_NAME;
+
+-- 2. Confirm existing single-value employment column allows NULL.
+-- The R28 migration reconciles this column to NULLABLE = Y where needed.
+-- If still N, the migration did not fully apply; stop UAT and reconcile.
+SELECT OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_LENGTH, NULLABLE
+FROM ALL_TAB_COLUMNS
+WHERE OWNER = 'PDL' AND TABLE_NAME = 'LOAN_ELIGIBILITY_EXTENSION'
+  AND COLUMN_NAME IN ('EMPLOYMENT_TYPE_CODE', 'ELIGIBILITY_RULE_ID')
+ORDER BY COLUMN_NAME;
+
+-- 3. Active contracts available for generating loan product codes.
+SELECT LOAN_TYPE_ID, LOAN_TYPE_CODE, LOAN_TYPE_NAME, LOAN_GROUP, RECORD_STATUS_CODE
+FROM PDL.LOAN_TYPE WHERE RECORD_STATUS_CODE = 'ACTIVE'
+ORDER BY LOAN_GROUP, LOAN_TYPE_NAME;
+
+-- After the migration, these queries should be run in the same schema session.
+-- 4. Active controlled working year (should be a bank-approved four-digit year).
+SELECT SETTING_ID, WORK_YEAR, UPDATED_AT, UPDATED_BY
+FROM PDL.PRODUCT_LOAN_WORK_YEAR ORDER BY SETTING_ID;
+
+-- 5. Generated product codes and their contract/year/serial.
+SELECT R.PRODUCT_ID, R.LOAN_TYPE_ID, L.LOAN_TYPE_CODE, R.WORK_YEAR, R.SERIAL_NO,
+       R.PRODUCT_CODE, P.PRODUCT_STATUS_CODE
+FROM PDL.PRODUCT_LOAN_CODE_REGISTRY R
+JOIN PDL.LOAN_TYPE L ON L.LOAN_TYPE_ID = R.LOAN_TYPE_ID
+JOIN PDL.PRODUCT P ON P.PRODUCT_ID = R.PRODUCT_ID
+ORDER BY R.LOAN_TYPE_ID, R.WORK_YEAR, R.SERIAL_NO;
+
+-- 6. Normalized allowed employment kinds.
+SELECT E.ELIGIBILITY_RULE_ID, E.EMPLOYMENT_TYPE_CODE, E.CREATED_AT
+FROM PDL.LOAN_ELIGIBLE_EMPLOYMENT_TYPE E
+ORDER BY E.ELIGIBILITY_RULE_ID, E.EMPLOYMENT_TYPE_CODE;
