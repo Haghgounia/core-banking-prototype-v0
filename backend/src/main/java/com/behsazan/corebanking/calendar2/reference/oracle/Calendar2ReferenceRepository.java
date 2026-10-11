@@ -397,20 +397,20 @@ public class Calendar2ReferenceRepository {
             params.put("calendarCode",calendarCode.trim().toUpperCase(Locale.ROOT));
         }
         if (text != null && !text.isBlank()) {
-            where.append(" AND (UPPER(E.EVENT_CODE) LIKE :searchText OR UPPER(E.NAME_FA) LIKE :searchText OR UPPER(E.NAME_EN) LIKE :searchText OR UPPER(ET.NAME_FA) LIKE :searchText)");
+            where.append(" AND (UPPER(E.EVENT_CODE) LIKE :searchText OR UPPER(E.NAME_FA) LIKE :searchText OR UPPER(E.NAME_EN) LIKE :searchText OR UPPER(ET.NAME_FA) LIKE :searchText OR UPPER(NVL(SA.SOURCE_CODE,'')) LIKE :searchText OR UPPER(NVL(SA.NAME_FA,'')) LIKE :searchText)");
             params.put("searchText","%"+text.trim().toUpperCase(Locale.ROOT)+"%");
         }
-        String from=" FROM "+cal2Table("EVENT")+" E JOIN "+cal2Table("EVENT_TYPE")+" ET ON ET.EVENT_TYPE_ID=E.EVENT_TYPE_ID";
+        String from=" FROM "+cal2Table("EVENT")+" E JOIN "+cal2Table("EVENT_TYPE")+" ET ON ET.EVENT_TYPE_ID=E.EVENT_TYPE_ID LEFT JOIN "+cal2Table("SOURCE_AUTHORITY")+" SA ON SA.SOURCE_ID=E.SOURCE_ID";
         long total=jdbcClient.sql("SELECT COUNT(*)"+from+where).params(params).query(Long.class).single();
-        String order=switch(sortBy==null?"":sortBy){case "eventCode"->"E.EVENT_CODE";case "eventTypeId"->"ET.NAME_FA";case "nameFa"->"E.NAME_FA";case "nameEn"->"E.NAME_EN";default->"E.EVENT_ID";};
+        String order=switch(sortBy==null?"":sortBy){case "eventCode"->"E.EVENT_CODE";case "eventTypeId"->"ET.NAME_FA";case "nameFa"->"E.NAME_FA";case "nameEn"->"E.NAME_EN";case "sourceId"->"SA.NAME_FA";default->"E.EVENT_ID";};
         params.put("offset",safePage*safeSize); params.put("pageSize",safeSize);
-        String sql="SELECT E.EVENT_ID,E.EVENT_CODE,ET.NAME_FA EVENT_TYPE_NAME,E.NAME_FA,E.NAME_EN,E.DESCRIPTION,E.OFFICIAL_FLAG,E.DEFAULT_HOLIDAY_FLAG,E.ACTIVE_FLAG"+from+where
+        String sql="SELECT E.EVENT_ID,E.EVENT_CODE,ET.NAME_FA EVENT_TYPE_NAME,E.NAME_FA,E.NAME_EN,E.DESCRIPTION,E.SOURCE_ID,SA.SOURCE_CODE,SA.NAME_FA SOURCE_NAME,E.OFFICIAL_FLAG,E.DEFAULT_HOLIDAY_FLAG,E.ACTIVE_FLAG"+from+where
                 +" ORDER BY "+order+" "+normalizedDirection(direction)+" OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY";
         List<Map<String,Object>> rows=jdbcClient.sql(sql).params(params).query((rs,rowNum)->{
             Map<String,Object> row=new LinkedHashMap<>();
             row.put("eventId",rs.getBigDecimal("EVENT_ID")); row.put("eventCode",rs.getString("EVENT_CODE"));
             row.put("eventTypeId",rs.getString("EVENT_TYPE_NAME")); row.put("nameFa",rs.getString("NAME_FA")); row.put("nameEn",rs.getString("NAME_EN"));
-            row.put("description",rs.getString("DESCRIPTION")); row.put("officialFlag","Y".equalsIgnoreCase(rs.getString("OFFICIAL_FLAG")));
+            row.put("description",rs.getString("DESCRIPTION")); row.put("sourceId",rs.getString("SOURCE_NAME")); row.put("officialFlag","Y".equalsIgnoreCase(rs.getString("OFFICIAL_FLAG")));
             row.put("defaultHolidayFlag","Y".equalsIgnoreCase(rs.getString("DEFAULT_HOLIDAY_FLAG"))); row.put("activeFlag","Y".equalsIgnoreCase(rs.getString("ACTIVE_FLAG")));
             row.put("_key",rs.getString("EVENT_ID")); return row;
         }).list();

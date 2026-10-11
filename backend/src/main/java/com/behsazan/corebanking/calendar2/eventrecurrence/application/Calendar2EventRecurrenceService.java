@@ -92,15 +92,28 @@ public class Calendar2EventRecurrenceService {
     }
 
     private static void validateRule(RuleDefinition rule) {
-        if (!"ANNUAL_FIXED_DATE".equals(rule.ruleType()) && !"ONE_TIME_DATE".equals(rule.ruleType())) {
+        boolean relative = "ANNUAL_NTH_WEEKDAY".equals(rule.ruleType());
+        if (!"ANNUAL_FIXED_DATE".equals(rule.ruleType()) && !"ONE_TIME_DATE".equals(rule.ruleType()) && !relative) {
             throw validation("نوع قاعده تکرار پشتیبانی نمی‌شود.", "ruleType");
         }
         if (rule.monthNo() < 1 || rule.monthNo() > 13) throw validation("ماه قاعده معتبر نیست.", "monthNo");
-        if (rule.dayNo() < 1 || rule.dayNo() > 31) throw validation("روز قاعده معتبر نیست.", "dayNo");
+        if (relative) {
+            if (rule.dayNo() != null || rule.yearNo() != null || rule.weekdayNo() == null
+                    || rule.weekdayNo() < 1 || rule.weekdayNo() > 7 || rule.weekdayOrdinal() == null
+                    || (!Set.of(-1, 1, 2, 3, 4, 5).contains(rule.weekdayOrdinal()))) {
+                throw validation("برای تاریخ متغیر، روز هفته ISO و نوبت وقوع در ماه الزامی است و شماره روز/سال وقوع باید خالی باشد.", "weekdayNo");
+            }
+            if (!"EXACT".equals(rule.dayResolutionPolicy())) {
+                throw validation("سیاست روز نامعتبر برای قاعده نسبی فقط EXACT است.", "dayResolutionPolicy");
+            }
+        } else if (rule.dayNo() == null || rule.dayNo() < 1 || rule.dayNo() > 31
+                || rule.weekdayNo() != null || rule.weekdayOrdinal() != null) {
+            throw validation("برای تاریخ ثابت یا یک‌باره، روز ماه الزامی است و روز هفته نسبی باید خالی باشد.", "dayNo");
+        }
         if ("ONE_TIME_DATE".equals(rule.ruleType()) && rule.yearNo() == null) {
             throw validation("سال وقوع برای قاعده یک‌باره الزامی است.", "yearNo");
         }
-        if ("ANNUAL_FIXED_DATE".equals(rule.ruleType()) && rule.yearNo() != null) {
+        if (("ANNUAL_FIXED_DATE".equals(rule.ruleType()) || relative) && rule.yearNo() != null) {
             throw validation("برای قاعده سالانه، سال وقوع باید خالی باشد.", "yearNo");
         }
         if (rule.startYearNo() != null && rule.endYearNo() != null && rule.startYearNo() > rule.endYearNo()) {

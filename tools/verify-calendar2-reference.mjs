@@ -45,6 +45,7 @@ const checks = [
   [registry.includes('روزهای مرجع تقویم') && registry.includes('تاریخ مرجع') && !registry.includes('روزهای Canonical'), 'Persian canonical-day form naming'],
   [controller.includes('/canonical-days/explorer') && controller.includes('/canonical-days/filter-meta') && referenceService.includes('searchCanonicalDays') && referenceRepository.includes('searchCanonicalDays') && referenceRepository.includes('solarCentury') && referenceRepository.includes('W.NAME_FA AS WEEKDAY_NAME') && referenceRepository.includes('PM.NAME_FA AS SOLAR_MONTH_NAME'), 'canonical-day Persian year/century explorer API'],
   [registry.includes('event-recurrence-rules') && registry.includes('ANNUAL_FIXED_DATE') && registry.includes('ONE_TIME_DATE'), 'recurrence-rule descriptor'],
+  [registry.includes('INTERNATIONAL_ORGANIZATION') && registry.includes('مرجع تعریف مناسبت') && ddl.includes('SOURCE_ID                NUMBER(19)') && ddl.includes('FK_CAL2_EVENT_SOURCE') && ddl.includes('IX_CAL2_EVENT_SOURCE'), 'international observance event provenance'],
   [referenceService.includes('validateEventRecurrenceRule') && referenceService.includes('rebuildRecurrenceRuleIfNeeded'), 'recurrence-rule validation and automatic materialization on save'],
   [recurrenceController.includes('/api/v1/calendar2/event-recurrence') && recurrenceController.includes('/rebuild-all') && recurrenceController.includes('/rules') && recurrenceController.includes('/months') && recurrenceController.includes('/occurrences') && recurrenceController.includes('/occurrence-meta'), 'recurrence generation plus business rule/occurrence summary API'],
   [recurrenceService.includes('@Transactional') && recurrenceService.includes('deleteGenerated') && recurrenceService.includes('insertGenerated'), 'transactional recurrence rebuild'],
@@ -60,6 +61,7 @@ const checks = [
   [controller.includes('/events/explorer') && referenceRepository.includes('EVENT_TYPE_NAME') && page.includes('eventTypeControl') && page.includes('eventCalendarControl') && pageHtml.includes('event-filters'), 'event Persian type labels and event/calendar filters'],
   [menu.includes('دیاگرام روابط جداول CAL2') && menu.includes('EVENT_RECURRENCE_RULE') && menu.includes('BUSINESS_CALENDAR_SCHEDULE') && menu.includes('BUSINESS_CALENDAR_EXCEPTION') && menu.includes('BUSINESS_CALENDAR_DAY'), 'CAL2 relationship diagram'],
   [exists('database/oracle/cal2/migrations/0.3.49-fix60-iran-islamic-fixed-events.sql'), 'Iran fixed Islamic-event seed migration'],
+  [exists('database/oracle/cal2/migrations/0.11.0-international-observance-provenance.sql'), 'international observance provenance migration'],
   [uiService.includes('/api/v1/calendar2/event-recurrence/rebuild') && uiService.includes('/api/v1/calendar2/event-recurrence/rules') && uiService.includes('/api/v1/calendar2/event-recurrence/months') && uiService.includes('/api/v1/calendar2/event-recurrence/occurrences') && uiService.includes('/api/v1/calendar2/event-recurrence/occurrence-meta'), 'frontend recurrence and occurrence API client'],
   [registry.includes('business-calendar-schedules') && registry.includes('business-calendar-schedule-days') && registry.includes('business-calendar-exceptions'), 'range schedule, weekly pattern and single-day exception descriptors'],
   [referenceService.includes('initializeBusinessCalendarScheduleIfNeeded') && referenceRepository.includes('initializeBusinessCalendarScheduleDays'), 'seven weekday rows initialized when a schedule is saved'],
@@ -79,7 +81,7 @@ const checks = [
   [config.includes('calendar2: CAL2') && resourceConfig.includes('calendar2: CAL2'), 'CAL2 schema configuration'],
   [schemas.includes('schemas.calendar2') && schemas.includes('تقویم دو (CAL2)'), 'CAL2 system tools schema option'],
   [exists('database/oracle/cal2/00-create-cal2-schema.sql') && exists('database/oracle/cal2/02-grant-cal2-to-application-user.sql'), 'CAL2 schema/grant scripts'],
-  [(ddl.match(/^COMMENT ON COLUMN CAL2\./gm) ?? []).length === 227, '227 CAL2 Persian column comments'],
+  [(ddl.match(/^COMMENT ON COLUMN CAL2\./gm) ?? []).length === 230, '230 CAL2 Persian column comments'],
   [!(/REFERENCES\s+CAL\./i.test(ddl)) && !registry.includes('schemaName = "CAL"') && !controller.includes('/api/v1/calendar/reference'), 'CAL2 runtime/DDL isolated from CAL'],
   [specification.includes('referenceForms: 208') && specification.includes('calendar2ReferenceForms: 19'), 'system specification includes CAL2 counts']
 ];

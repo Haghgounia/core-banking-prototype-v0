@@ -72,7 +72,8 @@ public class Calendar2EventRecurrenceRepository {
                 SELECT R.EVENT_RULE_ID, R.EVENT_ID, E.EVENT_CODE, E.NAME_FA AS EVENT_NAME,
                        R.RULE_TYPE, R.CALENDAR_VARIANT_ID, V.VARIANT_CODE,
                        S.CALENDAR_CODE, S.NAME_FA AS CALENDAR_NAME, M.NAME_FA AS MONTH_NAME,
-                       R.YEAR_NO, R.MONTH_NO, R.DAY_NO, R.START_YEAR_NO, R.END_YEAR_NO,
+                       R.YEAR_NO, R.MONTH_NO, R.DAY_NO, R.WEEKDAY_NO, R.WEEKDAY_ORDINAL,
+                       R.START_YEAR_NO, R.END_YEAR_NO,
                        R.DAY_RESOLUTION_POLICY, R.ACTIVE_FLAG, %s AS GENERATED_OCCURRENCES
                 %s
                 LEFT JOIN (
@@ -263,7 +264,7 @@ public class Calendar2EventRecurrenceRepository {
     public Optional<RuleDefinition> findRule(long ruleId) {
         String sql = """
                 SELECT R.EVENT_RULE_ID, R.EVENT_ID, E.NAME_FA AS EVENT_NAME, R.RULE_TYPE,
-                       R.CALENDAR_VARIANT_ID, R.YEAR_NO, R.MONTH_NO, R.DAY_NO,
+                       R.CALENDAR_VARIANT_ID, R.YEAR_NO, R.MONTH_NO, R.DAY_NO, R.WEEKDAY_NO, R.WEEKDAY_ORDINAL,
                        R.START_YEAR_NO, R.END_YEAR_NO, R.DAY_RESOLUTION_POLICY, R.SOURCE_ID, R.DESCRIPTION,
                        R.ACTIVE_FLAG AS RULE_ACTIVE, E.ACTIVE_FLAG AS EVENT_ACTIVE,
                        E.DEFAULT_HOLIDAY_FLAG
@@ -341,23 +342,37 @@ public class Calendar2EventRecurrenceRepository {
         LinkedHashMap<String, Object> params = new LinkedHashMap<>();
         params.put("variantId", rule.calendarVariantId());
         params.put("monthNo", rule.monthNo());
-        params.put("dayNo", rule.dayNo());
-
         String calendarDate = table("CALENDAR_DATE");
         String policy = rule.dayResolutionPolicy() == null
                 ? "EXACT" : rule.dayResolutionPolicy().trim().toUpperCase(Locale.ROOT);
         params.put("dayResolutionPolicy", policy);
 
-        // FIX89: keep day-resolution policy inside Oracle SQL instead of selecting a Java branch.
-        // This makes the policy actually used by the same statement that counts/inserts candidate dates
-        // and gives one deterministic expression for both EXACT and LAST_DAY_IF_INVALID.
-        where.append(" AND CD.DAY_NO = CASE ")
-                .append("WHEN :dayResolutionPolicy = 'LAST_DAY_IF_INVALID' THEN (")
-                .append("SELECT NVL(MAX(CASE WHEN RX.DAY_NO = :dayNo THEN RX.DAY_NO END), MAX(RX.DAY_NO)) ")
-                .append("FROM ").append(calendarDate).append(" RX ")
-                .append("WHERE RX.CALENDAR_VARIANT_ID = CD.CALENDAR_VARIANT_ID ")
-                .append("AND RX.YEAR_NO = CD.YEAR_NO AND RX.MONTH_NO = CD.MONTH_NO) ")
-                .append("ELSE :dayNo END");
+        if ("ANNUAL_NTH_WEEKDAY".equals(rule.ruleType())) {
+            // Weekday numbering is ISO 8601 (Monday=1 .. Sunday=7). For the
+            // final occurrence, the matching weekday is within the last 7 days
+            // of the month. Both branches use only CAL2 canonical date facts.
+            where.append(" AND EXISTS (SELECT 1 FROM ")
+                    .append(table("CANONICAL_DAY")).append(" WD ")
+                    .append("JOIN ").append(table("WEEKDAY")).append(" W ON W.WEEKDAY_ID = WD.WEEKDAY_ID ")
+                    .append("WHERE WD.DAY_ID = CD.DAY_ID AND W.ISO_WEEKDAY_NO = :weekdayNo)")
+                    .append(" AND ((:weekdayOrdinal > 0 AND FLOOR((CD.DAY_NO - 1) / 7) + 1 = :weekdayOrdinal) ")
+                    .append("OR (:weekdayOrdinal = -1 AND CD.DAY_NO + 7 > (")
+                    .append("SELECT MAX(MD.DAY_NO) FROM ").append(calendarDate).append(" MD ")
+                    .append("WHERE MD.CALENDAR_VARIANT_ID = CD.CALENDAR_VARIANT_ID ")
+                    .append("AND MD.YEAR_NO = CD.YEAR_NO AND MD.MONTH_NO = CD.MONTH_NO)))");
+            params.put("weekdayNo", rule.weekdayNo());
+            params.put("weekdayOrdinal", rule.weekdayOrdinal());
+        } else {
+            params.put("dayNo", rule.dayNo());
+            // FIX89: keep both invalid-day resolution policies within SQL.
+            where.append(" AND CD.DAY_NO = CASE ")
+                    .append("WHEN :dayResolutionPolicy = 'LAST_DAY_IF_INVALID' THEN (")
+                    .append("SELECT NVL(MAX(CASE WHEN RX.DAY_NO = :dayNo THEN RX.DAY_NO END), MAX(RX.DAY_NO)) ")
+                    .append("FROM ").append(calendarDate).append(" RX ")
+                    .append("WHERE RX.CALENDAR_VARIANT_ID = CD.CALENDAR_VARIANT_ID ")
+                    .append("AND RX.YEAR_NO = CD.YEAR_NO AND RX.MONTH_NO = CD.MONTH_NO) ")
+                    .append("ELSE :dayNo END");
+        }
 
         if ("ONE_TIME_DATE".equals(rule.ruleType())) {
             where.append(" AND CD.YEAR_NO = :yearNo");
@@ -389,7 +404,9 @@ public class Calendar2EventRecurrenceRepository {
                 rs.getString("MONTH_NAME"),
                 nullableInteger(rs, "YEAR_NO"),
                 rs.getInt("MONTH_NO"),
-                rs.getInt("DAY_NO"),
+                nullableInteger(rs, "DAY_NO"),
+                nullableInteger(rs, "WEEKDAY_NO"),
+                nullableInteger(rs, "WEEKDAY_ORDINAL"),
                 nullableInteger(rs, "START_YEAR_NO"),
                 nullableInteger(rs, "END_YEAR_NO"),
                 rs.getString("DAY_RESOLUTION_POLICY"),
@@ -426,7 +443,9 @@ public class Calendar2EventRecurrenceRepository {
                 rs.getLong("CALENDAR_VARIANT_ID"),
                 nullableInteger(rs, "YEAR_NO"),
                 rs.getInt("MONTH_NO"),
-                rs.getInt("DAY_NO"),
+                nullableInteger(rs, "DAY_NO"),
+                nullableInteger(rs, "WEEKDAY_NO"),
+                nullableInteger(rs, "WEEKDAY_ORDINAL"),
                 nullableInteger(rs, "START_YEAR_NO"),
                 nullableInteger(rs, "END_YEAR_NO"),
                 rs.getString("DAY_RESOLUTION_POLICY"),

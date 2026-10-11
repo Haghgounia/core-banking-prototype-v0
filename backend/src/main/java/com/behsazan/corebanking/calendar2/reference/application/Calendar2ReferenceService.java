@@ -282,7 +282,19 @@ public class Calendar2ReferenceService {
         Integer endYear = integer(values.get("endYearNo"));
 
         if (month != null && (month < 1 || month > 13)) errors.put("monthNo", "ماه باید بین ۱ تا ۱۳ باشد.");
+        Integer weekdayNo = integer(values.get("weekdayNo"));
+        Integer weekdayOrdinal = integer(values.get("weekdayOrdinal"));
         if (day != null && (day < 1 || day > 31)) errors.put("dayNo", "روز باید بین ۱ تا ۳۱ باشد.");
+        if ("ANNUAL_NTH_WEEKDAY".equals(ruleType)) {
+            if (day != null || year != null) errors.put("dayNo", "در قاعده نسبی، روز ماه و سال وقوع باید خالی باشند.");
+            if (weekdayNo == null || weekdayNo < 1 || weekdayNo > 7) errors.put("weekdayNo", "شماره روز هفته ISO باید بین ۱ تا ۷ باشد.");
+            if (weekdayOrdinal == null || !List.of(-1, 1, 2, 3, 4, 5).contains(weekdayOrdinal)) errors.put("weekdayOrdinal", "نوبت وقوع باید ۱ تا ۵ یا -۱ (آخرین) باشد.");
+            if (startYear != null && endYear != null && startYear > endYear) errors.put("endYearNo", "بازه سال معتبر نیست.");
+            if (!"EXACT".equals(text(values.get("dayResolutionPolicy")))) errors.put("dayResolutionPolicy", "سیاست قاعده نسبی فقط EXACT است.");
+        } else {
+            if (day == null) errors.put("dayNo", "روز ماه الزامی است.");
+            if (weekdayNo != null || weekdayOrdinal != null) errors.put("weekdayNo", "روز هفته نسبی فقط برای قواعد تاریخ متغیر مجاز است.");
+        }
 
         if ("ONE_TIME_DATE".equals(ruleType)) {
             if (year == null) errors.put("yearNo", "برای قاعده یک‌باره، سال وقوع الزامی است.");

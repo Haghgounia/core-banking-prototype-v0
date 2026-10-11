@@ -66,7 +66,10 @@ const checks=[
       &&(uiHtml.includes('فعال‌سازی حساب‌های موفق')||uiHtml.includes('فعال‌سازی فقط فردی'))),
     'supplied HTML / Operational v5 Batch actions are not represented'],
   [uiHtml.includes('Party ID')&&uiHtml.includes('Product Version')&&uiHtml.includes('Request No')&&uiHtml.includes('Account No'),'supplied HTML Bulk grid columns are incomplete'],
-  [uiTs.includes('QARD_SAVINGS')&&uiTs.includes('CURRENT_ACCOUNT')&&uiTs.includes('SHORT_TERM_DEPOSIT')&&uiTs.includes('LONG_TERM_DEPOSIT'),'four deposit families are incomplete in Batch UI'],
+  [semverAtLeast(version,'0.10.0')
+    ? (uiTs.includes('QARD_SAVINGS')&&!uiTs.includes('CURRENT_ACCOUNT')&&!uiTs.includes('SHORT_TERM_DEPOSIT')&&!uiTs.includes('LONG_TERM_DEPOSIT'))
+    : (uiTs.includes('QARD_SAVINGS')&&uiTs.includes('CURRENT_ACCOUNT')&&uiTs.includes('SHORT_TERM_DEPOSIT')&&uiTs.includes('LONG_TERM_DEPOSIT')),
+   'Batch UI family coverage must match Operational v5 QARD-only scope'],
   [routes.includes("path: 'four-deposits/batch-opening'")&&home.includes('/four-deposits/batch-opening')&&shell.includes('/four-deposits/batch-opening')&&breadcrumb.includes('/four-deposits/batch-opening'),'Batch route/navigation is incomplete'],
   [!service.includes('CERTIFICATE')&&!uiHtml.includes('گواهی سپرده'),'Certificate of Deposit leaked into Opening Batch scope'],
   [buildCmd.includes('verify-dps2-deposit-opening-phase6.mjs')&&buildSh.includes('verify-dps2-deposit-opening-phase6.mjs'),'production build does not execute Phase 6 verifier'],
