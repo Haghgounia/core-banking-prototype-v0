@@ -34,12 +34,33 @@ const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const r23Path = path.join(root,'tools/fee-ux-r23/manifest.json');
 const r23Manifest = fs.existsSync(r23Path) ? JSON.parse(fs.readFileSync(r23Path,'utf8')) : null;
 const r23Changes = new Map((r23Manifest?.files ?? []).map(f => [f.path, f]));
+const r3bPath = path.join(root,'tools/fee-r3b/manifest.json');
+const r3bManifest = fs.existsSync(r3bPath) ? JSON.parse(fs.readFileSync(r3bPath,'utf8')) : null;
+const r3bChanges = new Map((r3bManifest?.files ?? []).map(f => [f.path, f]));
+const r3b1Path = path.join(root,'tools/fee-r3b1/manifest.json');
+const r3b1Manifest = fs.existsSync(r3b1Path) ? JSON.parse(fs.readFileSync(r3b1Path,'utf8')) : null;
+const r3b1Changes = new Map((r3b1Manifest?.files ?? []).map(f => [f.path,f]));
+
 check(manifest.files.length===6, 'patch must be limited to six FEE UX files');
 for(const f of manifest.files){
   check(f.path.startsWith(base), 'patch must not target any other module');
   const got=digest(fs.readFileSync(path.join(root,f.path)));
   const r23 = r23Changes.get(f.path);
-  check(got===f.updatedSha256 || (r23?.baseSha256===f.updatedSha256 && got===r23.updatedSha256),
+  const r3b = r3bChanges.get(f.path);
+  const previous = r23?.baseSha256 === f.updatedSha256 ? r23.updatedSha256 : f.updatedSha256;
+  const signedR3b = r3b?.before === previous && got === r3b.after &&
+    digest(fs.readFileSync(path.join(root,'tools/fee-r3b/updated/'+r3b.asset))) === r3b.after;
+  const r3b1 = r3b1Changes.get(f.path);
+  const signedR3b1 = r3b?.before === previous && r3b1?.before === r3b.after && got === r3b1.after &&
+    digest(fs.readFileSync(path.join(root,'tools/fee-r3b/updated/'+r3b.asset))) === r3b.after &&
+    digest(fs.readFileSync(path.join(root,'tools/fee-r3b1/base/'+r3b1.asset))) === r3b1.before &&
+    digest(fs.readFileSync(path.join(root,'tools/fee-r3b1/updated/'+r3b1.asset))) === r3b1.after;
+  const signedR3b1Direct = r3b1?.before === previous && got === r3b1.after &&
+    digest(fs.readFileSync(path.join(root,'tools/fee-r3b1/base/'+r3b1.asset))) === r3b1.before &&
+    digest(fs.readFileSync(path.join(root,'tools/fee-r3b1/updated/'+r3b1.asset))) === r3b1.after &&
+    (!r23 || r23.baseSha256!==f.updatedSha256 ||
+      digest(fs.readFileSync(path.join(root,'tools/fee-ux-r23/updated/'+r23.filename)))===r23.updatedSha256);
+  check(got===f.updatedSha256 || (r23?.baseSha256===f.updatedSha256 && got===r23.updatedSha256) || signedR3b || signedR3b1 || signedR3b1Direct,
     'unexpected source change in '+f.path);
 }
 console.log('FEE_UX_R22_STATIC_PASS: full width searchable definition/version browser; selection overview; editor-only metadata CRUD; FK/dirty/deep-link guards; six FEE-only files; FEE2/PDL unaffected.');

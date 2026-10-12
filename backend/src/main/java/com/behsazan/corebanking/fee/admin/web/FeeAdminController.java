@@ -48,8 +48,9 @@ public class FeeAdminController {
     @GetMapping("/tables/{table}/lookups/{column}")
     List<SelectOption> lookup(@PathVariable String table, @PathVariable String column,
                               @RequestParam(required = false) String text,
-                              @RequestParam(defaultValue = "500") int limit) {
-        return service.lookup(table, column, text, limit);
+                              @RequestParam(defaultValue = "500") int limit,
+                              @RequestParam(required = false) Long versionId) {
+        return service.lookup(table, column, text, limit, versionId);
     }
 
     @PostMapping("/tables/{table}/rows")

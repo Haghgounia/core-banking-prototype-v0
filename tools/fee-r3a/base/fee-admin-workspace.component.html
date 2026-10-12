@@ -1,0 +1,41 @@
+<section class="fee-workspace-page" dir="rtl">
+  <nav class="crumb"><a routerLink="/fee"><mat-icon>payments</mat-icon>مدیریت کارمزد</a><mat-icon>chevron_left</mat-icon><span>{{ workspace()?.title ?? 'محیط کاری' }}</span></nav>
+  @if (workspace(); as work) {
+    <header class="work-head card">
+      <div class="work-title"><mat-icon>{{work.icon}}</mat-icon><div><h1>{{ work.title }}</h1><p>{{ work.summary }}</p></div></div>
+      <div class="work-count">{{ available() }} / {{ work.tables.length }} <small>جدول در دسترس</small></div>
+    </header>
+    <section class="work-help card"><mat-icon>tips_and_updates</mat-icon><span>{{ work.hint }}</span></section>
+    @if (work.key === 'catalog' || work.key === 'calculation') {
+      <section class="work-simulator card"><div><h2>طراح یکپارچه FEE — R2</h2><p>انتخاب تعریف و نسخه، سپس مدیریت مستقیم رکوردهای وابسته بدون ورود شناسه‌ها. مسیرهای فنی قبلی همچنان در پایین قابل دسترسی‌اند.</p></div><a [routerLink]="['/fee/design', work.key === 'catalog' ? 'catalog' : 'rules']">ورود به طراح <mat-icon>arrow_back</mat-icon></a></section>
+    }
+    @if (work.primaryAction === 'simulator') {
+      <section class="work-simulator card"><div><h2>طراح و شبیه‌ساز FEE</h2><p>شبیه‌سازی از داده‌های فرم انجام می‌شود. قابلیت ذخیره پیش‌نویس در این Prototype هنوز Persistence واقعی ندارد.</p></div><a routerLink="/fee/simulator">ورود به شبیه‌ساز <mat-icon>arrow_back</mat-icon></a></section>
+    }
+    @if (work.primaryAction === 'reference') {
+      <section class="work-simulator card"><div><h2>مرجع کدها و مقادیر</h2><p>دامنه و مقادیر آن در یک فرم Master–Detail مدیریت می‌شوند.</p></div><a routerLink="/fee/references">ورود به مدیریت اطلاعات پایه <mat-icon>arrow_back</mat-icon></a></section>
+    }
+    @if (error()) { <div class="error-banner" role="alert">{{ error() }}</div> }
+    @if (loading()) { <p class="muted">در حال دریافت وضعیت جداول...</p> }
+    <section class="work-steps" aria-label="فرم‌های این محیط کاری">
+      @for (tableName of work.tables; track tableName; let i = $index) {
+        @if (table(tableName); as item) {
+          @if (item.available) {
+            <a class="work-step card" [routerLink]="['/fee', 'tables', tableName]">
+              <span class="step-no">{{ i + 1 }}</span><div class="step-details"><h3>{{ item.title }}</h3><code dir="ltr">{{ tableName }}</code></div>
+              <span class="step-meta">{{ item.rowCount }} رکورد</span>
+              <span class="step-badge" [class.readonly]="!item.editable">{{ item.editable ? 'نگهداری' : 'فقط مشاهده' }}</span>
+              <mat-icon>arrow_back</mat-icon>
+            </a>
+          } @else {
+            <div class="work-step card unavailable"><span class="step-no">{{ i + 1 }}</span><div class="step-details"><h3>{{ item.title }}</h3><code dir="ltr">{{ tableName }}</code></div><span class="step-meta">جدول در Oracle موجود نیست</span><mat-icon>block</mat-icon></div>
+          }
+        } @else {
+          <div class="work-step card unavailable"><span class="step-no">{{ i + 1 }}</span><code dir="ltr">{{ tableName }}</code><span>تعریف در کاتالوگ FEE یافت نشد</span></div>
+        }
+      }
+    </section>
+  } @else {
+    <section class="card work-missing"><h1>محیط کاری یافت نشد</h1><a routerLink="/fee">بازگشت به مدیریت کارمزد</a></section>
+  }
+</section>

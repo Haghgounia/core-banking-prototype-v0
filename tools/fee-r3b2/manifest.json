@@ -1,0 +1,15 @@
+{
+  "id": "FEE_R3B2_SAFE_UAT_TESTS",
+  "files": [
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/fee/admin/application/FeeChargeStageR3B2ServiceContractTest.java",
+      "asset": "FeeChargeStageR3B2ServiceContractTest.java",
+      "sha256": "de78ff7e5fd459b1bbd6382f024d5290c81faf8c1221c1a83883aedc66b0b958"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/fee/admin/application/FeeChargeStageR3B2OracleUatTest.java",
+      "asset": "FeeChargeStageR3B2OracleUatTest.java",
+      "sha256": "32f2395940ee1bbd4f15fbf5ffafe70d1dfc7502ca77d9bf24a165e0128f4831"
+    }
+  ]
+}

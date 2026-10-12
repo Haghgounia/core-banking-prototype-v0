@@ -1,0 +1,34 @@
+{
+  "id": "FEE_R3A_COLLECTION_STUDIO",
+  "files": [
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-workspace.component.ts",
+      "name": "fee-admin-workspace.component.ts",
+      "before": "dcfa6d33cfca755236addf7af6bf349743a915ffd17c28386622aa96ac749b1e",
+      "after": "00fca0470e2aeaf2f3206ad090e72d6dd0fbea765889bd2e27e178672b8c872d"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-workspace.component.html",
+      "name": "fee-admin-workspace.component.html",
+      "before": "02e784a191420a6f410c77e5a466dd94923759e3cdc0c470e1534fc2d7ad2254",
+      "after": "b96a4f76f2058dfc052a949809b78b11c64ae4ae5cb13aeec616badbfa96bb46"
+    }
+  ],
+  "newFiles": [
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-collection-studio.component.ts",
+      "name": "fee-collection-studio.component.ts",
+      "sha256": "d23d38c9b9b631ee6e755d582ffda9b1019fa6187970a12f42821cedfaf80f2f"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-collection-studio.component.html",
+      "name": "fee-collection-studio.component.html",
+      "sha256": "8b4b5d0e1273903276a5660b432612aa33438502b73939418b8651179cb55bd9"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-collection-studio.component.scss",
+      "name": "fee-collection-studio.component.scss",
+      "sha256": "9cfa0ed66e0bd4d8b95761ae319c367a30f870c8c50078cbd0f058a2d9d59a79"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "FEE_R3B1_COMPONENT_EMPTY_STATE",
+  "basedOn": "FEE R3-B / FEE R2.3",
+  "files": [
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-table.component.ts",
+      "asset": "fee-admin-table.component.ts",
+      "before": "15747d3ca4738fb98e2d802f0f488ef69e8d6e12a7e6e7c62063f37e0c32fab4",
+      "after": "01441a86b8e3287c1631aa9bd4a9c5ae5310f2e349c0fca349e1bdded72b7e33"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-table.component.html",
+      "asset": "fee-admin-table.component.html",
+      "before": "5f00cdebb02f289f09422100ec14ff750140abd3804c22283d142d33104ded3c",
+      "after": "90069c8824e644a53225ebab65f6a5136bdefb9477656e8b4491560227262c3c"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-collection-studio.component.html",
+      "asset": "fee-collection-studio.component.html",
+      "before": "3bd6b2487c94af2eddda66c00d0f8651aa49de207672e86df9cc064494846095",
+      "after": "601c4265e1f208a70a25044a48f090dd1d4799f2f10542fdb6086a211e49cf0d"
+    },
+    {
+      "path": "tools/verify-fee-r3b.mjs",
+      "asset": "verify-fee-r3b.mjs",
+      "before": "63db42b6e55fe34e7878a1edafad740c7979a33041d3692475f6845bf05e799a",
+      "after": "ea8d6eb5cf03824d47aaecbee5d6bb5126d730f36da4f98bc8fdd5a766746516"
+    },
+    {
+      "path": "tools/verify-fee-r3a.mjs",
+      "asset": "verify-fee-r3a.mjs",
+      "before": "b10dbc18d97723da45581bc653d0a831d29a62e060449b4d17e2a1f2e09612fb",
+      "after": "3367e8c7e96460ef6ec18c905dbc52fc212da84762a1d7e05937d26fc9ae2017"
+    },
+    {
+      "path": "tools/verify-fee-ux-r22.mjs",
+      "asset": "verify-fee-ux-r22.mjs",
+      "before": "33c5117b3ec5770e3102ccc9a45498209033d3bf750d892cc3317869169c6a9b",
+      "after": "e40745cddb56956ffbfef59988bd93e2b6a9c41792fcfdb86ccfcc7cfecaabb4"
+    },
+    {
+      "path": "tools/verify-fee-ux-r23.mjs",
+      "asset": "verify-fee-ux-r23.mjs",
+      "before": "9d14a7f125cb97fa77c0afd2a5488a6bfec0abca35c6d5aa19a4acb402ec4f96",
+      "after": "9e799e574004781e1e18c6d77021d7c09196983d5968f4604509fab834126fe7"
+    }
+  ],
+  "newFiles": []
+}

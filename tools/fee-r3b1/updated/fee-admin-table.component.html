@@ -1,0 +1,205 @@
+<section class="fee-table-page" [class.embedded-mode]="embedded" [class.editor-only]="editorOnly" dir="rtl">
+  @if (!embedded) {
+  <nav class="breadcrumb">
+    <a routerLink="/fee"><mat-icon>payments</mat-icon><span>مدیریت کارمزد</span></a>
+    <mat-icon>chevron_left</mat-icon>
+    @if (currentWorkspace(); as workspace) {<a [routerLink]="currentWorkspaceRoute()">{{ workspace.title }}</a>}
+    @else {<span>{{ descriptor()?.groupTitle ?? '' }}</span>}
+    <mat-icon>chevron_left</mat-icon><span>{{ descriptor()?.title ?? tableName() }}</span>
+  </nav>
+}
+
+  @if (!editorOnly) {
+  <header class="page-header card" [class.embedded-header]="embedded">
+    <div>
+      <div class="title-row"><h1 class="page-title">{{ embedded ? "اطلاعات " + (descriptor()?.title ?? tableName()) : (descriptor()?.title ?? tableName()) }}</h1>@if (descriptor(); as d) {<span class="mode" [class.readonly]="!d.editable">{{ d.editable ? 'فرم نگهداری' : 'Runtime / فقط مشاهده' }}</span>}</div>
+      <p class="muted">مشاهده و نگهداری اطلاعات {{ descriptor()?.title ?? 'کارمزد' }} بر اساس ساختار معتبر FEE.</p>
+      @if (descriptor(); as d) { <app-database-tables [tables]="[d.schemaName + '.' + d.tableName]" /> }
+    </div>
+    @if (descriptor()?.editable) {
+      <button mat-flat-button color="primary" (click)="create()"><mat-icon>add</mat-icon>افزودن رکورد</button>
+    }
+  </header>
+  }
+
+  @if (isReferenceTable()) {
+    <div class="filter-note card"><mat-icon>dataset</mat-icon><span>نگهداری یکپارچه کدهای مرجع در یک صفحه در دسترس است؛ برای جلوگیری از اختلال در قواعد، غیرفعال‌سازی بر حذف فیزیکی ترجیح دارد.</span><a routerLink="/fee/references">ورود به مدیریت اطلاعات پایه کارمزد</a></div>
+  }
+
+  @if (isCalculationRule() && !embedded) {
+    <section class="calculation-strategy-panel card">
+      <div class="strategy-panel-head">
+        <div>
+          <h2>نوع محاسبه کارمزد</h2>
+          <p>نوع محاسبه را مستقیماً از این بخش انتخاب کنید. انتخاب هر گزینه فرم ثبت «قاعده محاسبه» را باز می‌کند و استراتژی متناظر را از قبل مقداردهی می‌کند.</p>
+        </div>
+        <div class="strategy-help"><mat-icon>info</mat-icon><span>برای درصد، نرخ به‌صورت اعشاری ذخیره می‌شود؛ 0.002 = 0.2٪</span></div>
+      </div>
+      <div class="strategy-grid">
+        @for (strategy of calculationStrategies; track strategy.code) {
+          <button type="button" class="strategy-card" (click)="createCalculation(strategy.code)">
+            <span class="strategy-icon"><mat-icon>{{ strategy.icon }}</mat-icon></span>
+            <span class="strategy-copy"><strong>{{ strategy.title }}</strong><small>{{ strategy.description }}</small><code dir="ltr">{{ strategy.code }}</code></span>
+            <mat-icon class="strategy-open">arrow_back</mat-icon>
+          </button>
+        }
+      </div>
+      <div class="strategy-related">
+        <span>فرم‌های تکمیلی:</span>
+        <a [routerLink]="['/fee/tables', 'FEE_CALCULATION_TIER']"><mat-icon>stairs</mat-icon>پله‌های محاسبه</a>
+        <a [routerLink]="['/fee/tables', 'FEE_RULE_COMPONENT']"><mat-icon>account_tree</mat-icon>اجزای قاعده ترکیبی</a>
+        <a [routerLink]="['/fee/tables', 'FEE_INPUT_DEFINITION']"><mat-icon>input</mat-icon>ورودی‌های محاسبه</a>
+      </div>
+    </section>
+  }
+
+  @if (isCalculationRule() && embedded) {
+    <section class="compact-strategy card">
+      <div><strong>ایجاد قاعده محاسبه جدید</strong><small>روش را انتخاب کنید تا فرم در همین صفحه با مقدار اولیه باز شود.</small></div>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>روش محاسبه</mat-label>
+        <mat-select (selectionChange)="createCalculation($event.value)">
+          @for (strategy of calculationStrategies; track strategy.code) {<mat-option [value]="strategy.code">{{ strategy.title }}</mat-option>}
+        </mat-select>
+      </mat-form-field>
+    </section>
+  }
+
+  @if (filterColumn() && filterValue() && !embedded) {
+    <div class="filter-note card"><mat-icon>filter_alt</mat-icon><span>فیلتر فعال:</span><code dir="ltr">{{ filterColumn() }} = {{ filterValue() }}</code></div>
+  }
+  @if (descriptor() && !descriptor()!.editable) {
+    <div class="runtime-note card"><mat-icon>lock</mat-icon><span>این جدول خروجی Runtime/ممیزی است و برای جلوگیری از تغییر رکوردهای اجرایی، در فرم عمومی فقط خواندنی است.</span></div>
+  }
+  @if (error()) { <div class="error-banner">{{ error() }}</div> }
+  @if (loading()) { <mat-progress-bar mode="indeterminate" /> }
+
+  <div class="workspace" [class.editor-open]="editorOpen()">
+    @if (!editorOnly) {
+    <article class="list-card card">
+      <div class="toolbar">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>جستجو در رکوردها</mat-label><mat-icon matPrefix>search</mat-icon>
+          <input matInput [formControl]="searchControl" (keyup.enter)="search(0)">
+        </mat-form-field>
+        <button mat-stroked-button (click)="search(0)"><mat-icon>search</mat-icon>جستجو</button>
+        <span class="baseline">{{ embedded ? 'نتایج در محدوده انتخابی: ' + total() : 'Seed پایه: ' + (descriptor()?.baselineRows ?? 0) }}</span>
+      </div>
+
+      <div class="grid-wrap">
+        <table class="db-grid">
+          <thead><tr>@for (column of gridColumns(); track column.name) {<th>{{ column.label }}</th>}<th class="actions-cell">عملیات</th></tr></thead>
+          <tbody>
+            @for (row of rows(); track row[descriptor()?.primaryKeyColumn ?? '']) {
+              <tr [class.picked]="selectable && chosenRowId === rowId(row)">
+                @for (column of gridColumns(); track column.name) {<td [title]="displayValue(row[column.name], column)">{{ displayValue(row[column.name], column) }}</td>}
+                <td class="actions-cell">
+                  @if (selectable) { <button mat-icon-button type="button" (click)="pick(row)" [attr.aria-label]="'انتخاب ' + (descriptor()?.title ?? tableName())" title="انتخاب برای مشاهده جزئیات"><mat-icon>done</mat-icon></button> }
+                  <button mat-icon-button (click)="open(row)" [title]="descriptor()?.editable ? 'ویرایش' : 'مشاهده'"><mat-icon>{{ descriptor()?.editable ? 'edit' : 'visibility' }}</mat-icon></button>
+                  @if (descriptor()?.editable && canHardDelete()) {<button mat-icon-button (click)="remove(row)" title="حذف"><mat-icon>delete</mat-icon></button>}
+                </td>
+              </tr>
+            } @empty {<tr><td [attr.colspan]="gridColumns().length + 1" class="empty">رکوردی یافت نشد.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      <footer class="pager"><span>{{ total() }} رکورد — صفحه {{ page() + 1 }} از {{ totalPages() }}</span><div><button mat-icon-button (click)="previous()" [disabled]="page()===0"><mat-icon>chevron_right</mat-icon></button><button mat-icon-button (click)="next()" [disabled]="page()+1>=totalPages()"><mat-icon>chevron_left</mat-icon></button></div></footer>
+    </article>
+    }
+
+    @if (editorOpen()) {
+      <aside class="editor card">
+        @if (!editorOnly) {
+        <header><div><mat-icon>{{ descriptor()?.editable ? (editingId()===null ? 'add_circle' : 'edit') : 'visibility' }}</mat-icon><strong>{{ descriptor()?.editable ? editorTitle() : 'جزئیات رکورد' }}</strong></div><div class="editor-header-actions"><button mat-icon-button (click)="toggleTechnicalDetails()" [title]="showTechnicalDetails() ? 'پنهان‌کردن مشخصات فنی' : 'نمایش مشخصات فنی'" type="button"><mat-icon>code</mat-icon></button><button mat-icon-button (click)="requestCloseEditor()" title="بستن" type="button"><mat-icon>close</mat-icon></button></div></header>
+        }
+        @if (descriptor()?.editable) {
+          <form [formGroup]="form" (ngSubmit)="save()">
+            <div class="fields">
+              @for (column of editableColumns(); track column.name) {
+                @if (calculationColumnVisible(column)) {
+                <div class="field" [class.wide]="column.dataType==='CLOB' || (column.length ?? 0)>600" [class.strategy-field]="isCalculationRule() && column.name === 'CALCULATION_STRATEGY_CODE'">
+                  @if (isFeeFeatureSelector(column)) {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                      <mat-label>ویژگی کارمزد</mat-label>
+                      <input matInput [formControl]="featureSearchControl" [matAutocomplete]="featureOptions"
+                        placeholder="جست‌وجوی نام فارسی یا کد ویژگی" autocomplete="off" aria-label="جست‌وجوی ویژگی کارمزد">
+                      <mat-icon matSuffix>search</mat-icon>
+                    </mat-form-field>
+                    @if (control(column).touched && control(column).hasError('required')) {
+                      <small class="catalog-field-error" role="alert">لطفاً یک ویژگی معتبر از فهرست انتخاب کنید.</small>
+                    }
+                    <mat-autocomplete #featureOptions="matAutocomplete" [displayWith]="featureDisplay"
+                      (optionSelected)="chooseFeeFeature($event.option.value)">
+                      @for (option of filteredFeeFeatures(); track option.value) {
+                        <mat-option [value]="option"><span>{{option.label}}</span><small class="feature-option-code" dir="ltr">{{option.code}}</small></mat-option>
+                      } @empty {<mat-option disabled>ویژگی مطابق جست‌وجو پیدا نشد</mat-option>}
+                    </mat-autocomplete>
+                    <small class="business-hint">برای ثبت، یکی از ویژگی‌های فهرست را انتخاب کنید؛ شناسه فنی به‌صورت خودکار ذخیره می‌شود.</small>
+                  } @else if (isSelect(column)) {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                      <mat-label>{{ displayColumnLabel(column) }}</mat-label>
+                      <mat-select [formControl]="control(column)" (selectionChange)="onSelectChanged(column, $event.value)">
+                        @if (column.nullable) {<mat-option [value]="null">{{ isStageComponentField(column) ? 'بدون مؤلفه' : '—' }}</mat-option>}
+                        @for (option of options(column); track option.value) {<mat-option [value]="option.value">{{ optionText(option) }}</mat-option>}
+                      </mat-select>
+                      @if (control(column).touched && control(column).hasError('required')) {<mat-error>انتخاب این فیلد الزامی است.</mat-error>}
+                    </mat-form-field>
+                    @if (isStageComponentField(column)) {
+                      @if (lookupsLoading()) {
+                        <small class="business-hint" role="status">در حال دریافت مؤلفه‌های نسخه انتخابی...</small>
+                      } @else if (lookupFailures().includes('CHARGE_COMPONENT_ID')) {
+                        <small class="catalog-field-error" role="alert">دریافت مؤلفه‌های نسخه ناموفق بود. برای بررسی مجدد، فرم را بسته و دوباره باز کنید؛ فهرست خالی به معنی نبود مؤلفه نیست.</small>
+                      } @else if (options(column).length === 0) {
+                        <small class="business-hint" role="status">برای نسخه انتخابی مؤلفه‌ای در فهرست یافت نشد. انتخاب «بدون مؤلفه» مجاز است.</small>
+                        @if (relatedDefinitionId && filterValue()) {
+                          <a class="business-hint" [routerLink]="['/fee/design/rules']" [queryParams]="{definitionId: relatedDefinitionId, versionId: filterValue(), tab: 'charge'}">تعریف مؤلفه در طراح قواعد</a>
+                        }
+                      } @else {
+                        <small class="business-hint">مؤلفه اختیاری است و فقط از مؤلفه‌های نسخه جاری قابل انتخاب است.</small>
+                      }
+                    }
+                  } @else if (column.dataType === 'DATE' || column.dataType.startsWith('TIMESTAMP')) {
+                    <label class="date-field"><span>{{ displayColumnLabel(column) }}</span><app-persian-date-input [formControl]="control(column)" [withTime]="column.dataType.startsWith('TIMESTAMP')" /></label>
+                    @if (control(column).touched && control(column).hasError('required')) {<small class="catalog-field-error" role="alert">تکمیل تاریخ الزامی است.</small>}
+                  } @else if (column.dataType === 'CLOB' || (column.length ?? 0)>600) {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>{{ displayColumnLabel(column) }}</mat-label><textarea matInput rows="4" [formControl]="control(column)"></textarea>
+                      @if (control(column).touched && control(column).hasError('required')) {<mat-error>تکمیل این فیلد الزامی است.</mat-error>}
+                    </mat-form-field>
+                  } @else {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>{{ displayColumnLabel(column) }}</mat-label><input matInput [type]="column.dataType.startsWith('NUMBER') ? 'number' : 'text'"
+                      [attr.step]="column.dataType.startsWith('NUMBER') ? 'any' : null"
+                      [attr.list]="isDefinitionCodeField(column) ? definitionCodeListId(column) : null"
+                      [formControl]="control(column)">
+                      @if (control(column).touched && control(column).hasError('required')) {<mat-error>تکمیل این فیلد الزامی است.</mat-error>}
+                    </mat-form-field>
+                    @if (isDefinitionCodeField(column)) {
+                      <datalist [id]="definitionCodeListId(column)">
+                        @for (suggestion of codeOptions(column); track suggestion) {<option [value]="suggestion"></option>}
+                      </datalist>
+                      <small class="business-hint">کدهای ثبت‌شده پیشنهاد می‌شوند؛ ورود کد جدید نیز مجاز است.</small>
+                    }
+                  }
+                  @if (calculationFieldHint(column); as hint) { <small class="business-hint" dir="rtl">{{ hint }}</small> }
+                  @if (showTechnicalDetails()) {<small dir="ltr">{{ column.name }} · {{ column.dataType }}@if(column.domainCode){ · REF: {{column.domainCode}}}@if(column.foreignKey){ · FK: {{column.parentTable}}}</small>}
+                </div>
+                }
+              }
+            </div>
+            <footer class="editor-actions">
+              @if (editorOnly) {<button mat-button type="button" class="editor-advanced-toggle" (click)="toggleTechnicalDetails()"
+                [attr.aria-expanded]="showTechnicalDetails()"><mat-icon>code</mat-icon>{{showTechnicalDetails() ? 'پنهان‌کردن جزئیات فنی' : 'جزئیات فنی'}}</button>}
+              <div class="editor-primary-actions"><button mat-stroked-button type="button" (click)="requestCloseEditor()">انصراف</button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="saving()"><mat-icon>save</mat-icon>ذخیره</button></div>
+            </footer>
+          </form>
+        } @else if (selectedRow(); as row) {
+          <div class="detail-fields">
+            @for (column of descriptor()!.columns; track column.name) {
+              <div class="detail-field" [class.wide]="column.dataType==='CLOB'"><span>{{ column.label }}</span><strong>{{ fieldValue(row, column) }}</strong>@if (showTechnicalDetails()) {<small dir="ltr">{{ column.name }} · {{ column.dataType }}</small>}</div>
+            }
+          </div>
+        }
+      </aside>
+    }
+  </div>
+</section>

@@ -1,0 +1,132 @@
+<section class="fee-collection-studio" dir="rtl" aria-label="محیط اخذ، وصول و ثبت حسابداری کارمزد">
+  <div class="collection-shortcuts">
+    <span><mat-icon>account_tree</mat-icon>پیکربندی وابسته به نسخه کارمزد</span>
+    <div class="collection-shortcut-links">
+      <a routerLink="/fee/design/catalog" [queryParams]="queryContext()">کاتالوگ و نسخه‌ها <mat-icon>open_in_new</mat-icon></a>
+      <a routerLink="/fee/design/rules" [queryParams]="queryContext()">طراحی قواعد محاسبه <mat-icon>open_in_new</mat-icon></a>
+    </div>
+  </div>
+
+  @if(error()){<div class="collection-error" role="alert"><mat-icon>error_outline</mat-icon>{{error()}}</div>}
+  @if(notice()){<div class="collection-notice" role="status"><mat-icon>check_circle_outline</mat-icon>{{notice()}}</div>}
+
+  <section class="collection-context card" aria-label="انتخاب زمینه پیکربندی">
+    <div class="collection-context-head"><h2>تعریف و نسخه جاری</h2><small>تمام قواعد این بخش فقط برای نسخه انتخابی نمایش داده می‌شوند.</small></div>
+    <div class="collection-context-cards">
+      <button type="button" class="context-pick" [class.picked]="!!definitionId()" (click)="showSelector('definition')" [attr.aria-expanded]="selectionPanel()==='definition'">
+        <span class="pick-no">۱</span>
+        <span class="pick-detail"><small>تعریف کارمزد</small><strong>{{nameDefinition(selectedDefinition())}}</strong>
+          @if(selectedDefinition()){<small dir="ltr">{{display(selectedDefinition(),'FEE_CODE')}}</small>}</span>
+        <mat-icon>expand_more</mat-icon>
+      </button>
+      <button type="button" class="context-pick" [class.picked]="!!versionId()" [disabled]="!definitionId()" (click)="showSelector('version')" [attr.aria-expanded]="selectionPanel()==='version'">
+        <span class="pick-no">۲</span>
+        <span class="pick-detail"><small>نسخه کارمزد</small><strong>{{nameVersion(selectedVersion())}}</strong>
+          @if(selectedVersion()){<small>{{display(selectedVersion(),'FEE_PLAN_NAME','')}}</small>}</span>
+        <mat-icon>expand_more</mat-icon>
+      </button>
+    </div>
+
+    @if(selectionPanel()==='definition'){
+      <div class="context-search-results" aria-label="انتخاب تعریف کارمزد">
+        <div class="context-search-row"><label for="fee-collection-def-search">نام یا کد کارمزد</label>
+          <div class="context-search-box"><input id="fee-collection-def-search" [formControl]="definitionSearch" (keyup.enter)="loadDefinitions(0)" placeholder="جست‌وجو در تعاریف کارمزد"/>
+            <button type="button" (click)="loadDefinitions(0)" aria-label="جست‌وجوی تعریف کارمزد"><mat-icon>search</mat-icon></button></div>
+        </div>
+        <p class="select-meta">{{definitionTotal()}} تعریف — صفحه {{definitionPage()+1}} از {{totalPages(definitionTotal())}}</p>
+        @if(definitionOutsidePage()){<p class="pinned">تعریف انتخابی خارج از صفحه جاری: {{nameDefinition(selectedDefinition())}}</p>}
+        @if(loadingDefinitions()){<p class="select-meta">در حال دریافت تعاریف...</p>}
+        <div class="context-options">
+          @for(r of definitions();track r['FEE_DEFINITION_ID']){
+            <button type="button" [class.selected]="definitionId()===rowId(r,'FEE_DEFINITION_ID')" (click)="selectDefinition(r)">
+              <strong>{{nameDefinition(r)}}</strong><small dir="ltr">{{display(r,'FEE_CODE')}}</small>
+              @if(definitionId()===rowId(r,'FEE_DEFINITION_ID')){<mat-icon>check_circle</mat-icon>}
+            </button>
+          } @empty {<p class="context-empty">تعریفی یافت نشد.</p>}
+        </div>
+        <div class="context-pager"><button type="button" [disabled]="definitionPage()===0 || loadingDefinitions()" (click)="loadDefinitions(definitionPage()-1)">قبلی</button>
+          <button type="button" [disabled]="definitionPage()+1>=totalPages(definitionTotal()) || loadingDefinitions()" (click)="loadDefinitions(definitionPage()+1)">بعدی</button></div>
+      </div>
+    } @else if(selectionPanel()==='version' && definitionId()){
+      <div class="context-search-results" aria-label="انتخاب نسخه تعریف کارمزد">
+        <div class="context-search-row"><label for="fee-collection-version-search">شماره نسخه</label>
+          <div class="context-search-box"><input id="fee-collection-version-search" [formControl]="versionSearch" (keyup.enter)="loadVersions(0)" placeholder="جست‌وجوی نسخه"/>
+            <button type="button" (click)="loadVersions(0)" aria-label="جست‌وجوی نسخه"><mat-icon>search</mat-icon></button></div>
+        </div>
+        <p class="select-meta">{{versionTotal()}} نسخه — صفحه {{versionPage()+1}} از {{totalPages(versionTotal())}}</p>
+        @if(versionOutsidePage()){<p class="pinned">نسخه انتخابی خارج از صفحه جاری: {{nameVersion(selectedVersion())}}</p>}
+        @if(loadingVersions()){<p class="select-meta">در حال دریافت نسخه‌ها...</p>}
+        <div class="context-options">
+          @for(r of versions();track r['FEE_DEFINITION_VERSION_ID']){
+            <button type="button" [class.selected]="versionId()===rowId(r,'FEE_DEFINITION_VERSION_ID')" (click)="selectVersion(r)">
+              <strong>{{nameVersion(r)}}</strong><small>{{display(r,'FEE_PLAN_NAME')}}</small>
+              @if(versionId()===rowId(r,'FEE_DEFINITION_VERSION_ID')){<mat-icon>check_circle</mat-icon>}
+            </button>
+          } @empty {<p class="context-empty">برای این تعریف نسخه‌ای پیدا نشد؛ از کاتالوگ و نسخه‌ها استفاده کنید.</p>}
+        </div>
+        <div class="context-pager"><button type="button" [disabled]="versionPage()===0 || loadingVersions()" (click)="loadVersions(versionPage()-1)">قبلی</button>
+          <button type="button" [disabled]="versionPage()+1>=totalPages(versionTotal()) || loadingVersions()" (click)="loadVersions(versionPage()+1)">بعدی</button></div>
+      </div>
+    }
+  </section>
+
+  <nav class="collection-tabs card" aria-label="مراحل تنظیم اخذ و وصول">
+    @for(item of tabs;track item.key){
+      <button type="button" [class.active]="activeTab()===item.key" [attr.aria-current]="activeTab()===item.key?'page':null" (click)="switchTab(item.key)">
+        <mat-icon>{{item.icon}}</mat-icon>{{item.title}}
+      </button>
+    }
+  </nav>
+
+  <section class="collection-panel card">
+    <div class="collection-panel-title"><div><h2>{{tab().title}}</h2><p>{{tab().subtitle}}</p></div>
+      <div class="panel-tools">
+        @if(versionId() && !editorMode() && tab().editableInStudio){<button type="button" class="primary-action" (click)="newRow()"><mat-icon>add</mat-icon>{{tab().key==='stages' ? 'افزودن مرحله' : 'افزودن قاعده'}}</button>}
+        @if(versionId() && !editorMode()){<button type="button" class="secondary-action" (click)="loadRows(rowPage())"><mat-icon>refresh</mat-icon>تازه‌سازی</button>}
+      </div>
+    </div>
+
+    @if(!definitionId()){
+      <div class="collection-onboarding"><mat-icon>looks_one</mat-icon><strong>ابتدا تعریف کارمزد را انتخاب کنید.</strong><span>برای اتصال قواعد به نسخه صحیح، انتخاب تعریف و سپس نسخه الزامی است.</span></div>
+    } @else if(!versionId()){
+      <div class="collection-onboarding"><mat-icon>layers</mat-icon><strong>نسخه کارمزد هنوز انتخاب نشده است.</strong><span>فهرست نسخه‌های همین تعریف را باز کنید یا از کاتالوگ نسخه جدید بسازید.</span>
+        <a routerLink="/fee/design/catalog" [queryParams]="queryContext()">رفتن به کاتالوگ نسخه‌ها</a></div>
+    } @else if(editorMode()){
+      <div class="collection-editor-title"><strong>{{tab().key==='stages' ? (editorMode()==='create'?'تعریف مرحله اخذ جدید':'ویرایش مرحله اخذ') : (editorMode()==='create'?'ثبت قاعده جدید':'ویرایش قاعده')+' — '+tab().title}}</strong>
+        <button type="button" (click)="closeEditor()"><mat-icon>arrow_forward</mat-icon>بازگشت به فهرست</button></div>
+      @if(context();as ctx){<app-fee-admin-table [embedded]="true" [editorOnly]="true" [context]="ctx" [quickAction]="editorMode()" [quickRow]="editorRow()" [relatedDefinitionId]="definitionId()"
+        (rowWritten)="rowWritten($event)" (editorDismissed)="closeEditor()"/>}
+    } @else {
+      @if(tab().key==='stages'){
+        <div class="stage-integrity-note" role="note"><mat-icon>verified_user</mat-icon>
+          <span><strong>کنترل یکپارچگی مرحله اخذ فعال است.</strong> فقط قواعد محاسبه و مؤلفه‌های متعلق به نسخه انتخابی قابل انتخاب‌اند؛ سرور هنگام ذخیره، تطابق نسخه را مستقلاً بررسی می‌کند.
+            @if(stageRuleCount()===0){<strong> برای این نسخه قاعده محاسبه ثبت نشده است؛ ابتدا در طراح قواعد، قاعده لازم را تعریف کنید.</strong>}
+            @else if(stageRuleCount()!==null){<small> {{stageRuleCount()}} قاعده محاسبه برای نسخه جاری در دسترس است.</small>}
+          </span>
+          <a routerLink="/fee/design/rules" [queryParams]="queryContext()">قواعد محاسبه</a>
+        </div>
+      }
+      @if(rowsLoading()){<p class="select-meta">در حال دریافت اطلاعات نسخه...</p>}
+      <div class="collection-list" aria-label="رکوردهای نسخه انتخاب‌شده">
+        @for(row of rows();track row[primaryKey()]){
+          <div class="collection-record"><div class="record-main"><strong>{{display(row,tab().primaryColumn)}}</strong>
+              <span dir="auto">{{display(row,tab().secondaryColumn)}}</span></div>
+            @if(row['IS_ACTIVE']!==undefined){<span class="state-chip" [class.inactive]="row['IS_ACTIVE']==='N'">{{activation(row)}}</span>}
+            @if(tab().key==='stages'){<span class="stage-number">مرحله {{display(row,'STAGE_NO')}}</span>}
+            @if(tab().editableInStudio){<button type="button" class="record-edit" (click)="editRow(row)"><mat-icon>edit</mat-icon>ویرایش</button>}
+          </div>
+        } @empty {<p class="context-empty">برای این نسخه، رکوردی در این بخش ثبت نشده است.</p>}
+      </div>
+      <div class="collection-list-footer"><span>{{rowTotal()}} رکورد در این نسخه — صفحه {{rowPage()+1}} از {{totalPages(rowTotal())}}</span>
+        <div><button type="button" [disabled]="rowPage()===0 || rowsLoading()" (click)="loadRows(rowPage()-1)">قبلی</button>
+          <button type="button" [disabled]="rowPage()+1>=totalPages(rowTotal()) || rowsLoading()" (click)="loadRows(rowPage()+1)">بعدی</button></div>
+      </div>
+    }
+  </section>
+  <details class="collection-technical card"><summary>جداول و فرم‌های فنی FEE</summary>
+    <p>مسیرهای نگهداری فنی مستقل و دست‌نخورده‌اند. این بخش جایگزین کنترل‌های دامنه‌ای پایگاه داده نیست.</p>
+    <div>
+      @for(item of tabs;track item.key){<a [routerLink]="['/fee/tables',item.table]" [queryParams]="versionId()?{filterColumn:'FEE_DEFINITION_VERSION_ID',filterValue:versionId()}:{}">{{item.title}} <mat-icon>open_in_new</mat-icon></a>}
+    </div>
+  </details>
+</section>

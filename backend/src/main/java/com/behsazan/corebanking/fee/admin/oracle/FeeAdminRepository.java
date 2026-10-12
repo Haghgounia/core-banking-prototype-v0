@@ -185,6 +185,38 @@ public class FeeAdminRepository {
         return new TablePage(rows, total, safePage, safeSize);
     }
 
+    /** Locks an edited stage before merging omitted columns with its persisted keys. */
+    public Optional<Map<String, Object>> lockChargeStage(long id) {
+        TableDescriptor d = descriptor("FEE_CHARGE_STAGE");
+        String sql = "SELECT T.* FROM " + qualified(d.tableName()) + " T WHERE T.CHARGE_STAGE_ID=:id FOR UPDATE";
+        return jdbc.sql(sql).param("id", id).query((rs, rowNum) -> mapRow(rs, d.columns())).optional();
+    }
+
+    /** Only two explicitly allowlisted FEE parents may be locked via this method. */
+    public Optional<Long> lockStageParentVersion(String parent, long id) {
+        String table = stageParentTable(parent);
+        String idColumn = "FEE_CALCULATION_RULE".equals(table) ? "CALCULATION_RULE_ID" : "CHARGE_COMPONENT_ID";
+        String sql = "SELECT FEE_DEFINITION_VERSION_ID FROM " + qualified(table)
+                + " WHERE " + idColumn + "=:id FOR UPDATE";
+        return jdbc.sql(sql).param("id", id).query(Long.class).optional();
+    }
+
+    public boolean stageReferencesParent(String parent, long id) {
+        String table = stageParentTable(parent);
+        String fk = "FEE_CALCULATION_RULE".equals(table) ? "CALCULATION_RULE_ID" : "CHARGE_COMPONENT_ID";
+        long count = jdbc.sql("SELECT COUNT(*) FROM " + qualified("FEE_CHARGE_STAGE")
+                + " WHERE " + fk + "=:id").param("id", id).query(Long.class).single();
+        return count > 0;
+    }
+
+    private static String stageParentTable(String parent) {
+        String name = parent == null ? "" : parent.toUpperCase(Locale.ROOT);
+        if (!"FEE_CALCULATION_RULE".equals(name) && !"FEE_CHARGE_COMPONENT".equals(name)) {
+            throw new FeeAdminValidationException("نوع مرجع مرحله اخذ مجاز نیست.");
+        }
+        return name;
+    }
+
     public Optional<Map<String, Object>> findById(String requestedTable, long id) {
         TableDescriptor descriptor = descriptor(requestedTable);
         String sql = "SELECT T.* FROM " + qualified(descriptor.tableName()) + " T WHERE T."
@@ -251,7 +283,7 @@ public class FeeAdminRepository {
         }
     }
 
-    public List<SelectOption> lookup(String requestedTable, String requestedColumn, String text, int limit) {
+    public List<SelectOption> lookup(String requestedTable, String requestedColumn, String text, int limit, Long versionId) {
         TableDescriptor child = descriptor(requestedTable);
         ColumnDescriptor fk = column(child, requestedColumn);
         if (!fk.foreignKey() || fk.parentTable() == null) {
@@ -263,6 +295,14 @@ public class FeeAdminRepository {
         int safeLimit = Math.min(Math.max(limit, 1), 1000);
         List<String> where = new ArrayList<>();
         Map<String, Object> params = new LinkedHashMap<>();
+        // R3-B: Do not offer a calculation rule/component from a different version.
+        if ("FEE_CHARGE_STAGE".equals(child.tableName())
+                && ("CALCULATION_RULE_ID".equals(fk.name()) || "CHARGE_COMPONENT_ID".equals(fk.name()))) {
+            if (versionId == null) return List.of();
+            if (versionId <= 0) throw new FeeAdminValidationException("شناسه نسخه کارمزد معتبر نیست.");
+            where.add("T.FEE_DEFINITION_VERSION_ID = :versionId");
+            params.put("versionId", versionId);
+        }
         if (text != null && !text.isBlank()) {
             where.add("(UPPER(TO_CHAR(T." + identifier(code.name()) + ")) LIKE :q OR UPPER(TO_CHAR(T."
                     + identifier(label.name()) + ")) LIKE :q)");

@@ -1,0 +1,78 @@
+{
+  "id": "FEE_R3B_STAGE_INTEGRITY",
+  "basedOn": "FEE R2.3 + R3-A",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee/admin/application/FeeAdminService.java",
+      "asset": "00-FeeAdminService.java",
+      "before": "4d729dbbce97ab1931f45edb9ba09d546f3874a5827efcf3878fb1bebf3a2f79",
+      "after": "b52e3480f36488484a9f54fa52500d126c9bec715e036c86ef557bb4fe7cd61a"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee/admin/oracle/FeeAdminRepository.java",
+      "asset": "01-FeeAdminRepository.java",
+      "before": "ac665ca04a45c1561f201eb36fd80ce2e0da013dc2a02c36fe1730bcd8adb40c",
+      "after": "3427a66c1d822e446ff8fd75463008c366c8db4404e38fcc55cfd0fb36556ff5"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee/admin/web/FeeAdminController.java",
+      "asset": "02-FeeAdminController.java",
+      "before": "3544688c55cbd576bb02d3822db45f85c554697ca4bfd615a99ca9b1ed2edb9e",
+      "after": "bae887842a9d8ede8f00345479f399a3cb688ddf1d3e07dfdb4780c7bcc48dfe"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin.service.ts",
+      "asset": "03-fee-admin.service.ts",
+      "before": "56319205672c1ab6d2ff4a1ea3582d0fddbc729784c7695c1251ee14ace75bf4",
+      "after": "97c1a427ea52e6c174d21394c4752040ca371f2203c2450dfd5b8579009ed93d"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-table.component.ts",
+      "asset": "04-fee-admin-table.component.ts",
+      "before": "ab7808ae5c3646fedc1b11bb2b730cd030d0f59a61894c81935f73f3313f56f9",
+      "after": "15747d3ca4738fb98e2d802f0f488ef69e8d6e12a7e6e7c62063f37e0c32fab4"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-collection-studio.component.ts",
+      "asset": "05-fee-collection-studio.component.ts",
+      "before": "d23d38c9b9b631ee6e755d582ffda9b1019fa6187970a12f42821cedfaf80f2f",
+      "after": "3d981e5e6b97ef6e0880ab8b1e058ee3c53e183c348a669dcf1c8ad77325b0fe"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-collection-studio.component.html",
+      "asset": "06-fee-collection-studio.component.html",
+      "before": "8b4b5d0e1273903276a5660b432612aa33438502b73939418b8651179cb55bd9",
+      "after": "3bd6b2487c94af2eddda66c00d0f8651aa49de207672e86df9cc064494846095"
+    },
+    {
+      "path": "tools/verify-fee-r3a.mjs",
+      "asset": "07-verify-fee-r3a.mjs",
+      "before": "f19fa1ab33c93e33d11163835b8f93d936cb26d9a86746ac33d51f2aa9739939",
+      "after": "b10dbc18d97723da45581bc653d0a831d29a62e060449b4d17e2a1f2e09612fb"
+    },
+    {
+      "path": "tools/verify-fee-ux-r22.mjs",
+      "asset": "08-verify-fee-ux-r22.mjs",
+      "before": "3de88d3eb742baac73894b27da072dd961f3e9015a1810bdd2bb031cec1b1849",
+      "after": "33c5117b3ec5770e3102ccc9a45498209033d3bf750d892cc3317869169c6a9b"
+    },
+    {
+      "path": "tools/verify-fee-ux-r23.mjs",
+      "asset": "09-verify-fee-ux-r23.mjs",
+      "before": "49f6c29165f2373f6af8200fb2610b7cf0af5b4802c4fa68e38ad5de66ff9ece",
+      "after": "9d14a7f125cb97fa77c0afd2a5488a6bfec0abca35c6d5aa19a4acb402ec4f96"
+    }
+  ],
+  "newFiles": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee/admin/application/FeeChargeStageIntegrityPolicy.java",
+      "asset": "00-FeeChargeStageIntegrityPolicy.java",
+      "sha256": "4be62df8fe244e5506fa45ff884f96a9c6c314af08dde1a58c4df43f01932a5a"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/fee/admin/application/FeeChargeStageIntegrityPolicyTest.java",
+      "asset": "01-FeeChargeStageIntegrityPolicyTest.java",
+      "sha256": "739bf476d643fa080ad06e37b671511e10e6de5d6687125fd14f00e98273f677"
+    }
+  ]
+}

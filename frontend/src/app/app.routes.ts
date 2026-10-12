@@ -1,5 +1,6 @@
 import {Routes} from '@angular/router';
 import type {FeeDesignStudioComponent} from './features/fee-admin/fee-design-studio.component';
+import type {FeeAdminWorkspaceComponent} from './features/fee-admin/fee-admin-workspace.component';
 
 export const routes: Routes = [
   {
@@ -11,7 +12,7 @@ export const routes: Routes = [
       {path: 'fee/design/catalog', data: {mode: 'catalog'}, canDeactivate: [(c: unknown) => (c as FeeDesignStudioComponent).canLeave()], loadComponent: () => import('./features/fee-admin/fee-design-studio.component').then(m => m.FeeDesignStudioComponent)},
       {path: 'fee/design/rules', data: {mode: 'rules'}, canDeactivate: [(c: unknown) => (c as FeeDesignStudioComponent).canLeave()], loadComponent: () => import('./features/fee-admin/fee-design-studio.component').then(m => m.FeeDesignStudioComponent)},
       {path: 'fee/references', loadComponent: () => import('./features/fee-admin/fee-admin-references.component').then(m => m.FeeAdminReferencesComponent)},
-      {path: 'fee/workspaces/:workspace', loadComponent: () => import('./features/fee-admin/fee-admin-workspace.component').then(m => m.FeeAdminWorkspaceComponent)},
+      {path: 'fee/workspaces/:workspace', canDeactivate: [(c: FeeAdminWorkspaceComponent) => c.canLeave()], loadComponent: () => import('./features/fee-admin/fee-admin-workspace.component').then(m => m.FeeAdminWorkspaceComponent)},
       {path: 'fee/simulator', loadComponent: () => import('./features/fee/fee-management.component').then(m => m.FeeManagementComponent)},
       {path: 'fee/tables/:table', loadComponent: () => import('./features/fee-admin/fee-admin-table.component').then(m => m.FeeAdminTableComponent)},
       {path: 'fee2', loadComponent: () => import('./features/fee2/fee2-home.component').then(m => m.Fee2HomeComponent)},

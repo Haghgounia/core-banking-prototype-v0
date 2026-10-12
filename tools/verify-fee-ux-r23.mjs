@@ -36,10 +36,32 @@ check(tableHtml.includes('requestCloseEditor()') && tableHtml.includes('role="al
   'required validation on database-default fields and cancel guards must remain');
 check(tableHtml.includes('@if (!editorOnly) {') && tableCss.includes('.editor-only .editor-actions'), 'compact layout isolation');
 const patch=JSON.parse(read('tools/fee-ux-r23/manifest.json'));
+const r3bPath = path.join(root,'tools/fee-r3b/manifest.json');
+const r3bManifest = fs.existsSync(r3bPath) ? JSON.parse(fs.readFileSync(r3bPath,'utf8')) : null;
+const r3bChanges = new Map((r3bManifest?.files ?? []).map(f => [f.path, f]));
+const r3b1Path = path.join(root,'tools/fee-r3b1/manifest.json');
+const r3b1Manifest = fs.existsSync(r3b1Path) ? JSON.parse(fs.readFileSync(r3b1Path,'utf8')) : null;
+const r3b1Changes = new Map((r3b1Manifest?.files ?? []).map(f => [f.path,f]));
+
 check(patch.files.length === 5, 'exactly four UI files plus one verifier must be targeted');
 for (const entry of patch.files) {
   check(entry.path.startsWith(src) || entry.path==='tools/verify-fee-ux-r22.mjs', 'forbidden module target '+entry.path);
-  check(sha(entry.path) === entry.updatedSha256, 'source SHA mismatch '+entry.path);
+  const overlay = r3bChanges.get(entry.path);
+  const allowedOverlay = overlay?.before === entry.updatedSha256 && sha(entry.path) === overlay.after &&
+    sha('tools/fee-r3b/updated/'+overlay.asset) === overlay.after;
+  const newer = r3b1Changes.get(entry.path);
+  const allowedR3b1 = overlay?.before === entry.updatedSha256 && newer?.before === overlay.after &&
+    sha(entry.path) === newer.after &&
+    sha('tools/fee-r3b/updated/'+overlay.asset) === overlay.after &&
+    sha('tools/fee-r3b1/base/'+newer.asset) === newer.before &&
+    sha('tools/fee-r3b1/updated/'+newer.asset) === newer.after;
+  // Some R2.3 HTML files are changed for the first time by R3-B.1; they do not
+  // pass through R3-B's TS/backend overlay. Verify that direct signed chain too.
+  const directR3b1 = newer?.before === entry.updatedSha256 &&
+    sha(entry.path) === newer.after &&
+    sha('tools/fee-r3b1/base/'+newer.asset) === newer.before &&
+    sha('tools/fee-r3b1/updated/'+newer.asset) === newer.after;
+  check(sha(entry.path) === entry.updatedSha256 || allowedOverlay || allowedR3b1 || directR3b1, 'source SHA mismatch '+entry.path);
   check(sha('tools/fee-ux-r23/updated/'+entry.filename) === entry.updatedSha256, 'tampered package '+entry.path);
   check(sha('tools/fee-ux-r23/base/'+entry.filename) === entry.baseSha256, 'tampered rollback payload '+entry.path);
 }
