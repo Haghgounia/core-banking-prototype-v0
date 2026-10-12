@@ -1,0 +1,42 @@
+{
+  "name": "FEE UX R2.2 focused catalog",
+  "minimumBase": "R2.1 on core-banking-prototype-v0 2026-10-11 21:53",
+  "files": [
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-design-studio.component.ts",
+      "filename": "fee-design-studio.component.ts",
+      "baseSha256": "4739dcd19fabc553633a08d8a533d285979f23a268a6406c933329e03bb9cd7e",
+      "updatedSha256": "6b40e4eee5af69030e0c1cf819ec3ae767e26d7a6121d87c40f307b8079f1b99"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-design-studio.component.html",
+      "filename": "fee-design-studio.component.html",
+      "baseSha256": "b2c4b1a27506882d06ee8e85742bd1c13623a899dc940422b09e2a6e5c27a793",
+      "updatedSha256": "24cb13c242c534a33b20c0f653e49ad7e14757bb51e2f5c865cacfb1832ef246"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-design-studio.component.scss",
+      "filename": "fee-design-studio.component.scss",
+      "baseSha256": "e2a5cc4a393aaea1b8d65893cebed6f8b589f624c3f6afb57ca58c1b1b61906c",
+      "updatedSha256": "2c883723312684b61248efc6c99d9dedfef53baed026a919f8fdf1a7129f9843"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-table.component.ts",
+      "filename": "fee-admin-table.component.ts",
+      "baseSha256": "c6a9245be78d6bf69632d73071443b7a53eb0c014aec3ccddb6955ebb9c2e1aa",
+      "updatedSha256": "6280644fb6be9fcf515ab23fbebec377b828e218eca774bcc4676e5e26b0690b"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-table.component.html",
+      "filename": "fee-admin-table.component.html",
+      "baseSha256": "f234be25866443a4a3e605ff074366ae60cd845f1dcc87fc14952de9fd988b69",
+      "updatedSha256": "7aa65df57d43a0d4def104f3cda36f3bcfa02941040e628970accf61995804f5"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-table.component.scss",
+      "filename": "fee-admin-table.component.scss",
+      "baseSha256": "7cec7cafc3859a01e6ad9f71996e4b8b154a3aec5873aec676a3f848ff0211f1",
+      "updatedSha256": "65abdbe0b704ff93a7c4b6ea61c6b3177ef6c5f78597936767c21e44d57ff347"
+    }
+  ]
+}

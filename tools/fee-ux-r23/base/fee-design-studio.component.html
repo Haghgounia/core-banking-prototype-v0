@@ -1,0 +1,283 @@
+<section class="fee-design-studio" dir="rtl">
+  <nav class="crumb" aria-label="مسیر صفحه">
+    <a routerLink="/fee"><mat-icon>payments</mat-icon>مدیریت کارمزد FEE</a>
+    <mat-icon>chevron_left</mat-icon>
+    <span>{{ mode === 'catalog' ? 'کاتالوگ و نسخه‌ها' : 'شرایط اعمال و محاسبه' }}</span>
+  </nav>
+  <header class="studio-hero card">
+    <div class="hero-title">
+      <mat-icon>{{mode === 'catalog' ? 'library_books' : 'rule'}}</mat-icon>
+      <div><h1>{{mode === 'catalog' ? 'کاتالوگ و نسخه‌های کارمزد' : 'طراح قواعد و محاسبه کارمزد'}}</h1>
+        <p>{{mode === 'catalog' ? 'شناسنامه، نسخه و ویژگی‌های کارمزد را در یک محیط نگهداری کنید. برای تعریف کارمزد تازه ابتدا ویژگی پایه و سیاست نسخه را آماده کنید.' : 'قواعد شمول، شروط، محاسبه، ورودی و پله‌ها را در زمینه نسخه انتخاب‌شده مدیریت کنید.'}}</p>
+      </div>
+    </div>
+    <div class="hero-links">
+      <a [routerLink]="['/fee/design', mode === 'catalog' ? 'rules' : 'catalog']" [queryParams]="navigationParams()"><mat-icon>swap_horiz</mat-icon>{{ mode === 'catalog' ? 'ورود به طراحی قواعد' : 'بازگشت به کاتالوگ' }}</a>
+      <a [routerLink]="['/fee/workspaces',mode === 'catalog' ? 'catalog' : 'calculation']" class="minor">فرم‌های فنی</a>
+    </div>
+  </header>
+  @if (error()) { <div class="error-banner" role="alert">{{error()}}</div> }
+  @if (notice()) { <div class="notice-banner" role="status"><mat-icon>check_circle_outline</mat-icon>{{notice()}}</div> }
+
+  <div class="studio-layout" [class.catalog-wide]="catalogWide()" [class.catalog-editing]="!!catalogManageAction()">
+    @if (!catalogWide()) {
+    <aside class="context-sidebar" aria-label="انتخاب کارمزد و نسخه">
+      <section class="selector-card card">
+        <header class="selector-head"><div><strong>۱. تعریف کارمزد</strong><small>{{definitionTotal()}} مورد</small></div><mat-icon>request_quote</mat-icon></header>
+        <div class="selector-search">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>نام یا کد کارمزد</mat-label>
+            <input #definitionSearchInput matInput [formControl]="defSearch" (keyup.enter)="loadDefinitions(0)"><mat-icon matPrefix>search</mat-icon></mat-form-field>
+          <button mat-icon-button (click)="loadDefinitions(0)" title="جستجوی کارمزد" aria-label="جستجوی کارمزد"><mat-icon>search</mat-icon></button>
+        </div>
+        @if (definitionOutsidePage() && selectedDefinition(); as selected) {
+          <p class="selection-pinned"><mat-icon>push_pin</mat-icon>انتخاب جاری خارج از این صفحه نتایج: <strong>{{display(selected,'definition')}}</strong></p>
+        }
+        @if (loadingDefinitions()){<div class="small-loading">در حال بارگذاری کارمزدها...</div>}
+        <div class="select-list" role="group" aria-label="کارمزدهای فهرست">
+          @for (row of definitions(); track row['FEE_DEFINITION_ID']){
+            <button type="button" class="select-item" [title]="display(row,'definition')" [class.active]="definitionId() === asId(row,'FEE_DEFINITION_ID')" (click)="selectDefinition(row)" [attr.aria-pressed]="definitionId() === asId(row,'FEE_DEFINITION_ID')">
+              <span><strong>{{display(row,'definition')}}</strong><small dir="auto">{{subtitle(row,'definition')}}</small></span><span class="selector-status">{{definitionId() === asId(row,'FEE_DEFINITION_ID') ? 'انتخاب‌شده' : 'انتخاب'}}</span>
+              @if (definitionId() === asId(row,'FEE_DEFINITION_ID')){<mat-icon>check_circle</mat-icon>}
+            </button>
+          } @empty {<p class="select-empty">تعریف کارمزدی پیدا نشد؛ از تب «تعریف کارمزد» برای ثبت استفاده کنید.</p>}
+        </div>
+        <footer class="selector-pager"><span>صفحه {{definitionPage()+1}} از {{definitionPages()}}</span>
+          <div><button mat-icon-button [disabled]="definitionPage()===0 || loadingDefinitions()" (click)="definitionPrevious()" aria-label="صفحه قبل تعاریف"><mat-icon>chevron_right</mat-icon></button>
+          <button mat-icon-button [disabled]="definitionPage()+1>=definitionPages() || loadingDefinitions()" (click)="definitionNext()" aria-label="صفحه بعد تعاریف"><mat-icon>chevron_left</mat-icon></button></div></footer>
+      </section>
+      <section class="selector-card card" [class.selector-disabled]="!definitionId()">
+        <header class="selector-head"><div><strong>۲. نسخه کارمزد</strong><small>{{loadingVersions() ? "در حال بارگذاری..." : versionTotal() + " نسخه از تعریف انتخابی"}}</small></div><mat-icon>layers</mat-icon></header>
+        @if (!definitionId()){<p class="select-empty">ابتدا تعریف کارمزد را انتخاب کنید.</p>}
+        @else {
+          <div class="selector-search">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>جستجوی نسخه</mat-label>
+              <input #versionSearchInput matInput [formControl]="versionSearch" (keyup.enter)="loadVersions(0)"><mat-icon matPrefix>search</mat-icon></mat-form-field>
+            <button mat-icon-button (click)="loadVersions(0)" title="جستجوی نسخه" aria-label="جستجوی نسخه"><mat-icon>search</mat-icon></button>
+          </div>
+          @if (versionOutsidePage() && selectedVersion(); as selected) {
+            <p class="selection-pinned"><mat-icon>push_pin</mat-icon>نسخه انتخاب‌شده خارج از نتایج جاری: <strong>{{display(selected,'version')}}</strong></p>
+          }
+          @if (loadingVersions()){<div class="small-loading">در حال بارگذاری نسخه‌ها...</div>}
+          <div class="select-list versions" role="group" aria-label="نسخه‌های کارمزد">
+            @for (row of versions(); track row['FEE_DEFINITION_VERSION_ID']){
+              <button type="button" class="select-item" [title]="'نسخه '+display(row,'version')" [class.active]="versionId() === asId(row,'FEE_DEFINITION_VERSION_ID')" (click)="selectVersion(row)" [attr.aria-pressed]="versionId() === asId(row,'FEE_DEFINITION_VERSION_ID')">
+                <span><strong>نسخه {{display(row,'version')}}</strong><small dir="auto">{{subtitle(row,'version')}}</small></span><span class="selector-status">{{versionId() === asId(row,'FEE_DEFINITION_VERSION_ID') ? 'انتخاب‌شده' : 'انتخاب'}}</span>
+                @if (versionId() === asId(row,'FEE_DEFINITION_VERSION_ID')){<mat-icon>check_circle</mat-icon>}
+              </button>
+            } @empty {<p class="select-empty">نسخه‌ای وجود ندارد؛ آن را در تب «نسخه‌ها» ثبت کنید.</p>}
+          </div>
+          <footer class="selector-pager"><span>صفحه {{versionPage()+1}} از {{versionPages()}}</span>
+            <div><button mat-icon-button [disabled]="versionPage()===0 || loadingVersions()" (click)="versionPrevious()" aria-label="صفحه قبل نسخه‌ها"><mat-icon>chevron_right</mat-icon></button>
+            <button mat-icon-button [disabled]="versionPage()+1>=versionPages() || loadingVersions()" (click)="versionNext()" aria-label="صفحه بعد نسخه‌ها"><mat-icon>chevron_left</mat-icon></button></div></footer>
+        }
+      </section>
+      <div class="context-help card"><mat-icon>info_outline</mat-icon>
+        <span>انتخاب تعریف و نسخه، محدوده فرم‌های وابسته را تعیین می‌کند؛ کلید ارتباطی هنگام ایجاد رکورد وابسته به‌طور خودکار تکمیل می‌شود.</span>
+      </div>
+    </aside>
+    }
+
+    <main class="studio-main">
+      <section class="active-context card" aria-label="زمینه انتخابی">
+        <div><small>تعریف جاری</small><strong>{{selectedDefinition() ? display(selectedDefinition()!, 'definition') : 'انتخاب نشده'}}</strong></div>
+        <mat-icon>chevron_left</mat-icon>
+        <div><small>نسخه جاری</small><strong>{{selectedVersion() ? display(selectedVersion()!,'version') : 'انتخاب نشده'}}</strong></div>
+        @if (mode==='rules'){
+          <div class="rules-context">
+            <small>قاعده شمول / محاسبه</small>
+            <strong>{{ruleSummary()}}</strong>
+          </div>
+        }
+      </section>
+      <nav class="tab-strip card" aria-label="بخش‌های محیط طراحی">
+        @for (t of tabs; track t.key) {
+          <button type="button" [class.active]="activeTab()===t.key" [attr.aria-current]="activeTab()===t.key ? 'page' : null" (click)="chooseTab(t.key)">{{t.title}}</button>
+        }
+      </nav>
+      <section class="studio-panel card">
+        <div class="panel-header" [class.catalog-panel-browser]="catalogWide() && catalogStage()==='browse'"><div><h2>{{tab().title}}</h2><p>{{tab().description}}</p></div>
+          @if (tableContext()){
+            <details class="technical-access"><summary>دسترسی فنی</summary>
+              <a class="legacy-link" [routerLink]="['/fee','tables',tab().table]" [queryParams]="legacyParams()" title="بازکردن فرم فنی مستقل">فرم فنی <mat-icon>open_in_new</mat-icon></a>
+            </details>
+          }
+        </div>
+        @if (mode === 'rules' && calculationId() && (activeTab()==='tier' || activeTab()==='input' || activeTab()==='expression')){
+          <div class="strategy-note"><mat-icon>functions</mat-icon><span>استراتژی قاعده انتخاب‌شده: <b dir="ltr">{{strategySummary()}}</b>. نرخ‌ها به‌صورت اعشاری ذخیره می‌شوند (۰٫۰۰۲ برابر ۰٫۲٪ است).</span></div>
+        }
+        @if (mode==='catalog' && (activeTab()==='definition' || activeTab()==='version')) {
+          @if (catalogManageAction()) {
+            <div class="catalog-editor-head">
+              <div><strong>{{catalogManageAction()==='create' ? 'ثبت رکورد جدید' : 'ویرایش رکورد انتخابی'}}</strong>
+                <span>فرم نگهداری با همان API و کنترل‌های نسخه قبل؛ فقط در صورت نیاز نمایش داده می‌شود.</span></div>
+              <button type="button" mat-stroked-button (click)="closeCatalogEditor()"><mat-icon>arrow_forward</mat-icon>{{catalogStage()==='browse' ? 'بازگشت به فهرست' : 'بازگشت به جزئیات'}}</button>
+            </div>
+            @if (catalogEditorContext(); as manageCtx) {
+              <app-fee-admin-table [embedded]="true" [editorOnly]="true" [context]="manageCtx"
+                [quickAction]="catalogManageAction()" [quickRow]="catalogEditorRow()" (rowWritten)="rowWritten($event)" (editorDismissed)="closeCatalogEditor()" />
+            }
+          } @else if (catalogStage()==='browse' && activeTab()==='definition') {
+            <section class="catalog-browser" aria-label="فهرست کارمزدها">
+              <div class="catalog-browser-head">
+                <div><h3>فهرست کارمزدها</h3><p>{{definitionTotal()}} کارمزد ثبت‌شده؛ یک کارمزد را انتخاب کنید تا مشخصات آن نمایش داده شود.</p></div>
+                <button type="button" mat-flat-button color="primary" (click)="openCatalogEditor('create')"><mat-icon>add</mat-icon>تعریف کارمزد جدید</button>
+              </div>
+              <div class="catalog-filter">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>جست‌وجوی نام یا کد کارمزد</mat-label>
+                  <input #definitionSearchInput matInput [formControl]="defSearch" (keyup.enter)="loadDefinitions(0)"><mat-icon matPrefix>search</mat-icon></mat-form-field>
+                <button type="button" mat-stroked-button [disabled]="loadingDefinitions()" (click)="loadDefinitions(0)"><mat-icon>search</mat-icon>جست‌وجو</button>
+              </div>
+              @if (definitionOutsidePage() && selectedDefinition(); as selected) {
+                <p class="selection-pinned"><mat-icon>push_pin</mat-icon>کارمزد انتخابی خارج از نتایج این صفحه: <strong>{{display(selected,'definition')}}</strong>
+                  <button type="button" mat-stroked-button (click)="selectDefinition(selected)">مشاهده</button></p>
+              }
+              @if (loadingDefinitions()){<div class="small-loading">در حال بارگذاری...</div>}
+              <div class="catalog-list" aria-label="کارمزدهای ثبت‌شده">
+                @for (row of definitions(); track row['FEE_DEFINITION_ID']) {
+                  <button type="button" class="catalog-list-item" (click)="selectDefinition(row)" [attr.aria-label]="'مشاهده کارمزد '+display(row,'definition')">
+                    <span class="catalog-list-title"><strong>{{display(row,'definition')}}</strong><small dir="auto">{{subtitle(row,'definition')}}</small></span>
+                    <span class="catalog-list-meta">{{compactText(row['CATEGORY_CODE'],'بدون گروه')}}</span>
+                    <span class="business-status" [class.status-active]="row['IS_ACTIVE']==='Y'">{{activationLabel(row['IS_ACTIVE'])}}</span>
+                    <mat-icon>arrow_back</mat-icon>
+                  </button>
+                } @empty {<p class="catalog-list-empty">کارمزدی مطابق جست‌وجوی شما پیدا نشد. می‌توانید تعریف جدید ثبت کنید.</p>}
+              </div>
+              <footer class="catalog-list-pager"><span>{{definitionTotal()}} کارمزد · صفحه {{definitionPage()+1}} از {{definitionPages()}}</span>
+                <div><button mat-icon-button [disabled]="definitionPage()===0 || loadingDefinitions()" (click)="definitionPrevious()" title="صفحه قبل"><mat-icon>chevron_right</mat-icon></button>
+                  <button mat-icon-button [disabled]="definitionPage()+1>=definitionPages() || loadingDefinitions()" (click)="definitionNext()" title="صفحه بعد"><mat-icon>chevron_left</mat-icon></button></div>
+              </footer>
+            </section>
+          } @else if (catalogStage()==='browse' && activeTab()==='version') {
+            @if (!definitionId()) {
+              <div class="catalog-onboarding"><mat-icon>touch_app</mat-icon><h3>ابتدا کارمزد را انتخاب کنید</h3>
+                <p>نسخه‌ها به یک تعریف کارمزد وابسته‌اند؛ ابتدا از فهرست کارمزدها انتخاب کنید.</p>
+                <button type="button" mat-flat-button color="primary" (click)="focusDefinitionSearch()"><mat-icon>list</mat-icon>فهرست کارمزدها</button></div>
+            } @else {
+              <section class="catalog-browser" aria-label="فهرست نسخه‌های کارمزد">
+                <div class="catalog-browser-head">
+                  <div><h3>نسخه‌های {{display(selectedDefinition()!,'definition')}}</h3>
+                    <p>{{versionTotal()}} نسخه مربوط به همین کارمزد؛ یک نسخه را برای مشاهده یا ویرایش انتخاب کنید.</p></div>
+                  <button type="button" mat-flat-button color="primary" (click)="openCatalogEditor('create')"><mat-icon>add</mat-icon>نسخه جدید</button>
+                </div>
+                <div class="catalog-filter">
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic"><mat-label>جست‌وجوی نسخه</mat-label>
+                    <input #versionSearchInput matInput [formControl]="versionSearch" (keyup.enter)="loadVersions(0)"><mat-icon matPrefix>search</mat-icon></mat-form-field>
+                  <button type="button" mat-stroked-button [disabled]="loadingVersions()" (click)="loadVersions(0)"><mat-icon>search</mat-icon>جست‌وجو</button>
+                </div>
+                @if (versionOutsidePage() && selectedVersion(); as selected) {
+                  <p class="selection-pinned"><mat-icon>push_pin</mat-icon>نسخه انتخاب‌شده خارج از این صفحه: {{display(selected,'version')}}
+                    <button type="button" mat-stroked-button (click)="selectVersion(selected)">مشاهده</button></p>
+                }
+                @if (loadingVersions()){<div class="small-loading">در حال بارگذاری نسخه‌ها...</div>}
+                <div class="catalog-list" aria-label="نسخه‌های تعریف انتخاب‌شده">
+                  @for (row of versions(); track row['FEE_DEFINITION_VERSION_ID']) {
+                    <button type="button" class="catalog-list-item" (click)="selectVersion(row)" [attr.aria-label]="'مشاهده نسخه '+display(row,'version')">
+                      <span class="catalog-list-title"><strong>نسخه {{display(row,'version')}}</strong><small>#{{compactText(row['FEE_DEFINITION_VERSION_ID'])}}</small></span>
+                      <span class="catalog-list-meta">{{compactText(row['VERSION_TYPE_CODE'],'—')}}</span>
+                      <span class="business-status">{{compactText(row['STATUS_CODE'])}}</span>
+                      <mat-icon>arrow_back</mat-icon>
+                    </button>
+                  } @empty {<p class="catalog-list-empty">نسخه‌ای در این محدوده یافت نشد. از «نسخه جدید» استفاده کنید.</p>}
+                </div>
+                <footer class="catalog-list-pager"><span>{{versionTotal()}} نسخه · صفحه {{versionPage()+1}} از {{versionPages()}}</span>
+                  <div><button mat-icon-button [disabled]="versionPage()===0 || loadingVersions()" (click)="versionPrevious()" title="صفحه قبل"><mat-icon>chevron_right</mat-icon></button>
+                    <button mat-icon-button [disabled]="versionPage()+1>=versionPages() || loadingVersions()" (click)="versionNext()" title="صفحه بعد"><mat-icon>chevron_left</mat-icon></button></div>
+                </footer>
+                <div class="catalog-list-bottom"><button type="button" mat-stroked-button (click)="focusDefinitionSearch()"><mat-icon>arrow_forward</mat-icon>تغییر کارمزد</button></div>
+              </section>
+            }
+          } @else if (activeTab()==='definition') {
+            @if (selectedDefinition(); as definition) {
+              <div class="selection-overview">
+                <div class="selection-overview-head">
+                  <div><span class="eyebrow">تعریف انتخاب‌شده</span>
+                    <h3>{{display(definition,'definition')}}</h3>
+                    <span class="muted-code" dir="ltr">{{compactText(definition['FEE_CODE'])}}</span></div>
+                  <span class="business-status" [class.status-active]="definition['IS_ACTIVE']==='Y'">{{activationLabel(definition['IS_ACTIVE'])}}</span>
+                </div>
+                <dl class="overview-fields">
+                  <div><dt>شناسه تعریف</dt><dd>{{compactText(definition['FEE_DEFINITION_ID'])}}</dd></div>
+                  <div><dt>گروه کارمزد</dt><dd>{{compactText(definition['CATEGORY_CODE'])}}</dd></div>
+                  <div><dt>طبقه‌بندی</dt><dd>{{compactText(definition['CLASSIFICATION_CODE'])}}</dd></div>
+                  <div><dt>عنوان انگلیسی</dt><dd dir="auto">{{compactText(definition['NAME_EN'])}}</dd></div>
+                </dl>
+                @if (definition['DESCRIPTION']) {
+                  <div class="overview-description"><strong>شرح کارمزد</strong><p>{{definition['DESCRIPTION']}}</p>
+                    <details><summary>مشاهده متن کامل شرح</summary><p class="full-description">{{definition['DESCRIPTION']}}</p></details>
+                  </div>
+                }
+                <div class="overview-actions">
+                  <button type="button" mat-stroked-button (click)="returnToCatalogList()"><mat-icon>arrow_forward</mat-icon>بازگشت به فهرست کارمزدها</button>
+                  <button type="button" mat-flat-button color="primary" (click)="chooseTab('version')"><mat-icon>layers</mat-icon>مشاهده نسخه‌های این کارمزد</button>
+                  <button type="button" mat-stroked-button (click)="openCatalogEditor('edit')"><mat-icon>edit</mat-icon>ویرایش تعریف</button>
+                  <button type="button" mat-stroked-button (click)="openCatalogEditor('create')"><mat-icon>add</mat-icon>تعریف کارمزد جدید</button>
+                </div>
+              </div>
+            } @else {
+              <div class="catalog-onboarding">
+                <mat-icon>playlist_add_check</mat-icon><h3>یک تعریف کارمزد انتخاب کنید</h3>
+                <p>فهرست انتخاب در ستون کناری قرار دارد. پس از انتخاب، مشخصات همان کارمزد در این بخش نمایش داده می‌شود؛ گرید ۳۸۳ رکوردی تکرار نخواهد شد.</p>
+                <div class="overview-actions"><button type="button" mat-flat-button color="primary" (click)="focusDefinitionSearch()"><mat-icon>search</mat-icon>جستجوی کارمزد</button>
+                  <button type="button" mat-stroked-button (click)="openCatalogEditor('create')"><mat-icon>add</mat-icon>تعریف کارمزد جدید</button></div>
+              </div>
+            }
+          } @else {
+            @if (!definitionId()) {
+              <div class="catalog-onboarding"><mat-icon>touch_app</mat-icon><h3>ابتدا تعریف کارمزد را انتخاب کنید</h3>
+                <p>نسخه‌های هر کارمزد فقط پس از انتخاب تعریف مادر نمایش داده می‌شوند.</p>
+                <button type="button" mat-flat-button color="primary" (click)="focusDefinitionSearch()"><mat-icon>search</mat-icon>انتخاب کارمزد</button></div>
+            } @else if (selectedVersion(); as version) {
+              <div class="selection-overview">
+                <div class="selection-overview-head">
+                  <div><span class="eyebrow">نسخه انتخاب‌شده از {{display(selectedDefinition()!,'definition')}}</span>
+                    <h3>نسخه {{display(version,'version')}}</h3>
+                    <span class="muted-code" dir="ltr">#{{compactText(version['FEE_DEFINITION_VERSION_ID'])}}</span></div>
+                  <span class="business-status">{{compactText(version['STATUS_CODE'])}}</span>
+                </div>
+                <dl class="overview-fields">
+                  <div><dt>شماره نسخه</dt><dd>{{compactText(version['VERSION_NO'])}}</dd></div>
+                  <div><dt>نوع نسخه</dt><dd>{{compactText(version['VERSION_TYPE_CODE'])}}</dd></div>
+                  <div><dt>تاریخ شروع اعتبار</dt><dd>{{dateLabel(version['EFFECTIVE_FROM'])}}</dd></div>
+                  <div><dt>تاریخ پایان اعتبار</dt><dd>{{dateLabel(version['EFFECTIVE_TO'])}}</dd></div>
+                  <div><dt>نسخه سیاست</dt><dd>{{compactText(version['POLICY_VERSION_ID'])}}</dd></div>
+                  <div><dt>کد تعرفه مقرراتی</dt><dd>{{compactText(version['REGULATORY_TARIFF_CODE'])}}</dd></div>
+                </dl>
+                <div class="overview-actions">
+                  <button type="button" mat-stroked-button (click)="returnToCatalogList()"><mat-icon>arrow_forward</mat-icon>بازگشت به فهرست نسخه‌ها</button>
+                  <a mat-flat-button color="primary" [routerLink]="['/fee/design/rules']" [queryParams]="navigationParams()"><mat-icon>rule</mat-icon>طراحی قواعد این نسخه</a>
+                  <button type="button" mat-stroked-button (click)="openCatalogEditor('edit')"><mat-icon>edit</mat-icon>ویرایش نسخه</button>
+                  <button type="button" mat-stroked-button (click)="openCatalogEditor('create')"><mat-icon>add</mat-icon>نسخه جدید</button>
+                </div>
+              </div>
+            } @else {
+              <div class="catalog-onboarding"><mat-icon>layers</mat-icon>
+                <h3>{{loadingVersions() ? 'در حال دریافت نسخه‌های کارمزد...' : versionTotal() === 0 ? 'این تعریف هنوز نسخه‌ای ندارد' : 'یک نسخه کارمزد انتخاب کنید'}}</h3>
+                <p>{{versionTotal() === 0 ? 'برای تنظیم قواعد شمول و محاسبه، لازم است ابتدا نسخه‌ای برای تعریف انتخاب‌شده ایجاد شود.' : 'نسخه‌های این تعریف در فهرست سمت راست قرار دارند. یکی را انتخاب کنید تا جزئیات و عملیات آن نمایش داده شود.'}}</p>
+                <div class="overview-actions"><button type="button" mat-flat-button color="primary" (click)="openCatalogEditor('create')"><mat-icon>add</mat-icon>ایجاد نسخه برای این کارمزد</button>
+                  @if(versionTotal()>0){<button type="button" mat-stroked-button (click)="focusVersionSearch()"><mat-icon>search</mat-icon>انتخاب نسخه</button>}</div>
+              </div>
+            }
+          }
+        } @else if (missing(); as missingReason) {
+          <div class="waiting-context"><mat-icon>touch_app</mat-icon><h3>برای ادامه، زمینه لازم را انتخاب کنید</h3><p>{{missingReason}}</p>
+            <div class="overview-actions">
+              @if (!definitionId()) {<button type="button" mat-flat-button color="primary" (click)="focusDefinitionSearch()"><mat-icon>search</mat-icon>جستجوی کارمزد</button>}
+              @else if (!versionId()) {<button type="button" mat-flat-button color="primary" (click)="focusVersionSearch()"><mat-icon>layers</mat-icon>انتخاب نسخه</button>
+                <a mat-stroked-button [routerLink]="['/fee/design/catalog']" [queryParams]="{definitionId:definitionId(),tab:'version'}">مشاهده و ایجاد نسخه</a>}
+              @else if (!applicabilityId() && tab().need==='applicability') {<button type="button" mat-stroked-button (click)="chooseTab('applicability')">بازگشت به قواعد شمول</button>}
+              @else if (!calculationId() && tab().need==='calculation') {<button type="button" mat-stroked-button (click)="chooseTab('calculation')">بازگشت به قواعد محاسبه</button>}
+            </div>
+          </div>
+        } @else if(tableContext(); as ctx) {
+          <app-fee-admin-table [embedded]="true" [context]="ctx" [selectable]="!!tab().selectable" [chosenRowId]="selectedRowId()" (rowPicked)="rowPicked($event)" (rowWritten)="rowWritten($event)" />
+        }
+      </section>
+      @if (mode==='rules') {
+        <section class="next-action card">
+          <mat-icon>tips_and_updates</mat-icon>
+          <span>مسیر پیشنهادی: «قواعد شمول» ← انتخاب قاعده ← «شروط شمول»؛ سپس «قواعد محاسبه» ← انتخاب قاعده ← «پله‌ها / ورودی‌ها / اجزای ترکیبی». وجود یک نسخه به معنی فعال‌بودن خودکار قواعد آن نیست.</span>
+        </section>
+      }
+    </main>
+  </div>
+</section>

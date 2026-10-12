@@ -1,0 +1,37 @@
+{
+  "name": "FEE_UX_R23_CATALOG_FORM_BUSINESS_POLISH",
+  "base": "R2.2 on 2026-10-11 21:53 with independent NAV-R22.1",
+  "scope": "FEE UI + compatibility of the R2.2 static verifier",
+  "files": [
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-table.component.ts",
+      "filename": "fee-admin-table.component.ts",
+      "baseSha256": "6280644fb6be9fcf515ab23fbebec377b828e218eca774bcc4676e5e26b0690b",
+      "updatedSha256": "ab7808ae5c3646fedc1b11bb2b730cd030d0f59a61894c81935f73f3313f56f9"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-table.component.html",
+      "filename": "fee-admin-table.component.html",
+      "baseSha256": "7aa65df57d43a0d4def104f3cda36f3bcfa02941040e628970accf61995804f5",
+      "updatedSha256": "5f00cdebb02f289f09422100ec14ff750140abd3804c22283d142d33104ded3c"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-admin-table.component.scss",
+      "filename": "fee-admin-table.component.scss",
+      "baseSha256": "65abdbe0b704ff93a7c4b6ea61c6b3177ef6c5f78597936767c21e44d57ff347",
+      "updatedSha256": "7fdb8e967faaba2e1974cd117ad5732292bd20c3cffc02ec70e9ce94d3f24f9d"
+    },
+    {
+      "path": "frontend/src/app/features/fee-admin/fee-design-studio.component.html",
+      "filename": "fee-design-studio.component.html",
+      "baseSha256": "24cb13c242c534a33b20c0f653e49ad7e14757bb51e2f5c865cacfb1832ef246",
+      "updatedSha256": "6c14ea79ef58b16e9d96e400ce23e3ca3a039698d721b10f7f7f0915ab2f506b"
+    },
+    {
+      "path": "tools/verify-fee-ux-r22.mjs",
+      "filename": "verify-fee-ux-r22.mjs",
+      "baseSha256": "e027b3bdae19e586524d4a9afddb97fc5f65a17d2c250c7dc816069661314fce",
+      "updatedSha256": "3de88d3eb742baac73894b27da072dd961f3e9015a1810bdd2bb031cec1b1849"
+    }
+  ]
+}
