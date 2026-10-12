@@ -91,6 +91,28 @@ public class ProductBuilderController {
         return service.finalizeLoanProduct(productId, versionId, actor);
     }
 
+    /** R30: stage-six-only deposit finalization. Never accept a client-generated code. */
+    @PostMapping("/products/{productId}/finalize-deposit")
+    Map<String, Object> finalizeDepositProduct(
+            @PathVariable long productId,
+            @RequestBody Map<String, Object> request,
+            @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        Object requestedVersion = request.get("versionId");
+        if (requestedVersion == null)
+            throw new com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException(
+                    "نسخه مصوب برای صدور کد سپرده ضروری است.");
+        long versionId;
+        try { versionId = new java.math.BigDecimal(String.valueOf(requestedVersion)).longValueExact(); }
+        catch (RuntimeException ex) {
+            throw new com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException(
+                    "شناسه نسخه برای صدور کد سپرده معتبر نیست.");
+        }
+        if (versionId <= 0)
+            throw new com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException(
+                    "شناسه نسخه برای صدور کد سپرده معتبر نیست.");
+        return service.finalizeDepositProduct(productId, versionId, actor);
+    }
+
     @GetMapping("/catalog")
     CatalogResponse catalog() {
         return service.catalog();

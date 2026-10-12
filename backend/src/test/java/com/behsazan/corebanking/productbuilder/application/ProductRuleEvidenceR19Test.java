@@ -63,4 +63,60 @@ class ProductRuleEvidenceR19Test {
         assertThat(evidence.conflict()).isTrue();
         assertThat(evidence.unrecognizedStatuses()).isEqualTo(1);
     }
+
+    @Test void dpsNumericActiveEligibilityRuleCountsAsEffective() {
+        var evidence = ProductRuleEvidenceEvaluator.evaluate("PRODUCT_ELIGIBILITY_RULE", List.of(
+                Map.of("RULE_STATUS_CODE", 2, "VALID_FROM", "2026-10-10")), START, END);
+        assertThat(evidence.effectiveCount()).isEqualTo(1);
+        assertThat(evidence.unrecognizedStatuses()).isZero();
+        assertThat(evidence.conflict()).isFalse();
+    }
+
+    @Test void dpsOtherNumericRuleStatusesCannotSatisfyRequiredRule() {
+        for (String code : List.of("1", "3", "4", "5")) {
+            var evidence = ProductRuleEvidenceEvaluator.evaluate("PRODUCT_ELIGIBILITY_RULE", List.of(
+                    Map.of("RULE_STATUS_CODE", code)), START, END);
+            assertThat(evidence.effectiveCount()).as("DPS code " + code).isZero();
+            assertThat(evidence.unrecognizedStatuses()).as("DPS code " + code).isZero();
+            assertThat(evidence.conflict()).isFalse();
+        }
+    }
+
+    @Test void unknownDpsNumericCodeRemainsBlocking() {
+        var evidence = ProductRuleEvidenceEvaluator.evaluate("PRODUCT_ELIGIBILITY_RULE", List.of(
+                Map.of("RULE_STATUS_CODE", "99")), START, END);
+        assertThat(evidence.effectiveCount()).isZero();
+        assertThat(evidence.unrecognizedStatuses()).isEqualTo(1);
+        assertThat(evidence.conflict()).isTrue();
+    }
+
+    @Test void textualRuleStatusRemainsBackwardCompatible() {
+        var evidence = ProductRuleEvidenceEvaluator.evaluate("PRODUCT_ELIGIBILITY_RULE", List.of(
+                Map.of("RULE_STATUS_CODE", "ACTIVE")), START, END);
+        assertThat(evidence.effectiveCount()).isEqualTo(1);
+        assertThat(evidence.conflict()).isFalse();
+    }
+
+    @Test void numericDepositClosureRuleStatusUsesTheDpsReference() {
+        var evidence = ProductRuleEvidenceEvaluator.evaluate("DEPOSIT_PRODUCT_CLOSURE_RULE", List.of(
+                Map.of("STATUS_CODE", "2", "CLOSURE_TYPE_CODE", "NORMAL")), START, END);
+        assertThat(evidence.effectiveCount()).isEqualTo(1);
+        assertThat(evidence.conflict()).isFalse();
+    }
+
+    @Test void unrelatedNumericStatusCodeIsNotMisinterpretedAsDpsRuleStatus() {
+        var evidence = ProductRuleEvidenceEvaluator.evaluate("PRODUCT_CHANNEL_RULE", List.of(
+                Map.of("STATUS_CODE", "2", "CHANNEL_CODE", "BRANCH")), START, END);
+        assertThat(evidence.effectiveCount()).isZero();
+        assertThat(evidence.unrecognizedStatuses()).isEqualTo(1);
+        assertThat(evidence.conflict()).isTrue();
+    }
+
+    @Test void explicitIsActiveZeroStillOverridesRuleStatusCodeTwo() {
+        var evidence = ProductRuleEvidenceEvaluator.evaluate("PRODUCT_ELIGIBILITY_RULE", List.of(
+                Map.of("IS_ACTIVE", 0, "RULE_STATUS_CODE", "2")), START, END);
+        assertThat(evidence.effectiveCount()).isZero();
+        assertThat(evidence.conflict()).isFalse();
+    }
+
 }

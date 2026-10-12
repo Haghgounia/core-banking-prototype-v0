@@ -8,7 +8,7 @@ public final class LoanCodeIssuanceGate {
 
     public static void requireDraft(String productStatus) {
         if (!"DRAFT".equals(productStatus))
-            throw new ProductBuilderValidationException("فقط محصول تسهیلاتِ پیش‌نویس و بدون کد قابلیت نهایی‌سازی دارد.");
+            throw new ProductBuilderValidationException("فقط محصول پیش‌نویس و بدون کد قابلیت نهایی‌سازی دارد.");
     }
 
     public static void requireApprovedCurrent(String versionStatus, boolean current, String recordStatus) {

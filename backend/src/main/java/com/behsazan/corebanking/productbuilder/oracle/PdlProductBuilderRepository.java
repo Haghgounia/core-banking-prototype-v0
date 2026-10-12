@@ -170,6 +170,41 @@ public class PdlProductBuilderRepository {
                 .param("product", productId).query(Long.class).optional();
     }
 
+    /** A single bank-approved year row locks code issuance for both domains.
+     *  This eliminates family/year races without introducing a second clock.
+     */
+    public record GeneratedDepositCode(String family, int year, int serial, String code) { }
+
+    public GeneratedDepositCode allocateDepositProductCode(String family) {
+        int year = activeLoanProductWorkingYear(); // SELECT FOR UPDATE: serializes concurrent deposit issuance.
+        Integer maximum = jdbcClient.sql("SELECT NVL(MAX(SERIAL_NO), 0) FROM " + schemaName
+                        + ".PRODUCT_DEPOSIT_CODE_REGISTRY WHERE PRODUCT_FAMILY_CODE = :family AND WORK_YEAR = :workYear")
+                .param("family", family).param("workYear", year).query(Integer.class).single();
+        for (int serial = maximum + 1; serial <= 999; serial++) {
+            String code = com.behsazan.corebanking.productbuilder.application.DepositProductCodePolicy.format(family, year, serial);
+            Long used = jdbcClient.sql("SELECT COUNT(*) FROM " + qualified("PRODUCT") + " WHERE PRODUCT_CODE = :code")
+                    .param("code", code).query(Long.class).single();
+            if (used == 0) return new GeneratedDepositCode(family, year, serial, code);
+        }
+        throw new ProductBuilderValidationException("ظرفیت ۹۹۹ کد این خانواده سپرده در سال کاری تکمیل شده است.");
+    }
+
+    public void registerDepositProductCode(long productId, GeneratedDepositCode code, String actor) {
+        jdbcClient.sql("INSERT INTO " + schemaName + ".PRODUCT_DEPOSIT_CODE_REGISTRY"
+                + " (PRODUCT_ID, PRODUCT_FAMILY_CODE, WORK_YEAR, SERIAL_NO, PRODUCT_CODE, CREATED_BY)"
+                + " VALUES (:product, :family, :year, :serial, :code, :actor)")
+                .param("product", productId).param("family", code.family())
+                .param("year", code.year()).param("serial", code.serial())
+                .param("code", code.code()).param("actor", actor).update();
+    }
+
+    /** Existing coded deposits predate the R30 registry and remain immutable. */
+    public Optional<String> registeredDepositFamily(long productId) {
+        return jdbcClient.sql("SELECT PRODUCT_FAMILY_CODE FROM " + schemaName
+                        + ".PRODUCT_DEPOSIT_CODE_REGISTRY WHERE PRODUCT_ID = :product")
+                .param("product", productId).query(String.class).optional();
+    }
+
     public List<String> loanEligibilityEmploymentTypes(long eligibilityRuleId) {
         return jdbcClient.sql("SELECT EMPLOYMENT_TYPE_CODE FROM " + schemaName
                         + ".LOAN_ELIGIBLE_EMPLOYMENT_TYPE WHERE ELIGIBILITY_RULE_ID = :id ORDER BY EMPLOYMENT_TYPE_CODE")

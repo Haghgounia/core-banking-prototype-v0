@@ -45,6 +45,10 @@ rem R28: system loan codes, employment multi-selection and untouched switch defa
 node "%ROOT%tools\verify-pdl-r28-loan-code-eligibility.mjs" || exit /b 1
 rem R29: issue loan product codes only after passing the stage-six approval gate.
 node "%ROOT%tools\verify-pdl-r29-finalization.mjs" || exit /b 1
+rem R30: both deposit and loan codes issued only after stage-six finalization.
+node "%ROOT%tools\verify-pdl-r30-deposit-finalization.mjs" || exit /b 1
+rem R30-HF1: DPS numeric rule lifecycle codes are canonicalized before governance review.
+node "%ROOT%tools\verify-pdl-r30-hf1-rule-status.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.
 if not exist "%ROOT%frontend\src\app\app.component.ts" (

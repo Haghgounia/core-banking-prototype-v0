@@ -204,17 +204,15 @@ public class ProductBuilderService {
         LoanBooleanDefaults.apply(normalizeTable(table), prepared);
         if ("PRODUCT".equals(normalizeTable(table))) {
             String domain = text(prepared.get("PRODUCT_CLASS_CODE"));
-            if ("LOAN".equals(domain)) {
-                if (!text(prepared.get("PRODUCT_CODE")).isBlank())
-                    throw new ProductBuilderValidationException("کد محصول تسهیلات فقط پس از نهایی‌سازی موفق مرحله ششم توسط سامانه صادر می‌شود.");
-                if (!"DRAFT".equals(text(prepared.getOrDefault("PRODUCT_STATUS_CODE", "DRAFT"))))
-                    throw new ProductBuilderValidationException("محصول تسهیلات بدون کد باید در وضعیت پیش‌نویس باقی بماند.");
-                if (prepared.containsKey("LOAN_TYPE_ID"))
-                    throw new ProductBuilderValidationException("عقد محصول باید در پروفایل تسهیلات نسخه ثبت شود؛ صدور کد در مرحله نهایی انجام می‌شود.");
-                prepared.put("PRODUCT_CODE", null); // R29 conditional nullable PRODUCT_CODE migration.
-            } else if ("DEPOSIT".equals(domain) && text(prepared.get("PRODUCT_CODE")).isBlank()) {
-                throw new ProductBuilderValidationException("کد محصول سپرده الزامی است.");
-            }
+            if (!Set.of("LOAN", "DEPOSIT").contains(domain))
+                throw new ProductBuilderValidationException("دامنه محصول سپرده یا تسهیلات باید مشخص شود.");
+            if (!text(prepared.get("PRODUCT_CODE")).isBlank())
+                throw new ProductBuilderValidationException("کد محصول سپرده و تسهیلات فقط پس از نهایی‌سازی موفق مرحله ششم توسط سامانه صادر می‌شود.");
+            if (!"DRAFT".equals(text(prepared.getOrDefault("PRODUCT_STATUS_CODE", "DRAFT"))))
+                throw new ProductBuilderValidationException("محصول فاقد کد فقط در وضعیت پیش‌نویس قابل ثبت است.");
+            if (prepared.containsKey("LOAN_TYPE_ID"))
+                throw new ProductBuilderValidationException("عقد محصول باید در پروفایل تسهیلات نسخه ثبت شود؛ صدور کد در مرحله نهایی انجام می‌شود.");
+            prepared.put("PRODUCT_CODE", null); // R30: both domains begin with code-less DRAFT.
         }
         if ("PRODUCT_ELIGIBILITY_CRITERION".equals(normalizeTable(table))) {
             referenceOptionService.validateEligibilityCriterion(prepared);
@@ -250,19 +248,22 @@ public class ProductBuilderService {
         if ("PRODUCT".equals(normalizeTable(table))) {
             String oldDomain = text(existing.get("PRODUCT_CLASS_CODE"));
             String newDomain = text(prepared.getOrDefault("PRODUCT_CLASS_CODE", oldDomain));
-            if (!oldDomain.equals(newDomain) && ("LOAN".equals(oldDomain) || "LOAN".equals(newDomain)))
+            if (!oldDomain.equals(newDomain))
                 throw new ProductBuilderValidationException("تبدیل دامنه سپرده/تسهیلات مجاز نیست؛ محصول با کد سیستمی مستقل بسازید.");
-        }
-        if ("PRODUCT".equals(normalizeTable(table)) && "LOAN".equals(text(existing.get("PRODUCT_CLASS_CODE")))) {
-            if (repository.registeredLoanType(id).isPresent() && prepared.containsKey("PRODUCT_FAMILY_CODE")
+            if ("LOAN".equals(oldDomain) && repository.registeredLoanType(id).isPresent()
+                    && prepared.containsKey("PRODUCT_FAMILY_CODE")
                     && !text(prepared.get("PRODUCT_FAMILY_CODE")).equals(text(existing.get("PRODUCT_FAMILY_CODE"))))
                 throw new ProductBuilderValidationException("خانواده محصول دارای کد سیستمی قابل تغییر نیست.");
+            if ("DEPOSIT".equals(oldDomain) && repository.registeredDepositFamily(id).isPresent()
+                    && prepared.containsKey("PRODUCT_FAMILY_CODE")
+                    && !text(prepared.get("PRODUCT_FAMILY_CODE")).equals(text(existing.get("PRODUCT_FAMILY_CODE"))))
+                throw new ProductBuilderValidationException("خانواده سپرده پس از صدور کد سیستمی قابل تغییر نیست.");
             if (text(existing.get("PRODUCT_CODE")).isBlank()
                     && !"DRAFT".equals(text(prepared.getOrDefault("PRODUCT_STATUS_CODE", existing.get("PRODUCT_STATUS_CODE")))))
-                throw new ProductBuilderValidationException("تا پیش از صدور کد نهایی، وضعیت محصول تسهیلات باید پیش‌نویس باشد.");
+                throw new ProductBuilderValidationException("تا پیش از صدور کد نهایی، وضعیت محصول سپرده یا تسهیلات باید پیش‌نویس باشد.");
             if (prepared.containsKey("LOAN_TYPE_ID") || (prepared.containsKey("PRODUCT_CODE")
                     && !text(prepared.get("PRODUCT_CODE")).equals(text(existing.get("PRODUCT_CODE")))))
-                throw new ProductBuilderValidationException("کد محصول و عقد سازنده پس از ایجاد محصول تسهیلات قابل تغییر نیستند.");
+                throw new ProductBuilderValidationException("کد محصول و عقد سازنده پس از ایجاد محصول تسهیلات قابل تغییر نیستند؛ کد سپرده نیز سیستمی است.");
             prepared.remove("LOAN_TYPE_ID");
             prepared.remove("PRODUCT_CODE");
         }
@@ -362,6 +363,57 @@ public class ProductBuilderService {
         if (!changed) throw new ProductBuilderValidationException("محصول هنگام نهایی‌سازی یافت نشد.");
         repository.registerLoanProductCode(productId, issued, resolvedActor);
         // INACTIVE deliberately separates successful design finalization from branch offering.
+        return Map.of("productId", productId, "productCode", issued.code(), "newlyIssued", true);
+    }
+
+    /** R30: deposit products use their canonical PRODUCT_FAMILY_CODE as the code prefix.
+     *  All publication/design gates precede allocation; issuance, status and registry
+     *  are one transaction, and the bank-controlled year row serializes allocations.
+     */
+    @Transactional
+    public Map<String, Object> finalizeDepositProduct(long productId, long versionId, String actor) {
+        String resolvedActor = actorName(actor);
+        repository.lockProduct(productId);
+        Map<String, Object> product = findById("PRODUCT", productId);
+        if (!"DEPOSIT".equals(text(product.get("PRODUCT_CLASS_CODE"))))
+            throw new ProductBuilderValidationException("صدور کد سپرده فقط برای دامنه سپرده مجاز است.");
+        if (number(product.get("IS_DELETED")) != 0)
+            throw new ProductBuilderValidationException("صدور کد محصول حذف‌شده مجاز نیست.");
+        repository.lockProductVersion(versionId);
+        Map<String, Object> version = findById("PRODUCT_VERSION", versionId);
+        if (number(version.get("PRODUCT_ID")) != productId)
+            throw new ProductBuilderValidationException("نسخه انتخاب‌شده متعلق به این محصول سپرده نیست.");
+        String existingCode = text(product.get("PRODUCT_CODE"));
+        if (!existingCode.isBlank())
+            return Map.of("productId", productId, "productCode", existingCode, "newlyIssued", false);
+        LoanCodeIssuanceGate.requireDraft(text(product.get("PRODUCT_STATUS_CODE")));
+        LoanCodeIssuanceGate.requireApprovedCurrent(text(version.get("VERSION_STATUS_CODE")),
+                number(version.get("IS_CURRENT")) == 1, text(version.get("RECORD_STATUS_CODE")));
+        if (repository.currentProductVersionCount(productId) != 1L)
+            throw new ProductBuilderValidationException("محصول برای صدور کد باید دقیقاً یک نسخه جاری داشته باشد.");
+        String family = text(product.get("PRODUCT_FAMILY_CODE"));
+        // Validate against the actual supported family before allocating anything.
+        DepositProductCodePolicy.requireSupportedFamily(family);
+        String profileTable = DepositProductCodePolicy.isCorrespondent(family)
+                ? "CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE" : "DEPOSIT_PRODUCT_PROFILE";
+        var profiles = repository.search(profileTable, null, 0, 2,
+                "PRODUCT_VERSION_ID", String.valueOf(versionId));
+        if (profiles.totalElements() != 1 || profiles.items().size() != 1)
+            throw new ProductBuilderValidationException("نسخه جاری باید دقیقاً یک پروفایل سپرده معتبر داشته باشد.");
+        Map<String, Object> profile = profiles.items().get(0);
+        if (profile.containsKey("RECORD_STATUS_CODE")
+                && !"ACTIVE".equals(text(profile.get("RECORD_STATUS_CODE"))))
+            throw new ProductBuilderValidationException("پروفایل سپرده نسخه تصویب‌شده باید فعال باشد.");
+        businessValidator.validate("PRODUCT", product);
+        businessValidator.validate(profileTable, profile);
+        var readiness = governance.report(versionId);
+        LoanCodeIssuanceGate.requireGovernance(readiness.canApprove(), readiness.blockers());
+        // The same protected working-year source is used by LOAN and DEPOSIT.
+        PdlProductBuilderRepository.GeneratedDepositCode issued = repository.allocateDepositProductCode(family);
+        boolean changed = repository.update("PRODUCT", productId,
+                Map.of("PRODUCT_CODE", issued.code(), "PRODUCT_STATUS_CODE", "INACTIVE"), resolvedActor);
+        if (!changed) throw new ProductBuilderValidationException("محصول سپرده در مرحله صدور یافت نشد.");
+        repository.registerDepositProductCode(productId, issued, resolvedActor);
         return Map.of("productId", productId, "productCode", issued.code(), "newlyIssued", true);
     }
 

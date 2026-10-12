@@ -23,13 +23,19 @@ public final class ProductRuleEvidenceEvaluator {
     private static final Set<String> INACTIVE_STATUSES = Set.of(
             "INACTIVE", "DISABLED", "SUSPENDED", "CANCELLED", "CANCELED", "DELETED", "DRAFT", "REJECTED", "RETIRED", "EXPIRED");
 
+    // DPS.REF_RULE_STATUS_CODE (user-confirmed current business codes, 2026-10-12):
+    // 1=Draft, 2=Active, 3=Inactive, 4=Suspended, 5=Retired.
+    // Normalize ONLY fields bound to this reference. Unknown codes must still fail closed.
+    private static final Map<String, String> DPS_RULE_STATUSES = Map.of(
+            "1", "DRAFT", "2", "ACTIVE", "3", "INACTIVE", "4", "SUSPENDED", "5", "RETIRED");
+
     public static Evidence evaluate(String control, List<Map<String, Object>> rows,
                                     LocalDate versionStart, LocalDate versionEnd) {
         List<Map<String, Object>> valid = new ArrayList<>();
         List<Map<String, Object>> withinVersion = new ArrayList<>();
         int unknown = 0;
         for (Map<String, Object> row : rows) {
-            String status = status(row);
+            String status = status(control, row);
             if (!status.isBlank() && !USABLE_STATUSES.contains(status)) {
                 if (!INACTIVE_STATUSES.contains(status)) unknown++;
                 continue;
@@ -98,17 +104,30 @@ public final class ProductRuleEvidenceEvaluator {
         catch (RuntimeException e) { throw new ProductBuilderValidationException("تاریخ اعتبار قاعده معتبر نیست: " + s); }
     }
 
-    private static String status(Map<String, Object> row) {
+    private static String status(String control, Map<String, Object> row) {
+        // IS_ACTIVE is a record lifecycle flag and keeps its existing precedence.
         // IS_ALLOWED is a business permission, not a record lifecycle flag.
         if (row.containsKey("IS_ACTIVE") && row.get("IS_ACTIVE") != null) {
             Object flag = row.get("IS_ACTIVE");
             return ("1".equals(String.valueOf(flag)) || "true".equalsIgnoreCase(String.valueOf(flag)))
                     ? "ACTIVE" : "INACTIVE";
         }
-        for (String column : List.of("RULE_STATUS_CODE", "STATUS_CODE", "RECORD_STATUS_CODE")) {
-            if (row.containsKey(column) && row.get(column) != null) return text(row.get(column));
+        if (row.get("RULE_STATUS_CODE") != null) {
+            return dpsRuleStatus(text(row.get("RULE_STATUS_CODE")));
+        }
+        // Only the deposit closure rule's STATUS_CODE is backed by the same DPS
+        // reference. STATUS_CODE in other tables is NOT necessarily a rule status.
+        if ("DEPOSIT_PRODUCT_CLOSURE_RULE".equals(control) && row.get("STATUS_CODE") != null) {
+            return dpsRuleStatus(text(row.get("STATUS_CODE")));
+        }
+        for (String column : List.of("STATUS_CODE", "RECORD_STATUS_CODE")) {
+            if (row.get(column) != null) return text(row.get(column));
         }
         return "";
+    }
+
+    private static String dpsRuleStatus(String value) {
+        return DPS_RULE_STATUSES.getOrDefault(value, value);
     }
 
     private static String text(Object value) { return value == null ? "" : String.valueOf(value).trim().toUpperCase(); }

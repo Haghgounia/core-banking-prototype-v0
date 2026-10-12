@@ -1,3 +1,17 @@
+# R30-HF1 — DPS Rule Status Reference Mapping (2026-10-12)
+
+- Fixed Product Builder final review treating DPS.REF_RULE_STATUS_CODE numeric business code `2` (Active) as an unknown status, yielding misleading `0` effective eligibility rules / conflict.
+- Narrow normalization for RULE_STATUS_CODE (`1` Draft, `2` Active, `3` Inactive, `4` Suspended, `5` Retired) and deposit closure STATUS_CODE, preserving textual values, IS_ACTIVE precedence and fail-closed unknowns.
+- No Oracle DDL/data write, no changes to product code issuance or existing customer eligibility rules. Added Java regression and cross-platform verifier.
+- See docs/PDL-2026-10-12-R30-HF1-RULE-STATUS-REFERENCE-FA.md.
+
+# R30 — Product code system-only for deposits and loans (2026-10-12)
+
+- Removed manual PRODUCT_CODE field from stage-one identity for both DEPOSIT and LOAN. Drafts keep NULL until stage-six governance approval.
+- Added deposit code issuance using PRODUCT_FAMILY_CODE + controlled working year + 3-digit serial, with transactional registry and Oracle bank-year row lock.
+- Preserved R29 loan code contract, historical codes and UQ_PRODUCT_CODE; added Oracle R30 migration and regression verifier.
+- Full UAT and Oracle migration still required. See docs/PDL-2026-10-12-R30-DEPOSIT-LOAN-PRODUCT-CODE-FA.md.
+
 ## PDL R29 — Deferred Loan Product Code on Finalization (2026-10-11)
 
 - Based on the user-supplied `PDL.PRODUCT` DDL: retained `UQ_PRODUCT_CODE` while adding a conditional check and permitting null codes only for loan drafts.

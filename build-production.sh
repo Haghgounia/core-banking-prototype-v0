@@ -23,6 +23,10 @@ node "$ROOT/tools/verify-pdl-r27-product-policy-channel.mjs"
 node "$ROOT/tools/verify-pdl-r28-loan-code-eligibility.mjs"
 # R29: stage-six approval and transaction-safe loan code issuance.
 node "$ROOT/tools/verify-pdl-r29-finalization.mjs"
+# R30: product codes for both domains are issued at finalization.
+node "$ROOT/tools/verify-pdl-r30-deposit-finalization.mjs"
+# R30-HF1: DPS numeric rule lifecycle codes are canonicalized before governance review.
+node "$ROOT/tools/verify-pdl-r30-hf1-rule-status.mjs"
 
 for required in \
   "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/domain/DepositAccountModels.java" \

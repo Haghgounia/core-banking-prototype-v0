@@ -17,6 +17,7 @@ const api=read(front+'product-builder.service.ts');
 const component=read(front+'product-workspace.component.ts');
 const html=read(front+'product-workspace.component.html');
 const migration=read('database/oracle/pdl/migrations/0.11.0-r29-loan-product-finalization.sql');
+const r30=fs.existsSync(path.join(root,'database/oracle/pdl/migrations/0.11.0-r30-deposit-final-product-code.sql'));
 let passed=0, failed=0;
 const check=(label,condition)=>{if(condition)passed++;else failed++;console.log(`${condition?'PASS':'FAIL'} | ${label}`);};
 check('R29 migration checks prior R28 registry',migration.includes('PRODUCT_LOAN_CODE_REGISTRY'));
@@ -28,9 +29,10 @@ check('R29 migration never resets bank year or serial',!migration.includes('UPDA
 check('DRAFT loan code is explicitly NULL at create',service.includes('prepared.put("PRODUCT_CODE", null)'));
 check('No product code generation in generic create',!service.substring(service.indexOf('public Map<String, Object> create('),service.indexOf('public Map<String, Object> update(')).includes('allocateLoanProductCode('));
 check('Draft creation never stores a type specifically for early code',service.includes('prepared.containsKey("LOAN_TYPE_ID")'));
-check('No manual loan code possible at create',service.includes('کد محصول تسهیلات فقط پس از نهایی‌سازی موفق مرحله ششم'));
-check('No activation of uncoded loan through generic update',service.includes('تا پیش از صدور کد نهایی، وضعیت محصول تسهیلات باید پیش‌نویس باشد'));
-check('Deposit code remains required by the server',service.includes('کد محصول سپرده الزامی است'));
+check('No manual loan code possible at create',service.includes(r30 ? 'کد محصول سپرده و تسهیلات فقط پس از نهایی‌سازی موفق مرحله ششم' : 'کد محصول تسهیلات فقط پس از نهایی‌سازی موفق مرحله ششم'));
+check('No activation of uncoded loan through generic update',service.includes(r30 ? 'تا پیش از صدور کد نهایی، وضعیت محصول سپرده یا تسهیلات باید پیش‌نویس باشد' : 'تا پیش از صدور کد نهایی، وضعیت محصول تسهیلات باید پیش‌نویس باشد'));
+check(r30 ? 'Deposit draft is code-less by design' : 'Deposit code remains required by the server',
+    service.includes(r30 ? 'prepared.put("PRODUCT_CODE", null); // R30' : 'کد محصول سپرده الزامی است'));
 check('Product domain change still guarded',service.includes('تبدیل دامنه سپرده/تسهیلات مجاز نیست'));
 check('Issued code stays immutable via general update',service.includes('prepared.remove("PRODUCT_CODE")') && service.includes('کد محصول و عقد سازنده پس از ایجاد محصول'));
 check('Stage-six finalization owns transaction',service.includes('@Transactional\n    public Map<String, Object> finalizeLoanProduct('));
@@ -55,14 +57,17 @@ check('Transactional product status is INACTIVE (not OPEN)',service.includes('Ma
 check('Code and registry are persisted in same transaction',service.includes('repository.registerLoanProductCode(productId, issued, resolvedActor)'));
 check('Working year and loan type remain serially locked',repo.includes('lockLoanTypeForMapping(typeId)') && repo.includes('SETTING_ID = 1 FOR UPDATE'));
 check('Serial still follows loan type and working year',repo.includes('WHERE LOAN_TYPE_ID = :typeId AND WORK_YEAR = :workYear'));
-check('Loan identity input is never user editable',component.includes('code.disable({emitEvent:false})') && html.includes('[readonly]="!isDeposit()"'));
-check('Loan product status stays DRAFT until issuance',html.includes('@if (isDeposit() || hasIssuedLoanCode())'));
+check('Loan identity input is never user editable',component.includes('code.disable({emitEvent:false})') &&
+    (r30 ? !html.includes('formControlName="PRODUCT_CODE"') : html.includes('[readonly]="!isDeposit()"')));
+check('Loan product status stays DRAFT until issuance',html.includes(r30 ? '@if (hasIssuedProductCode())' : '@if (isDeposit() || hasIssuedLoanCode())'));
 check('No stage-one premature contract selector',!html.includes('نوع عقد برای تولید کد محصول (الزامی)'));
-check('Loan code issuance button only on stage six',html.includes('(click)="finalizeLoanProduct()"') && html.includes('نهایی‌سازی و صدور کد محصول'));
+check('Loan code issuance button only on stage six',html.includes(r30 ? '(click)="finalizeProduct()"' : '(click)="finalizeLoanProduct()"') && html.includes('نهایی‌سازی و صدور کد محصول'));
 check('Frontend never formats a code or a serial',!component.includes('String.format') && !component.includes('padStart(3'));
 check('Frontend calls only the dedicated finalization API',api.includes('/finalize-loan') && component.includes('this.service.finalizeLoanProduct(productId, versionId)'));
 check('Issuance message includes actual response code',component.includes('${issued.productCode}') && component.includes('issued.newlyIssued'));
-check('Identity code remains blank during draft',html.includes('پس از نهایی‌سازی مرحله ششم صادر می‌شود'));
+check('Identity code remains blank during draft', r30
+    ? !html.includes('formControlName="PRODUCT_CODE"') && component.includes("values['PRODUCT_CODE'] = ''")
+    : html.includes('پس از نهایی‌سازی مرحله ششم صادر می‌شود'));
 check('Windows build includes R29 verifier',read('build-production.cmd').includes('verify-pdl-r29-finalization.mjs'));
 check('Linux build includes R29 verifier',read('build-production.sh').includes('verify-pdl-r29-finalization.mjs'));
 let ts;
