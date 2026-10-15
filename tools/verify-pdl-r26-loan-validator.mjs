@@ -17,8 +17,19 @@ class CheckLoanR26 {
  static int pass=0;
  static final ProductBuilderBusinessValidator v=new ProductBuilderBusinessValidator();
  static Map<String,Object> props(Object...pairs){Map<String,Object> m=new HashMap<>();for(int i=0;i<pairs.length;i+=2)m.put((String)pairs[i],pairs[i+1]);return m;}
- static void allowed(String name,String table,Map<String,Object> p){try{v.validate(table,p); System.out.println("PASS | "+name);pass++;}catch(Exception x){throw new AssertionError(name+": "+x.getMessage(),x);}}
- static void blocked(String name,String table,Map<String,Object> p){try{v.validate(table,p);}catch(ProductBuilderValidationException x){System.out.println("PASS | "+name);pass++;return;}throw new AssertionError(name+" unexpectedly allowed");}
+ static Map<String,Object> fillBusinessDefaults(String table,Map<String,Object> p){
+  if(table.equals("LOAN_PRODUCT_PROCESS_RULE"))for(String key: List.of("MANUAL_APPROVAL_REQUIRED","COMMITTEE_APPROVAL_REQUIRED","MULTI_LEVEL_APPROVAL_REQUIRED","CBI_TRACKING_REQUIRED","EXTERNAL_INQUIRY_REQUIRED","ALLOW_OVERRIDE"))p.putIfAbsent(key,0);
+  if(table.equals("LOAN_PRODUCT_COLLATERAL_RULE")){
+   p.putIfAbsent("LOAN_PRODUCT_COLLATERAL_ID",701);
+   p.putIfAbsent("PRIORITY_NO",1);
+   for(String key: List.of("IS_REQUIRED","SUBSTITUTION_ALLOWED","THIRD_PARTY_ALLOWED","CURRENCY_MATCH_REQUIRED"))p.putIfAbsent(key,0);
+  }
+  return p;
+ }
+ static void allowed(String name,String table,Map<String,Object> p){
+  p=fillBusinessDefaults(table,p);try{v.validate(table,p); System.out.println("PASS | "+name);pass++;}catch(Exception x){throw new AssertionError(name+": "+x.getMessage(),x);}}
+ static void blocked(String name,String table,Map<String,Object> p){
+  p=fillBusinessDefaults(table,p);try{v.validate(table,p);}catch(ProductBuilderValidationException x){System.out.println("PASS | "+name);pass++;return;}throw new AssertionError(name+" unexpectedly allowed");}
  public static void main(String[] args){
   allowed("process no extra approval", "LOAN_PRODUCT_PROCESS_RULE",props("MANUAL_APPROVAL_REQUIRED",0,"COMMITTEE_APPROVAL_REQUIRED",0,"MULTI_LEVEL_APPROVAL_REQUIRED",0));
   allowed("process manual only", "LOAN_PRODUCT_PROCESS_RULE",props("MANUAL_APPROVAL_REQUIRED",1));
@@ -38,6 +49,6 @@ class CheckLoanR26 {
 `);
 function run(cmd,args){const result=spawnSync(cmd,args,{encoding:'utf8'});if(result.error)throw result.error; if(result.status!==0)throw Error(`${cmd} exit ${result.status}: ${result.stdout}\n${result.stderr}`); if(result.stdout)process.stdout.write(result.stdout);if(result.stderr)process.stderr.write(result.stderr);}
 try{
-run('javac',['-encoding','UTF-8','-d',scratch,ann,path.join(source,'ProductBuilderBusinessValidator.java'),path.join(source,'ProductBuilderValidationException.java'),test]);
+run('javac',['-encoding','UTF-8','-d',scratch,ann,path.join(source,'ProductBuilderBusinessValidator.java'),path.join(source,'ProductRuleSemanticContract.java'),path.join(source,'ProductBuilderValidationException.java'),test]);
 run('java',['-cp',scratch,'CheckLoanR26']);
 }finally{fs.rmSync(scratch,{recursive:true,force:true});}

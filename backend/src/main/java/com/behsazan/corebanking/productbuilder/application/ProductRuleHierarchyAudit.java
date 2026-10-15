@@ -1,0 +1,290 @@
+package com.behsazan.corebanking.productbuilder.application;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+/**
+ * HF7-A3/HF4: read-only publication evidence for two governed parent/child
+ * contracts. Checking the existence of a child row is not publication proof:
+ * children must be applicable, individually valid and temporally continuous.
+ *
+ * This does NOT resolve rate-tier amount partitions, policy inheritance,
+ * channel/customer scope or runtime enforcement. No SQL/write operation here.
+ */
+public final class ProductRuleHierarchyAudit {
+    private ProductRuleHierarchyAudit() {}
+
+    @FunctionalInterface
+    public interface ChildLoader {
+        List<Map<String, Object>> load(String childTable, String foreignKey, long parentId);
+    }
+
+    /**
+     * Compatibility contract for the earlier HF7-A3 tests: three additional,
+     * optional child families that predate the specialized HF4 term/tier audit.
+     * The result is purely read-only and DOES NOT by itself certify canApprove
+     * or operational canOpen; publication wiring is a distinct change.
+     *
+     * A missing child is allowed for these three OPTIONAL child families, but
+     * an existing, applicable child must be valid and belong to its parent.
+     */
+    public record AuditResult(int invalidCount, String firstProblem) {
+        public boolean valid() { return invalidCount == 0; }
+    }
+
+    public static AuditResult audit(String parentTable,
+                                    List<? extends Map<String, ?>> parents,
+                                    LocalDate from, LocalDate to,
+                                    String domain,
+                                    ChildLoader loader,
+                                    ProductBuilderBusinessValidator validator) {
+        if (parentTable == null || parents == null || from == null || to == null ||
+                loader == null || validator == null || to.isBefore(from))
+            return new AuditResult(1, "ورودی ممیزی سلسله‌مراتب قاعده معتبر نیست.");
+        String parent = parentTable.trim().toUpperCase(java.util.Locale.ROOT);
+        String productDomain = domain == null ? "" : domain.trim().toUpperCase(java.util.Locale.ROOT);
+        List<String> problems = new ArrayList<>();
+        for (Map<String, ?> original : parents) {
+            if (original == null) {
+                problems.add("قاعده مادر موجود نیست.");
+                continue;
+            }
+            // Evaluation expects Map<String,Object>; never mutate source evidence.
+            Map<String, Object> row = new java.util.LinkedHashMap<>(original);
+            if (ProductRuleEvidenceEvaluator.evaluate(parent, List.of(row), from, to).unrecognizedStatuses() > 0) {
+                problems.add("وضعیت قاعده مادر معتبر نیست: " + parent);
+                continue;
+            }
+            try {
+                if (ProductRuleEvidenceEvaluator.hasInvalidActivePeriod(parent, row)) {
+                    problems.add("بازه اعتبار قاعده مادر معکوس است: " + parent);
+                    continue;
+                }
+                if (!ProductRuleEvidenceEvaluator.isApplicableWithin(parent, row, from, to)) continue;
+            } catch (ProductBuilderValidationException ex) {
+                problems.add("تاریخ قاعده مادر معتبر نیست: " + ex.getMessage());
+                continue;
+            }
+            final String parentIdField;
+            final String[] childTables;
+            switch (parent) {
+                case "PRODUCT_CHANNEL_RULE" -> {
+                    parentIdField = "CHANNEL_RULE_ID";
+                    childTables = new String[]{"PRODUCT_CHANNEL_OPERATION"};
+                }
+                case "PRODUCT_ELIGIBILITY_RULE" -> {
+                    if (!"LOAN".equals(productDomain)) continue;
+                    parentIdField = "ELIGIBILITY_RULE_ID";
+                    childTables = new String[]{"LOAN_ELIGIBILITY_EXTENSION"};
+                }
+                case "DEPOSIT_PRODUCT_CLOSURE_RULE" -> {
+                    if (!"DEPOSIT".equals(productDomain)) continue;
+                    parentIdField = "CLOSURE_RULE_ID";
+                    childTables = new String[]{"DEPOSIT_PRODUCT_CLOSURE_PRECHECK",
+                            "DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE", "DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE"};
+                }
+                default -> {
+                    problems.add("جدول مادر در این قرارداد ممیزی تعریف نشده است: " + parent);
+                    continue;
+                }
+            }
+            Long id = strictId(row.get(parentIdField));
+            if (id == null) {
+                problems.add("شناسه قاعده مادر برای ممیزی فرزندان معتبر نیست: " + parentIdField);
+                continue;
+            }
+            for (String childTable : childTables) {
+                List<Map<String, Object>> children = get(loader, childTable, parentIdField, id);
+                if (children == null) {
+                    problems.add("قواعد فرزند قابل بازیابی کامل نیستند: " + childTable);
+                    continue;
+                }
+                for (Map<String, Object> child : children) {
+                    if (child == null) {
+                        problems.add("رکورد فرزند نامعتبر است: " + childTable);
+                        continue;
+                    }
+                    try {
+                        if (ProductRuleEvidenceEvaluator.evaluate(childTable, List.of(child), from, to)
+                                .unrecognizedStatuses() > 0) {
+                            problems.add("وضعیت رکورد فرزند معتبر نیست: " + childTable);
+                            continue;
+                        }
+                        if (ProductRuleEvidenceEvaluator.hasInvalidActivePeriod(childTable, child)) {
+                            problems.add("بازه اعتبار قاعده فرزند معکوس است: " + childTable);
+                            continue;
+                        }
+                        if (!ProductRuleEvidenceEvaluator.isApplicableWithin(childTable, child, from, to)) continue;
+                        if (!Objects.equals(id, strictId(child.get(parentIdField)))) {
+                            problems.add("ارتباط قاعده فرزند با مادر ناسازگار است: " + childTable);
+                            continue;
+                        }
+                        validator.validate(childTable, child);
+                        if ("PRODUCT_CHANNEL_OPERATION".equals(childTable)
+                                && numericZero(row.get("IS_ALLOWED")) && numericOne(child.get("IS_ALLOWED")))
+                            problems.add("در کانال غیرمجاز، عملیات مجاز قابل تعریف نیست.");
+                    } catch (ProductBuilderValidationException ex) {
+                        problems.add("قاعده فرزند " + childTable + ": " + ex.getMessage());
+                    }
+                }
+            }
+        }
+        return new AuditResult(problems.size(), problems.isEmpty() ? null : problems.get(0));
+    }
+
+    public record Finding(String status, String reason) {
+        public boolean valid() { return status == null; }
+        public boolean invalidSemantics() { return "INVALID_SEMANTICS".equals(status); }
+        public boolean conflict() { return "CONFLICT".equals(status); }
+    }
+
+    private static Finding ok() { return new Finding(null, null); }
+    private static Finding invalid(String reason) { return new Finding("INVALID_SEMANTICS", reason); }
+    private static Finding conflict(String reason) { return new Finding("CONFLICT", reason); }
+
+    public static Finding allowedTerms(List<Map<String, Object>> parents,
+                                       LocalDate from, LocalDate to,
+                                       ChildLoader loader,
+                                       ProductBuilderBusinessValidator validator) {
+        try {
+        for (var parent : parents) {
+            if (!ProductRuleEvidenceEvaluator.isApplicableWithin("DEPOSIT_PRODUCT_TERM_RULE", parent, from, to)) continue;
+            Long id = strictId(parent.get("TERM_RULE_ID"));
+            if (id == null) return invalid("شناسه قاعده مادر مدت سپرده معتبر نیست.");
+            List<Map<String, Object>> children = get(loader, "DEPOSIT_PRODUCT_ALLOWED_TERM", "TERM_RULE_ID", id);
+            if (children == null) return conflict("مدت‌های مجاز قاعده مادر قابل بازیابی نیستند؛ تصویب تا رفع نقص متوقف است.");
+            List<Map<String, Object>> applicable = new ArrayList<>();
+            for (var child : children) {
+                if (ProductRuleEvidenceEvaluator.hasInvalidActivePeriod("DEPOSIT_PRODUCT_ALLOWED_TERM", child))
+                    return invalid("مدت مجاز سپرده دارای بازه اعتبار معکوس است (قاعده مادر " + id + ").");
+                if (!ProductRuleEvidenceEvaluator.isApplicableWithin("DEPOSIT_PRODUCT_ALLOWED_TERM", child, from, to)) continue;
+                if (!Objects.equals(id, strictId(child.get("TERM_RULE_ID"))))
+                    return invalid("ارتباط مدت مجاز سپرده با شناسه قاعده مادر سازگار نیست (" + id + ").");
+                try { validator.validate("DEPOSIT_PRODUCT_ALLOWED_TERM", child); }
+                catch (ProductBuilderValidationException ex) {
+                    return invalid("مدت مجاز قاعده " + id + ": " + ex.getMessage());
+                }
+                applicable.add(child);
+            }
+            for (int a = 0; a < applicable.size(); a++) {
+                for (int b = a + 1; b < applicable.size(); b++) {
+                    var left = applicable.get(a);
+                    var right = applicable.get(b);
+                    if (!ProductRuleEvidenceEvaluator.overlap(left, right)) continue;
+                    if (numericOne(left.get("IS_DEFAULT")) && numericOne(right.get("IS_DEFAULT")))
+                        return conflict("دو مدت پیش‌فرض فعال با بازه‌های اعتبار متداخل برای قاعده " + id + " وجود دارد.");
+                    if (same(left, right, "TERM_UNIT_CODE") && sameNumber(left, right, "TERM_VALUE"))
+                        return conflict("مدت مجاز تکراری با واحد و مقدار یکسان در بازه همپوشان برای قاعده " + id + " وجود دارد.");
+                }
+            }
+            var coverage = ProductRuleEvidenceEvaluator.temporalCoverage("DEPOSIT_PRODUCT_ALLOWED_TERM", applicable, from, to);
+            if (!coverage.complete())
+                return conflict("مدت‌های مجاز قاعده " + id + " تمام اعتبار نسخه را پوشش نمی‌دهند؛ نخستین روز فاقد پوشش: "
+                        + coverage.firstGap() + ".");
+        }
+        return ok();
+        } catch (java.time.format.DateTimeParseException | ProductBuilderValidationException ex) {
+            return invalid("تاریخ یا وضعیت قاعده مدت/فرزند معتبر نیست: " + ex.getMessage());
+        }
+    }
+
+    public static Finding pricingTiers(List<Map<String, Object>> parents,
+                                       LocalDate from, LocalDate to,
+                                       ChildLoader loader,
+                                       ProductBuilderBusinessValidator validator) {
+        try {
+        for (var parent : parents) {
+            if (!ProductRuleEvidenceEvaluator.isApplicableWithin("PRODUCT_PRICING_RULE", parent, from, to)
+                    || !numericOne(parent.get("IS_TIERED_RATE"))) continue;
+            Long ruleId = strictId(parent.get("PRICING_RULE_ID"));
+            if (ruleId == null) return invalid("شناسه قاعده قیمت‌گذاری پله‌ای معتبر نیست.");
+            LocalDate scopedFrom = later(from, parsedDate(parent, "VALID_FROM", LocalDate.MIN));
+            LocalDate scopedTo = earlier(to, parsedDate(parent, "VALID_TO", LocalDate.MAX));
+            if (scopedTo.isBefore(scopedFrom)) continue;
+            var components = get(loader, "PRODUCT_PRICING_COMPONENT", "PRICING_RULE_ID", ruleId);
+            if (components == null) return conflict("اجزای قیمت‌گذاری قاعده " + ruleId + " قابل بازیابی نیستند.");
+            if (components.isEmpty()) return conflict("قاعده قیمت‌گذاری پله‌ای " + ruleId + " فاقد جزء قیمت‌گذاری است.");
+            List<Map<String, Object>> allTiers = new ArrayList<>();
+            for (var component : components) {
+                if (!Objects.equals(ruleId, strictId(component.get("PRICING_RULE_ID"))))
+                    return invalid("ارتباط جزء قیمت‌گذاری با قاعده " + ruleId + " معتبر نیست.");
+                Long componentId = strictId(component.get("PRICING_COMPONENT_ID"));
+                if (componentId == null) return invalid("شناسه جزء قیمت‌گذاری قاعده " + ruleId + " معتبر نیست.");
+                var children = get(loader, "PRODUCT_RATE_TIER", "PRICING_COMPONENT_ID", componentId);
+                if (children == null) return conflict("پله‌های نرخ جزء " + componentId + " قابل بازیابی نیستند.");
+                List<Map<String, Object>> scoped = new ArrayList<>();
+                for (var tier : children) {
+                    if (ProductRuleEvidenceEvaluator.hasInvalidActivePeriod("PRODUCT_RATE_TIER", tier))
+                        return invalid("پله نرخ جزء " + componentId + " بازه اعتبار معکوس دارد.");
+                    if (!ProductRuleEvidenceEvaluator.isApplicableWithin("PRODUCT_RATE_TIER", tier, scopedFrom, scopedTo)) continue;
+                    if (!Objects.equals(componentId, strictId(tier.get("PRICING_COMPONENT_ID"))))
+                        return invalid("ارتباط پله نرخ با جزء قیمت‌گذاری " + componentId + " معتبر نیست.");
+                    try { validator.validate("PRODUCT_RATE_TIER", tier); }
+                    catch (ProductBuilderValidationException ex) {
+                        return invalid("پله نرخ جزء " + componentId + ": " + ex.getMessage());
+                    }
+                    scoped.add(tier);
+                    allTiers.add(tier);
+                }
+                for (int a = 0; a < scoped.size(); a++) for (int b = a + 1; b < scoped.size(); b++) {
+                    var left = scoped.get(a);
+                    var right = scoped.get(b);
+                    if (sameNumber(left, right, "TIER_NO") && ProductRuleEvidenceEvaluator.overlap(left, right))
+                        return conflict("شماره پله نرخ تکراری در یک جزء قیمت‌گذاری و بازه اعتبار متداخل است (" + componentId + ").");
+                }
+            }
+            var coverage = ProductRuleEvidenceEvaluator.temporalCoverage("PRODUCT_RATE_TIER", allTiers, scopedFrom, scopedTo);
+            if (!coverage.complete())
+                return conflict("پله‌های نرخ قاعده " + ruleId + " همه روزهای اعتبار قاعده را پوشش نمی‌دهند؛ نخستین روز فاقد پوشش: "
+                        + coverage.firstGap() + ".");
+        }
+        return ok();
+        } catch (java.time.format.DateTimeParseException | ProductBuilderValidationException ex) {
+            return invalid("تاریخ یا وضعیت قاعده قیمت‌گذاری/فرزند معتبر نیست: " + ex.getMessage());
+        }
+    }
+
+    private static List<Map<String, Object>> get(ChildLoader loader, String table, String key, long parentId) {
+        try { return loader.load(table, key, parentId); }
+        catch (RuntimeException ex) { return null; } // fail closed with a visible governance finding
+    }
+    private static boolean same(Map<String, Object> a, Map<String, Object> b, String field) {
+        return Objects.equals(String.valueOf(a.get(field)).trim().toUpperCase(),
+                String.valueOf(b.get(field)).trim().toUpperCase());
+    }
+    private static boolean sameNumber(Map<String, Object> a, Map<String, Object> b, String field) {
+        BigDecimal left = decimal(a.get(field)), right = decimal(b.get(field));
+        return left != null && right != null && left.compareTo(right) == 0;
+    }
+    private static boolean numericZero(Object value) {
+        BigDecimal n = decimal(value);
+        return n != null && n.compareTo(BigDecimal.ZERO) == 0;
+    }
+    private static boolean numericOne(Object value) {
+        BigDecimal n = decimal(value);
+        return n != null && n.compareTo(BigDecimal.ONE) == 0;
+    }
+    private static BigDecimal decimal(Object value) {
+        if (value == null || String.valueOf(value).isBlank()) return null;
+        try { return new BigDecimal(String.valueOf(value).trim()); }
+        catch (NumberFormatException ex) { return null; }
+    }
+    private static Long strictId(Object value) {
+        BigDecimal n = decimal(value);
+        if (n == null || n.signum() <= 0) return null;
+        try { return n.longValueExact(); }
+        catch (ArithmeticException ex) { return null; }
+    }
+    private static LocalDate parsedDate(Map<String, Object> row, String field, LocalDate defaultValue) {
+        Object value = row.get(field);
+        if (value == null || String.valueOf(value).isBlank()) return defaultValue;
+        String s = String.valueOf(value);
+        return LocalDate.parse(s.length() > 10 ? s.substring(0, 10) : s);
+    }
+    private static LocalDate later(LocalDate a, LocalDate b) { return a.isAfter(b) ? a : b; }
+    private static LocalDate earlier(LocalDate a, LocalDate b) { return a.isBefore(b) ? a : b; }
+}

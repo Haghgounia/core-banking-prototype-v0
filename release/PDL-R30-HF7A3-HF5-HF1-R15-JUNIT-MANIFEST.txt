@@ -1,0 +1,15 @@
+R30-HF7A3 / HF5-HF1 — R15 test + Oracle binary coherence
+Baseline: core-banking-prototype-v0-2026-10-14-R30-HF7A3-HF5.zip
+Version: 0.11.0 (unchanged)
+Changes: surgical regression fixture update, numeric bool adapter, real Java/JUnit-source prebuild regression guard.
+No Oracle write, schema or frontend changes.
+Installation: overlay patch onto the verified HF5 baseline, keeping relative paths.
+Files:
+  backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderBusinessValidator.java
+  backend/src/test/java/com/behsazan/corebanking/productbuilder/application/PdlPricingRelationshipR15Test.java
+  build-production.cmd
+  build-production.sh
+  tools/java/HF7A3R15RegressionHarness.java
+  tools/verify-pdl-r30-hf7a3-hf5-hf1-r15.mjs
+  docs/PDL-2026-10-14-R30-HF7A3-HF5-HF1-R15-JUNIT-QA.md
+  release/PDL-R30-HF7A3-HF5-HF1-R15-JUNIT-MANIFEST.txt

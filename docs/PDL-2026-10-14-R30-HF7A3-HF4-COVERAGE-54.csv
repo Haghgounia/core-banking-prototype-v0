@@ -1,0 +1,55 @@
+﻿no,pdl_table,persian_title,catalog_package,catalog_package_name,hf7_semantic_write,other_business_write,hf7_approval_self,governance_control,hf7_parent_child_evidence,current_proof_level,runtime_qualification
+1,PRODUCT,محصول بانکی,01,Core,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+2,PRODUCT_VERSION,نسخه محصول,01,Core,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+3,PRODUCT_VERSION_MODULE,ماژول‌های نسخه محصول,01,Core,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+4,PRODUCT_LEGACY_MAPPING,نگاشت میراثی محصول,01,Core,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+5,PRODUCT_RELATIONSHIP,رابطه بین محصولات,01,Core,NO,YES,NO,YES,,Earlier write business validation only,Not UAT-qualified / no product-wide runtime evidence
+6,PRODUCT_ORG_SCOPE,محدوده سازمانی محصول,02,Common Rules,YES,NO,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+7,PRODUCT_CHANNEL_OPERATION,عملیات مجاز کانال,02,Common Rules,YES,NO,NO,NO,,HF7 write semantic only,Not UAT-qualified / no product-wide runtime evidence
+8,PRODUCT_CHANNEL_RULE,قاعده مشترک کانال,02,Common Rules,YES,NO,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+9,PRODUCT_RATE_TIER,پله‌های نرخ,02,Common Rules,YES,NO,NO,NO,تحت والد PRODUCT_PRICING_RULE؛ کنترل معنایی/زمانی و تعارض (در حالت پله‌ای),HF7 approval through parent conditionally,Not UAT-qualified / no product-wide runtime evidence
+10,PRODUCT_ELIGIBILITY_RULE,قاعده مشترک اهلیت,02,Common Rules,YES,NO,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+11,PRODUCT_ELIGIBILITY_CRITERION,معیارهای قاعده مشترک اهلیت,02,Common Rules,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+12,PRODUCT_REQUIRED_INQUIRY,استعلام‌های الزامی محصول,02,Common Rules,YES,NO,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+13,PRODUCT_PRICING_COMPONENT,اجزای قیمت‌گذاری,02,Common Rules,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+14,PRODUCT_PRICING_RULE,قاعده قیمت‌گذاری مشترک,02,Common Rules,YES,YES,YES,YES,,HF7 approval self + child audit,Not UAT-qualified / no product-wide runtime evidence
+15,PRODUCT_REQUIRED_DOCUMENT,مدارک الزامی محصول,02,Common Rules,YES,NO,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+16,DEPOSIT_PRODUCT_JOINT_RULE,قواعد حساب مشترک محصول سپرده,03,Deposit Module,YES,YES,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+17,DEPOSIT_PRODUCT_HOLD_RULE,قواعد مسدودی محصول سپرده,03,Deposit Module,YES,NO,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+18,DEPOSIT_PRODUCT_ALLOWED_TERM,مدت‌های مجاز محصول سپرده,03,Deposit Module,YES,NO,NO,NO,تحت والد DEPOSIT_PRODUCT_TERM_RULE؛ کنترل معنایی/زمانی و تعارض,HF7 approval through parent conditionally,Not UAT-qualified / no product-wide runtime evidence
+19,DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE,قواعد تسویه خاتمه سپرده,03,Deposit Module,NO,YES,NO,NO,,Earlier write business validation only,Not UAT-qualified / no product-wide runtime evidence
+20,DEPOSIT_PRODUCT_PROFILE,پروفایل سپرده,03,Deposit Module,NO,NO,NO,YES,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+21,DEPOSIT_PRODUCT_WITHDRAWAL_MEDIA,ابزارهای برداشت محصول سپرده,03,Deposit Module,YES,NO,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+22,DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE,قواعد تأیید خاتمه سپرده,03,Deposit Module,NO,YES,NO,NO,,Earlier write business validation only,Not UAT-qualified / no product-wide runtime evidence
+23,DEPOSIT_PRODUCT_CLOSURE_PRECHECK,کنترل‌های پیش از خاتمه سپرده,03,Deposit Module,NO,YES,NO,NO,,Earlier write business validation only,Not UAT-qualified / no product-wide runtime evidence
+24,DEPOSIT_PRODUCT_TRANSACTION_RULE,قواعد تراکنش محصول سپرده,03,Deposit Module,YES,NO,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+25,DEPOSIT_PRODUCT_OPENING_RULE,قواعد افتتاح محصول سپرده,03,Deposit Module,YES,YES,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+26,DEPOSIT_PRODUCT_CLOSURE_RULE,قواعد خاتمه محصول سپرده,03,Deposit Module,YES,YES,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+27,DEPOSIT_PRODUCT_TERM_RULE,قواعد مدت و سررسید محصول سپرده,03,Deposit Module,YES,NO,YES,YES,,HF7 approval self + child audit,Not UAT-qualified / no product-wide runtime evidence
+28,DEPOSIT_PRODUCT_DORMANCY_RULE,قواعد راکدی محصول سپرده,03,Deposit Module,YES,YES,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+29,DEPOSIT_PROFIT_PAYMENT_RULE,برنامه پرداخت سود سپرده,03,Deposit Module,NO,YES,NO,YES,,Earlier write business validation only,Not UAT-qualified / no product-wide runtime evidence
+30,LOAN_PRODUCT_PROCESS_RULE,قواعد فرایندی محصول تسهیلات,04,Loan Module,YES,YES,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+31,LOAN_PRODUCT_PROFILE,پروفایل تسهیلات,04,Loan Module,NO,YES,NO,YES,,Earlier write business validation only,Not UAT-qualified / no product-wide runtime evidence
+32,LOAN_FINANCIAL_EXTENSION,افزونه مالی تسهیلات,04,Loan Module,YES,YES,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+33,LOAN_ELIGIBILITY_EXTENSION,افزونه اهلیت تسهیلات,04,Loan Module,YES,YES,NO,NO,,HF7 write semantic only,Not UAT-qualified / no product-wide runtime evidence
+34,LOAN_PRODUCT_REPAYMENT_RULE,قواعد بازپرداخت محصول تسهیلات,04,Loan Module,YES,YES,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+35,LOAN_PRODUCT_COLLATERAL_RULE,قواعد وثیقه محصول تسهیلات,04,Loan Module,YES,YES,YES,YES,,HF7 approval self only,Not UAT-qualified / no product-wide runtime evidence
+36,FACILITY_OPERATION_PARAMETER,پارامترهای عملیات تسهیلات,05,Reference Data,NO,YES,NO,NO,,Earlier write business validation only,Not UAT-qualified / no product-wide runtime evidence
+37,PLAN_TYPE,انواع طرح های تسهیلات,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+38,LOAN_TYPE_PLAN_TYPE,رابط نوع عقد و نوع طرح,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+39,LOAN_TYPE,جدول انواع عقد,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+40,PATTERN_OPERATION_LOAN_TYPE,الگوی عملیات عقد,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+41,PATTERN_OPERATION_DETAIL,جزئیات عملیات تسهیلات,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+42,ECONOMIC_SECTION,جدول بخش اقتصادی,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+43,LOAN_USAGE,نحوه استفاده,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+44,ECONOMIC_SUB_SECTION,جدول زیر بخش اقتصادی,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+45,LOAN_PRODUCT_COLLATERAL,انواع وثیقه (اطلاعات پایه موقت),05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+46,DOCUMENT_TYPE,نوع مدرک,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+47,PATTERN_OPERATION,الگوی عملیات,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+48,OPERATION,انواع عملیات,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+49,SUB_OPERATION,ریز عملیات,05,Reference Data,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+50,CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE,پروفایل محصول نوسترو/وسترو,11,Correspondent Accounts,NO,YES,NO,YES,,Earlier write business validation only,Not UAT-qualified / no product-wide runtime evidence
+51,CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE,قاعده تسویه نوسترو/وسترو,11,Correspondent Accounts,NO,YES,NO,NO,,Earlier write business validation only,Not UAT-qualified / no product-wide runtime evidence
+52,CODE_SET,مجموعه کد مرجع,90,Code Management,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+53,CODE_VALUE,مقادیر کد مرجع,90,Code Management,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence
+54,CODE_VALUE_TRANSITION,قواعد گذار مقادیر وضعیت,90,Code Management,NO,NO,NO,NO,,Other baseline controls; HF7 direct semantic audit absent,Not UAT-qualified / no product-wide runtime evidence

@@ -49,7 +49,7 @@ const checks = [
   ['unrecognized rule statuses are fail closed', evidence.includes('unknown > 0')],
   ['per-control pagination prevents first-page-only completeness', governance.includes('do {') && governance.includes('raw.addAll(result.items())')],
   ['evidence regression JUnit includes overlap and unknown-status cases', evidenceTest.includes('overlappingPricingIntervalsForSamePurposeAndCurrencyConflict') && evidenceTest.includes('unknownRuleStatusFailsClosed')],
-  ['single-row controls detect duplicate rows', governance.includes('count > 1 && control.singleRow()')],
+  ['single-row controls detect simultaneous rows across the version', governance.includes('control.singleRow() && ProductRuleEvidenceEvaluator.hasOverlappingActiveRows(') && evidence.includes('hasOverlappingActiveRows(')],
   ['matrix publishes source, applicability, status, reason', ['String source, String status','String reason, long configuredCount','List<String> applicabilityScopes'].every(x => governance.includes(x))],
   ['transaction Rule never masquerades as operational authorization', governance.includes('NOT_CONNECTED_TO_OPERATIONAL_ENGINE')],
   ['cash withdrawal gap fails closed at origination gate', governance.includes('canOpen = false;') && governance.includes('تا اتصال و آزمون Runtime مجاز نیست')],

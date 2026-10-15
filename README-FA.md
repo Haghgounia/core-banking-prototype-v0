@@ -1,3 +1,5 @@
+> **R30-HF5 (2026-10-13):** Deposit product code = approved 4-digit numeric deposit TYPE code + Oracle working year + 3-digit serial. DBA-run HF5 migration is required before backend deployment; historical codes are not changed. See `docs/PDL-2026-10-13-R30-HF5-NUMERIC-DEPOSIT-TYPE-CODE-QA.md`.
+
 > **R30 (۱۲ اکتبر ۲۰۲۶):** کد محصول سپرده و تسهیلات در مرحله اول ورود دستی ندارد و پس از نهایی‌سازی مرحله ششم به‌صورت سیستمی صادر می‌شود. اجرای Migration R30 قبل از استقرار Backend جدید الزامی است. راهنما: `docs/PDL-2026-10-12-R30-DEPOSIT-LOAN-PRODUCT-CODE-FA.md`.
 
 > **آخرین اصلاح محصول‌ساز تسهیلات — R29:** تولید کد محصول به مرحله ششم (نهایی‌سازی و بازآزمایی کنترل‌ها) منتقل شده است.
@@ -753,3 +755,11 @@ Wizard افتتاح «چهار سپرده» اکنون با CIF Party Search، �
 هر Chat، Patch یا فاز جدید DPS2 باید قبل از شروع کار این Roadmap و سه سند مرجع موجود در `docs/dps2/reference/` را مبنا قرار دهد. بسته‌شدن Technical Phase به معنی تکمیل Operational Step سند نیست؛ وضعیت Coverage فقط در Canonical Roadmap تعیین می‌شود.
 
 وضعیت جاری: `11A..11H = CLOSED`؛ Phase `11I` برای **Step 05 - Deposit Transaction Processing** در وضعیت `IN_PROGRESS` است و Source Gate آن `56/56 PASS` شده؛ DB/Runtime qualification هنوز باز است. Step 04 از نظر فنی 11H PASS است ولی برای مقصدهای سود خارجی تا اتصال به Step 05 همچنان `PARTIAL` است؛ مرجع دقیق Scope و Gateها فقط Roadmap فوق است.
+
+### R30-HF2 — تعیین نسخه تصویب‌شده به‌عنوان نسخه جاری
+
+برای نسخه مصوب ولی غیرجاری، از مرحله دوم محصول‌ساز، عملیات مستقل «تعیین نسخه جاری» را با ثبت دلیل اجرا کنید. قبل از اجرای برنامه جدید، Migration زیر باید با بازبینی DBA اجرا شود:
+`database/oracle/pdl/migrations/0.11.0-r30-hf2-current-version-governance.sql`.
+این Migration رکوردهای موجود را تغییر نمی‌دهد و برای تاریخچه و یکتایی نسخه جاری است.
+آزمون: `node tools/verify-pdl-r30-hf2-current-version.mjs`.
+راهنما: `docs/PDL-2026-10-12-R30-HF2-APPROVED-CURRENT-VERSION-FA.md`.

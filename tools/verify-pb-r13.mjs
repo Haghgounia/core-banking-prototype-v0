@@ -9,6 +9,7 @@ const files = {
   css: 'frontend/src/app/features/product-builder/pdl-table.component.scss',
   ref: 'backend/src/main/java/com/behsazan/corebanking/productbuilder/application/PdlReferenceOptionService.java',
   service: 'backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderService.java',
+  profilePolicy: 'backend/src/main/java/com/behsazan/corebanking/productbuilder/application/DepositProfileIdentityPolicy.java',
   fee: 'backend/src/main/java/com/behsazan/corebanking/productbuilder/application/PdlDormancyFeePlanReference.java',
   dps: 'backend/src/main/java/com/behsazan/corebanking/deposit/productfactory/reference/DepositProductReferenceDescriptorProvider.java',
   seed: 'database/oracle/dps/migrations/0.3.88-fix96-unified-product-builder-reference-seed.sql',
@@ -41,12 +42,18 @@ const fieldsFor=(table,names)=>names.every(name=>columnsOf(table).some(c=>c.name
 const mapped=(col,resource)=>s.ref.includes(`Map.entry("${col}", "${resource}")`) && s.dps.includes(`spec("${resource}",`);
 const checks=[
   ['Reference HTML includes all four reviewed deposit forms',tables.every(n=>model.some(m=>m.name===n))],
-  ['FIX96 deposit identity is derived from the official five families',
-    ['QARD_SAVINGS','CURRENT_ACCOUNT','SHORT_TERM_DEPOSIT','LONG_TERM_DEPOSIT','CERTIFICATE_OF_DEPOSIT'].every(v=>s.ts.includes(v)&&s.service.includes(v))],
-  ['Frontend always renders deposit group and type without editable inputs',
-    s.html.includes('isDepositProfileIdentity(column)')&&s.html.includes('depositProfileIdentityLabel(column)')&&s.ts.includes('group.disable({emitEvent: false})')&&s.ts.includes('type.disable({emitEvent: false})')],
-  ['New profile identity is resolved and validated against active DPS reference values',
-    s.ts.includes('this.profileIdentityValid()')&&s.ts.includes('this.baseOptions(column)')&&s.service.includes('prepared.put("DEPOSIT_GROUP_CODE", identity[0])')],
+  ['FIX96 deposit identity is derived from the official five families (HF6 backend authority)',
+    ['QARD_SAVINGS','CURRENT_ACCOUNT','SHORT_TERM_DEPOSIT','LONG_TERM_DEPOSIT','CERTIFICATE_OF_DEPOSIT']
+      .every(v=>s.profilePolicy.includes(v)) && s.service.includes('DepositProfileIdentityPolicy.forFamily(family)')],
+  ['Frontend renders persisted group and type without manual profile editors',
+    s.ts.includes("if (this.tableName() === 'DEPOSIT_PRODUCT_PROFILE')") &&
+    s.ts.includes("return ['DEPOSIT_GROUP_CODE', 'DEPOSIT_TYPE_CODE']") &&
+    s.html.includes("@if (tableName() !== 'DEPOSIT_PRODUCT_PROFILE')") &&
+    s.html.includes('پروفایل سپرده سیستمی و فقط خواندنی')],
+  ['HF6 profile identity is resolved and validated against active DPS reference values in the version transaction',
+    s.service.includes('profile.put("DEPOSIT_GROUP_CODE", identity[0])')&&
+    s.service.includes('profile.put("DEPOSIT_TYPE_CODE", identity[1])')&&
+    s.service.includes('referenceOptionService.validateChangedValues(descriptor("DEPOSIT_PRODUCT_PROFILE"), profile, null)')],
   ['Backend prohibits changing existing profile identity',
     s.service.includes('"DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table))')&&s.service.includes('prepared.remove(code)')],
   ['No ambiguous generic TERM is guessed for a new profile',

@@ -1,0 +1,14 @@
+R30-HF7-A3/HF5 | exact source baseline: core-banking-prototype-v0-2026-10-14-R30-HF7A3-HF4.zip
+Purpose: restore historical HF7-A3 JUnit compatibility, validate read-only three-parent child contract, fail-closed status and duplicate keys.
+No Oracle DML/DDL, no business data update, no operational canOpen bypass.
+Original historical JUnit SHA256: 2c2f6bb75b1e429118cef589fa4e5dea946799c520656fe393498c02deb26d99
+Changes:
+ - backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleEvidenceEvaluator.java
+ - backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyAudit.java
+ - backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyHF7A3Test.java
+ - build-production.cmd
+ - build-production.sh
+ - docs/PDL-2026-10-14-R30-HF7A3-HF5-JUNIT-COMPAT-QA-FA.md
+ - tools/java/HF7A3HF5CompatibilityHarness.java
+ - tools/verify-pdl-r30-hf7a3-hf5-compat.mjs
+Installation: backup existing project; extract patch at exact HF4 project root with overwrite; run tools/verify-pdl-r30-hf7a3-hf5-compat.mjs then build-production.cmd.

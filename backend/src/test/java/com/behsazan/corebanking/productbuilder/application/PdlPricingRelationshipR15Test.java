@@ -3,6 +3,7 @@ package com.behsazan.corebanking.productbuilder.application;
 import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.SelectOption;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -43,19 +44,61 @@ class PdlPricingRelationshipR15Test {
 
     @Test
     void earlyTerminationRateIsConditionalAndBounded() {
+        // HF7-A1 and later require an explicit IS_TIERED_RATE flag on every pricing rule.
+        // Missing the flag would make the negative scenarios pass for the wrong reason.
         Map<String, Object> noEarly = Map.of(
                 "PRICING_PURPOSE_CODE", "DEPOSIT_PROFIT", "PRICING_METHOD_CODE", "FIXED",
-                "EARLY_TERMINATION_ALLOWED", 0, "EARLY_TERMINATION_RATE", 0.12);
+                "IS_TIERED_RATE", 0, "EARLY_TERMINATION_ALLOWED", 0, "EARLY_TERMINATION_RATE", 0.12);
         assertThatThrownBy(() -> validator.validate("PRODUCT_PRICING_RULE", noEarly))
-                .isInstanceOf(ProductBuilderValidationException.class);
+                .isInstanceOf(ProductBuilderValidationException.class)
+                .hasMessageContaining("هنگامی که خاتمه پیش از موعد مجاز نیست");
         Map<String, Object> earlyAllowed = Map.of(
                 "PRICING_PURPOSE_CODE", "DEPOSIT_PROFIT", "PRICING_METHOD_CODE", "FIXED",
-                "EARLY_TERMINATION_ALLOWED", 1, "EARLY_TERMINATION_RATE", 0.12);
+                "IS_TIERED_RATE", 0, "EARLY_TERMINATION_ALLOWED", 1, "EARLY_TERMINATION_RATE", 0.12);
         assertThatCode(() -> validator.validate("PRODUCT_PRICING_RULE", earlyAllowed)).doesNotThrowAnyException();
         assertThatThrownBy(() -> validator.validate("PRODUCT_PRICING_RULE", Map.of(
                 "PRICING_PURPOSE_CODE", "DEPOSIT_PROFIT", "PRICING_METHOD_CODE", "FIXED",
-                "EARLY_TERMINATION_ALLOWED", 1, "EARLY_TERMINATION_RATE", 1.2)))
-                .isInstanceOf(ProductBuilderValidationException.class);
+                "IS_TIERED_RATE", 0, "EARLY_TERMINATION_ALLOWED", 1, "EARLY_TERMINATION_RATE", 1.2)))
+                .isInstanceOf(ProductBuilderValidationException.class)
+                .hasMessageContaining("نرخ خاتمه زودهنگام باید بین صفر و یک باشد");
+    }
+
+    @Test
+    void fixedPricingMustExplicitlyDeclareTierFlag() {
+        Map<String, Object> noTierDecision = Map.of(
+                "PRICING_PURPOSE_CODE", "DEPOSIT_PROFIT", "PRICING_METHOD_CODE", "FIXED",
+                "EARLY_TERMINATION_ALLOWED", 0);
+        assertThatThrownBy(() -> validator.validate("PRODUCT_PRICING_RULE", noTierDecision))
+                .isInstanceOf(ProductBuilderValidationException.class)
+                .hasMessageContaining("پلکانی بودن نرخ");
+        assertThatThrownBy(() -> validator.validate("PRODUCT_PRICING_RULE", Map.of(
+                "PRICING_PURPOSE_CODE", "DEPOSIT_PROFIT", "PRICING_METHOD_CODE", "FIXED",
+                "IS_TIERED_RATE", 9, "EARLY_TERMINATION_ALLOWED", 0)))
+                .isInstanceOf(ProductBuilderValidationException.class)
+                .hasMessageContaining("پلکانی بودن نرخ");
+    }
+
+    @Test
+    void nonTieredPricingWithoutEarlyRateIsAccepted() {
+        assertThatCode(() -> validator.validate("PRODUCT_PRICING_RULE", Map.of(
+                "PRICING_PURPOSE_CODE", "DEPOSIT_PROFIT", "PRICING_METHOD_CODE", "FIXED",
+                "IS_TIERED_RATE", 0, "EARLY_TERMINATION_ALLOWED", 0)))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void oracleDecimalOneAndNumericTextOneRespectEarlyTerminationPermission() {
+        assertThatCode(() -> validator.validate("PRODUCT_PRICING_RULE", Map.of(
+                "PRICING_PURPOSE_CODE", "DEPOSIT_PROFIT", "PRICING_METHOD_CODE", "FIXED",
+                "IS_TIERED_RATE", new BigDecimal("0.0"),
+                "EARLY_TERMINATION_ALLOWED", new BigDecimal("1.0"),
+                "EARLY_TERMINATION_RATE", new BigDecimal("0.12"))))
+                .doesNotThrowAnyException();
+        assertThatCode(() -> validator.validate("PRODUCT_PRICING_RULE", Map.of(
+                "PRICING_PURPOSE_CODE", "DEPOSIT_PROFIT", "PRICING_METHOD_CODE", "FIXED",
+                "IS_TIERED_RATE", "0.0", "EARLY_TERMINATION_ALLOWED", "1.0",
+                "EARLY_TERMINATION_RATE", new BigDecimal("0.12"))))
+                .doesNotThrowAnyException();
     }
 
     @Test

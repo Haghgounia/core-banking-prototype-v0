@@ -37,7 +37,7 @@ assert(!originalHtml.includes('routerLink="/fee2/studio"'), 'duplicate FEE2 Stud
 const SECTION_RX = /<div class="menu-section-label">([^<]+)<\/div>\s*(<mat-nav-list\b[^>]*>[\s\S]*?<\/mat-nav-list>)/g;
 const sections = [...originalHtml.matchAll(SECTION_RX)];
 const expected = [
-  'عملیات', 'محصولات و قیمت‌گذاری', 'چهار سپرده',
+  'عملیات', 'محصولات و قیمت‌گذاری', 'سپرده',
   'ساختار سازمانی و شبکه شعب', 'داده‌های مرجع', 'مدیریت و سیستم'
 ];
 for (const label of expected) assert(sections.filter(x => x[1] === label).length === 1, `sidebar section "${label}" is missing or duplicated; no files changed`);
@@ -87,7 +87,7 @@ function wrap(groupId, title, icon, list) {
 }
 const wrappers = new Map([
   ['محصولات و قیمت‌گذاری', ['products', 'محصولات و قیمت‌گذاری', 'sell']],
-  ['چهار سپرده', ['deposits', 'سپرده و حساب', 'account_balance_wallet']],
+  ['سپرده', ['deposits', 'سپرده و حساب', 'account_balance_wallet']],
   ['ساختار سازمانی و شبکه شعب', ['organization', 'سازمان و شعب', 'account_tree']],
   ['داده‌های مرجع', ['references', 'داده‌های مرجع', 'dataset']],
   ['مدیریت و سیستم', ['technical', 'مدیریت و ابزارهای فنی', 'settings']]

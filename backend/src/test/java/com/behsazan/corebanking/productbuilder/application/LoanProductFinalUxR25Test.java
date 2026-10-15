@@ -23,36 +23,72 @@ class LoanProductFinalUxR25Test {
         assertThat(LoanCivilPartnershipPolicy.matches(Map.of())).isFalse();
     }
 
+    /** Valid persisted rule data must include both explicit loan switches (HF7-A1).
+     * Missing values are defaulted on CREATE by LoanBooleanDefaults, not by the
+     * standalone semantic validator used for approval and this regression test. */
+    private static Map<String, Object> financial() {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("INTEREST_DISCOUNT_ALLOWED", 0);
+        row.put("PENALTY_HOLIDAY_CALCULATION", 0);
+        return row;
+    }
+
+    private static Map<String, Object> collateral(int priority) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("LOAN_PRODUCT_COLLATERAL_ID", 701); // Governed collateral type reference; not the rule PK.
+        row.put("PRIORITY_NO", priority);
+        row.put("IS_REQUIRED", 0);
+        row.put("SUBSTITUTION_ALLOWED", 0);
+        row.put("THIRD_PARTY_ALLOWED", 0);
+        row.put("CURRENCY_MATCH_REQUIRED", 0);
+        return row;
+    }
+
     @Test void contributionStoredAsFractionAndAcceptsNoneOrBoundaries() {
-        validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of());
-        validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of(
-                "MIN_CUSTOMER_CONTRIBUTION", BigDecimal.ZERO,
-                "MAX_CUSTOMER_CONTRIBUTION", BigDecimal.ONE));
-        validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of(
-                "MIN_CUSTOMER_CONTRIBUTION", new BigDecimal("0.25"),
-                "MAX_CUSTOMER_CONTRIBUTION", new BigDecimal("0.75")));
+        validator.validate("LOAN_FINANCIAL_EXTENSION", financial());
+        var row = financial();
+        row.put("MIN_CUSTOMER_CONTRIBUTION", BigDecimal.ZERO);
+        row.put("MAX_CUSTOMER_CONTRIBUTION", BigDecimal.ONE);
+        validator.validate("LOAN_FINANCIAL_EXTENSION", row);
+        row.put("MIN_CUSTOMER_CONTRIBUTION", new BigDecimal("0.25"));
+        row.put("MAX_CUSTOMER_CONTRIBUTION", new BigDecimal("0.75"));
+        validator.validate("LOAN_FINANCIAL_EXTENSION", row);
     }
 
     @Test void invalidContributionFractionsAndOrderAreRejected() {
-        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of(
-                "MIN_CUSTOMER_CONTRIBUTION", new BigDecimal("-0.001"))))
-                .isInstanceOf(ProductBuilderValidationException.class);
-        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of(
-                "MAX_CUSTOMER_CONTRIBUTION", new BigDecimal("1.001"))))
-                .isInstanceOf(ProductBuilderValidationException.class);
-        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of(
-                "MIN_CUSTOMER_CONTRIBUTION", new BigDecimal("0.7"),
-                "MAX_CUSTOMER_CONTRIBUTION", new BigDecimal("0.4"))))
-                .isInstanceOf(ProductBuilderValidationException.class);
+        var negative = financial();
+        negative.put("MIN_CUSTOMER_CONTRIBUTION", new BigDecimal("-0.001"));
+        negative.put("MAX_CUSTOMER_CONTRIBUTION", new BigDecimal("0.5"));
+        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", negative))
+                .isInstanceOf(ProductBuilderValidationException.class).hasMessageContaining("منفی");
+        var excessive = financial();
+        excessive.put("MIN_CUSTOMER_CONTRIBUTION", BigDecimal.ZERO);
+        excessive.put("MAX_CUSTOMER_CONTRIBUTION", new BigDecimal("1.001"));
+        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", excessive))
+                .isInstanceOf(ProductBuilderValidationException.class).hasMessageContaining("صفر تا یک");
+        var reversed = financial();
+        reversed.put("MIN_CUSTOMER_CONTRIBUTION", new BigDecimal("0.7"));
+        reversed.put("MAX_CUSTOMER_CONTRIBUTION", new BigDecimal("0.4"));
+        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", reversed))
+                .isInstanceOf(ProductBuilderValidationException.class).hasMessageContaining("حداکثر");
+        var unpaired = financial();
+        unpaired.put("MIN_CUSTOMER_CONTRIBUTION", new BigDecimal("0.2"));
+        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", unpaired))
+                .isInstanceOf(ProductBuilderValidationException.class).hasMessageContaining("حداقل و حداکثر");
     }
 
     @Test void interestDiscountDaysFollowTheExplicitPermissionSwitch() {
-        validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of("INTEREST_DISCOUNT_ALLOWED", 1,
-                "INTEREST_DISCOUNT_DAY", 30));
-        validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of("INTEREST_DISCOUNT_ALLOWED", 0));
-        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of(
-                "INTEREST_DISCOUNT_ALLOWED", 0, "INTEREST_DISCOUNT_DAY", 30)))
-                .isInstanceOf(ProductBuilderValidationException.class);
+        var allowed = financial();
+        allowed.put("INTEREST_DISCOUNT_ALLOWED", 1);
+        allowed.put("INTEREST_DISCOUNT_DAY", 30);
+        validator.validate("LOAN_FINANCIAL_EXTENSION", allowed);
+        validator.validate("LOAN_FINANCIAL_EXTENSION", financial());
+        var disallowed = financial();
+        disallowed.put("INTEREST_DISCOUNT_DAY", 30);
+        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", disallowed))
+                .isInstanceOf(ProductBuilderValidationException.class).hasMessageContaining("غیرفعال");
+        assertThatThrownBy(() -> validator.validate("LOAN_FINANCIAL_EXTENSION", Map.of()))
+                .isInstanceOf(ProductBuilderValidationException.class).hasMessageContaining("NULL مجاز نیست");
     }
 
     private static Map<String, Object> repayment() {
@@ -88,10 +124,14 @@ class LoanProductFinalUxR25Test {
     }
 
     @Test void collateralRulePriorityZeroMeansUnspecifiedAndOneMeansFirst() {
-        validator.validate("LOAN_PRODUCT_COLLATERAL_RULE", Map.of("PRIORITY_NO", 0));
-        validator.validate("LOAN_PRODUCT_COLLATERAL_RULE", Map.of("PRIORITY_NO", 1));
-        assertThatThrownBy(() -> validator.validate("LOAN_PRODUCT_COLLATERAL_RULE", Map.of("PRIORITY_NO", -1)))
-                .isInstanceOf(ProductBuilderValidationException.class);
+        validator.validate("LOAN_PRODUCT_COLLATERAL_RULE", collateral(0));
+        validator.validate("LOAN_PRODUCT_COLLATERAL_RULE", collateral(1));
+        assertThatThrownBy(() -> validator.validate("LOAN_PRODUCT_COLLATERAL_RULE", collateral(-1)))
+                .isInstanceOf(ProductBuilderValidationException.class).hasMessageContaining("غیرمنفی");
+        var missingReference = collateral(0);
+        missingReference.remove("LOAN_PRODUCT_COLLATERAL_ID");
+        assertThatThrownBy(() -> validator.validate("LOAN_PRODUCT_COLLATERAL_RULE", missingReference))
+                .isInstanceOf(ProductBuilderValidationException.class).hasMessageContaining("شناسه صحیح مثبت");
     }
 
     private static Map<String, Object> type(String code, String name, int group) {

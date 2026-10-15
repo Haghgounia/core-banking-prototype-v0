@@ -18,10 +18,18 @@ public class ProductBuilderBusinessValidator {
 
     public void validate(String table, Map<String, Object> values) {
         if (table == null || values == null) return;
+        // HF7-A1: enforce the same minimum semantic contract for Angular,
+        // direct API requests, and atomic eligibility/loan-extension saves.
+        ProductRuleSemanticContract.validate(table, values);
         switch (table.trim().toUpperCase()) {
             case "DEPOSIT_PROFIT_PAYMENT_RULE" -> validateProfitPayment(values);
             case "DEPOSIT_PRODUCT_OPENING_RULE" -> validateOpeningAmounts(values);
             case "DEPOSIT_PRODUCT_JOINT_RULE" -> validateJointOwnerCounts(values);
+            case "DEPOSIT_PRODUCT_DORMANCY_RULE" -> validateDepositDormancy(values);
+            case "DEPOSIT_PRODUCT_CLOSURE_RULE" -> validateDepositClosure(values);
+            case "DEPOSIT_PRODUCT_CLOSURE_PRECHECK" -> validateDepositClosurePrecheck(values);
+            case "DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE" -> validateDepositClosureSettlement(values);
+            case "DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE" -> validateDepositClosureApproval(values);
             case "PRODUCT_PRICING_RULE" -> validatePricingRule(values);
             case "PRODUCT_RELATIONSHIP" -> validateRelationship(values);
             case "LOAN_PRODUCT_PROFILE" -> validateLoanProfile(values);
@@ -133,6 +141,78 @@ public class ProductBuilderBusinessValidator {
         nonnegative(values, "MIN_INCOME_AMOUNT", "حداقل درآمد");
         nonnegative(values, "MIN_CREDIT_SCORE", "حداقل امتیاز اعتباری");
         nonnegative(values, "REQUIRED_GUARANTOR_COUNT", "تعداد ضامنان");
+    }
+
+    /** The OFF position of dormancy auto-reactivation is an explicit numeric zero. */
+    private void validateDepositDormancy(Map<String, Object> values) {
+        Integer inactivity = integer(values, "INACTIVITY_PERIOD_VALUE");
+        if (inactivity == null || inactivity <= 0) fail("مقدار دوره عدم فعالیت باید عدد صحیح مثبت باشد.");
+        if (text(values, "INACTIVITY_PERIOD_UNIT_CODE").isBlank())
+            fail("واحد دوره عدم فعالیت را انتخاب کنید.");
+        Integer warning = integer(values, "WARNING_PERIOD_VALUE");
+        String warningUnit = text(values, "WARNING_PERIOD_UNIT_CODE");
+        if ((warning == null) != warningUnit.isBlank())
+            fail("مقدار و واحد دوره هشدار پیش از راکدی باید با هم تعیین شوند.");
+        if (warning != null && warning < 0)
+            fail("مقدار هشدار پیش از راکدی نباید منفی باشد.");
+        if (warning != null && warningUnit.equals(text(values, "INACTIVITY_PERIOD_UNIT_CODE")) && warning > inactivity)
+            fail("در واحد یکسان، مدت هشدار نباید از دوره عدم فعالیت بیشتر باشد.");
+        binaryFlag(values, "AUTO_REACTIVATION_ALLOWED", "رفع خودکار راکدی");
+        validateGenericDateRange(values);
+    }
+
+    private void validateDepositClosure(Map<String, Object> values) {
+        binaryFlag(values, "IS_CLOSURE_ALLOWED", "مجاز بودن خاتمه");
+        binaryFlag(values, "IS_PARTIAL_CLOSURE_ALLOWED", "مجاز بودن خاتمه جزئی");
+        if (bool(values, "IS_PARTIAL_CLOSURE_ALLOWED") && !bool(values, "IS_CLOSURE_ALLOWED"))
+            fail("خاتمه جزئی تنها زمانی مجاز است که اصل خاتمه سپرده مجاز باشد.");
+        nonnegative(values, "MIN_HOLDING_PERIOD_DAYS", "حداقل مدت نگهداری");
+        nonnegative(values, "NOTICE_PERIOD_DAYS", "مدت اعلام قبلی");
+        validateGenericDateRange(values);
+    }
+
+    private void validateDepositClosurePrecheck(Map<String, Object> values) {
+        if (text(values, "CHECK_TYPE_CODE").isBlank() || text(values, "FAILURE_ACTION_CODE").isBlank())
+            fail("نوع کنترل پیش از خاتمه و اقدام در صورت عدم موفقیت باید از فهرست مصوب انتخاب شوند.");
+        requirePositiveSequence(values, "SEQUENCE_NO", "ترتیب اجرای کنترل پیش از خاتمه");
+        binaryFlag(values, "IS_MANDATORY", "الزامی بودن کنترل پیش از خاتمه");
+    }
+
+    private void validateDepositClosureSettlement(Map<String, Object> values) {
+        if (text(values, "SETTLEMENT_COMPONENT_CODE").isBlank() || text(values, "SETTLEMENT_METHOD_CODE").isBlank())
+            fail("جزء مالی و روش تسویه هنگام خاتمه باید تعیین شوند.");
+        String method = text(values, "SETTLEMENT_METHOD_CODE");
+        if (!java.util.Set.of("PAY", "TRANSFER", "DEDUCT", "WAIVE").contains(method))
+            fail("\u0631\u0648\u0634 \u062a\u0633\u0648\u06cc\u0647 \u0628\u0627\u06cc\u062f \u0627\u0632 \u06af\u0632\u06cc\u0646\u0647\u200c\u0647\u0627\u06cc \u0645\u0635\u0648\u0628 \u0627\u0646\u062a\u062e\u0627\u0628 \u0634\u0648\u062f.");
+        String destination = text(values, "DESTINATION_CODE");
+        if (("TRANSFER".equals(method) || "PAY".equals(method)) && destination.isBlank())
+            fail("\u0628\u0631\u0627\u06cc \u0631\u0648\u0634 \u067e\u0631\u062f\u0627\u062e\u062a \u06cc\u0627 \u0627\u0646\u062a\u0642\u0627\u0644\u060c \u0645\u0642\u0635\u062f \u062a\u0633\u0648\u06cc\u0647 \u0627\u0644\u0632\u0627\u0645\u06cc \u0627\u0633\u062a.");
+        if (("DEDUCT".equals(method) || "WAIVE".equals(method)) && !destination.isBlank())
+            fail("\u062f\u0631 \u0631\u0648\u0634 \u06a9\u0633\u0631 \u0627\u0632 \u0645\u0627\u0646\u062f\u0647 \u06cc\u0627 \u0628\u062e\u0634\u0648\u062f\u06af\u06cc\u060c \u0645\u0642\u0635\u062f \u062a\u0633\u0648\u06cc\u0647 \u0628\u0627\u06cc\u062f \u062e\u0627\u0644\u06cc \u0628\u0627\u0634\u062f.");
+        if ("TRANSFER".equals(method) && "CASH".equals(destination))
+            fail("\u067e\u0631\u062f\u0627\u062e\u062a \u0646\u0642\u062f\u06cc \u0645\u0642\u0635\u062f \u0627\u0646\u062a\u0642\u0627\u0644 \u0628\u0627\u0646\u06a9\u06cc \u0646\u06cc\u0633\u062a.");
+        if ("PAY".equals(method) && "BANK_ACCOUNT".equals(destination))
+            fail("\u067e\u0631\u062f\u0627\u062e\u062a \u0628\u0647 \u0645\u0634\u062a\u0631\u06cc \u0646\u0628\u0627\u06cc\u062f \u0628\u0647 \u062d\u0633\u0627\u0628 \u062f\u0627\u062e\u0644\u06cc \u0628\u0627\u0646\u06a9 \u062a\u0633\u0648\u06cc\u0647 \u0634\u0648\u062f.");
+        requirePositiveSequence(values, "SEQUENCE_NO", "ترتیب اجرای تسویه");
+        binaryFlag(values, "IS_MANDATORY", "الزامی بودن مرحله تسویه");
+    }
+
+    private void validateDepositClosureApproval(Map<String, Object> values) {
+        if (text(values, "APPROVAL_LEVEL_CODE").isBlank()) fail("نقش یا سطح تأییدکننده خاتمه الزامی است.");
+        requirePositiveSequence(values, "APPROVAL_SEQUENCE_NO", "ترتیب تأیید خاتمه");
+        durationRange(values, "MIN_AMOUNT", "MAX_AMOUNT", "مبلغ مشمول تأیید");
+        binaryFlag(values, "IS_MANDATORY", "الزامی بودن تأیید خاتمه");
+    }
+
+    private void requirePositiveSequence(Map<String, Object> values, String key, String caption) {
+        Integer sequence = integer(values, key);
+        if (sequence == null || sequence <= 0) fail(caption + " باید عدد صحیح مثبت باشد.");
+    }
+
+    private void binaryFlag(Map<String, Object> values, String key, String caption) {
+        Integer flag = integer(values, key);
+        if (flag == null || (flag != 0 && flag != 1))
+            fail(caption + " فقط مقدار ۰ یا ۱ می‌پذیرد.");
     }
 
     private void validateOpeningAmounts(Map<String, Object> values) {
@@ -266,7 +346,11 @@ public class ProductBuilderBusinessValidator {
         if (value == null) return false;
         if (value instanceof Boolean b) return b;
         String text = value.toString().trim();
-        return "1".equals(text) || "TRUE".equalsIgnoreCase(text) || "Y".equalsIgnoreCase(text);
+        if ("TRUE".equalsIgnoreCase(text) || "Y".equalsIgnoreCase(text)) return true;
+        // Oracle NUMBER(1) can arrive as BigDecimal(1.0), or as numeric text from an API.
+        // The semantic contract has already rejected invalid mandatory binary flags.
+        try { return new BigDecimal(text).compareTo(BigDecimal.ONE) == 0; }
+        catch (NumberFormatException ignored) { return false; }
     }
 
     private static Integer integer(Map<String, Object> values, String key) {

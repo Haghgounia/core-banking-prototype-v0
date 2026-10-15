@@ -27,6 +27,33 @@ node "$ROOT/tools/verify-pdl-r29-finalization.mjs"
 node "$ROOT/tools/verify-pdl-r30-deposit-finalization.mjs"
 # R30-HF1: DPS numeric rule lifecycle codes are canonicalized before governance review.
 node "$ROOT/tools/verify-pdl-r30-hf1-rule-status.mjs"
+# R30-HF2: approved-current governance command with transactional audit.
+node "$ROOT/tools/verify-pdl-r30-hf2-current-version.mjs"
+# R30-HF3: reject an unbound ngSubmit form that would refresh the page.
+node "$ROOT/tools/verify-pdl-r30-hf3-submit.mjs"
+# R30-HF4: deposit dormancy defaults and CHECK-aware closure/precheck reference contracts.
+node "$ROOT/tools/verify-pdl-r30-hf4-deposit-closure.mjs"
+# R30-HF5: numeric type codes and legacy registry isolation.
+node "$ROOT/tools/verify-pdl-r30-hf5-deposit-type-code.mjs"
+# R30-HF6: profile identity is created atomically with a new deposit version.
+node "$ROOT/tools/verify-pdl-r30-hf6-auto-deposit-profile.mjs"
+node "$ROOT/tools/verify-pdl-r30-hf7-safety-gate.mjs"
+# R30-HF7A1: semantic guard for create/update and approval of historic rules.
+node "$ROOT/tools/verify-pdl-r30-hf7a1-semantic.mjs"
+# R30-HF7A2: full-interval semantic audit and temporal coverage.
+node "$ROOT/tools/verify-pdl-r30-hf7a2-temporal.mjs"
+# R30-HF7-A3/HF1: preserve version editing state when governance denies save.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-version-editor.mjs"
+# R30-HF7-A3/HF2: Oracle CHECK mapping, deposit joint/settlement UX and channel validity scope.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf2-product-rules.mjs"
+# R30-HF7-A3/HF3: validate child term/rate-tier semantics.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf3-child-validation.mjs"
+# R30-HF7-A3/HF4: parent/child governance proof, actual Java and temporal semantics.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf4-hierarchy.mjs"
+# R30-HF7-A3/HF5: historical JUnit compatibility and fail-closed rule evidence.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf5-compat.mjs"
+# HF5-HF1: real R15 pricing validation plus original regression fixture integrity.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf5-hf1-r15.mjs"
 
 for required in \
   "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/domain/DepositAccountModels.java" \

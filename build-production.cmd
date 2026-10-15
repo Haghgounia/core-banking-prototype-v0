@@ -49,6 +49,33 @@ rem R30: both deposit and loan codes issued only after stage-six finalization.
 node "%ROOT%tools\verify-pdl-r30-deposit-finalization.mjs" || exit /b 1
 rem R30-HF1: DPS numeric rule lifecycle codes are canonicalized before governance review.
 node "%ROOT%tools\verify-pdl-r30-hf1-rule-status.mjs" || exit /b 1
+rem R30-HF2: approved-current governance command, one-current index and audit trail.
+node "%ROOT%tools\verify-pdl-r30-hf2-current-version.mjs" || exit /b 1
+rem R30-HF3: the governed current-version confirmation uses a registered reactive form.
+node "%ROOT%tools\verify-pdl-r30-hf3-submit.mjs" || exit /b 1
+rem R30-HF4: deposit dormancy defaults and CHECK-aware closure/precheck reference contracts.
+node "%ROOT%tools\verify-pdl-r30-hf4-deposit-closure.mjs" || exit /b 1
+rem R30-HF5: numeric type codes, registry isolation and shared-year lock.
+node "%ROOT%tools\verify-pdl-r30-hf5-deposit-type-code.mjs" || exit /b 1
+rem R30-HF6: automatic read-only deposit profile in the version creation transaction.
+node "%ROOT%tools\verify-pdl-r30-hf6-auto-deposit-profile.mjs" || exit /b 1
+node "%ROOT%tools\verify-pdl-r30-hf7-safety-gate.mjs" || exit /b 1
+rem R30-HF7A1: semantic contract and cross-domain approval-readiness guard.
+node "%ROOT%tools\verify-pdl-r30-hf7a1-semantic.mjs" || exit /b 1
+rem R30-HF7A2: temporal coverage and scheduled semantic audit.
+node "%ROOT%tools\verify-pdl-r30-hf7a2-temporal.mjs" || exit /b 1
+rem R30-HF7-A3/HF1: version editor retains selections on governance failure; operational gate remains closed.
+node "%ROOT%tools\verify-pdl-r30-hf7a3-version-editor.mjs" || exit /b 1
+rem R30-HF7-A3/HF2: Oracle CHECK mapping, deposit joint/settlement UX and channel validity scope.
+node "%ROOT%tools\verify-pdl-r30-hf7a3-hf2-product-rules.mjs" || exit /b 1
+rem R30-HF7-A3/HF3: child term/rate-tier value and cross-field guards.
+node "%ROOT%tools\verify-pdl-r30-hf7a3-hf3-child-validation.mjs" || exit /b 1
+rem R30-HF7-A3/HF4: parent/child governance proof, actual Java and temporal semantics.
+node "%ROOT%tools\verify-pdl-r30-hf7a3-hf4-hierarchy.mjs" || exit /b 1
+rem R30-HF7-A3/HF5: historic HF7-A3 JUnit compatibility, valid IS_ACTIVE and duplicate rule keys.
+node "%ROOT%tools\verify-pdl-r30-hf7a3-hf5-compat.mjs" || exit /b 1
+rem HF5-HF1: execute real R15 pricing validation and reject incomplete historical JUnit fixtures.
+node "%ROOT%tools\verify-pdl-r30-hf7a3-hf5-hf1-r15.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.
 if not exist "%ROOT%frontend\src\app\app.component.ts" (

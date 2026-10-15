@@ -35,7 +35,8 @@ import java.util.regex.Pattern;
 @Repository
 public class PdlProductBuilderRepository {
     private static final Pattern IDENTIFIER = Pattern.compile("[A-Z][A-Z0-9_$#]*");
-    private static final Pattern IN_CLAUSE = Pattern.compile("(?is)([A-Z][A-Z0-9_$#]*)\\s+IN\\s*\\(([^()]*)\\)");
+    private static final Pattern IN_CLAUSE = Pattern.compile("(?is)\"?([A-Z][A-Z0-9_$#]*)\"?\\s+IN\\s*\\(([^()]*)\\)");
+    private static final Pattern EQUALITY_CLAUSE = Pattern.compile("(?is)\"?([A-Z][A-Z0-9_$#]*)\"?\\s*=\\s*(\'(?:\'\'|[^\'])*\'|-?[0-9]+(?:\\.[0-9]+)?)");
     private static final Set<String> SYSTEM_MANAGED = Set.of(
             "CREATED_AT", "CREATED_BY", "UPDATED_AT", "UPDATED_BY", "RECORD_VERSION", "MIGRATED_AT", "IS_DELETED"
     );
@@ -70,6 +71,23 @@ public class PdlProductBuilderRepository {
                         + " WHERE PRODUCT_ID = :productId AND IS_CURRENT = 1")
                 .param("productId", productId).query(Long.class).single();
         return count == null ? 0L : count;
+    }
+
+    /** Read under the parent PRODUCT FOR UPDATE lock from the governance command. */
+    public Optional<Long> currentProductVersionId(long productId) {
+        return jdbcClient.sql("SELECT PRODUCT_VERSION_ID FROM " + qualified("PRODUCT_VERSION")
+                        + " WHERE PRODUCT_ID = :productId AND IS_CURRENT = 1")
+                .param("productId", productId).query(Long.class).optional();
+    }
+
+    /** The audit INSERT shares the exact transaction with old/new IS_CURRENT updates. */
+    public void appendProductVersionCurrentAudit(long productId, Long previousVersionId,
+                                                  long targetVersionId, String reason, String actor) {
+        jdbcClient.sql("INSERT INTO " + schemaName + ".PRODUCT_VERSION_CURRENT_AUDIT"
+                + " (PRODUCT_ID, PREVIOUS_VERSION_ID, TARGET_VERSION_ID, ACTION_CODE, CHANGE_REASON, ACTOR)"
+                + " VALUES (:productId, :previousId, :targetId, 'MAKE_CURRENT', :reason, :actor)")
+                .param("productId", productId).param("previousId", previousVersionId)
+                .param("targetId", targetVersionId).param("reason", reason).param("actor", actor).update();
     }
 
     public long previewNextProductVersionNo(long productId) {
@@ -170,38 +188,57 @@ public class PdlProductBuilderRepository {
                 .param("product", productId).query(Long.class).optional();
     }
 
-    /** A single bank-approved year row locks code issuance for both domains.
-     *  This eliminates family/year races without introducing a second clock.
+    /** Bank-controlled year row serializes new loan/deposit issuance. Legacy family-based
+     *  registry is immutable; HF5 uses an independent type-code registry without rewriting
+     *  or reinterpreting historical family/year serials.
      */
-    public record GeneratedDepositCode(String family, int year, int serial, String code) { }
+    public record GeneratedDepositCode(String family, String depositTypeCode,
+                                       String numericTypeCode, int year, int serial, String code) { }
 
-    public GeneratedDepositCode allocateDepositProductCode(String family) {
-        int year = activeLoanProductWorkingYear(); // SELECT FOR UPDATE: serializes concurrent deposit issuance.
+    /** Call ONLY from finalization's @Transactional boundary. The shared Oracle
+     *  working-year row is locked before searching the registry and allocating.
+     */
+    public GeneratedDepositCode allocateDepositProductCode(String family, String depositTypeCode) {
+        String numericTypeCode = com.behsazan.corebanking.productbuilder.application
+                .DepositProductCodePolicy.numericTypeCode(depositTypeCode);
+        int year = activeLoanProductWorkingYear(); // SELECT FOR UPDATE, shared with LOAN.
         Integer maximum = jdbcClient.sql("SELECT NVL(MAX(SERIAL_NO), 0) FROM " + schemaName
-                        + ".PRODUCT_DEPOSIT_CODE_REGISTRY WHERE PRODUCT_FAMILY_CODE = :family AND WORK_YEAR = :workYear")
-                .param("family", family).param("workYear", year).query(Integer.class).single();
+                        + ".PRODUCT_DEPOSIT_TYPE_CODE_REGISTRY WHERE ISSUANCE_TYPE_CODE = :typeCode"
+                        + " AND WORK_YEAR = :workYear")
+                .param("typeCode", numericTypeCode).param("workYear", year)
+                .query(Integer.class).single();
         for (int serial = maximum + 1; serial <= 999; serial++) {
-            String code = com.behsazan.corebanking.productbuilder.application.DepositProductCodePolicy.format(family, year, serial);
-            Long used = jdbcClient.sql("SELECT COUNT(*) FROM " + qualified("PRODUCT") + " WHERE PRODUCT_CODE = :code")
+            String code = com.behsazan.corebanking.productbuilder.application
+                    .DepositProductCodePolicy.format(depositTypeCode, year, serial);
+            // UQ_PRODUCT_CODE applies to the *entire* PDL.PRODUCT catalog, including LOAN.
+            Long used = jdbcClient.sql("SELECT COUNT(*) FROM " + qualified("PRODUCT")
+                            + " WHERE PRODUCT_CODE = :code")
                     .param("code", code).query(Long.class).single();
-            if (used == 0) return new GeneratedDepositCode(family, year, serial, code);
+            if (used == 0) return new GeneratedDepositCode(
+                    family, depositTypeCode, numericTypeCode, year, serial, code);
         }
-        throw new ProductBuilderValidationException("ظرفیت ۹۹۹ کد این خانواده سپرده در سال کاری تکمیل شده است.");
+        throw new ProductBuilderValidationException("ظرفیت ۹۹۹ کد این نوع سپرده در سال کاری تکمیل شده است.");
     }
 
     public void registerDepositProductCode(long productId, GeneratedDepositCode code, String actor) {
-        jdbcClient.sql("INSERT INTO " + schemaName + ".PRODUCT_DEPOSIT_CODE_REGISTRY"
-                + " (PRODUCT_ID, PRODUCT_FAMILY_CODE, WORK_YEAR, SERIAL_NO, PRODUCT_CODE, CREATED_BY)"
-                + " VALUES (:product, :family, :year, :serial, :code, :actor)")
+        jdbcClient.sql("INSERT INTO " + schemaName + ".PRODUCT_DEPOSIT_TYPE_CODE_REGISTRY"
+                + " (PRODUCT_ID, PRODUCT_FAMILY_CODE, DEPOSIT_TYPE_CODE, ISSUANCE_TYPE_CODE,"
+                + " WORK_YEAR, SERIAL_NO, PRODUCT_CODE, CREATED_BY)"
+                + " VALUES (:product, :family, :typeCode, :prefix, :year, :serial, :code, :actor)")
                 .param("product", productId).param("family", code.family())
+                .param("typeCode", code.depositTypeCode()).param("prefix", code.numericTypeCode())
                 .param("year", code.year()).param("serial", code.serial())
                 .param("code", code.code()).param("actor", actor).update();
     }
 
-    /** Existing coded deposits predate the R30 registry and remain immutable. */
+    /** Both historical R30 and current HF5 registries mark issued family as immutable.
+     *  UNION ALL deliberately fails for an impossible duplicate PRODUCT_ID in both registries.
+     */
     public Optional<String> registeredDepositFamily(long productId) {
         return jdbcClient.sql("SELECT PRODUCT_FAMILY_CODE FROM " + schemaName
-                        + ".PRODUCT_DEPOSIT_CODE_REGISTRY WHERE PRODUCT_ID = :product")
+                        + ".PRODUCT_DEPOSIT_CODE_REGISTRY WHERE PRODUCT_ID = :product"
+                        + " UNION ALL SELECT PRODUCT_FAMILY_CODE FROM " + schemaName
+                        + ".PRODUCT_DEPOSIT_TYPE_CODE_REGISTRY WHERE PRODUCT_ID = :product")
                 .param("product", productId).query(String.class).optional();
     }
 
@@ -561,22 +598,45 @@ public class PdlProductBuilderRepository {
     private Map<String, List<SelectOption>> loadCheckOptions(String table) {
         String sql = "SELECT SEARCH_CONDITION_VC FROM ALL_CONSTRAINTS WHERE OWNER=:owner AND TABLE_NAME=:table "
                 + "AND CONSTRAINT_TYPE='C' AND SEARCH_CONDITION_VC IS NOT NULL";
-        Map<String, LinkedHashSet<String>> raw = new LinkedHashMap<>();
-        jdbcClient.sql(sql).param("owner", schemaName).param("table", table).query(String.class).list().forEach(condition -> {
+        List<String> constraints = jdbcClient.sql(sql).param("owner", schemaName).param("table", table)
+                .query(String.class).list();
+        return parseCheckOptions(constraints);
+    }
+
+    /** Parse the exact persisted CHECK values, including Oracle quoted identifiers.
+     *  Multiple CHECK constraints on one column are intersected; OR-alternatives
+     *  in one constraint are combined. This is a read-only metadata operation.
+     */
+    static Map<String, List<SelectOption>> parseCheckOptions(List<String> conditions) {
+        Map<String, LinkedHashSet<String>> allowed = new LinkedHashMap<>();
+        for (String condition : conditions) {
+            if (condition == null) continue;
+            Map<String, LinkedHashSet<String>> found = new LinkedHashMap<>();
             Matcher matcher = IN_CLAUSE.matcher(condition);
             while (matcher.find()) {
                 String column = matcher.group(1).toUpperCase(Locale.ROOT);
                 for (String token : splitValues(matcher.group(2))) {
-                    raw.computeIfAbsent(column, k -> new LinkedHashSet<>()).add(token);
+                    found.computeIfAbsent(column, k -> new LinkedHashSet<>()).add(token);
                 }
             }
-        });
+            matcher = EQUALITY_CLAUSE.matcher(condition);
+            while (matcher.find()) {
+                String column = matcher.group(1).toUpperCase(Locale.ROOT);
+                found.computeIfAbsent(column, k -> new LinkedHashSet<>()).add(matcher.group(2).trim());
+            }
+            found.forEach((column, choices) -> {
+                LinkedHashSet<String> previous = allowed.get(column);
+                if (previous == null) allowed.put(column, new LinkedHashSet<>(choices));
+                else previous.retainAll(choices);
+            });
+        }
         Map<String, List<SelectOption>> result = new LinkedHashMap<>();
-        raw.forEach((column, values) -> result.put(column, values.stream().map(this::checkOption).toList()));
+        allowed.forEach((column, values) -> result.put(column, values.stream()
+                .map(PdlProductBuilderRepository::checkOption).toList()));
         return result;
     }
 
-    private SelectOption checkOption(String token) {
+    private static SelectOption checkOption(String token) {
         String value = token.trim();
         if (value.startsWith("'") && value.endsWith("'") && value.length() >= 2) {
             value = value.substring(1, value.length() - 1).replace("''", "'");

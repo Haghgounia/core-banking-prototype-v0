@@ -14,7 +14,7 @@ import static org.mockito.Mockito.*;
 class RuleGovernanceLiteR20Test {
     private final PdlProductBuilderRepository repo = mock(PdlProductBuilderRepository.class);
     private final RuleGovernanceLiteService policy = mock(RuleGovernanceLiteService.class);
-    private final ProductRuleGovernanceService governance = new ProductRuleGovernanceService(repo, policy);
+    private final ProductRuleGovernanceService governance = new ProductRuleGovernanceService(repo, policy, new ProductBuilderBusinessValidator());
 
     private void setup(String missingAction, boolean bound) {
         when(repo.findById("PRODUCT_VERSION",55L)).thenReturn(Optional.of(bound ? Map.of(
@@ -27,7 +27,7 @@ class RuleGovernanceLiteR20Test {
             String table = call.getArgument(0);
             if ("PRODUCT_VERSION_MODULE".equals(table)) return new TablePage(List.of(Map.of("MODULE_CODE","TRANSACTION","IS_ENABLED",1)),1,0,200);
             if ("DEPOSIT_PRODUCT_TRANSACTION_RULE".equals(table)) return new TablePage(List.of(),0,0,200);
-            return new TablePage(List.of(Map.of("RULE_STATUS_CODE","ACTIVE","CHANNEL_CODE","BRANCH","TRANSACTION_TYPE_CODE","WITHDRAWAL","PRICING_PURPOSE_CODE","PROFIT","CURRENCY_CODE","IRR","CLOSURE_TYPE_CODE","NORMAL")),1,0,200);
+            return new TablePage(List.of(ProductRuleGovernanceFixture.row(table)),1,0,200);
         });
         if (bound) {
             when(policy.policy(7L)).thenReturn(new RuleGovernanceLiteService.Policy(7,"BASE",1,"پایه",

@@ -129,6 +129,15 @@ public class PdlReferenceOptionService {
             "PROFIT_DISTRIBUTION_CODE", Map.of("1", "EQUAL", "2", "OWNERSHIP_SHARE", "3", "CUSTOM_PERCENT")
     );
 
+    // PDL installations may constrain individual ownership as INDIVIDUAL
+    // (DPS2), while the reviewed Product Builder form uses SINGLE.
+    // Only an exact value present in the live PDL CHECK is ever persisted.
+    private static final Map<String, Map<String, String>> JOINT_PDL_ALIASES = Map.of(
+            "OWNERSHIP_TYPE_CODE", Map.of("INDIVIDUAL", "SINGLE"),
+            "SIGNING_RULE_CODE", Map.of("ANY", "ANY_TO_SIGN", "ALL", "BOTH_TO_SIGN"),
+            "PROFIT_DISTRIBUTION_CODE", Map.of()
+    );
+
     // The approved Product Builder form specifies semantic choices even when DPS
     // reference tables are not seeded. Never show numeric DPS surrogates to users.
     // When Oracle publishes CHECK choices, constrain this contract to those codes.
@@ -497,6 +506,13 @@ public class PdlReferenceOptionService {
             List<SelectOption> choices = businessFormOptions(table, name, column.options());
             return copy(column, true, "PDL_FORM_CONTRACT", choices);
         }
+        if (DepositClosureReferenceContract.supports(table, name)) {
+            String resource = "DEPOSIT_PRODUCT_CLOSURE_RULE.STATUS_CODE".equals(businessField)
+                    ? "dps-rule-statuses" : RESOURCE_BY_COLUMN.get(name);
+            List<SelectOption> choices = DepositClosureReferenceContract.closureFormOptions(table, name, column.options(), referenceOptions(resource));
+            String source = column.options().isEmpty() ? "PDL_FORM_CONTRACT" : "PDL_CHECK_CONSTRAINT";
+            return copy(column, true, source, choices);
+        }
         String resource = RESOURCE_BY_COLUMN.get(name);
         // STATUS_CODE is ambiguous globally: only the closure rule represents a rule status.
         if ("DEPOSIT_PRODUCT_CLOSURE_RULE".equals(normalize(table)) && "STATUS_CODE".equals(name)) {
@@ -561,7 +577,10 @@ public class PdlReferenceOptionService {
             String incoming = normalize(reference.code() == null ? reference.value() : reference.code());
             String semantic = translations.getOrDefault(incoming, incoming);
             String persistedCode = allowed.contains(semantic) ? semantic :
-                    allowed.contains(incoming) ? incoming : null;
+                    allowed.contains(incoming) ? incoming : allowed.stream()
+                            .filter(code -> semantic.equals(JOINT_PDL_ALIASES
+                                    .getOrDefault(columnName, Map.of()).get(code)))
+                            .findFirst().orElse(null);
             if (persistedCode == null) continue;
             if ("عنوان فارسی مرجع تعریف نشده".equals(reference.label())) continue;
             mapped.putIfAbsent(persistedCode, new SelectOption(persistedCode, persistedCode, reference.label()));
@@ -572,6 +591,18 @@ public class PdlReferenceOptionService {
             for (SelectOption choice : declared) {
                 String semantic = normalize(choice.code());
                 if (allowed.contains(semantic)) mapped.putIfAbsent(semantic, choice);
+            }
+            // The exact Oracle CHECK may name the single-owner value INDIVIDUAL.
+            // Translate its business label, never submit a guessed SINGLE value.
+            for (Map.Entry<String, String> alias : JOINT_PDL_ALIASES
+                    .getOrDefault(columnName, Map.of()).entrySet()) {
+                if (!allowed.contains(alias.getKey())) continue;
+                for (SelectOption choice : declared) {
+                    if (alias.getValue().equals(normalize(choice.code()))) {
+                        mapped.putIfAbsent(alias.getKey(),
+                                new SelectOption(alias.getKey(), alias.getKey(), choice.label()));
+                    }
+                }
             }
             // Some legacy PDL installations CHECK numeric codes rather than semantics.
             // Only actual CHECK-permitted numbers are eligible; labels stay Persian.

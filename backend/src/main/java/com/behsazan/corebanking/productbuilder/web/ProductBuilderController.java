@@ -69,6 +69,22 @@ public class ProductBuilderController {
         return service.saveLoanEligibilityEmployment(id, values, types, actor);
     }
 
+    /**
+     * R30-HF2: explicit, reasoned current-version governance command.
+     * This prototype's actor header is audit metadata, not real role authorization.
+     */
+    @PostMapping("/products/{productId}/versions/{versionId}/make-current")
+    Map<String, Object> makeVersionCurrent(
+            @PathVariable long productId, @PathVariable long versionId,
+            @RequestBody Map<String, Object> request,
+            @RequestHeader(name = "X-User-Name", defaultValue = "prototype-ui") String actor) {
+        Object raw = request == null ? null : request.get("reason");
+        if (!(raw instanceof String reason))
+            throw new com.behsazan.corebanking.productbuilder.application.ProductBuilderValidationException(
+                    "علت تغییر نسخه جاری الزامی است.");
+        return service.makeApprovedVersionCurrent(productId, versionId, reason, actor);
+    }
+
     /** Explicit stage-six command; never issue a product code from generic CRUD. */
     @PostMapping("/products/{productId}/finalize-loan")
     Map<String, Object> finalizeLoanProduct(

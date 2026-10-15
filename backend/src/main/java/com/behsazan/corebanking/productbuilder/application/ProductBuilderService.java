@@ -186,11 +186,17 @@ public class ProductBuilderService {
 
     @Transactional
     public Map<String, Object> create(String table, Map<String, Object> values, String actor) {
+        // HF6: profile identity is owned by the PRODUCT_VERSION creation transaction.
+        // A generic API caller must not create another or spoof an existing profile.
+        if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table)))
+            throw new ProductBuilderValidationException("پروفایل سپرده هنگام ایجاد نسخه به صورت سیستمی ثبت می‌شود؛ افزودن دستی مجاز نیست.");
         String resolvedActor = actorName(actor);
         if ("PRODUCT_VERSION".equals(normalizeTable(table)) && values.containsKey("RULE_POLICY_VERSION_ID")) {
             throw new ProductBuilderValidationException("اتصال سیاست فقط از مسیر اختصاصی Rule Governance Lite مجاز است.");
         }
         if ("PRODUCT_VERSION".equals(normalizeTable(table))) {
+            if (number(values.get("IS_CURRENT")) == 1)
+                throw new ProductBuilderValidationException("تعیین نسخه جاری تنها از عملیات مستقل حاکمیتی مجاز است.");
             String requestedStatus = text(values.get("VERSION_STATUS_CODE"));
             if (!requestedStatus.isBlank() && !"DRAFT".equals(requestedStatus)) {
                 throw new ProductBuilderValidationException("نسخه جدید ابتدا باید به صورت پیش‌نویس ثبت شود. تصویب فقط پس از بازبینی حاکمیت مجاز است.");
@@ -202,6 +208,7 @@ public class ProductBuilderService {
         writeGuard.assertCreateAllowed(table, values);
         Map<String, Object> prepared = prepareCreateValues(table, values, resolvedActor);
         LoanBooleanDefaults.apply(normalizeTable(table), prepared);
+        DepositRuleDefaults.apply(normalizeTable(table), prepared);
         if ("PRODUCT".equals(normalizeTable(table))) {
             String domain = text(prepared.get("PRODUCT_CLASS_CODE"));
             if (!Set.of("LOAN", "DEPOSIT").contains(domain))
@@ -234,27 +241,49 @@ public class ProductBuilderService {
         if ("LOAN_PRODUCT_COLLATERAL_RULE".equals(normalizeTable(table)))
             reorderLoanCollateral(prepared, null, resolvedActor);
         long id = repository.insert(table, prepared, resolvedActor);
+        if ("PRODUCT_VERSION".equals(normalizeTable(table)))
+            createSystemDepositProfile(id, number(prepared.get("PRODUCT_ID")), resolvedActor);
         return findById(table, id);
     }
 
     @Transactional
     public Map<String, Object> update(String table, long id, Map<String, Object> values, String actor) {
+        if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table)))
+            throw new ProductBuilderValidationException("پروفایل سپرده سیستمی و فقط خواندنی است؛ ویرایش دستی مجاز نیست.");
         String resolvedActor = actorName(actor);
+        // Lock parent first, including when identity is edited. An overlapping
+        // version CREATE must not materialize a profile from a stale family.
+        if ("PRODUCT".equals(normalizeTable(table))) repository.lockProduct(id);
         if ("PRODUCT_VERSION".equals(normalizeTable(table)) && values.containsKey("RULE_POLICY_VERSION_ID")) {
             throw new ProductBuilderValidationException("تغییر سیاست نسخه تنها از مسیر اختصاصی مجاز است.");
         }
         Map<String, Object> existing = findById(table, id);
+        if ("PRODUCT_VERSION".equals(normalizeTable(table))
+                && values.containsKey("IS_CURRENT") && number(values.get("IS_CURRENT")) == 1
+                && number(existing.get("IS_CURRENT")) != 1)
+            throw new ProductBuilderValidationException("تعیین نسخه جاری تنها از عملیات مستقل حاکمیتی مجاز است.");
         Map<String, Object> prepared = prepareUpdateValues(table, existing, values, resolvedActor);
         if ("PRODUCT".equals(normalizeTable(table))) {
             String oldDomain = text(existing.get("PRODUCT_CLASS_CODE"));
             String newDomain = text(prepared.getOrDefault("PRODUCT_CLASS_CODE", oldDomain));
             if (!oldDomain.equals(newDomain))
                 throw new ProductBuilderValidationException("تبدیل دامنه سپرده/تسهیلات مجاز نیست؛ محصول با کد سیستمی مستقل بسازید.");
+            // With an HF6 system-created identity, changing family after the first
+            // version would silently invalidate its immutable deposit profile.
+            if ("DEPOSIT".equals(oldDomain)
+                    && prepared.containsKey("PRODUCT_FAMILY_CODE")
+                    && !text(prepared.get("PRODUCT_FAMILY_CODE")).equals(text(existing.get("PRODUCT_FAMILY_CODE")))
+                    && repository.search("PRODUCT_VERSION", null, 0, 1,
+                            "PRODUCT_ID", String.valueOf(id)).totalElements() > 0)
+                throw new ProductBuilderValidationException("خانواده محصول سپرده پس از ایجاد نخستین نسخه ثابت است؛ برای نوع سپرده متفاوت محصول جدید تعریف کنید.");
             if ("LOAN".equals(oldDomain) && repository.registeredLoanType(id).isPresent()
                     && prepared.containsKey("PRODUCT_FAMILY_CODE")
                     && !text(prepared.get("PRODUCT_FAMILY_CODE")).equals(text(existing.get("PRODUCT_FAMILY_CODE"))))
                 throw new ProductBuilderValidationException("خانواده محصول دارای کد سیستمی قابل تغییر نیست.");
-            if ("DEPOSIT".equals(oldDomain) && repository.registeredDepositFamily(id).isPresent()
+            // Historical issued deposits may predate either issuance registry; their identity is immutable too.
+            if ("DEPOSIT".equals(oldDomain)
+                    && (!text(existing.get("PRODUCT_CODE")).isBlank()
+                        || repository.registeredDepositFamily(id).isPresent())
                     && prepared.containsKey("PRODUCT_FAMILY_CODE")
                     && !text(prepared.get("PRODUCT_FAMILY_CODE")).equals(text(existing.get("PRODUCT_FAMILY_CODE"))))
                 throw new ProductBuilderValidationException("خانواده سپرده پس از صدور کد سیستمی قابل تغییر نیست.");
@@ -284,6 +313,9 @@ public class ProductBuilderService {
         validateLoanProductFamily(table, merged, existing);
         referenceOptionService.validateChangedValues(descriptor(table), prepared, existing);
         if ("PRODUCT_VERSION".equals(normalizeTable(table))) {
+            if (prepared.containsKey("PRODUCT_ID")
+                    && number(prepared.get("PRODUCT_ID")) != number(existing.get("PRODUCT_ID")))
+                throw new ProductBuilderValidationException("نسخه به محصول دیگری قابل انتقال نیست؛ پروفایل سپرده به نسخه مالک وابسته است.");
             governance.assertPromotionAllowed(id, existing, merged);
         }
         validateRelationshipTargets(table, merged);
@@ -303,6 +335,80 @@ public class ProductBuilderService {
             throw new ProductBuilderValidationException("PDL row not found: " + table + "/" + id);
         }
         return findById(table, id);
+    }
+
+    /**
+     * R30-HF2 explicit governance action: never set IS_CURRENT through generic CRUD.
+     * Parent PRODUCT row is locked FIRST, followed by target version and the former
+     * current version. Approval, currentness and audit commit or roll back together.
+     * No product activation, origination opening, approval or code issuance occurs.
+     */
+    @Transactional
+    public Map<String, Object> makeApprovedVersionCurrent(long productId, long versionId,
+                                                            String reason, String actor) {
+        ProductVersionCurrentGate.requireRequest(productId, versionId, reason);
+        String resolvedActor = actorName(actor);
+        if (resolvedActor.length() > 100)
+            throw new ProductBuilderValidationException("شناسه کاربر ثبت‌کننده بیش از ۱۰۰ نویسه است.");
+        repository.lockProduct(productId);
+        Map<String, Object> product = findById("PRODUCT", productId);
+        ProductVersionCurrentGate.requireProduct(text(product.get("PRODUCT_STATUS_CODE")),
+                number(product.get("IS_DELETED")) != 0);
+        repository.lockProductVersion(versionId);
+        Map<String, Object> version = findById("PRODUCT_VERSION", versionId);
+        if (number(version.get("PRODUCT_ID")) != productId)
+            throw new ProductBuilderValidationException("نسخه انتخاب‌شده متعلق به این محصول نیست.");
+        ProductVersionCurrentGate.requireVersion(text(version.get("VERSION_STATUS_CODE")),
+                text(version.get("RECORD_STATUS_CODE")),
+                version.get("APPROVED_AT") != null && !text(version.get("APPROVED_BY")).isBlank());
+        ProductVersionCurrentGate.requireEffective(versionDate(version.get("VALID_FROM")),
+                version.get("VALID_TO") == null ? null : versionDate(version.get("VALID_TO")),
+                repository.currentDatabaseDate());
+        long count = repository.currentProductVersionCount(productId);
+        ProductVersionCurrentGate.requireSingleCurrent(count);
+        boolean alreadyCurrent = number(version.get("IS_CURRENT")) == 1;
+        if (alreadyCurrent) {
+            if (count != 1L) throw new ProductBuilderValidationException("شماره نسخه جاری با شمارنده پایگاه داده مغایرت دارد.");
+            return Map.of("productId", productId, "versionId", versionId,
+                    "alreadyCurrent", true, "current", true);
+        }
+        var approval = governance.report(versionId);
+        ProductVersionCurrentGate.requireGovernance(approval.canApprove(), approval.blockers());
+        // For an already ACTIVE product with OPEN origination, switching the live
+        // configuration could be operationally visible: also require runtime readiness.
+        if ("ACTIVE".equals(text(product.get("PRODUCT_STATUS_CODE")))
+                && "OPEN".equals(text(version.get("ORIGINATION_STATUS_CODE")))
+                && !approval.canOpen())
+            throw new ProductBuilderValidationException("تغییر نسخه جاری محصول عملیاتی با افتتاح باز نیازمند آمادگی عملیاتی است: "
+                    + String.join("؛ ", approval.blockers()));
+        Long previousId = repository.currentProductVersionId(productId).orElse(null);
+        if (count == 1L && previousId == null || count == 0L && previousId != null)
+            throw new ProductBuilderValidationException("وضعیت نسخه جاری ناسازگار است؛ عملیات متوقف شد.");
+        if (previousId != null) {
+            repository.lockProductVersion(previousId);
+            if (!repository.update("PRODUCT_VERSION", previousId, Map.of("IS_CURRENT", 0), resolvedActor))
+                throw new ProductBuilderValidationException("خروج نسخه قبلی از حالت جاری موفق نبود.");
+        }
+        if (!repository.update("PRODUCT_VERSION", versionId, Map.of("IS_CURRENT", 1), resolvedActor))
+            throw new ProductBuilderValidationException("ثبت نسخه جاری جدید موفق نبود.");
+        if (repository.currentProductVersionCount(productId) != 1L)
+            throw new ProductBuilderValidationException("پس از تغییر، محصول باید دقیقاً یک نسخه جاری داشته باشد.");
+        repository.appendProductVersionCurrentAudit(productId, previousId, versionId,
+                reason.trim(), resolvedActor);
+        return Map.of("productId", productId, "versionId", versionId,
+                "alreadyCurrent", false, "current", true);
+    }
+
+    /** Parse database DATE/TIMESTAMP without using the host operating-system date. */
+    private static java.time.LocalDate versionDate(Object value) {
+        if (value == null) return null;
+        if (value instanceof java.time.LocalDate d) return d;
+        if (value instanceof java.sql.Date d) return d.toLocalDate();
+        if (value instanceof java.sql.Timestamp ts) return ts.toLocalDateTime().toLocalDate();
+        String raw = String.valueOf(value).trim();
+        if (raw.length() < 10) throw new ProductBuilderValidationException("تاریخ اعتبار نسخه معتبر نیست.");
+        try { return java.time.LocalDate.parse(raw.substring(0, 10)); }
+        catch (RuntimeException ex) { throw new ProductBuilderValidationException("تاریخ اعتبار نسخه معتبر نیست."); }
     }
 
     /** Only the approved, current loan configuration may receive a code. Issuance,
@@ -366,9 +472,9 @@ public class ProductBuilderService {
         return Map.of("productId", productId, "productCode", issued.code(), "newlyIssued", true);
     }
 
-    /** R30: deposit products use their canonical PRODUCT_FAMILY_CODE as the code prefix.
-     *  All publication/design gates precede allocation; issuance, status and registry
-     *  are one transaction, and the bank-controlled year row serializes allocations.
+    /** R30-HF5: deposit codes use the approved numeric DEPOSIT_TYPE_CODE prefix from
+     *  the persisted version profile. Publication/design gates precede allocation;
+     *  issuance and the new registry entry commit or roll back together.
      */
     @Transactional
     public Map<String, Object> finalizeDepositProduct(long productId, long versionId, String actor) {
@@ -392,8 +498,7 @@ public class ProductBuilderService {
         if (repository.currentProductVersionCount(productId) != 1L)
             throw new ProductBuilderValidationException("محصول برای صدور کد باید دقیقاً یک نسخه جاری داشته باشد.");
         String family = text(product.get("PRODUCT_FAMILY_CODE"));
-        // Validate against the actual supported family before allocating anything.
-        DepositProductCodePolicy.requireSupportedFamily(family);
+        // The family selects the profile, but NEVER supplies the numeric code prefix.
         String profileTable = DepositProductCodePolicy.isCorrespondent(family)
                 ? "CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE" : "DEPOSIT_PRODUCT_PROFILE";
         var profiles = repository.search(profileTable, null, 0, 2,
@@ -404,12 +509,21 @@ public class ProductBuilderService {
         if (profile.containsKey("RECORD_STATUS_CODE")
                 && !"ACTIVE".equals(text(profile.get("RECORD_STATUS_CODE"))))
             throw new ProductBuilderValidationException("پروفایل سپرده نسخه تصویب‌شده باید فعال باشد.");
+        String depositTypeCode = text(profile.get("DEPOSIT_TYPE_CODE"));
+        // Only a supported retail deposit has an approved numeric issuance prefix.
+        // This also rejects correspondent profiles, which have no approved prefix.
+        if (DepositProductCodePolicy.isCorrespondent(family))
+            DepositProductCodePolicy.numericTypeCode(family);
+        String expectedDepositType = depositIdentity(versionId)[1];
+        if (!expectedDepositType.equals(depositTypeCode))
+            throw new ProductBuilderValidationException("گروه یا نوع سپرده با خانواده نسخه محصول سازگار نیست.");
+        DepositProductCodePolicy.numericTypeCode(depositTypeCode);
         businessValidator.validate("PRODUCT", product);
         businessValidator.validate(profileTable, profile);
         var readiness = governance.report(versionId);
         LoanCodeIssuanceGate.requireGovernance(readiness.canApprove(), readiness.blockers());
         // The same protected working-year source is used by LOAN and DEPOSIT.
-        PdlProductBuilderRepository.GeneratedDepositCode issued = repository.allocateDepositProductCode(family);
+        PdlProductBuilderRepository.GeneratedDepositCode issued = repository.allocateDepositProductCode(family, depositTypeCode);
         boolean changed = repository.update("PRODUCT", productId,
                 Map.of("PRODUCT_CODE", issued.code(), "PRODUCT_STATUS_CODE", "INACTIVE"), resolvedActor);
         if (!changed) throw new ProductBuilderValidationException("محصول سپرده در مرحله صدور یافت نشد.");
@@ -419,6 +533,8 @@ public class ProductBuilderService {
 
     @Transactional
     public void delete(String table, long id, String actor) {
+        if ("DEPOSIT_PRODUCT_PROFILE".equals(normalizeTable(table)))
+            throw new ProductBuilderValidationException("پروفایل سپرده همراه نسخه ایجاد شده و حذف مستقل آن مجاز نیست.");
         writeGuard.assertDeleteAllowed(table, findById(table, id));
         Map<String, Object> current = findById(table, id);
         if ("LOAN_PRODUCT_COLLATERAL_RULE".equals(normalizeTable(table)))
@@ -944,6 +1060,9 @@ public class ProductBuilderService {
 
         long productId = number(prepared.get("PRODUCT_ID"));
         if (productId <= 0) throw new ProductBuilderValidationException("PRODUCT_ID برای ثبت نسخه محصول الزامی است.");
+        // Parent product lock is shared with PRODUCT edit / make-current / code issuance.
+        // Never read family for an auto-profile while another transaction edits it.
+        repository.lockProduct(productId);
         prepared.remove("APPROVED_AT");
         prepared.remove("APPROVED_BY");
         prepared.put("VERSION_NO", repository.lockAndNextProductVersionNo(productId));
@@ -1000,21 +1119,35 @@ public class ProductBuilderService {
         values.put("ORG_UNIT_CODE", orgUnitId > 0 ? referenceOptionService.governedOrgUnitCode(orgUnitId) : null);
     }
 
+    /**
+     * HF6: transactionally materialize the non-correspondent deposit profile.
+     * Failure in lookup validation or INSERT rolls back the new PRODUCT_VERSION.
+     * Existing versions are deliberately not silently backfilled or rewritten.
+     */
+    private void createSystemDepositProfile(long versionId, long productId, String actor) {
+        Map<String, Object> product = findById("PRODUCT", productId);
+        if (!"DEPOSIT".equals(text(product.get("PRODUCT_CLASS_CODE")))) return;
+        String family = text(product.get("PRODUCT_FAMILY_CODE"));
+        if (DepositProductCodePolicy.isCorrespondent(family)) return;
+        String[] identity = DepositProfileIdentityPolicy.forFamily(family);
+        Map<String, Object> profile = new LinkedHashMap<>();
+        profile.put("PRODUCT_VERSION_ID", versionId);
+        profile.put("DEPOSIT_GROUP_CODE", identity[0]);
+        profile.put("DEPOSIT_TYPE_CODE", identity[1]);
+        // Same governed option and CHECK contract formerly used by the manual form.
+        // If reference data is unavailable, never fabricate codes or leave a partial version.
+        referenceOptionService.validateChangedValues(descriptor("DEPOSIT_PRODUCT_PROFILE"), profile, null);
+        businessValidator.validate("DEPOSIT_PRODUCT_PROFILE", profile);
+        repository.insert("DEPOSIT_PRODUCT_PROFILE", profile, actor);
+    }
+
     /** The FIX96 DPS product-family classification is the authoritative server-side identity. */
     private String[] depositIdentity(long versionId) {
         if (versionId <= 0) throw new ProductBuilderValidationException("نسخه محصول برای پروفایل سپرده الزامی است.");
         Map<String, Object> version = findById("PRODUCT_VERSION", versionId);
         Map<String, Object> product = findById("PRODUCT", number(version.get("PRODUCT_ID")));
         String family = text(product.get("PRODUCT_FAMILY_CODE"));
-        return switch (family) {
-            case "SAVINGS", "QARD_SAVINGS" -> new String[]{"QARD_HASAN", "SAVINGS"};
-            case "CURRENT", "CURRENT_ACCOUNT" -> new String[]{"CURRENT", "CURRENT_NO_INTEREST"};
-            case "SHORT_TERM_DEPOSIT" -> new String[]{"SHORT_TERM", "SHORT_TERM_DEPOSIT"};
-            case "LONG_TERM_DEPOSIT" -> new String[]{"LONG_TERM", "LONG_TERM_DEPOSIT"};
-            case "CERTIFICATE_OF_DEPOSIT" -> new String[]{"CERTIFICATE", "CERTIFICATE_OF_DEPOSIT"};
-            default -> throw new ProductBuilderValidationException(
-                    "برای خانواده این محصول، نگاشت گروه و نوع سپرده تعریف نشده است. اطلاعات پایه را اصلاح کنید.");
-        };
+        return DepositProfileIdentityPolicy.forFamily(family);
     }
 
     private void applyApprovalAudit(Map<String, Object> values, String previousStatus, String actor) {

@@ -49,11 +49,90 @@ public final class ProductRuleEvidenceEvaluator {
                         : conflictReason, rows.size(), unknown);
     }
 
+    /** Same lifecycle/date logic as evaluate; used by approval semantic audit. */
+    public static boolean isEffectiveAt(String control, Map<String, Object> row, LocalDate when) {
+        return isActive(control, row) && containsDate(row, when);
+    }
+
+    /**
+     * A scheduled rule that starts after the product-version start is still
+     * subject to semantic audit. A start-date-only check can certify an invalid
+     * future rule and is therefore unsafe for design approval.
+     */
+    public static boolean isApplicableWithin(String control, Map<String, Object> row,
+                                             LocalDate versionStart, LocalDate versionEnd) {
+        return isActive(control, row) && !from(row).isAfter(versionEnd)
+                && !to(row).isBefore(versionStart);
+    }
+
+    /** Invalid ACTIVE schedules never become silently ignored historical rows. */
+    public static boolean hasInvalidActivePeriod(String control, Map<String, Object> row) {
+        return isActive(control, row) && to(row).isBefore(from(row));
+    }
+
+    /**
+     * Coverage here is only a *temporal union* of a table's ACTIVE rules.
+     * It deliberately makes no claim about channel, customer, currency,
+     * amount, precedence, or bank policy; those require a governed resolver.
+     * Both ends are inclusive. A finite last day followed by the next day
+     * is contiguous and LocalDate.MAX must not overflow on plusDays(1).
+     */
+    public record TemporalCoverage(boolean complete, LocalDate firstGap) {}
+
+    public static TemporalCoverage temporalCoverage(String control, List<Map<String, Object>> rows,
+                                                     LocalDate versionStart, LocalDate versionEnd) {
+        if (versionEnd.isBefore(versionStart)) return new TemporalCoverage(false, versionStart);
+        record Range(LocalDate start, LocalDate end) {}
+        List<Range> intervals = new ArrayList<>();
+        for (var row : rows) {
+            if (!isActive(control, row)) continue;
+            LocalDate start = from(row), end = to(row);
+            if (end.isBefore(start) || start.isAfter(versionEnd) || end.isBefore(versionStart)) continue;
+            intervals.add(new Range(start.isBefore(versionStart) ? versionStart : start,
+                    end.isAfter(versionEnd) ? versionEnd : end));
+        }
+        intervals.sort(java.util.Comparator.comparing(Range::start));
+        LocalDate cursor = versionStart;
+        for (Range range : intervals) {
+            if (range.end().isBefore(cursor)) continue;
+            if (range.start().isAfter(cursor)) return new TemporalCoverage(false, cursor);
+            if (!range.end().isBefore(versionEnd)) return new TemporalCoverage(true, null);
+            cursor = range.end().plusDays(1);
+        }
+        return new TemporalCoverage(false, cursor);
+    }
+
+    /** Prevent simultaneous active single-row policies anywhere in the version interval. */
+    public static boolean hasOverlappingActiveRows(String control, List<Map<String, Object>> rows,
+                                                   LocalDate versionStart, LocalDate versionEnd) {
+        for (int a = 0; a < rows.size(); a++) {
+            if (!isApplicableWithin(control, rows.get(a), versionStart, versionEnd)) continue;
+            for (int b = a + 1; b < rows.size(); b++) {
+                if (isApplicableWithin(control, rows.get(b), versionStart, versionEnd)
+                        && overlap(rows.get(a), rows.get(b))) return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isActive(String control, Map<String, Object> row) {
+        String value = status(control, row);
+        return value.isBlank() || USABLE_STATUSES.contains(value);
+    }
+
     private static String conflictReason(String control, List<Map<String, Object>> rows) {
         List<String> keys = switch (control) {
             case "PRODUCT_CHANNEL_RULE" -> List.of("CHANNEL_CODE");
+            case "PRODUCT_REQUIRED_DOCUMENT" -> List.of("DOCUMENT_TYPE_ID", "REQUIREMENT_STAGE_CODE");
+            case "PRODUCT_REQUIRED_INQUIRY" -> List.of("INQUIRY_TYPE_CODE", "REQUIREMENT_STAGE_CODE");
             case "DEPOSIT_PRODUCT_TRANSACTION_RULE" -> List.of("TRANSACTION_TYPE_CODE");
+            case "DEPOSIT_PRODUCT_WITHDRAWAL_MEDIA" -> List.of("WITHDRAWAL_MEDIA_CODE", "CHANNEL_CODE");
+            case "DEPOSIT_PRODUCT_HOLD_RULE" -> List.of("HOLD_TYPE_CODE");
+            case "DEPOSIT_PRODUCT_JOINT_RULE" -> List.of("OWNERSHIP_TYPE_CODE");
+            case "LOAN_PRODUCT_COLLATERAL_RULE" -> List.of("LOAN_PRODUCT_COLLATERAL_ID");
+            case "LOAN_PRODUCT_REPAYMENT_RULE" -> List.of("REPAYMENT_RULE_CODE");
             case "PRODUCT_PRICING_RULE" -> List.of("PRICING_PURPOSE_CODE", "CURRENCY_CODE");
+            case "PRODUCT_RATE_TIER" -> List.of("PRICING_COMPONENT_ID", "TIER_NO");
             case "PRODUCT_ORG_SCOPE" -> List.of("ORG_UNIT_TYPE_CODE", "ORG_UNIT_ID");
             case "DEPOSIT_PRODUCT_CLOSURE_RULE" -> List.of("CLOSURE_TYPE_CODE");
             default -> List.of();
@@ -68,9 +147,7 @@ public final class ProductRuleEvidenceEvaluator {
             List<Map<String, Object>> group = entry.getValue();
             for (int a = 0; a < group.size(); a++) {
                 for (int b = a + 1; b < group.size(); b++) {
-                    if ("DEPOSIT_PRODUCT_TRANSACTION_RULE".equals(control)
-                            || "PRODUCT_CHANNEL_RULE".equals(control)
-                            || overlap(group.get(a), group.get(b))) {
+                    if (overlap(group.get(a), group.get(b))) {
                         return "چند Rule مؤثر با کلید کسب‌وکاری یکسان و بازه اعتبار متداخل یافت شد: " + control;
                     }
                 }
@@ -109,8 +186,17 @@ public final class ProductRuleEvidenceEvaluator {
         // IS_ALLOWED is a business permission, not a record lifecycle flag.
         if (row.containsKey("IS_ACTIVE") && row.get("IS_ACTIVE") != null) {
             Object flag = row.get("IS_ACTIVE");
-            return ("1".equals(String.valueOf(flag)) || "true".equalsIgnoreCase(String.valueOf(flag)))
-                    ? "ACTIVE" : "INACTIVE";
+            if (flag instanceof Boolean bool) return bool ? "ACTIVE" : "INACTIVE";
+            try {
+                java.math.BigDecimal value = new java.math.BigDecimal(String.valueOf(flag).trim());
+                if (value.compareTo(java.math.BigDecimal.ONE) == 0) return "ACTIVE";
+                if (value.compareTo(java.math.BigDecimal.ZERO) == 0) return "INACTIVE";
+            } catch (NumberFormatException ex) {
+                if ("true".equalsIgnoreCase(String.valueOf(flag))) return "ACTIVE";
+                if ("false".equalsIgnoreCase(String.valueOf(flag))) return "INACTIVE";
+            }
+            // Unknown IS_ACTIVE must never masquerade as safe inactive history.
+            return "INVALID_ACTIVE_FLAG";
         }
         if (row.get("RULE_STATUS_CODE") != null) {
             return dpsRuleStatus(text(row.get("RULE_STATUS_CODE")));

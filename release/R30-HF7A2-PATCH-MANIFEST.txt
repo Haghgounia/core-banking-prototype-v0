@@ -1,0 +1,32 @@
+R30-HF7-A2 cumulative (A1 + A2)
+Baseline: core-banking-prototype-v0-2026-10-13-1713.zip
+No Oracle DML/DDL or migration; Development/UAT only.
+Full Maven/Angular Build and Oracle E2E NOT performed.
+
+MODIFIED
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderBusinessValidator.java
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleEvidenceEvaluator.java
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceService.java
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderBusinessValidatorTest.java
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceR19Test.java
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/RuleGovernanceLiteR20Test.java
+build-production.cmd
+build-production.sh
+frontend/src/app/features/product-builder/pdl-table.component.html
+frontend/src/app/features/product-builder/pdl-table.component.ts
+frontend/src/app/features/product-builder/product-workspace.component.ts
+tools/verify-pb-r19.mjs
+tools/verify-pdl-r26-loan-validator.mjs
+tools/verify-pdl-r30-hf4-deposit-closure.mjs
+
+ADDED
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleSemanticContract.java
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceFixture.java
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleSemanticHF7A1Test.java
+docs/PDL-2026-10-13-R30-HF7A1-RELEASE-NOTES-FA.md
+docs/PDL-2026-10-13-R30-HF7A1-SEMANTIC-MATRIX-FA.md
+docs/PDL-2026-10-13-R30-HF7A2-OVERALL-REGISTER-FA.md
+docs/PDL-2026-10-13-R30-HF7A2-RELEASE-NOTES-FA.md
+tools/verify-pdl-r30-hf7a1-semantic.mjs
+tools/verify-pdl-r30-hf7a2-runtime-links.mjs
+tools/verify-pdl-r30-hf7a2-temporal.mjs

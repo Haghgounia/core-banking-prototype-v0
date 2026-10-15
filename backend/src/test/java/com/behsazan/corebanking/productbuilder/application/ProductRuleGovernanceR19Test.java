@@ -14,7 +14,7 @@ import static org.mockito.Mockito.*;
 
 class ProductRuleGovernanceR19Test {
     private final PdlProductBuilderRepository repository = mock(PdlProductBuilderRepository.class);
-    private final ProductRuleGovernanceService governance = new ProductRuleGovernanceService(repository, mock(RuleGovernanceLiteService.class));
+    private final ProductRuleGovernanceService governance = new ProductRuleGovernanceService(repository, mock(RuleGovernanceLiteService.class), new ProductBuilderBusinessValidator());
 
     private void setup(String domain, String family, boolean transactionEnabled, long profileCount) {
         when(repository.findById("PRODUCT_VERSION", 55L)).thenReturn(Optional.of(Map.of(
@@ -27,9 +27,7 @@ class ProductRuleGovernanceR19Test {
             if ("PRODUCT_VERSION_MODULE".equals(table)) return new TablePage(
                     transactionEnabled ? List.of() : List.of(Map.of("MODULE_CODE", "TRANSACTION", "IS_ENABLED", 0)), 1, 0, 200);
             long count = "DEPOSIT_PRODUCT_PROFILE".equals(table) ? profileCount : 1;
-            Map<String,Object> example = Map.of("RULE_STATUS_CODE", "ACTIVE", "CHANNEL_CODE", "BRANCH",
-                    "PRICING_PURPOSE_CODE", "SAVINGS", "CURRENCY_CODE", "IRR",
-                    "TRANSACTION_TYPE_CODE", "CASH_WITHDRAWAL", "CLOSURE_TYPE_CODE", "NORMAL");
+            Map<String,Object> example = ProductRuleGovernanceFixture.row(table);
             return new TablePage(count == 0 ? List.of() : java.util.Collections.nCopies((int)count, example), count, 0, 200);
         });
     }
@@ -67,6 +65,23 @@ class ProductRuleGovernanceR19Test {
         assertThat(result.canOpen()).isFalse();
         assertThat(result.effectiveRules()).anyMatch(rule -> rule.code().equals("DEPOSIT_PRODUCT_TRANSACTION_RULE")
                 && rule.runtimeIntegration().equals("NOT_CONNECTED_TO_OPERATIONAL_ENGINE"));
+    }
+
+    @Test void loanDesignApprovalNeverImpliesOperationalQualification() {
+        setup("LOAN", "QARD_HASAN_LOAN", true, 1);
+        var result = governance.report(55);
+        assertThat(result.canApprove()).isTrue(); // Preserve design-only approval.
+        assertThat(result.canOpen()).isFalse();
+        assertThat(result.blockers()).anyMatch(reason -> reason.contains("انتشار عملیاتی تسهیلات"));
+    }
+
+    @Test void loanOriginationOpenIsBlockedEvenWhenAllRowsExist() {
+        setup("LOAN", "QARD_HASAN_LOAN", true, 1);
+        var previous = Map.<String,Object>of("VERSION_STATUS_CODE", "DRAFT", "ORIGINATION_STATUS_CODE", "CLOSED", "IS_CURRENT", 0);
+        var desired = Map.<String,Object>of("VERSION_STATUS_CODE", "DRAFT", "ORIGINATION_STATUS_CODE", "OPEN", "IS_CURRENT", 0);
+        assertThatThrownBy(() -> governance.assertPromotionAllowed(55, previous, desired))
+                .isInstanceOf(ProductBuilderValidationException.class)
+                .hasMessageContaining("انتشار عملیاتی تسهیلات");
     }
 
     @Test void doubleSingleRowProfileIsAConflict() {

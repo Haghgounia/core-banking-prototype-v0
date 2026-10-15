@@ -1,3 +1,11 @@
+# R30-HF5 - numeric deposit TYPE code and isolated issuance registry (2026-10-13)
+
+- Approved prefixes: CURRENT_NO_INTEREST=2510, SAVINGS=3510, SHORT_TERM_DEPOSIT=4510, LONG_TERM_DEPOSIT=5510, CERTIFICATE_OF_DEPOSIT=6510.
+- Format: numeric prefix(4) + bank-approved Oracle working year(4) + serial(001..999), scoped per numeric deposit TYPE and year.
+- New DDL-only registry preserves the old R30 family-based registry and issued product codes; original family and business type are retained for audit.
+- Deposit issuance remains governed, transactionally locked and globally collision-checked; Loan code contract is unchanged.
+- **DBA must apply the HF5 Oracle migration before deploying the new backend.** See docs/PDL-2026-10-13-R30-HF5-NUMERIC-DEPOSIT-TYPE-CODE-QA.md.
+
 # R30-HF1 — DPS Rule Status Reference Mapping (2026-10-12)
 
 - Fixed Product Builder final review treating DPS.REF_RULE_STATUS_CODE numeric business code `2` (Active) as an unknown status, yielding misleading `0` effective eligibility rules / conflict.
@@ -1571,3 +1579,12 @@
 - No database migration required.
 
 - CAL2 Event Media Hotfix 2: raised occasion-image upload cap from 5MB to 20MB, added selected-file size display and client-side 20MB validation; no DDL change.
+
+## 2026-10-12 — R30-HF2 current-version governance
+
+- Adds explicit `make-current` command for approved, active versions, removing the trap for already-approved non-current versions.
+- Keeps generic create/update unable to set `IS_CURRENT=1` and removes the misleading editable checkbox from the version editor.
+- Adds Oracle function-based current-version uniqueness and auditable transactional history (migration required).
+- Revalidates governance, approval evidence, validity dates (DB clock) and live-product `canOpen` where relevant.
+- No changes to product code format, issued codes, product activation, approval status or transaction processing.
+- Prototype header actor is **not** authorization; SSO/RBAC is required before production use.

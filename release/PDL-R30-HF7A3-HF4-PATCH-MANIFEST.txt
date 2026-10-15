@@ -1,0 +1,17 @@
+R30-HF7A3-HF4 | exact source base: core-banking-prototype-v0-2026-10-14-R30-HF7A3-HF3.zip
+Read-only semantic hierarchy audit for term and tiered pricing. No Oracle DDL/DML.
+Changed + added source files:
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceService.java
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyAudit.java
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleSemanticContract.java
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceFixture.java
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyHF7A3HF4Test.java
+build-production.cmd
+build-production.sh
+docs/PDL-2026-10-14-R30-HF7A3-HF4-COVERAGE-54.csv
+docs/PDL-2026-10-14-R30-HF7A3-HF4-HIERARCHY-QA-FA.md
+tools/verify-pdl-r30-hf7a1-semantic.mjs
+tools/verify-pdl-r30-hf7a2-temporal.mjs
+tools/verify-pdl-r30-hf7a3-hf4-hierarchy.mjs
+
+Installation: backup; overlay the patch into the exact HF3 baseline; run tools/verify-pdl-r30-hf7a3-hf4-hierarchy.mjs then build-production.cmd.

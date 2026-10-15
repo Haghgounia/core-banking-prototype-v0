@@ -1,33 +1,36 @@
 package com.behsazan.corebanking.productbuilder.application;
 
 import java.util.Locale;
-import java.util.Set;
-import java.util.regex.Pattern;
+import java.util.Map;
 
-/** R30: product family is the canonical code prefix for deposit products. */
+/** R30-HF5: bank-approved numeric deposit TYPE prefix, never a surrogate ID or product family. */
 public final class DepositProductCodePolicy {
-    private static final Pattern FAMILY = Pattern.compile("[A-Z0-9][A-Z0-9_]*");
-    private static final Set<String> SUPPORTED = Set.of(
-            "CURRENT_ACCOUNT", "QARD_SAVINGS", "SHORT_TERM_DEPOSIT", "LONG_TERM_DEPOSIT",
-            "CERTIFICATE_OF_DEPOSIT", "NOSTRO_ACCOUNT", "VOSTRO_ACCOUNT");
+    private static final Map<String, String> TYPE_PREFIXES = Map.of(
+            "CURRENT_NO_INTEREST", "2510",
+            "SAVINGS", "3510",
+            "SHORT_TERM_DEPOSIT", "4510",
+            "LONG_TERM_DEPOSIT", "5510",
+            "CERTIFICATE_OF_DEPOSIT", "6510");
 
     private DepositProductCodePolicy() { }
 
-    /** PRODUCT_FAMILY_CODE + bank working year + 001..999, with no manual override. */
-    public static String format(String rawFamily, int workingYear, int serial) {
-        String family = rawFamily == null ? "" : rawFamily.strip().toUpperCase(Locale.ROOT);
-        requireSupportedFamily(family);
+    /** Only the five explicitly approved deposit type business codes can receive a code. */
+    public static String numericTypeCode(String rawDepositTypeCode) {
+        String type = rawDepositTypeCode == null ? "" : rawDepositTypeCode.strip().toUpperCase(Locale.ROOT);
+        String prefix = TYPE_PREFIXES.get(type);
+        if (prefix == null)
+            throw new ProductBuilderValidationException("برای خانواده این محصول، نگاشت گروه و نوع سپرده تعریف نشده است. اطلاعات پایه را اصلاح کنید." + " [DEPOSIT_TYPE_CODE=" + type + "]");
+        return prefix;
+    }
+
+    /** Four-digit numeric type + four-digit Oracle working year + three-digit serial (001..999). */
+    public static String format(String depositTypeCode, int workingYear, int serial) {
+        String prefix = numericTypeCode(depositTypeCode);
         if (workingYear < 1300 || workingYear > 1600)
             throw new ProductBuilderValidationException("سال کاری صدور کد محصول سپرده معتبر نیست.");
         if (serial < 1 || serial > 999)
             throw new ProductBuilderValidationException("ظرفیت ۹۹۹ کد این خانواده سپرده در سال کاری تکمیل شده است.");
-        return family + workingYear + String.format(Locale.ROOT, "%03d", serial);
-    }
-
-    public static void requireSupportedFamily(String rawFamily) {
-        String family = rawFamily == null ? "" : rawFamily.strip().toUpperCase(Locale.ROOT);
-        if (!SUPPORTED.contains(family) || !FAMILY.matcher(family).matches() || family.length() > 23)
-            throw new ProductBuilderValidationException("خانواده سپرده برای صدور کد سیستمی شناخته‌شده یا از نظر طول مجاز نیست.");
+        return prefix + String.format(Locale.ROOT, "%04d%03d", workingYear, serial);
     }
 
     public static boolean isCorrespondent(String family) {

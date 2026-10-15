@@ -85,15 +85,18 @@ public class ProductRuleGovernanceService {
 
     private final PdlProductBuilderRepository repository;
     private final RuleGovernanceLiteService lite;
+    private final ProductBuilderBusinessValidator businessValidator;
 
     // Optional adoption cutover: preserves legacy versions even when their binding is NULL.
     // Set to YYYY-MM-DD only after UAT/operational approval.
     @Value("${core-banking.product-builder.rule-governance-lite.enforce-from:}")
     private String enforcePolicyFrom = "";
 
-    public ProductRuleGovernanceService(PdlProductBuilderRepository repository, RuleGovernanceLiteService lite) {
+    public ProductRuleGovernanceService(PdlProductBuilderRepository repository, RuleGovernanceLiteService lite,
+                                        ProductBuilderBusinessValidator businessValidator) {
         this.repository = repository;
         this.lite = lite;
+        this.businessValidator = businessValidator;
     }
 
     public static List<RuleControl> defaultControls() { return CATALOG; }
@@ -190,23 +193,54 @@ public class ProductRuleGovernanceService {
                 }
             } while (raw.size() < total && total > 0);
             var evidence = ProductRuleEvidenceEvaluator.evaluate(control.code(), raw, versionStart, versionEnd);
+            var temporal = ProductRuleEvidenceEvaluator.temporalCoverage(control.code(), raw, versionStart, versionEnd);
             long count = evidence.effectiveCount();
-            boolean missingRequired = count == 0 && ("REQUIRED".equals(presence) || "WHEN_ENABLED".equals(presence) && enabled);
-            boolean conflict = (count > 1 && control.singleRow()) || evidence.conflict();
-            boolean missingTermChild = count > 0 && "DEPOSIT_PRODUCT_TERM_RULE".equals(control.code())
-                    && !hasActiveAllowedTerm(raw, versionStart, versionEnd);
-            boolean missingPricingTier = count > 0 && "PRODUCT_PRICING_RULE".equals(control.code())
-                    && !hasValidPricingTiers(raw, versionStart, versionEnd);
-            if (missingTermChild || missingPricingTier) conflict = true;
-            String status = conflict ? "CONFLICT" : missingRequired ? "MISSING_REQUIRED" : count > 0 ? "CONFIGURED" : "OPTIONAL_ABSENT";
-            String reason = conflict ? (evidence.conflictReason() == null
-                    ? (missingTermChild ? "حداقل یک مدت مجاز فعال و معتبر باید برای قاعده مدت وجود داشته باشد."
-                        : missingPricingTier ? "قیمت‌گذاری پله‌ای باید دست‌کم یک پله معتبر داشته باشد."
-                        : "بیش از یک رکورد مؤثر برای کنترل تک‌رکوردی نسخه تعریف شده است.") : evidence.conflictReason())
-                    : missingRequired ? "در شروع اعتبار نسخه Rule معتبر یافت نشد؛ رفتار نبود: " + absence + "."
-                    : count > 0 ? "قاعده فعال و معتبر برای تاریخ شروع نسخه یافت شد؛ پوشش کل بازه و اجرای دامنه در Runtime هنوز تأیید نشده است."
+            boolean requiredForVersion = "REQUIRED".equals(presence) || "WHEN_ENABLED".equals(presence) && enabled;
+            boolean missingRequired = requiredForVersion && !temporal.complete();
+            boolean conflict = (control.singleRow() && ProductRuleEvidenceEvaluator.hasOverlappingActiveRows(
+                    control.code(), raw, versionStart, versionEnd)) || evidence.conflict();
+            // HF7-A3/HF4: inspect the real child rows, including future-effective
+            // rules. Existence alone is no longer evidence of a publishable term
+            // or tiered-pricing configuration. This audit is read-only.
+            ProductRuleHierarchyAudit.Finding childFinding = "DEPOSIT_PRODUCT_TERM_RULE".equals(control.code())
+                    ? hasActiveAllowedTerm(raw, versionStart, versionEnd)
+                    : "PRODUCT_PRICING_RULE".equals(control.code())
+                    ? hasValidPricingTiers(raw, versionStart, versionEnd)
+                    : new ProductRuleHierarchyAudit.Finding(null, null);
+            if (childFinding.conflict()) conflict = true;
+            // HF7-A2: audit scheduled rules throughout the full validity interval,
+            // never merely those effective on the first day. Historical rows
+            // outside the interval remain unmodified and do not block approval.
+            long invalidRows = 0;
+            String semanticProblem = null;
+            for (var rule : raw) {
+                if (ProductRuleEvidenceEvaluator.hasInvalidActivePeriod(control.code(), rule)) {
+                    invalidRows++;
+                    if (semanticProblem == null) semanticProblem = "بازه اعتبار قاعده فعال معکوس است.";
+                } else if (ProductRuleSemanticContract.auditsOnApproval(control.code())
+                        && ProductRuleEvidenceEvaluator.isApplicableWithin(control.code(), rule, versionStart, versionEnd)) {
+                    try { businessValidator.validate(control.code(), rule); }
+                    catch (ProductBuilderValidationException ex) {
+                        invalidRows++;
+                        if (semanticProblem == null) semanticProblem = ex.getMessage();
+                    }
+                }
+            }
+            if (childFinding.invalidSemantics()) {
+                invalidRows++;
+                if (semanticProblem == null) semanticProblem = childFinding.reason();
+            }
+            boolean invalidSemantics = invalidRows > 0;
+            String status = invalidSemantics ? "INVALID_SEMANTICS" : conflict ? "CONFLICT" : missingRequired ? "MISSING_REQUIRED" : count > 0 ? "CONFIGURED" : "OPTIONAL_ABSENT";
+            String reason = invalidSemantics ? "تعداد " + invalidRows + " قاعده مؤثر یا فرزند آن دارای نقص معنایی است؛ نمونه: " + semanticProblem
+                    : conflict ? (evidence.conflictReason() != null ? evidence.conflictReason()
+                        : childFinding.conflict() ? childFinding.reason()
+                        : "بیش از یک رکورد مؤثر برای کنترل تک‌رکوردی نسخه تعریف شده است.")
+                    : missingRequired ? "پوشش زمانی Rule اجباری در طول اعتبار نسخه کامل نیست؛ نخستین روز فاقد پوشش: "
+                            + temporal.firstGap() + "؛ رفتار نبود: " + absence + "."
+                    : count > 0 ? "قاعده فعال در تاریخ شروع نسخه وجود دارد و پوشش زمانی تجمیعی بررسی شد؛ اجرای دامنه‌های کانال/مشتری در Runtime هنوز تأیید نشده است."
                     : "نبود این کنترل اختیاری است؛ نبود Rule به معنی مجوز عمومی عملیات نیست.";
-            boolean publishBlocked = conflict || missingRequired && (assigned == null || "BLOCK_PUBLISH".equals(absence));
+            boolean publishBlocked = invalidSemantics || conflict || missingRequired && (assigned == null || "BLOCK_PUBLISH".equals(absence));
             boolean operationBlocked = missingRequired && assigned != null && "BLOCK_OPERATION".equals(absence);
             if (publishBlocked) blockers.add(control.title() + ": " + reason);
             if (operationBlocked) operationBlockers.add(control.title() + ": " + reason);
@@ -220,6 +254,9 @@ public class ProductRuleGovernanceService {
         if ("RETIRED".equals(text(product.get("PRODUCT_STATUS_CODE")))) {
             blockers.add("محصول بازنشسته است و انتشار نسخه جدید آن مجاز نیست.");
         }
+        if (!Set.of("DEPOSIT", "LOAN").contains(domain)) {
+            blockers.add("دامنه کسب‌وکاری محصول معتبر نیست؛ ارزیابی تصویب نسخه مجاز نیست.");
+        }
         boolean canApprove = blockers.isEmpty();
         boolean canOpen = canApprove && operationBlockers.isEmpty();
         blockers.addAll(operationBlockers);
@@ -229,43 +266,51 @@ public class ProductRuleGovernanceService {
             canOpen = false;
             blockers.add("کنترل انتشار عملیاتی: قواعد تراکنش هنوز در موتور اجرای تراکنش سپرده مصرف نمی‌شوند. افتتاح بر اساس نسخه جدید تا اتصال و آزمون Runtime مجاز نیست.");
         }
+        // Unknown/unsupported domain has no verified operational policy engine.
+        if (!Set.of("DEPOSIT", "LOAN").contains(domain)) {
+            canOpen = false;
+            blockers.add("کنترل انتشار عملیاتی: دامنه محصول فاقد موتور سیاست اجرایی تأییدشده است.");
+        }
+        // HF7: Product Builder design approval is not operational qualification.
+        // No integrated loan-origination/disbursement/repayment/collection policy
+        // enforcement has been qualified against this PDL policy contract.  A
+        // configured LOAN rule row must never create an implicit OPEN permission.
+        // Preserve issuance of an INACTIVE product identity after design approval.
+        if ("LOAN".equals(domain)) {
+            canOpen = false;
+            blockers.add("کنترل انتشار عملیاتی تسهیلات: اتصال و اجرای قواعد مصوب در چرخه درخواست، اعتبارسنجی، تصویب، اعطا، پرداخت، بازپرداخت و وصول تسهیلات به‌صورت انتهابه‌انتها احراز نشده است؛ فعال‌سازی عملیاتی این نسخه مجاز نیست.");
+        }
         return new GovernanceReport(versionId, productId, family, domain, canApprove, canOpen,
                 List.copyOf(blockers), LEVELS, List.copyOf(rows));
     }
 
-    private boolean hasActiveAllowedTerm(List<Map<String, Object>> termRows, LocalDate from, LocalDate to) {
-        for (var term : termRows) {
-            if (number(term.get("IS_ACTIVE")) != 1) continue;
-            long ruleId = number(term.get("TERM_RULE_ID"));
-            if (ruleId == 0) continue;
-            var children = repository.search("DEPOSIT_PRODUCT_ALLOWED_TERM", null, 0, 200,
-                    "TERM_RULE_ID", String.valueOf(ruleId));
-            if (children.totalElements() > 200) return false; // conservative; no truncated evidence
-            if (ProductRuleEvidenceEvaluator.evaluate("DEPOSIT_PRODUCT_ALLOWED_TERM", children.items(), from, to).effectiveCount() > 0) return true;
-        }
-        return false;
+    // Retain these method names for compatibility with the R20 governance audit,
+    // but return detailed evidence rather than an unsafe "any child exists" flag.
+    private ProductRuleHierarchyAudit.Finding hasActiveAllowedTerm(List<Map<String, Object>> parents,
+                                                                    LocalDate from, LocalDate to) {
+        return ProductRuleHierarchyAudit.allowedTerms(parents, from, to,
+                this::loadChildEvidence, businessValidator);
     }
 
-    private boolean hasValidPricingTiers(List<Map<String, Object>> pricingRows, LocalDate from, LocalDate to) {
-        for (var pricing : pricingRows) {
-            if (number(pricing.get("IS_TIERED_RATE")) != 1) continue;
-            long id = number(pricing.get("PRICING_RULE_ID"));
-            if (id <= 0) return false;
-            var components = repository.search("PRODUCT_PRICING_COMPONENT", null, 0, 200,
-                    "PRICING_RULE_ID", String.valueOf(id));
-            if (components.totalElements() > 200 || components.items().isEmpty()) return false;
-            boolean found = false;
-            for (var component : components.items()) {
-                long componentId = number(component.get("PRICING_COMPONENT_ID"));
-                var tiers = repository.search("PRODUCT_RATE_TIER", null, 0, 200,
-                        "PRICING_COMPONENT_ID", String.valueOf(componentId));
-                if (tiers.totalElements() > 200) return false;
-                if (ProductRuleEvidenceEvaluator.evaluate("PRODUCT_RATE_TIER", tiers.items(), from, to).effectiveCount() > 0)
-                    found = true;
-            }
-            if (!found) return false;
+    private ProductRuleHierarchyAudit.Finding hasValidPricingTiers(List<Map<String, Object>> parents,
+                                                                   LocalDate from, LocalDate to) {
+        return ProductRuleHierarchyAudit.pricingTiers(parents, from, to,
+                this::loadChildEvidence, businessValidator);
+    }
+
+    /** Read-only, fully paginated FK lookup. No first-page-only publication. */
+    private List<Map<String, Object>> loadChildEvidence(String table, String foreignKey, long parentId) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        final int pageSize = 200;
+        for (int page = 0; page < 10; page++) {
+            var result = repository.search(table, null, page, pageSize,
+                    foreignKey, String.valueOf(parentId));
+            if (result == null) throw new ProductBuilderValidationException("پاسخ بازیابی قاعده فرزند موجود نیست: " + table);
+            rows.addAll(result.items());
+            if (rows.size() >= result.totalElements()) return rows;
+            if (result.items().isEmpty()) break;
         }
-        return true;
+        throw new ProductBuilderValidationException("تعداد قواعد فرزند قابل ارزیابی کامل نیست: " + table);
     }
 
     public void assertPromotionAllowed(long versionId, Map<String, Object> previous, Map<String, Object> merged) {

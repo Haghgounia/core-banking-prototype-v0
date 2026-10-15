@@ -1,0 +1,10 @@
+R30-HF7A2-HF1 / 2026-10-14
+Scope: test-only compatibility fix after HF7-A2 semantic governance hardening
+Base: R30-HF7A2 with release-layout correction
+Modified:
+  backend/src/test/java/com/behsazan/corebanking/productbuilder/application/LoanProductFinalUxR25Test.java
+  backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductBuilderBusinessValidatorTest.java
+Added:
+  docs/PDL-2026-10-14-R30-HF7A2-HF1-JUNIT-COMPAT-FA.md
+  release/R30-HF7A2-HF1-MANIFEST.txt
+No main-source change; no Oracle change. Do not put manifest in project root.

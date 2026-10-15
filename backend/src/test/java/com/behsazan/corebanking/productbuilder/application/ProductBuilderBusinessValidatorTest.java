@@ -39,10 +39,12 @@ class ProductBuilderBusinessValidatorTest {
     }
     @Test
     void openingAmountsAllowNullButNotNegativeOrReversedBounds() {
-        validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of());
+        validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of(
+                "IS_INTRODUCER_REQUIRED", 0, "IS_OVERDRAFT_ALLOWED", 0, "IS_STAMP_DUTY_APPLICABLE", 0));
         validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of(
                 "MIN_OPENING_AMOUNT", 1000, "MAX_OPENING_AMOUNT", 2000,
-                "MIN_REQUIRED_BALANCE", 100, "MAX_ALLOWED_BALANCE", 500));
+                "MIN_REQUIRED_BALANCE", 100, "MAX_ALLOWED_BALANCE", 2500,
+                "IS_INTRODUCER_REQUIRED", 0, "IS_OVERDRAFT_ALLOWED", 0, "IS_STAMP_DUTY_APPLICABLE", 0));
         assertThatThrownBy(() -> validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of(
                 "MIN_OPENING_AMOUNT", 2000, "MAX_OPENING_AMOUNT", 1000)))
                 .isInstanceOf(ProductBuilderValidationException.class);
@@ -52,5 +54,10 @@ class ProductBuilderBusinessValidatorTest {
         assertThatThrownBy(() -> validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of(
                 "MIN_OPENING_AMOUNT", -1)))
                 .isInstanceOf(ProductBuilderValidationException.class);
+        assertThatThrownBy(() -> validator.validate("DEPOSIT_PRODUCT_OPENING_RULE", Map.of(
+                "MIN_OPENING_AMOUNT", 1000, "MAX_ALLOWED_BALANCE", 500,
+                "IS_INTRODUCER_REQUIRED", 0, "IS_OVERDRAFT_ALLOWED", 0, "IS_STAMP_DUTY_APPLICABLE", 0)))
+                .isInstanceOf(ProductBuilderValidationException.class)
+                .hasMessageContaining("حداقل مبلغ افتتاح از حداکثر مانده");
     }
 }

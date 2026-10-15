@@ -25,7 +25,7 @@ const groups=[...region.matchAll(groupRx)];
 check(groups.length===6,'expected six R22 groups, found '+groups.length);
 const expected=new Map([
  ['parties','عملیات'],['products','محصولات و قیمت‌گذاری'],
- ['deposits','چهار سپرده'],['organization','ساختار سازمانی و شبکه شعب'],
+ ['deposits','سپرده'],['organization','ساختار سازمانی و شبکه شعب'],
  ['references','داده‌های مرجع'],['technical','مدیریت و سیستم']
 ]);
 const replaced=new Set();
