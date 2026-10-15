@@ -208,6 +208,19 @@ public class ProductRuleGovernanceService {
                     ? hasValidPricingTiers(raw, versionStart, versionEnd)
                     : new ProductRuleHierarchyAudit.Finding(null, null);
             if (childFinding.conflict()) conflict = true;
+            // HF7-A3/HF6: optional children are not proof of an authorization, but
+            // each persisted, applicable child must be valid and linked to the
+            // correct parent before the design version can be approved.  Reuse
+            // exactly the same fail-closed, read-only audit that HF5 qualified.
+            // The control belongs to this report only when the module is in
+            // scope (the disabled-module branch above has already returned).
+            ProductRuleHierarchyAudit.AuditResult relationAudit = switch (control.code()) {
+                case "PRODUCT_CHANNEL_RULE", "PRODUCT_ELIGIBILITY_RULE", "DEPOSIT_PRODUCT_CLOSURE_RULE",
+                        "CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE" ->
+                        ProductRuleHierarchyAudit.audit(control.code(), raw, versionStart, versionEnd,
+                                domain, this::loadChildEvidence, businessValidator);
+                default -> new ProductRuleHierarchyAudit.AuditResult(0, null);
+            };
             // HF7-A2: audit scheduled rules throughout the full validity interval,
             // never merely those effective on the first day. Historical rows
             // outside the interval remain unmodified and do not block approval.
@@ -217,10 +230,21 @@ public class ProductRuleGovernanceService {
                 if (ProductRuleEvidenceEvaluator.hasInvalidActivePeriod(control.code(), rule)) {
                     invalidRows++;
                     if (semanticProblem == null) semanticProblem = "بازه اعتبار قاعده فعال معکوس است.";
-                } else if (ProductRuleSemanticContract.auditsOnApproval(control.code())
+                } else if ((ProductRuleSemanticContract.auditsOnApproval(control.code())
+                        || "CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE".equals(control.code()))
                         && ProductRuleEvidenceEvaluator.isApplicableWithin(control.code(), rule, versionStart, versionEnd)) {
-                    try { businessValidator.validate(control.code(), rule); }
-                    catch (ProductBuilderValidationException ex) {
+                    try {
+                        businessValidator.validate(control.code(), rule);
+                        if ("CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE".equals(control.code())) {
+                            String expectedAccountType = "NOSTRO_ACCOUNT".equals(family) ? "NOSTRO"
+                                    : "VOSTRO_ACCOUNT".equals(family) ? "VOSTRO" : "";
+                            if (expectedAccountType.isEmpty() || !expectedAccountType.equals(text(rule.get("ACCOUNT_TYPE_CODE"))))
+                                throw new ProductBuilderValidationException("نوع پروفایل نوسترو/وسترو با خانواده محصول سازگار نیست.");
+                            if (text(rule.get("SETTLEMENT_CURRENCY_CODE")).isEmpty()
+                                    || text(rule.get("RECONCILIATION_METHOD_CODE")).isEmpty())
+                                throw new ProductBuilderValidationException("ارز تسویه و روش تطبیق پروفایل کارگزاری الزامی است.");
+                        }
+                    } catch (ProductBuilderValidationException ex) {
                         invalidRows++;
                         if (semanticProblem == null) semanticProblem = ex.getMessage();
                     }
@@ -229,6 +253,10 @@ public class ProductRuleGovernanceService {
             if (childFinding.invalidSemantics()) {
                 invalidRows++;
                 if (semanticProblem == null) semanticProblem = childFinding.reason();
+            }
+            if (!relationAudit.valid()) {
+                invalidRows += relationAudit.invalidCount();
+                if (semanticProblem == null) semanticProblem = relationAudit.firstProblem();
             }
             boolean invalidSemantics = invalidRows > 0;
             String status = invalidSemantics ? "INVALID_SEMANTICS" : conflict ? "CONFLICT" : missingRequired ? "MISSING_REQUIRED" : count > 0 ? "CONFIGURED" : "OPTIONAL_ABSENT";
@@ -265,6 +293,14 @@ public class ProductRuleGovernanceService {
         if ("DEPOSIT".equals(domain) && !Set.of("NOSTRO_ACCOUNT", "VOSTRO_ACCOUNT").contains(family)) {
             canOpen = false;
             blockers.add("کنترل انتشار عملیاتی: قواعد تراکنش هنوز در موتور اجرای تراکنش سپرده مصرف نمی‌شوند. افتتاح بر اساس نسخه جدید تا اتصال و آزمون Runtime مجاز نیست.");
+        }
+        // HF7-A3/HF7: NOSTRO/VOSTRO must NOT be exempt from operational
+        // qualification. There is no separately certified correspondent
+        // settlement/reconciliation posting engine for this product contract.
+        // This is strictly an operational gate, not a design-approval blocker.
+        if ("DEPOSIT".equals(domain) && Set.of("NOSTRO_ACCOUNT", "VOSTRO_ACCOUNT").contains(family)) {
+            canOpen = false;
+            blockers.add("کنترل انتشار عملیاتی نوسترو/وسترو: اجرای قواعد تسویه، تطبیق و ثبت‌های مالی در موتور کارگزاری به‌صورت انتهابه‌انتها احراز نشده است؛ افتتاح عملیاتی مجاز نیست.");
         }
         // Unknown/unsupported domain has no verified operational policy engine.
         if (!Set.of("DEPOSIT", "LOAN").contains(domain)) {

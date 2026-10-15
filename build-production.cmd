@@ -76,6 +76,9 @@ rem R30-HF7-A3/HF5: historic HF7-A3 JUnit compatibility, valid IS_ACTIVE and dup
 node "%ROOT%tools\verify-pdl-r30-hf7a3-hf5-compat.mjs" || exit /b 1
 rem HF5-HF1: execute real R15 pricing validation and reject incomplete historical JUnit fixtures.
 node "%ROOT%tools\verify-pdl-r30-hf7a3-hf5-hf1-r15.mjs" || exit /b 1
+node "%ROOT%tools\verify-pdl-r30-hf7a3-hf6-publication.mjs" || exit /b 1
+rem R30-HF7-A3/HF7: correspondent runtime safety and normalized child publish audit.
+node "%ROOT%tools\verify-pdl-r30-hf7a3-hf7-closure.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.
 if not exist "%ROOT%frontend\src\app\app.component.ts" (

@@ -62,6 +62,9 @@ public class PdlProductBuilderRepository {
  public TablePage search(String table,String text,int page,int size,String field,String value){
   if(page>0||table.equals("PRODUCT_VERSION_MODULE"))return new TablePage(List.of(),0,page,size);
   if(missingTerm&&table.equals("DEPOSIT_PRODUCT_ALLOWED_TERM"))return new TablePage(List.of(),0,page,size);
+  if(Set.of("PRODUCT_CHANNEL_OPERATION","LOAN_ELIGIBILITY_EXTENSION",
+      "DEPOSIT_PRODUCT_CLOSURE_PRECHECK","DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE",
+      "DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE","PRODUCT_ELIGIBILITY_CRITERION","CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE").contains(table))return new TablePage(List.of(),0,page,size);
   Map<String,Object> row=new LinkedHashMap<>(ProductRuleGovernanceFixture.row(table));
   if(table.equals("DEPOSIT_PRODUCT_ALLOWED_TERM")){
    if(brokenTerm) row.put("TERM_VALUE","1.5");

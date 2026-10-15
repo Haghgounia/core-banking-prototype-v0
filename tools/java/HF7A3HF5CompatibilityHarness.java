@@ -93,11 +93,14 @@ public final class HF7A3HF5CompatibilityHarness {
                 "REQUIRED_GUARANTOR_COUNT",2.5,"CBI_TRACKING_REQUIRED",0,
                 "CREDIT_INQUIRY_REQUIRED",0,"AML_CHECK_REQUIRED",0);
         check(audit("PRODUCT_ELIGIBILITY_RULE",List.of(Map.of("ELIGIBILITY_RULE_ID",91L)), "LOAN",
-                (table,fk,id)->List.of(malformedLoan)).invalidCount()>0,
+                (table,fk,id)->"LOAN_ELIGIBILITY_EXTENSION".equals(table) ? List.of(malformedLoan) : List.of()).invalidCount()>0,
                 "invalid optional loan eligibility extension rejected");
         check(audit("PRODUCT_ELIGIBILITY_RULE",List.of(Map.of("ELIGIBILITY_RULE_ID",91L)), "DEPOSIT",
-                (table,fk,id)-> { throw new AssertionError("should not query loan extension"); }).valid(),
-                "deposit does not load loan eligibility extension");
+                (table,fk,id)-> {
+                    if (!"PRODUCT_ELIGIBILITY_CRITERION".equals(table))
+                        throw new AssertionError("deposit may load only common eligibility criteria");
+                    return List.of();
+                }).valid(), "deposit loads common criteria but never loan-only extension");
         check(audit("PRODUCT_ELIGIBILITY_RULE",List.of(Map.of("ELIGIBILITY_RULE_ID",91L)), "LOAN",
                 (table,fk,id)->List.of()).valid(), "optional loan extension may be absent");
 

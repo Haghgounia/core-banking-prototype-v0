@@ -132,6 +132,13 @@ class ProductRuleHierarchyHF7A3HF4Test {
             String table = inv.getArgument(0);
             int page = inv.getArgument(2);
             if (page > 0 || "PRODUCT_VERSION_MODULE".equals(table)) return new TablePage(List.of(),0,page,200);
+            if ("PRODUCT_CHANNEL_OPERATION".equals(table) || "LOAN_ELIGIBILITY_EXTENSION".equals(table)
+                    || "DEPOSIT_PRODUCT_CLOSURE_PRECHECK".equals(table)
+                    || "DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE".equals(table)
+                    || "DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE".equals(table)
+                    || "PRODUCT_ELIGIBILITY_CRITERION".equals(table)
+                    || "CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE".equals(table))
+                return new TablePage(List.of(), 0, page, 200);
             Map<String,Object> row = new LinkedHashMap<>(ProductRuleGovernanceFixture.row(table));
             if ("DEPOSIT_PRODUCT_ALLOWED_TERM".equals(table)) row.put("TERM_VALUE", "1.5");
             return new TablePage(List.of(row),1,page,200);

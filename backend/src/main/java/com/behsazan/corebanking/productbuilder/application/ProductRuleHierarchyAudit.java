@@ -77,9 +77,17 @@ public final class ProductRuleHierarchyAudit {
                     childTables = new String[]{"PRODUCT_CHANNEL_OPERATION"};
                 }
                 case "PRODUCT_ELIGIBILITY_RULE" -> {
-                    if (!"LOAN".equals(productDomain)) continue;
                     parentIdField = "ELIGIBILITY_RULE_ID";
-                    childTables = new String[]{"LOAN_ELIGIBILITY_EXTENSION"};
+                    // Criteria belong to COMMON eligibility for both domains;
+                    // LOAN-only extension is additive, not a substitute.
+                    childTables = "LOAN".equals(productDomain)
+                            ? new String[]{"PRODUCT_ELIGIBILITY_CRITERION", "LOAN_ELIGIBILITY_EXTENSION"}
+                            : new String[]{"PRODUCT_ELIGIBILITY_CRITERION"};
+                }
+                case "CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE" -> {
+                    if (!"DEPOSIT".equals(productDomain)) continue;
+                    parentIdField = "CORRESPONDENT_PRODUCT_PROFILE_ID";
+                    childTables = new String[]{"CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE"};
                 }
                 case "DEPOSIT_PRODUCT_CLOSURE_RULE" -> {
                     if (!"DEPOSIT".equals(productDomain)) continue;
@@ -103,6 +111,7 @@ public final class ProductRuleHierarchyAudit {
                     problems.add("قواعد فرزند قابل بازیابی کامل نیستند: " + childTable);
                     continue;
                 }
+                List<Map<String, Object>> validChildren = new ArrayList<>();
                 for (Map<String, Object> child : children) {
                     if (child == null) {
                         problems.add("رکورد فرزند نامعتبر است: " + childTable);
@@ -124,12 +133,36 @@ public final class ProductRuleHierarchyAudit {
                             continue;
                         }
                         validator.validate(childTable, child);
+                        validChildren.add(child);
                         if ("PRODUCT_CHANNEL_OPERATION".equals(childTable)
                                 && numericZero(row.get("IS_ALLOWED")) && numericOne(child.get("IS_ALLOWED")))
                             problems.add("در کانال غیرمجاز، عملیات مجاز قابل تعریف نیست.");
                     } catch (ProductBuilderValidationException ex) {
                         problems.add("قاعده فرزند " + childTable + ": " + ex.getMessage());
                     }
+                }
+                if ("PRODUCT_ELIGIBILITY_CRITERION".equals(childTable)) {
+                    // OR is permitted across different values of a dimension,
+                    // but identical values and gender outside person-only scope
+                    // are not publishable. A missing criterion remains a valid
+                    // ALL/wildcard choice, not evidence of runtime eligibility.
+                    java.util.Set<String> seen = new java.util.HashSet<>();
+                    java.util.List<String> customerTypes = new ArrayList<>();
+                    boolean hasGender = false;
+                    for (Map<String, Object> criterion : validChildren) {
+                        String type = upper(criterion.get("CRITERION_TYPE_CODE"));
+                        String code = upper(criterion.get("CRITERION_VALUE_CODE"));
+                        String numeric = criterion.get("CRITERION_VALUE_NUMBER") == null ? ""
+                                : String.valueOf(decimal(criterion.get("CRITERION_VALUE_NUMBER")));
+                        String unit = upper(criterion.get("VALUE_UNIT_CODE"));
+                        String unique = type + ":" + (code.isBlank() ? numeric + ":" + unit : code);
+                        if (!seen.add(unique)) problems.add("معیار اهلیت تکراری در قاعده مادر تعریف شده است: " + type);
+                        if ("CUSTOMER_TYPE".equals(type)) customerTypes.add(code);
+                        if ("GENDER".equals(type)) hasGender = true;
+                    }
+                    if (hasGender && (customerTypes.isEmpty()
+                            || customerTypes.stream().anyMatch(type -> !java.util.Set.of("PERSON", "INDIVIDUAL").contains(type))))
+                        problems.add("معیار جنسیت فقط برای دامنه صرفاً مشتری حقیقی مجاز است.");
                 }
             }
         }
@@ -251,6 +284,9 @@ public final class ProductRuleHierarchyAudit {
     private static List<Map<String, Object>> get(ChildLoader loader, String table, String key, long parentId) {
         try { return loader.load(table, key, parentId); }
         catch (RuntimeException ex) { return null; } // fail closed with a visible governance finding
+    }
+    private static String upper(Object value) {
+        return value == null ? "" : String.valueOf(value).trim().toUpperCase(java.util.Locale.ROOT);
     }
     private static boolean same(Map<String, Object> a, Map<String, Object> b, String field) {
         return Objects.equals(String.valueOf(a.get(field)).trim().toUpperCase(),

@@ -91,8 +91,12 @@ class ProductRuleHierarchyHF7A3Test {
                 "LOAN", (table, fk, id) -> List.of(incomplete), validator);
         assertTrue(bad.invalidCount() > 0);
         var good = ProductRuleHierarchyAudit.audit("PRODUCT_ELIGIBILITY_RULE", List.of(parent), START, END,
-                "DEPOSIT", (table, fk, id) -> List.of(incomplete), validator);
-        assertEquals(0, good.invalidCount()); // Loan extension does not belong to deposit domain
+                "DEPOSIT", (table, fk, id) -> {
+                    if (!"PRODUCT_ELIGIBILITY_CRITERION".equals(table))
+                        throw new AssertionError("deposit must not query loan-only extension");
+                    return List.of();
+                }, validator);
+        assertEquals(0, good.invalidCount()); // Shared criteria only; no loan extension for deposit
     }
 
     @Test void closureChildInvalidOrderBlocksReadOnlyApprovalAudit() {

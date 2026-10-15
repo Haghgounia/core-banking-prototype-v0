@@ -65,6 +65,12 @@ public class PdlProductBuilderRepository {
  }
  public TablePage search(String table,String text,int page,int size,String filterColumn,String filterVal){
   if(table.equals("PRODUCT_VERSION_MODULE") || page>0) return new TablePage(List.of(),0,page,size);
+  // HF6: historical smoke fixture has no optional child records; this does
+  // not represent permission or runtime integration.
+  if(Set.of("PRODUCT_CHANNEL_OPERATION","LOAN_ELIGIBILITY_EXTENSION",
+         "DEPOSIT_PRODUCT_CLOSURE_PRECHECK","DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE",
+         "DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE","PRODUCT_ELIGIBILITY_CRITERION","CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE").contains(table))
+    return new TablePage(List.of(),0,page,size);
   Map<String,Object> initial=ProductRuleGovernanceFixture.row(table);
   List<Map<String,Object>> entries=new ArrayList<>();
   if(table.equals("PRODUCT_CHANNEL_RULE") && channelGap){

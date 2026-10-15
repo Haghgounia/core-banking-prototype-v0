@@ -134,6 +134,15 @@ class ProductRuleSemanticHF7A1Test {
                 "PRODUCT_CLASS_CODE","DEPOSIT","PRODUCT_FAMILY_CODE","CURRENT_ACCOUNT","PRODUCT_STATUS_CODE","DRAFT")));
         when(repo.search(anyString(),isNull(),eq(0),anyInt(),anyString(),anyString())).thenAnswer(call -> {
             String table = call.getArgument(0);
+            // HF6: optional child rows are absent in this historical fixture;
+            // an empty child set is not a fabricated operational permission.
+            if ("PRODUCT_CHANNEL_OPERATION".equals(table) || "LOAN_ELIGIBILITY_EXTENSION".equals(table)
+                    || "DEPOSIT_PRODUCT_CLOSURE_PRECHECK".equals(table)
+                    || "DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE".equals(table)
+                    || "DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE".equals(table)
+                    || "PRODUCT_ELIGIBILITY_CRITERION".equals(table)
+                    || "CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE".equals(table))
+                return new TablePage(List.of(), 0, 0, 200);
             if ("PRODUCT_VERSION_MODULE".equals(table)) return new TablePage(List.of(),0,0,200);
             var example = new LinkedHashMap<>(ProductRuleGovernanceFixture.row(table));
             if ("DEPOSIT_PRODUCT_TRANSACTION_RULE".equals(table)) {

@@ -39,6 +39,7 @@ public class ProductBuilderBusinessValidator {
             case "LOAN_PRODUCT_COLLATERAL_RULE" -> validateLoanCollateral(values);
             case "LOAN_FINANCIAL_EXTENSION" -> validateLoanFinancial(values);
             case "LOAN_ELIGIBILITY_EXTENSION" -> validateLoanEligibility(values);
+            case "PRODUCT_ELIGIBILITY_CRITERION" -> validateEligibilityCriterion(values);
             case "CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE" -> validateCorrespondentProfile(values);
             case "CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE" -> validateCorrespondentSettlement(values);
             default -> validateGenericDateRange(values);
@@ -308,6 +309,37 @@ public class ProductBuilderBusinessValidator {
         validateGenericDateRange(values);
     }
 
+    /** R10U eligibility rows are normalized children; never allow a shape that
+     *  would violate the current Oracle CHECKs to become approval evidence.
+     *  Reference membership remains the responsibility of PdlReferenceOptionService.
+     */
+    private void validateEligibilityCriterion(Map<String, Object> values) {
+        String type = text(values, "CRITERION_TYPE_CODE");
+        String operator = text(values, "OPERATOR_CODE");
+        if (operator.isBlank() && values.get("OPERATOR_CODE") == null) operator = "IN"; // Oracle DEFAULT
+        boolean tenure = java.util.Set.of("CUSTOMER_TENURE", "ACCOUNT_TENURE").contains(type);
+        boolean domain = java.util.Set.of("CUSTOMER_TYPE", "CUSTOMER_SEGMENT", "CUSTOMER_STATUS",
+                "GENDER", "RESIDENCY_STATUS", "NATIONALITY_SCOPE").contains(type);
+        if (!tenure && !domain) fail("نوع معیار مشترک اهلیت معتبر نیست.");
+        if (tenure) {
+            if (!"MIN".equals(operator)) fail("عملگر معیار سابقه فقط «حداقل» است.");
+            BigDecimal value = decimal(values, "CRITERION_VALUE_NUMBER");
+            if (value == null || value.signum() < 0) fail("مقدار سابقه مشتری/حساب باید عدد غیرمنفی باشد.");
+            if (!text(values, "CRITERION_VALUE_CODE").isBlank()) fail("معیار سابقه نباید کد مقدار دامنه‌ای داشته باشد.");
+            if (!java.util.Set.of("DAY", "MONTH", "YEAR").contains(text(values, "VALUE_UNIT_CODE")))
+                fail("واحد سابقه باید روز، ماه یا سال باشد.");
+        } else {
+            if (!java.util.Set.of("IN", "EQ").contains(operator))
+                fail("عملگر معیار دامنه‌ای باید IN یا EQ باشد.");
+            if (text(values, "CRITERION_VALUE_CODE").isBlank()) fail("مقدار معیار دامنه‌ای اهلیت الزامی است.");
+            if (decimal(values, "CRITERION_VALUE_NUMBER") != null || !text(values, "VALUE_UNIT_CODE").isBlank())
+                fail("معیار دامنه‌ای نباید مقدار عددی یا واحد سابقه داشته باشد.");
+        }
+        if (values.get("DISPLAY_ORDER") != null) requirePositiveSequence(values, "DISPLAY_ORDER", "ترتیب معیار اهلیت");
+        if (values.get("IS_ACTIVE") != null) binaryFlag(values, "IS_ACTIVE", "فعال بودن معیار اهلیت");
+        validateGenericDateRange(values);
+    }
+
     private void validateCorrespondentProfile(Map<String, Object> values) {
         BigDecimal intraday = decimal(values, "INTRADAY_LIMIT");
         BigDecimal credit = decimal(values, "CREDIT_LIMIT");
@@ -316,6 +348,15 @@ public class ProductBuilderBusinessValidator {
     }
 
     private void validateCorrespondentSettlement(Map<String, Object> values) {
+        // Exact business options come from FIX96 DDL, not invented numeric meanings.
+        if (!java.util.Set.of("REALTIME", "INTRADAY", "DAILY")
+                .contains(text(values, "SETTLEMENT_FREQUENCY_CODE")))
+            fail("تناوب تسویه نوسترو/وسترو باید از فهرست معتبر انتخاب شود.");
+        String holiday = text(values, "HOLIDAY_ADJUSTMENT_CODE");
+        if (!holiday.isBlank() && !java.util.Set.of("NONE", "NEXT_BUSINESS_DAY", "PREVIOUS_BUSINESS_DAY").contains(holiday))
+            fail("قاعده روز تعطیل تسویه نوسترو/وسترو معتبر نیست.");
+        if (values.get("NETTING_ALLOWED") != null) binaryFlag(values, "NETTING_ALLOWED", "مجاز بودن تهاتر تسویه");
+        if (text(values, "VALID_FROM").isBlank()) fail("تاریخ شروع اعتبار قاعده تسویه نوسترو/وسترو الزامی است.");
         String time = text(values, "CUTOFF_TIME");
         if (!time.isBlank() && !HH_MM.matcher(time).matches()) {
             fail("CUTOFF_TIME باید با قالب 24 ساعته HH:mm مانند 16:00 ثبت شود.");

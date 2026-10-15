@@ -24,6 +24,15 @@ class ProductRuleGovernanceR19Test {
                 "PRODUCT_FAMILY_CODE", family, "PRODUCT_STATUS_CODE", "DRAFT")));
         when(repository.search(anyString(), isNull(), eq(0), anyInt(), anyString(), anyString())).thenAnswer(inv -> {
             String table = inv.getArgument(0);
+            // HF6: optional child rows are absent in this historical fixture;
+            // an empty child set is not a fabricated operational permission.
+            if ("PRODUCT_CHANNEL_OPERATION".equals(table) || "LOAN_ELIGIBILITY_EXTENSION".equals(table)
+                    || "DEPOSIT_PRODUCT_CLOSURE_PRECHECK".equals(table)
+                    || "DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE".equals(table)
+                    || "DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE".equals(table)
+                    || "PRODUCT_ELIGIBILITY_CRITERION".equals(table)
+                    || "CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE".equals(table))
+                return new TablePage(List.of(), 0, 0, 200);
             if ("PRODUCT_VERSION_MODULE".equals(table)) return new TablePage(
                     transactionEnabled ? List.of() : List.of(Map.of("MODULE_CODE", "TRANSACTION", "IS_ENABLED", 0)), 1, 0, 200);
             long count = "DEPOSIT_PRODUCT_PROFILE".equals(table) ? profileCount : 1;

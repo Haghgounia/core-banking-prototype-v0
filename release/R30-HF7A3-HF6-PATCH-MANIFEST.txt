@@ -1,0 +1,36 @@
+R30-HF7-A3/HF6 Publication Hierarchy Patch Manifest
+Baseline: core-banking-prototype-v0-2026-10-14-R30-HF7A3-HF5-HF1.zip
+Baseline-SHA256: 393ae71ef221869faab2dc3f628006f6b24f57c05ea28a2191b7d5fb62c7252a
+Generated without Oracle writes; requires full Maven/Angular build in Windows.
+Changed or added files: 14
+
+UPDATE backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceService.java
+SHA256 445208946011e79b48d8a9dfbbc609e6e1ded8a841dab99abd9df73e941c6998
+UPDATE backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceFixture.java
+SHA256 ec78e349832f9cb0c3e4e87985b127f9f53c6e1cf98ab77c899c71f6be412ae2
+UPDATE backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceR19Test.java
+SHA256 75adb175f07864e644a2880427b460959d70ed1ba84654eae8831aec2de0f0a2
+UPDATE backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyHF7A3HF4Test.java
+SHA256 cc5215282a3bcfde077378a7bee1749680272eb0e6e97bf387156255d15a380b
+ADD backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyHF7A3HF6Test.java
+SHA256 c279db7bfea64a0710bb0f3414a22135ca78c6d8fff671fed446fa55aa360d28
+UPDATE backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleSemanticHF7A1Test.java
+SHA256 0ec5758af981e03a6d31b465eddbb0e5d4b5078c6a4ec67e0b95b2542e780837
+UPDATE backend/src/test/java/com/behsazan/corebanking/productbuilder/application/RuleGovernanceLiteR20Test.java
+SHA256 226c31156358422c2feb0f09ac6350181d1bab847700c4a88b54e214511dc9d1
+UPDATE build-production.cmd
+SHA256 6f209455f903bcb103799e1317838ce2f49438919694598d3b718b3251dedf7b
+UPDATE build-production.sh
+SHA256 52d316dd5c5b86d575d864ce1887b124485b9f539367452ca219c9e8af4b7640
+ADD docs/PDL-2026-10-15-R30-HF7A3-HF6-PUBLICATION-QA-FA.md
+SHA256 381d031446e06e7a7a7f67360b41ed656ff4462d590f6b3d0c880b9d7024e5c2
+UPDATE tools/verify-pdl-r30-hf7a1-semantic.mjs
+SHA256 7e221d515a4b9f0994310b572a7fa680c5e6bed3814d4575e94214bf0556ef5f
+UPDATE tools/verify-pdl-r30-hf7a2-temporal.mjs
+SHA256 96090f89f33e0af35f154d141b34a839dd75142685c8a619608951f1b1bc6ef9
+UPDATE tools/verify-pdl-r30-hf7a3-hf4-hierarchy.mjs
+SHA256 21f2353fd808a78b8231eba6fd4c5c73ad67593761aa7a7130486ee280a7d80f
+ADD tools/verify-pdl-r30-hf7a3-hf6-publication.mjs
+SHA256 dc7c9cab9a1bd285365afd9c81fbaacd425b3e0ccb641f9a0a8c2cbe93d15f0c
+
+Do not copy this manifest to project root; release/ is whitelisted.

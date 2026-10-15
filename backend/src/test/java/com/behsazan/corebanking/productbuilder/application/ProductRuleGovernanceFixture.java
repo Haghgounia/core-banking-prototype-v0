@@ -12,7 +12,10 @@ final class ProductRuleGovernanceFixture {
                 "PRICING_PURPOSE_CODE", "SAVINGS", "CURRENCY_CODE", "IRR",
                 "TRANSACTION_TYPE_CODE", "WITHDRAWAL", "CLOSURE_TYPE_CODE", "NORMAL"));
         switch (table) {
-            case "PRODUCT_CHANNEL_RULE" -> v.put("IS_ALLOWED", 0);
+            case "PRODUCT_CHANNEL_RULE" -> {
+                v.put("CHANNEL_RULE_ID", 811L); v.put("IS_ALLOWED", 0);
+            }
+            case "PRODUCT_ELIGIBILITY_RULE" -> v.put("ELIGIBILITY_RULE_ID", 812L);
             case "PRODUCT_PRICING_RULE" -> {
                 v.put("PRICING_RULE_ID", 813L);
                 v.put("PRICING_METHOD_CODE", "FIXED");
@@ -73,6 +76,7 @@ final class ProductRuleGovernanceFixture {
                 v.put("HOLD_TYPE_CODE", "LEGAL"); v.put("IS_SUPPORTED", 0);
             }
             case "DEPOSIT_PRODUCT_CLOSURE_RULE" -> {
+                v.put("CLOSURE_RULE_ID", 818L);
                 v.put("IS_CLOSURE_ALLOWED", 0); v.put("IS_PARTIAL_CLOSURE_ALLOWED", 0);
                 v.put("STATUS_CODE", "ACTIVE"); v.put("EFFECTIVE_FROM_DATE", "2026-10-10");
             }
