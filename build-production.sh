@@ -57,6 +57,8 @@ node "$ROOT/tools/verify-pdl-r30-hf7a3-hf5-hf1-r15.mjs"
 node "$ROOT/tools/verify-pdl-r30-hf7a3-hf6-publication.mjs"
 # R30-HF7-A3/HF7: correspondent runtime safety and normalized child publish audit.
 node "$ROOT/tools/verify-pdl-r30-hf7a3-hf7-closure.mjs"
+# HF7-A3 Final/HF8: four remaining publication controls and relationship evidence.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf8-final.mjs"
 
 for required in \
   "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/domain/DepositAccountModels.java" \

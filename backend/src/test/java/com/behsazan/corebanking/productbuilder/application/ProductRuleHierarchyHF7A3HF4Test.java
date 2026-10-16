@@ -127,7 +127,11 @@ class ProductRuleHierarchyHF7A3HF4Test {
         when(repo.findById("PRODUCT_VERSION",55L)).thenReturn(Optional.of(Map.of(
                 "PRODUCT_ID",9L,"VALID_FROM","2026-10-10","VALID_TO","2026-10-30","VERSION_STATUS_CODE","DRAFT")));
         when(repo.findById("PRODUCT",9L)).thenReturn(Optional.of(Map.of(
-                "PRODUCT_CLASS_CODE","DEPOSIT","PRODUCT_FAMILY_CODE","LONG_TERM_DEPOSIT","PRODUCT_STATUS_CODE","DRAFT")));
+                "PRODUCT_CLASS_CODE","DEPOSIT","PRODUCT_FAMILY_CODE","LONG_TERM_DEPOSIT","PRODUCT_STATUS_CODE","DRAFT","DEFAULT_CURRENCY_CODE","IRR")));
+        when(repo.findById("PRODUCT", 99L)).thenReturn(Optional.of(Map.of("PRODUCT_ID", 99L)));
+        when(repo.findById("LOAN_TYPE", 101L)).thenReturn(Optional.of(Map.of("LOAN_GROUP", 1, "RECORD_STATUS_CODE", "ACTIVE")));
+        when(repo.findById("PLAN_TYPE", 201L)).thenReturn(Optional.of(Map.of("RECORD_STATUS_CODE", "ACTIVE")));
+        when(repo.loanTypePlanAllowed(101L, 201L)).thenReturn(true);
         when(repo.search(anyString(),isNull(),anyInt(),anyInt(),anyString(),anyString())).thenAnswer(inv -> {
             String table = inv.getArgument(0);
             int page = inv.getArgument(2);

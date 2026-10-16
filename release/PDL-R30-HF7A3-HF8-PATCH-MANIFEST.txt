@@ -1,0 +1,36 @@
+Core Banking Prototype 0.11.0 - R30-HF7A3-HF8 - Final Governance / 54-Table Register
+HF7 Baseline ZIP SHA256: ada0fa2f2f19a66b6aa862fdcb6d526be3e32298b72af012e1ccd3216d206e27
+PATCH APPLIES TO: R30-HF7A3-HF7 (confirmed 207 Maven tests, 0 failures, 1 skipped)
+Patch changes are only in governance source, tests, verifier scripts, docs, a read-only diagnostic and build wrappers.
+No delete, no FEE/FEE2 change, no Angular frontend change, no Oracle DDL/DML execution.
+HF8 Maven full build must be run on user Windows; Java verifier pass is not full Maven certification.
+Source checked for canOpen fail-closed for deposit/loan/correspondent.
+New source files: 5 (one JUnit, one node verifier, one csv, one md, one read-only sql); release manifest is sixth.
+CHANGED OR ADDED FILES: 24
+CHANGE COUNTS: {"Design QA and table registry": 2, "JUnit tests and fixtures": 8, "Production Java code": 3, "Read-only diagnostic": 1, "Regression tools": 7, "Release files and build entrypoints": 3}
+
+FILES:
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleEvidenceEvaluator.java  sha256=cbc954e402c51c843332240735c6a6944e2cd4a47812dfb8e130299ce5604423  bytes=12079
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceService.java  sha256=d1da77131a2ebadf14468f4cb70bca0537c89bd0e8a89d58c0ea51f2e796de09  bytes=40747
+backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleSemanticContract.java  sha256=86813d488cde9d04f3a80b93224b70f989802c46ef0bd6f8e14bcdcf672415cb  bytes=29816
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceFixture.java  sha256=cb18dc7e004c02dbe79a27a557f77b771cc3011e96004c26f681bb7739e9ab39  bytes=6696
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleGovernanceR19Test.java  sha256=0122ed9a5a96b75205554b7f9382ddc01be10c0dd4242005bd9a6bd90d90c504  bytes=7344
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyHF7A3HF4Test.java  sha256=4a999b127665ed3fc36607d79ca51ac191bf6d208f5e2c0f29b58a1a25ecfd19  bytes=9504
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyHF7A3HF6Test.java  sha256=f571b552b2fa23abf100cc5fdd405472c2d46790a57e8c04bfe1ee13bf0992a8  bytes=12062
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyHF7A3HF7Test.java  sha256=bcae979c6f19b4820cca3dbdeddf2c26e7fdb0008ef8b9a89419db4cd011e411  bytes=12762
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRulePublicationHF7A3HF8Test.java  sha256=22acfd6261dd449a5d7052449c2697b79252caa9e75ff6491702ae8b6f1e957c  bytes=11618
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleSemanticHF7A1Test.java  sha256=7b9cd2c058ebbe950013eca3c25ba49f971770ac2c6ed647f3068d9a53f0e789  bytes=10170
+backend/src/test/java/com/behsazan/corebanking/productbuilder/application/RuleGovernanceLiteR20Test.java  sha256=158781e4b3dad258a69dc048287f6c0d4021c5a863ee86e9e00323bb2635b9cc  bytes=4646
+build-production.cmd  sha256=156eef9221f3738d340aed028f650ee329f7d52f93aa88c29d13ced47a4dde25  bytes=20974
+build-production.sh  sha256=9fdf5af4a2e144ed4898eaddb03281ba7c36825b2b580b09d367b03dc6d4f178  bytes=10045
+database/oracle/pdl/diagnostics/pdl-r30-hf7a3-hf8-readonly-54-metadata.sql  sha256=bd4d327d89e372dd905196a21693b42e57a7673e1e92d4aa8cc0d2d4585ad8d3  bytes=3210
+docs/PDL-2026-10-15-R30-HF7A3-HF8-COVERAGE-54.csv  sha256=2cce768dd6f3e4fbb6f514f4ee3df121180b66a668ccde75e2aa760137161b84  bytes=24536
+docs/PDL-2026-10-15-R30-HF7A3-HF8-FINAL-GOVERNANCE-QA-FA.md  sha256=b4a3275ade529c1c2d030807059bbfed14b486d13af9e4b561cac87d5fc37b13  bytes=7286
+release/PDL-R30-HF7A3-HF8-PATCH-MANIFEST.txt (THIS MANIFEST)
+tools/verify-pdl-r30-hf7a1-semantic.mjs  sha256=cee59deed89da52456f0c969ac08e760989caf20360964ffc30b6cfd6796bcfa  bytes=15324
+tools/verify-pdl-r30-hf7a2-temporal.mjs  sha256=662ffcbc6836fd0133b17108222ec2a5ba83e8733e63acfb0417ca3ce82e01e7  bytes=15838
+tools/verify-pdl-r30-hf7a3-hf4-hierarchy.mjs  sha256=febce0c8c246e91b87ef1a8f1fad53c261e44cd12a0f47a3cc0fcebe6fd1cdec  bytes=14675
+tools/verify-pdl-r30-hf7a3-hf5-compat.mjs  sha256=908b0246e7859f3f21ebacd06c1b63c5655e2028b95dc6642b9c6b890aac376a  bytes=9885
+tools/verify-pdl-r30-hf7a3-hf6-publication.mjs  sha256=aabc267a5584932ddf529c2537a1c472c7ad3284d53c55bc975b39c078afd170  bytes=18406
+tools/verify-pdl-r30-hf7a3-hf7-closure.mjs  sha256=5df9246af96aac685ff0040e1d82cb6fb150af1d70e12a277dbd695fb0c495f4  bytes=19029
+tools/verify-pdl-r30-hf7a3-hf8-final.mjs  sha256=6b58470177a54db4bff837be00dc96483a96a1cb524c5fc25fe3ef3a81f7e64c  bytes=27566

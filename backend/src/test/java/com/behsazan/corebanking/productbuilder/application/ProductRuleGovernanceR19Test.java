@@ -21,7 +21,11 @@ class ProductRuleGovernanceR19Test {
                 "PRODUCT_VERSION_ID", 55L, "PRODUCT_ID", 9L, "VERSION_STATUS_CODE", "DRAFT", "VALID_FROM", "2026-10-10")));
         when(repository.findById("PRODUCT", 9L)).thenReturn(Optional.of(Map.of(
                 "PRODUCT_ID", 9L, "PRODUCT_CLASS_CODE", domain,
-                "PRODUCT_FAMILY_CODE", family, "PRODUCT_STATUS_CODE", "DRAFT")));
+                "PRODUCT_FAMILY_CODE", family, "PRODUCT_STATUS_CODE", "DRAFT", "DEFAULT_CURRENCY_CODE", "IRR")));
+        when(repository.findById("PRODUCT", 99L)).thenReturn(Optional.of(Map.of("PRODUCT_ID", 99L)));
+        when(repository.findById("LOAN_TYPE", 101L)).thenReturn(Optional.of(Map.of("LOAN_GROUP", 1, "RECORD_STATUS_CODE", "ACTIVE")));
+        when(repository.findById("PLAN_TYPE", 201L)).thenReturn(Optional.of(Map.of("RECORD_STATUS_CODE", "ACTIVE")));
+        when(repository.loanTypePlanAllowed(101L, 201L)).thenReturn(true);
         when(repository.search(anyString(), isNull(), eq(0), anyInt(), anyString(), anyString())).thenAnswer(inv -> {
             String table = inv.getArgument(0);
             // HF6: optional child rows are absent in this historical fixture;

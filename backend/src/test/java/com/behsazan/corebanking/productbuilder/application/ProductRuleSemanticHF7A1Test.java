@@ -131,7 +131,11 @@ class ProductRuleSemanticHF7A1Test {
         when(repo.findById("PRODUCT_VERSION",55L)).thenReturn(Optional.of(Map.of(
                 "PRODUCT_ID",9L,"VALID_FROM","2026-10-10","VERSION_STATUS_CODE","DRAFT")));
         when(repo.findById("PRODUCT",9L)).thenReturn(Optional.of(Map.of(
-                "PRODUCT_CLASS_CODE","DEPOSIT","PRODUCT_FAMILY_CODE","CURRENT_ACCOUNT","PRODUCT_STATUS_CODE","DRAFT")));
+                "PRODUCT_CLASS_CODE","DEPOSIT","PRODUCT_FAMILY_CODE","CURRENT_ACCOUNT","PRODUCT_STATUS_CODE","DRAFT","DEFAULT_CURRENCY_CODE","IRR")));
+        when(repo.findById("PRODUCT", 99L)).thenReturn(Optional.of(Map.of("PRODUCT_ID", 99L)));
+        when(repo.findById("LOAN_TYPE", 101L)).thenReturn(Optional.of(Map.of("LOAN_GROUP", 1, "RECORD_STATUS_CODE", "ACTIVE")));
+        when(repo.findById("PLAN_TYPE", 201L)).thenReturn(Optional.of(Map.of("RECORD_STATUS_CODE", "ACTIVE")));
+        when(repo.loanTypePlanAllowed(101L, 201L)).thenReturn(true);
         when(repo.search(anyString(),isNull(),eq(0),anyInt(),anyString(),anyString())).thenAnswer(call -> {
             String table = call.getArgument(0);
             // HF6: optional child rows are absent in this historical fixture;

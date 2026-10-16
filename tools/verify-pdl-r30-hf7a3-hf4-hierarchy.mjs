@@ -54,10 +54,15 @@ import java.util.*;
 public class PdlProductBuilderRepository {
  public String domain="DEPOSIT",family="LONG_TERM_DEPOSIT";
  public boolean brokenTerm=false,termGap=false,brokenPricing=false,tiered=false,missingTerm=false;
+ public boolean loanTypePlanAllowed(long loanType,long planType){return loanType==101L && planType==201L;}
  public Optional<Map<String,Object>> findById(String table,long id){
   if(table.equals("PRODUCT_VERSION"))return Optional.of(Map.of("PRODUCT_ID",9L,"VALID_FROM","2026-10-10","VALID_TO","2026-10-30","VERSION_STATUS_CODE","DRAFT"));
-  if(table.equals("PRODUCT"))return Optional.of(Map.of("PRODUCT_CLASS_CODE",domain,"PRODUCT_FAMILY_CODE",family,"PRODUCT_STATUS_CODE","DRAFT"));
-  return Optional.empty();
+  if(table.equals("PRODUCT"))return Optional.of(Map.of("PRODUCT_CLASS_CODE",domain,"PRODUCT_FAMILY_CODE",family,"PRODUCT_STATUS_CODE","DRAFT","DEFAULT_CURRENCY_CODE","IRR"));
+ 
+  if(table.equals("PRODUCT") && id==99L)return Optional.of(Map.of("PRODUCT_ID",99L));
+  if(table.equals("LOAN_TYPE"))return Optional.of(Map.of("LOAN_GROUP",1,"RECORD_STATUS_CODE","ACTIVE"));
+  if(table.equals("PLAN_TYPE"))return Optional.of(Map.of("RECORD_STATUS_CODE","ACTIVE"));
+ return Optional.empty();
  }
  public TablePage search(String table,String text,int page,int size,String field,String value){
   if(page>0||table.equals("PRODUCT_VERSION_MODULE"))return new TablePage(List.of(),0,page,size);
@@ -66,6 +71,7 @@ public class PdlProductBuilderRepository {
       "DEPOSIT_PRODUCT_CLOSURE_PRECHECK","DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE",
       "DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE","PRODUCT_ELIGIBILITY_CRITERION","CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE").contains(table))return new TablePage(List.of(),0,page,size);
   Map<String,Object> row=new LinkedHashMap<>(ProductRuleGovernanceFixture.row(table));
+  if(table.equals("DEPOSIT_PRODUCT_PROFILE")){String[] identity=com.behsazan.corebanking.productbuilder.application.DepositProfileIdentityPolicy.forFamily(family);row.put("DEPOSIT_GROUP_CODE",identity[0]);row.put("DEPOSIT_TYPE_CODE",identity[1]);}
   if(table.equals("DEPOSIT_PRODUCT_ALLOWED_TERM")){
    if(brokenTerm) row.put("TERM_VALUE","1.5");
    if(termGap) row.put("EFFECTIVE_TO_DATE","2026-10-20");
@@ -149,7 +155,7 @@ public class Hf4Smoke {
  }
 }`));
  const app=path.join(root,src,'application');
- const actual=['ProductBuilderValidationException.java','ProductBuilderBusinessValidator.java','ProductRuleSemanticContract.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java','ProductRuleGovernanceService.java']
+ const actual=['ProductBuilderValidationException.java','ProductBuilderBusinessValidator.java','ProductRuleSemanticContract.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java','DepositProfileIdentityPolicy.java','LoanTypeClassification.java','ProductRuleGovernanceService.java']
   .map(s=>path.join(app,s));
  actual.push(path.join(root,src,'domain/ProductBuilderModels.java'));
  const bin=path.join(tmp,'classes');fs.mkdirSync(bin);

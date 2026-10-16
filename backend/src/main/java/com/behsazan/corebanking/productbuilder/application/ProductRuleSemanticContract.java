@@ -41,7 +41,12 @@ public final class ProductRuleSemanticContract {
             "PRODUCT_ORG_SCOPE",
             // HF7-A3/HF4: primary contractual fields of the two audited hierarchies.
             "DEPOSIT_PRODUCT_TERM_RULE",
-            "PRODUCT_PRICING_RULE"
+            "PRODUCT_PRICING_RULE",
+            // HF7-A3/Final: publication revalidation for existing governance controls.
+            "DEPOSIT_PRODUCT_PROFILE",
+            "DEPOSIT_PROFIT_PAYMENT_RULE",
+            "LOAN_PRODUCT_PROFILE",
+            "PRODUCT_RELATIONSHIP"
     );
 
     public static boolean auditsOnApproval(String table) {

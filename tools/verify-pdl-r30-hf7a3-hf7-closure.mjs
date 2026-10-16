@@ -90,10 +90,15 @@ public class PdlProductBuilderRepository {
     "DEPOSIT_PRODUCT_CLOSURE_PRECHECK","DEPOSIT_PRODUCT_CLOSURE_SETTLEMENT_RULE",
     "DEPOSIT_PRODUCT_CLOSURE_APPROVAL_RULE","PRODUCT_ELIGIBILITY_CRITERION",
     "CORRESPONDENT_ACCOUNT_SETTLEMENT_RULE");
+ public boolean loanTypePlanAllowed(long loanType,long planType){return loanType==101L && planType==201L;}
  public Optional<Map<String,Object>> findById(String table,long id){
   if(table.equals("PRODUCT_VERSION"))return Optional.of(Map.of("PRODUCT_ID",9L,"VALID_FROM","2026-10-10","VALID_TO","2026-10-30","VERSION_STATUS_CODE","DRAFT"));
-  if(table.equals("PRODUCT"))return Optional.of(Map.of("PRODUCT_CLASS_CODE",domain,"PRODUCT_FAMILY_CODE",family,"PRODUCT_STATUS_CODE","DRAFT"));
-  return Optional.empty();
+  if(table.equals("PRODUCT"))return Optional.of(Map.of("PRODUCT_CLASS_CODE",domain,"PRODUCT_FAMILY_CODE",family,"PRODUCT_STATUS_CODE","DRAFT","DEFAULT_CURRENCY_CODE","IRR"));
+ 
+  if(table.equals("PRODUCT") && id==99L)return Optional.of(Map.of("PRODUCT_ID",99L));
+  if(table.equals("LOAN_TYPE"))return Optional.of(Map.of("LOAN_GROUP",1,"RECORD_STATUS_CODE","ACTIVE"));
+  if(table.equals("PLAN_TYPE"))return Optional.of(Map.of("RECORD_STATUS_CODE","ACTIVE"));
+ return Optional.empty();
  }
  public long insert(String table,Map<String,Object> values,String actor){throw new AssertionError("audit must not write");}
  public void update(String table,long id,Map<String,Object> values,String actor){throw new AssertionError("audit must not write");}
@@ -190,7 +195,7 @@ public class Hf7Smoke {
  const classes=path.join(tmp,'classes');fs.mkdirSync(classes);
  const actual=['ProductBuilderValidationException.java','ProductBuilderBusinessValidator.java',
    'ProductRuleSemanticContract.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java',
-   'ProductRuleGovernanceService.java'].map(f=>path.join(root,app,f));
+   'DepositProfileIdentityPolicy.java','LoanTypeClassification.java','ProductRuleGovernanceService.java'].map(f=>path.join(root,app,f));
  actual.push(path.join(root,'backend/src/main/java/com/behsazan/corebanking/productbuilder/domain/ProductBuilderModels.java'));
  run('javac',['-encoding','UTF-8','-d',classes,...spring,lite,fixturePath,repository,...actual,harness]);
  run('java',['-cp',classes,'Hf7Smoke']);

@@ -12,6 +12,36 @@ final class ProductRuleGovernanceFixture {
                 "PRICING_PURPOSE_CODE", "SAVINGS", "CURRENCY_CODE", "IRR",
                 "TRANSACTION_TYPE_CODE", "WITHDRAWAL", "CLOSURE_TYPE_CODE", "NORMAL"));
         switch (table) {
+            case "DEPOSIT_PRODUCT_PROFILE" -> {
+                v.put("PRODUCT_VERSION_ID", 55L);
+                v.put("DEPOSIT_GROUP_CODE", "CURRENT");
+                v.put("DEPOSIT_TYPE_CODE", "CURRENT_NO_INTEREST");
+            }
+            case "DEPOSIT_PROFIT_PAYMENT_RULE" -> {
+                v.put("PRODUCT_VERSION_ID", 55L);
+                v.put("PAYMENT_FREQUENCY_CODE", "MONTHLY");
+                v.put("PAYMENT_DAY_RULE_CODE", "LAST_DAY_OF_MONTH");
+                v.put("FIRST_PAYMENT_RULE_CODE", "PRORATE_FROM_OPENING");
+                v.put("HOLIDAY_ADJUSTMENT_CODE", "NEXT_BUSINESS_DAY");
+                v.put("PAYMENT_DESTINATION_CODE", "SAME_DEPOSIT");
+                v.put("CAPITALIZATION_ALLOWED", 0);
+                v.put("CAPITALIZATION_DEFAULT", 0);
+                v.put("IS_ACTIVE", 1);
+            }
+            case "LOAN_PRODUCT_PROFILE" -> {
+                v.put("PRODUCT_VERSION_ID", 55L);
+                v.put("LOAN_TYPE_ID", 101L);
+                v.put("PLAN_TYPE_ID", 201L);
+                v.put("CURRENCY_TYPE_CODE", "IRR");
+                v.put("PARTY_NATURE_CODE", "ALL");
+            }
+            case "PRODUCT_RELATIONSHIP" -> {
+                v.put("SOURCE_PRODUCT_VERSION_ID", 55L);
+                v.put("TARGET_PRODUCT_ID", 99L);
+                v.put("RELATIONSHIP_TYPE_CODE", "PACKAGE");
+                v.put("IS_MANDATORY", 0);
+                v.put("PRIORITY_NO", 1);
+            }
             case "PRODUCT_CHANNEL_RULE" -> {
                 v.put("CHANNEL_RULE_ID", 811L); v.put("IS_ALLOWED", 0);
             }

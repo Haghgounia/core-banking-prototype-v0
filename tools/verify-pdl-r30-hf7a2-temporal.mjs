@@ -58,10 +58,15 @@ import java.util.*;
 public class PdlProductBuilderRepository {
  public String domain="LOAN",family="QARD_HASAN_LOAN";
  public boolean futureInvalid=false,channelGap=false,invalidActiveInterval=false,missingChannelDecision=false,missingInquiryStage=false;
+ public boolean loanTypePlanAllowed(long loanType,long planType){return loanType==101L && planType==201L;}
  public Optional<Map<String,Object>> findById(String table,long id){
   if(table.equals("PRODUCT_VERSION")) return Optional.of(Map.of("PRODUCT_ID",9L,"VALID_FROM","2026-10-10","VALID_TO","2026-10-30","VERSION_STATUS_CODE","DRAFT"));
-  if(table.equals("PRODUCT")) return Optional.of(Map.of("PRODUCT_CLASS_CODE",domain,"PRODUCT_FAMILY_CODE",family,"PRODUCT_STATUS_CODE","DRAFT"));
-  return Optional.empty();
+  if(table.equals("PRODUCT")) return Optional.of(Map.of("PRODUCT_CLASS_CODE",domain,"PRODUCT_FAMILY_CODE",family,"PRODUCT_STATUS_CODE","DRAFT","DEFAULT_CURRENCY_CODE","IRR"));
+ 
+  if(table.equals("PRODUCT") && id==99L)return Optional.of(Map.of("PRODUCT_ID",99L));
+  if(table.equals("LOAN_TYPE"))return Optional.of(Map.of("LOAN_GROUP",1,"RECORD_STATUS_CODE","ACTIVE"));
+  if(table.equals("PLAN_TYPE"))return Optional.of(Map.of("RECORD_STATUS_CODE","ACTIVE"));
+ return Optional.empty();
  }
  public TablePage search(String table,String text,int page,int size,String filterColumn,String filterVal){
   if(table.equals("PRODUCT_VERSION_MODULE") || page>0) return new TablePage(List.of(),0,page,size);
@@ -168,7 +173,7 @@ public class TemporalSmoke {
 }`));
  const app=path.join(root,base,'application');
  const actual=['ProductBuilderValidationException.java','ProductRuleSemanticContract.java',
-  'ProductBuilderBusinessValidator.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java','ProductRuleGovernanceService.java']
+  'ProductBuilderBusinessValidator.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java','DepositProfileIdentityPolicy.java','LoanTypeClassification.java','ProductRuleGovernanceService.java']
   .map(name=>path.join(app,name));
  actual.push(path.join(root,base,'domain/ProductBuilderModels.java'));
  const bin=path.join(temp,'classes');fs.mkdirSync(bin);

@@ -60,7 +60,7 @@ public class ProductRuleGovernanceService {
             c("DEPOSIT_PRODUCT_TRANSACTION_RULE", "قواعد تراکنش", "DEPOSIT", "TRANSACTION", "OPERATIONS", "CHANNEL,OPERATION", true, false),
             c("DEPOSIT_PRODUCT_WITHDRAWAL_MEDIA", "ابزارهای برداشت", "DEPOSIT", "TRANSACTION", "OPERATIONS", "WITHDRAWAL_MEDIA", false, false),
             c("DEPOSIT_PRODUCT_TERM_RULE", "مدت و سررسید", "DEPOSIT_TERM", "TERM", "CONTRACT_VERSION", "PRODUCT_VERSION", true, false),
-            c("DEPOSIT_PROFIT_PAYMENT_RULE", "واریز سود", "DEPOSIT_TERM", "PROFIT_PAYMENT", "CONTRACT_VERSION", "PAYMENT_PERIOD", true, false),
+            c("DEPOSIT_PROFIT_PAYMENT_RULE", "واریز سود", "DEPOSIT_TERM", "PROFIT_PAYMENT", "CONTRACT_VERSION", "PAYMENT_PERIOD", true, true),
             c("CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE", "پروفایل حساب کارگزاری", "CORRESPONDENT", "CORRESPONDENT", "CONTRACT_VERSION", "PRODUCT_VERSION", true, true),
             c("DEPOSIT_PRODUCT_JOINT_RULE", "حساب مشترک", "DEPOSIT", "JOINT", "CONTRACT_VERSION", "OWNERSHIP", false, false),
             c("DEPOSIT_PRODUCT_DORMANCY_RULE", "راکدی", "DEPOSIT", "DORMANCY", "OPERATIONS", "PRODUCT_VERSION", false, false),
@@ -235,6 +235,10 @@ public class ProductRuleGovernanceService {
                         && ProductRuleEvidenceEvaluator.isApplicableWithin(control.code(), rule, versionStart, versionEnd)) {
                     try {
                         businessValidator.validate(control.code(), rule);
+                        // HF7-A3/Final: re-check previously persisted profile,
+                        // payment and relationship evidence at the approval boundary.
+                        // Generic create/update validators are not publication proof.
+                        validatePublicationRow(control.code(), rule, versionId, productId, family, product);
                         if ("CORRESPONDENT_ACCOUNT_PRODUCT_PROFILE".equals(control.code())) {
                             String expectedAccountType = "NOSTRO_ACCOUNT".equals(family) ? "NOSTRO"
                                     : "VOSTRO_ACCOUNT".equals(family) ? "VOSTRO" : "";
@@ -318,6 +322,129 @@ public class ProductRuleGovernanceService {
         }
         return new GovernanceReport(versionId, productId, family, domain, canApprove, canOpen,
                 List.copyOf(blockers), LEVELS, List.copyOf(rows));
+    }
+
+    /** HF7-A3/Final: publication-only checks; all reference reads are read-only.
+     * Do not infer business meanings from nullable fields or invent currency,
+     * pricing precedence or a permission to open an account.
+     */
+    private void validatePublicationRow(String control, Map<String, Object> rule,
+                                        long versionId, long productId,
+                                        String family, Map<String, Object> product) {
+        switch (control) {
+            case "DEPOSIT_PRODUCT_PROFILE" -> {
+                requireVersionOwner(rule, "PRODUCT_VERSION_ID", versionId, "پروفایل سپرده");
+                String[] identity = DepositProfileIdentityPolicy.forFamily(family);
+                if (!identity[0].equals(text(rule.get("DEPOSIT_GROUP_CODE")))
+                        || !identity[1].equals(text(rule.get("DEPOSIT_TYPE_CODE"))))
+                    throw new ProductBuilderValidationException(
+                            "گروه و نوع پروفایل سپرده با خانواده مصوب محصول همخوانی ندارد.");
+            }
+            case "DEPOSIT_PROFIT_PAYMENT_RULE" -> {
+                requireVersionOwner(rule, "PRODUCT_VERSION_ID", versionId, "برنامه پرداخت سود");
+                requireCode(rule, "PAYMENT_FREQUENCY_CODE", Set.of(
+                        "MONTHLY", "QUARTERLY", "SEMI_ANNUAL", "ANNUAL", "MATURITY"), "تناوب پرداخت سود");
+                requireCode(rule, "PAYMENT_DAY_RULE_CODE", Set.of(
+                        "OPENING_ANNIVERSARY", "FIXED_DAY_OF_MONTH", "LAST_DAY_OF_MONTH", "MATURITY_DATE"), "قاعده روز پرداخت سود");
+                requireCode(rule, "FIRST_PAYMENT_RULE_CODE", Set.of(
+                        "PRORATE_FROM_OPENING", "FULL_NEXT_CYCLE", "MATURITY_ONLY"), "اولین پرداخت سود");
+                requireCode(rule, "HOLIDAY_ADJUSTMENT_CODE", Set.of(
+                        "NEXT_BUSINESS_DAY", "PREVIOUS_BUSINESS_DAY", "NO_ADJUSTMENT"), "قاعده تعطیلی پرداخت سود");
+                requireCode(rule, "PAYMENT_DESTINATION_CODE", Set.of(
+                        "SAME_DEPOSIT", "LINKED_ACCOUNT", "CUSTOMER_SELECTED_ACCOUNT"), "مقصد پرداخت سود");
+                requireBinary(rule, "CAPITALIZATION_ALLOWED", "امکان افزودن سود به اصل");
+                requireBinary(rule, "CAPITALIZATION_DEFAULT", "پیش فرض افزودن سود به اصل");
+                requireBinary(rule, "IS_ACTIVE", "فعال بودن برنامه پرداخت سود");
+                // Cross-field day/frequency/capitalization rules are checked
+                // independently by ProductBuilderBusinessValidator above.
+            }
+            case "LOAN_PRODUCT_PROFILE" -> {
+                requireVersionOwner(rule, "PRODUCT_VERSION_ID", versionId, "پروفایل تسهیلات");
+                long typeId = strictPositiveId(rule.get("LOAN_TYPE_ID"), "نوع عقد پروفایل تسهیلات");
+                long planId = strictPositiveId(rule.get("PLAN_TYPE_ID"), "طرح پروفایل تسهیلات");
+                String currency = text(product.get("DEFAULT_CURRENCY_CODE"));
+                if (!currency.matches("[A-Z]{3}") || !currency.equals(text(rule.get("CURRENCY_TYPE_CODE"))))
+                    throw new ProductBuilderValidationException(
+                            "ارز پروفایل تسهیلات با ارز پیش فرض محصول مطابقت ندارد.");
+                Map<String, Object> loanType = requireReference("LOAN_TYPE", typeId);
+                int group = LoanTypeClassification.groupForProductFamily(family);
+                if (group == 0 && !LoanTypeClassification.isLegacyRetailFamily(family))
+                    throw new ProductBuilderValidationException("خانواده محصول تسهیلات شناخته شده نیست.");
+                if (group != 0 && group != number(loanType.get("LOAN_GROUP")))
+                    throw new ProductBuilderValidationException("نوع عقد با خانواده محصول تسهیلات سازگار نیست.");
+                if (!"ACTIVE".equals(text(loanType.get("RECORD_STATUS_CODE"))))
+                    throw new ProductBuilderValidationException("نوع عقد پروفایل تسهیلات فعال نیست.");
+                Map<String, Object> planType = requireReference("PLAN_TYPE", planId);
+                if (planType.containsKey("RECORD_STATUS_CODE")
+                        && !"ACTIVE".equals(text(planType.get("RECORD_STATUS_CODE"))))
+                    throw new ProductBuilderValidationException("طرح پروفایل تسهیلات فعال نیست.");
+                boolean compatible;
+                try {
+                    compatible = repository.loanTypePlanAllowed(typeId, planId);
+                } catch (RuntimeException ex) {
+                    throw new ProductBuilderValidationException(
+                            "استعلام خواندنی سازگاری نوع عقد و طرح تسهیلات ناموفق است؛ تصویب متوقف می شود.");
+                }
+                if (!compatible)
+                    throw new ProductBuilderValidationException("طرح تسهیلات برای نوع عقد انتخابی مجاز نیست.");
+            }
+            case "PRODUCT_RELATIONSHIP" -> {
+                requireVersionOwner(rule, "SOURCE_PRODUCT_VERSION_ID", versionId, "رابطه محصولات");
+                if (text(rule.get("RELATIONSHIP_TYPE_CODE")).isEmpty())
+                    throw new ProductBuilderValidationException("نوع رابطه بین محصولات الزامی است.");
+                long targetId = strictPositiveId(rule.get("TARGET_PRODUCT_ID"), "محصول مقصد رابطه");
+                if (targetId == productId)
+                    throw new ProductBuilderValidationException("محصول مبدأ نمی تواند مقصد رابطه خودش باشد.");
+                requireReference("PRODUCT", targetId);
+                if (rule.get("TARGET_PRODUCT_VERSION_ID") != null
+                        && !String.valueOf(rule.get("TARGET_PRODUCT_VERSION_ID")).isBlank()) {
+                    long targetVersionId = strictPositiveId(rule.get("TARGET_PRODUCT_VERSION_ID"), "نسخه مقصد رابطه");
+                    Map<String, Object> targetVersion = requireReference("PRODUCT_VERSION", targetVersionId);
+                    if (number(targetVersion.get("PRODUCT_ID")) != targetId)
+                        throw new ProductBuilderValidationException("نسخه مقصد رابطه متعلق به محصول مقصد نیست.");
+                }
+                if (rule.get("IS_MANDATORY") != null)
+                    requireBinary(rule, "IS_MANDATORY", "الزامی بودن رابطه محصول");
+            }
+            default -> { }
+        }
+    }
+
+    private Map<String, Object> requireReference(String table, long id) {
+        try {
+            return repository.findById(table, id).orElseThrow(() ->
+                    new ProductBuilderValidationException("رکورد مرجع " + table + " برای تصویب قابل بازیابی نیست."));
+        } catch (ProductBuilderValidationException ex) {
+            throw ex;
+        } catch (RuntimeException ex) {
+            throw new ProductBuilderValidationException("استعلام خواندنی " + table
+                    + " برای کنترل تصویب ناموفق است؛ تصویب تا رفع اختلال متوقف می شود.");
+        }
+    }
+
+    private static void requireVersionOwner(Map<String, Object> row, String field, long versionId, String label) {
+        if (strictPositiveId(row.get(field), "نسخه " + label) != versionId)
+            throw new ProductBuilderValidationException(label + " متعلق به نسخه محصول جاری نیست.");
+    }
+    private static long strictPositiveId(Object value, String label) {
+        try {
+            java.math.BigDecimal id = new java.math.BigDecimal(String.valueOf(value).trim());
+            long v = id.longValueExact();
+            if (v > 0) return v;
+        } catch (NumberFormatException | ArithmeticException ignored) { }
+        throw new ProductBuilderValidationException(label + " باید شناسه صحیح مثبت باشد.");
+    }
+    private static void requireCode(Map<String, Object> row, String field, Set<String> allowed, String label) {
+        if (!allowed.contains(text(row.get(field))))
+            throw new ProductBuilderValidationException(label + " باید از کدهای معتبر DDL انتخاب شود.");
+    }
+    private static void requireBinary(Map<String, Object> row, String field, String label) {
+        if (row.get(field) == null) throw new ProductBuilderValidationException(label + " باید صریحاً صفر یا یک باشد.");
+        try {
+            var n = new java.math.BigDecimal(String.valueOf(row.get(field)).trim());
+            if (n.compareTo(java.math.BigDecimal.ZERO) == 0 || n.compareTo(java.math.BigDecimal.ONE) == 0) return;
+        } catch (NumberFormatException ignored) { }
+        throw new ProductBuilderValidationException(label + " باید صریحاً صفر یا یک باشد.");
     }
 
     // Retain these method names for compatibility with the R20 governance audit,

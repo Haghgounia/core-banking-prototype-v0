@@ -131,6 +131,9 @@ public final class ProductRuleEvidenceEvaluator {
             case "DEPOSIT_PRODUCT_JOINT_RULE" -> List.of("OWNERSHIP_TYPE_CODE");
             case "LOAN_PRODUCT_COLLATERAL_RULE" -> List.of("LOAN_PRODUCT_COLLATERAL_ID");
             case "LOAN_PRODUCT_REPAYMENT_RULE" -> List.of("REPAYMENT_RULE_CODE");
+            // Exact same relationship cannot have competing simultaneous rows.
+            // This is not an invented priority/preference resolver.
+            case "PRODUCT_RELATIONSHIP" -> List.of("RELATIONSHIP_TYPE_CODE", "TARGET_PRODUCT_ID", "TARGET_PRODUCT_VERSION_ID");
             case "PRODUCT_PRICING_RULE" -> List.of("PRICING_PURPOSE_CODE", "CURRENCY_CODE");
             case "PRODUCT_RATE_TIER" -> List.of("PRICING_COMPONENT_ID", "TIER_NO");
             case "PRODUCT_ORG_SCOPE" -> List.of("ORG_UNIT_TYPE_CODE", "ORG_UNIT_ID");

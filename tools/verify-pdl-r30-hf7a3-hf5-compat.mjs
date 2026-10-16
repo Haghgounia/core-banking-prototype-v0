@@ -102,6 +102,7 @@ public class Mockito {public static <T>T mock(Class<T> c){return null;}
   add('com/behsazan/corebanking/productbuilder/oracle/PdlProductBuilderRepository.java',`package com.behsazan.corebanking.productbuilder.oracle;
 import java.util.*;import com.behsazan.corebanking.productbuilder.domain.ProductBuilderModels.TablePage;
 public class PdlProductBuilderRepository {
+ public boolean loanTypePlanAllowed(long loanType,long planType){return loanType==101L && planType==201L;}
  public Optional<Map<String,Object>> findById(String t,long id){return Optional.empty();}
  public TablePage search(String t,String s,int page,int size,String f,String v){return null;}
  public long insert(String t,Map<String,Object> row,String actor){return 0;}
@@ -119,6 +120,8 @@ public class RuleGovernanceLiteService {
 }`)
  ];
  run('javac',['-encoding','UTF-8','-cp',classes,'-d',classes,...stubs,
+    path.join(srcBase,'DepositProfileIdentityPolicy.java'),
+    path.join(srcBase,'LoanTypeClassification.java'),
     path.join(srcBase,'ProductRuleGovernanceService.java'),
     path.join(root,'backend/src/main/java/com/behsazan/corebanking/productbuilder/domain/ProductBuilderModels.java'),
     path.join(root,testPkg,'ProductRuleHierarchyHF7A3Test.java')]);
