@@ -143,7 +143,7 @@ class ProductRuleHierarchyHF7A3Test {
         var service = new ProductRuleGovernanceService(repo, mock(RuleGovernanceLiteService.class), validator);
         Method check = ProductRuleGovernanceService.class.getDeclaredMethod("hasValidPricingTiers", List.class, LocalDate.class, LocalDate.class);
         check.setAccessible(true);
-        var parent = Map.<String, Object>of("PRICING_RULE_ID", 11L, "IS_TIERED_RATE", 1);
+        var parent = Map.<String, Object>of("PRICING_RULE_ID", 11L, "IS_TIERED_RATE", 1, "PRICING_METHOD_CODE", "TIERED");
         var component = Map.<String, Object>of("PRICING_COMPONENT_ID", 12L, "PRICING_RULE_ID", 11L,
                 "RATE_VALUE", new BigDecimal("0.15"));
         var tier = new LinkedHashMap<String, Object>();

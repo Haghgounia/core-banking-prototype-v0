@@ -30,6 +30,7 @@ class ProductRuleHierarchyHF7A3HF4Test {
     private static Map<String,Object> pricingParent() {
         var p = new LinkedHashMap<>(ProductRuleGovernanceFixture.row("PRODUCT_PRICING_RULE"));
         p.put("IS_TIERED_RATE", 1);
+        p.put("PRICING_METHOD_CODE", "TIERED");
         return p;
     }
     private static Map<String,Object> component() {
@@ -111,7 +112,7 @@ class ProductRuleHierarchyHF7A3HF4Test {
         assertThat(tiered(List.of(first,next)).status()).isEqualTo("CONFLICT");
     }
     @Test void nonTieredPricingDoesNotRequireChildRecords() {
-        var parent = new LinkedHashMap<>(pricingParent()); parent.put("IS_TIERED_RATE", 0);
+        var parent = new LinkedHashMap<>(pricingParent()); parent.put("IS_TIERED_RATE", 0); parent.put("PRICING_METHOD_CODE", "FIXED");
         assertThat(ProductRuleHierarchyAudit.pricingTiers(List.of(parent), FROM, TO,
                 (table, fk, id) -> { throw new AssertionError("No tier query expected"); }, validator).valid()).isTrue();
     }

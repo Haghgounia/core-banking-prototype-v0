@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * HF7-A3/HF4: read-only publication evidence for two governed parent/child
- * contracts. Checking the existence of a child row is not publication proof:
- * children must be applicable, individually valid and temporally continuous.
- *
- * This does NOT resolve rate-tier amount partitions, policy inheritance,
- * channel/customer scope or runtime enforcement. No SQL/write operation here.
+ * HF7-A3/HF4-HF9: read-only publication evidence for governed parent/child
+ * contracts. Existence is not proof: children must be valid and complete.
+ * HF9 additionally audits half-open amount partitions for tiered pricing, per
+ * component and per effective date. Undefined term semantics remain fail-closed.
+ * This does NOT resolve policy inheritance, channel/customer scope or runtime
+ * pricing/posting. No SQL/write operation here.
  */
 public final class ProductRuleHierarchyAudit {
     private ProductRuleHierarchyAudit() {}
@@ -225,59 +225,90 @@ public final class ProductRuleHierarchyAudit {
         }
     }
 
+    /**
+     * HF9: per-component, per-date SINGLE_APPLICABLE_RATE publication gate.
+     * Amount bounds are half-open; duration-dependent rules remain closed until
+     * the bank supplies an explicit comparable term domain / boundary policy.
+     */
     public static Finding pricingTiers(List<Map<String, Object>> parents,
                                        LocalDate from, LocalDate to,
                                        ChildLoader loader,
                                        ProductBuilderBusinessValidator validator) {
         try {
-        for (var parent : parents) {
-            if (!ProductRuleEvidenceEvaluator.isApplicableWithin("PRODUCT_PRICING_RULE", parent, from, to)
-                    || !numericOne(parent.get("IS_TIERED_RATE"))) continue;
-            Long ruleId = strictId(parent.get("PRICING_RULE_ID"));
-            if (ruleId == null) return invalid("شناسه قاعده قیمت‌گذاری پله‌ای معتبر نیست.");
-            LocalDate scopedFrom = later(from, parsedDate(parent, "VALID_FROM", LocalDate.MIN));
-            LocalDate scopedTo = earlier(to, parsedDate(parent, "VALID_TO", LocalDate.MAX));
-            if (scopedTo.isBefore(scopedFrom)) continue;
-            var components = get(loader, "PRODUCT_PRICING_COMPONENT", "PRICING_RULE_ID", ruleId);
-            if (components == null) return conflict("اجزای قیمت‌گذاری قاعده " + ruleId + " قابل بازیابی نیستند.");
-            if (components.isEmpty()) return conflict("قاعده قیمت‌گذاری پله‌ای " + ruleId + " فاقد جزء قیمت‌گذاری است.");
-            List<Map<String, Object>> allTiers = new ArrayList<>();
-            for (var component : components) {
-                if (!Objects.equals(ruleId, strictId(component.get("PRICING_RULE_ID"))))
-                    return invalid("ارتباط جزء قیمت‌گذاری با قاعده " + ruleId + " معتبر نیست.");
-                Long componentId = strictId(component.get("PRICING_COMPONENT_ID"));
-                if (componentId == null) return invalid("شناسه جزء قیمت‌گذاری قاعده " + ruleId + " معتبر نیست.");
-                var children = get(loader, "PRODUCT_RATE_TIER", "PRICING_COMPONENT_ID", componentId);
-                if (children == null) return conflict("پله‌های نرخ جزء " + componentId + " قابل بازیابی نیستند.");
-                List<Map<String, Object>> scoped = new ArrayList<>();
-                for (var tier : children) {
-                    if (ProductRuleEvidenceEvaluator.hasInvalidActivePeriod("PRODUCT_RATE_TIER", tier))
-                        return invalid("پله نرخ جزء " + componentId + " بازه اعتبار معکوس دارد.");
-                    if (!ProductRuleEvidenceEvaluator.isApplicableWithin("PRODUCT_RATE_TIER", tier, scopedFrom, scopedTo)) continue;
-                    if (!Objects.equals(componentId, strictId(tier.get("PRICING_COMPONENT_ID"))))
-                        return invalid("ارتباط پله نرخ با جزء قیمت‌گذاری " + componentId + " معتبر نیست.");
-                    try { validator.validate("PRODUCT_RATE_TIER", tier); }
+            for (var parent : parents) {
+                if (!ProductRuleEvidenceEvaluator.isApplicableWithin("PRODUCT_PRICING_RULE", parent, from, to))
+                    continue;
+                // A method/flag disagreement cannot be safely resolved by a
+                // generic priority or an inferred pricing execution strategy.
+                boolean tiered = numericOne(parent.get("IS_TIERED_RATE"));
+                boolean tierMethod = "TIERED".equals(upper(parent.get("PRICING_METHOD_CODE")));
+                if (tiered != tierMethod)
+                    return invalid("روش قیمت‌گذاری TIERED با پرچم پلکانی بودن نرخ ناسازگار است؛ تصویب متوقف است.");
+                if (!tiered) continue;
+                Long ruleId = strictId(parent.get("PRICING_RULE_ID"));
+                if (ruleId == null) return invalid("شناسه قاعده قیمت‌گذاری پله‌ای معتبر نیست.");
+                LocalDate scopedFrom = later(from, parsedDate(parent, "VALID_FROM", LocalDate.MIN));
+                LocalDate scopedTo = earlier(to, parsedDate(parent, "VALID_TO", LocalDate.MAX));
+                if (scopedTo.isBefore(scopedFrom)) continue;
+                var components = get(loader, "PRODUCT_PRICING_COMPONENT", "PRICING_RULE_ID", ruleId);
+                if (components == null) return conflict("اجزای قیمت‌گذاری قاعده " + ruleId + " قابل بازیابی نیستند.");
+                if (components.isEmpty()) return conflict("قاعده قیمت‌گذاری پله‌ای " + ruleId + " فاقد جزء قیمت‌گذاری است.");
+                int audited = 0;
+                for (var component : components) {
+                    if (component == null) return invalid("رکورد جزء قیمت‌گذاری موجود نیست.");
+                    if (ProductRuleEvidenceEvaluator.evaluate("PRODUCT_PRICING_COMPONENT",
+                            List.of(component), scopedFrom, scopedTo).unrecognizedStatuses() > 0)
+                        return invalid("وضعیت جزء قیمت‌گذاری شناخته‌شده نیست (قاعده " + ruleId + ").");
+                    if (ProductRuleEvidenceEvaluator.hasInvalidActivePeriod("PRODUCT_PRICING_COMPONENT", component))
+                        return invalid("بازه اعتبار جزء قیمت‌گذاری معکوس است (قاعده " + ruleId + ").");
+                    if (!ProductRuleEvidenceEvaluator.isApplicableWithin("PRODUCT_PRICING_COMPONENT", component, scopedFrom, scopedTo))
+                        continue;
+                    if (!Objects.equals(ruleId, strictId(component.get("PRICING_RULE_ID"))))
+                        return invalid("ارتباط جزء قیمت‌گذاری با قاعده " + ruleId + " معتبر نیست.");
+                    Long componentId = strictId(component.get("PRICING_COMPONENT_ID"));
+                    if (componentId == null) return invalid("شناسه جزء قیمت‌گذاری قاعده " + ruleId + " معتبر نیست.");
+                    try { validator.validate("PRODUCT_PRICING_COMPONENT", component); }
                     catch (ProductBuilderValidationException ex) {
-                        return invalid("پله نرخ جزء " + componentId + ": " + ex.getMessage());
+                        return invalid("جزء قیمت‌گذاری " + componentId + ": " + ex.getMessage());
                     }
-                    scoped.add(tier);
-                    allTiers.add(tier);
+                    LocalDate componentFrom = later(scopedFrom, parsedDate(component, "VALID_FROM", LocalDate.MIN));
+                    LocalDate componentTo = earlier(scopedTo, parsedDate(component, "VALID_TO", LocalDate.MAX));
+                    if (componentTo.isBefore(componentFrom)) continue;
+                    audited++;
+                    var children = get(loader, "PRODUCT_RATE_TIER", "PRICING_COMPONENT_ID", componentId);
+                    if (children == null) return conflict("پله‌های نرخ جزء " + componentId + " قابل بازیابی نیستند.");
+                    List<Map<String, Object>> relevant = new ArrayList<>();
+                    for (var tier : children) {
+                        if (tier == null) return invalid("رکورد پله نرخ جزء " + componentId + " خالی است.");
+                        if (ProductRuleEvidenceEvaluator.evaluate("PRODUCT_RATE_TIER",
+                                List.of(tier), componentFrom, componentTo).unrecognizedStatuses() > 0)
+                            return invalid("وضعیت پله نرخ جزء " + componentId + " معتبر نیست.");
+                        if (ProductRuleEvidenceEvaluator.hasInvalidActivePeriod("PRODUCT_RATE_TIER", tier))
+                            return invalid("پله نرخ جزء " + componentId + " بازه اعتبار معکوس دارد.");
+                        if (!ProductRuleEvidenceEvaluator.isApplicableWithin("PRODUCT_RATE_TIER", tier, componentFrom, componentTo))
+                            continue;
+                        if (!Objects.equals(componentId, strictId(tier.get("PRICING_COMPONENT_ID"))))
+                            return invalid("ارتباط پله نرخ با جزء قیمت‌گذاری " + componentId + " معتبر نیست.");
+                        try { validator.validate("PRODUCT_RATE_TIER", tier); }
+                        catch (ProductBuilderValidationException ex) {
+                            return invalid("پله نرخ جزء " + componentId + ": " + ex.getMessage());
+                        }
+                        relevant.add(tier);
+                    }
+                    for (int a=0; a<relevant.size(); a++) for (int b=a+1; b<relevant.size(); b++) {
+                        if (sameNumber(relevant.get(a), relevant.get(b), "TIER_NO")
+                                && ProductRuleEvidenceEvaluator.overlap(relevant.get(a), relevant.get(b)))
+                            return conflict("شماره پله نرخ تکراری در یک جزء قیمت‌گذاری و بازه اعتبار متداخل است (" + componentId + ").");
+                    }
+                    Finding check = ProductPricingSingleRatePolicy.auditComponent(componentId,
+                            component, relevant, componentFrom, componentTo);
+                    if (!check.valid()) return check;
                 }
-                for (int a = 0; a < scoped.size(); a++) for (int b = a + 1; b < scoped.size(); b++) {
-                    var left = scoped.get(a);
-                    var right = scoped.get(b);
-                    if (sameNumber(left, right, "TIER_NO") && ProductRuleEvidenceEvaluator.overlap(left, right))
-                        return conflict("شماره پله نرخ تکراری در یک جزء قیمت‌گذاری و بازه اعتبار متداخل است (" + componentId + ").");
-                }
+                if (audited == 0) return conflict("قاعده قیمت‌گذاری پله‌ای " + ruleId + " جزء مؤثر قابل ممیزی ندارد.");
             }
-            var coverage = ProductRuleEvidenceEvaluator.temporalCoverage("PRODUCT_RATE_TIER", allTiers, scopedFrom, scopedTo);
-            if (!coverage.complete())
-                return conflict("پله‌های نرخ قاعده " + ruleId + " همه روزهای اعتبار قاعده را پوشش نمی‌دهند؛ نخستین روز فاقد پوشش: "
-                        + coverage.firstGap() + ".");
-        }
-        return ok();
+            return ok();
         } catch (java.time.format.DateTimeParseException | ProductBuilderValidationException ex) {
-            return invalid("تاریخ یا وضعیت قاعده قیمت‌گذاری/فرزند معتبر نیست: " + ex.getMessage());
+            return invalid("تاریخ، مبلغ یا وضعیت قاعده قیمت‌گذاری/فرزند معتبر نیست: " + ex.getMessage());
         }
     }
 

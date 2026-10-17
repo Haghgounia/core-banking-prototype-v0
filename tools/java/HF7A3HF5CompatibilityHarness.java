@@ -134,7 +134,7 @@ public final class HF7A3HF5CompatibilityHarness {
 
         var tier = new LinkedHashMap<String,Object>(Map.of("PRICING_COMPONENT_ID",12L,
                 "TIER_NO",1,"RATE_VALUE",new BigDecimal("0.15"),"VALID_FROM","2026-10-10","VALID_TO","2026-10-11"));
-        var p = List.<Map<String,Object>>of(Map.of("PRICING_RULE_ID",11L,"IS_TIERED_RATE",1));
+        var p = List.<Map<String,Object>>of(Map.of("PRICING_RULE_ID",11L,"IS_TIERED_RATE",1,"PRICING_METHOD_CODE","TIERED"));
         var c = Map.<String,Object>of("PRICING_RULE_ID",11L,"PRICING_COMPONENT_ID",12L);
         ProductRuleHierarchyAudit.ChildLoader rateLoader = (table,fk,id)->
                 table.equals("PRODUCT_PRICING_COMPONENT") ? List.of(c) : List.of(tier);

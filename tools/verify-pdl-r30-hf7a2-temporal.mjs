@@ -172,7 +172,7 @@ public class TemporalSmoke {
  }
 }`));
  const app=path.join(root,base,'application');
- const actual=['ProductBuilderValidationException.java','ProductRuleSemanticContract.java',
+ const actual=['ProductBuilderValidationException.java','ProductRuleSemanticContract.java','ProductPricingSingleRatePolicy.java',
   'ProductBuilderBusinessValidator.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java','DepositProfileIdentityPolicy.java','LoanTypeClassification.java','ProductRuleGovernanceService.java']
   .map(name=>path.join(app,name));
  actual.push(path.join(root,base,'domain/ProductBuilderModels.java'));

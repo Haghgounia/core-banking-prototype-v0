@@ -57,7 +57,7 @@ public class ChildSmoke {
 }
 `);
  const classes=path.join(tmp,'classes');fs.mkdirSync(classes);
- run('compile actual Java validators','javac',['-encoding','UTF-8','-d',classes,annotation,...['ProductBuilderValidationException.java','ProductRuleSemanticContract.java','ProductBuilderBusinessValidator.java'].map(x=>path.join(root,app,x)),test]);
+ run('compile actual Java validators','javac',['-encoding','UTF-8','-d',classes,annotation,...['ProductBuilderValidationException.java','ProductRuleSemanticContract.java','ProductPricingSingleRatePolicy.java','ProductBuilderBusinessValidator.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java'].map(x=>path.join(root,app,x)),test]);
  if(fs.existsSync(path.join(classes,'ChildSmoke.class')))run('run 22 positive/negative Java boundary assertions','java',['-cp',classes,'ChildSmoke']);
 }finally{fs.rmSync(tmp,{recursive:true,force:true});}
 console.log('PDL_R30_HF7A3_HF3_PASS='+(!failed)+' FAIL='+failed);

@@ -57,7 +57,7 @@ function run(program,args) {
 try {
  const srcBase = path.join(root,pkg);
  const appFiles = ['ProductBuilderValidationException.java','ProductBuilderBusinessValidator.java',
-    'ProductRuleSemanticContract.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java',
+    'ProductRuleSemanticContract.java','ProductPricingSingleRatePolicy.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java',
     'LoanCivilPartnershipPolicy.java'].map(name=>path.join(srcBase,name));
  const springComponent = add('org/springframework/stereotype/Component.java',
    'package org.springframework.stereotype;public @interface Component {}');

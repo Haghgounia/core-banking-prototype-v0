@@ -49,6 +49,9 @@ try {
  const javaFiles=[annotation, ...[
   'application/ProductBuilderValidationException.java',
   'application/ProductRuleSemanticContract.java',
+  'application/ProductPricingSingleRatePolicy.java',
+  'application/ProductRuleEvidenceEvaluator.java',
+  'application/ProductRuleHierarchyAudit.java',
   'application/ProductBuilderBusinessValidator.java'
  ].map(p=>path.join(root,base,p))];
  const runtime=put('BusinessSmoke.java',`import java.util.*;

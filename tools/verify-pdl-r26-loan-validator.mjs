@@ -49,6 +49,6 @@ class CheckLoanR26 {
 `);
 function run(cmd,args){const result=spawnSync(cmd,args,{encoding:'utf8'});if(result.error)throw result.error; if(result.status!==0)throw Error(`${cmd} exit ${result.status}: ${result.stdout}\n${result.stderr}`); if(result.stdout)process.stdout.write(result.stdout);if(result.stderr)process.stderr.write(result.stderr);}
 try{
-run('javac',['-encoding','UTF-8','-d',scratch,ann,path.join(source,'ProductBuilderBusinessValidator.java'),path.join(source,'ProductRuleSemanticContract.java'),path.join(source,'ProductBuilderValidationException.java'),test]);
+run('javac',['-encoding','UTF-8','-d',scratch,ann,path.join(source,'ProductBuilderBusinessValidator.java'),path.join(source,'ProductRuleSemanticContract.java'),path.join(source,'ProductPricingSingleRatePolicy.java'),path.join(source,'ProductRuleEvidenceEvaluator.java'),path.join(source,'ProductRuleHierarchyAudit.java'),path.join(source,'ProductBuilderValidationException.java'),test]);
 run('java',['-cp',scratch,'CheckLoanR26']);
 }finally{fs.rmSync(scratch,{recursive:true,force:true});}

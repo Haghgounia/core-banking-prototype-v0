@@ -230,6 +230,9 @@ public class DepositClosureHF4ContractTest {
     path.join(root, app, 'DepositClosureReferenceContract.java'),
     path.join(root, app, 'DepositRuleDefaults.java'),
     path.join(root, app, 'ProductRuleSemanticContract.java'),
+    path.join(root, app, 'ProductPricingSingleRatePolicy.java'),
+    path.join(root, app, 'ProductRuleEvidenceEvaluator.java'),
+    path.join(root, app, 'ProductRuleHierarchyAudit.java'),
     path.join(root, app, 'ProductBuilderBusinessValidator.java'),
     java
   ];

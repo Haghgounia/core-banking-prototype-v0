@@ -1,0 +1,179 @@
+{
+  "patch": "PDL R30-HF7A3-HF9 / Final-C2",
+  "baseline": "R30-HF7A3-HF8 (successful user Windows Build)",
+  "version_file_unchanged": "0.11.0",
+  "rate_policy": "SINGLE_APPLICABLE_RATE",
+  "amount_intervals": "[MIN_AMOUNT,MAX_AMOUNT)",
+  "null_amount_bounds": "unbounded on that side (never 0)",
+  "duration_policy": "fail_closed_while_term_domain_and_boundary_semantics_unapproved",
+  "changes_before_manifest": 25,
+  "modified_files_before_manifest": 19,
+  "new_files_before_manifest": 6,
+  "changed_files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductPricingSingleRatePolicy.java",
+      "change": "ADDED",
+      "hf8_sha256": null,
+      "hf9_sha256": "18072da94ac19567e7fbdd8de702763ca66992a302c0a869cda4f2173290acce"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyAudit.java",
+      "change": "MODIFIED",
+      "hf8_sha256": "0ec8ec43157898404d3e23f7942d928b5b84ba3fa2a20ba20ddaf65ad6c90b0c",
+      "hf9_sha256": "463e1b0c2adb27fee7c15bc1ed07c558ca2ed3383721c4d7f7c1542135b572ff"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/productbuilder/application/ProductRuleSemanticContract.java",
+      "change": "MODIFIED",
+      "hf8_sha256": "86813d488cde9d04f3a80b93224b70f989802c46ef0bd6f8e14bcdcf672415cb",
+      "hf9_sha256": "e3e6cb36ff11e12a6590cd936db5a302354a2cb61a70e7fa9f39274457aec91e"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductPricingPublicationHF7A3HF9Test.java",
+      "change": "ADDED",
+      "hf8_sha256": null,
+      "hf9_sha256": "7d4522bc1715a8b383e3861e57cf5579ae7eafaa8f05ad30ac31460603b22939"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRateTierHF7A3HF9Test.java",
+      "change": "ADDED",
+      "hf8_sha256": null,
+      "hf9_sha256": "8b2cfda14961eb579fb93660542a2751012489a55a6212d078f0561dec9d05ca"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyHF7A3HF4Test.java",
+      "change": "MODIFIED",
+      "hf8_sha256": "4a999b127665ed3fc36607d79ca51ac191bf6d208f5e2c0f29b58a1a25ecfd19",
+      "hf9_sha256": "ec2eced29944ab96d113a41952910f291d9612c8e76f5ac4e53bb1e1b5408494"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/productbuilder/application/ProductRuleHierarchyHF7A3Test.java",
+      "change": "MODIFIED",
+      "hf8_sha256": "0f4fbc5944a96292bfc9ebb66966e88f2a54f2b3daf0762103c237cc9142b436",
+      "hf9_sha256": "fc78a8d984dadbc1d6b220c487d096601284418e3b9cd4abfd7e55d3c7efda46"
+    },
+    {
+      "path": "build-production.cmd",
+      "change": "MODIFIED",
+      "hf8_sha256": "156eef9221f3738d340aed028f650ee329f7d52f93aa88c29d13ced47a4dde25",
+      "hf9_sha256": "9d674fc3a09237705388e3ccae69b98439218500d494851aca9dc03b21678307"
+    },
+    {
+      "path": "build-production.sh",
+      "change": "MODIFIED",
+      "hf8_sha256": "9fdf5af4a2e144ed4898eaddb03281ba7c36825b2b580b09d367b03dc6d4f178",
+      "hf9_sha256": "ee68193c364c476811a11ecbbfee36de4f01c04cfe2cfcdec20d4e4f2640b77a"
+    },
+    {
+      "path": "docs/PDL-2026-10-16-R30-HF7A3-HF9-SINGLE-RATE-QA-FA.md",
+      "change": "ADDED",
+      "hf8_sha256": null,
+      "hf9_sha256": "077abc5f77ccfa431ccbe5a3a561cca74309f88c2c3bf37b6b0ed611545985e5"
+    },
+    {
+      "path": "release/PDL-R30-HF7A3-HF9-PATCH-NOTES-FA.md",
+      "change": "ADDED",
+      "hf8_sha256": null,
+      "hf9_sha256": "cb1b60c181b4cf8c485cc1ceca2d9f739fc5f8759a0bff0e3e996cb1711a87f0"
+    },
+    {
+      "path": "tools/java/HF7A3HF5CompatibilityHarness.java",
+      "change": "MODIFIED",
+      "hf8_sha256": "86c7112ca0a5f8c90c4ac7111b782034b0ec2ae862a4eb2c7aebb5a187f0f69f",
+      "hf9_sha256": "954c94c68dd705736d01753ea0b67fc74fd16b47753983f5fdd3d4b1f955e39d"
+    },
+    {
+      "path": "tools/verify-pdl-r26-loan-validator.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "539bd638d72126c19b131778e5f8b7b123ddb759f4d941d8f24ceac689662296",
+      "hf9_sha256": "364027ae741713881f44b209ae1474df0e8c1332a04e73281d69d8c98d52c427"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf4-deposit-closure.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "eb2f731c4d55e9f3632498aab7c980fbb43b20ed932aa9a2b75527ca6a2232ab",
+      "hf9_sha256": "04b6385f516024222b89cff55a6d92b59081b365947eead7471585f0e00eca74"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a1-semantic.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "cee59deed89da52456f0c969ac08e760989caf20360964ffc30b6cfd6796bcfa",
+      "hf9_sha256": "c089d152c6606ad65c9adb8ef01881155d308fe038a6f92bab23b28a38afd00f"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a2-temporal.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "662ffcbc6836fd0133b17108222ec2a5ba83e8733e63acfb0417ca3ce82e01e7",
+      "hf9_sha256": "5d33e3c25e3183e3df9ca5f0eadc47bb012df2566da07d9f883c77b2ea1d2652"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a3-hf2-product-rules.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "8555ca9f8f97a6e8c81c070e2e871376e02e12878070448f9be113a86f38d142",
+      "hf9_sha256": "e681b2340fedd97a36b4b2183d0485a65f5d5906ee8fd6617a8d4ba8ced86af8"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a3-hf3-child-validation.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "8d3b4380a3a0447cf5e7e0daa5a5dbd41d9a23cca4f78bc64c186389bc5be81c",
+      "hf9_sha256": "27a075ae465df7d1651dbb3a2bc6413bd64d504e5388acc4db9870af301348ce"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a3-hf4-hierarchy.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "febce0c8c246e91b87ef1a8f1fad53c261e44cd12a0f47a3cc0fcebe6fd1cdec",
+      "hf9_sha256": "56956eed81ca03a650f36a15447fc4eb488d9260a1c915624e6db8530f49ce20"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a3-hf5-compat.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "908b0246e7859f3f21ebacd06c1b63c5655e2028b95dc6642b9c6b890aac376a",
+      "hf9_sha256": "81188492b334eb9ed6abc23277625c19dbd4a8e1d546cced2e328852cce9d215"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a3-hf5-hf1-r15.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "c925ce62de4e8051862f5f9f4d7395a8cd458ef9d343ef13c0494b0d6ab42172",
+      "hf9_sha256": "3a04a054b2df3ab07cbb32eae2592d4a89eeaa02e6823a5450e4f0dffb75382c"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a3-hf6-publication.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "aabc267a5584932ddf529c2537a1c472c7ad3284d53c55bc975b39c078afd170",
+      "hf9_sha256": "be181867cb1f67203bf74a9a0d6b60f9b15f5f5fe99aee240bf42029cba3d68e"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a3-hf7-closure.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "5df9246af96aac685ff0040e1d82cb6fb150af1d70e12a277dbd695fb0c495f4",
+      "hf9_sha256": "67d276e61157373657be810db6aebdf176bb1373e38d68a29e0b58da1df018ab"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a3-hf8-final.mjs",
+      "change": "MODIFIED",
+      "hf8_sha256": "6b58470177a54db4bff837be00dc96483a96a1cb524c5fc25fe3ef3a81f7e64c",
+      "hf9_sha256": "8539645ab3359c11b6c213dbf3c34b125dab542066ea027e5c8b702d3e64c19e"
+    },
+    {
+      "path": "tools/verify-pdl-r30-hf7a3-hf9-single-rate.mjs",
+      "change": "ADDED",
+      "hf8_sha256": null,
+      "hf9_sha256": "62ddd98804d60609bc9dfec29d066f6834e2384f369144295e13f58ba5eb9b0c"
+    }
+  ],
+  "testing": {
+    "hf9_JUnit_methods_executed_in_isolated_runner": 29,
+    "hf9_real_governance_service_isolated_scenarios": 7,
+    "hf9_static_checks": 19,
+    "real_windows_maven_angular_build": "pending",
+    "oracle_runtime_UAT": "not_performed"
+  },
+  "exclusions": [
+    "Oracle DDL/DML",
+    "Frontend",
+    "DPS2",
+    "FEE",
+    "FEE2",
+    "runtime canOpen gates"
+  ]
+}

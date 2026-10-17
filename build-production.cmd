@@ -81,6 +81,8 @@ rem R30-HF7-A3/HF7: correspondent runtime safety and normalized child publish au
 node "%ROOT%tools\verify-pdl-r30-hf7a3-hf7-closure.mjs" || exit /b 1
 rem HF7-A3 Final/HF8: four remaining publication controls and relationship evidence.
 node "%ROOT%tools\verify-pdl-r30-hf7a3-hf8-final.mjs" || exit /b 1
+rem HF9: amount-tier single-rate publication gate; no runtime posting.
+node "%ROOT%tools\verify-pdl-r30-hf7a3-hf9-single-rate.mjs" || exit /b 1
 
 rem Fail fast when the source package is incomplete.
 if not exist "%ROOT%frontend\src\app\app.component.ts" (

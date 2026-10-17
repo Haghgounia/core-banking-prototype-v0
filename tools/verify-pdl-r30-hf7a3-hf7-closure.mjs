@@ -194,7 +194,7 @@ public class Hf7Smoke {
 }`);
  const classes=path.join(tmp,'classes');fs.mkdirSync(classes);
  const actual=['ProductBuilderValidationException.java','ProductBuilderBusinessValidator.java',
-   'ProductRuleSemanticContract.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java',
+   'ProductRuleSemanticContract.java','ProductPricingSingleRatePolicy.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java',
    'DepositProfileIdentityPolicy.java','LoanTypeClassification.java','ProductRuleGovernanceService.java'].map(f=>path.join(root,app,f));
  actual.push(path.join(root,'backend/src/main/java/com/behsazan/corebanking/productbuilder/domain/ProductBuilderModels.java'));
  run('javac',['-encoding','UTF-8','-d',classes,...spring,lite,fixturePath,repository,...actual,harness]);

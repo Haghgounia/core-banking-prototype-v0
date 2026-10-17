@@ -17,7 +17,7 @@ const label='verify-pdl-r30-hf7a3-hf4-hierarchy.mjs';
 check('read-only child audit wired into governance status',gov.includes('childFinding.invalidSemantics()')&&gov.includes('childFinding.conflict()'));
 check('child lookup is paginated and refuses partial evidence',gov.includes('loadChildEvidence(')&&gov.includes('rows.size() >= result.totalElements()'));
 check('term children are checked for duplicate defaults and interval coverage',audit.includes('دو مدت پیش‌فرض فعال')&&audit.includes('temporalCoverage("DEPOSIT_PRODUCT_ALLOWED_TERM"'));
-check('rate tier children are checked for duplicate tier numbers and interval coverage',audit.includes('شماره پله نرخ تکراری')&&audit.includes('temporalCoverage("PRODUCT_RATE_TIER"'));
+check('rate tier children are checked for duplicate tier numbers and interval coverage',audit.includes('شماره پله نرخ تکراری')&&audit.includes('ProductPricingSingleRatePolicy.auditComponent(')&&fs.readFileSync(path.join(root,src,'application/ProductPricingSingleRatePolicy.java'),'utf8').includes('TreeSet<LocalDate> slices'));
 check('parent pricing and term contracts are audited at approval',contract.includes('"PRODUCT_PRICING_RULE"')&&contract.includes('"DEPOSIT_PRODUCT_TERM_RULE"')&&contract.includes('case "DEPOSIT_PRODUCT_TERM_RULE" -> termRule(row)'));
 check('no Oracle/SQL write in hierarchy audit',!/(insert|update|delete|merge|executeUpdate|jdbcClient|DataSource)\s*\(/i.test(audit));
 check('deposit and loan operational gates remain fail-closed',gov.includes('if ("LOAN".equals(domain)) {\n            canOpen = false;')&&gov.includes('if ("DEPOSIT".equals(domain)'));
@@ -76,7 +76,7 @@ public class PdlProductBuilderRepository {
    if(brokenTerm) row.put("TERM_VALUE","1.5");
    if(termGap) row.put("EFFECTIVE_TO_DATE","2026-10-20");
   }
-  if(table.equals("PRODUCT_PRICING_RULE") && tiered)row.put("IS_TIERED_RATE",1);
+  if(table.equals("PRODUCT_PRICING_RULE") && tiered){row.put("IS_TIERED_RATE",1);row.put("PRICING_METHOD_CODE","TIERED");}
   if(table.equals("PRODUCT_RATE_TIER")&&brokenPricing)row.put("RATE_VALUE","1.4");
   return new TablePage(List.of(row),1,page,size);
  }
@@ -92,7 +92,7 @@ public class Hf4Smoke {
  static void check(String label,boolean yes){if(!yes)throw new AssertionError(label);pass++;System.out.println("PASS | Java: "+label);}
  static Map<String,Object> m(String table){return new LinkedHashMap<>(ProductRuleGovernanceFixture.row(table));}
  static ProductRuleHierarchyAudit.Finding term(List<Map<String,Object>> children){return ProductRuleHierarchyAudit.allowedTerms(List.of(m("DEPOSIT_PRODUCT_TERM_RULE")),start,end,(t,k,id)->children,validator);}
- static ProductRuleHierarchyAudit.Finding price(List<Map<String,Object>> tiers){var p=m("PRODUCT_PRICING_RULE");p.put("IS_TIERED_RATE",1);
+ static ProductRuleHierarchyAudit.Finding price(List<Map<String,Object>> tiers){var p=m("PRODUCT_PRICING_RULE");p.put("IS_TIERED_RATE",1);p.put("PRICING_METHOD_CODE","TIERED");
   return ProductRuleHierarchyAudit.pricingTiers(List.of(p),start,end,(t,k,id)->t.equals("PRODUCT_PRICING_COMPONENT")?List.of(m(t)):tiers,validator);}
  static ProductRuleGovernanceService.GovernanceReport report(PdlProductBuilderRepository repo){
   return new ProductRuleGovernanceService(repo,new RuleGovernanceLiteService(),validator).report(55);}
@@ -134,7 +134,7 @@ public class Hf4Smoke {
   check("overlapping duplicate tier numbers denied",price(List.of(first,next)).conflict());
   var p=m("PRODUCT_PRICING_RULE");p.put("IS_TIERED_RATE",0);
   check("flat pricing needs no tiers",ProductRuleHierarchyAudit.pricingTiers(List.of(p),start,end,(t,k,id)->{throw new AssertionError("unexpected lookup");},validator).valid());
-  p=m("PRODUCT_PRICING_RULE");p.put("IS_TIERED_RATE",1);p.put("VALID_FROM","2026-10-20");
+  p=m("PRODUCT_PRICING_RULE");p.put("IS_TIERED_RATE",1);p.put("PRICING_METHOD_CODE","TIERED");p.put("VALID_FROM","2026-10-20");
   bad=m("PRODUCT_RATE_TIER");bad.put("VALID_FROM","2026-10-20");
   final var child=bad;
   check("tier parent scope starts at pricing rule validity",ProductRuleHierarchyAudit.pricingTiers(List.of(p),start,end,(t,k,id)->t.equals("PRODUCT_PRICING_COMPONENT")?List.of(m(t)):List.of(child),validator).valid());
@@ -155,7 +155,7 @@ public class Hf4Smoke {
  }
 }`));
  const app=path.join(root,src,'application');
- const actual=['ProductBuilderValidationException.java','ProductBuilderBusinessValidator.java','ProductRuleSemanticContract.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java','DepositProfileIdentityPolicy.java','LoanTypeClassification.java','ProductRuleGovernanceService.java']
+ const actual=['ProductBuilderValidationException.java','ProductBuilderBusinessValidator.java','ProductRuleSemanticContract.java','ProductPricingSingleRatePolicy.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java','DepositProfileIdentityPolicy.java','LoanTypeClassification.java','ProductRuleGovernanceService.java']
   .map(s=>path.join(app,s));
  actual.push(path.join(root,src,'domain/ProductBuilderModels.java'));
  const bin=path.join(tmp,'classes');fs.mkdirSync(bin);

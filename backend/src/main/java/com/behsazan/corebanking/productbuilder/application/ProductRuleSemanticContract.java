@@ -70,6 +70,7 @@ public final class ProductRuleSemanticContract {
             // Child parent/scope, unique defaults and governance precedence remain separate checks.
             case "DEPOSIT_PRODUCT_ALLOWED_TERM" -> allowedTerm(row);
             case "PRODUCT_RATE_TIER" -> rateTier(row);
+            case "PRODUCT_PRICING_COMPONENT" -> ProductPricingSingleRatePolicy.validateAmountRange(row, "جزء قیمت‌گذاری");
             case "LOAN_FINANCIAL_EXTENSION" -> loanFinancial(row);
             case "LOAN_PRODUCT_REPAYMENT_RULE" -> loanRepayment(row);
             case "LOAN_PRODUCT_PROCESS_RULE" -> loanProcess(row);
@@ -135,6 +136,8 @@ public final class ProductRuleSemanticContract {
     private static void rateTier(Map<String, Object> row) {
         positive(row, "TIER_NO", "شماره پله نرخ");
         amounts(row, "MIN_AMOUNT", "MAX_AMOUNT", "دامنه مبلغ پله نرخ");
+        // HF9: upper amount boundary is EXCLUSIVE; equality is an empty tier.
+        ProductPricingSingleRatePolicy.validateAmountRange(row, "پله نرخ");
         nonnegativeIntegerIfPresent(row, "MIN_TERM_VALUE", "حداقل مدت پله نرخ");
         nonnegativeIntegerIfPresent(row, "MAX_TERM_VALUE", "حداکثر مدت پله نرخ");
         BigDecimal minTerm = number(row, "MIN_TERM_VALUE");

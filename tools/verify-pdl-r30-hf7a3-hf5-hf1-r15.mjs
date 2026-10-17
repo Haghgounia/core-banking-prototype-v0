@@ -52,7 +52,7 @@ try {
  fs.writeFileSync(annotation,'package org.springframework.stereotype; public @interface Component {}\n');
  const classes=path.join(work,'classes'); fs.mkdirSync(classes);
  run('javac',['-encoding','UTF-8','-d',classes,annotation,
-  ...['ProductBuilderValidationException.java','ProductRuleSemanticContract.java','ProductBuilderBusinessValidator.java']
+  ...['ProductBuilderValidationException.java','ProductRuleSemanticContract.java','ProductPricingSingleRatePolicy.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java','ProductBuilderBusinessValidator.java']
     .map(name=>path.join(root,mainPath,name)),
   path.join(root,'tools/java/HF7A3R15RegressionHarness.java')]);
  run('java',['-cp',classes,'com.behsazan.corebanking.productbuilder.application.HF7A3R15RegressionHarness']);

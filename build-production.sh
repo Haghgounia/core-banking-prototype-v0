@@ -59,6 +59,8 @@ node "$ROOT/tools/verify-pdl-r30-hf7a3-hf6-publication.mjs"
 node "$ROOT/tools/verify-pdl-r30-hf7a3-hf7-closure.mjs"
 # HF7-A3 Final/HF8: four remaining publication controls and relationship evidence.
 node "$ROOT/tools/verify-pdl-r30-hf7a3-hf8-final.mjs"
+# HF9: amount-tier single-rate publication gate; no runtime posting.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf9-single-rate.mjs"
 
 for required in \
   "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/domain/DepositAccountModels.java" \

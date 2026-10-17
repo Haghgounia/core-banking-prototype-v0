@@ -285,16 +285,58 @@ public class Hf8Smoke {
 }`);
  const classes=path.join(tmp,'classes');fs.mkdirSync(classes);
  const actual=['ProductBuilderValidationException.java','ProductBuilderBusinessValidator.java',
-   'ProductRuleSemanticContract.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java',
+   'ProductRuleSemanticContract.java','ProductPricingSingleRatePolicy.java','ProductRuleEvidenceEvaluator.java','ProductRuleHierarchyAudit.java',
    'DepositProfileIdentityPolicy.java','LoanTypeClassification.java','ProductRuleGovernanceService.java'].map(f=>path.join(root,app,f));
  actual.push(path.join(root,'backend/src/main/java/com/behsazan/corebanking/productbuilder/domain/ProductBuilderModels.java'));
  run('javac',['-encoding','UTF-8','-d',classes,...spring,lite,fixturePath,repository,...actual,harness,extra]);
  run('java',['-cp',classes,'Hf7Smoke']);
  run('java',['-cp',classes,'Hf8Smoke']);
+ // HF9: independently execute the real report and promotion gate on the same
+ // side-effect-free repository stub; this is NOT an Oracle UAT run.
+ const hf9Publication=put('Hf9PublicationSmoke.java',String.raw`
+import java.util.*;
+import com.behsazan.corebanking.productbuilder.application.*;
+import com.behsazan.corebanking.productbuilder.oracle.PdlProductBuilderRepository;
+public class Hf9PublicationSmoke {
+ static int count=0;
+ static void ok(String name,boolean result){if(!result)throw new AssertionError(name);count++;System.out.println("PASS | HF9 Governance: "+name);}
+ static Map<String,Object> get(String t){return new LinkedHashMap<>(ProductRuleGovernanceFixture.row(t));}
+ static void set(PdlProductBuilderRepository r,String name,Map<String,Object>...rows){r.data.put(name,new ArrayList<>(List.of(rows)));}
+ static ProductRuleGovernanceService.GovernanceReport report(PdlProductBuilderRepository r){return new ProductRuleGovernanceService(r,new RuleGovernanceLiteService(),new ProductBuilderBusinessValidator()).report(55L);}
+ static boolean blocked(PdlProductBuilderRepository r,String status){var g=report(r);return !g.canApprove()&&!g.canOpen()&&g.effectiveRules().stream().anyMatch(x->x.code().equals("PRODUCT_PRICING_RULE")&&x.status().equals(status)&&x.blocking());}
+ public static void main(String[]args){
+  var r=new PdlProductBuilderRepository();
+  var p=get("PRODUCT_PRICING_RULE");p.put("PRICING_METHOD_CODE","TIERED");p.put("IS_TIERED_RATE",1);set(r,"PRODUCT_PRICING_RULE",p);
+  var c=get("PRODUCT_PRICING_COMPONENT");c.put("MIN_AMOUNT",0);set(r,"PRODUCT_PRICING_COMPONENT",c);
+  var a=get("PRODUCT_RATE_TIER");a.put("MIN_AMOUNT",0);a.put("MAX_AMOUNT",100);
+  var b=get("PRODUCT_RATE_TIER");b.put("TIER_NO",2);b.put("MIN_AMOUNT",100);
+  set(r,"PRODUCT_RATE_TIER",a,b);
+  ok("valid partition canApprove",report(r).canApprove());
+  ok("valid partition cannot open Runtime",!report(r).canOpen());
+  a.put("MAX_AMOUNT",110);
+  ok("overlap blocks actual canApprove",blocked(r,"CONFLICT"));
+  try {new ProductRuleGovernanceService(r,new RuleGovernanceLiteService(),new ProductBuilderBusinessValidator()).assertPromotionAllowed(55L,
+   Map.of("VERSION_STATUS_CODE","DRAFT"),Map.of("VERSION_STATUS_CODE","APPROVED"));
+   throw new AssertionError("promotion unexpectedly succeeded");}
+  catch(ProductBuilderValidationException expected){ok("approval transition blocked",true);}
+  a.put("MAX_AMOUNT",100);b.put("MIN_AMOUNT",110);
+  ok("amount gap blocks actual canApprove",blocked(r,"CONFLICT"));
+  b.put("MIN_AMOUNT",100);a.put("MIN_TERM_VALUE",1);a.put("MAX_TERM_VALUE",12);a.put("TERM_UNIT_CODE","MONTH");
+  ok("unapproved duration semantics block publication",blocked(r,"INVALID_SEMANTICS"));
+  a.remove("MIN_TERM_VALUE");a.remove("MAX_TERM_VALUE");a.remove("TERM_UNIT_CODE");
+  p.put("PRICING_METHOD_CODE","FIXED");
+  ok("pricing method and tier flag mismatch blocks",blocked(r,"INVALID_SEMANTICS"));
+  System.out.println("PDL_R30_HF7A3_HF9_GOVERNANCE_PASS="+count+" FAIL=0");
+ }
+}`);
+ run('javac',['-encoding','UTF-8','-cp',classes,'-d',classes,hf9Publication]);
+ run('java',['-cp',classes,'Hf9PublicationSmoke']);
  // The actual JUnit test is compiled with compile-time-only Mockito/JUnit/AssertJ
  // signatures; this does not claim to run the JUnit suite or replace Maven.
  const signatures=[
    put('org/junit/jupiter/api/Test.java','package org.junit.jupiter.api; public @interface Test{}'),
+   put('org/junit/jupiter/api/function/Executable.java','package org.junit.jupiter.api.function; @FunctionalInterface public interface Executable{void execute() throws Throwable;}'),
+   put('org/junit/jupiter/api/Assertions.java','package org.junit.jupiter.api; import org.junit.jupiter.api.function.Executable; public class Assertions{public static void assertTrue(boolean x){} public static void assertFalse(boolean x){} public static void assertEquals(Object e,Object a){} public static void assertEquals(Object e,Object a,String msg){} public static <T extends Throwable>T assertThrows(Class<T> t,Executable fn){return null;}}'),
    put('org/mockito/ArgumentMatchers.java',String.raw`package org.mockito;import java.util.*;public class ArgumentMatchers{public static String anyString(){return "";} public static <T>T isNull(){return null;}public static int anyInt(){return 0;}public static <K,V>Map<K,V>anyMap(){return null;}public static long anyLong(){return 0;}}`),
    put('org/mockito/invocation/InvocationOnMock.java',String.raw`package org.mockito.invocation; public interface InvocationOnMock{<T>T getArgument(int i);}`),
    put('org/mockito/stubbing/Answer.java',String.raw`package org.mockito.stubbing;public interface Answer<T>{T answer(org.mockito.invocation.InvocationOnMock invocation) throws Throwable;}`),
@@ -317,5 +359,7 @@ public class Assertions {
  console.log('PASS | Real ProductRuleHierarchyHF7A3HF7Test.java source compiles with JUnit/Mockito/AssertJ signatures');
  run('javac',['-encoding','UTF-8','-cp',classes,'-d',classes,...signatures,path.join(root,tests+'ProductRulePublicationHF7A3HF8Test.java')]);
  console.log('PASS | Real ProductRulePublicationHF7A3HF8Test.java source compiles with JUnit/Mockito/AssertJ signatures');
+ run('javac',['-encoding','UTF-8','-cp',classes,'-d',classes,...signatures,path.join(root,tests+'ProductPricingPublicationHF7A3HF9Test.java')]);
+ console.log('PASS | Real ProductPricingPublicationHF7A3HF9Test.java source compiles with JUnit/Mockito signatures');
 }finally{fs.rmSync(tmp,{recursive:true,force:true});}
 console.log('PDL_R30_HF7A3_HF8_STATIC_PASS='+staticCount+' FAIL=0');
