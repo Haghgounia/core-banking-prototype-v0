@@ -18,6 +18,8 @@ import java.util.*;
 @Repository
 public class DepositTransactionRepository {
     public record AccountRow(long accountId,String accountNo,String status,String currencyCode) {}
+    /** Immutable accounting scope as of the DPS2 commit; no default bank/unit inference. */
+    public record CashPostingScope(String accountNumber,String productVersionReference,String bankUnitReference) {}
     public record TxLock(long transactionId,long accountId,String type,BigDecimal amount,String currencyCode,LocalDate valueDate,LocalDate bookingDate,String channel,String dc,String status,Long originalTransactionId,String createdBy,long recordVersion) {}
     public record TxRestriction(String mode,BigDecimal maxAmount) {}
     public record AccountLimit(long id,String type,String transactionType,String channel,BigDecimal amountLimit,Long countLimit) {}
@@ -36,6 +38,13 @@ public class DepositTransactionRepository {
     public void completeIdempotency(String key,String result){jdbc.update("UPDATE "+schema+".DEPOSIT_OPERATION_IDEMPOTENCY SET PROCESSING_STATUS_CODE='COMPLETED',RESULT_REFERENCE=:result,COMPLETED_AT=SYSTIMESTAMP,RECORD_VERSION=RECORD_VERSION+1 WHERE IDEMPOTENCY_KEY=:key AND PROCESSING_STATUS_CODE='IN_PROGRESS'",new MapSqlParameterSource().addValue("result",result).addValue("key",key));}
 
     public Optional<AccountRow> account(long id,boolean lock){String sql="SELECT ACCOUNT_ID,ACCOUNT_NO,ACCOUNT_STATUS_CODE,CURRENCY_CODE FROM "+schema+".DEPOSIT_ACCOUNT WHERE ACCOUNT_ID=:id"+(lock?" FOR UPDATE":"");return jdbc.query(sql,Map.of("id",id),(r,n)->new AccountRow(r.getLong(1),r.getString(2),r.getString(3),r.getString(4))).stream().findFirst();}
+    public CashPostingScope cashPostingScope(long accountId) {
+        String sql="SELECT ACCOUNT_NO, CURRENT_PRODUCT_VERSION_ID, ORG_UNIT_CODE FROM "+schema+
+                ".DEPOSIT_ACCOUNT WHERE ACCOUNT_ID=:id";
+        return jdbc.query(sql,Map.of("id",accountId),(r,n)->new CashPostingScope(
+                r.getString(1),r.getObject(2)==null?null:r.getString(2),r.getString(3)))
+                .stream().findFirst().orElseThrow(()->new IllegalStateException("Cash posting account scope missing"));
+    }
     public Optional<AccountRow> accountByReference(String ref){String sql="SELECT ACCOUNT_ID,ACCOUNT_NO,ACCOUNT_STATUS_CODE,CURRENCY_CODE FROM "+schema+".DEPOSIT_ACCOUNT WHERE ACCOUNT_NO=:ref";return jdbc.query(sql,Map.of("ref",ref),(r,n)->new AccountRow(r.getLong(1),r.getString(2),r.getString(3),r.getString(4))).stream().findFirst();}
 
     public void insertTransaction(long id,String ref,String idem,long accountId,String type,BigDecimal amount,String currency,LocalDate valueDate,LocalDate bookingDate,String channel,String dc,Long original,String externalRef,String actor){String sql="INSERT INTO "+schema+".DEPOSIT_TRANSACTION(TRANSACTION_ID,REFERENCE_NO,IDEMPOTENCY_KEY,ACCOUNT_ID,TRANSACTION_TYPE_CODE,AMOUNT,CURRENCY_CODE,VALUE_DATE,BOOKING_DATE,CHANNEL_CODE,DEBIT_CREDIT_CODE,TRANSACTION_STATUS_CODE,ORIGINAL_TRANSACTION_ID,EXTERNAL_REFERENCE,CREATED_AT,CREATED_BY,RECORD_VERSION) VALUES(:id,:ref,:idem,:aid,:type,:amount,:currency,:valueDate,:bookingDate,:channel,:dc,'INITIATED',:original,:external,SYSTIMESTAMP,:actor,1)";jdbc.update(sql,new MapSqlParameterSource().addValue("id",id).addValue("ref",ref).addValue("idem",idem).addValue("aid",accountId).addValue("type",type).addValue("amount",amount).addValue("currency",currency).addValue("valueDate",Date.valueOf(valueDate),Types.DATE).addValue("bookingDate",Date.valueOf(bookingDate),Types.DATE).addValue("channel",channel).addValue("dc",dc).addValue("original",original,Types.BIGINT).addValue("external",externalRef,Types.VARCHAR).addValue("actor",actor));}

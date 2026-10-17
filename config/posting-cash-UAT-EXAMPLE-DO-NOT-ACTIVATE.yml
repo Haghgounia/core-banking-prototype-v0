@@ -1,0 +1,16 @@
+# Template only. Do not replace application.yml or enable on an existing production database.
+# First run R1D5-POSTING-READINESS-READONLY.sql; populate approved, effective data in UAT.
+core-banking:
+  posting:
+    cash:
+      enabled: false  # switch to true ONLY in an isolated approved UAT Oracle + application instance
+      book-code: REPLACE_WITH_APPROVED_UAT_BOOK
+      legal-entity: REPLACE_WITH_APPROVED_LEGAL_ENTITY
+      ledger-code: REPLACE_WITH_APPROVED_LEDGER
+      chart-code: REPLACE_WITH_APPROVED_CHART
+      rule-deposit-code: REPLACE_WITH_PUBLISHED_CASH_DEPOSIT_RULE
+      rule-withdrawal-code: REPLACE_WITH_PUBLISHED_CASH_WITHDRAWAL_RULE
+      mapping-deposit-code: REPLACE_WITH_PUBLISHED_CASH_DEPOSIT_MAPPING
+      mapping-withdrawal-code: REPLACE_WITH_PUBLISHED_CASH_WITHDRAWAL_MAPPING
+      review-token: REPLACE_WITH_LONG_RANDOM_PRIVATE_REVIEW_TOKEN
+# Ensure this file and any token are NOT committed to a shared repository.

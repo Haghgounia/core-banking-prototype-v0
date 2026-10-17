@@ -8,6 +8,8 @@ import com.behsazan.corebanking.deposit.account.transaction.domain.DepositTransa
 import com.behsazan.corebanking.deposit.account.transaction.oracle.DepositTransactionRepository;
 import com.behsazan.corebanking.deposit.account.transaction.oracle.DepositTransactionRepository.*;
 import com.behsazan.corebanking.deposit.account.waveb.application.DepositAccountWaveBService;
+import com.behsazan.corebanking.posting.cash.CashPostingPolicy;
+import com.behsazan.corebanking.posting.cash.DepositCashPostingBridge;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +31,9 @@ public class DepositTransactionService {
     private final DepositTransactionRepository repository;
     private final DepositBalanceService balanceService;
     private final DepositAccountWaveBService waveBService;
+    private final DepositCashPostingBridge cashPostingBridge;
 
-    public DepositTransactionService(DepositTransactionRepository repository,DepositBalanceService balanceService,DepositAccountWaveBService waveBService){this.repository=repository;this.balanceService=balanceService;this.waveBService=waveBService;}
+    public DepositTransactionService(DepositTransactionRepository repository,DepositBalanceService balanceService,DepositAccountWaveBService waveBService,DepositCashPostingBridge cashPostingBridge){this.repository=repository;this.balanceService=balanceService;this.waveBService=waveBService;this.cashPostingBridge=cashPostingBridge;}
 
     @Transactional(readOnly=true)
     public TransactionListView list(long accountId){requireAccount(accountId,false);return new TransactionListView(repository.list(accountId).stream().map(t->view(t.transactionId())).toList());}
@@ -100,12 +103,25 @@ public class DepositTransactionService {
     public TransactionActionResponse post(long accountId,long txId,String actor,String correlationId,String idempotencyKey){
         String h=hash("POST|"+accountId+"|"+txId);if(replayOrClaim(idempotencyKey,accountId,"TX_POST",h,actor,correlationId))return new TransactionActionResponse(view(txId),true);
         TxLock t=lock(accountId,txId);if(!"AUTHORIZED".equals(upper(t.status())))throw lifecycle("فقط تراکنش AUTHORIZED قابل ثبت مالی است.","DEPOSIT_TRANSACTION.TRANSACTION_STATUS_CODE",t.status());
+        if (cashPostingBridge.isEnabled() && !Set.of("CASH_DEPOSIT", "CASH_WITHDRAWAL").contains(t.type()))
+            throw new IllegalStateException("R1-D5 cash-only acceptance mode forbids unjournalled non-cash posting");
         List<Check> latest=checks(t);String blockers=latest.stream().filter(c->!c.pass&&!c.warn).map(c->c.message).reduce((a,b)->a+"؛ "+b).orElse(null);if(blockers!=null)throw lifecycle("کنترل نهایی Posting ناموفق است: "+blockers,"DEPOSIT_TRANSACTION.TRANSACTION_ID",String.valueOf(txId));
         for(TransactionLeg leg:repository.legs(txId)){
             if(leg.accountId()==null)continue;
             String postingRef="DPS2-TX-"+txId+"-L"+leg.legNo();
             balanceService.post(leg.accountId(),new PostEntryRequest(leg.debitCreditCode(),leg.amount(),leg.currencyCode(),t.bookingDate(),t.valueDate(),postingRef,"DEPOSIT_TRANSACTION",txId,null,null,txId,leg.transactionLegId(),leg.legNo()),actor,correlationId,idempotencyKey+"-L"+leg.legNo());
             repository.setLegPostingReference(leg.transactionLegId(),postingRef,actor);
+        }
+        // R1-D5: same Oracle transaction; no asynchronous Kafka dependency.
+        // A failed cash journal aborts the already performed DPS2 subledger writes.
+        if (cashPostingBridge.isEnabled() && ("CASH_DEPOSIT".equals(t.type()) || "CASH_WITHDRAWAL".equals(t.type()))) {
+            var detail = repository.cash(txId);
+            if (detail == null) throw new IllegalStateException("Missing cash detail on authorized cash transaction");
+            var scope = repository.cashPostingScope(t.accountId());
+            cashPostingBridge.record(new CashPostingPolicy.Instruction(
+                    txId, t.accountId(), scope.accountNumber(), detail.cashDeskCode(), t.type(),
+                    t.amount(), t.currencyCode(), t.bookingDate(), t.valueDate(),
+                    scope.productVersionReference(), scope.bankUnitReference(), detail.cashManagementTxnRef()));
         }
         if(repository.transition(txId,t.recordVersion(),"AUTHORIZED","POSTED",actor)!=1)throw concurrent(t);repository.history(repository.next("SEQ_DEPOSIT_TRANSACTION_STATUS_HISTORY"),txId,"AUTHORIZED","POSTED","FINANCIAL_POSTING_COMPLETED",actor);waveBService.recordPostedTransactionUsage(t.accountId(),txId,t.type(),t.channel(),t.amount(),t.bookingDate(),actor);repository.completeIdempotency(idempotencyKey,"TX:"+txId);return new TransactionActionResponse(view(txId),false);
     }
@@ -116,6 +132,7 @@ public class DepositTransactionService {
      */
     @Transactional
     public TransactionActionResponse postDerived(DerivedTransactionRequest request,String actor,String correlationId,String idempotencyKey){
+        if(cashPostingBridge.isEnabled()) throw new IllegalStateException("R1-D5 cash-only acceptance mode forbids derived postings without GL integration");
         if(request==null)throw new IllegalArgumentException("Derived transaction request الزامی است.");
         long accountId=request.contextAccountId();
         String type=upper(required(request.transactionTypeCode(),"TRANSACTION_TYPE_CODE"));
@@ -153,6 +170,7 @@ public class DepositTransactionService {
     public TransactionActionResponse reverse(long accountId,long txId,ReversalRequest request,String actor,String correlationId,String idempotencyKey){
         String reason=upper(required(request==null?null:request.reasonCode(),"REVERSAL_REASON_CODE"));String h=hash("REVERSE|"+accountId+"|"+txId+"|"+reason);if(replayOrClaim(idempotencyKey,accountId,"TX_REVERSE",h,actor,correlationId)){long rev=parseResult(idempotencyKey,"REVTX:");return new TransactionActionResponse(view(rev),true);}
         TxLock original=lock(accountId,txId);if(!"POSTED".equals(upper(original.status())))throw lifecycle("فقط تراکنش POSTED قابل برگشت است.","DEPOSIT_TRANSACTION.TRANSACTION_STATUS_CODE",original.status());if(repository.reversalByOriginal(txId)!=null)throw lifecycle("برای تراکنش قبلاً Reversal ثبت شده است.","DEPOSIT_TRANSACTION_REVERSAL.ORIGINAL_TRANSACTION_ID",String.valueOf(txId));
+        if(cashPostingBridge.isEnabled()) throw new IllegalStateException("R1-D5 cash-only acceptance mode forbids reversals until a complete GL reversal path is accepted");
         List<OriginalPosting> postings=repository.originalPostings(txId);if(postings.stream().filter(x->x.accountId()!=null).anyMatch(x->x.subledgerEntryId()==null))throw lifecycle("Trace مالی تراکنش اصلی ناقص است.","DEPOSIT_SUBLEDGER_ENTRY.TRANSACTION_ID",String.valueOf(txId));
         long revId=repository.next("SEQ_DEPOSIT_TRANSACTION");String ref="REV-"+revId;repository.insertTransaction(revId,ref,idempotencyKey+"-REVTX",accountId,"REVERSAL",original.amount(),original.currencyCode(),original.valueDate(),LocalDate.now(ZoneOffset.UTC),original.channel(),opposite(original.dc()),txId,original.transactionId()+"",actor);repository.history(repository.next("SEQ_DEPOSIT_TRANSACTION_STATUS_HISTORY"),revId,null,"INITIATED","REVERSAL_CREATED",actor);
         int no=0;for(OriginalPosting op:postings){no++;long legId=repository.next("SEQ_DEPOSIT_TRANSACTION_LEG");String dc=opposite(op.dc());repository.leg(legId,revId,no,op.accountId(),op.accountReference(),dc,op.amount(),op.currencyCode(),actor);if(op.accountId()!=null){String postingRef="DPS2-REV-"+revId+"-L"+no;balanceService.post(op.accountId(),new PostEntryRequest(dc,op.amount(),op.currencyCode(),LocalDate.now(ZoneOffset.UTC),original.valueDate(),postingRef,"DEPOSIT_TRANSACTION_REVERSAL",revId,op.subledgerEntryId(),null,revId,legId,no),actor,correlationId,idempotencyKey+"-REV-L"+no);repository.setLegPostingReference(legId,postingRef,actor);}}

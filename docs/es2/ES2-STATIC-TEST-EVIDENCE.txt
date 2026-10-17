@@ -1,0 +1,8 @@
+ES2-PR1 source-only local verification, 2026-10-17
+Source baseline: core-banking-prototype-v0-2026-10-17-1443.zip
+Test 1: node tools/verify-event-streaming-es1.mjs
+R1D4_ES1_STATIC_PASS=30 FAIL=0
+Test 2: node tools/es2/verify-es2-source-contract.mjs
+ES2_SOURCE_CONTRACT_PASS=9 FAIL=0
+Test 3: external Kafka/Oracle not executed (not accessible in this environment)
+Test 4: PowerShell syntax/runtime not tested (Windows PowerShell unavailable here)

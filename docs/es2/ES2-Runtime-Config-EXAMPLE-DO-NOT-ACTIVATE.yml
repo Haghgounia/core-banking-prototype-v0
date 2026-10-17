@@ -1,0 +1,27 @@
+# ES2-PR1: illustrative external Spring Boot 4 runtime configuration ONLY.
+# Not automatically loaded by the patch. Do not merge into application.yml blindly.
+# Deployment approval and PST Oracle schema checks are needed before enabling.
+
+spring:
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    producer:
+      acks: all
+      properties:
+        "[enable.idempotence]": true
+        "[max.in.flight.requests.per.connection]": 5
+    consumer:
+      enable-auto-commit: false
+
+core-banking:
+  event-stream:
+    enabled: false
+    producer-enabled: false
+    consumer-enabled: false
+    topic: corebanking.pst.events.v1
+    consumer-group: corebanking.stream-audit.v1
+    batch-size: 20
+    max-attempts: 12
+    ack-timeout-seconds: 10
+    lease-seconds: 60
+    poll-ms: 5000
