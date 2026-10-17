@@ -28,6 +28,8 @@ class ProductPricingPublicationHF7A3HF9Test {
         final ProductRuleGovernanceService service = new ProductRuleGovernanceService(repo,
                 mock(RuleGovernanceLiteService.class),new ProductBuilderBusinessValidator());
         final Map<String,List<Map<String,Object>>> data=new LinkedHashMap<>();
+        // Capture the real repository calls made by the report, independent of Mockito verify overloads.
+        final List<String> tierFkLookups=new ArrayList<>();
         boolean honorTierForeignKey;
         Case() {
             when(repo.findById("PRODUCT_VERSION",55L)).thenReturn(Optional.of(Map.of("PRODUCT_ID",9L,
@@ -38,6 +40,9 @@ class ProductPricingPublicationHF7A3HF9Test {
             when(repo.search(anyString(),isNull(),anyInt(),anyInt(),anyString(),anyString())).thenAnswer(call -> {
                 String table=call.getArgument(0);
                 int page=call.getArgument(2), size=call.getArgument(3);
+                if ("PRODUCT_RATE_TIER".equals(table)) {
+                    tierFkLookups.add(page + "|" + size + "|" + call.getArgument(4) + "|" + call.getArgument(5));
+                }
                 List<Map<String,Object>> records="PRODUCT_VERSION_MODULE".equals(table) || OPTIONAL_CHILDREN.contains(table)
                         ? List.of(): List.of(row(table));
                 if(data.containsKey(table))records=data.get(table);
@@ -96,7 +101,28 @@ class ProductPricingPublicationHF7A3HF9Test {
         c.put("PRODUCT_PRICING_COMPONENT",c.rows("PRODUCT_PRICING_COMPONENT").get(0),child);
         // Mirror the real repository: component 815 must not borrow component 814's tiers.
         c.honorTierForeignKey=true;
-        c.denied("CONFLICT");
+        var result=c.report();
+        // The pre-Maven HF8 compiler has reduced JUnit and Mockito stubs.
+        // Retain strict assertions using signatures supported by both HF8 and real JUnit.
+        assertFalse(result.canApprove());
+        assertFalse(result.canOpen());
+        var pricing=result.effectiveRules().stream()
+                .filter(r->"PRODUCT_PRICING_RULE".equals(r.code()))
+                .findFirst().orElseThrow();
+        if (!"CONFLICT".equals(pricing.status()))
+            throw new AssertionError("Expected CONFLICT for uncovered component 815: " + pricing);
+        assertEquals("CONFLICT", pricing.status());
+        assertTrue(pricing.blocking());
+        if (pricing.reason()==null || !pricing.reason().contains("815"))
+            throw new AssertionError("Missing component 815 was not independently audited: " + pricing);
+        assertTrue(pricing.reason().contains("815"));
+        // Stronger than the old verify(...eq(...)) check: assert that both
+        // distinct component IDs were actually queried, with the exact FK and page.
+        if (!c.tierFkLookups.contains("0|200|PRICING_COMPONENT_ID|814")
+                || !c.tierFkLookups.contains("0|200|PRICING_COMPONENT_ID|815"))
+            throw new AssertionError("Missing independent 814/815 FK lookups: " + c.tierFkLookups);
+        assertTrue(c.tierFkLookups.contains("0|200|PRICING_COMPONENT_ID|815"));
+        c.noWrites();
     }
     @Test void incompleteDurationDomainFailsClosedInRealReport() {
         var c=new Case();var tier=c.rows("PRODUCT_RATE_TIER").get(0);

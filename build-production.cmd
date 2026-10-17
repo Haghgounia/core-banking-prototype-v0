@@ -20,6 +20,8 @@ node "%ROOT%tools\migrate-root-layout.mjs" || exit /b 1
 rem FIX100 upgrade guard: archive obsolete Product Builder source left by older overlay patches.
 node "%ROOT%tools\migrate-source-layout.mjs" || exit /b 1
 node "%ROOT%tools\verify-release-layout.mjs" || exit /b 1
+rem R1-D4/ES1 Kafka envelope/outbox/source guard (no Oracle writes).
+node "%ROOT%tools\verify-event-streaming-es1.mjs" || exit /b 1
 rem PB-R15 business selector/clone/duplicate and pricing domain guard.
 node "%ROOT%tools\verify-pb-r15.mjs" || exit /b 1
 rem PB-R16 Product/Version distinction, child navigation and Persian Product Builder grids.

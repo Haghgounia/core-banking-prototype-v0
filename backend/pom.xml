@@ -23,6 +23,11 @@
     </properties>
 
     <dependencies>
+        <!-- R1-D4/ES1: Spring Boot 4.1 Kafka auto-configuration -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-kafka</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>

@@ -1,0 +1,152 @@
+{
+  "release": "PDL-R30-HF7A3-HF9-HF1-BUSINESS-UAT-RC1.1-0914",
+  "date": "2026-10-17",
+  "baseline": "core-banking-prototype-v0-2026-10-17-0914.zip",
+  "source_only": true,
+  "runtime_release_authorized": false,
+  "oracle_live_validated": false,
+  "maven_windows_validated": false,
+  "count": {
+    "tables": 54,
+    "reference_tables": 47,
+    "field_risk_entries": 661,
+    "scenario_cases": 139,
+    "decisions_open": 18,
+    "static_or_offline_suites_pass": 15,
+    "legacy_suite_fail": 1
+  },
+  "files": {
+    "PDL-BUAT-RC1-54-TABLES.csv": {
+      "sha256": "2cce768dd6f3e4fbb6f514f4ee3df121180b66a668ccde75e2aa760137161b84",
+      "size_bytes": 24536
+    },
+    "PDL-BUAT-RC1-661-FIELD-RISKS.csv": {
+      "sha256": "de47dfafed1f39a07e75b93e121b875aed81f40633256bfe8fe02bb69ff760d8",
+      "size_bytes": 227402
+    },
+    "PDL-BUAT-RC1-DECISIONS.csv": {
+      "sha256": "ff4c20ce3bc55c3578ae328e330f3273d5e83cf074af78d6ff5db36940a460fb",
+      "size_bytes": 3917
+    },
+    "PDL-BUAT-RC1-SCENARIOS.csv": {
+      "sha256": "4bb71984070ebdafb7793e04f0410d79c267bc1001646463d6cc744d1ab5ce0e",
+      "size_bytes": 86629
+    },
+    "PDL-BUSINESS-UAT-RC1-0914-COMPATIBILITY-FA.md": {
+      "sha256": "abb4daebf6ef8f2724592bfee89429d417ff2979aa9ac5c1b7d79f54dc28cd59",
+      "size_bytes": 3238
+    },
+    "PDL-BUSINESS-UAT-RC1-CHECKLIST-FA.md": {
+      "sha256": "e96c531284e814db0e1c751006a5da35b126a52978456f889d481315d886afbf",
+      "size_bytes": 7824
+    },
+    "PDL-BUSINESS-UAT-RC1-GAPS-FA.md": {
+      "sha256": "3b0f72e69402670a3b88a05b741d14ab7a89e3b59072e57584f3555913dc47ab",
+      "size_bytes": 7502
+    },
+    "PDL-BUSINESS-UAT-RC1-ORACLE-METADATA-READONLY.sql": {
+      "sha256": "bd4d327d89e372dd905196a21693b42e57a7673e1e92d4aa8cc0d2d4585ad8d3",
+      "size_bytes": 3210
+    },
+    "PDL-BUSINESS-UAT-RC1-QA-FA.md": {
+      "sha256": "6a6897927c8369a4f8e6c4847f00014568237accb309080d7cde04683815151c",
+      "size_bytes": 4641
+    },
+    "PDL-BUSINESS-UAT-RC1-START-FA.md": {
+      "sha256": "f4c0c123c9a2607ac8da51fe4835ba9f958a1d90bde4ac5fe277238bd921ed73",
+      "size_bytes": 6209
+    },
+    "PDL-BUSINESS-UAT-RC1-TESTBOOK-FA.xlsx": {
+      "sha256": "8e396ad8700687d470e17496f0c007a54af668be5e408ee7af89007824859ba2",
+      "size_bytes": 92021
+    },
+    "evidence/verify-pb-r19.log": {
+      "sha256": "fd425c26ec652b7d04e92f2cb136068236663de080d23bb2b0518c8067e6d324",
+      "size_bytes": 3001
+    },
+    "evidence/verify-pdl-r30-hf7-safety-gate.log": {
+      "sha256": "d0c291ec8d348989a7abdb04ce55827f449c126b9dd5fcedc7e3b58f52145918",
+      "size_bytes": 466
+    },
+    "evidence/verify-pdl-r30-hf7a1-semantic.log": {
+      "sha256": "d70b168aa1228ca794eb87b5036cd8db5c26ff94de3dbe37366e5bbc47bf1a26",
+      "size_bytes": 1891
+    },
+    "evidence/verify-pdl-r30-hf7a2-temporal.log": {
+      "sha256": "3a772026e8baab882ae57e0263431f31874283d895b6bcc0d1c007e31576a6c9",
+      "size_bytes": 1913
+    },
+    "evidence/verify-pdl-r30-hf7a3-hf2-product-rules.log": {
+      "sha256": "e43f2f0134310112e11d2a191cda05cb99d1a3d541b72a1b972c9d39efb49414",
+      "size_bytes": 1621
+    },
+    "evidence/verify-pdl-r30-hf7a3-hf3-child-validation.log": {
+      "sha256": "6825760bcd349ad1950516acb279e4eb800aa11eee417fc2079afb2de984e358",
+      "size_bytes": 279
+    },
+    "evidence/verify-pdl-r30-hf7a3-hf4-hierarchy.log": {
+      "sha256": "f1f56b5729b67ac0bbe1e7f5837d0bacf7c57e6342fb7c51ba493dd583c25a68",
+      "size_bytes": 1947
+    },
+    "evidence/verify-pdl-r30-hf7a3-hf5-compat.log": {
+      "sha256": "e7f5414af33e2ecd556d8976581e3e8d2db902a3ebde0cd803b6fa88edef9780",
+      "size_bytes": 2367
+    },
+    "evidence/verify-pdl-r30-hf7a3-hf6-publication.log": {
+      "sha256": "297e325a0b223dccd45e8a78fdc293651df2d0f6b65ee3bf24f272bfdc18b286",
+      "size_bytes": 2387
+    },
+    "evidence/verify-pdl-r30-hf7a3-hf7-closure.log": {
+      "sha256": "0676e043f2dab4a2f2f1c453bbb2d6454b49d564222387567a33afc2a729b967",
+      "size_bytes": 2275
+    },
+    "evidence/verify-pdl-r30-hf7a3-hf8-final.log": {
+      "sha256": "ced518887471b5e567f07b6937fc632180071a71981d7aebd1b79556cb174caf",
+      "size_bytes": 5040
+    },
+    "evidence/verify-pdl-r30-hf7a3-hf9-single-rate.log": {
+      "sha256": "9782a4194a9e108acbde8d810e5944943facb5a28b2f143db715d4d1e31e92ef",
+      "size_bytes": 2707
+    },
+    "evidence/verify-pdl-r30-hf7a3-integrity.log": {
+      "sha256": "302fb232e6e515afda98142f675e91b6aa9d2741810d06f591e150193ba41a9a",
+      "size_bytes": 837
+    },
+    "evidence/verify-pdl-ui-alignment-r10t.log": {
+      "sha256": "28555ad462b0825e11099c546d5c7f33b300ff09332a54d9a00fc9c22e194bf0",
+      "size_bytes": 1664
+    },
+    "evidence/verify-pdl-ux-oct11.log": {
+      "sha256": "7a2c038f74b3c4b29e37e3d57a7fe252689224ec0c1db7dc9815777220945047",
+      "size_bytes": 1081
+    },
+    "evidence/verify-release-layout.log": {
+      "sha256": "02f33f5e12ce7a0100416c8abdf9c114c5fec1fd6aa14a30b68c311891a76f51",
+      "size_bytes": 100
+    }
+  },
+  "baseline_sha256": "7002487a3e2ee4a3e9c4ee6092f74cad6b75ebcc218980a8ae6079d63e6f743f",
+  "hf9_hf1_old_patch_required": false,
+  "hf9_hf1_reapply_unsafe": true,
+  "source_code_modified_by_uat_package": false,
+  "compatibility_notes_file": "PDL-BUSINESS-UAT-RC1-0914-COMPATIBILITY-FA.md",
+  "current_evidence": "2026-10-17-0914 exact source",
+  "verifier_results": {
+    "verify-pb-r19": 0,
+    "verify-pdl-r30-hf7-safety-gate": 0,
+    "verify-pdl-r30-hf7a1-semantic": 0,
+    "verify-pdl-r30-hf7a2-temporal": 0,
+    "verify-pdl-r30-hf7a3-hf2-product-rules": 0,
+    "verify-pdl-r30-hf7a3-hf3-child-validation": 0,
+    "verify-pdl-r30-hf7a3-hf4-hierarchy": 0,
+    "verify-pdl-r30-hf7a3-hf5-compat": 0,
+    "verify-pdl-r30-hf7a3-hf6-publication": 0,
+    "verify-pdl-r30-hf7a3-hf7-closure": 0,
+    "verify-pdl-r30-hf7a3-hf8-final": 0,
+    "verify-pdl-r30-hf7a3-hf9-single-rate": 0,
+    "verify-pdl-r30-hf7a3-integrity": 1,
+    "verify-pdl-ui-alignment-r10t": 0,
+    "verify-pdl-ux-oct11": 0,
+    "verify-release-layout": 0
+  }
+}

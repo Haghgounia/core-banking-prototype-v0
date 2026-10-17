@@ -277,6 +277,11 @@ public final class ProductRuleHierarchyAudit {
                     audited++;
                     var children = get(loader, "PRODUCT_RATE_TIER", "PRICING_COMPONENT_ID", componentId);
                     if (children == null) return conflict("پله‌های نرخ جزء " + componentId + " قابل بازیابی نیستند.");
+                    // HF9-COVERAGE-GUARD: proof is per component. A second
+                    // component with no owned tier MUST fail as CONFLICT even
+                    // if another component has complete amount coverage.
+                    if (children.isEmpty()) return conflict("جزء قیمت‌گذاری " + componentId
+                            + " هیچ پله نرخ متعلق به خود ندارد؛ پوشش جزء دیگری قابل استفاده نیست.");
                     List<Map<String, Object>> relevant = new ArrayList<>();
                     for (var tier : children) {
                         if (tier == null) return invalid("رکورد پله نرخ جزء " + componentId + " خالی است.");

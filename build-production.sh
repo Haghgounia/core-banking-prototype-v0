@@ -10,6 +10,8 @@ node "$ROOT/tools/migrate-release-layout.mjs"
 node "$ROOT/tools/migrate-root-layout.mjs"
 node "$ROOT/tools/migrate-source-layout.mjs"
 node "$ROOT/tools/verify-release-layout.mjs"
+# R1-D4/ES1 Kafka envelope/outbox/source guard (no Oracle writes).
+node "$ROOT/tools/verify-event-streaming-es1.mjs"
 # PB-R23: fixed loan group/commitment values and disabled interest method.
 node "$ROOT/tools/verify-pb-r23-loan-type.mjs"
 # PB-R24: loan reference, applicant, classification and currency coherence.
