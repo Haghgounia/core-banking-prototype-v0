@@ -6,6 +6,8 @@ import subprocess, tempfile
 from pathlib import Path
 root=Path.cwd()
 shim={
+'org/springframework/core/env/Environment.java':'''package org.springframework.core.env; public interface Environment { boolean acceptsProfiles(Profiles profiles); }''',
+'org/springframework/core/env/Profiles.java':'''package org.springframework.core.env; public interface Profiles { static Profiles of(String... profiles){return null;} }''',
 'org/springframework/beans/factory/annotation/Value.java':'''package org.springframework.beans.factory.annotation; public @interface Value { String value(); }''',
 'org/springframework/boot/autoconfigure/condition/ConditionalOnProperty.java':'''package org.springframework.boot.autoconfigure.condition; public @interface ConditionalOnProperty { String prefix() default ""; String[] name(); String havingValue() default ""; }''',
 'org/springframework/stereotype/Service.java':'''package org.springframework.stereotype; public @interface Service {}''',

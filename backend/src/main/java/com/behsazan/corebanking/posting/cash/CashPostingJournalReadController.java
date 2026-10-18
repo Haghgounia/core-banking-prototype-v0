@@ -25,6 +25,8 @@ import java.util.Map;
 public class CashPostingJournalReadController {
     private final NamedParameterJdbcTemplate db;
     private final byte[] requiredToken;
+    @Value("${core-banking.posting.cash.mode:PUBLISHED_ONLY}") private String postingMode;
+    @Value("${core-banking.posting.cash.dev-only.pilot-account-id:0}") private long devPilotAccountId;
     public record JournalLine(long sequence, String glCode, String direction, BigDecimal amount, String currency) {}
     public record JournalEvidence(String sourceEvent, long accountingTransactionId, String postingState,
                                   String instructionState, List<JournalLine> entries,
@@ -42,6 +44,14 @@ public class CashPostingJournalReadController {
                 !MessageDigest.isEqual(requiredToken,supplied.getBytes(StandardCharsets.UTF_8)))
             return ResponseEntity.status(403).build();
         if(transactionId<=0) return ResponseEntity.badRequest().build();
+        // DEV_ONLY evidence is restricted to the single explicitly permitted test account.
+        if ("DEV_ONLY".equals(postingMode)) {
+            if (devPilotAccountId != 1L) return ResponseEntity.status(403).build();
+            var pilot = db.queryForList("SELECT TRANSACTION_ID FROM DPS2.DEPOSIT_TRANSACTION " +
+                    "WHERE TRANSACTION_ID=:tx AND ACCOUNT_ID=:account",
+                    Map.of("tx",transactionId,"account",devPilotAccountId));
+            if (pilot.size()!=1) return ResponseEntity.notFound().build();
+        }
         String event="DPS2-TX-"+transactionId;
         var params=Map.of("event",event,"purpose",CashPostingPolicy.PURPOSE);
         var journals=db.queryForList("SELECT T.IDENTIFIER,T.POSTING_STATE FROM ACC.ACCOUNTING_TRANSACTIONS T " +

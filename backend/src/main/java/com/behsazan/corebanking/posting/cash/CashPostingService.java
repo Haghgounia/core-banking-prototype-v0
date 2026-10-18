@@ -4,6 +4,8 @@ import com.behsazan.corebanking.posting.cash.CashPostingPolicy.GlLine;
 import com.behsazan.corebanking.posting.cash.CashPostingPolicy.Instruction;
 import com.behsazan.corebanking.posting.cash.CashPostingPolicy.Plan;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -30,8 +32,20 @@ import java.util.Objects;
  */
 @Service
 @ConditionalOnProperty(prefix="core-banking.posting.cash", name="enabled", havingValue="true")
-public final class CashPostingService {
+public class CashPostingService {
     private final NamedParameterJdbcTemplate db;
+    private final Environment environment;
+    @Value("${core-banking.posting.cash.mode:PUBLISHED_ONLY}") private String mode;
+    @Value("${core-banking.posting.cash.dev-only.pilot-account-id:0}") private long devPilotAccountId;
+    @Value("${core-banking.posting.cash.dev-only.pilot-cash-desk-code:}") private String devCashDesk;
+    @Value("${core-banking.posting.cash.dev-only.currency:}") private String devCurrency;
+    @Value("${core-banking.posting.cash.dev-only.product-version:}") private String devProductVersion;
+    @Value("${core-banking.posting.cash.dev-only.bank-unit:}") private String devBankUnit;
+    @Value("${core-banking.posting.cash.dev-only.external-reference-prefix:}") private String devReferencePrefix;
+    @Value("${core-banking.posting.cash.dev-only.max-amount:0}") private BigDecimal devMaxAmount;
+    @Value("${core-banking.posting.cash.dev-only.synthetic-account-confirmed:false}") private boolean devSyntheticAccountConfirmed;
+    @Value("${core-banking.posting.cash.dev-only.expected-db:}") private String devExpectedDb;
+    @Value("${core-banking.posting.cash.dev-only.expected-pdb:}") private String devExpectedPdb;
     @Value("${core-banking.posting.cash.book-code:}") private String bookCode;
     @Value("${core-banking.posting.cash.legal-entity:}") private String legalEntity;
     @Value("${core-banking.posting.cash.ledger-code:}") private String ledgerCode;
@@ -41,7 +55,51 @@ public final class CashPostingService {
     @Value("${core-banking.posting.cash.mapping-deposit-code:}") private String depositMapping;
     @Value("${core-banking.posting.cash.mapping-withdrawal-code:}") private String withdrawalMapping;
 
-    public CashPostingService(NamedParameterJdbcTemplate db) { this.db = Objects.requireNonNull(db); }
+    public CashPostingService(NamedParameterJdbcTemplate db, Environment environment) {
+        this.db = Objects.requireNonNull(db);
+        this.environment = Objects.requireNonNull(environment);
+    }
+
+    private boolean devOnly() {
+        if ("DEV_ONLY".equals(mode)) return true;
+        if ("PUBLISHED_ONLY".equals(mode)) return false;
+        throw new IllegalStateException("Cash Posting mode must be PUBLISHED_ONLY or DEV_ONLY");
+    }
+
+    /** Called by DPS2 BEFORE it changes any deposit balance or claims a posting. */
+    public void preflight(CashPostingPolicy.Instruction instruction) {
+        requireConfiguration();
+        if (!devOnly()) return;
+        String dbName = db.queryForObject("SELECT SYS_CONTEXT('USERENV','DB_NAME') FROM DUAL",
+                new MapSqlParameterSource(), String.class);
+        String pdbName = db.queryForObject("SELECT SYS_CONTEXT('USERENV','CON_NAME') FROM DUAL",
+                new MapSqlParameterSource(), String.class);
+        var guard = new DevOnlyCashPostingGuard.Settings(
+                environment.acceptsProfiles(Profiles.of("posting-dev")),
+                environment.acceptsProfiles(Profiles.of("prod", "production")),
+                devSyntheticAccountConfirmed, dbName, pdbName, devExpectedDb, devExpectedPdb,
+                devPilotAccountId, devCashDesk, devCurrency, devProductVersion, devBankUnit,
+                devReferencePrefix, devMaxAmount,
+                bookCode, legalEntity, ledgerCode, chartCode,
+                depositRule, withdrawalRule, depositMapping, withdrawalMapping);
+        DevOnlyCashPostingGuard.validate(guard, instruction);
+    }
+
+    private String publicationPredicate() {
+        // PUBLISHED_ONLY is the unchanged production-compatible path; DEV_ONLY reads only DRAFT.
+        return devOnly() ? "PUBLICATION_STATE='DRAFT'" : "PUBLICATION_STATE='PUBLISHED'";
+    }
+
+    private void requireHashAndApproval(Map<String,Object> row, boolean approvalRequired) {
+        if (devOnly()) {
+            String contentHash = s(row,"CONTENT_HASH");
+            if (contentHash == null || !contentHash.matches("(?i)[a-f0-9]{64}"))
+                throw new IllegalStateException("DEV_ONLY DRAFT configuration lacks a valid SHA-256 shape");
+            if (s(row,"APPROVAL_REFERENCE") != null)
+                throw new IllegalStateException("DEV_ONLY must not consume approved/published configuration");
+        } else published(row, approvalRequired);
+    }
+
 
     private record Resolved(long bookId, long periodId, long ledgerId, long ruleVersionId,
             long templateVersionId, long mappingVersionId,
@@ -55,7 +113,7 @@ public final class CashPostingService {
         if (!TransactionSynchronizationManager.isActualTransactionActive() ||
                 TransactionSynchronizationManager.isCurrentTransactionReadOnly())
             throw new IllegalStateException("R1-D5 requires an existing writable DPS2 transaction");
-        requireConfiguration();
+        preflight(instruction);  // Repeat the DEV_ONLY gate inside the same writable transaction.
         int scale = currencyScale(instruction.currency());
         Plan plan = CashPostingPolicy.make(instruction, scale);
         String sourceEvent = "DPS2-TX-" + instruction.depositTransactionId();
@@ -74,7 +132,8 @@ public final class CashPostingService {
         long ledgerTxId = seq("LGR.SEQ_LEDGER_TRANSACTIONS");
         long factId = seq("ACC.SEQ_ACCOUNTING_FACTS");
         long accTxId = seq("ACC.SEQ_ACCOUNTING_TRANSACTIONS");
-        String dim = "{\"sourceDomain\":\"DPS2\",\"productVersion\":\"" +
+        String dim = "{\"sourceDomain\":\"DPS2\",\"postingMode\":\"" +
+                (devOnly() ? "DEV_ONLY" : "PUBLISHED_ONLY") + "\",\"productVersion\":\"" +
                 safeDimension(instruction.productVersion()) + "\",\"bankUnit\":\"" +
                 safeDimension(instruction.bankUnit()) + "\"}";
         String idem = "DPS2:" + instruction.depositTransactionId() + ":CASH_PRINCIPAL";
@@ -88,9 +147,10 @@ public final class CashPostingService {
                         "ref",plan.reference(),"idem",idem,"hash",plan.payloadHash()));
         update("INSERT INTO PST.POSTING_PLANS(IDENTIFIER,POSTING_INSTRUCTION_IDENTIFIER,POSTING_RULE_VERSION_IDENTIFIER," +
                 "POSTING_TEMPLATE_VERSION_IDENTIFIER,ACCOUNTING_PURPOSE,REVISION_NUMBER,PLAN_HASH,PUBLICATION_STATE,CREATED_AT) " +
-                "VALUES(:id,:ins,:rule,:template,:purpose,1,:hash,'APPROVED',SYSTIMESTAMP)",
+                "VALUES(:id,:ins,:rule,:template,:purpose,1,:hash,:planState,SYSTIMESTAMP)",
                 p("id",planId,"ins",instructionId,"rule",cfg.ruleVersionId(),"template",cfg.templateVersionId(),
-                        "purpose",CashPostingPolicy.PURPOSE,"hash",plan.payloadHash()));
+                        "purpose",CashPostingPolicy.PURPOSE,"hash",plan.payloadHash(),
+                        "planState",devOnly() ? "DEV_ONLY" : "APPROVED"));
         update("INSERT INTO PST.POSTING_PLAN_MOVEMENTS(IDENTIFIER,POSTING_PLAN_IDENTIFIER,SEQUENCE_NUMBER," +
                 "SOURCE_POSITION_ACCOUNT_REFERENCE,DESTINATION_POSITION_ACCOUNT_REFERENCE,AMOUNT,CURRENCY_CODE) " +
                 "VALUES(:id,:plan,1,:source,:dest,:amount,:currency)",
@@ -124,9 +184,10 @@ public final class CashPostingService {
         applyPositionBalances(cfg, instruction.currency(), plan.amountUnits(), "LGR-TX-"+ledgerTxId);
         update("INSERT INTO LGR.COMMIT_RECEIPTS(IDENTIFIER,PROVIDER_NAME,SOURCE_INSTRUCTION_REFERENCE,POSTING_PURPOSE," +
                 "PROVIDER_TRANSACTION_REFERENCE,COMMIT_STATE,EVIDENCE_HASH,RECORDED_AT) " +
-                "VALUES(:id,'ORACLE_POSITION_LEDGER',:ref,:purpose,:ledger,'COMMITTED',:hash,SYSTIMESTAMP)",
+                "VALUES(:id,:provider,:ref,:purpose,:ledger,'COMMITTED',:hash,SYSTIMESTAMP)",
                 p("id",seq("LGR.SEQ_COMMIT_RECEIPTS"),"ref",plan.reference(),"purpose",CashPostingPolicy.PURPOSE,
-                        "ledger","LGR-TX-"+ledgerTxId,"hash",plan.payloadHash()));
+                        "ledger","LGR-TX-"+ledgerTxId,"hash",plan.payloadHash(),
+                        "provider",devOnly() ? "ORACLE_POSITION_LEDGER_DEV_ONLY" : "ORACLE_POSITION_LEDGER"));
 
         update("INSERT INTO ACC.ACCOUNTING_FACTS(IDENTIFIER,SOURCE_FACT_IDENTIFIER,ACCOUNTING_BOOK_IDENTIFIER," +
                 "ACCOUNTING_PURPOSE,OCCURRENCE_NUMBER,PAYLOAD_HASH,RECEIPT_STATE,RECEIVED_AT) " +
@@ -155,8 +216,9 @@ public final class CashPostingService {
         }
         update("INSERT INTO PST.POSTING_EXECUTIONS(IDENTIFIER,POSTING_PLAN_IDENTIFIER,EXECUTION_PURPOSE," +
                 "PROVIDER_NAME,PROVIDER_TRANSACTION_REFERENCE,OUTCOME_STATE,LAST_CHECKED_AT) " +
-                "VALUES(:id,:plan,:purpose,'ORACLE_POSITION_LEDGER',:ref,'COMMITTED',SYSTIMESTAMP)",
-                p("id",executionId,"plan",planId,"purpose",CashPostingPolicy.PURPOSE,"ref","LGR-TX-"+ledgerTxId));
+                "VALUES(:id,:plan,:purpose,:provider,:ref,'COMMITTED',SYSTIMESTAMP)",
+                p("id",executionId,"plan",planId,"purpose",CashPostingPolicy.PURPOSE,"ref","LGR-TX-"+ledgerTxId,
+                        "provider",devOnly() ? "ORACLE_POSITION_LEDGER_DEV_ONLY" : "ORACLE_POSITION_LEDGER"));
         update("INSERT INTO PST.POSTING_EXECUTION_EVENTS(IDENTIFIER,POSTING_EXECUTION_IDENTIFIER,EVENT_SEQUENCE," +
                 "PREVIOUS_STATE,NEXT_STATE,EVENT_TIME,REASON) " +
                 "VALUES(:id,:exec,1,NULL,'COMMITTED',SYSTIMESTAMP,NULL)",
@@ -183,10 +245,10 @@ public final class CashPostingService {
                 p("book",book,"code",chartCode),"chart of accounts"),"IDENTIFIER");
         Map<String,Object> rule = one("SELECT V.IDENTIFIER,V.CONTENT_HASH,V.APPROVAL_REFERENCE " +
                 "FROM PST.POSTING_RULES R JOIN PST.POSTING_RULE_VERSIONS V ON V.POSTING_RULE_IDENTIFIER=R.IDENTIFIER " +
-                "WHERE R.RULE_CODE=:code AND V.PUBLICATION_STATE='PUBLISHED' AND " +
+                "WHERE R.RULE_CODE=:code AND V." + publicationPredicate() + " AND " +
                 "V.EFFECTIVE_FROM<=SYSTIMESTAMP AND (V.EFFECTIVE_UNTIL IS NULL OR V.EFFECTIVE_UNTIL>SYSTIMESTAMP)",
                 p("code",ruleCode),"published cash rule");
-        published(rule, true);
+        requireHashAndApproval(rule, true);
         long ruleId = n(rule,"IDENTIFIER");
         var conditions = rows("SELECT ATTRIBUTE_NAME,COMPARISON_OPERATOR,EXPECTED_VALUE FROM PST.POSTING_RULE_CONDITIONS " +
                 "WHERE POSTING_RULE_VERSION_IDENTIFIER=:id ORDER BY CONDITION_SEQUENCE",
@@ -206,21 +268,23 @@ public final class CashPostingService {
         if (!containsEvent) throw new IllegalStateException("Posting rule must scope event_type");
         Map<String,Object> assignment = one("SELECT POSTING_TEMPLATE_VERSION_IDENTIFIER,CONTENT_HASH,APPROVAL_REFERENCE " +
                 "FROM PST.POSTING_RULE_TEMPLATE_ASSIGNMENTS WHERE POSTING_RULE_VERSION_IDENTIFIER=:rule " +
-                "AND ACCOUNTING_PURPOSE=:purpose AND PUBLICATION_STATE='PUBLISHED' AND EFFECTIVE_FROM<=SYSTIMESTAMP " +
+                "AND ACCOUNTING_PURPOSE=:purpose AND " + publicationPredicate() + " AND EFFECTIVE_FROM<=SYSTIMESTAMP " +
                 "AND (EFFECTIVE_UNTIL IS NULL OR EFFECTIVE_UNTIL>SYSTIMESTAMP)",
                 p("rule",ruleId,"purpose",CashPostingPolicy.PURPOSE),"published rule-template assignment");
-        published(assignment, true);
+        requireHashAndApproval(assignment, true);
         long templateId = n(assignment,"POSTING_TEMPLATE_VERSION_IDENTIFIER");
         Map<String,Object> template = one("SELECT IDENTIFIER,CONTENT_HASH FROM PST.POSTING_TEMPLATE_VERSIONS " +
-                "WHERE IDENTIFIER=:id AND PUBLICATION_STATE='PUBLISHED' AND EFFECTIVE_FROM<=SYSTIMESTAMP " +
+                "WHERE IDENTIFIER=:id AND " + publicationPredicate() + " AND EFFECTIVE_FROM<=SYSTIMESTAMP " +
                 "AND (EFFECTIVE_UNTIL IS NULL OR EFFECTIVE_UNTIL>SYSTIMESTAMP)",
                 p("id",templateId),"published template");
-        published(template, false);
-        one("SELECT IDENTIFIER FROM PST.POSTING_APPROVALS WHERE SUBJECT_REFERENCE=:subject " +
-                "AND APPROVAL_TYPE='PUBLISH' AND DECISION_STATE='APPROVED' " +
-                "AND REQUESTED_BY IS NOT NULL AND APPROVED_BY IS NOT NULL AND REQUESTED_BY<>APPROVED_BY " +
-                "AND DECIDED_AT<=SYSTIMESTAMP",p("subject","PST.POSTING_TEMPLATE_VERSIONS:"+templateId),
-                "maker-checker approval for template");
+        requireHashAndApproval(template, false);
+        if (!devOnly()) {
+            one("SELECT IDENTIFIER FROM PST.POSTING_APPROVALS WHERE SUBJECT_REFERENCE=:subject " +
+                    "AND APPROVAL_TYPE='PUBLISH' AND DECISION_STATE='APPROVED' " +
+                    "AND REQUESTED_BY IS NOT NULL AND APPROVED_BY IS NOT NULL AND REQUESTED_BY<>APPROVED_BY " +
+                    "AND DECIDED_AT<=SYSTIMESTAMP",p("subject","PST.POSTING_TEMPLATE_VERSIONS:"+templateId),
+                    "maker-checker approval for template");
+        }
         Map<String,Object> line = one("SELECT SOURCE_ACCOUNT_ROLE,DESTINATION_ACCOUNT_ROLE,AMOUNT_COMPONENT,ASSET_POLICY " +
                 "FROM PST.POSTING_TEMPLATE_LINES WHERE POSTING_TEMPLATE_VERSION_IDENTIFIER=:id",
                 p("id",templateId),"one cash-principal movement template");
@@ -230,10 +294,10 @@ public final class CashPostingService {
                 !"SAME_AS_INSTRUCTION".equals(s(line,"ASSET_POLICY")))
             throw new IllegalStateException("Published template does not match deposit/withdrawal cash flow");
         Map<String,Object> mapping = one("SELECT IDENTIFIER,CONTENT_HASH,APPROVAL_REFERENCE FROM " +
-                "ACC.ACCOUNTING_MAPPING_VERSIONS WHERE MAPPING_CODE=:code AND PUBLICATION_STATE='PUBLISHED' " +
+                "ACC.ACCOUNTING_MAPPING_VERSIONS WHERE MAPPING_CODE=:code AND " + publicationPredicate() + " " +
                 "AND EFFECTIVE_FROM<=SYSTIMESTAMP AND (EFFECTIVE_UNTIL IS NULL OR EFFECTIVE_UNTIL>SYSTIMESTAMP)",
                 p("code",mappingCode),"published accounting mapping");
-        published(mapping, true);
+        requireHashAndApproval(mapping, true);
         long mappingId = n(mapping,"IDENTIFIER");
         var entries = rows("SELECT SEQUENCE_NUMBER,ACCOUNT_ROLE,POSTING_DIRECTION,ACCOUNTING_COMPONENT " +
                 "FROM ACC.ACCOUNTING_MAPPING_ENTRIES WHERE ACCOUNTING_MAPPING_VERSION_IDENTIFIER=:id " +
@@ -253,19 +317,22 @@ public final class CashPostingService {
                     "FROM ACC.ACCOUNT_ROLE_ASSIGNMENTS WHERE ACCOUNTING_MAPPING_VERSION_IDENTIFIER=:mapping " +
                     "AND ACCOUNTING_BOOK_IDENTIFIER=:book AND ACCOUNT_ROLE=:role AND CURRENCY_CODE=:currency " +
                     "AND PRODUCT_VERSION_REFERENCE=:product AND BANK_UNIT_REFERENCE=:unit " +
-                    "AND PUBLICATION_STATE='PUBLISHED' AND EFFECTIVE_FROM<=SYSTIMESTAMP " +
+                    "AND " + publicationPredicate() + " AND EFFECTIVE_FROM<=SYSTIMESTAMP " +
                     "AND (EFFECTIVE_UNTIL IS NULL OR EFFECTIVE_UNTIL>SYSTIMESTAMP)",
                     p("mapping",mappingId,"book",book,"role",expected.role(),"currency",r.currency(),
                             "product",r.productVersion(),"unit",r.bankUnit()),"effective GL role assignment");
-            published(assignmentGl, true);
+            requireHashAndApproval(assignmentGl, true);
             long glId = n(assignmentGl,"GENERAL_LEDGER_ACCOUNT_IDENTIFIER");
-            var gl = one("SELECT ACCOUNT_TYPE,NORMAL_BALANCE_DIRECTION FROM ACC.GENERAL_LEDGER_ACCOUNTS WHERE IDENTIFIER=:id " +
+            var gl = one("SELECT ACCOUNT_CODE,ACCOUNT_TYPE,NORMAL_BALANCE_DIRECTION FROM ACC.GENERAL_LEDGER_ACCOUNTS WHERE IDENTIFIER=:id " +
                     "AND CHART_OF_ACCOUNTS_IDENTIFIER=:chart AND ACCOUNT_STATE='ACTIVE'",
                     p("id",glId,"chart",chart),"active GL account");
             String expectedType = CashPostingPolicy.CASH_GL.equals(expected.role()) ? "ASSET" : "LIABILITY";
             String normal = CashPostingPolicy.CASH_GL.equals(expected.role()) ? "DEBIT" : "CREDIT";
             if (!expectedType.equals(s(gl,"ACCOUNT_TYPE")) || !normal.equals(s(gl,"NORMAL_BALANCE_DIRECTION")))
                 throw new IllegalStateException("GL account classification/normal balance contradicts cash policy");
+            if (devOnly() && !s(gl,"ACCOUNT_CODE").equals(
+                    CashPostingPolicy.CASH_GL.equals(expected.role()) ? "UAT1405-GL-CASH" : "UAT1405-GL-DEPOSIT"))
+                throw new IllegalStateException("DEV_ONLY role points outside the two synthetic UAT GL accounts");
             gls.put(expected.role(), glId);
         }
         if (Objects.equals(gls.get(CashPostingPolicy.CASH_GL), gls.get(CashPostingPolicy.CUSTOMER_GL)))

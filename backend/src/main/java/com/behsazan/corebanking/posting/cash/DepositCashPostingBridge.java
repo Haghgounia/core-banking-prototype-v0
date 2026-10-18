@@ -9,6 +9,10 @@ public final class DepositCashPostingBridge {
     private final ObjectProvider<CashPostingService> posting;
     public DepositCashPostingBridge(ObjectProvider<CashPostingService> posting) { this.posting = posting; }
     public boolean isEnabled() { return posting.getIfAvailable() != null; }
+    public void preflight(CashPostingPolicy.Instruction instruction) {
+        CashPostingService service = posting.getIfAvailable();
+        if (service != null) service.preflight(instruction);
+    }
     public void record(CashPostingPolicy.Instruction instruction) {
         CashPostingService service = posting.getIfAvailable();
         if (service != null) service.commit(instruction);

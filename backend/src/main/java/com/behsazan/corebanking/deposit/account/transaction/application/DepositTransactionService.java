@@ -106,23 +106,26 @@ public class DepositTransactionService {
         if (cashPostingBridge.isEnabled() && !Set.of("CASH_DEPOSIT", "CASH_WITHDRAWAL").contains(t.type()))
             throw new IllegalStateException("R1-D5 cash-only acceptance mode forbids unjournalled non-cash posting");
         List<Check> latest=checks(t);String blockers=latest.stream().filter(c->!c.pass&&!c.warn).map(c->c.message).reduce((a,b)->a+"؛ "+b).orElse(null);if(blockers!=null)throw lifecycle("کنترل نهایی Posting ناموفق است: "+blockers,"DEPOSIT_TRANSACTION.TRANSACTION_ID",String.valueOf(txId));
+        // Validate the DEV_ONLY pilot scope BEFORE any DPS2 balance effect.
+        CashPostingPolicy.Instruction cashInstruction = null;
+        if (cashPostingBridge.isEnabled() && ("CASH_DEPOSIT".equals(t.type()) || "CASH_WITHDRAWAL".equals(t.type()))) {
+            var detail = repository.cash(txId);
+            if (detail == null) throw new IllegalStateException("Missing cash detail on authorized cash transaction");
+            var scope = repository.cashPostingScope(t.accountId());
+            cashInstruction = new CashPostingPolicy.Instruction(
+                    txId, t.accountId(), scope.accountNumber(), detail.cashDeskCode(), t.type(),
+                    t.amount(), t.currencyCode(), t.bookingDate(), t.valueDate(),
+                    scope.productVersionReference(), scope.bankUnitReference(), detail.cashManagementTxnRef());
+            cashPostingBridge.preflight(cashInstruction);
+        }
         for(TransactionLeg leg:repository.legs(txId)){
             if(leg.accountId()==null)continue;
             String postingRef="DPS2-TX-"+txId+"-L"+leg.legNo();
             balanceService.post(leg.accountId(),new PostEntryRequest(leg.debitCreditCode(),leg.amount(),leg.currencyCode(),t.bookingDate(),t.valueDate(),postingRef,"DEPOSIT_TRANSACTION",txId,null,null,txId,leg.transactionLegId(),leg.legNo()),actor,correlationId,idempotencyKey+"-L"+leg.legNo());
             repository.setLegPostingReference(leg.transactionLegId(),postingRef,actor);
         }
-        // R1-D5: same Oracle transaction; no asynchronous Kafka dependency.
-        // A failed cash journal aborts the already performed DPS2 subledger writes.
-        if (cashPostingBridge.isEnabled() && ("CASH_DEPOSIT".equals(t.type()) || "CASH_WITHDRAWAL".equals(t.type()))) {
-            var detail = repository.cash(txId);
-            if (detail == null) throw new IllegalStateException("Missing cash detail on authorized cash transaction");
-            var scope = repository.cashPostingScope(t.accountId());
-            cashPostingBridge.record(new CashPostingPolicy.Instruction(
-                    txId, t.accountId(), scope.accountNumber(), detail.cashDeskCode(), t.type(),
-                    t.amount(), t.currencyCode(), t.bookingDate(), t.valueDate(),
-                    scope.productVersionReference(), scope.bankUnitReference(), detail.cashManagementTxnRef()));
-        }
+        // Same Oracle transaction; an ACC/LGR/PST failure rolls back DPS2 subledger effects.
+        if (cashInstruction != null) cashPostingBridge.record(cashInstruction);
         if(repository.transition(txId,t.recordVersion(),"AUTHORIZED","POSTED",actor)!=1)throw concurrent(t);repository.history(repository.next("SEQ_DEPOSIT_TRANSACTION_STATUS_HISTORY"),txId,"AUTHORIZED","POSTED","FINANCIAL_POSTING_COMPLETED",actor);waveBService.recordPostedTransactionUsage(t.accountId(),txId,t.type(),t.channel(),t.amount(),t.bookingDate(),actor);repository.completeIdempotency(idempotencyKey,"TX:"+txId);return new TransactionActionResponse(view(txId),false);
     }
 

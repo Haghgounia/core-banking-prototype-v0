@@ -1,0 +1,31 @@
+# R1-D8I dedicated DEV_ONLY profile. Inactive unless profile "posting-dev" is selected.
+# Intentionally disabled: enabling creates REAL financial TEST rows in DPS2/PST/LGR/ACC.
+# Run ONLY in a dedicated backend process connected to authorized, non-production data.
+server:
+  address: 127.0.0.1
+  port: 8091  # dedicated loopback-only instance
+core-banking:
+  posting:
+    cash:
+      enabled: true
+      mode: DEV_ONLY
+      book-code: UAT1405-IRR
+      legal-entity: UAT_ENTITY_1405
+      ledger-code: UAT1405-LEDGER
+      chart-code: UAT1405-CHART
+      rule-deposit-code: UAT1405-CASH-DEP
+      rule-withdrawal-code: UAT1405-CASH-WDR
+      mapping-deposit-code: UAT1405-MAP-DEP
+      mapping-withdrawal-code: UAT1405-MAP-WDR
+      review-token: REPLACE_WITH_PRIVATE_32_CHARACTER_OR_LONGER_TOKEN
+      dev-only:
+        expected-db: FREEPDB1
+        expected-pdb: FREEPDB1
+        pilot-account-id: 1
+        pilot-cash-desk-code: UAT1405-DESK-01
+        currency: IRR
+        product-version: '9'
+        bank-unit: '0101'
+        external-reference-prefix: UAT1405-
+        max-amount: 100000
+        synthetic-account-confirmed: true  # NEVER set true without independent source verification
