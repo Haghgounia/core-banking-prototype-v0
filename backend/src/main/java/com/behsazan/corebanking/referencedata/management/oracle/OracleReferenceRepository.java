@@ -195,7 +195,10 @@ public class OracleReferenceRepository implements ReferenceRepository {
             params.put("parentId", parentId);
         }
         if (text != null && !text.isBlank()) {
-            where.add("(UPPER(T." + codeColumn + ") LIKE :lookupText OR UPPER(T." + nameColumn + ") LIKE :lookupText)");
+            String englishNameMatch = "organization-units".equals(descriptor.resource())
+                    ? " OR UPPER(T.NAME_EN) LIKE :lookupText" : "";
+            where.add("(UPPER(T." + codeColumn + ") LIKE :lookupText OR UPPER(T."
+                    + nameColumn + ") LIKE :lookupText" + englishNameMatch + ")");
             params.put("lookupText", "%" + text.trim().toUpperCase() + "%");
         }
         params.put("lookupLimit", Math.min(Math.max(limit, 1), 5000));

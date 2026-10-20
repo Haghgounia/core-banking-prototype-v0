@@ -86,12 +86,19 @@ ok('sidebar entry');
 const menu = read('frontend/src/app/features/organization/organization-menu.component.ts');
 const resourceBlocks = [...menu.matchAll(/resources:\s*\[([\s\S]*?)\]/g)].map(m => m[1]);
 const menuResourceMatches = resourceBlocks.flatMap(block => [...block.matchAll(/['"]([^'"]+)['"]/g)].map(m => m[1]));
+// Retired UI entries remain as descriptors in order to preserve existing Oracle tables and records.
+const hiddenFromPrototypeMenu = new Set([
+  'organization-unit-classifications',
+  'organization-unit-relationship-rules',
+  'foreign-exchange-service-profiles'
+]);
 for (const resource of expected) {
   const count = menuResourceMatches.filter(x => x === resource).length;
-  if (count !== 1) fail(`menu resource ${resource} appears ${count} times; expected 1`);
+  const expectedCount = hiddenFromPrototypeMenu.has(resource) ? 0 : 1;
+  if (count !== expectedCount) fail(`menu resource ${resource} appears ${count} times; expected ${expectedCount}`);
 }
-if (menuResourceMatches.length !== 35) fail(`menu expected 35 resources, found ${menuResourceMatches.length}`);
-ok('menu contains all 35 ORG forms exactly once');
+if (menuResourceMatches.length !== 32) fail(`menu expected 32 resources, found ${menuResourceMatches.length}`);
+ok('menu shows 32 ORG forms; 3 intentionally hidden, all 35 backend descriptors preserved');
 
 const referencePageTs = read('frontend/src/app/features/reference-data/presentation/reference-page.component.ts');
 const referencePageHtml = read('frontend/src/app/features/reference-data/presentation/reference-page.component.html');

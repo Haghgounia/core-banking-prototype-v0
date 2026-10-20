@@ -100,6 +100,22 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
             new SelectOption("WGS84", "WGS 84 (EPSG:4326)")
     );
 
+    // Prototype vocabulary for ORG.ORGANIZATION_UNIT_LIFECYCLE_EVENTS.REASON_CODE.
+    // No reference table or Oracle column changes are required.
+    private static final List<SelectOption> UNIT_LIFECYCLE_REASONS = List.of(
+            new SelectOption("NETWORK_EXPANSION", "توسعه شبکه"),
+            new SelectOption("SERVICE_DEMAND", "افزایش تقاضای خدمات"),
+            new SelectOption("MANAGEMENT_DECISION", "تصمیم مدیریتی"),
+            new SelectOption("LEASE_EXPIRY", "پایان قرارداد اجاره"),
+            new SelectOption("ACCESS_IMPROVEMENT", "بهبود دسترسی"),
+            new SelectOption("COST_OPTIMIZATION", "بهینه‌سازی هزینه‌ها"),
+            new SelectOption("NETWORK_REORGANIZATION", "بازآرایی شبکه شعب"),
+            new SelectOption("LOW_ACTIVITY", "کاهش فعالیت اقتصادی"),
+            new SelectOption("RENAME_APPROVAL", "تغییر نام مصوب"),
+            new SelectOption("NAMING_STANDARD", "یکسان‌سازی نام‌گذاری"),
+            new SelectOption("OTHER", "سایر موارد")
+    );
+
     @Value("${core-banking.schemas.organization:ORG}")
     private String schemaName = "ORG";
 
@@ -245,7 +261,7 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
 
     private ReferenceTableDescriptor organizationUnitClassifications() {
         ParentDescriptor parent = parent("organization-units", "organizationUnitId", "ORGANIZATION_UNIT_ID", "واحد سازمانی");
-        return descriptor("organization-unit-classifications", CATEGORY, "طبقه‌بندی واحدها", "label",
+        return descriptor("organization-unit-classifications", CATEGORY, "طبقه‌بندی قدیمی (صرفاً مشاهده)", "label",
                 schemaName, "ORGANIZATION_UNIT_CLASSIFICATIONS", "SEQ_ORGANIZATION_UNIT_CLASSIFICATIONS",
                 "organizationUnitClassificationId", "ORGANIZATION_UNIT_CLASSIFICATION_ID",
                 "classificationTypeCode", "classificationValueCode", parent,
@@ -332,7 +348,7 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                         lookup("organizationUnitLifecycleEventTypeId", "ORGANIZATION_UNIT_LIFECYCLE_EVENT_TYPE_ID", "نوع رویداد", "organization-unit-lifecycle-event-types", true, true),
                         date("eventDate", "EVENT_DATE", "تاریخ رویداد", true, true),
                         lookup("successorOrganizationUnitId", "SUCCESSOR_ORGANIZATION_UNIT_ID", "واحد جانشین", "organization-units", false, true),
-                        text("reasonCode", "REASON_CODE", "کد علت", false, true, true, 50),
+                        stringSelect("reasonCode", "REASON_CODE", "علت رویداد", false, true, null, UNIT_LIFECYCLE_REASONS),
                         text("descriptionFa", "DESCRIPTION_FA", "توضیحات فارسی", false, false, false, 1000),
                         text("descriptionEn", "DESCRIPTION_EN", "توضیحات انگلیسی", false, false, false, 1000)
                 ));

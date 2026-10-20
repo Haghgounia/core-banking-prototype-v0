@@ -46,8 +46,8 @@ export class HttpReferenceGateway implements ReferenceGateway {
     return firstValueFrom(this.http.delete<void>(`/api/v1/reference/${resource}/${id}`));
   }
 
-  lookup(resource: string, parentId?: number | null, text = ''): Promise<readonly LookupOption[]> {
-    let params = new HttpParams().set('limit', 5000);
+  lookup(resource: string, parentId?: number | null, text = '', limit = 5000): Promise<readonly LookupOption[]> {
+    let params = new HttpParams().set('limit', limit);
     if (parentId !== undefined && parentId !== null) params = params.set('parentId', parentId);
     if (text) params = params.set('text', text);
     return firstValueFrom(this.http.get<readonly LookupOption[]>(`/api/v1/reference/${resource}/lookup`, {params}));

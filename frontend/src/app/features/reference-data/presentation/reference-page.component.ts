@@ -1,7 +1,7 @@
 import {Component, DestroyRef, computed, inject, signal} from '@angular/core';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {ActivatedRoute} from '@angular/router';
-import {FormControl, FormRecord, ReactiveFormsModule, Validators} from '@angular/forms';
+import {FormControl, FormRecord, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {debounceTime, distinctUntilChanged} from 'rxjs';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
@@ -24,12 +24,14 @@ import {ReferenceStore} from '../application/reference.store';
 import {LookupOption, ReferenceRecordResponse} from '../domain/reference.model';
 import {DatabaseTablesComponent} from '../../../shared/ui/database-tables.component';
 import {OrganizationLocationService} from '../../organization/organization-location.service';
+import {OrganizationUnitPickerComponent} from '../../organization/organization-unit-picker.component';
+import {OrganizationCoordinateMapPickerComponent} from '../../organization/organization-coordinate-map-picker.component';
 
 @Component({
   selector: 'app-reference-page',
   standalone: true,
   imports: [
-    ReactiveFormsModule, MatAutocompleteModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule,
+    ReactiveFormsModule, FormsModule, OrganizationUnitPickerComponent, OrganizationCoordinateMapPickerComponent, MatAutocompleteModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule,
     MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule,
     MatSlideToggleModule, MatSortModule, MatTableModule, MatTooltipModule, DatabaseTablesComponent
   ],
@@ -107,6 +109,7 @@ export class ReferencePageComponent {
   readonly locationLatitude = signal<number | null>(null);
   readonly locationLongitude = signal<number | null>(null);
   readonly locationMapVisible = signal(false);
+  readonly locationMapPickerVisible = signal(false);
 
   readonly organizationLocationPage = computed(() =>
     this.store.descriptor()?.category === 'ORGANIZATION' && this.store.resource() === 'locations'
@@ -248,6 +251,7 @@ export class ReferencePageComponent {
     this.store.clearSelection();
     this.form.reset();
     this.locationMapVisible.set(false);
+    this.locationMapPickerVisible.set(false);
     this.locationProvinceControl.setValue(null, {emitEvent: false});
     this.locationCitySearchControl.setValue('', {emitEvent: false});
     this.selectedLocationCity.set(null);
@@ -315,6 +319,27 @@ export class ReferencePageComponent {
     this.locationCitySearchControl.setValue(selected ? this.locationCityDisplay(selected) : '', {emitEvent: false});
   }
 
+  openLocationCoordinatePicker(): void {
+    this.locationMapVisible.set(false);
+    this.locationMapPickerVisible.set(true);
+  }
+
+  applyLocationCoordinates(coordinates: {latitude: number; longitude: number}): void {
+    if (!Number.isFinite(coordinates.latitude) || !Number.isFinite(coordinates.longitude) ||
+        coordinates.latitude < -90 || coordinates.latitude > 90 ||
+        coordinates.longitude < -180 || coordinates.longitude > 180) return;
+    this.form.controls['latitude']?.setValue(coordinates.latitude);
+    this.form.controls['longitude']?.setValue(coordinates.longitude);
+    this.form.controls['latitude']?.markAsTouched();
+    this.form.controls['longitude']?.markAsTouched();
+    this.locationMapPickerVisible.set(false);
+    this.locationMapVisible.set(true);
+  }
+
+  selectedLocationCityName(): string {
+    return this.selectedLocationCity()?.label ?? '';
+  }
+
   showLocationMap(): void {
     if (this.locationCoordinatesValid()) this.locationMapVisible.set(true);
   }
@@ -361,8 +386,41 @@ export class ReferencePageComponent {
     return value === null || value === undefined || value === '' ? '—' : String(value);
   }
 
-  private isOrganizationUnitLookup(field: ReferenceFieldDescriptor): boolean {
+  isOrganizationUnitLookup(field: ReferenceFieldDescriptor): boolean {
     return field.type === 'LOOKUP' && field.lookupResource === 'organization-units';
+  }
+
+  readonly lifecycleReasonCodes: Readonly<Record<string, readonly string[]>> = {
+    OPENED: ['NETWORK_EXPANSION', 'SERVICE_DEMAND', 'MANAGEMENT_DECISION', 'OTHER'],
+    ESTABLISHED: ['NETWORK_EXPANSION', 'SERVICE_DEMAND', 'MANAGEMENT_DECISION', 'OTHER'],
+    CREATED: ['NETWORK_EXPANSION', 'SERVICE_DEMAND', 'MANAGEMENT_DECISION', 'OTHER'],
+    RELOCATED: ['LEASE_EXPIRY', 'ACCESS_IMPROVEMENT', 'MANAGEMENT_DECISION', 'OTHER'],
+    MOVED: ['LEASE_EXPIRY', 'ACCESS_IMPROVEMENT', 'MANAGEMENT_DECISION', 'OTHER'],
+    MERGED: ['NETWORK_REORGANIZATION', 'COST_OPTIMIZATION', 'MANAGEMENT_DECISION', 'OTHER'],
+    CLOSED: ['LOW_ACTIVITY', 'COST_OPTIMIZATION', 'MANAGEMENT_DECISION', 'OTHER'],
+    RENAMED: ['RENAME_APPROVAL', 'NAMING_STANDARD', 'OTHER']
+  };
+
+  private selectedLifecycleReasonCodes(): readonly string[] | null {
+    const typeId = Number(this.form.controls['organizationUnitLifecycleEventTypeId']?.value);
+    const eventCode = this.lookupOptions()['organizationUnitLifecycleEventTypeId']
+      ?.find(item => Number(item.value) === typeId)?.code.toUpperCase() ?? '';
+    return this.lifecycleReasonCodes[eventCode] ?? null;
+  }
+
+  lifecycleReasonOptions(field: ReferenceFieldDescriptor): typeof field.options {
+    if (this.store.resource() !== 'organization-unit-lifecycle-events' || field.apiName !== 'reasonCode')
+      return field.options;
+    const allowed = this.selectedLifecycleReasonCodes();
+    if (!allowed) return field.options; // Unknown event type: do not hide all reasons.
+    const options = field.options.filter(item => allowed.includes(String(item.value)));
+    const legacy = this.form.controls['reasonCode']?.value;
+    // Display existing nonmatching value until the user changes the event type.
+    if (legacy && !options.some(item => String(item.value) === String(legacy))) {
+      const old = field.options.find(item => String(item.value) === String(legacy));
+      if (old) return [...options, old];
+    }
+    return options;
   }
 
   private organizationUnitGridValue(id: unknown, code: unknown, label: unknown): string {
@@ -396,6 +454,7 @@ export class ReferencePageComponent {
     this.locationCitySearchControl.setValue('', {emitEvent: false});
     this.selectedLocationCity.set(null);
     this.locationMapVisible.set(false);
+    this.locationMapPickerVisible.set(false);
     await Promise.all([this.initializeParentFilter(), this.initializeGridLookupFields(), this.initializeAdvancedFilters(resource)]);
     this.editorVisible.set(false);
   }
@@ -455,7 +514,7 @@ export class ReferencePageComponent {
     }
 
     const lookupEntries = await Promise.all(fields
-      .filter(field => field.type === 'LOOKUP' && field.lookupResource)
+      .filter(field => field.type === 'LOOKUP' && field.lookupResource && !this.isOrganizationUnitLookup(field))
       .map(async field => [field.apiName, await this.gateway.lookup(field.lookupResource!)] as const));
     this.advancedFilterLookupOptions.set(Object.fromEntries(lookupEntries));
   }
@@ -463,7 +522,8 @@ export class ReferencePageComponent {
   private async initializeParentFilter(): Promise<void> {
     const parent = this.store.descriptor()?.parent;
     if (!parent) return;
-    this.parentFilterOptions.set(await this.gateway.lookup(parent.resource));
+    if (parent.resource !== 'organization-units')
+      this.parentFilterOptions.set(await this.gateway.lookup(parent.resource));
   }
 
   private buildForm(record: ReferenceRecordResponse | null): void {
@@ -482,6 +542,16 @@ export class ReferencePageComponent {
     this.wirePersianNormalization('persianName', 'normalizedPersianName');
     this.wirePersianNormalization('persianAffix', 'normalizedPersianAffix');
     this.wireOrganizationLocationCoordinates();
+    if (descriptor.resource === 'organization-unit-lifecycle-events') {
+      this.form.controls['organizationUnitLifecycleEventTypeId']?.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+          const reason = this.form.controls['reasonCode'];
+          const allowed = this.selectedLifecycleReasonCodes();
+          if (reason && allowed && reason.value != null && !allowed.includes(String(reason.value))) {
+            reason.setValue(null);
+          }
+        });
+    }
   }
 
   private wirePersianNormalization(sourceField: string, targetField: string): void {
@@ -516,6 +586,7 @@ export class ReferencePageComponent {
     const fields = descriptor.fields.filter(field =>
       !field.readOnly && field.type === 'LOOKUP' && field.apiName !== descriptor.parent?.apiField && field.lookupResource
       && !(this.organizationLocationPage() && field.apiName === 'geoEntityId')
+      && !this.isOrganizationUnitLookup(field)
     );
     const entries = await Promise.all(fields.map(async field => [
       field.apiName,
@@ -528,6 +599,7 @@ export class ReferencePageComponent {
     if (!this.organizationLocationPage()) return;
     this.locationProvinceOptions.set(await this.gateway.lookup('provinces'));
     this.locationMapVisible.set(false);
+    this.locationMapPickerVisible.set(false);
 
     const cityIdRaw = record?.values['geoEntityId'] ?? this.form.controls['geoEntityId']?.value;
     const cityId = cityIdRaw === null || cityIdRaw === undefined || cityIdRaw === '' ? null : Number(cityIdRaw);
@@ -606,6 +678,7 @@ export class ReferencePageComponent {
     if (!descriptor) return;
     const fields = descriptor.fields.filter(field =>
       field.grid && field.type === 'LOOKUP' && field.apiName !== descriptor.parent?.apiField && field.lookupResource
+      && !this.isOrganizationUnitLookup(field)
     );
     const entries = await Promise.all(fields.map(async field => [
       field.apiName,
@@ -636,7 +709,7 @@ export class ReferencePageComponent {
     this.hierarchyOptions.set(options);
     let parentId: number | null = null;
     for (const item of chain) {
-      const loaded = await this.gateway.lookup(item.resource, parentId);
+      const loaded = item.resource === 'organization-units' ? [] : await this.gateway.lookup(item.resource, parentId);
       options[item.resource] = loaded;
       const existing = ancestors.find(ancestor => ancestor.resource === item.resource)?.id ?? null;
       values[item.resource] = existing;
@@ -648,7 +721,7 @@ export class ReferencePageComponent {
   }
 
   private async loadOptions(resource: string, parentId: number | null): Promise<void> {
-    const loaded = await this.gateway.lookup(resource, parentId);
+    const loaded = resource === 'organization-units' ? [] : await this.gateway.lookup(resource, parentId);
     this.hierarchyOptions.update(current => ({...current, [resource]: loaded}));
   }
 }

@@ -85,6 +85,8 @@ export const routes: Routes = [
       {path: 'cif/reference/:resource', redirectTo: 'cif/reference-data/:resource'},
 
       {path: 'organization', loadComponent: () => import('./features/organization/organization-menu.component').then(m => m.OrganizationMenuComponent)},
+      {path: 'organization/grade-levels', loadComponent: () => import('./features/organization/organization-grade-levels.component').then(m => m.OrganizationGradeLevelsComponent)},
+      {path: 'organization/grade-periods', loadComponent: () => import('./features/organization/organization-grade-periods.component').then(m => m.OrganizationGradePeriodsComponent)},
       {path: 'organization/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
 
       {path: 'geography-tree', loadComponent: () => import('./features/geography-tree/geography-tree.component').then(m => m.GeographyTreeComponent)},

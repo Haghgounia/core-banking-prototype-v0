@@ -1,6 +1,8 @@
 package com.behsazan.corebanking.referencedata.management.application;
 
 import com.behsazan.corebanking.referencedata.descriptor.application.ReferenceDescriptorRegistry;
+import com.behsazan.corebanking.organization.grade.GradeBranchActivationGuard;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.behsazan.corebanking.referencedata.descriptor.domain.FieldType;
 import com.behsazan.corebanking.referencedata.descriptor.domain.ReferenceFieldDescriptor;
 import com.behsazan.corebanking.referencedata.descriptor.domain.ReferenceTableDescriptor;
@@ -30,10 +32,18 @@ public class ReferenceService {
 
     private final ReferenceDescriptorRegistry registry;
     private final ReferenceRepository repository;
+    private final GradeBranchActivationGuard gradeBranchActivationGuard;
 
+    /** Retained for isolated repository unit tests. Production injection uses the guard-aware constructor. */
     public ReferenceService(ReferenceDescriptorRegistry registry, ReferenceRepository repository) {
+        this(registry, repository, null);
+    }
+    @Autowired
+    public ReferenceService(ReferenceDescriptorRegistry registry, ReferenceRepository repository,
+                            GradeBranchActivationGuard gradeBranchActivationGuard) {
         this.registry = registry;
         this.repository = repository;
+        this.gradeBranchActivationGuard = gradeBranchActivationGuard;
     }
 
     @Transactional(readOnly = true)
@@ -50,16 +60,22 @@ public class ReferenceService {
 
     @Transactional
     public ReferenceRecordResponse create(String resource, Map<String, Object> request, long actorId) {
+        requireNotLegacyClassificationWrite(resource);
         ReferenceTableDescriptor descriptor = registry.require(resource);
         Map<String, Object> values = validate(descriptor, request);
+        if ("organization-units".equals(resource) && gradeBranchActivationGuard != null)
+            gradeBranchActivationGuard.beforeCreate(values);
         long id = repository.insert(descriptor, values, actorId);
         return findById(resource, id);
     }
 
     @Transactional
     public ReferenceRecordResponse update(String resource, long id, Map<String, Object> request, long actorId) {
+        requireNotLegacyClassificationWrite(resource);
         ReferenceTableDescriptor descriptor = registry.require(resource);
         Map<String, Object> values = validate(descriptor, request);
+        if ("organization-units".equals(resource) && gradeBranchActivationGuard != null)
+            gradeBranchActivationGuard.beforeUpdate(id, requireRecord(descriptor, id), values);
         descriptor.optionalField("recordVersion").ifPresent(field -> {
             Object raw = request.get("recordVersion");
             if (raw == null) {
@@ -91,6 +107,7 @@ public class ReferenceService {
 
     @Transactional
     public void delete(String resource, long id) {
+        requireNotLegacyClassificationWrite(resource);
         ReferenceTableDescriptor descriptor = registry.require(resource);
         if (!repository.delete(descriptor, id)) {
             throw notFound(descriptor, id);
@@ -117,6 +134,14 @@ public class ReferenceService {
         }
         if (result.isEmpty() && firstFailure != null) throw firstFailure;
         return result;
+    }
+
+    private static void requireNotLegacyClassificationWrite(String resource) {
+        if ("organization-unit-classifications".equals(resource)) {
+            throw new ReferenceValidationException(
+                    "طبقه‌بندی قدیمی واحدها صرفاً برای مطالعه و مهاجرت نگهداری می‌شود؛ از فرم‌های جدید درجه‌بندی استفاده کنید.",
+                    Map.of("resource", "ثبت، ویرایش و حذف این جدول تا تعیین تکلیف داده‌های قدیمی غیرفعال است."));
+        }
     }
 
     private Map<String, Object> validate(ReferenceTableDescriptor descriptor, Map<String, Object> request) {

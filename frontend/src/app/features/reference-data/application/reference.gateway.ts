@@ -8,5 +8,5 @@ export abstract class ReferenceGateway {
   abstract create(resource: string, values: Readonly<Record<string, unknown>>): Promise<ReferenceRecordResponse>;
   abstract update(resource: string, id: number, values: Readonly<Record<string, unknown>>): Promise<ReferenceRecordResponse>;
   abstract delete(resource: string, id: number): Promise<void>;
-  abstract lookup(resource: string, parentId?: number | null, text?: string): Promise<readonly LookupOption[]>;
+  abstract lookup(resource: string, parentId?: number | null, text?: string, limit?: number): Promise<readonly LookupOption[]>;
 }
