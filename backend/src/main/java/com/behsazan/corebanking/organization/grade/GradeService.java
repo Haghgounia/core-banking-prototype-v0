@@ -80,9 +80,10 @@ public class GradeService {
     private void validateLevel(LevelInput input) {
         if (input == null || input.organizationId() <= 0 || input.organizationUnitTypeId() <= 0)
             throw GradeException.invalid("سازمان و نوع واحد اجباری‌اند.");
-        if (input.gradeSchemeCode() == null || !CODE.matcher(input.gradeSchemeCode()).matches() ||
-                input.gradeCode() == null || !CODE.matcher(input.gradeCode()).matches())
-            throw GradeException.invalid("کد نظام و کد درجه باید از حروف بزرگ لاتین، عدد و زیرخط تشکیل شوند.");
+        if (!"BRANCH_STANDARD".equals(input.gradeSchemeCode()))
+            throw GradeException.invalid("در نسخه پروتوتایپ، نظام درجه‌بندی فقط BRANCH_STANDARD است.");
+        if (input.gradeCode() == null || !CODE.matcher(input.gradeCode()).matches())
+            throw GradeException.invalid("کد درجه باید از حروف بزرگ لاتین، عدد و زیرخط تشکیل شود.");
         if (input.nameFa() == null || input.nameFa().isBlank() || input.nameFa().strip().length() > 150)
             throw GradeException.invalid("عنوان فارسی درجه معتبر نیست.");
         if (input.nameEn() != null && input.nameEn().length() > 150) throw GradeException.invalid("نام انگلیسی طولانی است.");

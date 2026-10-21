@@ -26,12 +26,13 @@ import {DatabaseTablesComponent} from '../../../shared/ui/database-tables.compon
 import {OrganizationLocationService} from '../../organization/organization-location.service';
 import {OrganizationUnitPickerComponent} from '../../organization/organization-unit-picker.component';
 import {OrganizationCoordinateMapPickerComponent} from '../../organization/organization-coordinate-map-picker.component';
+import {PersianDateInputComponent} from '../../../shared/ui/persian-date-input.component';
 
 @Component({
   selector: 'app-reference-page',
   standalone: true,
   imports: [
-    ReactiveFormsModule, FormsModule, OrganizationUnitPickerComponent, OrganizationCoordinateMapPickerComponent, MatAutocompleteModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule,
+    ReactiveFormsModule, FormsModule, OrganizationUnitPickerComponent, OrganizationCoordinateMapPickerComponent, PersianDateInputComponent, MatAutocompleteModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule,
     MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule,
     MatSlideToggleModule, MatSortModule, MatTableModule, MatTooltipModule, DatabaseTablesComponent
   ],
@@ -176,7 +177,7 @@ export class ReferencePageComponent {
   );
   readonly pageSubtitle = computed(() =>
     this.store.descriptor()?.category === 'ORGANIZATION'
-      ? 'مدیریت اطلاعات Schema ‏ORG با کنترل روابط و مقادیر مرجع'
+      ? 'جستجو و نگهداری اطلاعات واحدهای سازمانی'
       : 'جست‌وجو، ثبت، ویرایش و حذف با Query پارامتری Oracle'
   );
 

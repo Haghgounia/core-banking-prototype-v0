@@ -8,11 +8,11 @@ const read = p => fs.readFileSync(path.join(root, p), 'utf8');
 const check = (condition, message) => {if (!condition) throw new Error(message);};
 try {
   const menu = read('frontend/src/app/features/organization/organization-menu.component.ts');
-  for (const hidden of ['organization-unit-classifications', 'organization-unit-relationship-rules', 'foreign-exchange-service-profiles']) {
+  for (const hidden of ['organization-unit-classifications', 'organization-unit-relationship-rules', 'foreign-exchange-service-profiles', 'organization-unit-geo-coverages']) {
     const resourceBlocks = [...menu.matchAll(/resources:\s*\[([\s\S]*?)\]/g)].map(x => x[1]);
     check(resourceBlocks.every(block => !block.includes(`'${hidden}'`)), `${hidden} remains visible in menu`);
   }
-  console.log('PASS 3 obsolete menu entries hidden; descriptors/tables retained');
+  console.log('PASS 4 obsolete menu entries hidden; descriptors/tables retained');
 
   const descriptor = read('backend/src/main/java/com/behsazan/corebanking/organization/descriptor/OrganizationDescriptorProvider.java');
   check(descriptor.includes('stringSelect("reasonCode", "REASON_CODE", "علت رویداد"'), 'reasonCode is still free text');
@@ -33,7 +33,7 @@ try {
   console.log('PASS search by name/code in ORG unit pickers and grade branch picker');
 
   const map = read('frontend/src/app/features/organization/organization-coordinate-map-picker.component.ts');
-  for (const token of ['pointerDown', 'pointerMove', 'pointerUp', 'coordinatesSelected.emit', 'tile.openstreetmap.org', 'centerOnCity'])
+  for (const token of ['pointerDown', 'pointerMove', 'pointerUp', 'coordinatesSelected.emit', 'basemaps.cartocdn.com', 'centerOnCity', 'map-picker-backdrop', 'onTileError'])
     check(map.includes(token), `map picker missing ${token}`);
   check(html.includes('انتخاب از روی نقشه') && html.includes('applyLocationCoordinates($event)') && !html.includes('(click)="openLocationCoordinatePicker()" [disabled]'), 'new-location map picker disabled or disconnected');
   console.log('PASS new/edit location map picker with coordinate write-back');

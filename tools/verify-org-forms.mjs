@@ -61,7 +61,17 @@ if (JSON.stringify(actualResources) !== JSON.stringify(expected)) {
 }
 for (const {resource, table} of actual) {
   const expectedTable = resource.replaceAll('-', '_').toUpperCase();
-  if (table !== expectedTable) fail(`${resource}: expected table ${expectedTable}, found ${table}`);
+  const servicePointTableNames = {
+    'point-of-service-types': 'SERVICE_POINT_TYPES',
+    'points-of-service': 'SERVICE_POINTS',
+    'organization-unit-point-of-service-assignments': 'ORGANIZATION_UNIT_SERVICE_POINT_ASSIGNMENTS',
+    'point-of-service-contact-points': 'SERVICE_POINT_CONTACT_POINTS',
+    'point-of-service-operating-schedules': 'SERVICE_POINT_OPERATING_SCHEDULES',
+    'point-of-service-operating-exceptions': 'SERVICE_POINT_OPERATING_EXCEPTIONS',
+    'point-of-service-operating-exception-intervals': 'SERVICE_POINT_OPERATING_EXCEPTION_INTERVALS'
+  };
+  const physicalTable = servicePointTableNames[resource] ?? expectedTable;
+  if (table !== physicalTable) fail(`${resource}: expected table ${physicalTable}, found ${table}`);
 }
 ok('35 ORG table descriptors and resource/table mappings');
 
@@ -80,7 +90,7 @@ if (!routes.includes("path: 'organization/:resource'")) fail('missing /organizat
 ok('Angular ORG routes');
 
 const shell = read('frontend/src/app/layout/app-shell.component.html');
-if (!shell.includes('routerLink="/organization"') || !shell.includes('ساختار سازمانی و شبکه شعب')) fail('ORG sidebar entry missing');
+if (!shell.includes('routerLink="/organization"') || !shell.includes('سازمان و واحدها')) fail('ORG sidebar entry missing');
 ok('sidebar entry');
 
 const menu = read('frontend/src/app/features/organization/organization-menu.component.ts');
@@ -90,15 +100,16 @@ const menuResourceMatches = resourceBlocks.flatMap(block => [...block.matchAll(/
 const hiddenFromPrototypeMenu = new Set([
   'organization-unit-classifications',
   'organization-unit-relationship-rules',
-  'foreign-exchange-service-profiles'
+  'foreign-exchange-service-profiles',
+  'organization-unit-geo-coverages'
 ]);
 for (const resource of expected) {
   const count = menuResourceMatches.filter(x => x === resource).length;
   const expectedCount = hiddenFromPrototypeMenu.has(resource) ? 0 : 1;
   if (count !== expectedCount) fail(`menu resource ${resource} appears ${count} times; expected ${expectedCount}`);
 }
-if (menuResourceMatches.length !== 32) fail(`menu expected 32 resources, found ${menuResourceMatches.length}`);
-ok('menu shows 32 ORG forms; 3 intentionally hidden, all 35 backend descriptors preserved');
+if (menuResourceMatches.length !== 31) fail(`menu expected 31 resources, found ${menuResourceMatches.length}`);
+ok('menu shows 31 ORG reference forms; 4 intentionally hidden, all 35 backend descriptors preserved');
 
 const referencePageTs = read('frontend/src/app/features/reference-data/presentation/reference-page.component.ts');
 const referencePageHtml = read('frontend/src/app/features/reference-data/presentation/reference-page.component.html');

@@ -103,13 +103,13 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
     // Prototype vocabulary for ORG.ORGANIZATION_UNIT_LIFECYCLE_EVENTS.REASON_CODE.
     // No reference table or Oracle column changes are required.
     private static final List<SelectOption> UNIT_LIFECYCLE_REASONS = List.of(
-            new SelectOption("NETWORK_EXPANSION", "توسعه شبکه"),
+            new SelectOption("NETWORK_EXPANSION", "توسعه واحدها"),
             new SelectOption("SERVICE_DEMAND", "افزایش تقاضای خدمات"),
             new SelectOption("MANAGEMENT_DECISION", "تصمیم مدیریتی"),
             new SelectOption("LEASE_EXPIRY", "پایان قرارداد اجاره"),
             new SelectOption("ACCESS_IMPROVEMENT", "بهبود دسترسی"),
             new SelectOption("COST_OPTIMIZATION", "بهینه‌سازی هزینه‌ها"),
-            new SelectOption("NETWORK_REORGANIZATION", "بازآرایی شبکه شعب"),
+            new SelectOption("NETWORK_REORGANIZATION", "بازآرایی ساختار شعب"),
             new SelectOption("LOW_ACTIVITY", "کاهش فعالیت اقتصادی"),
             new SelectOption("RENAME_APPROVAL", "تغییر نام مصوب"),
             new SelectOption("NAMING_STANDARD", "یکسان‌سازی نام‌گذاری"),
@@ -555,7 +555,7 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
 
     private ReferenceTableDescriptor pointOfServiceTypes() {
         return descriptor("point-of-service-types", CATEGORY, "انواع نقطه ارائه خدمت", "place",
-                schemaName, "POINT_OF_SERVICE_TYPES", "SEQ_POINT_OF_SERVICE_TYPES",
+                schemaName, "SERVICE_POINT_TYPES", "SEQ_POINT_OF_SERVICE_TYPES",
                 "pointOfServiceTypeId", "POINT_OF_SERVICE_TYPE_ID", "typeCode", "nameFa", null,
                 fields(
                         id("pointOfServiceTypeId", "POINT_OF_SERVICE_TYPE_ID", "شناسه"),
@@ -570,7 +570,7 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
 
     private ReferenceTableDescriptor pointsOfService() {
         return descriptor("points-of-service", CATEGORY, "نقاط ارائه خدمت", "storefront",
-                schemaName, "POINTS_OF_SERVICE", "SEQ_POINTS_OF_SERVICE",
+                schemaName, "SERVICE_POINTS", "SEQ_POINTS_OF_SERVICE",
                 "pointOfServiceId", "POINT_OF_SERVICE_ID", "pointOfServiceCode", "nameFa", null,
                 fields(
                         id("pointOfServiceId", "POINT_OF_SERVICE_ID", "شناسه"),
@@ -588,7 +588,7 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
     private ReferenceTableDescriptor organizationUnitPointOfServiceAssignments() {
         ParentDescriptor parent = parent("organization-units", "organizationUnitId", "ORGANIZATION_UNIT_ID", "واحد سازمانی");
         return descriptor("organization-unit-point-of-service-assignments", CATEGORY, "انتساب نقاط خدمت به واحدها", "lan",
-                schemaName, "ORGANIZATION_UNIT_POINT_OF_SERVICE_ASSIGNMENTS", "SEQ_ORGANIZATION_UNIT_POINT_OF_SERVICE_ASSIGNMENTS",
+                schemaName, "ORGANIZATION_UNIT_SERVICE_POINT_ASSIGNMENTS", "SEQ_ORGANIZATION_UNIT_POINT_OF_SERVICE_ASSIGNMENTS",
                 "organizationUnitPointOfServiceAssignmentId", "ORGANIZATION_UNIT_POINT_OF_SERVICE_ASSIGNMENT_ID",
                 "organizationUnitPointOfServiceAssignmentId", "organizationUnitPointOfServiceAssignmentId", parent,
                 fields(
@@ -604,7 +604,7 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
     private ReferenceTableDescriptor pointOfServiceContactPoints() {
         ParentDescriptor parent = parent("points-of-service", "pointOfServiceId", "POINT_OF_SERVICE_ID", "نقطه ارائه خدمت");
         return descriptor("point-of-service-contact-points", CATEGORY, "راه‌های تماس نقاط خدمت", "contact_mail",
-                schemaName, "POINT_OF_SERVICE_CONTACT_POINTS", "SEQ_POINT_OF_SERVICE_CONTACT_POINTS",
+                schemaName, "SERVICE_POINT_CONTACT_POINTS", "SEQ_POINT_OF_SERVICE_CONTACT_POINTS",
                 "pointOfServiceContactPointId", "POINT_OF_SERVICE_CONTACT_POINT_ID",
                 "pointOfServiceContactPointId", "pointOfServiceContactPointId", parent,
                 fields(
@@ -619,7 +619,7 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
     private ReferenceTableDescriptor pointOfServiceOperatingSchedules() {
         ParentDescriptor parent = parent("points-of-service", "pointOfServiceId", "POINT_OF_SERVICE_ID", "نقطه ارائه خدمت");
         return descriptor("point-of-service-operating-schedules", CATEGORY, "ساعات کاری نقاط خدمت", "calendar_today",
-                schemaName, "POINT_OF_SERVICE_OPERATING_SCHEDULES", "SEQ_POINT_OF_SERVICE_OPERATING_SCHEDULES",
+                schemaName, "SERVICE_POINT_OPERATING_SCHEDULES", "SEQ_POINT_OF_SERVICE_OPERATING_SCHEDULES",
                 "pointOfServiceOperatingScheduleId", "POINT_OF_SERVICE_OPERATING_SCHEDULE_ID",
                 "pointOfServiceOperatingScheduleId", "pointOfServiceOperatingScheduleId", parent,
                 fields(
@@ -634,7 +634,7 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
     private ReferenceTableDescriptor pointOfServiceOperatingExceptions() {
         ParentDescriptor parent = parent("points-of-service", "pointOfServiceId", "POINT_OF_SERVICE_ID", "نقطه ارائه خدمت");
         return descriptor("point-of-service-operating-exceptions", CATEGORY, "استثناهای ساعات کاری نقاط خدمت", "event_busy",
-                schemaName, "POINT_OF_SERVICE_OPERATING_EXCEPTIONS", "SEQ_POINT_OF_SERVICE_OPERATING_EXCEPTIONS",
+                schemaName, "SERVICE_POINT_OPERATING_EXCEPTIONS", "SEQ_POINT_OF_SERVICE_OPERATING_EXCEPTIONS",
                 "pointOfServiceOperatingExceptionId", "POINT_OF_SERVICE_OPERATING_EXCEPTION_ID",
                 "pointOfServiceOperatingExceptionId", "pointOfServiceOperatingExceptionId", parent,
                 fields(
@@ -650,7 +650,7 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
     private ReferenceTableDescriptor pointOfServiceOperatingExceptionIntervals() {
         ParentDescriptor parent = parent("point-of-service-operating-exceptions", "pointOfServiceOperatingExceptionId", "POINT_OF_SERVICE_OPERATING_EXCEPTION_ID", "استثنای ساعات کاری");
         return descriptor("point-of-service-operating-exception-intervals", CATEGORY, "بازه‌های استثنای ساعات کاری نقاط خدمت", "more_time",
-                schemaName, "POINT_OF_SERVICE_OPERATING_EXCEPTION_INTERVALS", "SEQ_POINT_OF_SERVICE_OPERATING_EXCEPTION_INTERVALS",
+                schemaName, "SERVICE_POINT_OPERATING_EXCEPTION_INTERVALS", "SEQ_POINT_OF_SERVICE_OPERATING_EXCEPTION_INTERVALS",
                 "pointOfServiceOperatingExceptionIntervalId", "POINT_OF_SERVICE_OPERATING_EXCEPTION_INTERVAL_ID",
                 "pointOfServiceOperatingExceptionIntervalId", "pointOfServiceOperatingExceptionIntervalId", parent,
                 fields(

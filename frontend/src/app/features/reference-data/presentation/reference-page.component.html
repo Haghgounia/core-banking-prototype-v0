@@ -1,10 +1,12 @@
-<section class="reference-page">
+<section class="reference-page" [class.org-page]="store.descriptor()?.category === 'ORGANIZATION'">
   <header class="page-header">
     <div>
       <h1 class="page-title">{{ store.descriptor()?.title ?? 'اطلاعات پایه' }}</h1>
       <p class="muted">{{ pageSubtitle() }}</p>
       @if (store.descriptor(); as d) {
-        <app-database-tables [tables]="[d.schemaName + '.' + d.tableName]" />
+        @if (d.category !== 'ORGANIZATION') {
+          <app-database-tables [tables]="[d.schemaName + '.' + d.tableName]" />
+        }
       }
     </div>
     <button mat-flat-button color="primary" (click)="create()" [disabled]="!store.descriptor()">
@@ -164,7 +166,9 @@
 
         <form [formGroup]="form" (ngSubmit)="save()">
           @if (store.descriptor(); as d) {
-            <app-database-tables [tables]="[d.schemaName + '.' + d.tableName]" />
+            @if (d.category !== 'ORGANIZATION') {
+              <app-database-tables [tables]="[d.schemaName + '.' + d.tableName]" />
+            }
           }
           @if (hierarchy().length) {
             <div class="section-title">موقعیت در سلسله‌مراتب</div>
@@ -312,18 +316,34 @@
                 }
               }
               @case ('DATE') {
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ field.label }}</mat-label>
-                  <input matInput type="date" [formControlName]="field.apiName">
-                  @if (isInvalid(field)) { <mat-error>تاریخ معتبر وارد کنید.</mat-error> }
-                </mat-form-field>
+                @if (store.descriptor()?.category === 'ORGANIZATION') {
+                  <div class="org-date-field">
+                    <label>{{ field.label }}{{ field.required ? ' *' : '' }}</label>
+                    <app-persian-date-input [formControlName]="field.apiName" />
+                    @if (isInvalid(field)) {<small class="org-unit-invalid">تاریخ معتبر وارد کنید.</small>}
+                  </div>
+                } @else {
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ field.label }}</mat-label>
+                    <input matInput type="date" [formControlName]="field.apiName">
+                    @if (isInvalid(field)) { <mat-error>تاریخ معتبر وارد کنید.</mat-error> }
+                  </mat-form-field>
+                }
               }
               @case ('TIMESTAMP') {
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ field.label }}</mat-label>
-                  <input matInput type="datetime-local" [formControlName]="field.apiName">
-                  @if (isInvalid(field)) { <mat-error>تاریخ و زمان معتبر وارد کنید.</mat-error> }
-                </mat-form-field>
+                @if (store.descriptor()?.category === 'ORGANIZATION') {
+                  <div class="org-date-field">
+                    <label>{{ field.label }}{{ field.required ? ' *' : '' }}</label>
+                    <app-persian-date-input [formControlName]="field.apiName" [withTime]="true" />
+                    @if (isInvalid(field)) {<small class="org-unit-invalid">تاریخ و زمان معتبر وارد کنید.</small>}
+                  </div>
+                } @else {
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ field.label }}</mat-label>
+                    <input matInput type="datetime-local" [formControlName]="field.apiName">
+                    @if (isInvalid(field)) { <mat-error>تاریخ و زمان معتبر وارد کنید.</mat-error> }
+                  </mat-form-field>
+                }
               }
               @case ('TEXT') {
                 <mat-form-field appearance="outline">
@@ -345,6 +365,14 @@
             }
           }
 
+          @if (store.descriptor(); as d) {
+            @if (d.category === 'ORGANIZATION') {
+              <details class="org-technical-details">
+                <summary>جزئیات فنی</summary>
+                <app-database-tables [tables]="[d.schemaName + '.' + d.tableName]" />
+              </details>
+            }
+          }
           @if (store.selected() && systemFields().length) {
             <details class="audit">
               <summary>اطلاعات سیستمی</summary>

@@ -1,0 +1,98 @@
+{
+  "patch": "ORG_UX_R2_2026-10-21",
+  "baseArchive": "core-banking-prototype-v0-2026-10-21-1415.zip",
+  "baseArchiveSha256": "0a86b8659527339308ec5277d6653664037749d9947561b4812e063cd73a1c53",
+  "projectVersion": "0.11.0",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/organization/descriptor/OrganizationDescriptorProvider.java",
+      "beforeSha256": "a6e01ce066940dbdd51c41dee46d8570bab0eb959c0ea40b47df6995678a94bf",
+      "afterSha256": "f554913537786e6952dea1c1d97fa2b3c2f6859444bafad295bb370b8d88fa89"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/organization/grade/GradeService.java",
+      "beforeSha256": "cf1c262878766267db03d4bd6b7a5adecd914316d83a238b700e0cc28e6bf7d0",
+      "afterSha256": "87cc125f0793f7e366a02a615458fcbb8b730d56897c3306e37ec011af4d7217"
+    },
+    {
+      "path": "frontend/src/app/features/organization/organization-coordinate-map-picker.component.ts",
+      "beforeSha256": "a6be00286659a249bbe6cfbb06e7c34b1c1f284e6e6db8bd78dfd7fe529da85c",
+      "afterSha256": "5199b9842fee8bdafa36177637ab1fb111c8a53a56ece7b42f457d89ea72bf21"
+    },
+    {
+      "path": "frontend/src/app/features/organization/organization-grade-levels.component.html",
+      "beforeSha256": "9be54174c0bf260fe6681f2a9994fdb84b2440cce7da1e0891d1c8b0732390fa",
+      "afterSha256": "79e4b51e03ebb4b4e6460b6eee756c28f5a9901ef2dc45baf2a02f3c20d801e6"
+    },
+    {
+      "path": "frontend/src/app/features/organization/organization-grade-levels.component.ts",
+      "beforeSha256": "d30ac3aa18432931a2fa0f4e18d2d691c30d87797c6f72dec6186c37da3d7a19",
+      "afterSha256": "5bcbd8c9b504fc37ee8f0d7715f4e28964d4070e77a7ae7e5ec8befe4b5ac345"
+    },
+    {
+      "path": "frontend/src/app/features/organization/organization-menu.component.html",
+      "beforeSha256": "52d712a7d863dce3ed9a1b6df6300f556e75ce960d4987166c43737cbef2c2a9",
+      "afterSha256": "ca1067ac8591e99f70a030199a0874ae735ac1261bb5e96853649f99ef173f1c"
+    },
+    {
+      "path": "frontend/src/app/features/organization/organization-menu.component.scss",
+      "beforeSha256": "1ac8783786f7a1cecc73326efe5a3ce2c5e59b6cdfe76b7370f29288b9998653",
+      "afterSha256": "950c7a2032a66b1f479411ee8dccc11c300cf293a4378dcd655fc2a807305deb"
+    },
+    {
+      "path": "frontend/src/app/features/organization/organization-menu.component.ts",
+      "beforeSha256": "b94c3a90107e902e1f07c3b2ff6a00e7440710a93da36c85108e5cdb0c41aa0a",
+      "afterSha256": "8aeb021798420ffc9124c79b48493917a6f19f4209349c0dffdf1ac53461e37c"
+    },
+    {
+      "path": "frontend/src/app/features/reference-data/presentation/reference-page.component.html",
+      "beforeSha256": "9d10d024b69317d6072a5c1deffe68fd9b6f494aad166e7bdc3b4dba755d8986",
+      "afterSha256": "b06f6a27fecbefedbeef0f89ddfb85a9a20c6d72e0925e69c1925ad5753a622b"
+    },
+    {
+      "path": "frontend/src/app/features/reference-data/presentation/reference-page.component.scss",
+      "beforeSha256": "639da599261dfe5ff122ad139dd406830bd8646c47541335156dd1fbdc358518",
+      "afterSha256": "eb8cd9546a531c70f42c13e68e3e75ee9b876dff23019f371d2af599e62daa49"
+    },
+    {
+      "path": "frontend/src/app/features/reference-data/presentation/reference-page.component.ts",
+      "beforeSha256": "f2eae81352117a95c1b6dd4113c1f2ff223a47d81cbe860e4757e41e9560543c",
+      "afterSha256": "c061cce4b92f0fa60921e88ae4541738471e2a0698d068fc15dd0a19c5e83d2d"
+    },
+    {
+      "path": "frontend/src/app/layout/app-shell.component.html",
+      "beforeSha256": "b4072a70d6f9a53e299f2e66f8fca60654cd798a560b5384dc4a90b22366468a",
+      "afterSha256": "a063050b2878ac68869a54ed4df0d5dfab7b3c13bfe13b9e0cb3e74c2112937a"
+    },
+    {
+      "path": "tools/verify-org-forms.mjs",
+      "beforeSha256": "b79ff8435e5040477264564adf1322da0038a38034f3d4136a7f98b4ab7b6f2c",
+      "afterSha256": "729e7d3e200c764c82ffdfe68d2b0a859717e8e525146aebcbfa896f7682e5ee"
+    },
+    {
+      "path": "tools/verify-org-ux-r1.mjs",
+      "beforeSha256": "6c30dfb2a1f1a69305ea091d8179fb18a78814cd4d3a823d8990dd010762bee0",
+      "afterSha256": "14495597ad4de4be3aa9ae8dabf616f734dd6ee0083988ad0ecedbc989287c90"
+    },
+    {
+      "path": "database/oracle/org/service-point/ORG-SERVICE-POINT-RENAME-OPT-IN.sql",
+      "beforeSha256": null,
+      "afterSha256": "bfde1a76c9005be3916aa0d227c3520b2e41ad8edf8b16503b15dfb602c02974"
+    },
+    {
+      "path": "docs/ORG-UX-R2-INTEGRATED-2026-10-21-FA.md",
+      "beforeSha256": null,
+      "afterSha256": "6f8cc44afb774c56a5c57b080a6fb2cbbfba7a98d5b710da2d66234da0e752c2"
+    },
+    {
+      "path": "docs/ORG-UX-R2-QA-2026-10-21-FA.md",
+      "beforeSha256": null,
+      "afterSha256": "2fa6dcad6584f112d9b32c27883967052c153b5d99ea069c7b1d469da950ff1a"
+    },
+    {
+      "path": "tools/verify-org-ux-r2.mjs",
+      "beforeSha256": null,
+      "afterSha256": "c85c06628213f28becbf2effd9175f50d387c1a97a28d6ac7f0c625a61549dd9"
+    }
+  ]
+}
