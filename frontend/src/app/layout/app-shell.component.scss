@@ -86,3 +86,17 @@
 .shell .mat-drawer-content { min-width: 0; }
 .sidebar.collapsed .section-list span[matListItemTitle],
 .sidebar.collapsed .section-list .mdc-list-item__primary-text { display: none !important; }
+
+/* CAL2: in-app reminder bell. Menu contents are global CDK overlay surfaces. */
+.personal-alert-trigger { position: relative; color: #fff !important; margin-inline-start: 6px; }
+.personal-alert-badge { position: absolute; inset-block-start: -2px; inset-inline-end: -3px; min-width: 17px; height: 17px; padding-inline: 3px; display: grid; place-items: center; border-radius: 10px; background: #b32a3b; color: #fff; font-size: 10px; font-weight: 700; }
+.personal-alert-menu__head { padding: 12px 16px; color: var(--app-text); font-size: .81rem; font-weight: 700; border-bottom: 1px solid var(--app-border); }
+.personal-alert-menu__empty { max-width: 320px; padding: 14px; color: var(--app-muted); font-size: .7rem; line-height: 1.8; }
+.personal-alert-row { max-width: 330px; border-bottom: 1px solid var(--app-divider); padding: 11px 13px; }
+.personal-alert-row__label { display: flex; align-items: flex-start; gap: 9px; }
+.personal-alert-row__label mat-icon { color: var(--app-warning-text); }
+.personal-alert-row__label div { display: grid; gap: 3px; min-width: 0; }
+.personal-alert-row__label strong { color: var(--app-text); font-size: .73rem; white-space: normal; overflow-wrap: anywhere; }
+.personal-alert-row__label small { color: var(--app-muted); font-size: .65rem; }
+.personal-alert-row__actions { display: flex; justify-content: end; gap: 4px; margin-top: 5px; }
+.personal-alert-row__actions button { font-size: .68rem; }

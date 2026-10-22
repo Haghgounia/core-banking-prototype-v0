@@ -163,6 +163,32 @@
         </button>
       </mat-menu>
 
+      <button mat-icon-button type="button" class="personal-alert-trigger" [matMenuTriggerFor]="personalAlertsMenu"
+              [matTooltip]="'یادداشت‌ها و یادآوری‌های من؛ ' + personalAlertCount() + ' یادآوری فعال'"
+              [attr.aria-label]="'نمایش یادآوری‌ها؛ ' + personalAlertCount() + ' پیام'">
+        <mat-icon>{{ personalAlertCount() ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+        @if (personalAlertCount() > 0) { <span class="personal-alert-badge">{{ personalAlertCount() }}</span> }
+      </button>
+      <mat-menu #personalAlertsMenu="matMenu" class="personal-alert-menu" xPosition="before">
+        <div class="personal-alert-menu__head" (click)="$event.stopPropagation()">یادآوری‌های من</div>
+        @for (alert of personalAlerts(); track alert.itemId) {
+          <div class="personal-alert-row" (click)="$event.stopPropagation()">
+            <div class="personal-alert-row__label">
+              <mat-icon>{{ alert.alertKind === 'OVERDUE' ? 'warning_amber' : 'notifications_active' }}</mat-icon>
+              <div><strong>{{ alert.title }}</strong><small>{{ alertDescription(alert) }}</small></div>
+            </div>
+            <div class="personal-alert-row__actions">
+              <button mat-button type="button" (click)="acknowledgePersonalAlert(alert)">خواندم</button>
+              <button mat-button type="button" (click)="completePersonalAlert(alert)">انجام شد</button>
+            </div>
+          </div>
+        } @empty {
+          <div class="personal-alert-menu__empty" (click)="$event.stopPropagation()">
+            {{ personalAlertsUnavailable() ? 'اطلاعات یادآوری در دسترس نیست؛ نصب CAL2 را بررسی کنید.' : 'یادآوری خوانده‌نشده‌ای وجود ندارد.' }}
+          </div>
+        }
+        <a mat-menu-item routerLink="/calendar2/month-view"><mat-icon>calendar_month</mat-icon><span>باز کردن تقویم</span></a>
+      </mat-menu>
       <span class="version-chip">{{ version }}</span>
       <div class="user-chip">
         <mat-icon>account_circle</mat-icon>
