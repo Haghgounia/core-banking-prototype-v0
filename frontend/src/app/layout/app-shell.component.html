@@ -171,7 +171,7 @@
       </button>
       <mat-menu #personalAlertsMenu="matMenu" class="personal-alert-menu" xPosition="before">
         <div class="personal-alert-menu__head" (click)="$event.stopPropagation()">یادآوری‌های من</div>
-        @for (alert of personalAlerts(); track alert.itemId) {
+        @for (alert of personalAlerts(); track alert.userCalendarEntryId) {
           <div class="personal-alert-row" (click)="$event.stopPropagation()">
             <div class="personal-alert-row__label">
               <mat-icon>{{ alert.alertKind === 'OVERDUE' ? 'warning_amber' : 'notifications_active' }}</mat-icon>

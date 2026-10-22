@@ -6,11 +6,11 @@ import java.util.List;
 public final class Calendar2PersonalModels {
     private Calendar2PersonalModels() {}
 
-    public record Item(
-            String itemId,
+    public record Entry(
+            long userCalendarEntryId,
             long dayId,
             String canonicalIsoDate,
-            String itemType,
+            String entryType,
             String title,
             String description,
             String reminderTime,
@@ -23,7 +23,7 @@ public final class Calendar2PersonalModels {
 
     public record SaveRequest(
             Long dayId,
-            String itemType,
+            String entryType,
             String title,
             String description,
             String reminderTime,
@@ -34,7 +34,7 @@ public final class Calendar2PersonalModels {
     public record CompletionRequest(boolean completed) {}
 
     public record Alert(
-            String itemId,
+            long userCalendarEntryId,
             long dayId,
             String dueDate,
             String title,

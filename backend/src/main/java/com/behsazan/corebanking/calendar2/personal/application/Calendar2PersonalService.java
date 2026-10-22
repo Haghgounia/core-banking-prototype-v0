@@ -2,7 +2,7 @@ package com.behsazan.corebanking.calendar2.personal.application;
 
 import com.behsazan.corebanking.calendar2.personal.domain.Calendar2PersonalModels.Alert;
 import com.behsazan.corebanking.calendar2.personal.domain.Calendar2PersonalModels.Inbox;
-import com.behsazan.corebanking.calendar2.personal.domain.Calendar2PersonalModels.Item;
+import com.behsazan.corebanking.calendar2.personal.domain.Calendar2PersonalModels.Entry;
 import com.behsazan.corebanking.calendar2.personal.domain.Calendar2PersonalModels.SaveRequest;
 import com.behsazan.corebanking.calendar2.personal.oracle.Calendar2PersonalRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +17,6 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 @Service
 public class Calendar2PersonalService {
@@ -38,41 +37,40 @@ public class Calendar2PersonalService {
     }
 
     @Transactional(readOnly = true)
-    public List<Item> items(LocalDate from, LocalDate to) {
+    public List<Entry> entries(LocalDate from, LocalDate to) {
         if (from == null || to == null || to.isBefore(from) || to.isAfter(from.plusDays(62))) {
             throw badRequest("Date range must contain 1-63 days");
         }
-        return repository.monthItems(actor, from, to);
+        return repository.monthEntries(actor, from, to);
     }
 
     @Transactional(readOnly = true)
-    public Item find(String id) { return required(id); }
+    public Entry find(long id) { return required(id); }
 
     @Transactional
-    public Item create(SaveRequest body) {
+    public Entry create(SaveRequest body) {
         SaveRequest request = normalized(body);
-        String id = UUID.randomUUID().toString();
-        repository.insert(actor, id, request.dayId(), request.itemType(), request.title(),
+        long id = repository.insert(actor, request.dayId(), request.entryType(), request.title(),
                 request.description(), request.reminderTime(), request.advanceDays(), request.repeatPolicy());
         return required(id);
     }
 
     @Transactional
-    public Item update(String id, SaveRequest body) {
+    public Entry update(long id, SaveRequest body) {
         SaveRequest request = normalized(body);
-        if (repository.update(actor, id, request.dayId(), request.itemType(), request.title(), request.description(),
+        if (repository.update(actor, id, request.dayId(), request.entryType(), request.title(), request.description(),
                 request.reminderTime(), request.advanceDays(), request.repeatPolicy()) == 0) throw notFound();
         return required(id);
     }
 
     @Transactional
-    public Item setCompleted(String id, boolean completed) {
+    public Entry setCompleted(long id, boolean completed) {
         if (repository.complete(actor, id, completed) == 0) throw notFound();
         return required(id);
     }
 
     @Transactional
-    public void delete(String id) {
+    public void delete(long id) {
         if (repository.delete(actor, id) == 0) throw notFound();
     }
 
@@ -83,7 +81,7 @@ public class Calendar2PersonalService {
         List<Alert> alerts = repository.openReminders(actor, today).stream()
                 .map(item -> {
                     String kind = Calendar2PersonalAlertPolicy.alertKind(item, today, now);
-                    return kind == null ? null : new Alert(item.itemId(), item.dayId(), item.canonicalIsoDate(),
+                    return kind == null ? null : new Alert(item.userCalendarEntryId(), item.dayId(), item.canonicalIsoDate(),
                             item.title(), kind, Calendar2PersonalAlertPolicy.daysToDue(item, today), item.reminderTime());
                 })
                 .filter(java.util.Objects::nonNull)
@@ -98,24 +96,24 @@ public class Calendar2PersonalService {
     }
 
     @Transactional
-    public void acknowledge(String id) {
-        Item item = required(id);
+    public void acknowledge(long id) {
+        Entry entry = required(id);
         LocalDate today = LocalDate.now(zone);
-        String kind = Calendar2PersonalAlertPolicy.alertKind(item, today, LocalTime.now(zone));
+        String kind = Calendar2PersonalAlertPolicy.alertKind(entry, today, LocalTime.now(zone));
         if (kind == null) throw badRequest("Reminder is not currently due for notification");
-        boolean advanceOnce = "ADVANCE".equals(kind) && "ONCE".equals(item.repeatPolicy());
+        boolean advanceOnce = "ADVANCE".equals(kind) && "ONCE".equals(entry.repeatPolicy());
         if (repository.acknowledge(actor, id, today, advanceOnce) == 0) throw notFound();
     }
 
-    private Item required(String id) {
-        if (id == null || !id.matches("[0-9a-fA-F-]{36}")) throw notFound();
+    private Entry required(long id) {
+        if (id <= 0 || id > 999_999_999_999L) throw notFound();
         return repository.find(actor, id).orElseThrow(Calendar2PersonalService::notFound);
     }
 
     private SaveRequest normalized(SaveRequest input) {
         if (input == null || input.dayId() == null || input.dayId() <= 0) throw badRequest("Select a calendar day");
-        String type = input.itemType() == null ? "" : input.itemType().trim().toUpperCase(Locale.ROOT);
-        if (!"NOTE".equals(type) && !"REMINDER".equals(type)) throw badRequest("Invalid item type");
+        String type = input.entryType() == null ? "" : input.entryType().trim().toUpperCase(Locale.ROOT);
+        if (!"NOTE".equals(type) && !"REMINDER".equals(type)) throw badRequest("Invalid entry type");
         String title = input.title() == null ? "" : input.title().trim();
         if (title.isEmpty() || title.length() > 200) throw badRequest("Title must be 1-200 characters");
         String description = input.description() == null ? null : input.description().trim();
@@ -132,5 +130,5 @@ public class Calendar2PersonalService {
     }
 
     private static ResponseStatusException badRequest(String detail) { return new ResponseStatusException(HttpStatus.BAD_REQUEST, detail); }
-    private static ResponseStatusException notFound() { return new ResponseStatusException(HttpStatus.NOT_FOUND, "Calendar item not found"); }
+    private static ResponseStatusException notFound() { return new ResponseStatusException(HttpStatus.NOT_FOUND, "Calendar entry not found"); }
 }

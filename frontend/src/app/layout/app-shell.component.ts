@@ -62,7 +62,7 @@ export class AppShellComponent implements OnDestroy {
       this.personalAlerts.set(inbox.alerts);
       this.personalAlertsUnavailable.set(false);
       // One unobtrusive message when a new due set appears; per-day acknowledgment is stored in Oracle.
-      const signature = inbox.alerts.map(a => a.itemId + ':' + a.alertKind).sort().join('|');
+      const signature = inbox.alerts.map(a => a.userCalendarEntryId + ':' + a.alertKind).sort().join('|');
       if (inbox.alerts.length && (!this.notificationInitialized || signature !== this.lastAlertSignature)) {
         const notice = this.snackBar.open(
           inbox.alerts.length === 1 ? `یادآوری: ${inbox.alerts[0].title}` : `${inbox.alerts.length} یادآوری برای بررسی دارید`,
@@ -81,7 +81,7 @@ export class AppShellComponent implements OnDestroy {
 
   async acknowledgePersonalAlert(alert: Calendar2PersonalAlert): Promise<void> {
     try {
-      await firstValueFrom(this.reminders.acknowledge(alert.itemId));
+      await firstValueFrom(this.reminders.acknowledge(alert.userCalendarEntryId));
       this.reminders.changed();
     } catch {
       this.snackBar.open('ثبت وضعیت مشاهده یادآوری انجام نشد.', 'بستن', {duration: 6000});
@@ -90,7 +90,7 @@ export class AppShellComponent implements OnDestroy {
 
   async completePersonalAlert(alert: Calendar2PersonalAlert): Promise<void> {
     try {
-      await firstValueFrom(this.reminders.completion(alert.itemId, true));
+      await firstValueFrom(this.reminders.completion(alert.userCalendarEntryId, true));
       this.reminders.changed();
     } catch {
       this.snackBar.open('ثبت انجام‌شدن یادآوری انجام نشد.', 'بستن', {duration: 6000});
