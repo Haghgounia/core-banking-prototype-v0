@@ -1,0 +1,91 @@
+{
+  "patch": "ORG-CAL2-WORKING-HOURS-CONSOLIDATION-2026-10-24",
+  "baseline": "core-banking-prototype-v0-2026-10-24-1043.zip + ORG Roadmap",
+  "scope": "8 legacy working-hours ORG forms removed from runtime; 8 tables and sequences DBA opt-in DROP gated; no automatic Oracle operations",
+  "files": [
+    {
+      "path": "README-FA.md",
+      "sha256": "a792839f7878f4b88df9123d596d5149133110f4620e6d975204e4c7246b183a"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/organization/descriptor/OrganizationDescriptorProvider.java",
+      "sha256": "659dfc84cfbccc080dc6fe7296d6a28cd96fc068ddbd345a95350060a7682023"
+    },
+    {
+      "path": "build-production.cmd",
+      "sha256": "80122eb4973667b8558340ae88142ad4c6fd0edc5e58c4998223ac54a807e46a"
+    },
+    {
+      "path": "build-production.sh",
+      "sha256": "6981d0cbeee746f7b321556b345522b2c833f50fd900ec9ce15f8386b8b37847"
+    },
+    {
+      "path": "database/oracle/org/calendar2-consolidation/01-ORG-CAL2-PREVIEW-READONLY.sql",
+      "sha256": "91f9701a5ff6f0612c914d61bfb2838889590b539273ad5e6be8aa90d0d15eb9"
+    },
+    {
+      "path": "database/oracle/org/calendar2-consolidation/02-ORG-CAL2-DROP-EMPTY-OPT-IN.sql",
+      "sha256": "37afa8068b5e54b07dd889b2cbc520090e358483d2f490d2fd7c1f6a276a51b5"
+    },
+    {
+      "path": "database/oracle/org/calendar2-consolidation/03-ORG-CAL2-VERIFY-READONLY.sql",
+      "sha256": "a4071952ba3b4889cdfee777516923b9133b0e6a52d8f3faa1fa6853d0d22b42"
+    },
+    {
+      "path": "docs/CORE-BANKING-PROJECT-ROADMAP-FA.md",
+      "sha256": "2aa0e61dc2c7e1fab8861aabd803dd93a60ac83d01990ca25dcc5053e49a2979"
+    },
+    {
+      "path": "docs/ORG-2026-10-24-CAL2-HOURS-CONSOLIDATION-QA-FA.md",
+      "sha256": "3d49680f03a94e8fe586fd638fc94de55e9f5bb21639482e20996d13d910821e"
+    },
+    {
+      "path": "docs/ORG-2026-10-24-SCHEMA-FORM-BASELINE-QA-FA.md",
+      "sha256": "5018e8454d8ea6c2f9d8d4105b881c4c69d08626003d5324d0e68ed2ee8eecdc"
+    },
+    {
+      "path": "docs/install/ORG-CAL2-2026-10-24-INSTALL-FA.md",
+      "sha256": "98c994088d2393b2433c0655d3738f3e8b1a9dca613e9d13b761e310648c07c5"
+    },
+    {
+      "path": "frontend/src/app/app.routes.ts",
+      "sha256": "a409874def292f04260d1f5e49ed752ce8863318deafb7f2bb3af93eefe303c1"
+    },
+    {
+      "path": "frontend/src/app/features/organization/organization-menu.component.html",
+      "sha256": "cd0a7fb3df9ca76ff05de4c0f4c85d05702d7bd3d5e40460a0ddcbf425196486"
+    },
+    {
+      "path": "frontend/src/app/features/organization/organization-menu.component.scss",
+      "sha256": "0ce71788c2a3e830f8036338aae5b734e9f3b940a14435a9fb0cf997c668d89b"
+    },
+    {
+      "path": "frontend/src/app/features/organization/organization-menu.component.ts",
+      "sha256": "1816db6a31be20842c5e65f71c08a12e842a27be091b51ab79e91550cecc2b54"
+    },
+    {
+      "path": "frontend/src/app/features/reference-data/presentation/reference-page.component.ts",
+      "sha256": "b4960141184d3cb5be7313fa699e7ea72c4578e23c5ef093a919e9545000ac96"
+    },
+    {
+      "path": "tools/VERIFY-ORG-CAL2-CLEANUP.cmd",
+      "sha256": "1a2a5d656f465c7eb9f611a5fe4dd3f67197599c1b7a25223668a0bf94d38c28"
+    },
+    {
+      "path": "tools/verify-org-cal2-consolidation.mjs",
+      "sha256": "0f850d5b5e53bd7cba4e716aef09c45c30a9f871caa7c48d5fec7721ceaf5a26"
+    },
+    {
+      "path": "tools/verify-org-forms.mjs",
+      "sha256": "9e9cc2dffe22f94a1d6e884f0c66beb4c328273515b212a9216d452e73a90efc"
+    },
+    {
+      "path": "tools/verify-org-ux-r2.mjs",
+      "sha256": "7e1decc8b2bb4998d9fb57a7361f3f3a4507708807b62fd1789ef1e4db0b5001"
+    }
+  ],
+  "oracle_apply_default": "NO",
+  "requires_empty_tables": true,
+  "db_apply_executed": false,
+  "build_runtime_verified": false
+}

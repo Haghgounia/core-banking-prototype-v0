@@ -1,3 +1,16 @@
+## ORG R2-A — 2026-10-24 (post-COMMIT canonical preview)
+
+- Registered verified Oracle R1 backfill: 1340 committed and post-commit matched records, zero mismatches.
+- Added read-only canonical snapshot review API and Angular page with 20 exact-value legacy comparisons, data drift indicators and no auto-classification of shared/virtual branches.
+- Retained all legacy tables, forms, URLs, records and foreign keys; zero data-modifying SQL in R2-A.
+- Added R2-A static verifier and Windows test command; included verifier in both production build scripts.
+
+## 2026-10-24 — ORG-04A R1: branch address/location consolidation, non-destructive staging
+- Added read-only `GET /api/v1/organization/unit-location-review`, responsive `/organization/unit-locations-review` UI and menu link; all legacy address candidates remain visible.
+- Kept all original ORG `LOCATIONS`, `POSTAL_ADDRESSES`, `ORGANIZATION_UNIT_LOCATIONS`, `SERVICE_POINTS` rows, FK relationships, sequences and operational descriptors. No DB changes performed.
+- Added four manual Oracle scripts under `database/oracle/org/unit-location-consolidation/`: read-only inventory, DEFAULT-NO additive columns, DEFAULT-NO lossless MERGE (no auto COMMIT), read-only per-field verification.
+- Added static verifier to both Windows and POSIX builds; no Maven/Angular/Oracle runtime acceptance claimed.
+
 # R30-HF5 - numeric deposit TYPE code and isolated issuance registry (2026-10-13)
 
 - Approved prefixes: CURRENT_NO_INTEREST=2510, SAVINGS=3510, SHORT_TERM_DEPOSIT=4510, LONG_TERM_DEPOSIT=5510, CERTIFICATE_OF_DEPOSIT=6510.

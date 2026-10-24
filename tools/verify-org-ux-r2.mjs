@@ -23,10 +23,10 @@ try {
     assert(!menuBlocks.some(block => block.includes(`'${hidden}'`)), `${hidden} in menu`);
     assert(desc.includes(`"${hidden}"`), `${hidden} descriptor was removed`);
   }
-  assert([...menu.split('readonly groups:')[1].split('readonly gradeTools')[0].matchAll(/title: '[^']+', description:/g)].length === 7, 'ORG menu must have 7 topic groups');
+  assert([...menu.split('readonly groups:')[1].split('readonly gradeTools')[0].matchAll(/title: '[^']+', description:/g)].length === 6, 'ORG menu must have 6 topic groups');
   assert(menuHtml.includes('quickLinks') && menuHtml.includes('toggleGroup(group)'), 'quick access/collapsible groups missing');
   assert(!menuHtml.includes('شبکه') && !shell.includes('شبکه شعب') && !desc.includes('"توسعه شبکه"'), 'obsolete UI wording remains');
-  console.log('PASS navigation: 7 groups, quick links, 4 hidden links, no unwanted network wording');
+  console.log('PASS navigation: 6 groups, quick links, 4 hidden links, no unwanted network wording');
 
   assert(levelUi.includes('value="درجه‌بندی شعب" readonly'), 'grade scheme is not readonly');
   assert(!levelUi.includes('[(ngModel)]="form.gradeSchemeCode"'), 'grade scheme still editable');
@@ -55,10 +55,7 @@ try {
     ['point-of-service-types','SERVICE_POINT_TYPES'],
     ['points-of-service','SERVICE_POINTS'],
     ['organization-unit-point-of-service-assignments','ORGANIZATION_UNIT_SERVICE_POINT_ASSIGNMENTS'],
-    ['point-of-service-contact-points','SERVICE_POINT_CONTACT_POINTS'],
-    ['point-of-service-operating-schedules','SERVICE_POINT_OPERATING_SCHEDULES'],
-    ['point-of-service-operating-exceptions','SERVICE_POINT_OPERATING_EXCEPTIONS'],
-    ['point-of-service-operating-exception-intervals','SERVICE_POINT_OPERATING_EXCEPTION_INTERVALS']
+    ['point-of-service-contact-points','SERVICE_POINT_CONTACT_POINTS']
   ];
   for (const [resource, table] of physical) {
     assert(desc.includes(`"${resource}"`), `public resource changed unexpectedly: ${resource}`);
@@ -68,7 +65,7 @@ try {
   assert(ddl.includes('DEFINE APPLY_CHANGES = NO') && ddl.includes("IF v_mode='NO' THEN"), 'migration is not opt-in');
   assert(!/\b(?:DROP TABLE|DELETE FROM|TRUNCATE TABLE)\b/i.test(ddl), 'migration includes destructive statements');
   for (const [, table] of physical) assert(ddl.includes(table), `migration missing ${table}`);
-  console.log('PASS 7 service-point table aliases + default-no migration');
+  console.log('PASS 4 retained service-point table aliases + historical default-no rename migration');
   console.log('ORG_UX_R2_VERIFY_PASS');
 } catch (error) {
   console.error('ORG_UX_R2_VERIFY_FAIL:', error.message);

@@ -85,8 +85,19 @@ export const routes: Routes = [
       {path: 'cif/reference/:resource', redirectTo: 'cif/reference-data/:resource'},
 
       {path: 'organization', loadComponent: () => import('./features/organization/organization-menu.component').then(m => m.OrganizationMenuComponent)},
+      {path: 'organization/unit-locations-review', loadComponent: () => import('./features/organization/organization-unit-locations-review.component').then(m => m.OrganizationUnitLocationsReviewComponent)},
+      {path: 'organization/unit-locations-canonical', loadComponent: () => import('./features/organization/organization-unit-locations-canonical.component').then(m => m.OrganizationUnitLocationsCanonicalComponent)},
       {path: 'organization/grade-levels', loadComponent: () => import('./features/organization/organization-grade-levels.component').then(m => m.OrganizationGradeLevelsComponent)},
       {path: 'organization/grade-periods', loadComponent: () => import('./features/organization/organization-grade-periods.component').then(m => m.OrganizationGradePeriodsComponent)},
+      // Deprecated ORG working-hours routes now point to the CAL2 source of truth.
+      {path: 'organization/operating-schedules', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
+      {path: 'organization/operating-schedule-intervals', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
+      {path: 'organization/organization-unit-operating-schedules', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
+      {path: 'organization/organization-unit-operating-exceptions', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
+      {path: 'organization/organization-unit-operating-exception-intervals', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
+      {path: 'organization/point-of-service-operating-schedules', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
+      {path: 'organization/point-of-service-operating-exceptions', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
+      {path: 'organization/point-of-service-operating-exception-intervals', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
       {path: 'organization/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
 
       {path: 'geography-tree', loadComponent: () => import('./features/geography-tree/geography-tree.component').then(m => m.GeographyTreeComponent)},

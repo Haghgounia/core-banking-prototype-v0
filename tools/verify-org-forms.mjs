@@ -17,8 +17,6 @@ const expected = [
   'employee-assignment-roles',
   'foreign-exchange-service-profiles',
   'locations',
-  'operating-schedules',
-  'operating-schedule-intervals',
   'organizations',
   'organization-units',
   'organization-unit-classifications',
@@ -27,9 +25,6 @@ const expected = [
   'organization-unit-lifecycle-events',
   'organization-unit-lifecycle-event-types',
   'organization-unit-locations',
-  'organization-unit-operating-exceptions',
-  'organization-unit-operating-exception-intervals',
-  'organization-unit-operating-schedules',
   'organization-unit-point-of-service-assignments',
   'organization-unit-relationships',
   'organization-unit-relationship-rules',
@@ -38,9 +33,6 @@ const expected = [
   'organization-unit-types',
   'points-of-service',
   'point-of-service-contact-points',
-  'point-of-service-operating-exceptions',
-  'point-of-service-operating-exception-intervals',
-  'point-of-service-operating-schedules',
   'point-of-service-types',
   'postal-addresses',
   'self-service-terminals',
@@ -52,7 +44,7 @@ const expected = [
 const provider = read('backend/src/main/java/com/behsazan/corebanking/organization/descriptor/OrganizationDescriptorProvider.java');
 const actual = [...provider.matchAll(/return\s+descriptor\(\s*"([^"]+)"[\s\S]*?schemaName,\s*"([A-Z0-9_]+)"/g)]
   .map(([, resource, table]) => ({resource, table}));
-if (actual.length !== 35) fail(`expected 35 ORG descriptors, found ${actual.length}`);
+if (actual.length !== 27) fail(`expected 27 ORG descriptors, found ${actual.length}`);
 const actualResources = actual.map(x => x.resource).sort();
 if (JSON.stringify(actualResources) !== JSON.stringify(expected)) {
   const missing = expected.filter(x => !actualResources.includes(x));
@@ -65,15 +57,22 @@ for (const {resource, table} of actual) {
     'point-of-service-types': 'SERVICE_POINT_TYPES',
     'points-of-service': 'SERVICE_POINTS',
     'organization-unit-point-of-service-assignments': 'ORGANIZATION_UNIT_SERVICE_POINT_ASSIGNMENTS',
-    'point-of-service-contact-points': 'SERVICE_POINT_CONTACT_POINTS',
-    'point-of-service-operating-schedules': 'SERVICE_POINT_OPERATING_SCHEDULES',
-    'point-of-service-operating-exceptions': 'SERVICE_POINT_OPERATING_EXCEPTIONS',
-    'point-of-service-operating-exception-intervals': 'SERVICE_POINT_OPERATING_EXCEPTION_INTERVALS'
+    'point-of-service-contact-points': 'SERVICE_POINT_CONTACT_POINTS'
   };
   const physicalTable = servicePointTableNames[resource] ?? expectedTable;
   if (table !== physicalTable) fail(`${resource}: expected table ${physicalTable}, found ${table}`);
 }
-ok('35 ORG table descriptors and resource/table mappings');
+ok('27 ORG table descriptors and resource/table mappings');
+const retiredHours = [
+  'operating-schedules', 'operating-schedule-intervals',
+  'organization-unit-operating-schedules', 'organization-unit-operating-exceptions',
+  'organization-unit-operating-exception-intervals', 'point-of-service-operating-schedules',
+  'point-of-service-operating-exceptions', 'point-of-service-operating-exception-intervals'
+];
+for (const resource of retiredHours) {
+  if (provider.includes(`"${resource}"`)) fail(`retired working-hours descriptor present: ${resource}`);
+}
+
 
 for (const token of ['createdAt', 'CREATED_AT', 'createdBy', 'CREATED_BY', 'updatedAt', 'UPDATED_AT', 'updatedBy', 'UPDATED_BY']) {
   if (!provider.includes(token)) fail(`ORGANIZATION_UNITS audit field missing from provider: ${token}`);
@@ -108,8 +107,8 @@ for (const resource of expected) {
   const expectedCount = hiddenFromPrototypeMenu.has(resource) ? 0 : 1;
   if (count !== expectedCount) fail(`menu resource ${resource} appears ${count} times; expected ${expectedCount}`);
 }
-if (menuResourceMatches.length !== 31) fail(`menu expected 31 resources, found ${menuResourceMatches.length}`);
-ok('menu shows 31 ORG reference forms; 4 intentionally hidden, all 35 backend descriptors preserved');
+if (menuResourceMatches.length !== 23) fail(`menu expected 23 resources, found ${menuResourceMatches.length}`);
+ok('menu shows 23 ORG reference forms; 4 intentionally hidden, all 27 backend descriptors preserved');
 
 const referencePageTs = read('frontend/src/app/features/reference-data/presentation/reference-page.component.ts');
 const referencePageHtml = read('frontend/src/app/features/reference-data/presentation/reference-page.component.html');
@@ -131,20 +130,12 @@ const expectedOrgFilters = {
   'postal-addresses': ['addressTypeCode'],
   'organization-unit-locations': ['locationId', 'locationRoleCode'],
   'organization-unit-geo-coverages': ['coverageTypeCode'],
-  'operating-schedules': ['scheduleTypeCode'],
-  'operating-schedule-intervals': ['dayOfWeekCode', 'shiftNo'],
-  'organization-unit-operating-schedules': ['operatingScheduleId', 'scheduleRoleCode'],
-  'organization-unit-operating-exceptions': ['exceptionTypeCode'],
-  'organization-unit-operating-exception-intervals': ['shiftNo'],
   'employee-assignments': ['employeeAssignmentRoleId', 'primaryFlag'],
   'organization-unit-service-capabilities': ['serviceCapabilityId', 'statusCode'],
   'foreign-exchange-service-profiles': ['recordIncomeFlag', 'statusCode'],
   'points-of-service': ['pointOfServiceTypeId', 'locationId', 'statusCode'],
   'organization-unit-point-of-service-assignments': ['pointOfServiceId', 'assignmentRoleCode'],
   'point-of-service-contact-points': ['contactRoleId', 'primaryFlag'],
-  'point-of-service-operating-schedules': ['operatingScheduleId'],
-  'point-of-service-operating-exceptions': ['exceptionTypeCode'],
-  'point-of-service-operating-exception-intervals': ['shiftNo'],
   'self-service-terminals': ['selfServiceTerminalTypeId', 'statusCode'],
   'self-service-terminal-assignments': ['organizationUnitId', 'assignmentRoleCode'],
   'organization-unit-contact-points': ['contactRoleId', 'primaryFlag']

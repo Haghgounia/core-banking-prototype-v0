@@ -181,8 +181,11 @@ node "%ROOT%tools\verify-time-picker.mjs" || exit /b 1
 
 rem FIX74 static guard: Node verifier filesystem roots must be Windows-safe and cwd-independent.
 node "%ROOT%tools\verify-node-tool-path-portability.mjs" || exit /b 1
-rem ORG 0.11.0 static guard: all 35 organization/network forms, routes, descriptors and CRUD metadata.
+rem ORG 0.11.0 static guard: 27 retained organization forms; obsolete hours managed by CAL2.
 node "%ROOT%tools\verify-org-forms.mjs" || exit /b 1
+node "%ROOT%tools\verify-org-cal2-consolidation.mjs" || exit /b 1
+node "%ROOT%tools\verify-org-unit-location-r1.mjs" || exit /b 1
+node "%ROOT%tools\verify-org-unit-location-r2a.mjs" || exit /b 1
 echo [VERIFY] CIF ISIC2 clean hierarchy...
 node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 

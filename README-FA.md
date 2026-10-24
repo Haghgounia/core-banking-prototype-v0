@@ -1,3 +1,11 @@
+**آخرین تکمیل ORG — ۲۴ اکتبر ۲۰۲۶:** انتقال R1 مکان و نشانی با `COMMIT` تأیید شده، ۱۳۴۰ رکورد با صفر مغایرت پس از COMMIT. نمای R2-A فقط‌خواندنی برای کنترل ستون‌های تجمیعی و اختلاف منابع آماده است. راهنما: `docs/ORG-2026-10-24-UNIT-LOCATIONS-R2A-POSTCOMMIT-QA-FA.md`. جداول قدیمی و اطلاعات شعب بدون حذف/ویرایش باقی می‌مانند.
+
+> **ORG R1 — یکپارچه‌سازی امن مکان و نشانی (۲۴ اکتبر ۲۰۲۶):** نمایش تجمیعی فقط‌خواندنی `/organization/unit-locations-review` برای بازبینی و حفظ اطلاعات اصلاح‌شده شعب اضافه شد. سه جدول و فرم قبلی فعلاً حفظ می‌شوند. چهار اسکریپت Oracle با `APPLY_CHANGES=NO` برای توسعه بدون تخریب و انتقال مشروط تهیه شده‌اند. راهنما: `docs/ORG-2026-10-24-UNIT-LOCATIONS-R1-DATA-SAFE-FA.md`. هیچ DDL/DML خودکار اجرا نمی‌شود.
+
+> **ORG / CAL2 — بازنشستگی مدل تکراری ساعات کاری (۲۴ اکتبر ۲۰۲۶):** هشت فرم/Descriptor ساعات کاری از ORG حذف و به CAL2 هدایت شدند. حذف هشت جدول قدیمی و Sequenceهایشان در Oracle هنوز انجام نشده و صرفاً با SQL دارای `APPLY_CHANGES=NO` و کنترل خالی بودن داده/وابستگی مجاز است. راهنما: `docs/ORG-2026-10-24-CAL2-HOURS-CONSOLIDATION-QA-FA.md`.
+
+> **نقشه راه کلان پروژه — ۲۰۲۶-۱۰-۲۴:** اولویت جاری بازبینی جداول و فرم‌های `ORG` است؛ موارد باز `CAL2` با وضعیت `ON_HOLD` ثبت شده‌اند. مرجع بین‌دامنه‌ای: `docs/CORE-BANKING-PROJECT-ROADMAP-FA.md`؛ گزارش مبنای ORG: `docs/ORG-2026-10-24-SCHEMA-FORM-BASELINE-QA-FA.md`. مرجع اختصاصی DPS2 بدون تغییر می‌ماند.
+
 > **R30-HF5 (2026-10-13):** Deposit product code = approved 4-digit numeric deposit TYPE code + Oracle working year + 3-digit serial. DBA-run HF5 migration is required before backend deployment; historical codes are not changed. See `docs/PDL-2026-10-13-R30-HF5-NUMERIC-DEPOSIT-TYPE-CODE-QA.md`.
 
 > **R30 (۱۲ اکتبر ۲۰۲۶):** کد محصول سپرده و تسهیلات در مرحله اول ورود دستی ندارد و پس از نهایی‌سازی مرحله ششم به‌صورت سیستمی صادر می‌شود. اجرای Migration R30 قبل از استقرار Backend جدید الزامی است. راهنما: `docs/PDL-2026-10-12-R30-DEPOSIT-LOAN-PRODUCT-CODE-FA.md`.

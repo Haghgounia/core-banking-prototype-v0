@@ -47,20 +47,6 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
             new SelectOption("OUT_OF_SERVICE", "خارج از سرویس"),
             new SelectOption("DECOMMISSIONED", "جمع‌آوری‌شده")
     );
-    private static final List<SelectOption> SCHEDULE_TYPES = List.of(
-            new SelectOption("REGULAR", "عادی"),
-            new SelectOption("SEASONAL", "فصلی"),
-            new SelectOption("SPECIAL", "ویژه")
-    );
-    private static final List<SelectOption> DAYS_OF_WEEK = List.of(
-            new SelectOption("SATURDAY", "شنبه"),
-            new SelectOption("SUNDAY", "یکشنبه"),
-            new SelectOption("MONDAY", "دوشنبه"),
-            new SelectOption("TUESDAY", "سه‌شنبه"),
-            new SelectOption("WEDNESDAY", "چهارشنبه"),
-            new SelectOption("THURSDAY", "پنجشنبه"),
-            new SelectOption("FRIDAY", "جمعه")
-    );
     private static final List<SelectOption> LOCATION_ROLES = List.of(
             new SelectOption("PRIMARY", "محل اصلی"),
             new SelectOption("REGISTERED", "نشانی ثبتی"),
@@ -71,15 +57,6 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
             new SelectOption("OPERATIONAL", "عملیاتی"),
             new SelectOption("SUPERVISORY", "نظارتی / سرپرستی"),
             new SelectOption("CASH_SERVICE", "پول‌رسانی")
-    );
-    private static final List<SelectOption> EXCEPTION_TYPES = List.of(
-            new SelectOption("CLOSED", "تعطیل"),
-            new SelectOption("SPECIAL_HOURS", "ساعات ویژه")
-    );
-    private static final List<SelectOption> SCHEDULE_ROLES = List.of(
-            new SelectOption("CUSTOMER_SERVICE", "خدمت‌رسانی به مشتری"),
-            new SelectOption("STAFF_WORKING", "ساعات کاری کارکنان"),
-            new SelectOption("CASH_SERVICE", "خدمات نقدی")
     );
     private static final List<SelectOption> POS_ASSIGNMENT_ROLES = List.of(
             new SelectOption("OWNER", "مالک"),
@@ -138,11 +115,6 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                 postalAddresses(),
                 organizationUnitLocations(),
                 organizationUnitGeoCoverages(),
-                operatingSchedules(),
-                operatingScheduleIntervals(),
-                organizationUnitOperatingSchedules(),
-                organizationUnitOperatingExceptions(),
-                organizationUnitOperatingExceptionIntervals(),
                 serviceCapabilities(),
                 organizationUnitServiceCapabilities(),
                 foreignExchangeServiceProfiles(),
@@ -150,9 +122,6 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                 pointsOfService(),
                 organizationUnitPointOfServiceAssignments(),
                 pointOfServiceContactPoints(),
-                pointOfServiceOperatingSchedules(),
-                pointOfServiceOperatingExceptions(),
-                pointOfServiceOperatingExceptionIntervals(),
                 selfServiceTerminalTypes(),
                 selfServiceTerminals(),
                 selfServiceTerminalAssignments(),
@@ -425,85 +394,6 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                 ));
     }
 
-    private ReferenceTableDescriptor operatingSchedules() {
-        return descriptor("operating-schedules", CATEGORY, "الگوهای ساعات کاری", "schedule",
-                schemaName, "OPERATING_SCHEDULES", "SEQ_OPERATING_SCHEDULES",
-                "operatingScheduleId", "OPERATING_SCHEDULE_ID", "scheduleCode", "nameFa", null,
-                fields(
-                        id("operatingScheduleId", "OPERATING_SCHEDULE_ID", "شناسه"),
-                        text("scheduleCode", "SCHEDULE_CODE", "کد برنامه", true, true, true, 50),
-                        text("nameFa", "NAME_FA", "نام فارسی", true, true, true, 200),
-                        text("nameEn", "NAME_EN", "نام انگلیسی", false, true, true, 200),
-                        stringSelect("scheduleTypeCode", "SCHEDULE_TYPE_CODE", "نوع برنامه", true, true, "REGULAR", SCHEDULE_TYPES),
-                        text("descriptionFa", "DESCRIPTION_FA", "توضیحات فارسی", false, false, false, 500),
-                        text("descriptionEn", "DESCRIPTION_EN", "توضیحات انگلیسی", false, false, false, 500),
-                        bool("isActive", "ACTIVE_FLAG", "وضعیت", true, true, true)
-                ));
-    }
-
-    private ReferenceTableDescriptor operatingScheduleIntervals() {
-        ParentDescriptor parent = parent("operating-schedules", "operatingScheduleId", "OPERATING_SCHEDULE_ID", "برنامه ساعات کاری");
-        return descriptor("operating-schedule-intervals", CATEGORY, "بازه‌های ساعات کاری", "access_time",
-                schemaName, "OPERATING_SCHEDULE_INTERVALS", "SEQ_OPERATING_SCHEDULE_INTERVALS",
-                "operatingScheduleIntervalId", "OPERATING_SCHEDULE_INTERVAL_ID",
-                "operatingScheduleIntervalId", "operatingScheduleIntervalId", parent,
-                fields(
-                        id("operatingScheduleIntervalId", "OPERATING_SCHEDULE_INTERVAL_ID", "شناسه"),
-                        lookup("operatingScheduleId", "OPERATING_SCHEDULE_ID", "برنامه ساعات کاری", "operating-schedules", true, false),
-                        stringSelect("dayOfWeekCode", "DAY_OF_WEEK_CODE", "روز هفته", true, true, "SATURDAY", DAYS_OF_WEEK),
-                        number("shiftNo", "SHIFT_NO", "شماره شیفت", true, true, 1L),
-                        text("startTime", "START_TIME", "ساعت شروع", true, true, false, 5),
-                        text("endTime", "END_TIME", "ساعت پایان", true, true, false, 5)
-                ));
-    }
-
-    private ReferenceTableDescriptor organizationUnitOperatingSchedules() {
-        ParentDescriptor parent = parent("organization-units", "organizationUnitId", "ORGANIZATION_UNIT_ID", "واحد سازمانی");
-        return descriptor("organization-unit-operating-schedules", CATEGORY, "انتساب ساعات کاری به واحدها", "calendar_month",
-                schemaName, "ORGANIZATION_UNIT_OPERATING_SCHEDULES", "SEQ_ORGANIZATION_UNIT_OPERATING_SCHEDULES",
-                "organizationUnitOperatingScheduleId", "ORGANIZATION_UNIT_OPERATING_SCHEDULE_ID",
-                "organizationUnitOperatingScheduleId", "organizationUnitOperatingScheduleId", parent,
-                fields(
-                        id("organizationUnitOperatingScheduleId", "ORGANIZATION_UNIT_OPERATING_SCHEDULE_ID", "شناسه"),
-                        lookup("organizationUnitId", "ORGANIZATION_UNIT_ID", "واحد سازمانی", "organization-units", true, false),
-                        lookup("operatingScheduleId", "OPERATING_SCHEDULE_ID", "برنامه ساعات کاری", "operating-schedules", true, true),
-                        stringSelect("scheduleRoleCode", "SCHEDULE_ROLE_CODE", "کاربرد برنامه", true, true, "CUSTOMER_SERVICE", SCHEDULE_ROLES),
-                        date("effectiveFrom", "EFFECTIVE_FROM", "شروع اعتبار", false, true),
-                        date("effectiveTo", "EFFECTIVE_TO", "پایان اعتبار", false, true)
-                ));
-    }
-
-    private ReferenceTableDescriptor organizationUnitOperatingExceptions() {
-        ParentDescriptor parent = parent("organization-units", "organizationUnitId", "ORGANIZATION_UNIT_ID", "واحد سازمانی");
-        return descriptor("organization-unit-operating-exceptions", CATEGORY, "استثناهای ساعات کاری واحدها", "event_busy",
-                schemaName, "ORGANIZATION_UNIT_OPERATING_EXCEPTIONS", "SEQ_ORGANIZATION_UNIT_OPERATING_EXCEPTIONS",
-                "organizationUnitOperatingExceptionId", "ORGANIZATION_UNIT_OPERATING_EXCEPTION_ID",
-                "organizationUnitOperatingExceptionId", "organizationUnitOperatingExceptionId", parent,
-                fields(
-                        id("organizationUnitOperatingExceptionId", "ORGANIZATION_UNIT_OPERATING_EXCEPTION_ID", "شناسه"),
-                        lookup("organizationUnitId", "ORGANIZATION_UNIT_ID", "واحد سازمانی", "organization-units", true, false),
-                        date("exceptionDate", "EXCEPTION_DATE", "تاریخ استثنا", true, true),
-                        stringSelect("exceptionTypeCode", "EXCEPTION_TYPE_CODE", "نوع استثنا", true, true, "CLOSED", EXCEPTION_TYPES),
-                        text("descriptionFa", "DESCRIPTION_FA", "توضیحات فارسی", false, true, true, 500),
-                        text("descriptionEn", "DESCRIPTION_EN", "توضیحات انگلیسی", false, false, true, 500)
-                ));
-    }
-
-    private ReferenceTableDescriptor organizationUnitOperatingExceptionIntervals() {
-        ParentDescriptor parent = parent("organization-unit-operating-exceptions", "organizationUnitOperatingExceptionId", "ORGANIZATION_UNIT_OPERATING_EXCEPTION_ID", "استثنای ساعات کاری");
-        return descriptor("organization-unit-operating-exception-intervals", CATEGORY, "بازه‌های استثنای ساعات کاری واحد", "more_time",
-                schemaName, "ORGANIZATION_UNIT_OPERATING_EXCEPTION_INTERVALS", "SEQ_ORGANIZATION_UNIT_OPERATING_EXCEPTION_INTERVALS",
-                "organizationUnitOperatingExceptionIntervalId", "ORGANIZATION_UNIT_OPERATING_EXCEPTION_INTERVAL_ID",
-                "organizationUnitOperatingExceptionIntervalId", "organizationUnitOperatingExceptionIntervalId", parent,
-                fields(
-                        id("organizationUnitOperatingExceptionIntervalId", "ORGANIZATION_UNIT_OPERATING_EXCEPTION_INTERVAL_ID", "شناسه"),
-                        lookup("organizationUnitOperatingExceptionId", "ORGANIZATION_UNIT_OPERATING_EXCEPTION_ID", "استثنای ساعات کاری", "organization-unit-operating-exceptions", true, false),
-                        number("shiftNo", "SHIFT_NO", "شماره شیفت", true, true, 1L),
-                        text("startTime", "START_TIME", "ساعت شروع", true, true, false, 5),
-                        text("endTime", "END_TIME", "ساعت پایان", true, true, false, 5)
-                ));
-    }
-
     private ReferenceTableDescriptor serviceCapabilities() {
         return descriptor("service-capabilities", CATEGORY, "قابلیت‌های خدمت‌رسانی", "room_service",
                 schemaName, "SERVICE_CAPABILITIES", "SEQ_SERVICE_CAPABILITIES",
@@ -613,52 +503,6 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                         number("contactPointId", "CONTACT_POINT_ID", "شناسه راه تماس مشترک", true, true, null),
                         lookup("contactRoleId", "CONTACT_ROLE_ID", "نقش راه تماس", "contact-roles", true, true),
                         bool("primaryFlag", "PRIMARY_FLAG", "راه تماس اصلی", true, true, false)
-                ));
-    }
-
-    private ReferenceTableDescriptor pointOfServiceOperatingSchedules() {
-        ParentDescriptor parent = parent("points-of-service", "pointOfServiceId", "POINT_OF_SERVICE_ID", "نقطه ارائه خدمت");
-        return descriptor("point-of-service-operating-schedules", CATEGORY, "ساعات کاری نقاط خدمت", "calendar_today",
-                schemaName, "SERVICE_POINT_OPERATING_SCHEDULES", "SEQ_POINT_OF_SERVICE_OPERATING_SCHEDULES",
-                "pointOfServiceOperatingScheduleId", "POINT_OF_SERVICE_OPERATING_SCHEDULE_ID",
-                "pointOfServiceOperatingScheduleId", "pointOfServiceOperatingScheduleId", parent,
-                fields(
-                        id("pointOfServiceOperatingScheduleId", "POINT_OF_SERVICE_OPERATING_SCHEDULE_ID", "شناسه"),
-                        lookup("pointOfServiceId", "POINT_OF_SERVICE_ID", "نقطه ارائه خدمت", "points-of-service", true, false),
-                        lookup("operatingScheduleId", "OPERATING_SCHEDULE_ID", "برنامه ساعات کاری", "operating-schedules", true, true),
-                        date("effectiveFrom", "EFFECTIVE_FROM", "شروع اعتبار", false, true),
-                        date("effectiveTo", "EFFECTIVE_TO", "پایان اعتبار", false, true)
-                ));
-    }
-
-    private ReferenceTableDescriptor pointOfServiceOperatingExceptions() {
-        ParentDescriptor parent = parent("points-of-service", "pointOfServiceId", "POINT_OF_SERVICE_ID", "نقطه ارائه خدمت");
-        return descriptor("point-of-service-operating-exceptions", CATEGORY, "استثناهای ساعات کاری نقاط خدمت", "event_busy",
-                schemaName, "SERVICE_POINT_OPERATING_EXCEPTIONS", "SEQ_POINT_OF_SERVICE_OPERATING_EXCEPTIONS",
-                "pointOfServiceOperatingExceptionId", "POINT_OF_SERVICE_OPERATING_EXCEPTION_ID",
-                "pointOfServiceOperatingExceptionId", "pointOfServiceOperatingExceptionId", parent,
-                fields(
-                        id("pointOfServiceOperatingExceptionId", "POINT_OF_SERVICE_OPERATING_EXCEPTION_ID", "شناسه"),
-                        lookup("pointOfServiceId", "POINT_OF_SERVICE_ID", "نقطه ارائه خدمت", "points-of-service", true, false),
-                        date("exceptionDate", "EXCEPTION_DATE", "تاریخ استثنا", true, true),
-                        stringSelect("exceptionTypeCode", "EXCEPTION_TYPE_CODE", "نوع استثنا", true, true, "CLOSED", EXCEPTION_TYPES),
-                        text("descriptionFa", "DESCRIPTION_FA", "توضیحات فارسی", false, true, true, 500),
-                        text("descriptionEn", "DESCRIPTION_EN", "توضیحات انگلیسی", false, false, true, 500)
-                ));
-    }
-
-    private ReferenceTableDescriptor pointOfServiceOperatingExceptionIntervals() {
-        ParentDescriptor parent = parent("point-of-service-operating-exceptions", "pointOfServiceOperatingExceptionId", "POINT_OF_SERVICE_OPERATING_EXCEPTION_ID", "استثنای ساعات کاری");
-        return descriptor("point-of-service-operating-exception-intervals", CATEGORY, "بازه‌های استثنای ساعات کاری نقاط خدمت", "more_time",
-                schemaName, "SERVICE_POINT_OPERATING_EXCEPTION_INTERVALS", "SEQ_POINT_OF_SERVICE_OPERATING_EXCEPTION_INTERVALS",
-                "pointOfServiceOperatingExceptionIntervalId", "POINT_OF_SERVICE_OPERATING_EXCEPTION_INTERVAL_ID",
-                "pointOfServiceOperatingExceptionIntervalId", "pointOfServiceOperatingExceptionIntervalId", parent,
-                fields(
-                        id("pointOfServiceOperatingExceptionIntervalId", "POINT_OF_SERVICE_OPERATING_EXCEPTION_INTERVAL_ID", "شناسه"),
-                        lookup("pointOfServiceOperatingExceptionId", "POINT_OF_SERVICE_OPERATING_EXCEPTION_ID", "استثنای ساعات کاری", "point-of-service-operating-exceptions", true, false),
-                        number("shiftNo", "SHIFT_NO", "شماره شیفت", true, true, 1L),
-                        text("startTime", "START_TIME", "ساعت شروع", true, true, false, 5),
-                        text("endTime", "END_TIME", "ساعت پایان", true, true, false, 5)
                 ));
     }
 
