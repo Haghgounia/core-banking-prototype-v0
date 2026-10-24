@@ -1,0 +1,31 @@
+ID,Domain,Scenario,Expected,Priority,Phase
+R2-001,Entry,Create NOTE without reminder,Entry created no alert scheduled,P0,R2-B
+R2-002,Entry,Create TASK with two reminder rules,Two independent rule rows and future alert instances,P0,R2-C
+R2-003,Entry,Create APPOINTMENT with time range,Valid start/end and IANA time zone,P1,R2-B
+R2-004,Identity,User A requests User B entry,No information leakage 404/403,P0,R2-D
+R2-005,Identity,Request tries setting ownerSubjectId,Ignored or rejected owner derived from principal,P0,R2-D
+R2-006,Entry,Concurrent stale If-Match version,412 without lost update,P0,R2-D
+R2-007,Occurrence,Recurring task completed for one date,Other occurrences remain OPEN,P0,R2-C
+R2-008,Occurrence,Change one occurrence date,Original slot key stays and no duplicate,P0,R2-C
+R2-009,Occurrence,Change this and future dates,Series split no modification of past,P1,R2-C
+R2-010,Recurrence,Monthly Persian 15th,Correct canonical dates for each interval,P0,R2-C
+R2-011,Recurrence,Persian 30 Esfand in non-leap year SKIP,No invalid canonical day generated,P0,R2-C
+R2-012,Recurrence,Persian 30 Esfand last-day resolution,Explicit policy maps to last valid date,P0,R2-C
+R2-013,Recurrence,Change display calendar only,Recurrence semantic base unchanged,P0,R2-C
+R2-014,Alert,Three days and one day and due date,Three separate alerts unique keys,P0,R2-C
+R2-015,Alert,Acknowledge first advance alert,Other advance and due alerts remain,P0,R2-C
+R2-016,Alert,Complete occurrence before due,Future alerts cancelled previous history retained,P0,R2-C
+R2-017,Alert,Snooze alert within allowed bounds,Alert reappears at new trigger without affecting due,P1,R2-C
+R2-018,Scheduler,Browser closed for two days,Pending alerts become available after recovery,P0,R2-C
+R2-019,Scheduler,Two nodes dispatch same slot,One business alert instance via idempotency,P0,R2-C
+R2-020,Scheduler,Crash after claim but before commit,Lease expiry and replay recovers safely,P0,R2-C
+R2-021,Scheduler,Clock zone offset and DST overlap,Deterministic documented policy applied,P1,R2-C
+R2-022,Calendar,Date outside CANONICAL_DAY dataset range,Explicit validation error not silent omission,P0,R2-C
+R2-023,Audit,Update delete and complete,Owner time principal and revision audit records,P0,R2-D
+R2-024,Privacy,Alert notification preview for sensitive entry,No sensitive description exposed in banner or logs,P0,R2-D
+R2-025,Migration,R1B IDs and number of rows preserved,Reconciliation and rollback readiness approved,P0,R2-B
+R2-026,Migration,R1B reminder acknowledgment history,No fabricated historical alerts,P0,R2-B
+R2-027,Regression,Official CAL2 events and working calendars,No change in count data or behavior,P0,R2-D
+R2-028,API,Replay identical Idempotency-Key,Same result no duplicate entry or alert,P0,R2-B
+R2-029,Alert,Cancelled recurring series,Future alerts stop past audit preserved,P0,R2-C
+R2-030,Delivery,External channel repeated provider callback,At-least-once with idempotent receipt,P1,R2-E

@@ -1,0 +1,127 @@
+{
+  "release": "CAL2-R2B2-PILOT-2026-10-24",
+  "status": "SOURCE_CANDIDATE_NOT_ORACLE_TESTED",
+  "baseline_zip": "core-banking-prototype-v0-2026-10-24-0748.zip",
+  "baseline_sha256": "7d9ad811c364e35fe200b8116123329544d95b18866b911de77ce27986bfe21b",
+  "installed_schema_expected": "CAL2 R2-B1 six shadow tables, as supplied in real Oracle export",
+  "oracle_ddl_executed": false,
+  "modified_count": 22,
+  "changed_files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/calendar2/personal/web/Calendar2PersonalController.java",
+      "sha256": "def90f8f25a90e9a77f57a6002ece7b73b6664fd246304f708b6a27afa150a52",
+      "mode": "modify"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/calendar2/personalv2/PersonalV2Controller.java",
+      "sha256": "ac24c96622cafdfef801530ca8bb1d1bafe8d6d9468b95b2b1f5837e1e5df704",
+      "mode": "add"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/calendar2/personalv2/PersonalV2Models.java",
+      "sha256": "3c9b95719587c11d5d050cc61a0545e8f3688f1b87484170d38cb63a4fb64be9",
+      "mode": "add"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/calendar2/personalv2/PersonalV2Repository.java",
+      "sha256": "cfb6b142dfbf3192016bde29a662f48147c9bac87180b3d1de8b827adbf48f0a",
+      "mode": "add"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/calendar2/personalv2/PersonalV2Scheduler.java",
+      "sha256": "4a20d98c07cbeec674061d98754de2d1caef70db7617047949405766a901893e",
+      "mode": "add"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/calendar2/personalv2/PersonalV2Service.java",
+      "sha256": "3879787c7ce4c55509fef62b357472734577f1644588d7a827831b7652310b39",
+      "mode": "add"
+    },
+    {
+      "path": "backend/src/main/resources/application.yml",
+      "sha256": "77c619ee79c4aec6eda3e9151c55160657614fc4a78b9d37d914ff06648ab787",
+      "mode": "modify"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/calendar2/personalv2/PersonalV2ServiceTest.java",
+      "sha256": "853b94c8ebb5beb68593f455e360059fa3ed2c6fd3f9623242484a6b04832f77",
+      "mode": "add"
+    },
+    {
+      "path": "build-production.cmd",
+      "sha256": "6b0b7d0c9d796316ebebd3859342a1aaedb9d4637a8e5f900336e91ee758530f",
+      "mode": "modify"
+    },
+    {
+      "path": "build-production.sh",
+      "sha256": "96f905f32e21efac2a0a8f46c26783e8528979e20ecf630f663ac098414d8c18",
+      "mode": "modify"
+    },
+    {
+      "path": "database/oracle/cal2/verification/CAL2-R2B2-CONTRACT-VERIFY-READONLY.sql",
+      "sha256": "e67977cc4fbe4b57e82d4f3a58e89354f90277ff31d2f2f5b8ceb16d2b24a16d",
+      "mode": "add"
+    },
+    {
+      "path": "docs/cal2/personal-calendar/CAL2-R2B2-PILOT-UAT-2026-10-24-FA.md",
+      "sha256": "5dca5ca09780833a706ae46a86c96fb7761b3ad474e8cec3dd20abf2793cc82b",
+      "mode": "add"
+    },
+    {
+      "path": "frontend/src/app/features/calendar2-reference/calendar2-month-view.component.html",
+      "sha256": "1a5a70512dd0ffc192577e5de7272fb8c796265df51f24a8c370de13254bd7ea",
+      "mode": "modify"
+    },
+    {
+      "path": "frontend/src/app/features/calendar2-reference/calendar2-month-view.component.scss",
+      "sha256": "de7123c9677de22ffe0a62ef7e17b67bd4caae12cc24d887c8700c8647ad5499",
+      "mode": "modify"
+    },
+    {
+      "path": "frontend/src/app/features/calendar2-reference/calendar2-month-view.component.ts",
+      "sha256": "1cb98d9442b013435ded1f404695dbdd434094dd25e50b0596e1c48ee0f792c5",
+      "mode": "modify"
+    },
+    {
+      "path": "frontend/src/app/features/calendar2-reference/calendar2-personal.models.ts",
+      "sha256": "927b8b261d16a3aaa7ce9ac0067b95b1ccd87b5931fd4029ef3cf6f0fb632e9a",
+      "mode": "modify"
+    },
+    {
+      "path": "frontend/src/app/features/calendar2-reference/calendar2-personal.service.ts",
+      "sha256": "36aaa49e5ed2bcb052476753c126422b093b54317334bfdbd7af2fcae5b650c0",
+      "mode": "modify"
+    },
+    {
+      "path": "frontend/src/app/layout/app-shell.component.html",
+      "sha256": "1768f345188f34c75a6545e294f03215097aaacf5b7f91ab5a6f27c9c2de071d",
+      "mode": "modify"
+    },
+    {
+      "path": "frontend/src/app/layout/app-shell.component.ts",
+      "sha256": "3a54561aa7789bc5afa69bdc1e38dd9aaf008a9daf063463711193201dfe54f5",
+      "mode": "modify"
+    },
+    {
+      "path": "tools/verify-cal2-personal-r2b2.mjs",
+      "sha256": "913d9c7275ade50586358ace2d0390e22f31dd12a4f74be70d8dd12e112b0592",
+      "mode": "add"
+    },
+    {
+      "path": "tools/RUN-CAL2-R2B2-PILOT.cmd",
+      "sha256": "0344d0f38296804fe0c63dce8c0efe05116e34e5712ac0a82c0ad31bc8c0e950",
+      "mode": "add"
+    },
+    {
+      "path": "docs/cal2/personal-calendar/CAL2-R2B2-START-HERE-FA.md",
+      "sha256": "bbe614d7edc421b54f0a96d709009a47fcdf6c867760402c2b9ffee0978b5a38",
+      "mode": "add"
+    }
+  ],
+  "source_java_stub_compile": "PASS",
+  "angular_typescript_parse": "PASS",
+  "full_spring_angular_build": "NOT_RUN_NETWORK_DEPENDENCIES_UNAVAILABLE",
+  "oracle_integration": "NOT_RUN",
+  "packaging_fix": "FIX2: No additional root files; Windows launcher moved under tools; legacy FIX1 files relocated safely at runtime",
+  "launcher_os_runtime_test": "NOT_RUN_WINDOWS_RUNTIME_UNAVAILABLE"
+}

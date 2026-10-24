@@ -171,15 +171,15 @@
       </button>
       <mat-menu #personalAlertsMenu="matMenu" class="personal-alert-menu" xPosition="before">
         <div class="personal-alert-menu__head" (click)="$event.stopPropagation()">یادآوری‌های من</div>
-        @for (alert of personalAlerts(); track alert.userCalendarEntryId) {
+        @for (alert of personalAlerts(); track alert.alertId) {
           <div class="personal-alert-row" (click)="$event.stopPropagation()">
             <div class="personal-alert-row__label">
-              <mat-icon>{{ alert.alertKind === 'OVERDUE' ? 'warning_amber' : 'notifications_active' }}</mat-icon>
+              <mat-icon>{{ alert.alertKind === 'ADVANCE' ? 'schedule' : 'notifications_active' }}</mat-icon>
               <div><strong>{{ alert.title }}</strong><small>{{ alertDescription(alert) }}</small></div>
             </div>
             <div class="personal-alert-row__actions">
               <button mat-button type="button" (click)="acknowledgePersonalAlert(alert)">خواندم</button>
-              <button mat-button type="button" (click)="completePersonalAlert(alert)">انجام شد</button>
+              <button mat-button type="button" (click)="snoozePersonalAlert(alert)">۱۵ دقیقه بعد</button>
             </div>
           </div>
         } @empty {

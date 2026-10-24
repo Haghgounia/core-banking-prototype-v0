@@ -6,6 +6,7 @@ import com.behsazan.corebanking.calendar2.personal.domain.Calendar2PersonalModel
 import com.behsazan.corebanking.calendar2.personal.domain.Calendar2PersonalModels.Entry;
 import com.behsazan.corebanking.calendar2.personal.domain.Calendar2PersonalModels.SaveRequest;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@ConditionalOnProperty(name = "core-banking.calendar2.personal.legacy-v1-enabled", havingValue = "true")
 @RequestMapping("/api/v1/calendar2/personal")
 public class Calendar2PersonalController {
     private final Calendar2PersonalService service;

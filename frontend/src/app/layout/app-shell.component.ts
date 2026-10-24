@@ -62,7 +62,7 @@ export class AppShellComponent implements OnDestroy {
       this.personalAlerts.set(inbox.alerts);
       this.personalAlertsUnavailable.set(false);
       // One unobtrusive message when a new due set appears; per-day acknowledgment is stored in Oracle.
-      const signature = inbox.alerts.map(a => a.userCalendarEntryId + ':' + a.alertKind).sort().join('|');
+      const signature = inbox.alerts.map(a => a.alertId + ':' + a.alertKind).sort().join('|');
       if (inbox.alerts.length && (!this.notificationInitialized || signature !== this.lastAlertSignature)) {
         const notice = this.snackBar.open(
           inbox.alerts.length === 1 ? `یادآوری: ${inbox.alerts[0].title}` : `${inbox.alerts.length} یادآوری برای بررسی دارید`,
@@ -73,7 +73,7 @@ export class AppShellComponent implements OnDestroy {
       this.lastAlertSignature = signature;
       this.notificationInitialized = true;
     } catch {
-      // CAL2 R1 may not be installed in Oracle yet. The rest of the prototype must remain usable.
+      // R2-B2 may be disabled until IAM or explicit demo mode is configured.
       this.personalAlertsUnavailable.set(true);
       this.personalAlerts.set([]);
     } finally { this.personalAlertsLoading.set(false); }
@@ -81,26 +81,25 @@ export class AppShellComponent implements OnDestroy {
 
   async acknowledgePersonalAlert(alert: Calendar2PersonalAlert): Promise<void> {
     try {
-      await firstValueFrom(this.reminders.acknowledge(alert.userCalendarEntryId));
+      await firstValueFrom(this.reminders.acknowledge(alert.alertId));
       this.reminders.changed();
     } catch {
       this.snackBar.open('ثبت وضعیت مشاهده یادآوری انجام نشد.', 'بستن', {duration: 6000});
     }
   }
 
-  async completePersonalAlert(alert: Calendar2PersonalAlert): Promise<void> {
+  async snoozePersonalAlert(alert: Calendar2PersonalAlert): Promise<void> {
     try {
-      await firstValueFrom(this.reminders.completion(alert.userCalendarEntryId, true));
+      await firstValueFrom(this.reminders.snooze(alert.alertId, 15));
       this.reminders.changed();
     } catch {
-      this.snackBar.open('ثبت انجام‌شدن یادآوری انجام نشد.', 'بستن', {duration: 6000});
+      this.snackBar.open('تعویق یادآوری انجام نشد.', 'بستن', {duration: 6000});
     }
   }
 
   alertDescription(alert: Calendar2PersonalAlert): string {
     switch (alert.alertKind) {
-      case 'DUE': return 'موعد امروز · ساعت ' + alert.reminderTime;
-      case 'OVERDUE': return `${Math.abs(alert.daysToDue)} روز از موعد گذشته`;
+      case 'DUE': return alert.daysToDue < 0 ? `${Math.abs(alert.daysToDue)} روز از موعد گذشته` : 'موعد امروز · ساعت ' + alert.reminderTime;
       default: return `${alert.daysToDue} روز تا موعد · ساعت ${alert.reminderTime}`;
     }
   }

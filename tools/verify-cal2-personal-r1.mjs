@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 import {existsSync, readFileSync} from 'node:fs';
-import {join} from 'node:path';
+import {join, dirname, resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-const root = process.cwd();
+// Derive the project root from this verifier's physical location.
+// Works from any current directory and on Windows drive-letter paths.
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const paths = [
   'backend/src/main/java/com/behsazan/corebanking/calendar2/personal/domain/Calendar2PersonalModels.java',
   'backend/src/main/java/com/behsazan/corebanking/calendar2/personal/application/Calendar2PersonalAlertPolicy.java',

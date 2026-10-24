@@ -84,6 +84,10 @@ node "$ROOT/tools/verify-calendar-month-view.mjs"
 node "$ROOT/tools/verify-calendar-form-usability.mjs"
 node "$ROOT/tools/verify-calendar-current-year-default.mjs"
 node "$ROOT/tools/verify-calendar2-reference.mjs"
+# CAL2 Personal R2-B2 shadow schema + v2 API + durable-alert wiring.
+node "$ROOT/tools/verify-cal2-personal-r2b2.mjs"
+# CAL2 R2-B2 FIX5: accessible wide personal editor and non-overlapping time hints.
+node "$ROOT/tools/verify-cal2-personal-form-layout.mjs"
 node "$ROOT/tools/verify-calendar2-month-view.mjs"
 node "$ROOT/tools/verify-calendar2-business-calendar-lookups.mjs"
 node "$ROOT/tools/verify-calendar2-business-calendar-day-grid.mjs"

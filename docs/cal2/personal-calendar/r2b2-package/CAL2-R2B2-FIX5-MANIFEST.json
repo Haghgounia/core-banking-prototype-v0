@@ -1,0 +1,46 @@
+{
+  "patch": "CAL2-R2B2-UI-FIX5",
+  "base": "CAL2-R2B2-FIX4",
+  "files": [
+    {
+      "path": "build-production.cmd",
+      "sha256": "88f1de84bcdce2b4452771953ae78d3003bc639f04d3c91efc998e332aaecbf8",
+      "bytes": 21571
+    },
+    {
+      "path": "build-production.sh",
+      "sha256": "e540246f4a1fbf4fa414bf485c53101e29e0552c179ddebc2828ef4686977c11",
+      "bytes": 10548
+    },
+    {
+      "path": "docs/cal2/personal-calendar/r2b2-package/CAL2-R2B2-FIX5-MANIFEST.json",
+      "sha256": "92d4e388911c5e14fb37ca2c2daeaf5730b265f6e9e994b3de8a5856386b8864",
+      "bytes": 1423
+    },
+    {
+      "path": "docs/cal2/personal-calendar/r2b2-package/CAL2-R2B2-FIX5-UI-README-FA.md",
+      "sha256": "250b92e74ba6d868ca2f2f91636eb463e68bfdfa024418d07ad67de7c5ecb26b",
+      "bytes": 4291
+    },
+    {
+      "path": "frontend/src/app/features/calendar2-reference/calendar2-month-view.component.html",
+      "sha256": "9efa260bcb664b02e61a123208cfcc99cec0694d1199ff39c5cad61275dfbe78",
+      "bytes": 23149
+    },
+    {
+      "path": "frontend/src/app/features/calendar2-reference/calendar2-month-view.component.scss",
+      "sha256": "fb09ea7f715cd603e2a2c2b6c1b04776552f46193be9c144fc42cb53b36358ef",
+      "bytes": 16306
+    },
+    {
+      "path": "frontend/src/app/features/calendar2-reference/calendar2-month-view.component.ts",
+      "sha256": "d9b02db117f2fb3357dd0b578f187b49d3203d1de2b3097e49f4a9942b525c4b",
+      "bytes": 17091
+    },
+    {
+      "path": "tools/verify-cal2-personal-form-layout.mjs",
+      "sha256": "47b3cbcd35b824832298f7f063c482f5aa028000e68ec7ace2b43b3d2c5ae37f",
+      "bytes": 3328
+    }
+  ]
+}

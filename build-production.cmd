@@ -152,8 +152,10 @@ node "%ROOT%tools\verify-calendar-current-year-default.mjs" || exit /b 1
 rem CAL2 static guard: independent forms/DDL, recurring events and ZIP JDBC import.
 node "%ROOT%tools\verify-calendar2-reference.mjs" || exit /b 1
 
-rem CAL2 Personal R1C: fail build if Oracle ENTRIES naming and API/UI contract diverge.
-node "%ROOT%tools\verify-cal2-personal-r1c.mjs" || exit /b 1
+rem CAL2 Personal R2-B2: enforce installed shadow schema + v2 API, fail-closed demo and durable alerts.
+node "%ROOT%tools\verify-cal2-personal-r2b2.mjs" || exit /b 1
+rem CAL2 R2-B2 FIX5: accessible wide personal editor and non-overlapping time hints.
+node "%ROOT%tools\verify-cal2-personal-form-layout.mjs" || exit /b 1
 
 rem FIX65 static guard: CAL2 monthly calendar read model and Angular month view.
 node "%ROOT%tools\verify-calendar2-month-view.mjs" || exit /b 1
