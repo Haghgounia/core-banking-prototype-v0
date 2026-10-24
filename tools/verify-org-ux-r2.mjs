@@ -23,10 +23,10 @@ try {
     assert(!menuBlocks.some(block => block.includes(`'${hidden}'`)), `${hidden} in menu`);
     assert(desc.includes(`"${hidden}"`), `${hidden} descriptor was removed`);
   }
-  assert([...menu.split('readonly groups:')[1].split('readonly gradeTools')[0].matchAll(/title: '[^']+', description:/g)].length === 6, 'ORG menu must have 6 topic groups');
+  assert([...menu.split('readonly groups:')[1].split('readonly gradeTools')[0].matchAll(/title: '[^']+', description:/g)].length === 7, 'ORG menu must have 7 topic groups');
   assert(menuHtml.includes('quickLinks') && menuHtml.includes('toggleGroup(group)'), 'quick access/collapsible groups missing');
   assert(!menuHtml.includes('شبکه') && !shell.includes('شبکه شعب') && !desc.includes('"توسعه شبکه"'), 'obsolete UI wording remains');
-  console.log('PASS navigation: 6 groups, quick links, 4 hidden links, no unwanted network wording');
+  console.log('PASS navigation: 7 groups, quick links, 7 hidden links, no unwanted network wording');
 
   assert(levelUi.includes('value="درجه‌بندی شعب" readonly'), 'grade scheme is not readonly');
   assert(!levelUi.includes('[(ngModel)]="form.gradeSchemeCode"'), 'grade scheme still editable');

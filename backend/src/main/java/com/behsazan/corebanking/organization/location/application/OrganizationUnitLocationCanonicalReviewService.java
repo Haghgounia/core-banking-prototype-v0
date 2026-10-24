@@ -14,9 +14,9 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * R2-A: read-only canonical snapshot review AFTER the verified R1 backfill.
+ * R2-A: canonical snapshot review after R1, with R2-B managed records distinguished.
  * The stored unit-location row is the display source; legacy tables are read only
- * to flag subsequent drift. No writes or assumed physical/virtual classification.
+ * to flag subsequent drift. This service never writes; R2-B writes are separately audited.
  * Requires all 26 R1 additive columns to exist in the ORG schema.
  */
 @Service
@@ -38,7 +38,7 @@ public class OrganizationUnitLocationCanonicalReviewService {
     public record Summary(long unitLocationRows, long verifiedSnapshots,
                           long unbackfilledRows, long sourceDriftRows,
                           long missingLegacySources, long unlinkedLegacyAddresses,
-                          long ambiguousLegacyAddresses, long openPrimaryDuplicateUnitGroups) {}
+                          long ambiguousLegacyAddresses, long openPrimaryDuplicateUnitGroups, long managedCanonicalRows) {}
 
     public record Row(long organizationUnitLocationId, long organizationUnitId,
                       String unitCode, String unitNameFa, Long legacyLocationId,
@@ -46,7 +46,7 @@ public class OrganizationUnitLocationCanonicalReviewService {
                       Long geoEntityId, BigDecimal latitude, BigDecimal longitude,
                       String addressTypeCode, String postalCode, String addressFa,
                       String addressEn, Long legacyPostalAddressId,
-                      int legacyBackfillFlag, long rowVersion, String sourceStatus) {}
+                      int legacyBackfillFlag, int canonicalManagedFlag, String unitPresenceCode, String addressUsageCode, long rowVersion, String sourceStatus) {}
 
     public record Snapshot(Summary summary, List<Row> rows, String reviewMode,
                            int rowLimit, int page, long filteredRows) {}
@@ -59,7 +59,7 @@ public class OrganizationUnitLocationCanonicalReviewService {
         if (query.length() > 100) query = query.substring(0, 100);
         String like = query.isEmpty() ? null : "%" + query.toUpperCase(Locale.ROOT) + "%";
 
-        String cte = canonicalCte();
+        String cte = canonicalCte(r2bColumnsReady());
         String summarySql = cte + """
                 SELECT COUNT(*) AS TOTAL_ROWS,
                        NVL(SUM(CASE WHEN SOURCE_STATUS='MATCH' THEN 1 ELSE 0 END),0) AS VERIFIED_ROWS,
@@ -67,14 +67,15 @@ public class OrganizationUnitLocationCanonicalReviewService {
                        NVL(SUM(CASE WHEN SOURCE_STATUS='DRIFT' THEN 1 ELSE 0 END),0) AS DRIFT_ROWS,
                        NVL(SUM(CASE WHEN SOURCE_STATUS IN ('MISSING_LOCATION','MISSING_ADDRESS') THEN 1 ELSE 0 END),0) AS MISSING_SOURCES,
                        NVL(SUM(CASE WHEN SOURCE_STATUS='UNLINKED_ADDRESS' THEN 1 ELSE 0 END),0) AS UNLINKED_ADDRESSES,
-                       NVL(SUM(CASE WHEN SOURCE_STATUS='AMBIGUOUS_ADDRESS' THEN 1 ELSE 0 END),0) AS AMBIGUOUS_ADDRESSES
+                       NVL(SUM(CASE WHEN SOURCE_STATUS='AMBIGUOUS_ADDRESS' THEN 1 ELSE 0 END),0) AS AMBIGUOUS_ADDRESSES,
+                       NVL(SUM(CASE WHEN SOURCE_STATUS IN ('CANONICAL_EDITED','NATIVE_RECORD') THEN 1 ELSE 0 END),0) AS MANAGED_ROWS
                   FROM CANONICAL_ROWS
                 """;
         Summary partial = jdbc.queryForObject(summarySql, new MapSqlParameterSource(), (rs, rowNum) ->
                 new Summary(rs.getLong("TOTAL_ROWS"), rs.getLong("VERIFIED_ROWS"),
                         rs.getLong("UNBACKFILLED_ROWS"), rs.getLong("DRIFT_ROWS"),
                         rs.getLong("MISSING_SOURCES"), rs.getLong("UNLINKED_ADDRESSES"),
-                        rs.getLong("AMBIGUOUS_ADDRESSES"), 0));
+                        rs.getLong("AMBIGUOUS_ADDRESSES"), 0, rs.getLong("MANAGED_ROWS")));
         if (partial == null) {
             throw new IllegalStateException("Could not read canonical ORG location summary");
         }
@@ -91,7 +92,8 @@ public class OrganizationUnitLocationCanonicalReviewService {
         Summary summary = new Summary(partial.unitLocationRows(), partial.verifiedSnapshots(),
                 partial.unbackfilledRows(), partial.sourceDriftRows(),
                 partial.missingLegacySources(), partial.unlinkedLegacyAddresses(),
-                partial.ambiguousLegacyAddresses(), duplicateCount == null ? 0 : duplicateCount);
+                partial.ambiguousLegacyAddresses(), duplicateCount == null ? 0 : duplicateCount,
+                partial.managedCanonicalRows());
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("organizationUnitId", organizationUnitId, java.sql.Types.NUMERIC)
@@ -111,7 +113,8 @@ public class OrganizationUnitLocationCanonicalReviewService {
                        UNIT_NAME_FA, LEGACY_LOCATION_ID, LOCATION_ROLE_CODE,
                        EFFECTIVE_FROM, EFFECTIVE_TO, GEO_ENTITY_ID, LATITUDE, LONGITUDE,
                        ADDRESS_TYPE_CODE, POSTAL_CODE, ADDRESS_FA, ADDRESS_EN,
-                       LEGACY_POSTAL_ADDRESS_ID, LEGACY_BACKFILL_FLAG, ROW_VERSION, SOURCE_STATUS
+                       LEGACY_POSTAL_ADDRESS_ID, LEGACY_BACKFILL_FLAG, CANONICAL_MANAGED_FLAG,
+                       UNIT_PRESENCE_CODE, ADDRESS_USAGE_CODE, ROW_VERSION, SOURCE_STATUS
                   FROM CANONICAL_ROWS
                  WHERE (:organizationUnitId IS NULL OR ORGANIZATION_UNIT_ID=:organizationUnitId)
                    AND (:text IS NULL OR UPPER(UNIT_CODE) LIKE :text OR UPPER(UNIT_NAME_FA) LIKE :text)
@@ -127,12 +130,22 @@ public class OrganizationUnitLocationCanonicalReviewService {
                 rs.getBigDecimal("LONGITUDE"), rs.getString("ADDRESS_TYPE_CODE"),
                 rs.getString("POSTAL_CODE"), rs.getString("ADDRESS_FA"),
                 rs.getString("ADDRESS_EN"), nullableLong(rs, "LEGACY_POSTAL_ADDRESS_ID"),
-                rs.getInt("LEGACY_BACKFILL_FLAG"), rs.getLong("ROW_VERSION"),
+                rs.getInt("LEGACY_BACKFILL_FLAG"), rs.getInt("CANONICAL_MANAGED_FLAG"),
+                rs.getString("UNIT_PRESENCE_CODE"), rs.getString("ADDRESS_USAGE_CODE"), rs.getLong("ROW_VERSION"),
                 rs.getString("SOURCE_STATUS")));
         return new Snapshot(summary, rows, "CANONICAL_R2A_READ_ONLY", limit, page, filteredRows);
     }
 
-    private String canonicalCte() {
+    private boolean r2bColumnsReady() {
+        Long count=jdbc.queryForObject("""
+                SELECT COUNT(*) FROM ALL_TAB_COLUMNS
+                 WHERE OWNER=:schema AND TABLE_NAME='ORGANIZATION_UNIT_LOCATIONS'
+                   AND COLUMN_NAME IN ('CANONICAL_MANAGED_FLAG','UNIT_PRESENCE_CODE','ADDRESS_USAGE_CODE')
+                """, new MapSqlParameterSource("schema",schema),Long.class);
+        return count!=null && count==3;
+    }
+
+    private String canonicalCte(boolean managedColumnsPresent) {
         // DECODE treats two NULL values as equal. Compare all 19 content fields
         // plus source postal-address ID, exactly as the approved R1 verifier did.
         String differences = String.join(" + ",
@@ -165,8 +178,10 @@ public class OrganizationUnitLocationCanonicalReviewService {
                            UL.GEO_ENTITY_ID, UL.LATITUDE, UL.LONGITUDE,
                            UL.ADDRESS_TYPE_CODE, UL.POSTAL_CODE, UL.ADDRESS_FA,
                            UL.ADDRESS_EN, UL.LEGACY_POSTAL_ADDRESS_ID,
-                           UL.LEGACY_BACKFILL_FLAG, UL.ROW_VERSION,
+                           UL.LEGACY_BACKFILL_FLAG, %3$s AS CANONICAL_MANAGED_FLAG,
+                           %4$s AS UNIT_PRESENCE_CODE, %5$s AS ADDRESS_USAGE_CODE, UL.ROW_VERSION,
                            CASE
+                             WHEN UL.LOCATION_ID IS NULL AND %3$s=1 THEN 'NATIVE_RECORD'
                              WHEN UL.LEGACY_BACKFILL_FLAG<>1 THEN 'NOT_BACKFILLED'
                              WHEN L.LOCATION_ID IS NULL THEN 'MISSING_LOCATION'
                              WHEN UL.LEGACY_POSTAL_ADDRESS_ID IS NOT NULL
@@ -178,6 +193,7 @@ public class OrganizationUnitLocationCanonicalReviewService {
                                    WHERE P2.LOCATION_ID=UL.LOCATION_ID) THEN 'UNLINKED_ADDRESS'
                              WHEN (SELECT COUNT(*) FROM %1$s.POSTAL_ADDRESSES P2
                                     WHERE P2.LOCATION_ID=UL.LOCATION_ID)>1 THEN 'AMBIGUOUS_ADDRESS'
+                             WHEN %3$s=1 THEN 'CANONICAL_EDITED'
                              WHEN (%2$s)<>0 THEN 'DRIFT'
                              ELSE 'MATCH'
                            END AS SOURCE_STATUS
@@ -188,7 +204,10 @@ public class OrganizationUnitLocationCanonicalReviewService {
                       LEFT JOIN %1$s.POSTAL_ADDRESSES P
                         ON P.POSTAL_ADDRESS_ID=UL.LEGACY_POSTAL_ADDRESS_ID
                 )
-                """.formatted(schema, differences);
+                """.formatted(schema, differences,
+                managedColumnsPresent ? "UL.CANONICAL_MANAGED_FLAG" : "0",
+                managedColumnsPresent ? "UL.UNIT_PRESENCE_CODE" : "CAST(NULL AS VARCHAR2(20))",
+                managedColumnsPresent ? "UL.ADDRESS_USAGE_CODE" : "CAST(NULL AS VARCHAR2(20))");
     }
 
     private static Long nullableLong(ResultSet rs, String column) throws SQLException {

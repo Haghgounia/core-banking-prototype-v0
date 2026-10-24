@@ -101,6 +101,11 @@ node "$ROOT/tools/verify-org-forms.mjs"
 node "$ROOT/tools/verify-org-cal2-consolidation.mjs"
 node "$ROOT/tools/verify-org-unit-location-r1.mjs"
 node "$ROOT/tools/verify-org-unit-location-r2a.mjs"
+# ORG location menu cleanup + contact master read-only screening.
+node "$ROOT/tools/verify-org-menu-contact-review.mjs"
+node "$ROOT/tools/verify-org-contacts-r1.mjs"
+# ORG R2-C: map and business-facing location/contact UI.
+node "$ROOT/tools/verify-org-r2c-map-ux.mjs"
 node "$ROOT/tools/verify-cif-isic2.mjs"
 node "$ROOT/tools/verify-pdl-product-builder.mjs"
 # PB-R13: audited deposit form parity with reviewed standalone HTML.

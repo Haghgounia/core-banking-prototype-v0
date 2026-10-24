@@ -35,12 +35,15 @@ console.log('PASS GET-only canonical snapshot, 20 strict field comparisons and p
 assert(routes.includes("path: 'organization/unit-locations-canonical'") &&
   routes.indexOf("path: 'organization/unit-locations-canonical'") < routes.indexOf("path: 'organization/:resource'"),
   'canonical route missing or shadowed by catch-all');
-for (const token of ["unit-locations-canonical", "legacyBackfillFlag", "sourceStatus", "rowVersion", "postalCode", "geoEntityId", "organizationUnitLocationId", "sourceDriftRows", "ambiguousLegacyAddresses", "hasRisks", "pageCount", "routerLink=\"/organization/unit-locations-review\""]) {
-  assert(ui.includes(token), `canonical page missing field or safeguard: ${token}`);
+for (const token of ['organizationUnitLocationId','rowVersion','postalCode','geoEntityId','pageCount']) {
+  assert(ui.includes(token), `location page missing essential field: ${token}`);
+}
+for (const token of ['legacyBackfillFlag','sourceStatus','sourceDriftRows','ambiguousLegacyAddresses']) {
+  assert(service.includes(token), `read-only integrity evidence must remain available through API: ${token}`);
 }
 assert(menu.includes('routerLink="/organization/unit-locations-canonical"') &&
   quick.includes("resource: 'unit-locations-canonical'"), 'canonical view not available from ORG navigation');
-console.log('PASS Angular canonical review, risk badges, standalone routing and legacy cross-check');
+console.log('PASS Angular location management, standalone routing and retained backend integrity evidence');
 assert(routerConfig.includes('withHashLocation()') &&
   installGuide.includes('http://localhost:8091/#/organization/unit-locations-canonical') &&
   installGuide.includes('http://localhost:8091/#/organization/unit-locations-review') &&

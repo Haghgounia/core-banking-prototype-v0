@@ -87,6 +87,9 @@ export const routes: Routes = [
       {path: 'organization', loadComponent: () => import('./features/organization/organization-menu.component').then(m => m.OrganizationMenuComponent)},
       {path: 'organization/unit-locations-review', loadComponent: () => import('./features/organization/organization-unit-locations-review.component').then(m => m.OrganizationUnitLocationsReviewComponent)},
       {path: 'organization/unit-locations-canonical', loadComponent: () => import('./features/organization/organization-unit-locations-canonical.component').then(m => m.OrganizationUnitLocationsCanonicalComponent)},
+      {path: 'organization/branch-map', loadComponent: () => import('./features/organization/organization-branch-map.component').then(m => m.OrganizationBranchMapComponent)},
+      {path: 'organization/unit-contacts', loadComponent: () => import('./features/organization/organization-unit-contacts.component').then(m => m.OrganizationUnitContactsComponent)},
+      {path: 'organization/organization-unit-contact-points', redirectTo: 'organization/unit-contacts', pathMatch: 'full'},
       {path: 'organization/grade-levels', loadComponent: () => import('./features/organization/organization-grade-levels.component').then(m => m.OrganizationGradeLevelsComponent)},
       {path: 'organization/grade-periods', loadComponent: () => import('./features/organization/organization-grade-periods.component').then(m => m.OrganizationGradePeriodsComponent)},
       // Deprecated ORG working-hours routes now point to the CAL2 source of truth.

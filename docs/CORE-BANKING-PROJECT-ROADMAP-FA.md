@@ -1,3 +1,9 @@
+## ORG R2-B — ردیابی اطلاعات تماس و تکمیل مدیریت مکان/نشانی (در انتظار UAT)
+
+- داده‌های تماس شعب: ثبت در مرجع ORG هنوز صفر رکورد بوده؛ محل داده‌های گردآوری‌شده از منابع رسمی با SQL صرفاً خواندنی باید تعیین و با واحدهای بانکی مطابقت داده شود؛ **انتقال تلفن هنوز انجام نشده است**.
+- مکان و نشانی: کد UI/API ثبت و اصلاحیه پیاده شده، اسکریپت نصب اختیاری و تاریخچه تغییرات مهیا است. اجرای Oracle و آزمون Runtime باقی است. چهار انتساب مکان 1327 و 1340 ردیف R1 محفوظ می‌مانند.
+- تأیید نهایی پس از بررسی DBA، UAT واقعی و تثبیت قواعد هویت کاربر/Approval.
+
 # نقشه راه کلان Core Banking Prototype — ثبت اولویت ORG و تعلیق توسعه CAL2
 
 **نسخه مبنا:** `0.11.0`، سورس دریافتی `core-banking-prototype-v0-2026-10-24-1043.zip`  
@@ -94,3 +100,15 @@
 - `DONE` برای هر مورد فقط با ثبت آزمون مناسب، نتیجه و نسخه دقیق سورس / Schema مجاز است.
 - برای تغییر DDL یا داده Oracle، Script مستقل، PREVIEW فقط‌خواندنی، Apply آگاهانه و گزارش Verify لازم است؛ هیچ حذف/تغییرنامی خودکار نیست.
 - نقشه راه جدید ORG نباید تصمیمات حوزه DPS2 / Product Builder را خودکار تغییر دهد.
+
+
+### ORG-04 UI follow-up and ORG-07 contact baseline (24 Oct 2026)
+
+- R1: committed + externally post-COMMIT verified (1340/1340, zero mismatches); source tables remain intact.
+- R2-A menu cleanup: hide only three generic legacy location/postal/unit-location editor entries. Keep one canonical read-only view; retain descriptors, physical tables, and diagnostic deep links until full CRUD cutover.
+- ORG-07 contact model: `ORG.ORGANIZATION_UNIT_CONTACT_POINTS.CONTACT_POINT_ID` and service-point equivalent are numeric references with no validated master FK in current ORG DDL. Their reference owner and actual stored rows are still to be established. Read-only baseline SQL is included under `database/oracle/org/contact-points/`.
+- No contact write workflow or deletion of location tables is approved by this source-only patch.
+
+### ORG-07A — اصلاح عملیاتی راه‌های تماس واحدها (سورس تحویل‌شده؛ نصب Oracle و UAT در انتظار)
+
+پس از اجرای SQL تشخیصی R0 در ۲۴ اکتبر ۲۰۲۶ مشخص شد ۱۲ نقش تماس موجود است اما **هر دو جدول انتساب تماس ORG صفر رکورد دارند**؛ هیچ شناسه تماس متصل به Master معتبر وجود ندارد. طراحی اصلاحی از CIF/Party مستقل است. در سورس کاری، `ORG.CONTACT_POINTS` با کلید `NUMBER(8)`, FKهای انتساب، کنترل نسخه، فرم اختصاصی انتخاب واحد/نوع/مقدار/نقش/تاریخ، API تراکنشی و منع نوشتن از Generic legacy آماده شده‌اند. **وضعیت: `SOURCE_RELEASED / ORACLE_NOT_APPLIED / BROWSER_AND_DB_UAT_PENDING`**. حذف جدول یا انتقال داده‌ای انجام نشده است. سند جزئیات: `docs/org-contacts/ORG-CONTACTS-R1-WORKING-NOTES-FA.md`. نسخه یکپارچه سورس ORG-CONTACTS-R1 تحویل شد؛ راهنمای نصب و محدودیت‌ها در `docs/org-contacts/ORG-CONTACTS-R1-RELEASE-INSTALL-FA.md` است.

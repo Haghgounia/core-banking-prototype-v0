@@ -42,12 +42,16 @@ const menu = read('frontend/src/app/features/organization/organization-menu.comp
 assert(routes.includes("path: 'organization/unit-locations-review'") &&
   routes.indexOf("path: 'organization/unit-locations-review'") < routes.indexOf("path: 'organization/:resource'"), 'specific review route must precede the generic resource route');
 for (const token of ['reviewMode', 'legacyPostalAddressId', 'postalAddressCount > 1',
-  'organizationUnitLocationId', 'routerLink="/organization/postal-addresses"',
-  'routerLink="/organization/locations"', 'routerLink="/organization/organization-unit-locations"']) {
+  'organizationUnitLocationId']) {
   assert(component.includes(token), `review UI misses: ${token}`);
 }
-assert(menu.includes('routerLink="/organization/unit-locations-review"'), 'menu lacks review link');
-console.log('PASS Angular read-only consolidation page, safe routes and legacy access');
+for (const retired of ['locations','postal-addresses','organization-unit-locations']) {
+  assert(!component.includes(`routerLink="/organization/${retired}"`), `${retired} old editor entry advertised in source review`);
+}
+assert(!menu.includes('routerLink="/organization/unit-locations-review"') &&
+  menu.includes('routerLink="/organization/unit-locations-canonical"'),
+  'menu must lead to canonical viewer, not legacy view');
+console.log('PASS read-only source view retained, legacy editors hidden from navigation, canonical route advertised');
 
 assert(preview.includes('EXACT COUNTS') && preview.includes('LISTAGG(') && preview.includes('SERVICE_POINTS') &&
   preview.includes('OPEN_PRIMARY_ROWS'), 'read-only preview misses count/ambiguity/point-service evidence');

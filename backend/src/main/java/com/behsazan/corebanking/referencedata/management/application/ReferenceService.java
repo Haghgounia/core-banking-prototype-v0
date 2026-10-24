@@ -60,7 +60,7 @@ public class ReferenceService {
 
     @Transactional
     public ReferenceRecordResponse create(String resource, Map<String, Object> request, long actorId) {
-        requireNotLegacyClassificationWrite(resource);
+        requireNotLegacyGenericWrite(resource);
         ReferenceTableDescriptor descriptor = registry.require(resource);
         Map<String, Object> values = validate(descriptor, request);
         if ("organization-units".equals(resource) && gradeBranchActivationGuard != null)
@@ -71,7 +71,7 @@ public class ReferenceService {
 
     @Transactional
     public ReferenceRecordResponse update(String resource, long id, Map<String, Object> request, long actorId) {
-        requireNotLegacyClassificationWrite(resource);
+        requireNotLegacyGenericWrite(resource);
         ReferenceTableDescriptor descriptor = registry.require(resource);
         Map<String, Object> values = validate(descriptor, request);
         if ("organization-units".equals(resource) && gradeBranchActivationGuard != null)
@@ -107,7 +107,7 @@ public class ReferenceService {
 
     @Transactional
     public void delete(String resource, long id) {
-        requireNotLegacyClassificationWrite(resource);
+        requireNotLegacyGenericWrite(resource);
         ReferenceTableDescriptor descriptor = registry.require(resource);
         if (!repository.delete(descriptor, id)) {
             throw notFound(descriptor, id);
@@ -136,7 +136,23 @@ public class ReferenceService {
         return result;
     }
 
-    private static void requireNotLegacyClassificationWrite(String resource) {
+    private static void requireNotLegacyGenericWrite(String resource) {
+        // After the R1 backfill, the three generic legacy editors would create two competing
+        // sources of truth. Keep their descriptors/routes for reading, but require canonical
+        // writes with audit via the dedicated location API.
+        if ("locations".equals(resource) || "postal-addresses".equals(resource)
+                || "organization-unit-locations".equals(resource)) {
+            throw new ReferenceValidationException(
+                    "ثبت و ویرایش مکان یا نشانی از این فرم قدیمی غیرفعال شده است؛ از فرم مکان و نشانی استقرار واحدهای سازمانی استفاده کنید.",
+                    Map.of("resource", "به مسیر /organization/unit-locations-canonical مراجعه کنید."));
+        }
+        // The dedicated ORG contact API validates master ownership and effective-period conflicts;
+        // the legacy generic editor must not bypass those business rules.
+        if ("organization-unit-contact-points".equals(resource)) {
+            throw new ReferenceValidationException(
+                    "ثبت اطلاعات تماس واحدها فقط از فرم اختصاصی اطلاعات تماس واحدهای سازمانی مجاز است.",
+                    Map.of("resource", "به مسیر /organization/unit-contacts مراجعه کنید."));
+        }
         if ("organization-unit-classifications".equals(resource)) {
             throw new ReferenceValidationException(
                     "طبقه‌بندی قدیمی واحدها صرفاً برای مطالعه و مهاجرت نگهداری می‌شود؛ از فرم‌های جدید درجه‌بندی استفاده کنید.",

@@ -186,6 +186,11 @@ node "%ROOT%tools\verify-org-forms.mjs" || exit /b 1
 node "%ROOT%tools\verify-org-cal2-consolidation.mjs" || exit /b 1
 node "%ROOT%tools\verify-org-unit-location-r1.mjs" || exit /b 1
 node "%ROOT%tools\verify-org-unit-location-r2a.mjs" || exit /b 1
+rem ORG location menu cleanup + contact master read-only screening.
+node "%ROOT%tools\verify-org-menu-contact-review.mjs" || exit /b 1
+node "%ROOT%tools\verify-org-contacts-r1.mjs" || exit /b 1
+rem ORG R2-C: geographic map + operational UI + data-safety verification.
+node "%ROOT%tools\verify-org-r2c-map-ux.mjs" || exit /b 1
 echo [VERIFY] CIF ISIC2 clean hierarchy...
 node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 

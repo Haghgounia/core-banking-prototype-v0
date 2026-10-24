@@ -560,7 +560,7 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
 
     private ReferenceTableDescriptor organizationUnitContactPoints() {
         ParentDescriptor parent = parent("organization-units", "organizationUnitId", "ORGANIZATION_UNIT_ID", "واحد سازمانی");
-        return descriptor("organization-unit-contact-points", CATEGORY, "راه‌های تماس واحدها", "call",
+        return descriptor("organization-unit-contact-points", CATEGORY, "اطلاعات تماس واحدهای سازمانی", "call",
                 schemaName, "ORGANIZATION_UNIT_CONTACT_POINTS", "SEQ_ORGANIZATION_UNIT_CONTACT_POINTS",
                 "organizationUnitContactPointId", "ORGANIZATION_UNIT_CONTACT_POINT_ID",
                 "organizationUnitContactPointId", "organizationUnitContactPointId", parent,

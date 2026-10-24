@@ -1,3 +1,27 @@
+## 2026-10-24 — ORG R2-C: Branch map and operational wording
+
+- New Iran branch and organization-unit map with GEO province/county/city/rural-district filters, clustered georeferenced markers, and direct links to location/contact records.
+- Business-facing titles: «نشانی و موقعیت شعب و واحدها» and «راه‌های ارتباطی شعب و واحدها»; migration-era labels removed from these screens.
+- Location create/edit uses existing opt-in R2-B audit and concurrency gates; no automatic Oracle DDL or backfill.
+- Contact grid refresh/selection links improved. Existing phone data is not fabricated or silently mapped; official-source reconciliation remains a separate reviewed task.
+- New `verify-org-r2c-map-ux.mjs` in Windows/Linux build pipelines; safe preview/install runbook in `docs/install`.
+
+## ORG R2-B — 2026-10-24 (Branch Contact Provenance + Location Editing)
+
+- Contact display: replaced ambiguous heading with «اطلاعات تماس واحدهای سازمانی» and explained that empty new ORG contact tables are not evidence of deletion of earlier official branch telephone sources; added read-only source-discovery SQL.
+- Location display: renamed to «مکان و نشانی استقرار واحدهای سازمانی».
+- Introduced opt-in canonical location schema migration, FK-safe nullable LOCATION_ID for new canonical-only records, physical/virtual and address usage classification, and audited CREATE/UPDATE with optimistic concurrency and primary period overlap checks.
+- Kept R2-A read-only compatibility before R2-B Oracle installation; disabled generic writes to retired legacy location/address sources.
+- No Oracle DML or migration was executed from this source release. Full Angular/Spring Boot/Oracle runtime qualification is outstanding; see docs/org-r2b.
+
+## 2026-10-24 — ORG Contacts R1 source release (post R1/R2-A/menu cleanup)
+
+- Delivered the dedicated ORG unit contacts form, ORG-owned contact master DDL (opt-in, default NO), transactional Spring API, primary-role/type/date conflict and optimistic version safeguards.
+- Corrected Oracle contact installer first-run name-resolution bug: orphan check uses dynamic SQL only after the master table is created; the preview block cannot statically resolve a missing table.
+- Wired the ORG contact verifier into Windows and POSIX production build scripts.
+- Preserved menu consolidation, renamed the user-facing location form to «مکان و نشانی واحدهای سازمانی», retained all previously verified 1,340 location snapshots and original ORG tables.
+- This is a SOURCE release, not an Oracle deployment or a verified new binary. See docs/org-contacts/ORG-CONTACTS-R1-RELEASE-INSTALL-FA.md.
+
 ## ORG R2-A — 2026-10-24 (post-COMMIT canonical preview)
 
 - Registered verified Oracle R1 backfill: 1340 committed and post-commit matched records, zero mismatches.

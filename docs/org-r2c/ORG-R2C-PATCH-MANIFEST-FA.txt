@@ -1,0 +1,34 @@
+ORG R2-C 2026-10-24 | based on user source 1751
+Full source + overlay patch; no Oracle writes included.
+
+Changed or new files:
+CHANGELOG.md
+README-FA.md
+backend/src/main/java/com/behsazan/corebanking/organization/location/map/OrganizationBranchMapController.java
+backend/src/main/java/com/behsazan/corebanking/organization/location/map/OrganizationBranchMapService.java
+build-production.cmd
+build-production.sh
+database/oracle/org/contacts-r2/02-ORG-CONTACT-UNIT-COVERAGE-READONLY.sql
+docs/install/ORG-R2C-2026-10-24-INSTALL-FA.md
+docs/org-r2c/ORG-R2C-CHANGESET-FA.md
+docs/org-r2c/ORG-R2C-PATCH-MANIFEST-FA.txt
+frontend/src/app/app.routes.ts
+frontend/src/app/features/organization/organization-branch-map.component.ts
+frontend/src/app/features/organization/organization-menu.component.html
+frontend/src/app/features/organization/organization-menu.component.ts
+frontend/src/app/features/organization/organization-unit-contacts.component.ts
+frontend/src/app/features/organization/organization-unit-location-editor.component.ts
+frontend/src/app/features/organization/organization-unit-locations-canonical.component.ts
+tools/VERIFY-ORG-R2C-MAP-UX.cmd
+tools/verify-org-contacts-r1.mjs
+tools/verify-org-contacts-release.mjs
+tools/verify-org-menu-contact-review.mjs
+tools/verify-org-r2b-location-contacts.mjs
+tools/verify-org-r2c-map-ux.mjs
+tools/verify-org-unit-location-r2a.mjs
+
+Files omitted from delivered source (should be none):
+frontend/.angular/cache/21.2.19/core-banking-ui/.tsbuildinfo
+frontend/.angular/cache/21.2.19/core-banking-ui/angular-compiler.db
+frontend/.angular/cache/21.2.19/core-banking-ui/angular-compiler.db-lock
+tools/__pycache__/generate-cbi-rial-fee-1405-provisional.cpython-313.pyc

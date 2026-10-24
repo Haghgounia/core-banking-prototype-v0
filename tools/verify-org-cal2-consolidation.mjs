@@ -53,9 +53,9 @@ try {
   const resources = [...provider.matchAll(/return\s+descriptor\(\s*"([^"]+)"[\s\S]*?schemaName,\s*"([A-Z0-9_]+)"/g)];
   if (resources.length !== 27) fail(`expected 27 active ORG descriptors, got ${resources.length}`);
   const groupBlock = menu.split('readonly groups:')[1]?.split('readonly gradeTools')[0] ?? '';
-  if ([...groupBlock.matchAll(/title: '[^']+', description:/g)].length !== 6) fail('expected six ORG menu groups');
+  if ([...groupBlock.matchAll(/title: '[^']+', description:/g)].length !== 7) fail('expected seven ORG menu groups');
   if (!read('build-production.cmd').includes('verify-org-cal2-consolidation.mjs') || !read('build-production.sh').includes('verify-org-cal2-consolidation.mjs')) fail('not wired into both builds');
-  console.log('ORG_CAL2_CONSOLIDATION_STATIC_PASS: 8 retired forms/tables; 27 ORG descriptors; 6 menu groups; 5 CAL2 master tables; guarded Oracle DDL. NO WRITES.');
+  console.log('ORG_CAL2_CONSOLIDATION_STATIC_PASS: 8 retired forms/tables; 27 ORG descriptors; 7 menu groups; 5 CAL2 master tables; guarded Oracle DDL. NO WRITES.');
 } catch (e) {
   console.error(e.message);
   process.exitCode=1;
