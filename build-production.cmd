@@ -191,6 +191,8 @@ node "%ROOT%tools\verify-org-menu-contact-review.mjs" || exit /b 1
 node "%ROOT%tools\verify-org-contacts-r1.mjs" || exit /b 1
 rem ORG R2-C: geographic map + operational UI + data-safety verification.
 node "%ROOT%tools\verify-org-r2c-map-ux.mjs" || exit /b 1
+rem ORG R2-D typed GEO and map/location closure gate.
+node "%ROOT%tools\verify-org-map-r2d-closure.mjs" || exit /b 1
 echo [VERIFY] CIF ISIC2 clean hierarchy...
 node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 

@@ -8,11 +8,11 @@ public final class OrganizationUnitLocationModels {
     private OrganizationUnitLocationModels() {}
 
     public record Readiness(boolean locationIdNullable, boolean canonicalManagedFlagPresent,
-                            boolean usageColumnsPresent, boolean auditPresent, boolean ready) {}
+                            boolean usageColumnsPresent, boolean auditPresent, boolean geoTypePresent, boolean ready) {}
 
     public record EditInput(
             Long organizationUnitId, String locationRoleCode, LocalDate effectiveFrom, LocalDate effectiveTo,
-            Long geoEntityId, BigDecimal latitude, BigDecimal longitude,
+            Long geoEntityId, String geoEntityTypeCode, BigDecimal latitude, BigDecimal longitude,
             String coordinateReferenceSystemCode, String locationDescriptionFa, String locationDescriptionEn,
             String addressTypeCode, String mainStreetFa, String mainStreetEn,
             String secondaryStreetFa, String secondaryStreetEn,

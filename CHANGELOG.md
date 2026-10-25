@@ -1,3 +1,10 @@
+## ORG R2-D — 2026-10-25 — تکمیل نقشه و انتساب صریح نوع GEO
+
+- افزودن قرارداد `GEO_ENTITY_TYPE_CODE` برای تشخیص شهر و دهستان در ORG؛ DDL اختیاری و بدون تغییر داده‌های موجود.
+- اصلاح فیلتر شهر/دهستان، شمارش استقرار جاری، نمایش ردیف‌های فاقد مختصات و انتخابگر GEO در فرم نشانی.
+- حفظ انواع مرجع فنی شهر در ۱۳۴۰ استقرار R1 بر اساس منشأ ورود (بدون UPDATE)؛ ۲۰۹ واحد ادغام/تعطیل بدون درج استقرار مصنوعی.
+- UAT نهایی در `docs/install/ORG-MAP-R2D-CLOSURE-2026-10-25-FA.md`؛ وضعیت: Source Candidate تا تأیید Oracle و Build.
+
 ## 2026-10-24 — ORG R2-C: Branch map and operational wording
 
 - New Iran branch and organization-unit map with GEO province/county/city/rural-district filters, clustered georeferenced markers, and direct links to location/contact records.

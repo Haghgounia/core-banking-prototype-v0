@@ -1,6 +1,7 @@
 import {Routes} from '@angular/router';
 import type {FeeDesignStudioComponent} from './features/fee-admin/fee-design-studio.component';
 import type {FeeAdminWorkspaceComponent} from './features/fee-admin/fee-admin-workspace.component';
+import type {Fee3WorkspaceComponent} from './features/fee3/fee3-workspace.component';
 
 export const routes: Routes = [
   {
@@ -15,6 +16,7 @@ export const routes: Routes = [
       {path: 'fee/workspaces/:workspace', canDeactivate: [(c: FeeAdminWorkspaceComponent) => c.canLeave()], loadComponent: () => import('./features/fee-admin/fee-admin-workspace.component').then(m => m.FeeAdminWorkspaceComponent)},
       {path: 'fee/simulator', loadComponent: () => import('./features/fee/fee-management.component').then(m => m.FeeManagementComponent)},
       {path: 'fee/tables/:table', loadComponent: () => import('./features/fee-admin/fee-admin-table.component').then(m => m.FeeAdminTableComponent)},
+      {path: 'fee3', canDeactivate: [(c: Fee3WorkspaceComponent) => c.canLeave()], loadComponent: () => import('./features/fee3/fee3-workspace.component').then(m => m.Fee3WorkspaceComponent)},
       {path: 'fee2', loadComponent: () => import('./features/fee2/fee2-home.component').then(m => m.Fee2HomeComponent)},
       {path: 'fee2/versions', loadComponent: () => import('./features/fee2/fee2-version-workspace.component').then(m => m.Fee2VersionWorkspaceComponent)},
       {path: 'fee2/tables/:table', loadComponent: () => import('./features/fee2/fee2-table.component').then(m => m.Fee2TableComponent)},

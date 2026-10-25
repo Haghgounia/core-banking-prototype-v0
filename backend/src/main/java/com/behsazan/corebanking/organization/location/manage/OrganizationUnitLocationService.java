@@ -27,6 +27,7 @@ public class OrganizationUnitLocationService {
     private static final Set<String> ADDRESS_TYPES=Set.of("PHYSICAL","POSTAL","MAILING");
     private static final Set<String> PRESENCES=Set.of("PHYSICAL","VIRTUAL");
     private static final Set<String> USAGES=Set.of("PHYSICAL","REFERENCE");
+    private static final Set<String> GEO_TYPES=Set.of("CITY","RURAL_DISTRICT");
     private final NamedParameterJdbcTemplate jdbc;
     private final JsonMapper mapper;
 
@@ -42,7 +43,11 @@ public class OrganizationUnitLocationService {
                    (SELECT COUNT(*) FROM ALL_TAB_COLUMNS WHERE OWNER='ORG' AND TABLE_NAME='ORGANIZATION_UNIT_LOCATIONS' AND COLUMN_NAME='CANONICAL_MANAGED_FLAG') AS MANAGED_COL,
                    (SELECT COUNT(*) FROM ALL_TAB_COLUMNS WHERE OWNER='ORG' AND TABLE_NAME='ORGANIZATION_UNIT_LOCATIONS' AND COLUMN_NAME IN ('UNIT_PRESENCE_CODE','ADDRESS_USAGE_CODE')) AS USAGE_COLS,
                    (SELECT COUNT(*) FROM ALL_TABLES WHERE OWNER='ORG' AND TABLE_NAME='OU_LOCATION_CHANGE_AUDIT') AS AUDIT_TABLE,
-                   (SELECT COUNT(*) FROM ALL_SEQUENCES WHERE SEQUENCE_OWNER='ORG' AND SEQUENCE_NAME='SEQ_OU_LOCATION_AUDIT') AS AUDIT_SEQ
+                   (SELECT COUNT(*) FROM ALL_SEQUENCES WHERE SEQUENCE_OWNER='ORG' AND SEQUENCE_NAME='SEQ_OU_LOCATION_AUDIT') AS AUDIT_SEQ,
+                   (SELECT COUNT(*) FROM ALL_TAB_COLUMNS WHERE OWNER='ORG' AND TABLE_NAME='ORGANIZATION_UNIT_LOCATIONS' AND COLUMN_NAME='GEO_ENTITY_TYPE_CODE') AS GEO_TYPE_COL,
+                   (SELECT COUNT(*) FROM ALL_CONSTRAINTS WHERE OWNER='ORG'
+                    AND TABLE_NAME='ORGANIZATION_UNIT_LOCATIONS' AND CONSTRAINT_NAME='CK_OUL_R2D_GEO_TYPE'
+                    AND CONSTRAINT_TYPE='C' AND STATUS='ENABLED') AS GEO_TYPE_CHECK
                  FROM DUAL
                 """;
         return jdbc.queryForObject(sql,new MapSqlParameterSource(),(rs,i)-> {
@@ -50,7 +55,8 @@ public class OrganizationUnitLocationService {
             boolean m=rs.getInt("MANAGED_COL")==1;
             boolean u=rs.getInt("USAGE_COLS")==2;
             boolean a=rs.getInt("AUDIT_TABLE")==1 && rs.getInt("AUDIT_SEQ")==1;
-            return new Readiness(n,m,u,a,n&&m&&u&&a);
+            boolean g=rs.getInt("GEO_TYPE_COL")==1 && rs.getInt("GEO_TYPE_CHECK")==1;
+            return new Readiness(n,m,u,a,g,n&&m&&u&&a&&g);
         });
     }
 
@@ -76,6 +82,7 @@ public class OrganizationUnitLocationService {
     public LocationDetails create(EditInput raw) {
         requireReady();
         EditInput body=validate(raw,true);
+        validateGeoReference(body);
         long unitId=body.organizationUnitId();
         lockUnit(unitId);
         ensureNoPrimaryOverlap(body,null);
@@ -88,7 +95,7 @@ public class OrganizationUnitLocationService {
                 INSERT INTO ORG.ORGANIZATION_UNIT_LOCATIONS (
                   ORGANIZATION_UNIT_LOCATION_ID, ORGANIZATION_UNIT_ID, LOCATION_ID,
                   LOCATION_ROLE_CODE,EFFECTIVE_FROM,EFFECTIVE_TO,
-                  GEO_ENTITY_ID,LATITUDE,LONGITUDE,COORDINATE_REFERENCE_SYSTEM_CODE,
+                  GEO_ENTITY_ID,GEO_ENTITY_TYPE_CODE,LATITUDE,LONGITUDE,COORDINATE_REFERENCE_SYSTEM_CODE,
                   LOCATION_DESCRIPTION_FA,LOCATION_DESCRIPTION_EN,
                   ADDRESS_TYPE_CODE,MAIN_STREET_FA,MAIN_STREET_EN,SECONDARY_STREET_FA,SECONDARY_STREET_EN,
                   SQUARE_CROSSROAD_FA,SQUARE_CROSSROAD_EN,BUILDING_NO,POSTAL_CODE,
@@ -96,7 +103,7 @@ public class OrganizationUnitLocationService {
                   RELOCATION_REASON_CODE,DECISION_REFERENCE,DECISION_DATE,
                   LEGACY_BACKFILL_FLAG,CANONICAL_MANAGED_FLAG,UNIT_PRESENCE_CODE,ADDRESS_USAGE_CODE)
                 VALUES (
-                  :id,:unitId,NULL,:role,:fromDate,:toDate,:geoId,:latitude,:longitude,:crs,
+                  :id,:unitId,NULL,:role,:fromDate,:toDate,:geoId,:geoType,:latitude,:longitude,:crs,
                   :locationDescriptionFa,:locationDescriptionEn,:addressType,:mainStreetFa,:mainStreetEn,
                   :secondaryStreetFa,:secondaryStreetEn,:squareCrossroadFa,:squareCrossroadEn,:buildingNo,
                   :postalCode,:addressFa,:addressEn,:additionalAddressFa,:additionalAddressEn,
@@ -112,6 +119,7 @@ public class OrganizationUnitLocationService {
         if (id<=0) throw OrganizationUnitLocationException.invalid("شناسه استقرار معتبر نیست.");
         requireReady();
         EditInput body=validate(raw,false);
+        validateGeoReference(body);
         lockUnit(body.organizationUnitId());
         // Same lock order for all writes: unit -> location (prevents lost updates and deadlocks).
         List<Long> locks=jdbc.query("""
@@ -129,7 +137,7 @@ public class OrganizationUnitLocationService {
         int updated=jdbc.update("""
                 UPDATE ORG.ORGANIZATION_UNIT_LOCATIONS SET
                   LOCATION_ROLE_CODE=:role,EFFECTIVE_FROM=:fromDate,EFFECTIVE_TO=:toDate,
-                  GEO_ENTITY_ID=:geoId,LATITUDE=:latitude,LONGITUDE=:longitude,
+                  GEO_ENTITY_ID=:geoId,GEO_ENTITY_TYPE_CODE=:geoType,LATITUDE=:latitude,LONGITUDE=:longitude,
                   COORDINATE_REFERENCE_SYSTEM_CODE=:crs,
                   LOCATION_DESCRIPTION_FA=:locationDescriptionFa,LOCATION_DESCRIPTION_EN=:locationDescriptionEn,
                   ADDRESS_TYPE_CODE=:addressType,MAIN_STREET_FA=:mainStreetFa,MAIN_STREET_EN=:mainStreetEn,
@@ -197,7 +205,12 @@ public class OrganizationUnitLocationService {
 
     private LocationDetails find(long id) {
         List<LocationDetails> list=jdbc.query("""
-                SELECT ul.*, u.UNIT_CODE, u.NAME_FA AS UNIT_NAME_FA
+                SELECT ul.*,
+                       CASE WHEN ul.GEO_ENTITY_TYPE_CODE IN ('CITY','RURAL_DISTRICT')
+                           THEN ul.GEO_ENTITY_TYPE_CODE
+                           WHEN ul.GEO_ENTITY_TYPE_CODE IS NULL AND ul.LEGACY_BACKFILL_FLAG=1
+                           THEN 'CITY' END AS EFFECTIVE_GEO_TYPE_CODE,
+                       u.UNIT_CODE, u.NAME_FA AS UNIT_NAME_FA
                   FROM ORG.ORGANIZATION_UNIT_LOCATIONS ul
                   JOIN ORG.ORGANIZATION_UNITS u ON u.ORGANIZATION_UNIT_ID=ul.ORGANIZATION_UNIT_ID
                  WHERE ul.ORGANIZATION_UNIT_LOCATION_ID=:id
@@ -210,7 +223,7 @@ public class OrganizationUnitLocationService {
         long version=rs.getLong("ROW_VERSION");
         EditInput fields=new EditInput(rs.getLong("ORGANIZATION_UNIT_ID"),rs.getString("LOCATION_ROLE_CODE"),
                 date(rs,"EFFECTIVE_FROM"),date(rs,"EFFECTIVE_TO"),
-                nullableLong(rs,"GEO_ENTITY_ID"),rs.getBigDecimal("LATITUDE"),rs.getBigDecimal("LONGITUDE"),
+                nullableLong(rs,"GEO_ENTITY_ID"),rs.getString("EFFECTIVE_GEO_TYPE_CODE"),rs.getBigDecimal("LATITUDE"),rs.getBigDecimal("LONGITUDE"),
                 rs.getString("COORDINATE_REFERENCE_SYSTEM_CODE"),
                 rs.getString("LOCATION_DESCRIPTION_FA"),rs.getString("LOCATION_DESCRIPTION_EN"),
                 rs.getString("ADDRESS_TYPE_CODE"),rs.getString("MAIN_STREET_FA"),rs.getString("MAIN_STREET_EN"),
@@ -240,7 +253,8 @@ public class OrganizationUnitLocationService {
                 .addValue("unitId",x.organizationUnitId()).addValue("role",x.locationRoleCode())
                 .addValue("fromDate",sqlDate(x.effectiveFrom()),java.sql.Types.DATE)
                 .addValue("toDate",sqlDate(x.effectiveTo()),java.sql.Types.DATE)
-                .addValue("geoId",x.geoEntityId()).addValue("latitude",x.latitude()).addValue("longitude",x.longitude())
+                .addValue("geoId",x.geoEntityId()).addValue("geoType",x.geoEntityTypeCode())
+                .addValue("latitude",x.latitude()).addValue("longitude",x.longitude())
                 .addValue("crs",x.coordinateReferenceSystemCode())
                 .addValue("locationDescriptionFa",x.locationDescriptionFa()).addValue("locationDescriptionEn",x.locationDescriptionEn())
                 .addValue("addressType",x.addressTypeCode()).addValue("mainStreetFa",x.mainStreetFa())
@@ -265,6 +279,13 @@ public class OrganizationUnitLocationService {
             throw OrganizationUnitLocationException.invalid("پایان اعتبار پیش از شروع اعتبار است.");
         if (in.geoEntityId()!=null && (in.geoEntityId()<=0 || in.geoEntityId()>99_999_999L))
             throw OrganizationUnitLocationException.invalid("شناسه GEO معتبر نیست.");
+        boolean hasGeoType=in.geoEntityTypeCode()!=null && !in.geoEntityTypeCode().isBlank();
+        if ((in.geoEntityId()!=null)!=hasGeoType)
+            throw OrganizationUnitLocationException.invalid("نوع و شناسه مرجع جغرافیایی باید با هم تعیین شوند.");
+        if (hasGeoType && !GEO_TYPES.contains(in.geoEntityTypeCode()))
+            throw OrganizationUnitLocationException.invalid("نوع مرجع جغرافیایی باید شهر یا دهستان باشد.");
+        if (creating && in.geoEntityId()==null)
+            throw OrganizationUnitLocationException.invalid("برای استقرار جدید، شهر یا دهستان را از فهرست مرجع انتخاب کنید.");
         if ((in.latitude()==null)!=(in.longitude()==null))
             throw OrganizationUnitLocationException.invalid("طول و عرض جغرافیایی باید هر دو درج شوند یا هر دو خالی باشند.");
         if (in.latitude()!=null && (in.latitude().compareTo(BigDecimal.valueOf(-90))<0 ||
@@ -306,6 +327,17 @@ public class OrganizationUnitLocationService {
             throw OrganizationUnitLocationException.invalid("در ویرایش، شماره نسخه رکورد الزامی است.");
         return in;
     }
+    private void validateGeoReference(EditInput input) {
+        if(input.geoEntityId()==null)return;
+        // The type is supplied by the governed selector. A numeric ID from another GEO table is invalid.
+        String sql="CITY".equals(input.geoEntityTypeCode())
+                ? "SELECT COUNT(*) FROM GEO.CITIES WHERE CITY_ID=:id AND IS_ACTIVE=1"
+                : "SELECT COUNT(*) FROM GEO.RURAL_DISTRICTS WHERE RURAL_DISTRICT_ID=:id AND IS_ACTIVE=1";
+        Long matches=jdbc.queryForObject(sql,new MapSqlParameterSource("id",input.geoEntityId()),Long.class);
+        if(matches==null||matches!=1L)
+            throw OrganizationUnitLocationException.invalid("شهر یا دهستان انتخاب‌شده در مرجع GEO فعال نیست.");
+    }
+
     private static void requireMax(String value,int n,String name) {
         if (value!=null && value.length()>n)
             throw OrganizationUnitLocationException.invalid(name+" حداکثر "+n+" کاراکتر می‌پذیرد.");

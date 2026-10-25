@@ -16,6 +16,11 @@ public class OrganizationBranchMapController {
             @RequestParam(required=false) Long countyId) {
         return service.options(level,provinceId,countyId);
     }
+    @GetMapping("/geo-context")
+    public OrganizationBranchMapService.GeoContext geoContext(
+            @RequestParam String geoType,@RequestParam long geoId) {
+        return service.geoContext(geoType,geoId);
+    }
     @GetMapping("/points")
     public OrganizationBranchMapService.MapResult points(
             @RequestParam(required=false) Long provinceId,@RequestParam(required=false) Long countyId,

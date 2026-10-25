@@ -1,0 +1,27 @@
+{
+  "base": "core-banking-prototype-v0-2026-10-24-ORG-R2C-MAP-FILTERS-FIX.zip",
+  "new": "core-banking-prototype-v0-2026-10-25-ORG-MAP-R2D-FINAL-SOURCE.zip",
+  "added": [
+    "database/oracle/org/map-r2d/01-ORG-MAP-EXPLICIT-GEO-TYPE-OPT-IN.sql",
+    "database/oracle/org/map-r2d/02-ORG-MAP-GEO-TYPE-POSTVERIFY-READONLY.sql",
+    "database/oracle/org/map-r2d/03-ORG-MAP-FINAL-ACCEPTANCE-READONLY.sql",
+    "docs/install/ORG-MAP-R2D-CLOSURE-2026-10-25-FA.md",
+    "release/ORG-MAP-R2D-2026-10-25-UAT-NOTES-FA.md",
+    "release/ORG-MAP-R2D-PATCH-MANIFEST-2026-10-25.json",
+    "tools/VERIFY-ORG-MAP-R2D-CLOSURE.cmd",
+    "tools/verify-org-map-r2d-closure.mjs"
+  ],
+  "modified": [
+    "CHANGELOG.md",
+    "backend/src/main/java/com/behsazan/corebanking/organization/location/manage/OrganizationUnitLocationModels.java",
+    "backend/src/main/java/com/behsazan/corebanking/organization/location/manage/OrganizationUnitLocationService.java",
+    "backend/src/main/java/com/behsazan/corebanking/organization/location/map/OrganizationBranchMapController.java",
+    "backend/src/main/java/com/behsazan/corebanking/organization/location/map/OrganizationBranchMapService.java",
+    "build-production.cmd",
+    "build-production.sh",
+    "frontend/src/app/features/organization/organization-branch-map.component.ts",
+    "frontend/src/app/features/organization/organization-unit-location-editor.component.ts"
+  ],
+  "removed": [],
+  "notes": "R2-D source candidate; no Oracle writes; opt-in schema migration"
+}
