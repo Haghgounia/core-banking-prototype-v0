@@ -24,8 +24,12 @@ public final class OrganizationContactException extends RuntimeException {
     public static OrganizationContactException conflict(String message) {
         return new OrganizationContactException(HttpStatus.CONFLICT, "ORG_CONTACT_CONFLICT", message);
     }
+    public static OrganizationContactException writesDisabled() {
+        return new OrganizationContactException(HttpStatus.SERVICE_UNAVAILABLE, "ORG_CONTACT_WRITES_DISABLED",
+                "ثبت و ویرایش تماس‌ها در حالت تک‌جدولی تا تأیید Cutover غیرفعال است.");
+    }
     public static OrganizationContactException schemaMissing() {
         return new OrganizationContactException(HttpStatus.SERVICE_UNAVAILABLE, "ORG_CONTACT_SCHEMA_MISSING",
-                "ساختار راه‌های تماس ORG هنوز نصب نشده است؛ ابتدا اسکریپت اختیاری R1 را بررسی و اعمال کنید.");
+                "ساختار راه‌های تماس با حالت ذخیره‌سازی انتخاب‌شده سازگار نیست؛ نصب و Cutover را بررسی کنید.");
     }
 }

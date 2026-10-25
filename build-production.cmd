@@ -189,6 +189,7 @@ node "%ROOT%tools\verify-org-unit-location-r2a.mjs" || exit /b 1
 rem ORG location menu cleanup + contact master read-only screening.
 node "%ROOT%tools\verify-org-menu-contact-review.mjs" || exit /b 1
 node "%ROOT%tools\verify-org-contacts-r1.mjs" || exit /b 1
+node "%ROOT%tools\verify-org-contacts-r3b2.mjs" || exit /b 1
 rem ORG R2-C: geographic map + operational UI + data-safety verification.
 node "%ROOT%tools\verify-org-r2c-map-ux.mjs" || exit /b 1
 rem ORG R2-D typed GEO and map/location closure gate.

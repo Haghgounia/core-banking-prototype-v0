@@ -21,8 +21,8 @@ try {
     check(!html.includes(`routerLink="/organization/${resource}"`), `${resource} link in menu template`);
     check(!review.includes(`routerLink="/organization/${resource}"`), `${resource} link in legacy source inspection page`);
   }
-  check(resources.includes('contact-roles') && resources.includes('organization-unit-contact-points'), 'unit contacts and roles missing');
-  check(resources.includes('point-of-service-contact-points'), 'service point contacts disappeared');
+  check(resources.includes('contact-roles') && !resources.includes('organization-unit-contact-points'), 'canonical contact menu must use dedicated editor only');
+  check(!resources.includes('point-of-service-contact-points'), 'service-point contact generic editor must be hidden during consolidation');
   check(menu.includes('canonicalLocation: true') && menu.includes('canonicalVisible(group)') &&
     html.includes('routerLink="/organization/unit-locations-canonical"'), 'canonical location menu incomplete');
   check(menu.includes("resource: 'unit-contacts'") && routes.includes("path: 'organization/unit-contacts'") && routes.includes("path: 'organization/organization-unit-contact-points'"), 'business contact form route missing');
@@ -31,9 +31,9 @@ try {
     routes.includes("path: 'organization/unit-locations-review'") &&
     routes.includes("path: 'organization/unit-locations-canonical'"), 'read-only technical comparison route was removed');
   check(!canonical.includes('مکان و نشانی تجمیعی واحدهای سازمانی') && canonical.includes('نشانی و موقعیت شعب و واحدها'), 'canonical location title not updated');
-  check(resources.length===20, `expected 20 visible generic ORG resources; found ${resources.length}`);
+  check(resources.length===18, `expected 18 visible generic ORG resources; found ${resources.length}`);
   console.log('PASS user menu: 3 retired location forms hidden; 1 canonical entry; dedicated contacts route');
-  console.log('PASS legacy data descriptors, service point contact resource, technical view preserved');
+  console.log('PASS historical descriptors retained pre-cutover; unsafe contact generic menu entries hidden');
 
   const sourceWithoutComments = sql.replace(/^\s*--.*$/gm, '').replace(/^\s*PROMPT .*$/gm, '');
   check(!/\b(?:INSERT\s+INTO|UPDATE\s+\S+\s+SET|DELETE\s+FROM|TRUNCATE\s+TABLE|ALTER\s+TABLE|CREATE\s+TABLE|DROP\s+TABLE|MERGE\s+INTO|COMMIT\s*;|ROLLBACK\s*;)\b/i.test(sourceWithoutComments), 'contact baseline contains DDL or DML');
@@ -44,7 +44,7 @@ try {
   ]) check(sql.includes(token), `missing contact diagnostic check ${token}`);
   check(!sql.includes('SELECT CONTACT_VALUE'), 'contact baseline must not expose customer contact values');
   console.log('PASS contacts: read-only baseline, role/coverage/primary/owner checks, no personal contact values');
-  console.log('ORG_MENU_CONTACT_R0_VERIFY_PASS');
+  console.log('ORG_MENU_CONTACT_R3B2_VERIFY_PASS');
 } catch (error) {
   console.error('ORG_MENU_CONTACT_R0_VERIFY_FAIL:', error.message);
   process.exitCode=1;

@@ -4,6 +4,7 @@ import com.behsazan.corebanking.organization.contact.OrganizationContactModels.*
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
@@ -22,7 +23,9 @@ import java.util.regex.Pattern;
  * so two units sharing an endpoint never inadvertently change one another's details.
  */
 @Service
-public class OrganizationContactService {
+@ConditionalOnProperty(prefix = "core-banking.organization.contacts", name = "storage-mode",
+        havingValue = "legacy", matchIfMissing = true)
+public class OrganizationContactService implements OrganizationContactOperations {
     private static final Set<String> TYPES = Set.of(
             "PHONE", "FAX", "MOBILE", "EMAIL", "WEBSITE", "CALL_CENTER", "SOCIAL", "OTHER");
     private static final Pattern EMAIL = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
@@ -48,7 +51,7 @@ public class OrganizationContactService {
         boolean hasUnitFk = unitFk != null && unitFk == 1;
         boolean hasServiceFk = serviceFk != null && serviceFk == 1;
         return new ContactReadiness(hasMaster, hasUnitFk, hasServiceFk, hasRowVersion,
-                hasMaster && hasUnitFk && hasServiceFk && hasRowVersion);
+                hasMaster && hasUnitFk && hasServiceFk && hasRowVersion, "LEGACY", true);
     }
 
     @Transactional(readOnly = true)

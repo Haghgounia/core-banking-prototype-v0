@@ -34,6 +34,13 @@ management:
       show-details: when_authorized
 
 core-banking:
+  organization:
+    contacts:
+      # R3-B2: legacy remains the sole live writer until an approved DBA cutover.
+      # Canonical storage is activated only after ORG.CONTACT_POINTS has the 20-column schema.
+      storage-mode: ${ORG_CONTACT_STORAGE_MODE:legacy}
+      # Additional explicit opt-in; leave false until controlled post-cutover UAT.
+      canonical-writes-enabled: ${ORG_CONTACT_CANONICAL_WRITES_ENABLED:false}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
   schemas:

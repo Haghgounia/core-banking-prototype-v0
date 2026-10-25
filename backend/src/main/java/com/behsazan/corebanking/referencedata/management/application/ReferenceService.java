@@ -148,6 +148,11 @@ public class ReferenceService {
         }
         // The dedicated ORG contact API validates master ownership and effective-period conflicts;
         // the legacy generic editor must not bypass those business rules.
+        if ("point-of-service-contact-points".equals(resource)) {
+            throw new ReferenceValidationException(
+                    "ثبت و ویرایش تماس نقاط خدمت تا تعیین مدل مستقل آن غیرفعال است.",
+                    Map.of("resource", "مسیر تماس نقاط خدمت از دامنه ادغام تماس واحدهای سازمانی خارج است."));
+        }
         if ("organization-unit-contact-points".equals(resource)) {
             throw new ReferenceValidationException(
                     "ثبت اطلاعات تماس واحدها فقط از فرم اختصاصی اطلاعات تماس واحدهای سازمانی مجاز است.",

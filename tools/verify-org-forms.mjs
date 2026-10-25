@@ -101,15 +101,16 @@ const hiddenFromPrototypeMenu = new Set([
   'organization-unit-relationship-rules',
   'foreign-exchange-service-profiles',
   'organization-unit-geo-coverages',
-  'locations', 'postal-addresses', 'organization-unit-locations'
+  'locations', 'postal-addresses', 'organization-unit-locations',
+  'organization-unit-contact-points', 'point-of-service-contact-points'
 ]);
 for (const resource of expected) {
   const count = menuResourceMatches.filter(x => x === resource).length;
   const expectedCount = hiddenFromPrototypeMenu.has(resource) ? 0 : 1;
   if (count !== expectedCount) fail(`menu resource ${resource} appears ${count} times; expected ${expectedCount}`);
 }
-if (menuResourceMatches.length !== 20) fail(`menu expected 20 resources, found ${menuResourceMatches.length}`);
-ok('menu shows 20 ORG reference forms; 7 intentionally hidden, all 27 backend descriptors preserved');
+if (menuResourceMatches.length !== 18) fail(`menu expected 18 resources, found ${menuResourceMatches.length}`);
+ok('menu shows 18 ORG reference forms; 9 intentionally hidden, all 27 backend descriptors preserved');
 
 const referencePageTs = read('frontend/src/app/features/reference-data/presentation/reference-page.component.ts');
 const referencePageHtml = read('frontend/src/app/features/reference-data/presentation/reference-page.component.html');

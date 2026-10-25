@@ -40,5 +40,6 @@ public final class OrganizationContactModels {
     ) {}
 
     public record ContactReadiness(boolean masterPresent, boolean unitForeignKeyPresent,
-                                   boolean servicePointForeignKeyPresent, boolean rowVersionPresent, boolean ready) {}
+                                   boolean servicePointForeignKeyPresent, boolean rowVersionPresent, boolean ready,
+                                   String storageMode, boolean writesEnabled) {}
 }

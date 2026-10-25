@@ -96,9 +96,12 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
     @Value("${core-banking.schemas.organization:ORG}")
     private String schemaName = "ORG";
 
+    @Value("${core-banking.organization.contacts.storage-mode:legacy}")
+    private String contactsStorageMode = "legacy";
+
     @Override
     public List<ReferenceTableDescriptor> descriptors() {
-        return List.of(
+        List<ReferenceTableDescriptor> entries = new ArrayList<>(List.of(
                 contactRoles(),
                 employeeAssignmentRoles(),
                 employeeAssignments(),
@@ -126,7 +129,14 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                 selfServiceTerminals(),
                 selfServiceTerminalAssignments(),
                 organizationUnitContactPoints()
-        );
+        ));
+        // After cutover, neither legacy contact association nor the zero-row POS contact
+        // editor may be exposed as a generic resource. The latter remains out of scope.
+        if ("canonical".equalsIgnoreCase(contactsStorageMode)) {
+            entries.removeIf(item -> "organization-unit-contact-points".equals(item.resource())
+                    || "point-of-service-contact-points".equals(item.resource()));
+        }
+        return List.copyOf(entries);
     }
 
     private ReferenceTableDescriptor contactRoles() {

@@ -7,9 +7,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/organization/unit-contacts")
 public class OrganizationContactController {
-    private final OrganizationContactService service;
+    private final OrganizationContactOperations service;
 
-    public OrganizationContactController(OrganizationContactService service) {
+    public OrganizationContactController(OrganizationContactOperations service) {
         this.service = service;
     }
     @GetMapping("/readiness")
