@@ -1,0 +1,79 @@
+{
+  "id": "FEE3-UI-R4",
+  "date": "2026-10-25",
+  "baseline": "core-banking-prototype-v0-2026-10-25-1627.zip",
+  "cumulativeIncludes": "FEE3-R3",
+  "frontendOnly": true,
+  "noBackend": true,
+  "noOracle": true,
+  "referenceHtml": "FCE_v13_8_84_Program_REDOWNLOAD(1).html",
+  "qa": {
+    "typeScriptStubHarness": "PASS",
+    "staticParityR4": 93,
+    "staticConditionsR3": 28,
+    "referenceJavaScriptBrowserRenders": 48,
+    "angularNgBuild": "NOT_RUN"
+  },
+  "files": [
+    {
+      "path": "frontend/src/app/features/fee3/fee3-reference-behavior.ts",
+      "sha256": "f932469cae10991c1e0cd8541b19e8a8dbe51c22e0c296d77560917ded0318d3",
+      "size": 20499
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3-reference-catalog.ts",
+      "sha256": "ec42bdfd24a612ed00ceeda09528440fb28a4f6f9ab98c033967df862bc7673e",
+      "size": 86027
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3.models.ts",
+      "sha256": "9597a374525a117d309c707b190c22f9cf13cfc03af1cef5fd947fb0c150d47e",
+      "size": 9121
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3-validation.ts",
+      "sha256": "fda9a4cbc500c86cd6a665cd192b6c8cbdbedfee97b0c755508006b04abae605",
+      "size": 10386
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3-workspace.component.ts",
+      "sha256": "e7cbd922aa7843d334122e8e1b33a5c89ab00269c358d13829fcbe547a3dc3f3",
+      "size": 34666
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3-workspace.component.html",
+      "sha256": "5f08a17109aa7b32b3275817f0c9ffbaba31f635f28b247ec9be8eeabf15d9bf",
+      "size": 97436
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3-workspace.component.scss",
+      "sha256": "d561294d8834f37c3d4d902b73d02690831b8cb374b1122c6257f4f61d56f08e",
+      "size": 29191
+    },
+    {
+      "path": "docs/fee3/FEE3-UI-R4-REFERENCE-PARITY-REVIEW-FA.md",
+      "sha256": "d0d4dd6ff8b0326b3e1ddea12a442b064b4dc15e392536fc156f53940dd89c1e",
+      "size": 8135
+    },
+    {
+      "path": "tools/fee3-ui/verify-parity-r4.py",
+      "sha256": "8c7d4f9b87273b2ade71584bd9b9688021bfb80f54c9a463df7b172ea83b416b",
+      "size": 7372
+    }
+  ],
+  "baseSha256ForTouchedFiles": {
+    "frontend/src/app/features/fee3/fee3.models.ts": "165a135dc511b638e0c2067537f17add44c986dacc74553df0990086bcdbcc36",
+    "frontend/src/app/features/fee3/fee3-validation.ts": "9cd73593afb2cd65bcc5523bb1b470aeb4727afd5fb07c179d3ab05c40849304",
+    "frontend/src/app/features/fee3/fee3-workspace.component.ts": "e7e59723dfd8e71c1898b4da25eb89dd3ed5c7e7afeaf3bcdf8dd7149789b536",
+    "frontend/src/app/features/fee3/fee3-workspace.component.html": "1f6f6ca75b79674eaa09fc2f2cff95d5aed811e481e9130f379d92632d246537",
+    "frontend/src/app/features/fee3/fee3-workspace.component.scss": "ac96e3bd6a76d0f52cab5115ee3a420166c45ca04b9451e7830387ef452fb9c2"
+  },
+  "r3Sha256ForTouchedFiles": {
+    "frontend/src/app/features/fee3/fee3-reference-behavior.ts": "ff47660bf5e31acc894e436402547b88c629ceb564ac28c5af5eb151feb8dd69",
+    "frontend/src/app/features/fee3/fee3.models.ts": "b7bd7d0e418a74ce76f18ca5d495b2b7b3fc4c28c1513afb2d2f910908801b00",
+    "frontend/src/app/features/fee3/fee3-validation.ts": "5b82774a5127939722acb7148e9371dadf64801150d0e0e0ea15ed0121d2ff69",
+    "frontend/src/app/features/fee3/fee3-workspace.component.ts": "4cba40a75ddbd53b4c8d79dd97d1aef7911ba6fe234cb2f27d1fa252db0820fa",
+    "frontend/src/app/features/fee3/fee3-workspace.component.html": "fa8811d64bb43ec333aa34d1e6d6cb9375b8338bfdfea308349cc88ff96fd490",
+    "frontend/src/app/features/fee3/fee3-workspace.component.scss": "51c3cd30186e11e1814926c88ee4e873684225f17eb2e7e320f544780344b3ae"
+  }
+}

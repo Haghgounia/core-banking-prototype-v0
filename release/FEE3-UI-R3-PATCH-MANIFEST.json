@@ -1,0 +1,51 @@
+{
+  "patch": "FEE3-UI-R3",
+  "baseline": "FEE3-UI-R2",
+  "modified": [
+    "frontend/src/app/features/fee3/fee3.models.ts",
+    "frontend/src/app/features/fee3/fee3-validation.ts",
+    "frontend/src/app/features/fee3/fee3-workspace.component.ts",
+    "frontend/src/app/features/fee3/fee3-workspace.component.html",
+    "frontend/src/app/features/fee3/fee3-workspace.component.scss"
+  ],
+  "added": [
+    "frontend/src/app/features/fee3/fee3-reference-behavior.ts",
+    "docs/fee3/FEE3-UI-R3-REFERENCE-BEHAVIOR-FA.md",
+    "tools/fee3-ui/verify-conditional-r3.py"
+  ],
+  "noBackend": true,
+  "files": [
+    {
+      "path": "frontend/src/app/features/fee3/fee3-reference-behavior.ts",
+      "sha256": "ff47660bf5e31acc894e436402547b88c629ceb564ac28c5af5eb151feb8dd69"
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3.models.ts",
+      "sha256": "b7bd7d0e418a74ce76f18ca5d495b2b7b3fc4c28c1513afb2d2f910908801b00"
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3-validation.ts",
+      "sha256": "5b82774a5127939722acb7148e9371dadf64801150d0e0e0ea15ed0121d2ff69"
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3-workspace.component.ts",
+      "sha256": "4cba40a75ddbd53b4c8d79dd97d1aef7911ba6fe234cb2f27d1fa252db0820fa"
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3-workspace.component.html",
+      "sha256": "fa8811d64bb43ec333aa34d1e6d6cb9375b8338bfdfea308349cc88ff96fd490"
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3-workspace.component.scss",
+      "sha256": "51c3cd30186e11e1814926c88ee4e873684225f17eb2e7e320f544780344b3ae"
+    },
+    {
+      "path": "docs/fee3/FEE3-UI-R3-REFERENCE-BEHAVIOR-FA.md",
+      "sha256": "7c7bb0ccee887bea416a44a4273d37a491766f94cdf513b7841872efdf098d17"
+    },
+    {
+      "path": "tools/fee3-ui/verify-conditional-r3.py",
+      "sha256": "4ebcf8b6b63190ef2c083a81eeb1bd55729d9ed32e5b23a5108950ffc65144e0"
+    }
+  ]
+}

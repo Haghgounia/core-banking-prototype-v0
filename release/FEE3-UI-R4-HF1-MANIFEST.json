@@ -1,0 +1,28 @@
+{
+  "patch": "FEE3-UI-R4-HF1-NG5002",
+  "base": "core-banking-prototype-v0-2026-10-25-1627.zip with FEE3 UI R4",
+  "scope": "FEE3 frontend and FEE3 static verifier only; documentation and manifest",
+  "files": [
+    {
+      "path": "frontend/src/app/features/fee3/fee3-workspace.component.html",
+      "before_sha256": "5f08a17109aa7b32b3275817f0c9ffbaba31f635f28b247ec9be8eeabf15d9bf",
+      "after_sha256": "3d75de2124875b4b7434d64c3e474400e08038ac417e9becfb0d11fb32ad11d5"
+    },
+    {
+      "path": "tools/fee3-ui/verify-parity-r4.py",
+      "before_sha256": "8c7d4f9b87273b2ade71584bd9b9688021bfb80f54c9a463df7b172ea83b416b",
+      "after_sha256": "e1876376512fda700b6627242857d81a2b1eec47d73c9f48766aac0d6f4c0495"
+    },
+    {
+      "path": "docs/fee3/FEE3-UI-R4-HF1-NG5002-QA-FA.md",
+      "after_sha256": "5ab33dcfb513a7c02929dd82209ffa55cb0a4c86e68eb8c6dc9f1b4fe49bb461"
+    }
+  ],
+  "tests": {
+    "r4_verifier": "FEE3_R4_PARITY_STATIC_OK=94",
+    "r4_verifier_exit": 0,
+    "negative_test_catches_bug": true,
+    "angular_for_track_checked": 83,
+    "angular_build_tested": false
+  }
+}
