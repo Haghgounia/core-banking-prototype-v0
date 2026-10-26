@@ -1,0 +1,20 @@
+{
+  "id": "FEE3-UI-R7",
+  "version": "0.11.0",
+  "sourceBaseline": "core-banking-prototype-v0-2026-10-25-1627.zip + FEE3-UI-R6",
+  "reference": "FCE V13.8.84, F171 formula builder and F1323 participation model",
+  "scope": "Offline Angular FEE3 source only; no Oracle/backend/seed changes",
+  "tests": {
+    "numeric": 21,
+    "R7static": 31,
+    "typescriptStrict": "PASS",
+    "AngularProductionBuild": "NOT EXECUTED",
+    "BrowserE2E": "NOT EXECUTED"
+  },
+  "changedPaths": [
+    "frontend/src/app/features/fee3/",
+    "tools/fee3-ui/",
+    "docs/fee3/",
+    "release/FEE3-UI-R7-MANIFEST.json"
+  ]
+}

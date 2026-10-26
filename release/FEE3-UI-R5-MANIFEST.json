@@ -1,0 +1,18 @@
+{
+  "release": "FEE3-UI-R5",
+  "version": "0.11.0",
+  "source_baseline": "core-banking-prototype-v0-2026-10-25-1627.zip",
+  "requires": "R4-HF1 when installing incremental, or cumulative from 16:27",
+  "reference": "FCE V13.8.84",
+  "scope": "FEE3 UI-only",
+  "changes": [
+    "7 visible stages",
+    "preset calculation summary",
+    "loan formula-context explicit review",
+    "reference-driven quick amount test",
+    "draft-save/review/demo in-memory controls"
+  ],
+  "database_changes": false,
+  "backend_changes": false,
+  "runtime_compile_claim": false
+}

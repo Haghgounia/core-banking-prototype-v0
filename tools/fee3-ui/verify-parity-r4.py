@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""FEE3 R4 UI parity static gate, Python 3 stdlib only.
+"""FEE3 R4/R5 UI parity static gate, Python 3 stdlib only.
 
 This detects missing/reference-only controls and template structure regressions.
 It does NOT replace Angular compiler or browser UAT.
@@ -87,11 +87,27 @@ must('app-persian-date-input' in validity,'Uses shared Persian date component')
 review=cases[5]
 must('بازبینی' in review,'Review stage retained for prior-state checking')
 test=cases[6]
-for label in ['آزمون مبلغ و ارسال کارمزد برای بررسی','مرور خلاصه مشخصات پیش از آزمون','پیش‌نویس ذخیره شده','آزمون مبلغ','ارسال برای بررسی','نوع مشتری در آزمون','گروه مشتری در آزمون','کانال در آزمون','مبلغ مبنای آزمون','تعداد مصرف']:
- must(label in test,'Source test stage control: '+label)
-must('addTest()' not in test and 'removeTest(' not in test,'No invented repeatable test cards')
-must("ver.method==='USAGE'" in test and "['PERCENT','MIXED','BRACKET','PROGRESSIVE','MATRIX'].includes(ver.method)" in test,'Conditional test inputs by method')
-must('disabled><mat-icon>calculate' in test,'No fabricated calculation results')
+# R4 originally had a screenshot-only test form. R5 implements the same FCE quick-test
+# with guarded in-memory arithmetic and 7 visible stages; accept either contract.
+if 'runTest()' in test:
+ for label in ['آزمون مبلغ و ارسال کارمزد برای بررسی','مرور خلاصه مشخصات پیش از آزمون',
+  'پیش‌نویس ذخیره شده','آزمون مبلغ','ارسال برای بررسی',
+  'ذخیره پیش‌نویس','آزمون سریع محاسبه','محاسبه مبلغ نمونه',
+  'ارسال برای بررسی و رفتن به گام ۷','فعال‌سازی تعرفه در محیط آزمایشی']:
+  must(label in test,'R5 source test stage control: '+label)
+ must('testInputFields()' in test,'Dynamic formula input fields follow FCE model')
+ must('testDraftSaved()' in test and '!testDraftSaved()' in test,'Test only enabled after draft save')
+ must('canSendReview()' in test,'Review depends on exact current successful test')
+ must('lastTestPassed()' in test,'Saved successful test proof bound to version')
+ must('activateDemo()' in test,'Demo activation is a separate restricted action')
+ must('addTest()' not in test and 'removeTest(' not in test,'No invented repeatable test cards')
+ must('visibleStageIndices' in html and 'visibleStageNumber' in html,'7 visible steps')
+else:
+ for label in ['آزمون مبلغ و ارسال کارمزد برای بررسی','مرور خلاصه مشخصات پیش از آزمون','پیش‌نویس ذخیره شده','آزمون مبلغ','ارسال برای بررسی','نوع مشتری در آزمون','گروه مشتری در آزمون','کانال در آزمون','مبلغ مبنای آزمون','تعداد مصرف']:
+  must(label in test,'Source test stage control: '+label)
+ must('addTest()' not in test and 'removeTest(' not in test,'No invented repeatable test cards')
+ must("ver.method==='USAGE'" in test and "['PERCENT','MIXED','BRACKET','PROGRESSIVE','MATRIX'].includes(ver.method)" in test,'Conditional test inputs by method')
+ must('disabled><mat-icon>calculate' in test,'No fabricated calculation results')
 pub=cases[7]
 must('بررسی نهایی و انتشار' in pub and 'ver.status' in pub,'Publication gated and source-shaped')
 must('goStage(5)' not in pub and 'readiness-list' not in pub,'Additional R3 workflow panels removed from publication step')

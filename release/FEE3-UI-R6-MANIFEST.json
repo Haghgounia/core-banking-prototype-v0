@@ -1,0 +1,21 @@
+{
+  "id": "FEE3-UI-R6",
+  "version": "0.11.0",
+  "base": "core-banking-prototype-v0-2026-10-25-1627.zip + FEE3-UI-R5",
+  "references": [
+    "FCE V13.8.84 F1322",
+    "F1377",
+    "F1378",
+    "F1380"
+  ],
+  "scope": "Offline Angular only; no Oracle/backend writes",
+  "tests": {
+    "financeRuntimeNode": 30,
+    "staticR6": 59,
+    "staticR5": 142,
+    "staticR4": 98,
+    "typescriptStubCompile": "PASS",
+    "angularProductionBuild": "NOT EXECUTED",
+    "browserE2E": "NOT EXECUTED"
+  }
+}
