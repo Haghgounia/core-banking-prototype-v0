@@ -1,0 +1,123 @@
+{
+  "protocol": "FEE3_R4C3_SOURCE_V1",
+  "passed": 29,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "Four model timings whitelisted",
+      "result": "PASS"
+    },
+    {
+      "name": "Year-start policies distinct",
+      "result": "PASS"
+    },
+    {
+      "name": "Exact Qard operation and amount kind",
+      "result": "PASS"
+    },
+    {
+      "name": "No loan profit formula in Qard engine",
+      "result": "PASS"
+    },
+    {
+      "name": "R4C1 CAL2 JALALI_ACT_ACT year fraction reused",
+      "result": "PASS"
+    },
+    {
+      "name": "One unique timing assessment key is candidate only",
+      "result": "PASS"
+    },
+    {
+      "name": "No authoritative history claim",
+      "result": "PASS"
+    },
+    {
+      "name": "No financial permission switches",
+      "result": "PASS"
+    },
+    {
+      "name": "Reject client formula and yearFraction",
+      "result": "PASS"
+    },
+    {
+      "name": "Separate rate and money scale",
+      "result": "PASS"
+    },
+    {
+      "name": "No pre-approved bank tax or waiver",
+      "result": "PASS"
+    },
+    {
+      "name": "No payment or charge schedule registration",
+      "result": "PASS"
+    },
+    {
+      "name": "Only read-only transaction service",
+      "result": "PASS"
+    },
+    {
+      "name": "No database mutation code new Java",
+      "result": "PASS"
+    },
+    {
+      "name": "Oracle operation checked before calculation",
+      "result": "PASS"
+    },
+    {
+      "name": "Oracle active formula checked",
+      "result": "PASS"
+    },
+    {
+      "name": "R3 submission policy reused",
+      "result": "PASS"
+    },
+    {
+      "name": "Oracle draft linkage verified",
+      "result": "PASS"
+    },
+    {
+      "name": "CAL2 canonical event SQL only SELECT",
+      "result": "PASS"
+    },
+    {
+      "name": "CAL2 year gap and day evidence checked",
+      "result": "PASS"
+    },
+    {
+      "name": "Single nonpersistent specialized API",
+      "result": "PASS"
+    },
+    {
+      "name": "Runtime only loopback and no redirect",
+      "result": "PASS"
+    },
+    {
+      "name": "Runtime strict GET/POST allowlist",
+      "result": "PASS"
+    },
+    {
+      "name": "Runtime fails closed before POST",
+      "result": "PASS"
+    },
+    {
+      "name": "Runtime verifies source counts",
+      "result": "PASS"
+    },
+    {
+      "name": "Runtime CMD has no secret or write operations",
+      "result": "PASS"
+    },
+    {
+      "name": "SQL SELECT only and read-only metadata",
+      "result": "PASS"
+    },
+    {
+      "name": "No patch migration DDL supplied",
+      "result": "PASS"
+    },
+    {
+      "name": "All new production classes exclusively r4c3",
+      "result": "PASS"
+    }
+  ]
+}

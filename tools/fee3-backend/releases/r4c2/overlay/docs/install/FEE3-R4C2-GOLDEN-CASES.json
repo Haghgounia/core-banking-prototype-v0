@@ -1,0 +1,57 @@
+{
+  "release": "FEE3_R4C2_V1",
+  "source": "Local Oracle formula seed + R4C0 read-only discovery; not approved price",
+  "currency": "IRR",
+  "status": "UNVERIFIED_UAT_SIMULATION",
+  "allOutputsFinanciallyNonAuthoritative": true,
+  "scenarios": [
+    {
+      "profile": "PARTICIPATION_REALIZED",
+      "contractTypes": ["MUSHARAKA_MADANI", "MUDARABA"],
+      "formulaCode": "PARTICIPATION_REALIZED",
+      "realizedProfitIrr": "90000000.00",
+      "contractualSharePercent": "40.00000000",
+      "roundedIrr": "36000000",
+      "resultKind": "BANK_SHARE_OF_REPORTED_REALIZED_PROFIT_UNVERIFIED"
+    },
+    {
+      "profile": "PARTICIPATION_ESTIMATE",
+      "contractTypes": ["MUSHARAKA_MADANI", "MUDARABA"],
+      "formulaCode": "TPL_E624746F262F6E",
+      "principalIrr": "100000000.00",
+      "annualRatePercent": "18.00000000",
+      "exampleJalaliDays": 10,
+      "exampleYearDenominator": 365,
+      "roundedIrr": "493151",
+      "resultKind": "PARTICIPATION_PERIOD_ESTIMATE_NOT_REALIZED"
+    },
+    {
+      "profile": "DEBT_PURCHASE_SPREAD",
+      "formulaCode": "DEBT_PURCHASE_SPREAD",
+      "faceAmountIrr": "100000000.00",
+      "purchasePriceIrr": "92000000.00",
+      "roundedIrr": "8000000",
+      "resultKind": "GROSS_DEBT_PURCHASE_SPREAD_NOT_RECOGNIZED_PROFIT"
+    },
+    {
+      "profile": "SALAM_SPREAD",
+      "formulaCode": "SALAM_PRICE_SPREAD",
+      "saleAmountIrr": "105000000.00",
+      "purchaseAmountIrr": "90000000.00",
+      "roundedIrr": "15000000",
+      "resultKind": "GROSS_SALAM_SPREAD_NOT_RECOGNIZED_PROFIT"
+    },
+    {
+      "profile": "SALAM_ESTIMATE",
+      "formulaCode": "TPL_E624746F262F6E",
+      "principalIrr": "100000000.00",
+      "annualRatePercent": "18.00000000",
+      "exampleJalaliDays": 10,
+      "exampleYearDenominator": 365,
+      "roundedIrr": "493151",
+      "resultKind": "SALAM_PERIOD_ESTIMATE_NOT_REALIZED"
+    }
+  ],
+  "forbidden": ["FINANCIAL_POSTING", "PROFIT_RECOGNITION", "CHARGE_AUTHORIZATION",
+                "APPROVAL", "PUBLISH", "CLIENT_YEAR_FRACTION", "ARBITRARY_FORMULA"]
+}

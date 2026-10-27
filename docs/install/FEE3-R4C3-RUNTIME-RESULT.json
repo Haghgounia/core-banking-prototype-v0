@@ -1,0 +1,184 @@
+{
+  "protocol": "FEE3_R4C3_QARD_READONLY_V1",
+  "atUtc": "2026-10-27T13:48:18.084661+00:00",
+  "noMutationAPIs": true,
+  "passed": 35,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "Oracle FEE3 reads and 11 required tables",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "draft writes remain disabled",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Oracle item/version baseline 297/300",
+      "result": "PASS",
+      "detail": "{'calcItemCount': 297, 'tariffVersionCount': 300}"
+    },
+    {
+      "name": "workflow, approval and posting disabled",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Oracle QARD_FEE operation active",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Oracle exact calendar formula reference active",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "first installment 10-day fee amount from CAL2",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "client schedule, rate and duplicate history not certified",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "deterministic SHA256 and candidate key replay",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "amended amount changes arithmetic but not cycle identity",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "contract-year start uses contract date, not solar new year",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "contract origination must not be charged as anniversary",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "ordinary business day is not Jalali year start",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "client yearFraction denied",
+      "result": "PASS",
+      "detail": "['QARD_UNREVIEWED_INPUT_FIELDS']"
+    },
+    {
+      "name": "no asserted duplicate certificate allowed",
+      "result": "PASS",
+      "detail": "['QARD_UNREVIEWED_INPUT_FIELDS']"
+    },
+    {
+      "name": "precision beyond NUMBER22_2 rejected",
+      "result": "PASS",
+      "detail": "['QARD_AMOUNT_NUMBER22_2']"
+    },
+    {
+      "name": "precision beyond NUMBER18_8 rejected",
+      "result": "PASS",
+      "detail": "['QARD_RATE_NUMBER18_8']"
+    },
+    {
+      "name": "negative contract rate rejected",
+      "result": "PASS",
+      "detail": "['QARD_RATE_NUMBER18_8']"
+    },
+    {
+      "name": "missing contract evidence rejected",
+      "result": "PASS",
+      "detail": "['QARD_CONTRACT_SCHEDULE_EVIDENCE_REQUIRED']"
+    },
+    {
+      "name": "missing schedule evidence rejected",
+      "result": "PASS",
+      "detail": "['QARD_CONTRACT_SCHEDULE_EVIDENCE_REQUIRED']"
+    },
+    {
+      "name": "wrong first installment due date rejected",
+      "result": "PASS",
+      "detail": "['FIRST_INSTALLMENT_SCHEDULE_MISMATCH']"
+    },
+    {
+      "name": "first installment cannot add annual interest",
+      "result": "PASS",
+      "detail": "['QARD_UNREVIEWED_INPUT_FIELDS']"
+    },
+    {
+      "name": "year start basis mismatch denied",
+      "result": "PASS",
+      "detail": "['QARD_TIMING_POLICY_MISMATCH']"
+    },
+    {
+      "name": "unsupported holiday rule denied",
+      "result": "PASS",
+      "detail": "['QARD_TIMING_POLICY_MISMATCH']"
+    },
+    {
+      "name": "editable formula injection denied",
+      "result": "PASS",
+      "detail": "['CLIENT_FORMULA_PARAMETERS_FORBIDDEN']"
+    },
+    {
+      "name": "loan profit formula cannot be substituted",
+      "result": "PASS",
+      "detail": "['QARD_FORMULA_NOT_CERTIFIED']"
+    },
+    {
+      "name": "tax/waiver financial override forbidden",
+      "result": "PASS",
+      "detail": "['QARD_TAX_OR_FINANCIAL_POLICY_UNREVIEWED']"
+    },
+    {
+      "name": "tax policy unreviewed rejected",
+      "result": "PASS",
+      "detail": "['QARD_TAX_OR_FINANCIAL_POLICY_UNREVIEWED']"
+    },
+    {
+      "name": "partial Oracle ID cannot impersonate approved tariff",
+      "result": "PASS",
+      "detail": "['PARTIAL_ORACLE_REFERENCE']"
+    },
+    {
+      "name": "fixed tariff rate cannot replace contract rate",
+      "result": "PASS",
+      "detail": "['QARD_RULE_UNSUPPORTED']"
+    },
+    {
+      "name": "not a loan profit operation",
+      "result": "PASS",
+      "detail": "['NOT_QARD_FEE']"
+    },
+    {
+      "name": "future bank event denied",
+      "result": "PASS",
+      "detail": "['QARD_EVENT_NOT_AT_BANK_BUSINESS_DATE']"
+    },
+    {
+      "name": "contract start cannot follow period",
+      "result": "PASS",
+      "detail": "['QARD_PERIOD_OR_CONTRACT_DATES_INVALID']"
+    },
+    {
+      "name": "wrong model code rejected",
+      "result": "PASS",
+      "detail": "['QARD_TIMING_MODEL_UNSUPPORTED']"
+    },
+    {
+      "name": "Oracle counts unchanged after preview",
+      "result": "PASS",
+      "detail": ""
+    }
+  ]
+}

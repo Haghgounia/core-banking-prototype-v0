@@ -1,0 +1,16 @@
+{
+  "release":"FEE3_R4C3_QARD_READONLY_V1",
+  "source":"FCE_v13_8_84_Oracle_Full_Draft_Catalog_Seed_EDIT.sql; R4-C0 matrix",
+  "notOfficialRate":true,
+  "currency":"IRR",
+  "arithmetic":{"amount":"100000000.00","contractRatePercent":"4.00000000","days":10,"jalaliYearDenominator":365,"yearFraction":"10 / 365","rounding":"HALF_UP","expectedRoundedIrr":"109589"},
+  "timingProfiles":[
+    {"code":"FCE-000235","apiModel":"ON_ANNIVERSARY","timing":"ON_ANNIVERSARY","yearStartBasis":"UNDECIDED","expectedLocalPure":"SIMULATED"},
+    {"code":"FCE-000236","apiModel":"FIRST_INSTALLMENT_OF_PERIOD","timing":"FIRST_INSTALLMENT_OF_PERIOD","yearStartBasis":"UNDECIDED","expectedLocalPure":"SIMULATED"},
+    {"code":"FCE-000237","apiModel":"JALALI_YEAR_START","timing":"START_OF_YEAR","yearStartBasis":"JALALI_CALENDAR_YEAR","expectedLocalPure":"SIMULATED"},
+    {"code":"FCE-000238","apiModel":"CONTRACT_YEAR_START","timing":"START_OF_YEAR","yearStartBasis":"LOAN_CONTRACT_YEAR","expectedLocalPure":"SIMULATED"}
+  ],
+  "localCalendarTest":{"eventIsoDate":"2026-03-21","eventJalali":"1405-01-01","originIsoDate":"2025-03-21","originJalali":"1404-01-01","calendarEvidence":"TEST_ONLY_CAL2_SHAPE_NOT_A_DATABASE_READ"},
+  "runtimeAcceptance":{"businessDate":"from FEE3 readiness","expectedChecks":35,"yearStartOnOrdinaryDate":"BLOCKED","cashPosting":false,"oracleWrites":false,"historyVerified":false,"rateVerified":false,"scheduleVerified":false},
+  "duplicateRisk":{"assessmentKey":"candidate only; stable when amount or rate changes","historicalChargeCheck":"NOT_VERIFIED_NO_AUTHORITATIVE_CHARGE_HISTORY","bankingUniquenessGuaranteed":false}
+}

@@ -1,0 +1,199 @@
+{
+  "protocol": "FEE3_R4C2_LOAN_MODELS_READONLY_V1",
+  "atUtc": "2026-10-27T12:13:37.993610+00:00",
+  "noMutationAPIs": true,
+  "passed": 38,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "Oracle FEE3 reads and 11 tables",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "draft writes remain disabled",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Oracle item/version counts at accepted R4C1 baseline",
+      "result": "PASS",
+      "detail": "{'calcItemCount': 297, 'tariffVersionCount': 300}"
+    },
+    {
+      "name": "workflow, maker/checker and posting denied",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "authoritative active LOAN_PROFIT operation",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "four authoritative exact loan formula codes active",
+      "result": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "exact PARTICIPATION_REALIZED gross amount",
+      "result": "PASS",
+      "detail": "['UNPUBLISHED_DRAFT_ONLY', 'CLIENT_CONTRACT_EVIDENCE_UNVERIFIED', 'NOT_REALIZED_PROFIT_CERTIFICATION', 'NOT_AN_ACCOUNTING_ACCRUAL', 'NOT_A_TAX_DETERMINATION', 'NO_ORACLE_WRITE', 'NO_ACCOUNTING_POSTING"
+    },
+    {
+      "name": "unpublished, unsaved, unverified PARTICIPATION_REALIZED",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "exact DEBT_PURCHASE_SPREAD gross amount",
+      "result": "PASS",
+      "detail": "['UNPUBLISHED_DRAFT_ONLY', 'CLIENT_CONTRACT_EVIDENCE_UNVERIFIED', 'NOT_REALIZED_PROFIT_CERTIFICATION', 'NOT_AN_ACCOUNTING_ACCRUAL', 'NOT_A_TAX_DETERMINATION', 'NO_ORACLE_WRITE', 'NO_ACCOUNTING_POSTING"
+    },
+    {
+      "name": "unpublished, unsaved, unverified DEBT_PURCHASE_SPREAD",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "exact SALAM_SPREAD gross amount",
+      "result": "PASS",
+      "detail": "['UNPUBLISHED_DRAFT_ONLY', 'CLIENT_CONTRACT_EVIDENCE_UNVERIFIED', 'NOT_REALIZED_PROFIT_CERTIFICATION', 'NOT_AN_ACCOUNTING_ACCRUAL', 'NOT_A_TAX_DETERMINATION', 'NO_ORACLE_WRITE', 'NO_ACCOUNTING_POSTING"
+    },
+    {
+      "name": "unpublished, unsaved, unverified SALAM_SPREAD",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "MUDARABA uses negotiated realized share not annual interest",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "CAL2-backed 10 Jalali days PARTICIPATION_ESTIMATE",
+      "result": "PASS",
+      "detail": "['UNPUBLISHED_DRAFT_ONLY', 'CLIENT_CONTRACT_EVIDENCE_UNVERIFIED', 'NOT_REALIZED_PROFIT_CERTIFICATION', 'NOT_AN_ACCOUNTING_ACCRUAL', 'NOT_A_TAX_DETERMINATION', 'NO_ORACLE_WRITE', 'NO_ACCOUNTING_POSTING"
+    },
+    {
+      "name": "estimate explicitly NOT realized PARTICIPATION_ESTIMATE",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "CAL2-backed 10 Jalali days SALAM_ESTIMATE",
+      "result": "PASS",
+      "detail": "['UNPUBLISHED_DRAFT_ONLY', 'CLIENT_CONTRACT_EVIDENCE_UNVERIFIED', 'NOT_REALIZED_PROFIT_CERTIFICATION', 'NOT_AN_ACCOUNTING_ACCRUAL', 'NOT_A_TAX_DETERMINATION', 'NO_ORACLE_WRITE', 'NO_ACCOUNTING_POSTING"
+    },
+    {
+      "name": "estimate explicitly NOT realized SALAM_ESTIMATE",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "SHA256 deterministic replay",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "share greater than 100 rejected",
+      "result": "PASS",
+      "detail": "['REALIZED_PROFIT_OR_SHARE_INVALID']"
+    },
+    {
+      "name": "realization proof required",
+      "result": "PASS",
+      "detail": "['REALIZATION_EVIDENCE_REQUIRED']"
+    },
+    {
+      "name": "annual rate cannot replace realized share",
+      "result": "PASS",
+      "detail": "['UNREVIEWED_INPUT_FIELDS']"
+    },
+    {
+      "name": "future event cannot be realized",
+      "result": "PASS",
+      "detail": "['EVENT_NOT_AT_BANK_BUSINESS_DATE']"
+    },
+    {
+      "name": "debt negative spread not clipped to zero",
+      "result": "PASS",
+      "detail": "['NEGATIVE_SPREAD_NEEDS_LOSS_POLICY']"
+    },
+    {
+      "name": "debt purchase price evidence mandatory",
+      "result": "PASS",
+      "detail": "['DEBT_PURCHASE_EVIDENCE_REQUIRED']"
+    },
+    {
+      "name": "Salam negative spread not assumed zero",
+      "result": "PASS",
+      "detail": "['NEGATIVE_SPREAD_NEEDS_LOSS_POLICY']"
+    },
+    {
+      "name": "Salam cannot self-certify tax",
+      "result": "PASS",
+      "detail": "['TAX_AND_FINANCIAL_POLICY_OUT_OF_SCOPE']"
+    },
+    {
+      "name": "unverified yearFraction cannot be supplied",
+      "result": "PASS",
+      "detail": "['UNREVIEWED_INPUT_FIELDS']"
+    },
+    {
+      "name": "rate beyond NUMBER18_8 denied",
+      "result": "PASS",
+      "detail": "['ESTIMATE_RATE_NUMBER_18_8']"
+    },
+    {
+      "name": "missing estimation basis evidence denied",
+      "result": "PASS",
+      "detail": "['ESTIMATE_CONTRACT_EVIDENCE_REQUIRED']"
+    },
+    {
+      "name": "customer cannot override formula text",
+      "result": "PASS",
+      "detail": "['CLIENT_FORMULA_OVERRIDE_FORBIDDEN']"
+    },
+    {
+      "name": "late damage formula cannot be repurposed",
+      "result": "PASS",
+      "detail": "['MODEL_FORMULA_MISMATCH']"
+    },
+    {
+      "name": "wrong contract/model forbidden",
+      "result": "PASS",
+      "detail": "['CONTRACT_TYPE_MODEL_MISMATCH']"
+    },
+    {
+      "name": "partial Oracle reference cannot spoof approval",
+      "result": "PASS",
+      "detail": "['PARTIAL_ORACLE_REFERENCE']"
+    },
+    {
+      "name": "rule fixed tariff rate cannot override contract",
+      "result": "PASS",
+      "detail": "['UNSUPPORTED_MODEL_RULE']"
+    },
+    {
+      "name": "client waiver and tax blocked",
+      "result": "PASS",
+      "detail": "['TAX_AND_FINANCIAL_POLICY_OUT_OF_SCOPE']"
+    },
+    {
+      "name": "event/model mismatch blocked",
+      "result": "PASS",
+      "detail": "['LOAN_MODEL_EVENT_MISMATCH_OR_PENDING']"
+    },
+    {
+      "name": "past effective date blocked",
+      "result": "PASS",
+      "detail": "['HISTORICAL_EFFECTIVE_UNSUPPORTED']"
+    },
+    {
+      "name": "Oracle catalog item/version counts unchanged",
+      "result": "PASS",
+      "detail": "{'calcItemCount': 297, 'tariffVersionCount': 300}"
+    }
+  ]
+}

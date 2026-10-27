@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "patchId": "FEE3-R4C3-HF1-DECIMAL-JSON-20261027",
+  "purpose": "Fix QA false-negative caused by binary float rounding when parsing JSON BigDecimal yearFraction",
+  "target": "tools/fee3-backend/r4c3/runtime-readonly.py",
+  "baselineSha256": "e38c3ae9d6e5c0e3a341103f15888231eeb28d5a5ab79e1c538dfcee67bf6c62",
+  "targetSha256": "7c65eda6cbb8f1cdcafa190f449d9aa374f24246ab3b0724a3ce01014ad20b8e",
+  "anchors": {
+    "tools/fee3-backend/releases/r4c3/manifest.json": "02f42515ce7031197ff7c5b7403ef0428e7873a9be9baf9cb38dfbb18c61dbe4",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4c3/Fee3R4C3QardContract.java": "61e1a3bf0152497dc3ddb82741269226760f9a672f8e15a524a0b4ae00ae9ffe",
+    "tools/fee3-backend/r4c3/run-runtime-readonly.cmd": "f1644a5645ed9e30e711a5b3c70e3a20c422e8b6669ba59bc270ba3bab88c859"
+  },
+  "noBackendChanges": true,
+  "noDatabaseChanges": true,
+  "noNewAPIs": true
+}

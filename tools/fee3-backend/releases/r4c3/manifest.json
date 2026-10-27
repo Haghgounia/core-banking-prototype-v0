@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "patchId": "FEE3-BE-R4C3-20261027",
+  "summary": "Safe no-write Qard-al-hasana fee timing UAT; additive only; no tax or collection",
+  "baseRequired": "FEE3 R4C2 installed, R4C1 CAL2 available",
+  "anchors": {
+    "backend/src/main/java/com/behsazan/corebanking/fee3/domain/Fee3Models.java": "a6d712ed40549b9427f0fce937f49f9fa028bd51578efd268a2ca7e353f872c5",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3DraftPolicy.java": "7c4845d0ff8bff2397c0c128bd5466cce51ed2ddb71b5ee066b2b5b8d18b803c",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3SubmissionPolicy.java": "2e0591acb969721522e8969aadf632e459996bfc3d9154a0536e7d1307e5cea8",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4/Fee3R4ReferenceRepository.java": "c2df6889700587d2442fcd2231574aa3176e7272080a4933ddd2c65e78da66aa",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4c1/Fee3R4C1LoanProfitContract.java": "8c81b6ac4d9d480c83aa9cae9e0694367287ce02f01a7d91a73ae23607158b00",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4c1/Fee3R4C1JalaliDayRepository.java": "64ab55bfef273faa975273fc4967565526eb70a1d4db87740aebc14c19afec4e",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4c2/Fee3R4C2LoanModelContract.java": "a7f4a7e54590646fa278f82aa8e4169631e2c9c7a4497bf3b17966f273308974",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4c2/Fee3R4C2Service.java": "153137df75257408a634c9e0ef7c1dc947bed08f7f96de850bc96c57ac0e81f2",
+    "tools/fee3-backend/releases/r4c2/manifest.json": "e8d15a4c0da06ed8c9575300c9f830415381facc510c5540ae7aca379e2e1160"
+  },
+  "files": {
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4c3/Fee3R4C3QardContract.java": "61e1a3bf0152497dc3ddb82741269226760f9a672f8e15a524a0b4ae00ae9ffe",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4c3/Fee3R4C3JalaliEventRepository.java": "882462faf5794f59744a7da0569a8fb9c77e3b7c2d6d5c0e9e915f7f0f09c315",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4c3/Fee3R4C3Service.java": "c1db1702b44d87a2f3ba3e8985cb568228d17445628634ebced24898de09156d",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4c3/Fee3R4C3Controller.java": "ae84d81a136fe3cf72acdf06ae4f9e1c5788379f44c0dd2453ae20503356a7dc",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4c3/Fee3R4C3ProblemAdvice.java": "c8b4726ba71feba44acaf6489e760517829c4053a8c11b7e703ae082895519ca",
+    "backend/src/test/java/com/behsazan/corebanking/fee3/r4c3/Fee3R4C3QardContractTest.java": "8592d264d08d0e40274dca90bcdcbf5120f6c400baad03da6c6f9331f0053708",
+    "docs/install/FEE3-BE-R4C3-INSTALL-FA.md": "3f782270fa43e86c3dbe5dd76b23599789e212c0c7bc9b17f2a34e09ab78df34",
+    "docs/install/FEE3-BE-R4C3-QA-FA.md": "581dc714a4c286f08fb4123938bb5fdac9f7782326cb36c08420a5785814513d",
+    "docs/install/FEE3-R4C3-GOLDEN-CASES.json": "4d2197c619fac2d1e8e1bd8e4b8e7d37632216ff85b5738deb551a48782206d6",
+    "docs/install/FEE3-R4C3-ORACLE-READONLY-VERIFY.sql": "f662b9d23b30aca2583e4aabf565ea88a40ddff1d72d568bbe5b18ccdd01e8b7",
+    "tools/fee3-backend/r4c3/Fee3R4C3Probe.java": "561e0c048af59dc215fd2dd9dcadf56d8473eae5bab0972592c3592216fa7b91",
+    "tools/fee3-backend/r4c3/run-pure-java.py": "d5398084e7dc4e2bf860f17ac3166e345a81686cb19135af961529feb4328af2",
+    "tools/fee3-backend/r4c3/run-runtime-readonly.cmd": "f1644a5645ed9e30e711a5b3c70e3a20c422e8b6669ba59bc270ba3bab88c859",
+    "tools/fee3-backend/r4c3/runtime-readonly.py": "e38c3ae9d6e5c0e3a341103f15888231eeb28d5a5ab79e1c538dfcee67bf6c62",
+    "tools/fee3-backend/r4c3/selftest.py": "a39ed1832974e37bd93aaf507e9da3956e102d4c6576e624013834d4ee47c063",
+    "tools/fee3-backend/r4c3/verify-java.py": "fd78b407eafa80b52237bde822cf5bd3bca2ebe41a026e0c49e6bd0b11be7c95",
+    "tools/fee3-backend/r4c3/verify-r4c3.py": "72bd794f08e222b4e665bbeb7d5dd05d070e24a24c58597f89c77d17f89077c7"
+  },
+  "noOracleDDL": true,
+  "noOracleDML": true,
+  "noApprovedFee": true,
+  "noCollection": true,
+  "noPosting": true
+}
