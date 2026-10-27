@@ -1,0 +1,16 @@
+{
+  "protocol": "FEE3_R3_QUALIFICATION_V1",
+  "mode": "runtime",
+  "generatedAtUtc": "2026-10-27T06:12:54.648940+00:00",
+  "readOnlyByDesign": true,
+  "financialPosting": false,
+  "passed": 0,
+  "failed": 1,
+  "checks": [
+    {
+      "name": "Qualification runtime",
+      "result": "FAIL",
+      "details": "RemoteDisconnected: Remote end closed connection without response"
+    }
+  ]
+}

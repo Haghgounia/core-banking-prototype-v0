@@ -1,0 +1,22 @@
+{
+  "protocol": "FEE3_GUARANTEE_R4B2_GOLDEN_V1",
+  "source": "FCE_v13_8_84_Program_REDOWNLOAD.html; docs/fee3/FEE3-UI-R6-QARD-GUARANTEE-REVIEW-FA.md",
+  "warning": "Numerical UAT examples only. No rates, exemptions, or coverage factors are certified bank tariffs.",
+  "currency": "IRR",
+  "guaranteeAmount": "100000000",
+  "tariffOwnedCollateralRules": [
+    {"collateralType":"CASH_100", "rateSource":"EXEMPT", "ratePercent":null, "coveragePercent":"100"},
+    {"collateralType":"PROMISSORY_NOTE", "rateSource":"CONFIG", "ratePercent":"2.25", "coveragePercent":"120"},
+    {"collateralType":"MOVABLE_PROPERTY", "rateSource":"CONFIG", "ratePercent":"1", "coveragePercent":"100"}
+  ],
+  "cases": [
+    {"case":"BASKET-15-50-35-ALLOCATED", "shares":{"CASH_100":"15","PROMISSORY_NOTE":"50","MOVABLE_PROPERTY":"35"}, "basis":"GUARANTEE_PORTFOLIO_ALLOCATED", "expectedFeeIrr":"1475000"},
+    {"case":"BASKET-15-50-35-COVERED", "shares":{"CASH_100":"15","PROMISSORY_NOTE":"50","MOVABLE_PROPERTY":"35"}, "basis":"GUARANTEE_PORTFOLIO_COLLATERAL_VALUE", "expectedFeeIrr":"1700000"},
+    {"case":"BASKET-40-60-ALLOCATED", "shares":{"CASH_100":"40","PROMISSORY_NOTE":"60"}, "basis":"GUARANTEE_PORTFOLIO_ALLOCATED", "expectedFeeIrr":"1350000"},
+    {"case":"BASKET-40-60-COVERED", "shares":{"CASH_100":"40","PROMISSORY_NOTE":"60"}, "basis":"GUARANTEE_PORTFOLIO_COLLATERAL_VALUE", "expectedFeeIrr":"1620000"},
+    {"case":"EXPLICIT-TAX-ILLUSTRATION", "baseCase":"BASKET-15-50-35-ALLOCATED", "taxPercent":"10", "expectedFeeIrr":"1475000", "expectedTaxIrr":"147500", "expectedTotalIrr":"1622500"},
+    {"case":"PORTFOLIO-SHARES-95", "shares":{"CASH_100":"15","PROMISSORY_NOTE":"50","MOVABLE_PROPERTY":"30"}, "expectedStatus":"BLOCKED", "expectedCode":"PORTFOLIO_SHARES_MUST_TOTAL_100"},
+    {"case":"CASH-COVERAGE-99", "coveragePercent":"99", "expectedStatus":"BLOCKED", "expectedCode":"CASH_100_COVERAGE_BELOW_100"},
+    {"case":"DAY-COUNT-LEAP", "basis":"ACT_ACT", "start":"2028-01-01", "endExclusive":"2029-01-01", "yearFraction":"1", "expectedFeeIrr":"1475000"}
+  ]
+}

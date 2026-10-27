@@ -1,0 +1,125 @@
+{
+  "protocol": "FEE3_R4B1_SERVICES_READONLY_V1",
+  "atUtc": "2026-10-27T08:44:27.834245+00:00",
+  "noWrites": true,
+  "financialPosting": false,
+  "passed": 23,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "FEE3 Oracle readiness and 11 required tables",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "draft writes disabled",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "baseline Oracle count fields",
+      "result": "PASS",
+      "details": "(297, 300)"
+    },
+    {
+      "name": "workflow, authentication and posting denied",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "active source operation from Oracle",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "progressive source golden 30M = 20K",
+      "result": "PASS",
+      "details": "['UNPUBLISHED_DRAFT_ONLY', 'NOT_A_CHARGE_AUTHORIZATION', 'NO_ORACLE_WRITE', 'NO_ACCOUNTING_POSTING', 'NOT_A_TAX_DETERMINATION']"
+    },
+    {
+      "name": "R4B1 contract and 2-band trace",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "correct unsaved status and no financial side effects",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "business date/rounding/hash provenance",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "SHA-256 deterministic replay",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "bracket exact boundary 10M = 8K",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "bracket below boundary in first fixed bracket = 20K",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "progressive limit enters first band only = 10K",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "explicit tax on rounded 10K fee = 1K; total 11K",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "max cap applied to full progressive sum = 15K",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "decimal scale >2 rejected",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "tier rate beyond 8 decimals rejected",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "gap between brackets rejected, not treated as zero",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "formula method cannot run through service tier endpoint",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "unapproved waiver forbidden",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "partial Oracle reference forbidden",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "historical effective date rejected",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Oracle catalog counts unchanged",
+      "result": "PASS",
+      "details": ""
+    }
+  ]
+}

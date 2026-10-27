@@ -1,0 +1,20 @@
+{
+  "patchId": "FEE3-R3-QA2-20261027",
+  "basedOn": "FEE3-R3-QA1-READONLY-QUALIFICATION-20261027",
+  "purpose": "direct loopback no-proxy read-only runtime qualification with route diagnostics and real count parity",
+  "applicationSourceChanges": false,
+  "databaseChanges": false,
+  "replaceExistingFiles": false,
+  "runtimePostAllowlist": [
+    "/api/v1/fee3/validation",
+    "/api/v1/fee3/preview"
+  ],
+  "files": {
+    "docs/install/FEE3-R3-QA2-INSTALL-FA.md": "61fbda9c171e407403e7f44778fe15c9b5dad93a35036284810c32ed6fab9038",
+    "docs/install/FEE3-R3-QA2-QA-FA.md": "b00f6cf8111f2257a70cf7c6876d66dea247f32892ccce1bb502f60547b5c729",
+    "tools/fee3-backend/qualification/r3-qa2/qualify.py": "2736493a823a725d7927d1a9a9042419b54d29cd31b5a12da173a9802fa337cc",
+    "tools/fee3-backend/qualification/r3-qa2/run-runtime-readonly.cmd": "cf041c90872c6f3e439c3e3ac3e17206f50921d0762940527341acc376c300c7",
+    "tools/fee3-backend/qualification/r3-qa2/selftest.py": "dd4f667d1b1cf537a6687e9c757332790a9388cfa742440bb3b14945c3a81524",
+    "tools/fee3-backend/qualification/r3-qa2/verify-kit.py": "2f42e85a21c88f0457173b2d45b8d37b53a63512ea602501fb63dddaf38aed3d"
+  }
+}

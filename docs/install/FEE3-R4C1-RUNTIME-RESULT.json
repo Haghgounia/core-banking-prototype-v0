@@ -1,0 +1,115 @@
+{
+  "protocol": "FEE3_R4C1_LOAN_PROFIT_READONLY_V1",
+  "atUtc": "2026-10-27T11:29:31.746651+00:00",
+  "noWrites": true,
+  "posting": false,
+  "passed": 21,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "FEE3 Oracle read and 11 tables",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "draft writes remain disabled",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Oracle baseline present",
+      "result": "PASS",
+      "details": "{'calcItemCount': 297, 'tariffVersionCount': 300}"
+    },
+    {
+      "name": "workflow, authentication, and posting denied",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "authoritative active loan profit operation",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "two exact loan profit formula references active",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "contract-months preview 100M 18pct 12mo = 18M",
+      "result": "PASS",
+      "details": "['UNPUBLISHED_DRAFT_ONLY', 'CLIENT_CONTRACT_RATE_UNVERIFIED', 'NOT_A_PROFIT_ACCRUAL_AUTHORIZATION', 'NO_ORACLE_WRITE', 'NO_ACCOUNTING_POSTING', 'NOT_A_TAX_DETERMINATION']"
+    },
+    {
+      "name": "snapshot and unverified-client evidence flags",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "deterministic replay exact SHA256",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "CAL2-backed 10 Jalali days exact total",
+      "result": "PASS",
+      "details": "['UNPUBLISHED_DRAFT_ONLY', 'CLIENT_CONTRACT_RATE_UNVERIFIED', 'NOT_A_PROFIT_ACCRUAL_AUTHORIZATION', 'NO_ORACLE_WRITE', 'NO_ACCOUNTING_POSTING', 'NOT_A_TAX_DETERMINATION']"
+    },
+    {
+      "name": "client provided yearFraction denied",
+      "result": "PASS",
+      "details": "['UNREVIEWED_INPUT_FIELDS']"
+    },
+    {
+      "name": "missing client contract evidence denied",
+      "result": "PASS",
+      "details": "['UNREVIEWED_INPUT_FIELDS']"
+    },
+    {
+      "name": "unapproved profit rate 9 fractional digits denied",
+      "result": "PASS",
+      "details": "['REQUEST_RATE_NOT_NUMBER_18_8']"
+    },
+    {
+      "name": "loan contract months cannot be fractional",
+      "result": "PASS",
+      "details": "['CONTRACT_MONTHS_NOT_VALIDATED']"
+    },
+    {
+      "name": "editable expression denied",
+      "result": "PASS",
+      "details": "['CLIENT_FORMULA_OVERRIDE_FORBIDDEN']"
+    },
+    {
+      "name": "late damage formula not repurposed",
+      "result": "PASS",
+      "details": "['FORMULA_TEMPLATE_NOT_CERTIFIED']"
+    },
+    {
+      "name": "participation event not exchange accrual",
+      "result": "PASS",
+      "details": "['NOT_EXCHANGE_PERIOD_PROFIT']"
+    },
+    {
+      "name": "tax unreviewed cannot be charged",
+      "result": "PASS",
+      "details": "['TAX_TREATMENT_NOT_REVIEWED_FOR_PROFIT']"
+    },
+    {
+      "name": "partial Oracle reference cannot spoof persisted draft",
+      "result": "PASS",
+      "details": "['PARTIAL_ORACLE_ID']"
+    },
+    {
+      "name": "caller provided fixed tariff rate denied",
+      "result": "PASS",
+      "details": "['UNSUPPORTED_PROFIT_RULE']"
+    },
+    {
+      "name": "Oracle item/version counts unchanged",
+      "result": "PASS",
+      "details": "{'calcItemCount': 297, 'tariffVersionCount': 300}"
+    }
+  ]
+}

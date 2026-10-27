@@ -1,0 +1,20 @@
+{
+  "patchId": "FEE3-R3-QA3-20261027",
+  "basedOn": "FEE3-R3-QA2-20261027",
+  "purpose": "Correct catalog Page<T> response assertion, repair QA mock, add fail-closed regressions",
+  "applicationSourceChanges": false,
+  "databaseChanges": false,
+  "replaceExistingFiles": false,
+  "runtimePostAllowlist": [
+    "/api/v1/fee3/validation",
+    "/api/v1/fee3/preview"
+  ],
+  "files": {
+    "docs/install/FEE3-R3-QA3-INSTALL-FA.md": "779edc314c3c04ccb6bf67cace492ac616e6e8f43d7022dcb942b5c0925d080c",
+    "docs/install/FEE3-R3-QA3-QA-FA.md": "d390148a9185d8d5ae07e7e5c77de12f1950dd40e2e9bba2fa54f218e7c04d44",
+    "tools/fee3-backend/qualification/r3-qa3/qualify.py": "1318c1bcb7b9c818ab8f55c2146fb0073ec5aba2efdee56683114dc00710ecd5",
+    "tools/fee3-backend/qualification/r3-qa3/run-runtime-readonly.cmd": "afc92020173473acc93236752b1f17f000cd2e43920b8f0db7e8c056cc366198",
+    "tools/fee3-backend/qualification/r3-qa3/selftest.py": "8d0f3c06878480b5a4cc1e8452047504991885deb449fe8d0aeec164e045ad7b",
+    "tools/fee3-backend/qualification/r3-qa3/verify-kit.py": "cada3e36a6b5a84fe994a2a5a428bfbe9740e2784525d03a24eb5568db012e41"
+  }
+}

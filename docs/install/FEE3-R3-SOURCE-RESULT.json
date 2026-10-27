@@ -1,0 +1,136 @@
+{
+  "protocol": "FEE3_R3_QUALIFICATION_V1",
+  "mode": "source",
+  "generatedAtUtc": "2026-10-27T05:50:49.302441+00:00",
+  "readOnlyByDesign": true,
+  "financialPosting": false,
+  "passed": 25,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "R3 manifest identity",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/main/java/com/behsazan/corebanking/fee3/domain/Fee3Models.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3Service.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3DraftPolicy.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/main/java/com/behsazan/corebanking/fee3/oracle/Fee3Repository.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 frontend/src/app/features/fee3/fee3-oracle-api.service.ts",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 tools/fee3-backend/releases/r2/manifest.json",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3PreviewEngine.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3SubmissionPolicy.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3R3WorkflowRepository.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3R3Service.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3R3Controller.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3R3ProblemAdvice.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 backend/src/test/java/com/behsazan/corebanking/fee3/r3/Fee3PreviewEngineTest.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 tools/fee3-backend/verify-r3.mjs",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 tools/fee3-backend/Fee3R3EngineProbe.java",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 docs/install/FEE3-BE-R3-INSTALL.md",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 docs/install/FEE3-BE-R3-QA.md",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "sha256 docs/install/FEE3-BE-R3-ORACLE-READONLY-CHECK.sql",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "R1 structural",
+      "result": "PASS",
+      "details": "FEE3_BE_R1_STATIC_PASS=52 FAIL=0"
+    },
+    {
+      "name": "R2 structural",
+      "result": "PASS",
+      "details": "FEE3_BE_R2_STATIC_PASS=48 FAIL=0"
+    },
+    {
+      "name": "R2 roundtrip",
+      "result": "PASS",
+      "details": "FEE3_BE_R2_MAPPING_PASS=17"
+    },
+    {
+      "name": "R3 structural",
+      "result": "PASS",
+      "details": "FEE3_R3_STATIC_PASS=31 FAIL=0"
+    },
+    {
+      "name": "Java engine source compiles",
+      "result": "PASS",
+      "details": "exit=0"
+    },
+    {
+      "name": "Java preview and governance probe",
+      "result": "PASS",
+      "details": "FEE3_R3_ENGINE_POLICY_CHECKS_PASS=33"
+    }
+  ]
+}

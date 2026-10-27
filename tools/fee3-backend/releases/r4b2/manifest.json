@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "patchId": "FEE3-BE-R4B2-20261027",
+  "base": "Core0.11.0 + R3 + R4A + R4B1",
+  "readOnlySimulation": true,
+  "databaseChanges": false,
+  "anchors": {
+    "backend/src/main/java/com/behsazan/corebanking/fee3/domain/Fee3Models.java": "a6d712ed40549b9427f0fce937f49f9fa028bd51578efd268a2ca7e353f872c5",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3DraftPolicy.java": "7c4845d0ff8bff2397c0c128bd5466cce51ed2ddb71b5ee066b2b5b8d18b803c",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3SubmissionPolicy.java": "2e0591acb969721522e8969aadf632e459996bfc3d9154a0536e7d1307e5cea8",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4/Fee3R4ReferenceRepository.java": "c2df6889700587d2442fcd2231574aa3176e7272080a4933ddd2c65e78da66aa",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4b1/Fee3R4B1ServiceContract.java": "fca00d4ccffd0628bac676af8ccc989efb3fddf13e78f41aa2375b88fa44b776",
+    "tools/fee3-backend/releases/r4a/manifest.json": "ae75c19c16b8a6899d32ba7651ad2f6ed2c230182687293ca838ed70f301cd86",
+    "tools/fee3-backend/releases/r4b1/manifest.json": "5488ad1be49f2bfe7933e73bf62aa1ad87cdd61c0cc6528a3464ac4eb52e80ce"
+  },
+  "files": {
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4b2/Fee3R4B2GuaranteeContract.java": "2143a546e0095105c307ea5e27848959b0c01fa75c98b0612331476e17d5e7cd",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4b2/Fee3R4B2Service.java": "40eab98907c69b0795106d233399f665a2c0420711c8955a4d84c1ce91e0a213",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4b2/Fee3R4B2Controller.java": "aa515597be5f51674a9f2a4c84be4bb0fdbd9c0399155e9c312b0eb0cc223aa6",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r4b2/Fee3R4B2ProblemAdvice.java": "730754d85069548f940aeffb2284bd094ee32a1de131c0b9fa0f7028aebd2139",
+    "backend/src/test/java/com/behsazan/corebanking/fee3/r4b2/Fee3R4B2GuaranteeContractTest.java": "05cd850b206757c638cd6446753908878df7c0ab752000e73cdf546e9185c0f5",
+    "tools/fee3-backend/r4b2/Fee3R4B2Probe.java": "00edac86ef237057f6b07e14c22bc35f76a5f3c2fd20c30ce5401daa35f16406",
+    "tools/fee3-backend/r4b2/run-pure-java.py": "a7b9928614edc4a691524ac16b782110661a10be587be687258727630c80ee00",
+    "tools/fee3-backend/r4b2/verify-java.py": "76a39a8731b205d74f3708467f727fb2cc839167a103a91e18f550f44f5eb1e1",
+    "tools/fee3-backend/r4b2/verify-r4b2.py": "90b257b04e5bdbcbe8d29875d637bb54db017e642d662924d18cc2b45eae3445",
+    "tools/fee3-backend/r4b2/runtime-readonly.py": "7411257ed8cd228e3bdf230521ba364dc7b6123343762d1f9cf8658b82e03620",
+    "tools/fee3-backend/r4b2/run-runtime-readonly.cmd": "3db65a9a0bf9af55c09d310d9d14ebf8bc0db3c2ff13808fcfdf7f2c6a743b5c",
+    "tools/fee3-backend/r4b2/selftest.py": "5183e66cdf98cc1c71a154b275cb8784c5617eb825660fccd6c0cd54c037d1b5",
+    "docs/install/FEE3-BE-R4B2-INSTALL-FA.md": "e612b7673aa36b20122f95067b949ee8a13e20402dd11b13333ec3c99b9dfd75",
+    "docs/install/FEE3-BE-R4B2-QA-FA.md": "a82ecb7309c78ffffa563614bf30426edc1af8629284790c223704a46d7b5d3d",
+    "docs/install/FEE3-BE-R4B2-GOLDEN-CASES.json": "dc2d5c2886d49a5db8171bfa29658cec2e58fdac97d2b87fae29a73d6813f308"
+  }
+}

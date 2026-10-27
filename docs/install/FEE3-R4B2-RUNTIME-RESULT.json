@@ -1,0 +1,140 @@
+{
+  "protocol": "FEE3_R4B2_GUARANTEE_READONLY_V1",
+  "atUtc": "2026-10-27T09:35:08.029681+00:00",
+  "noWrites": true,
+  "financialPosting": false,
+  "passed": 26,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "Oracle readiness and 11 tables",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "draft writes disabled",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "real Oracle baseline present",
+      "result": "PASS",
+      "details": "(297, 300)"
+    },
+    {
+      "name": "all workflow and posting blocked",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "active exact GUARANTEE_ISSUE operation from Oracle",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "portfolio allocated 15/50/35 is 1475000",
+      "result": "PASS",
+      "details": "['UNPUBLISHED_DRAFT_ONLY', 'NOT_A_CHARGE_AUTHORIZATION', 'NO_ORACLE_WRITE', 'NO_ACCOUNTING_POSTING', 'NOT_A_TAX_DETERMINATION']"
+    },
+    {
+      "name": "contract version and three collateral trace rows",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "read-only draft has no banking side effects",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "rounding, bank date, sha256 provenance",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "deterministic replay SHA256",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "portfolio covered basis 15/50/35 is 1700000",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "two collateral allocated 40/60 is 1350000",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "two collateral covered 40/60 is 1620000",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "one full Gregorian year ACT_ACT is whole fee",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "tax once on final fee 147500",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "aggregate maximum applied once 1200000",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "invalid share total denied",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "cash collateral less than 100 denied",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "missing tariff rate denied",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "client-supplied year fraction denied",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "renewal method cannot reuse issuance rule",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "uncertified formula blocked",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "partial Oracle draft reference blocked",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "precision beyond NUMBER22_2 denied",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "unapproved waiver not applied",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Oracle item/version counts unchanged",
+      "result": "PASS",
+      "details": ""
+    }
+  ]
+}

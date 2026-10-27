@@ -1,0 +1,80 @@
+{
+  "protocol": "FEE3_R4A_READONLY_V1",
+  "atUtc": "2026-10-27T07:52:12.165170+00:00",
+  "noWrites": true,
+  "posting": false,
+  "passed": 14,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "FEE3 Oracle reachable and all tables present",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "draft writes explicitly disabled",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Oracle counts present",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "all workflow switches denied",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "authoritative active fee service operation available",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "R4-A response contract and 12500 IRR simulation",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "unapproved unpersisted version is explicitly identified",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Oracle clock, precision and SHA256 evidence",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "snapshot hash repeats exactly",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Oracle 22,2 precision rejects 3 fractional digits",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "historical effective date rejected",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "uncertified formula rejected",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "partial persisted ID cannot spoof published tariff",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "item/version counts unchanged",
+      "result": "PASS",
+      "details": ""
+    }
+  ]
+}

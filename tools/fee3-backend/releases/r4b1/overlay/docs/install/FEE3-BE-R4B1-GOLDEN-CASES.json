@@ -1,0 +1,18 @@
+{
+  "protocol": "FEE3_R4B1_DRAFT_GOLDEN_V1",
+  "sourceReference": "FCE_v13_8_84_Program_REDOWNLOAD.html: sampleConfigs and f139Bracket/f139Progressive",
+  "note": "Synthetic numerical UAT only; not an approved or currently effective bank tariff",
+  "currency": "IRR",
+  "basis": "REQUEST_AMOUNT",
+  "boundarySemantics": "[from, to) for BRACKET; each PROGRESSIVE band charged only on its positive portion",
+  "cases": [
+    {"id":"PROG-30M","method":"PROGRESSIVE","amount":"30000000","tiers":[{"upTo":"10000000","ratePercent":"0.1","fixedAmount":"0"},{"upTo":null,"ratePercent":"0.05","fixedAmount":"0"}],"expectedRaw":"20000","expectedFee":"20000","expectedBreakdown":["10000","10000"]},
+    {"id":"PROG-10M","method":"PROGRESSIVE","amount":"10000000","expectedFee":"10000","explanation":"At upper boundary only first tier contributes"},
+    {"id":"PROG-20M","method":"PROGRESSIVE","amount":"20000000","expectedFee":"15000"},
+    {"id":"BR-UNDER-10M","method":"BRACKET","amount":"9999999","brackets":[{"from":"0","to":"10000000","ratePercent":"0","fixedAmount":"20000"},{"from":"10000000","to":null,"ratePercent":"0.08","fixedAmount":"0"}],"expectedFee":"20000"},
+    {"id":"BR-AT-10M","method":"BRACKET","amount":"10000000","expectedFee":"8000","explanation":"Second bracket starts at 10M inclusive"},
+    {"id":"PROG-CAP","method":"PROGRESSIVE","amount":"30000000","maxFeeIrr":"15000","expectedFee":"15000"},
+    {"id":"PROG-TAX-ILLUSTRATIVE","method":"PROGRESSIVE","amount":"10000000","explicitTaxPercent":"10","expectedFee":"10000","expectedTax":"1000","expectedTotal":"11000","warning":"10% is illustration only, not a tax-law assumption"},
+    {"id":"BR-GAP-DENY","method":"BRACKET","amount":"100","brackets":[{"from":"0","to":"10","ratePercent":"1","fixedAmount":"0"},{"from":"11","to":null,"ratePercent":"1","fixedAmount":"0"}],"expectedStatus":"BLOCKED","expectedCode":"BRACKET_GAP_OR_OVERLAP"}
+  ]
+}

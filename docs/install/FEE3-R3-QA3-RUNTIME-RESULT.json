@@ -1,0 +1,153 @@
+{
+  "protocol": "FEE3_R3_QUALIFICATION_V1",
+  "toolRevision": "QA3",
+  "transport": "DIRECT_LOOPBACK_NO_PROXY_NO_REDIRECT",
+  "mode": "runtime",
+  "generatedAtUtc": "2026-10-27T07:10:56.208344+00:00",
+  "readOnlyByDesign": true,
+  "financialPosting": false,
+  "passed": 28,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "FEE3 Oracle reads enabled",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "All 11 FEE3 tables present",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Write flag disabled during read-only qualification",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Initial Oracle counts present and nonnegative",
+      "result": "PASS",
+      "details": "{'calcItemCount': 297, 'tariffVersionCount': 300}"
+    },
+    {
+      "name": "Oracle business date is ISO date",
+      "result": "PASS",
+      "details": "2026-10-27"
+    },
+    {
+      "name": "Oracle catalog Page<T> items/total/page/size contract",
+      "result": "PASS",
+      "details": "{'keys': ['items', 'page', 'size', 'total'], 'total': 297, 'page': 0, 'size': 5, 'itemCount': 5, 'expectedTotal': 297}"
+    },
+    {
+      "name": "Oracle reference /references/formulas",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Oracle reference /references/sources",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Oracle operation reference is a JSON array",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Compatible active service fee operation",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Workflow readiness response is a JSON object",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Workflow fail-closed: workflowEnabled",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Workflow fail-closed: checkerDecisionEnabled",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Workflow fail-closed: approvalEnabled",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Workflow fail-closed: postingEnabled",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Workflow fail-closed: authenticated",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Workflow fail-closed: makerRole",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Workflow fail-closed: checkerRole",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Validation response is a JSON object",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Valid draft submission readiness",
+      "result": "PASS",
+      "details": "[]"
+    },
+    {
+      "name": "Validation does not certify approval",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Preview response is a JSON object",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Fixed fee server simulation",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "No financial posting/persistence claimed",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Oracle past business date rejected",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Non-IRR output rejected by server",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Uncertified editable formula blocked",
+      "result": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Real Oracle item/version counts unchanged during read-only HTTP checks",
+      "result": "PASS",
+      "details": "{'calcItemCount': {'before': 297, 'after': 297}, 'tariffVersionCount': {'before': 300, 'after': 300}}"
+    }
+  ]
+}

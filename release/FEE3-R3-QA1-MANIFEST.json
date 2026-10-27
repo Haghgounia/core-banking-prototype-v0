@@ -1,0 +1,16 @@
+{
+  "patchId": "FEE3-R3-QA1-READONLY-QUALIFICATION-20261027",
+  "purpose": "additive read-only source API Oracle qualification",
+  "requires": "FEE3-UI-R8-HF1 + FEE3-BE-R1/R2/R3",
+  "databaseChanges": false,
+  "applicationSourceChanges": false,
+  "files": {
+    "docs/install/FEE3-R3-ORACLE-UAT-BASELINE-READONLY.sql": "552942096b6743703cda8cca00c55e1122e268c928534b8b0bf1855bc35ceab4",
+    "docs/install/FEE3-R3-QUALIFICATION-QA.md": "0d6fcf3d546c0d105fa04df5e4388d8c893c2d31388f8a8c0c75f8cd633a49cb",
+    "docs/install/FEE3-R3-QUALIFICATION.md": "cd18f741bd39cd984a06e17483d70892ba09aa49bd1edec268551d3a36c64ad8",
+    "tools/fee3-backend/qualification/r3/qualify.py": "c7f72211a44da0895a5c953cbcca8a1ad383fe9f061bc74074846ee3ec89f28c",
+    "tools/fee3-backend/qualification/r3/run-runtime-readonly.cmd": "1e669cbca814d3d20b28e78790c7a9102f68ec76c1e538754c0c0c91f6ddceaf",
+    "tools/fee3-backend/qualification/r3/run-source.cmd": "e7601d9b87a6d2252e7356ad397a01be13333b4723bc0a235a94cde470005e6a",
+    "tools/fee3-backend/qualification/r3/selftest.py": "b92747bdf588ab5511b402c444f1ecc0037e8f36d45428e9522952b9573bbda3"
+  }
+}
