@@ -175,6 +175,9 @@ node "$ROOT/tools/verify-pb-r18.mjs"
 node "$ROOT/tools/verify-pb-r19.mjs"
 node "$ROOT/tools/verify-rgl-lite-r20.mjs"
 
+node "$ROOT/tools/fee3-backend/verify-r1.mjs"
+node "$ROOT/tools/fee3-backend/verify-r2.mjs"
+
 cd "$ROOT/backend"
 sh ./mvnw -DskipTests compile
 cd "$ROOT"

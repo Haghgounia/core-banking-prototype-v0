@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "patchId": "FEE3-BE-R2-20261026",
+  "base": "Core Banking Prototype 0.11.0 with FEE3-UI-R8+HF1 and BE-R1",
+  "files": {
+    "backend/src/main/java/com/behsazan/corebanking/fee3/domain/Fee3Models.java": {
+      "before": "c58fb0f9685340a26a6d3858bb3c8bfc783c38167078a9e81c966f29555bbab6",
+      "after": "a6d712ed40549b9427f0fce937f49f9fa028bd51578efd268a2ca7e353f872c5",
+      "bytes": 3697
+    },
+    "backend/src/main/java/com/behsazan/corebanking/fee3/oracle/Fee3Repository.java": {
+      "before": "41e96483cb8b9318db5e11026fd6dd48f3a0977a2320518f0af51ce43b03ba8d",
+      "after": "2204bbb12fda5e574161977bcee66f77b8edbac5b8eb099719a19a0718697962",
+      "bytes": 20369
+    },
+    "backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3Service.java": {
+      "before": "e14315b7f9eb2aa5fe262e98094786c0df02f0ae2a11ed2ce1d46d6430839cf8",
+      "after": "9c6480b28d64348d1d5a56d5e1baed01cee3271aed4fd800e67eacaaf289d64d",
+      "bytes": 14009
+    },
+    "backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3DraftPolicy.java": {
+      "before": "21e36a81724dbfef75fe79a14955a9d3d508d6eff9db77412d05f68ed7add4f7",
+      "after": "7c4845d0ff8bff2397c0c128bd5466cce51ed2ddb71b5ee066b2b5b8d18b803c",
+      "bytes": 14010
+    },
+    "backend/src/test/java/com/behsazan/corebanking/fee3/Fee3DraftPolicyTest.java": {
+      "before": "c81f6a8fdb3a1d891548b9c975c32c5f2cc5b90132c5aac51ecc71441382f67c",
+      "after": "2b03aad5cf6ae1a05024525ce7a7ef48d1a3de16c437d781f42cdc40dd914925",
+      "bytes": 5327
+    },
+    "backend/src/test/java/com/behsazan/corebanking/fee3/Fee3UiContractPolicyTest.java": {
+      "before": null,
+      "after": "c670eac2d60931210b9cf7f5c9c8548868f9753b7e074493158b25796e6273e0",
+      "bytes": 3240
+    },
+    "frontend/src/app/features/fee3/fee3.models.ts": {
+      "before": "2010e9eb985e1e5294f281472bf5b30d86b87ac1b1286da730d1085512d6a397",
+      "after": "0b9c9eae97e037d9cb99db78f9a9682964caa125df31069411ad961a1dd7a4f0",
+      "bytes": 9385
+    },
+    "frontend/src/app/features/fee3/fee3-oracle-api.service.ts": {
+      "before": "e932238b658884f9c57b36da0ae37dc542279beac55439b74ec96f122bfa6fba",
+      "after": "d1543e426b19075ecb3307e9ecd6209265827a92151e5fb25c2493aa78f15428",
+      "bytes": 4981
+    },
+    "frontend/src/app/features/fee3/fee3-oracle-mapping.ts": {
+      "before": null,
+      "after": "1c44ade91091a2c85e3242b47f69957f11556ac7340b9b3c902a62b72df6e2dd",
+      "bytes": 9191
+    },
+    "frontend/src/app/features/fee3/fee3-workspace.component.ts": {
+      "before": "47d9cf12c4ac1868071609db8fa98c999bf56a852fa00e2128f006162e323bc1",
+      "after": "02c2880cf44c9c0c6f28236049e7b94bca8921913f3d44b8bed083ff29e7863b",
+      "bytes": 83780
+    },
+    "frontend/src/app/features/fee3/fee3-workspace.component.html": {
+      "before": "3d8ee6d2e5252c9a69dcc3f2d14a987380aa8e26ea21570215959bb85f4c9940",
+      "after": "c2bc379f950a45d8d717a1a6b27cc22b97b3bdb1df62f013a48f1cfbee33f19b",
+      "bytes": 143691
+    },
+    "frontend/src/app/features/fee3/fee3-workspace.component.scss": {
+      "before": "28ac49dd567934058514851f7d299180bbb9551cc98ed9168519150f25f47705",
+      "after": "b5b699a80db372e04586ca8a6556bf5669c024dab5d22cfd4057adaabe5ac96d",
+      "bytes": 39756
+    },
+    "docs/install/FEE3-BE-R1-SAMPLE-DRAFT.json": {
+      "before": "15902153485b86c079165edddc61975f120ba2e719d2b61e966eb381858db676",
+      "after": "6bc0eb46e72550caf5e70526ea155cb5af9c977661ab4319a91f9bc654a35de9",
+      "bytes": 1426
+    },
+    "docs/install/FEE3-BE-R2-INSTALL-FA.md": {
+      "before": null,
+      "after": "f86ced08f465668b1904142a46137127c73c6072d4b9caabb4ec898507031b3d",
+      "bytes": 10152
+    },
+    "docs/install/FEE3-BE-R2-QA-FA.md": {
+      "before": null,
+      "after": "34042ad093b6c7dfd4fca857f09c1e5d52455c87214389876a7d211c44591876",
+      "bytes": 2739
+    },
+    "docs/install/FEE3-BE-R2-ORACLE-READONLY-CHECK.sql": {
+      "before": null,
+      "after": "9f9e0546c560864a345d5aa7206ad700557fa812b56df798f3667d765288a536",
+      "bytes": 928
+    },
+    "tools/fee3-backend/Fee3R2PolicyProbe.java": {
+      "before": null,
+      "after": "29fc6d910711fc9e5d68f2c2a12a57aa9710217f07a029233a2cc29c87dd0b19",
+      "bytes": 2186
+    },
+    "tools/fee3-backend/verify-r2.mjs": {
+      "before": null,
+      "after": "9fd96a0fff80872a1e26aaf160e7fd553d08590e7e3eef2fe529a4f2bffc91f9",
+      "bytes": 4862
+    },
+    "tools/fee3-backend/verify-r2-mapping.cjs": {
+      "before": null,
+      "after": "7897c8971838ef4ca2ae15efbef2fce4dc2b1290167a387cfc083e4f80474101",
+      "bytes": 5163
+    }
+  }
+}

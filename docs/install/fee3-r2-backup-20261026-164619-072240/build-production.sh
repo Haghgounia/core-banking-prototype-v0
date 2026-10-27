@@ -1,0 +1,205 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
+APP_VERSION="$(cat "$ROOT/VERSION")"
+echo "Building Core Banking Prototype $APP_VERSION..."
+
+node "$ROOT/tools/sync-system-specification.mjs"
+node "$ROOT/tools/migrate-release-layout.mjs"
+node "$ROOT/tools/migrate-root-layout.mjs"
+node "$ROOT/tools/migrate-source-layout.mjs"
+node "$ROOT/tools/verify-release-layout.mjs"
+# R1-D4/ES1 Kafka envelope/outbox/source guard (no Oracle writes).
+node "$ROOT/tools/verify-event-streaming-es1.mjs"
+# PB-R23: fixed loan group/commitment values and disabled interest method.
+node "$ROOT/tools/verify-pb-r23-loan-type.mjs"
+# PB-R24: loan reference, applicant, classification and currency coherence.
+node "$ROOT/tools/verify-pb-r24-loan-integrity.mjs"
+# PB-R25: Persian loan UAT, optional repayment and collateral reference coherence.
+node "$ROOT/tools/verify-pb-r25-loan-final-ux.mjs"
+node "$ROOT/tools/verify-pdl-ux-oct11.mjs"
+# R27: Product identity, family, policy Lite and channel-operation source contracts.
+node "$ROOT/tools/verify-pdl-r27-product-policy-channel.mjs"
+# R28: loan product codes, eligibility employment and switch-default regression.
+node "$ROOT/tools/verify-pdl-r28-loan-code-eligibility.mjs"
+# R29: stage-six approval and transaction-safe loan code issuance.
+node "$ROOT/tools/verify-pdl-r29-finalization.mjs"
+# R30: product codes for both domains are issued at finalization.
+node "$ROOT/tools/verify-pdl-r30-deposit-finalization.mjs"
+# R30-HF1: DPS numeric rule lifecycle codes are canonicalized before governance review.
+node "$ROOT/tools/verify-pdl-r30-hf1-rule-status.mjs"
+# R30-HF2: approved-current governance command with transactional audit.
+node "$ROOT/tools/verify-pdl-r30-hf2-current-version.mjs"
+# R30-HF3: reject an unbound ngSubmit form that would refresh the page.
+node "$ROOT/tools/verify-pdl-r30-hf3-submit.mjs"
+# R30-HF4: deposit dormancy defaults and CHECK-aware closure/precheck reference contracts.
+node "$ROOT/tools/verify-pdl-r30-hf4-deposit-closure.mjs"
+# R30-HF5: numeric type codes and legacy registry isolation.
+node "$ROOT/tools/verify-pdl-r30-hf5-deposit-type-code.mjs"
+# R30-HF6: profile identity is created atomically with a new deposit version.
+node "$ROOT/tools/verify-pdl-r30-hf6-auto-deposit-profile.mjs"
+node "$ROOT/tools/verify-pdl-r30-hf7-safety-gate.mjs"
+# R30-HF7A1: semantic guard for create/update and approval of historic rules.
+node "$ROOT/tools/verify-pdl-r30-hf7a1-semantic.mjs"
+# R30-HF7A2: full-interval semantic audit and temporal coverage.
+node "$ROOT/tools/verify-pdl-r30-hf7a2-temporal.mjs"
+# R30-HF7-A3/HF1: preserve version editing state when governance denies save.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-version-editor.mjs"
+# R30-HF7-A3/HF2: Oracle CHECK mapping, deposit joint/settlement UX and channel validity scope.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf2-product-rules.mjs"
+# R30-HF7-A3/HF3: validate child term/rate-tier semantics.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf3-child-validation.mjs"
+# R30-HF7-A3/HF4: parent/child governance proof, actual Java and temporal semantics.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf4-hierarchy.mjs"
+# R30-HF7-A3/HF5: historical JUnit compatibility and fail-closed rule evidence.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf5-compat.mjs"
+# HF5-HF1: real R15 pricing validation plus original regression fixture integrity.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf5-hf1-r15.mjs"
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf6-publication.mjs"
+# R30-HF7-A3/HF7: correspondent runtime safety and normalized child publish audit.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf7-closure.mjs"
+# HF7-A3 Final/HF8: four remaining publication controls and relationship evidence.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf8-final.mjs"
+# HF9: amount-tier single-rate publication gate; no runtime posting.
+node "$ROOT/tools/verify-pdl-r30-hf7a3-hf9-single-rate.mjs"
+
+for required in \
+  "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/domain/DepositAccountModels.java" \
+  "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/error/DepositAccountLifecycleException.java" \
+  "$ROOT/backend/src/main/java/com/behsazan/corebanking/deposit/account/oracle/DepositAccountRepository.java"; do
+  if [ ! -f "$required" ]; then
+    echo "ERROR: DPS2 Phase 4 account lifecycle source is incomplete: $required" >&2
+    echo "Apply the cumulative 0.5.1 patch or use the full package." >&2
+    exit 1
+  fi
+done
+node "$ROOT/tools/verify-cif-persisted-grids.mjs"
+node "$ROOT/tools/verify-cif-religion-reference.mjs"
+node "$ROOT/tools/verify-ea-oracle-comparison.mjs"
+node "$ROOT/tools/verify-oracle-ea-xmi-export.mjs"
+node "$ROOT/tools/verify-calendar-reference.mjs"
+node "$ROOT/tools/verify-calendar-dataset-import.mjs"
+node "$ROOT/tools/verify-calendar-month-view.mjs"
+node "$ROOT/tools/verify-calendar-form-usability.mjs"
+node "$ROOT/tools/verify-calendar-current-year-default.mjs"
+node "$ROOT/tools/verify-calendar2-reference.mjs"
+# CAL2 Personal R2-B2 shadow schema + v2 API + durable-alert wiring.
+node "$ROOT/tools/verify-cal2-personal-r2b2.mjs"
+# CAL2 R2-B2 FIX5: accessible wide personal editor and non-overlapping time hints.
+node "$ROOT/tools/verify-cal2-personal-form-layout.mjs"
+node "$ROOT/tools/verify-calendar2-month-view.mjs"
+node "$ROOT/tools/verify-calendar2-business-calendar-lookups.mjs"
+node "$ROOT/tools/verify-calendar2-business-calendar-day-grid.mjs"
+node "$ROOT/tools/verify-calendar2-business-calendar-schedule.mjs"
+node "$ROOT/tools/verify-calendar2-day-resolution-policy.mjs"
+node "$ROOT/tools/verify-calendar2-event-media.mjs"
+node "$ROOT/tools/verify-persian-date-picker-current-default.mjs"
+node "$ROOT/tools/verify-time-picker.mjs"
+node "$ROOT/tools/verify-node-tool-path-portability.mjs"
+node "$ROOT/tools/verify-org-forms.mjs"
+node "$ROOT/tools/verify-org-cal2-consolidation.mjs"
+node "$ROOT/tools/verify-org-unit-location-r1.mjs"
+node "$ROOT/tools/verify-org-unit-location-r2a.mjs"
+# ORG location menu cleanup + contact master read-only screening.
+node "$ROOT/tools/verify-org-menu-contact-review.mjs"
+node "$ROOT/tools/verify-org-contacts-r1.mjs"
+node "$ROOT/tools/verify-org-contacts-r3b2.mjs"
+# ORG R2-C: map and business-facing location/contact UI.
+node "$ROOT/tools/verify-org-r2c-map-ux.mjs"
+node "$ROOT/tools/verify-org-map-r2d-closure.mjs"
+node "$ROOT/tools/verify-cif-isic2.mjs"
+node "$ROOT/tools/verify-pdl-product-builder.mjs"
+# PB-R13: audited deposit form parity with reviewed standalone HTML.
+node "$ROOT/tools/verify-pb-r13.mjs"
+node "$ROOT/tools/verify-pdl-product-version-r10r.mjs"
+node "$ROOT/tools/verify-pdl-common-rules-r10s.mjs"
+node "$ROOT/tools/verify-pdl-ui-alignment-r10t.mjs"
+node "$ROOT/tools/verify-pdl-r10t-hf1-java-compile.mjs"
+node "$ROOT/tools/verify-pdl-eligibility-r10u.mjs"
+node "$ROOT/tools/verify-pdl-r10u-hf3-java-generic.mjs"
+node "$ROOT/tools/verify-pdl-r10u-hf4-catalog-test.mjs"
+node "$ROOT/tools/verify-pdl-r10u-hf5-currency-reference.mjs"
+node "$ROOT/tools/verify-dps2-four-deposits.mjs"
+node "$ROOT/tools/verify-dps2-deposit-opening-persistence.mjs"
+node "$ROOT/tools/verify-dps2-deposit-opening-phase3.mjs"
+node "$ROOT/tools/verify-dps2-deposit-account-phase4.mjs"
+node "$ROOT/tools/verify-dps2-deposit-opening-phase5.mjs"
+node "$ROOT/tools/verify-dps2-build-hotfix-051.mjs"
+node "$ROOT/tools/verify-dps2-build-hotfix-052.mjs"
+node "$ROOT/tools/verify-dps2-deposit-opening-phase6.mjs"
+node "$ROOT/tools/verify-dps2-deposit-opening-phase7.mjs"
+node "$ROOT/tools/verify-dps2-deposit-account-operations-phase8.mjs"
+node "$ROOT/tools/verify-dps2-account-operations-ui-alignment.mjs"
+node "$ROOT/tools/verify-dps2-account-lifecycle-r8.mjs"
+node "$ROOT/tools/verify-dps2-account-operations-reference-parity.mjs"
+node "$ROOT/tools/verify-dps2-deposit-account-servicing-phase9.mjs"
+node "$ROOT/tools/verify-dps2-account-schema-reconciliation-092.mjs"
+node "$ROOT/tools/verify-dps2-reference-fk-reconciliation-093.mjs"
+node "$ROOT/tools/verify-dps2-opening-operational-v5-phase10.mjs"
+node "$ROOT/tools/verify-dps2-opening-operational-v5-phase10b.mjs"
+node "$ROOT/tools/verify-dps2-opening-operational-v5-phase10d.mjs"
+node "$ROOT/tools/verify-dps2-opening-step7-create-flow.mjs"
+node "$ROOT/tools/verify-dps2-opening-v5-phase10e10f.mjs"
+node "$ROOT/tools/verify-dps2-account-operations-schema-reconciliation-11a.mjs"
+node "$ROOT/tools/verify-dps2-account-servicing-core-11b.mjs"
+node "$ROOT/tools/verify-dps2-lifecycle-hold-11c.mjs"
+node "$ROOT/tools/verify-dps2-balance-subledger-11d.mjs"
+node "$ROOT/tools/verify-dps2-closure-reopening-11e.mjs"
+node "$ROOT/tools/verify-dps2-term-operations-11f.mjs"
+node "$ROOT/tools/verify-dps2-profit-processing-11g.mjs"
+node "$ROOT/tools/verify-dps2-step04-canonical-profit-11h.mjs"
+node "$ROOT/tools/verify-dps2-step05-transaction-processing-11i.mjs"
+node "$ROOT/tools/verify-dps2-wave-a-servicing-lifecycle-11j.mjs"
+node "$ROOT/tools/verify-dps2-wave-b-statements-limits-maturity-11k.mjs"
+node "$ROOT/tools/verify-dps2-wave-c-services-access-compliance-pricing-tax-11l.mjs"
+node "$ROOT/tools/verify-dps2-wave-d-reconciliation-exceptions-correspondent-rewards-11m.mjs"
+node "$ROOT/tools/verify-dps2-phase11na-step00-dashboard.mjs"
+node "$ROOT/tools/verify-dps2-phase11nb-steps01-02-canonical-closure.mjs"
+node "$ROOT/tools/verify-dps2-phase11nc-steps03-04-canonical-closure.mjs"
+node "$ROOT/tools/verify-dps2-phase11nd-steps05-10-canonical-audit.mjs"
+node "$ROOT/tools/verify-dps2-phase11n-steps11-17-rapid-completion.mjs"
+node "$ROOT/tools/verify-cif-address-hotfix-071.mjs"
+node "$ROOT/tools/verify-fee-admin-baseline.mjs"
+node "$ROOT/tools/verify-cbi-fee-1404-import.mjs"
+node "$ROOT/tools/verify-cbi-rial-fee-1405-provisional.mjs"
+node "$ROOT/tools/verify-geo-name-romanization.mjs"
+node "$ROOT/tools/verify-global-breadcrumb.mjs"
+node "$ROOT/tools/verify-edu-reference-ui.mjs"
+node "$ROOT/tools/verify-calendar-display-labels.mjs"
+node "$ROOT/tools/verify-runtime-artifact-contract.mjs"
+node "$ROOT/tools/verify-pb-r15.mjs"
+node "$ROOT/tools/verify-pb-r16.mjs"
+node "$ROOT/tools/verify-pb-r17.mjs"
+node "$ROOT/tools/verify-pb-r18.mjs"
+node "$ROOT/tools/verify-pb-r19.mjs"
+node "$ROOT/tools/verify-rgl-lite-r20.mjs"
+
+node "$ROOT/tools/fee3-backend/verify-r1.mjs"
+
+cd "$ROOT/backend"
+sh ./mvnw -DskipTests compile
+cd "$ROOT"
+
+rm -f "$ROOT/app/"*.jar "$ROOT/app/BUILD-VERSION" "$ROOT/backend/target/core-banking-prototype.jar"
+rm -rf "$ROOT/frontend/dist"
+
+cd "$ROOT/frontend"
+npm install
+npm run build
+
+rm -rf "$ROOT/backend/src/main/resources/static"
+mkdir -p "$ROOT/backend/src/main/resources/static"
+if [ -d "$ROOT/frontend/dist/core-banking-ui/browser" ]; then
+  cp -R "$ROOT/frontend/dist/core-banking-ui/browser/." "$ROOT/backend/src/main/resources/static/"
+else
+  cp -R "$ROOT/frontend/dist/core-banking-ui/." "$ROOT/backend/src/main/resources/static/"
+fi
+
+cd "$ROOT/backend"
+sh ./mvnw clean package
+mkdir -p "$ROOT/app"
+JAR="$ROOT/app/core-banking-prototype.jar"
+cp "$ROOT/backend/target/core-banking-prototype.jar" "$JAR"
+printf '%s\n' "$APP_VERSION" > "$ROOT/app/BUILD-VERSION"
+printf '\nBuilt version: %s\nJAR: %s\n' "$APP_VERSION" "$JAR"

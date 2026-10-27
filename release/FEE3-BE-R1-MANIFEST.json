@@ -1,0 +1,76 @@
+{
+  "release": "FEE3-BE-R1",
+  "base": "core-banking-prototype-v0-2026-10-25-1627 + FEE3 UI R8 + R8-HF1",
+  "scope": "new FEE3 Backend; REST reads; gated first-draft UAT writes",
+  "non_destructive": true,
+  "oracle_sql_ddl_dml_required": false,
+  "writes_enabled_by_default": false,
+  "production_publication_enabled": false,
+  "total_files": 16,
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3DraftPolicy.java",
+      "sha256": "21e36a81724dbfef75fe79a14955a9d3d508d6eff9db77412d05f68ed7add4f7"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3Problem.java",
+      "sha256": "7f111b6ca9747405297a6ee2c6161bd2c8ab7a8b14cf088e78827346d6ae0776"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3Service.java",
+      "sha256": "e14315b7f9eb2aa5fe262e98094786c0df02f0ae2a11ed2ce1d46d6430839cf8"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee3/domain/Fee3Models.java",
+      "sha256": "c58fb0f9685340a26a6d3858bb3c8bfc783c38167078a9e81c966f29555bbab6"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee3/oracle/Fee3Repository.java",
+      "sha256": "41e96483cb8b9318db5e11026fd6dd48f3a0977a2320518f0af51ce43b03ba8d"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee3/web/Fee3Controller.java",
+      "sha256": "845490fd5c431ca55653d0f4fd3fb01a29aad8114e8c5c7a7e5a2ccdfb1f7f47"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/fee3/web/Fee3ProblemAdvice.java",
+      "sha256": "ba68a400d91142089bd323181443d0ec69254722620ed1aef415aa455fe36fdc"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/fee3/Fee3DraftPolicyTest.java",
+      "sha256": "c81f6a8fdb3a1d891548b9c975c32c5f2cc5b90132c5aac51ecc71441382f67c"
+    },
+    {
+      "path": "build-production.cmd",
+      "sha256": "8e8a807a6cafc6c453c8774207b4f1bd6e554726e036de419e4fed63a420dbbb"
+    },
+    {
+      "path": "build-production.sh",
+      "sha256": "06540509f032975991729953c0050363d45acee6aa980733c097d3609963fe2c"
+    },
+    {
+      "path": "docs/install/FEE3-BE-R1-INSTALL-FA.md",
+      "sha256": "be3f9b09d7c82c16ba2e1a5fc822f7d1c0bd23158e018ccdcd078e7730de6f75"
+    },
+    {
+      "path": "docs/install/FEE3-BE-R1-ORACLE-READONLY-CHECK.sql",
+      "sha256": "960af5b088133438201e8658b14d12904cbe423d2c18da95745aa46881e2687b"
+    },
+    {
+      "path": "docs/install/FEE3-BE-R1-QA-FA.md",
+      "sha256": "1e97590c085bf5a918e48bd0c711dbacdb5a1601712f041668ca834857c4c922"
+    },
+    {
+      "path": "docs/install/FEE3-BE-R1-SAMPLE-DRAFT.json",
+      "sha256": "15902153485b86c079165edddc61975f120ba2e719d2b61e966eb381858db676"
+    },
+    {
+      "path": "frontend/src/app/features/fee3/fee3-oracle-api.service.ts",
+      "sha256": "e932238b658884f9c57b36da0ae37dc542279beac55439b74ec96f122bfa6fba"
+    },
+    {
+      "path": "tools/fee3-backend/verify-r1.mjs",
+      "sha256": "daa8f59492ba0ab4e6bf57819fd1c2e11021857bf8e43491774b234b4d73efb0"
+    }
+  ]
+}

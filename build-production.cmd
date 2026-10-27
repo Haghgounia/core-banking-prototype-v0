@@ -296,6 +296,10 @@ node "%ROOT%tools\verify-calendar-display-labels.mjs" || exit /b 1
 rem FIX64 guard: all runtime scripts use one canonical executable JAR name plus a build-version marker.
 node "%ROOT%tools\verify-runtime-artifact-contract.mjs" || exit /b 1
 
+rem FEE3-BE-R1: fail-closed Oracle contract and UAT write-boundary verification.
+node "%ROOT%tools\fee3-backend\verify-r1.mjs" || exit /b 1
+node "%ROOT%tools\fee3-backend\verify-r2.mjs" || exit /b 1
+
 rem FIX62 fail-fast: compile Java before the Angular production build so type errors are caught early.
 cd /d "%ROOT%backend"
 call mvnw.cmd -DskipTests clean compile || exit /b 1

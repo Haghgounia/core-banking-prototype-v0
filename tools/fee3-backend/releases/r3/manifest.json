@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "patchId": "FEE3-BE-R3-20261026",
+  "base": "FEE3-UI-R8+HF1 + FEE3-BE-R1 + FEE3-BE-R2 (0.11.0)",
+  "anchors": {
+    "backend/src/main/java/com/behsazan/corebanking/fee3/domain/Fee3Models.java": "a6d712ed40549b9427f0fce937f49f9fa028bd51578efd268a2ca7e353f872c5",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3Service.java": "9c6480b28d64348d1d5a56d5e1baed01cee3271aed4fd800e67eacaaf289d64d",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/application/Fee3DraftPolicy.java": "7c4845d0ff8bff2397c0c128bd5466cce51ed2ddb71b5ee066b2b5b8d18b803c",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/oracle/Fee3Repository.java": "2204bbb12fda5e574161977bcee66f77b8edbac5b8eb099719a19a0718697962",
+    "frontend/src/app/features/fee3/fee3-oracle-api.service.ts": "d1543e426b19075ecb3307e9ecd6209265827a92151e5fb25c2493aa78f15428",
+    "tools/fee3-backend/releases/r2/manifest.json": "e8fd3ebfc664b83904b973d1a8e3cda50a44e607ce201bbc476ebe73b26194ca"
+  },
+  "files": {
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3PreviewEngine.java": "b0f31a61880ec2ff4b00c3b823b4ec3ebe4d753e2534427233c71ee72391b2de",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3SubmissionPolicy.java": "2e0591acb969721522e8969aadf632e459996bfc3d9154a0536e7d1307e5cea8",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3R3WorkflowRepository.java": "0235f87d008117f321b3ab0b1d8732d2b035c89e5eca8b0eed6a339c5034fecf",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3R3Service.java": "0d0d03ad5d072930aa0bee9a8fe8054f198551960c77269ecc2a905b2ea69f87",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3R3Controller.java": "5bce67f1f00c5a4570a9eab673679b110633eb532926604f13b292612cd937df",
+    "backend/src/main/java/com/behsazan/corebanking/fee3/r3/Fee3R3ProblemAdvice.java": "d55f6ec8cd572fb9129118fbffe5f286f4e29b491f07a687785a926bc6199ee6",
+    "backend/src/test/java/com/behsazan/corebanking/fee3/r3/Fee3PreviewEngineTest.java": "aef9755da285532682672d557c38ad8309a84f1df094b6e1a0da05e10e705f76",
+    "tools/fee3-backend/verify-r3.mjs": "5f13dd2442d1b82e85d7ee31e85cb13dd4a4752769598476a1f63d3ad8d37a4d",
+    "tools/fee3-backend/Fee3R3EngineProbe.java": "a56917d092dcf16a51eba874da9e94c5392f7afafcd4c06f0811a497970bdbfb",
+    "docs/install/FEE3-BE-R3-INSTALL.md": "f011697ceddc096f812bf7ce6582a7479dda5c356b071752230a67fb25951442",
+    "docs/install/FEE3-BE-R3-QA.md": "024a30132906569e6beedbdde8260771387b5bc9ea7aed833668441c06f0fc75",
+    "docs/install/FEE3-BE-R3-ORACLE-READONLY-CHECK.sql": "e18bbf05be7145ae5b3d985937523cd8b120b2b1acb0892abc551156d60e4f89"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "calcItemId": null,
+  "tariffVersionId": null,
+  "expectedItemRecordVersion": null,
+  "expectedVersionRecordVersion": null,
+  "item": {
+    "title": "کارمزد آزمایشی افتتاح حساب - صرفاً UAT",
+    "module": "DEPOSIT",
+    "operation": "ACCOUNT_OPENING",
+    "amountKind": "SERVICE_FEE",
+    "variant": "UAT-ACCOUNT-OPENING",
+    "ownerDomain": "TARIFF",
+    "description": "نمونه توسعه؛ غیرقابل انتشار و بدون اثر مالی"
+  },
+  "version": {
+    "validFrom": "REPLACE-WITH-BANK-TODAY-YYYY-MM-DD",
+    "validTo": null,
+    "origin": "BANK_INTERNAL",
+    "sourceId": null,
+    "method": "FIXED",
+    "taxMode": "UNREVIEWED",
+    "rounding": "HALF_UP",
+    "changeReason": "تست اتصال اولیه FEE3 Backend",
+    "financialPolicy": {},
+    "serviceCurrency": "IRR",
+    "feeCurrency": "IRR",
+    "uiContext": {}
+  },
+  "scope": {
+    "channels": [
+      "BRANCH"
+    ],
+    "customers": [
+      "ALL"
+    ],
+    "groups": [
+      "ALL"
+    ],
+    "products": [
+      "ALL"
+    ],
+    "contracts": [],
+    "currency": "IRR"
+  },
+  "rules": [
+    {
+      "order": 1,
+      "method": "FIXED",
+      "base": "REQUEST_AMOUNT",
+      "rateSource": "RULE",
+      "rate": null,
+      "fixed": 25000,
+      "collateral": null,
+      "coverage": null,
+      "min": null,
+      "max": null,
+      "formulaCode": null,
+      "parameters": {}
+    }
+  ],
+  "tests": []
+}

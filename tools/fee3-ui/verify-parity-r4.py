@@ -59,7 +59,7 @@ for txt in ['اولویت دامنه','حذف دامنه','افزودن دامن
 must(sc.count('<mat-select multiple')==4,'Three scope dimensions and one conditional multi-product picker')
 for txt in ['نوع مشتری','گروه مشتری','کانال ثبت درخواست','دامنه محصولات','محصول مشمول','محصولات مشمول']:
  must(txt in sc,'Reference scope field: '+txt)
-must("['DEPOSIT','LOAN'].includes(item.module)" in sc,'Product scope only for deposit and loan')
+must('allowsProductScope()' in sc and 'fee3AllowsProductScope' in ts,'Product scope is explicitly enabled only for relevant banking operations')
 must('!managedLoanProducts()' in sc and 'managedLoanProducts()' in sc,'Managed loan products are derived')
 must('scope.priority' not in sc,'Scope priority is not editable')
 must('scope.currency' not in sc,'Scope currency is not editable')

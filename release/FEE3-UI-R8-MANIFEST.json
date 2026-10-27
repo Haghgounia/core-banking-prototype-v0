@@ -1,0 +1,67 @@
+{
+  "release": "FEE3-UI-R8-HF1",
+  "date": "2026-10-26",
+  "project_version": "0.11.0",
+  "based_on": "FEE3 R7 on code 2026-10-25 16:27; R7-HF1 UTF8 included in R8",
+  "scope": "Frontend offline only. No Backend/Oracle/seed writes.",
+  "modified": [
+    "frontend/src/app/features/fee3/fee3-state.service.ts",
+    "frontend/src/app/features/fee3/fee3-validation.ts",
+    "frontend/src/app/features/fee3/fee3-workspace.component.html",
+    "frontend/src/app/features/fee3/fee3-workspace.component.scss",
+    "frontend/src/app/features/fee3/fee3-workspace.component.ts",
+    "tools/fee3-ui/verify-parity-r4.py",
+    "tools/fee3-ui/verify-reference-r7.py",
+    "release/FEE3-UI-R8-MANIFEST.json"
+  ],
+  "new": [
+    "docs/fee3/FEE3-UI-R8-SCOPE-MONEY-VALIDITY-FORMULAS-FA.md",
+    "frontend/src/app/features/fee3/fee3-form-policies.ts",
+    "frontend/src/app/features/fee3/fee3-money-input.directive.ts",
+    "tools/fee3-ui/verify-r8-source-compatibility.py",
+    "tools/fee3-ui/verify-reference-r8.py",
+    "tools/fee3-ui/verify-r8-hf1-aot-date-types.py",
+    "docs/install/FEE3-UI-R8-HF1-ANGULAR-DATE-FA.md"
+  ],
+  "base_sha256": {
+    "frontend/src/app/features/fee3/fee3-state.service.ts": "6fb01cd0cf14cc99d891393ae24cf5a26d25c36ff6ca9cf33c33052799bd0692",
+    "frontend/src/app/features/fee3/fee3-validation.ts": "afb0a8bc72f7c8528f8e7ac04e07ba9fe11daf37286ae008e935eb5b8db3a608",
+    "frontend/src/app/features/fee3/fee3-workspace.component.html": "0b086ac435d990182956b93e6654fd64c531cece22df6491d37ff07a8b01100b",
+    "frontend/src/app/features/fee3/fee3-workspace.component.scss": "6b48f88a47789d8cd8f5ed82d857fb24d53556bd1fe0ff29cff674a476f8b7c8",
+    "frontend/src/app/features/fee3/fee3-workspace.component.ts": "c7058e64dd5009c11746b38228839cc79d54961594fb7310e22cd0a76f20b666",
+    "tools/fee3-ui/verify-parity-r4.py": "f89bdea1efe2affe8da4020b1a9bd8ced68636e42cb2bbd2871f7f90d4816a93",
+    "tools/fee3-ui/verify-reference-r7.py": "09d150217b5a680b57408a78061b8e8aa6559f65c94f6a6e50dfb51e2e3ffeb7"
+  },
+  "file_sha256": {
+    "docs/fee3/FEE3-UI-R8-SCOPE-MONEY-VALIDITY-FORMULAS-FA.md": "f7bcec4173f2f43acf0364406172ef9a656e5e82be32394be71baa9ff1a6dea6",
+    "frontend/src/app/features/fee3/fee3-form-policies.ts": "9a96dfbadd8ae25dfc7472dde44e16b38522c70dd12fdb76b46d47ee3baf8c89",
+    "frontend/src/app/features/fee3/fee3-money-input.directive.ts": "ee222fb4558c95389c93b0421a45ba2658fd99173af2a9ea1d7e5d4ea2c10cc6",
+    "frontend/src/app/features/fee3/fee3-state.service.ts": "0fd336bb6c51dd4a7f51010dd792b566fdb4400d3bd3b2c3c14db8a548877a78",
+    "frontend/src/app/features/fee3/fee3-validation.ts": "bbfc0f448daf45b5ac431e675dbb58946d9afacde5b3a2d3e02316dc9d317b22",
+    "frontend/src/app/features/fee3/fee3-workspace.component.html": "3d8ee6d2e5252c9a69dcc3f2d14a987380aa8e26ea21570215959bb85f4c9940",
+    "frontend/src/app/features/fee3/fee3-workspace.component.scss": "28ac49dd567934058514851f7d299180bbb9551cc98ed9168519150f25f47705",
+    "frontend/src/app/features/fee3/fee3-workspace.component.ts": "47d9cf12c4ac1868071609db8fa98c999bf56a852fa00e2128f006162e323bc1",
+    "tools/fee3-ui/verify-parity-r4.py": "84d17eb5a2f9cf16e857bebcd669b13bdeeb097ab15f1d0d7233325b74ee2a5c",
+    "tools/fee3-ui/verify-r8-source-compatibility.py": "9aac235a508817e034e1a736752b43870d95e41db3c0964c048e7ed621c3c0c4",
+    "tools/fee3-ui/verify-reference-r7.py": "c6530ef6c0980b430f6002f72d1a05634869b7eb6320961f9fb6e68d4f3455bf",
+    "tools/fee3-ui/verify-reference-r8.py": "f28ae70dbe25bff6f7dfb28a2ae27fcdada2a10a1dca41b0f8694f2e59481c70"
+  },
+  "verification": {
+    "R8_static": 59,
+    "R8_policy_dynamic": 25,
+    "R7_static": 31,
+    "R6_static": 59,
+    "R6_numeric": 30,
+    "R5_static": 148,
+    "R4_static": 98,
+    "ts_strict_with_stubs": "PASS",
+    "angular_aot": "NOT_EXECUTED (requires project npm dependencies)",
+    "browser_uat": "NOT_EXECUTED",
+    "R8_HF1_type_gate": "PASS"
+  },
+  "hotfix": "Angular AOT TS2322 minDate strict string binding (two repeatable finance rows)",
+  "baseline_r8_file_sha256": {
+    "frontend/src/app/features/fee3/fee3-workspace.component.html": "b9152505ef247875b340d4fdbe394a102913b239d287b4671073465fe16004ac",
+    "frontend/src/app/features/fee3/fee3-workspace.component.ts": "8dc5d75aa39c582ebc002d44202c4c5e791f0e2274b29fbc7c65dd77e0c082c7"
+  }
+}
