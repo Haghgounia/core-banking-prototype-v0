@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "patchId": "FEE3-UI-R8-R2-B1-20261027",
+  "projectVersion": "0.11.0",
+  "scope": "Additive read-only source integrity verifier for FEE3 UI R8-HF1 + BE-R2",
+  "destination": "tools/fee3-ui/verify-r8-r2-integration.py",
+  "payloadSha256": "c17cf8d0298ac316ffbf24f845e6ae44f4f9024f37de9282332dd99d4e5e4710",
+  "anchors": {
+    "release/FEE3-UI-R8-MANIFEST.json": "0dbbc553f3e6cf44ab2a8500c7b8798b577e487c47d43692481b5a6cd75d4d8a",
+    "tools/fee3-backend/releases/r2/manifest.json": "e8fd3ebfc664b83904b973d1a8e3cda50a44e607ce201bbc476ebe73b26194ca",
+    "tools/fee3-ui/verify-r8-source-compatibility.py": "9aac235a508817e034e1a736752b43870d95e41db3c0964c048e7ed621c3c0c4",
+    "frontend/src/app/features/fee3/fee3-workspace.component.html": "c2bc379f950a45d8d717a1a6b27cc22b97b3bdb1df62f013a48f1cfbee33f19b",
+    "frontend/src/app/features/fee3/fee3-workspace.component.ts": "02c2880cf44c9c0c6f28236049e7b94bca8921913f3d44b8bed083ff29e7863b",
+    "frontend/src/app/features/fee3/fee3-workspace.component.scss": "b5b699a80db372e04586ca8a6556bf5669c024dab5d22cfd4057adaabe5ac96d"
+  },
+  "noChangesTo": [
+    "release/FEE3-UI-R8-MANIFEST.json",
+    "tools/fee3-ui/verify-r8-source-compatibility.py",
+    "frontend/src/app/features/fee3/fee3-workspace.component.ts",
+    "frontend/src/app/features/fee3/fee3-workspace.component.html",
+    "frontend/src/app/features/fee3/fee3-workspace.component.scss",
+    "backend",
+    "Oracle",
+    "build-production.cmd",
+    "build-production.sh"
+  ],
+  "installerMode": "preview-apply; no overwrite existing source files",
+  "financialWritesEnabled": false
+}
