@@ -41,7 +41,7 @@ public final class Fee3PreviewEngine {
         DraftRequest draft=request.draft(); VersionDraft v=draft.version(); ItemDraft item=draft.item();
         Map<String,Object> inputs=request.inputs()==null?Map.of():request.inputs();
         if(!"IRR".equals(v.feeCurrency())||!"IRR".equals(v.serviceCurrency()))throw bad("CURRENCY_CONVERSION_UNSUPPORTED");
-        if(method==null||!Set.of("FIXED","PERCENT","MIXED").contains(method))throw bad("METHOD_NOT_CERTIFIED_FOR_SERVER_PREVIEW");
+        if(method==null||!Set.of("FIXED","PERCENT","MIXED","USAGE","DAILY","BRACKET","PROGRESSIVE","MATRIX").contains(method))throw bad("METHOD_NOT_CERTIFIED_FOR_SERVER_PREVIEW");
         if(draft.rules()==null||draft.rules().size()!=1)throw bad("EXACTLY_ONE_RULE_REQUIRED");
         RuleDraft rule=draft.rules().get(0);
         if(rule==null)throw bad("NULL_RULE");
@@ -63,7 +63,7 @@ public final class Fee3PreviewEngine {
         } else {
             if(Set.of("GUARANTEE_FEE","QARD_FEE","FINANCING_PROFIT","LATE_DAMAGE").contains(item.amountKind()))
                 throw bad("SPECIALIZED_BANKING_MODEL_REQUIRES_CERTIFIED_ENGINE");
-            raw=simple(rule,method,inputs);
+            raw=simple(rule,method,inputs,trace);
         }
         if(raw.compareTo(BigDecimal.ZERO)<0||raw.compareTo(MAX)>0)throw bad("FEE_OUT_OF_RANGE");
         BigDecimal capped=raw;
@@ -82,17 +82,175 @@ public final class Fee3PreviewEngine {
         return new PreviewResult("SIMULATED",false,false,method,raw,fee,tax,fee.add(tax),
             List.copyOf(trace),List.of("UAT_SIMULATION_ONLY","NO_ORACLE_MUTATION","NO_ACCOUNTING_POSTING"));
     }
-    private static BigDecimal simple(RuleDraft rule,String method,Map<String,Object> inputs) {
+    private static final Set<String> F6_MONEY_BASES = Set.of("REQUEST_AMOUNT","OPENING_FUNDING",
+        "TRANSFER_AMOUNT","BILL_AMOUNT","GUARANTEE_AMOUNT","FINANCING_AMOUNT");
+    private static final Set<String> F6_QUANTITY_BASES = Set.of("CONSUMPTION_QTY","SERVICE_COUNT");
+    private static final BigDecimal F6_RATE_MAX = new BigDecimal("1000");
+    private static final BigDecimal F6_COUNT_MAX = new BigDecimal("1000000000");
+
+    /** R3 compatible plus F6 methods; no arbitrary expression evaluation. */
+    private static BigDecimal simple(RuleDraft rule,String method,Map<String,Object> inputs,
+                                     List<Map<String,Object>> trace) {
         if("FIXED".equals(method)){
             if(rule.fixed()==null)throw bad("FIXED_AMOUNT_REQUIRED");
             return nonnegative(rule.fixed(),"FIXED_AMOUNT");
         }
-        BigDecimal amount=positive(inputs.get("amount"),"AMOUNT",MAX);
-        BigDecimal rate=rate(rule,inputs);
-        BigDecimal variable=amount.multiply(rate).divide(HUNDRED,12,RoundingMode.HALF_EVEN);
-        if("PERCENT".equals(method))return variable;
-        if(rule.fixed()==null)throw bad("MIXED_FIXED_AMOUNT_REQUIRED");
-        return variable.add(nonnegative(rule.fixed(),"FIXED_AMOUNT"));
+        if("PERCENT".equals(method)||"MIXED".equals(method)){
+            BigDecimal amount=positive(inputs.get("amount"),"AMOUNT",MAX);
+            BigDecimal variable=amount.multiply(rate(rule,inputs)).divide(HUNDRED,12,RoundingMode.HALF_EVEN);
+            if("PERCENT".equals(method))return variable;
+            if(rule.fixed()==null)throw bad("MIXED_FIXED_AMOUNT_REQUIRED");
+            return variable.add(nonnegative(rule.fixed(),"FIXED_AMOUNT"));
+        }
+        Map<?,?> config=f6Config(rule.parameters());
+        if("USAGE".equals(method)){
+            BigDecimal units=f6Integer(inputs.get("usage"),"USAGE",F6_COUNT_MAX);
+            BigDecimal free=f6Integer(config.get("freeUnits"),"FREE_UNITS",F6_COUNT_MAX);
+            BigDecimal price=bounded(config.get("unitPrice"),"UNIT_PRICE",MAX,true);
+            BigDecimal chargeable=units.subtract(free).max(BigDecimal.ZERO);
+            trace.add(Map.of("kind","USAGE","chargeableUnits",chargeable,"unitPriceIrr",price));
+            return chargeable.multiply(price);
+        }
+        if("DAILY".equals(method)){
+            String basis=code(config.get("dayBasis"));
+            if("ACT_ACT".equals(basis)||"JALALI_ACT_ACT".equals(basis))
+                throw bad("ACT_ACT_REQUIRES_CAL2_CERTIFIED_DAY_COUNT");
+            if(!"ACT_360".equals(basis)&&!"ACT_365".equals(basis))throw bad("DAY_BASIS_UNKNOWN");
+            BigDecimal days=f6Integer(inputs.get("days"),"DAYS",new BigDecimal("20000"));
+            if(days.signum()==0)throw bad("DAYS_MUST_BE_POSITIVE");
+            BigDecimal a=positive(inputs.get("amount"),"AMOUNT",MAX);
+            BigDecimal amount=a.multiply(rate(rule,inputs)).multiply(days).divide(
+                HUNDRED.multiply(new BigDecimal("ACT_360".equals(basis)?360:365)),12,RoundingMode.HALF_EVEN);
+            trace.add(Map.of("kind","DAILY","dayBasis",basis,"calendarDays",days));
+            return amount;
+        }
+        if("MATRIX".equals(method))return f6Matrix(config,inputs,trace);
+        if("BRACKET".equals(method)||"PROGRESSIVE".equals(method))return f6Bands(config,inputs,method,trace);
+        throw bad("METHOD_NOT_CERTIFIED_FOR_SERVER_PREVIEW");
+    }
+    private static Map<?,?> f6Config(Map<String,Object> parameters){
+        if(parameters==null)throw bad("F6_PARAMETERS_MISSING");
+        Object original=parameters.get("originalConfig");
+        // Existing Oracle FCE items put the authoritative tariff model in originalConfig.
+        if(original==null)return parameters;
+        if(!(original instanceof Map<?,?> config))throw bad("F6_CONFIG_MALFORMED");
+        return config;
+    }
+    private static BigDecimal f6Integer(Object raw,String field,BigDecimal maximum){
+        BigDecimal value=bounded(raw,field,maximum,true);
+        if(value.stripTrailingZeros().scale()>0)throw bad(field+"_MUST_BE_INTEGER");
+        return value;
+    }
+    private record F6Basis(BigDecimal value,boolean monetary,String code) {}
+    private static F6Basis f6Basis(Map<?,?> cfg,Map<String,Object> inputs){
+        String code=code(cfg.get("basisCode"));
+        if(code.isEmpty()){
+            if(Boolean.TRUE.equals(cfg.get("basisExplicit")))throw bad("F6_BASIS_REQUIRED");
+            code="REQUEST_AMOUNT";
+        }
+        if(F6_MONEY_BASES.contains(code))
+            return new F6Basis(bounded(inputs.get("amount"),"AMOUNT",MAX,true),true,code);
+        if(F6_QUANTITY_BASES.contains(code))
+            return new F6Basis(bounded(inputs.get("usage"),"USAGE",F6_COUNT_MAX,true),false,code);
+        throw bad("F6_UNRECOGNIZED_BASIS");
+    }
+    private static List<?> f6Rows(Object data,String type){
+        if(!(data instanceof List<?> rows)||rows.isEmpty()||rows.size()>100)throw bad(type+"_ROWS_REQUIRED");
+        for(Object row:rows)if(!(row instanceof Map<?,?>))throw bad(type+"_MALFORMED_ROW");
+        return rows;
+    }
+    private static BigDecimal f6RowFee(Map<?,?> row,BigDecimal share,boolean monetary){
+        String mode=code(row.get("calcType"));if(mode.isEmpty())mode="LEGACY";
+        return switch(mode){
+          case "FIXED" -> bounded(row.get("fixedAmount"),"F6_FIXED",MAX,true);
+          case "UNIT_RATE" -> {
+              if(monetary)throw bad("F6_UNIT_RATE_REQUIRES_QUANTITY");
+              yield share.multiply(bounded(row.get("unitPrice"),"F6_UNIT_PRICE",MAX,true));
+          }
+          case "PERCENT" -> {
+              if(!monetary)throw bad("F6_PERCENT_REQUIRES_MONEY");
+              yield share.multiply(bounded(row.get("ratePercent"),"F6_PERCENT",F6_RATE_MAX,true))
+                    .divide(HUNDRED,12,RoundingMode.HALF_EVEN);
+          }
+          case "LEGACY" -> {
+              if(!monetary)throw bad("F6_LEGACY_REQUIRES_MONEY");
+              yield share.multiply(bounded(row.get("ratePercent"),"F6_PERCENT",F6_RATE_MAX,true))
+                  .divide(HUNDRED,12,RoundingMode.HALF_EVEN)
+                  .add(bounded(row.get("fixedAmount"),"F6_FIXED",MAX,true));
+          }
+          default -> throw bad("F6_UNKNOWN_ROW_MODE");
+        };
+    }
+    private static BigDecimal f6Bands(Map<?,?> cfg,Map<String,Object> inputs,String method,
+                                      List<Map<String,Object>> trace){
+        F6Basis basis=f6Basis(cfg,inputs);
+        List<?> rows=f6Rows(cfg.get("BRACKET".equals(method)?"brackets":"tiers"),method);
+        if("BRACKET".equals(method)){
+            Map<?,?> selected=null;int selectedIndex=0;
+            for(int i=0;i<rows.size();i++){
+                Map<?,?> row=(Map<?,?>)rows.get(i);
+                BigDecimal from=bounded(row.get("from"),"F6_FROM",MAX,true);
+                Object t=row.get("to");
+                BigDecimal upper=t==null||"".equals(t)?null:bounded(t,"F6_TO",MAX,true);
+                if(upper!=null&&upper.compareTo(from)<=0)throw bad("F6_BRACKET_BOUNDARY_INVALID");
+                boolean hit=basis.value().compareTo(from)>=0&&(upper==null||
+                    (Boolean.TRUE.equals(row.get("inclusiveUpper"))?
+                      basis.value().compareTo(upper)<=0:basis.value().compareTo(upper)<0));
+                if(hit){if(selected!=null)throw bad("F6_BRACKET_AMBIGUOUS");selected=row;selectedIndex=i+1;}
+            }
+            if(selected==null)throw bad("F6_BRACKET_UNDEFINED");
+            BigDecimal raw=f6RowFee(selected,basis.value(),basis.monetary());
+            trace.add(Map.of("kind","BRACKET","basis",basis.code(),"row",selectedIndex));
+            return raw;
+        }
+        BigDecimal last=BigDecimal.ZERO,total=BigDecimal.ZERO;boolean covered=false;
+        for(int i=0;i<rows.size();i++){
+            Map<?,?> row=(Map<?,?>)rows.get(i);
+            Object t=row.get("upTo");
+            BigDecimal upper=t==null||"".equals(t)?null:bounded(t,"F6_UP_TO",MAX,true);
+            if(upper==null&&i!=rows.size()-1)throw bad("F6_OPEN_TIER_NOT_LAST");
+            if(upper!=null&&upper.compareTo(last)<=0)throw bad("F6_TIER_BOUNDARY_INVALID");
+            BigDecimal share=basis.value().subtract(last).max(BigDecimal.ZERO);
+            if(upper!=null)share=share.min(upper.subtract(last));
+            if(share.signum()>0){
+                total=total.add(f6RowFee(row,share,basis.monetary()));
+                trace.add(Map.of("kind","TIER","basis",basis.code(),"row",i+1,"share",share));
+            }
+            if(upper==null||basis.value().compareTo(upper)<=0){covered=true;break;}
+            last=upper;
+        }
+        if(!covered)throw bad("F6_TIER_UNDEFINED");
+        return total;
+    }
+    private static BigDecimal f6Matrix(Map<?,?> cfg,Map<String,Object> inputs,
+                                      List<Map<String,Object>> trace){
+        String customer=code(inputs.get("customer")),channel=code(inputs.get("channel"));
+        if(customer.isBlank()||channel.isBlank()||"ALL".equals(customer)||"ALL".equals(channel)||
+           !customer.matches("[A-Z][A-Z0-9_]{0,39}")||!channel.matches("[A-Z][A-Z0-9_]{0,39}"))
+            throw bad("F6_MATRIX_CUSTOMER_CHANNEL_REQUIRED");
+        List<?> rows=f6Rows(cfg.get("matrix"),"MATRIX");
+        Map<?,?> selected=null;int best=-1;boolean ambiguous=false;
+        for(Object obj:rows){
+            Map<?,?> row=(Map<?,?>)obj;
+            String c=code(row.get("customer")),h=code(row.get("channel")),mode=code(row.get("basis"));
+            if(c.isBlank()||h.isBlank()||!Set.of("FIXED","PERCENT").contains(mode))
+                throw bad("F6_MATRIX_BAD_ROW");
+            if(!("ALL".equals(c)||c.equals(customer))||!("ALL".equals(h)||h.equals(channel)))continue;
+            int specificity=("ALL".equals(c)?0:1)+("ALL".equals(h)?0:1);
+            if(specificity==best)ambiguous=true;
+            if(specificity>best){selected=row;best=specificity;ambiguous=false;}
+        }
+        if(selected==null)throw bad("F6_MATRIX_NO_CELL");
+        if(ambiguous)throw bad("F6_MATRIX_AMBIGUOUS");
+        String mode=code(selected.get("basis"));
+        BigDecimal value=bounded(selected.get("value"),"F6_MATRIX_VALUE",
+            "PERCENT".equals(mode)?F6_RATE_MAX:MAX,true);
+        BigDecimal amount="PERCENT".equals(mode)?
+           bounded(inputs.get("amount"),"AMOUNT",MAX,true).multiply(value)
+             .divide(HUNDRED,12,RoundingMode.HALF_EVEN):value;
+        trace.add(Map.of("kind","MATRIX","customer",code(selected.get("customer")),
+            "channel",code(selected.get("channel")),"basis",mode));
+        return amount;
     }
     private static BigDecimal guarantee(RuleDraft rule,Map<?,?> guarantee,String method,
                                         Map<String,Object> inputs,List<Map<String,Object>> trace) {
