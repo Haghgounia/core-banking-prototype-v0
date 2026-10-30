@@ -41,13 +41,13 @@ public final class Fee3PreviewEngine {
         DraftRequest draft=request.draft(); VersionDraft v=draft.version(); ItemDraft item=draft.item();
         Map<String,Object> inputs=request.inputs()==null?Map.of():request.inputs();
         if(!"IRR".equals(v.feeCurrency())||!"IRR".equals(v.serviceCurrency()))throw bad("CURRENCY_CONVERSION_UNSUPPORTED");
-        if(method==null||!Set.of("FIXED","PERCENT","MIXED","USAGE","DAILY","BRACKET","PROGRESSIVE","MATRIX").contains(method))throw bad("METHOD_NOT_CERTIFIED_FOR_SERVER_PREVIEW");
+        if(method==null||!Set.of("FIXED","PERCENT","MIXED","USAGE","DAILY","BRACKET","PROGRESSIVE","MATRIX","FORMULA").contains(method))throw bad("METHOD_NOT_CERTIFIED_FOR_SERVER_PREVIEW");
         if(draft.rules()==null||draft.rules().size()!=1)throw bad("EXACTLY_ONE_RULE_REQUIRED");
         RuleDraft rule=draft.rules().get(0);
         if(rule==null)throw bad("NULL_RULE");
         if(!method.equals(rule.method()))throw bad("RULE_METHOD_MISMATCH");
-        if(rule.formulaCode()!=null&&!rule.formulaCode().isBlank() ||
-           rule.parameters()!=null&&rule.parameters().containsKey("_fceEditableExpressionV1"))
+        if(!"FORMULA".equals(method) && (rule.formulaCode()!=null&&!rule.formulaCode().isBlank() ||
+           rule.parameters()!=null&&rule.parameters().containsKey("_fceEditableExpressionV1")))
            throw bad("FORMULA_EXECUTION_FORBIDDEN");
         Map<String,Object> policy=v.financialPolicy()==null?Map.of():v.financialPolicy();
         for(String key:List.of("partsEnabled","adjustmentsEnabled","dealsEnabled","allocationEnabled"))
@@ -63,7 +63,8 @@ public final class Fee3PreviewEngine {
         } else {
             if(Set.of("GUARANTEE_FEE","QARD_FEE","FINANCING_PROFIT","LATE_DAMAGE").contains(item.amountKind()))
                 throw bad("SPECIALIZED_BANKING_MODEL_REQUIRES_CERTIFIED_ENGINE");
-            raw=simple(rule,method,inputs,trace);
+            raw="FORMULA".equals(method)?Fee3F6FormulaArithmetic.evaluate(rule,inputs,trace):
+                simple(rule,method,inputs,trace);
         }
         if(raw.compareTo(BigDecimal.ZERO)<0||raw.compareTo(MAX)>0)throw bad("FEE_OUT_OF_RANGE");
         BigDecimal capped=raw;
@@ -71,6 +72,8 @@ public final class Fee3PreviewEngine {
         if(rule.max()!=null)capped=capped.min(nonnegative(rule.max(),"MAX_FEE"));
         if(rule.min()!=null&&rule.max()!=null&&rule.min().compareTo(rule.max())>0)throw bad("MIN_GREATER_THAN_MAX");
         BigDecimal fee=capped.setScale(0,rounding);
+        trace.add(Map.of("kind","LIMITS_AND_ROUNDING","rawIrr",raw,
+            "limitedIrr",capped,"roundedIrr",fee,"rounding",v.rounding()));
         BigDecimal tax=BigDecimal.ZERO;
         if("TAXABLE".equals(v.taxMode())){
             BigDecimal percent=bounded(policy.get("taxPercent"),"TAX_PERCENT",HUNDRED,true);
@@ -93,14 +96,19 @@ public final class Fee3PreviewEngine {
                                      List<Map<String,Object>> trace) {
         if("FIXED".equals(method)){
             if(rule.fixed()==null)throw bad("FIXED_AMOUNT_REQUIRED");
-            return nonnegative(rule.fixed(),"FIXED_AMOUNT");
+            BigDecimal fixed=nonnegative(rule.fixed(),"FIXED_AMOUNT");
+            trace.add(Map.of("kind","FIXED","fixedIrr",fixed));
+            return fixed;
         }
         if("PERCENT".equals(method)||"MIXED".equals(method)){
             BigDecimal amount=positive(inputs.get("amount"),"AMOUNT",MAX);
             BigDecimal variable=amount.multiply(rate(rule,inputs)).divide(HUNDRED,12,RoundingMode.HALF_EVEN);
+            trace.add(Map.of("kind","PERCENT","baseIrr",amount,"variableIrr",variable));
             if("PERCENT".equals(method))return variable;
             if(rule.fixed()==null)throw bad("MIXED_FIXED_AMOUNT_REQUIRED");
-            return variable.add(nonnegative(rule.fixed(),"FIXED_AMOUNT"));
+            BigDecimal fixed=nonnegative(rule.fixed(),"FIXED_AMOUNT");
+            trace.add(Map.of("kind","MIXED_FIXED","fixedIrr",fixed));
+            return variable.add(fixed);
         }
         Map<?,?> config=f6Config(rule.parameters());
         if("USAGE".equals(method)){

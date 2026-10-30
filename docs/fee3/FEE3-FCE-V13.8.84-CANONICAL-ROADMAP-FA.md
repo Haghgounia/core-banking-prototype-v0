@@ -3,7 +3,7 @@
 **وضعیت:** مبنای اجرایی توسعه و کنترل پوشش؛ فاقد اختیار انتشار تعرفه یا تغییر Oracle  
 **تاریخ:** ۲۰۲۶-۱۰-۲۸  
 **نسخه Core Banking:** `0.11.0`  
-**مرجع قابلیت کسب‌وکار:** `FCE_v13_8_84_Program_REDOWNLOAD(3).html` (Prototype مستقل آفلاین؛ نه مصوبه بانکی)  
+**مرجع قابلیت کسب‌وکار:** `FCE_v13_8_84_Program_REDOWNLOAD(4).html` (Prototype مستقل آفلاین؛ نه مصوبه بانکی)  
 **مدل Oracle:** `FEE3` و شواهد زنده Read-only ۲۸ اکتبر؛ Oracle مستقل از فایل HTML است.
 
 ## ۱. اصول و مرز دامنه
@@ -87,3 +87,113 @@ FCE موتور تعیین **مبلغ، علت، نسخه تعرفه و ریزم�
 - آزمون‌های Windows گزارش‌شده: Root Maven ۱۳۳/۱۳۳، Build JAR موفق، Angular Bundle موفق، Runtime R3/HF1 GET+Full HTTP Smoke با خروج صفر.
 - Testbook شروع: `FEE3-F5-SCENARIO-GATES-20261028.csv`؛ Matrix اولیه ۳۰۰ رکورد: `FEE3-F5-V13884-300-VERSION-TRACEABILITY.csv`.
 - هر تغییر وضعیت از `NOT_TESTED` به `PASS` نیازمند Endpoint، Snapshot، ورودی، خروجی، SHA، قاعده، علت نتیجه و تأیید مالک است.
+
+---
+
+## ۹. خط مبنای ثابت و نقطه کنترل اجرایی — ۲۰۲۶-۱۰-۲۹ / F6-E2E-01
+
+**تصمیم کنترل تغییر:** فازهای `F5 → F6 → F7 → F8 → F9 → F10` ثابت‌اند. هیچ بسته یا گفت‌وگو مجاز به جایگزینی آن‌ها با نام‌های C1/C2 یا هر ساختار جدید نیست. تغییر فقط در وضعیت فعالیت و شواهد هر فاز انجام می‌شود. لینک پایدار نقشه راه: `docs/roadmap/FEE3-IMPLEMENTATION-ROADMAP.md` که فقط به **همین سند** ارجاع می‌دهد.
+
+**ورودی بررسی:** `core-banking-prototype-v0-2026-10-29-1651.zip`؛ مرجع کارشناسی جدید `FCE_v13_8_84_Program_REDOWNLOAD(4).html`؛ داده‌ها، آمار و مصوبات رسمی Oracle نباید از روی HTML فرض شوند.
+
+| فاز | وضعیت مبنا | اقدام بعدی قطعی | شواهد و Gate |
+|---|---|---|---|
+| F5 | P1/P2A/P2B طبق سند F6-A موفق؛ P2C HTTP در HOLD فنی | حفظ ماتریس ۳۰۰ نسخه و موارد HOLD، بدون آزمون مجدد تکراری توسط تحلیلگر | گزارش مهندسی مستقل از امضای تحلیلگر |
+| **F6** | ۸ روش عمومی در Java R3 موجود؛ ۹ روش محلی UI؛ FORMULA سرویس مجزای F2؛ اتصال گام آزمون به Backend ناقص بود | **F6-E2E-01:** `POST /api/v1/fee3/simulations/preview` برای ۸ روش عمومی + اتصال Angular + نمایش Trace و ثبت تطبیق عددی تحلیلگر؛ سپس پوشش Backend FORMULA/قراردادهای تخصصی بدون اجرای عبارت دلخواه | `SOURCE_CANDIDATE` در این بسته تا Build و آزمون مرورگر روی Windows؛ **نه UAT PASS** |
+| **F7** | توسعه F7-A موجود اما نصب Windows با خطای `TS_STRICT_DOMAIN_CONTRACT` Rollback شده؛ علت دقیق بدون `build-and-qa.log` نامعلوم | پس از تحویل F6، تکمیل Backend+Frontend هفت حوزه، با اولویت تسهیلات، ضمانت‌نامه، LC و دسته‌چک/ارزیابی | تست عملکردی توسط تحلیلگر در UI؛ عدم جعل نرخ قراردادی |
+| F8 | گردش‌کار نمایشی و نسخه‌ها در UI؛ Workflow واقعی مجاز نیست | تکمیل نسخه‌بندی، تعارض‌ها، Governance، Maker/Checker و Audit | بدون انتشار بانکی در مرحله توسعه |
+| F9 | قراردادها و دفتر آزمون موجود؛ پذیرش نهایی باز | آزمون یکپارچگی فنی توسط توسعه و UAT محاسبات توسط تحلیلگر | رأی پذیرش کسب‌وکار مجزا |
+| F10 | بهسازی عملیاتی باز | امنیت، RBAC، پایش، تست کارایی و در انتها Oracle Write پس از مجوز | Go/No-Go صریح و جدا از نصب Patch |
+
+### ۹.۱ تعریف انجام‌شدن برای F6-E2E-01
+
+- در گام «آزمون و جمع‌بندی»، روش عمومی ۸گانه از **موتور Java** محاسبه شود؛ نه فقط تابع TypeScript.
+- درخواست بدون Oracle DML/DDL و بدون انتشار تعرفه یا Posting انجام شود؛ از `BigDecimal` و انتقال مبلغ Decimal به‌شکل رشته استفاده شود.
+- خروجی دارای مبلغ خام، کنترل کف/سقف، گردکردن، مالیات بررسی‌شده، ریزنتیجه و Diagnostic باشد.
+- در وضعیت `UNREVIEWED` فقط مبلغ **پیش از مالیات** (`PRETAX_ONLY`) برگردد؛ مالیات و مبلغ قابل وصول باید `null` بمانند.
+- نتیجه عددی Backend با ورودی «مبلغ مورد انتظار تحلیلگر» تطبیق داده شود؛ ثبت PASS فقط با اقدام صریح تحلیلگر و فقط در حافظه نشست، نه به معنای مجوز بانکی.
+- FORMULA و مدل‌های تخصصی که هنوز در F7 اتصال Backend ندارند به‌وضوح با برچسب «محلی / در انتظار F7» باقی بمانند؛ هیچ PASS مالی به آن‌ها نسبت داده نشود.
+- گزارش تحویل شامل Git Diff قابل بررسی، فهرست تغییرات، وضعیت Build، محدودیت‌ها و قدم دقیق بعدی باشد.
+
+### ۹.۲ سیاست پذیرش و چت بعدی
+
+مسئول **Build، رفع خطای TypeScript، کنترل HTTP و تست‌های برنامه‌نویسی توسعه‌دهنده است**. تحلیلگر فقط جریان‌های عملکردی و محاسبات را در UI بررسی می‌کند. شروع هر گفت‌وگوی بعدی: ابتدا این سند و وضعیت سورس، سپس «ادامه همان فعالیت باز»؛ بدون بازآفرینی نقشه راه. اگر تست فنی محلی امکان‌پذیر نباشد، وضعیت `NOT_VERIFIED` ثبت شود، نه `PASS` ساختگی.
+
+---
+
+## 10. F6-E2E-02 control checkpoint (2026-10-29) - original F5/F6/F7/F8/F9/F10 phases retained
+
+**Current phase: F6.** This checkpoint updates completion evidence only, never phase definitions. FCE V13.8.84 remains the single functional reference.
+
+| Area | Evidence and status | Next action |
+|---|---|---|
+| F5 | Previous P1/P2A/P2B evidence retained; positive P2C and per-version Oracle parity still open | Maintain original 300-version trace and HOLD decisions; do not retest manually without a business reason |
+| **F6 general methods** | Eight generic Java methods integrated in F6-E2E-01; editable `FORMULA` now wired through bounded Java decimal AST for general non-specialized preview | Analyst UI UAT and defect closure; F2 coded formula reference remains on its independent allowlisted contract |
+| F6 engineering | Direct Java compilation and 11 numeric/safety scenarios verified; full Maven/Angular and Windows runtime unverified in packaging environment | Production build is a developer/install gate, not a user-requested HTTP test |
+| F7 | Seven domain areas planned; source-level domain services exist; earlier F7-A `TS_STRICT_DOMAIN_CONTRACT` failure not yet diagnosed by original log | Integrate qualified LOAN/QARD/GUARANTEE/LC and cheque/valuation flows after F6 UAT |
+| F8 | Tariff lifecycle/governance partially implemented | Implement full version/effective-date/conflict/business controls within existing F8 |
+| F9 | Integration and expert UI UAT pending | Analyst controls business acceptance in UI; developer handles automated tests |
+| F10 | Operational hardening, RBAC and approved Oracle write rollout pending | No early writes, collection or posting |
+
+**Next authorized development:** continue F6 from this implementation checkpoint, then F7; never invent C1/C2 or restart F6. The reviewer evaluates business results in the UI only. See `FEE3-F6-E2E-02-RELEASE.md`.
+
+---
+
+## ۱۱. نقطه کنترل F7 — اتصال عملیاتی موتورهای تخصصی به میزکار (۲۰۲۶-۱۰-۲۹)
+
+**همان فازهای مصوب F5 → F6 → F7 → F8 → F9 → F10 برقرارند.** مرجع عملکردی همان `FCE V13.8.84` است؛ این نقطه کنترل فاز تازه‌ای تعریف نمی‌کند.
+
+| دامنه | تغییر واقعی | محدودیت باقی‌مانده |
+|---|---|---|
+| F6 | ۹ روش عمومی در API بدون نوشتن؛ امکان آزمایش در Angular | تأیید عددی نهایی تحلیلگر و بستن ایرادهای UAT باز است |
+| F7 — LOAN | اتصال فرم FEE3 به R4C1 سود عقود مبادله‌ای و R4C2 مشارکتی، خرید دین و سلف؛ ورودی‌های قرارداد و مستند الزامی | تأیید واقعی قرارداد، روزشمار CAL2 و اعتبار مدل در همان R4/Oracle کنترل می‌شود؛ نتیجه غیرقابل وصول |
+| F7 — QARD | اتصال فرم قرض‌الحسنه به R4C3 با تاریخ رویداد، دوره و شناسه‌های مستند/برنامه بازپرداخت | کنترل تکراری بودن مطالبه در سرویس مالک تسهیلات هنوز مستقل و لازم است |
+| F7 — GUARANTEE | اتصال صدور ضمانت‌نامه به R4B2؛ پوشش وثیقه منفرد/سبد و ریزمحاسبه در Backend | تمدید/اصلاح و سناریوهای فاقد قرارداد مستقل هنوز تکمیل نشده‌اند |
+| F7 — دیگر دامنه‌ها | مسیرهای فاقد R4 معتبر صریحاً مسدودند؛ PASS مصنوعی محاسبه محلی ممنوع | LC، خسارت تأخیر، چک، ارزیابی دارایی، خدمات دیجیتال و سایر موارد مرجع باقی هستند |
+| F8 | بدون تغییر ساختار | نسخه‌بندی/تعارض و Governance کامل باز |
+| F9 | بدون تغییر ساختار | پذیرش محاسبات و رفتار توسط تحلیلگر در UI باز |
+| F10 | بدون تغییر ساختار | سخت‌سازی و Oracle Write صرفاً پس از Gateهای مربوط |
+
+**خروجی پیاده‌سازی:** `POST /api/v1/fee3/simulations/domain-preview` با پاسخ یکنواخت `rawIrr/amountIrr/taxIrr/totalIrr/breakdown/diagnostics` به صورت Decimal-string و `snapshotSha256`. از سرویس‌های R4 موجود استفاده می‌کند؛ هیچ محاسبه تخصصی جدید بدون مبنای مقرراتی ساخته نشده است. در حالت `BLOCKED` نتیجه عددی تولید نمی‌شود. مبنای UAT، همان فرم جاری Angular است.
+
+**محدوده تحویل:** فقط تغییر واقعی سورس Backend/Frontend، نه اثبات Git، نه درخواست آزمون HTTP/CLI از تحلیلگر. Build و کنترل‌های توسعه داخلی با تیم توسعه است. نسخه از حیث پذیرش بانکی هنوز `NOT_ACCEPTED` است.
+
+**کار بعدی همین فاز F7:** بستن نقص‌های محاسبه تخصصی، تکمیل خسارت تأخیر و LC و سناریوهای دسته‌چک و ارزش‌گذاری مطابق فهرست FCE V13.8.84؛ سپس F8 طبق ساختار ثابت.
+
+---
+
+## ۱۲. F7 — ادامه توسعه قراردادهای مستندمحور (۲۰۲۶-۱۰-۲۹)
+
+**فازها بدون تغییر: F5 → F6 → F7 → F8 → F9 → F10.** این بخش صرفاً نقطه کنترل جدید F7 است.
+
+| برش F7 | آنچه در سورس این تحویل افزوده شد | باقیمانده / Gate |
+|---|---|---|
+| LC | شبیه‌سازی Backend انواع LC با قرارداد و مستند مقرراتی، تاریخ اثر و محاسبه مشترک Decimal؛ Angular در همان فرم | کنترل مستقل مقررات/نرخ و پذیرش تحلیلگر باز؛ فقط PRETAX_ONLY |
+| دسته‌چک | درخواست/صدور کاغذی و الکترونیکی، تحویل و مسدودی با فرمول‌های مرجع، اسناد چاپ/تمبر/هزینه | داده‌های فاقد تعرفه مصوب همچنان BLOCKED؛ بدون نرخ پیش‌فرض |
+| ارزیابی وثایق | چهار عملیات مرجع با سیاست تاریخی ۱۴۰۴ و ریزمحاسبه سقف/مازاد کارشناس | **سیاست ۱۴۰۴ برای تاریخ ۱۴۰۵ رد می‌شود**؛ تعرفه جدید نیازمند سند |
+| LOAN/QARD/GUARANTEE | مسیرهای R4 پیشین حفظ و بدون بازنویسی | خسارت تأخیر با CAL2 و ضابطه تعطیلات، تمدید و اصلاح ضمانت‌نامه هنوز باز |
+| PAYMENT/DIGITAL | موتور F6 عمومی موجود حفظ شد | اعتبارسنجی تخصصی هر Triple و UAT باز |
+| F8/F9/F10 | بدون تغییر در فازها | چرخه عمر/یکپارچگی/UAT/امنیت و Oracle Write در Gate مقرر |
+
+**شواهد این تحویل:** ۱۲ سناریوی عددی و مسدودسازی مستقیم Java موفق؛ بررسی نحوی TypeScript موفق. **Build کامل Maven/Angular، نصب Windows و پذیرش UI در این محیط انجام نشده‌اند و نباید PASS اعلام شوند.**
+
+**مسئول آزمون:** تیم توسعه عهده‌دار کنترل فنی است؛ تحلیلگر صرفاً آزمون عملکردی در رابط کاربری و ثبت ایراد انجام می‌دهد. `PRETAX_ONLY` به معنی نرخ معتبر/مجوز وصول نیست. پروژه از قرار دادن نرخ ۱۴۰۴ به عنوان نرخ جاری ۱۴۰۵ خودداری می‌کند.
+
+**گام بعدی فاز F7:** تکمیل خسارت تأخیر با CAL2/سیاست تعطیلات و تمدید/اصلاح ضمانت‌نامه؛ سپس بستن دیگر Tripleهای دارای شکاف واقعی قبل از انتقال به F8.
+
+---
+
+## ۱۳. نقطه کنترل اجرایی F7 — خسارت تأخیر + چرخه عمر ضمانت‌نامه (۲۰۲۶-۱۰-۲۹)
+
+**ساختار فازها ثابت است: F5 → F6 → F7 → F8 → F9 → F10.** فایل مرجع عملیاتی: `FCE_v13_8_84_Program_REDOWNLOAD(4).html`. مبنای سورس: `core-banking-prototype-v0-2026-10-29-1651.zip` با تغییرات تجمیعی F6/F7 در این تحویل؛ وضعیت نصب و آزمون در Windows هنوز مستقل است.
+
+| جریان F7 | قابلیت کدنویسی‌شده Backend + Frontend | مرز و وضعیت پذیرش |
+|---|---|---|
+| خسارت تأخیر LOAN | `Fee3F7LateDamageContract/Service`؛ فرمول کنترل‌شده بدون نرخ پیش‌فرض؛ روزشمار بر اساس YearSlice معتبر CAL2؛ سه سیاست `CHARGE_ALL_DAYS`، `ROLL_DUE_TO_WORKDAY`، `EXCLUDE_ALL_HOLIDAYS` با تقویم کاری واقعی در Oracle به‌صورت SELECT-only؛ اتصال فیلدهای مبلغ معوق، نرخ، مازاد، تاریخ سررسید، پایان غیرشامل، نوع عقد، شناسه سند و الگوی فرمول در Angular | نبود تقویم، سند، نوع عقد مجاز، سیاست تعطیلی یا پوشش روزها نتیجه `BLOCKED` دارد. عدد `PRETAX_ONLY` مجوز مطالبه یا وصول نیست. `ENGINEERING_SOURCE_READY / UI_UAT_OPEN` |
+| تمدید و اصلاح ضمانت‌نامه | `Fee3F7GuaranteeLifecyclePreview` با نرخ و مبنای مستقل از صدور؛ `RENEWAL_EXTENSION`، `INCREASE_ONLY`، `FULL_NEW_AMOUNT`، `FIXED_NOTICE` در محدوده قواعد صریح؛ تطبیق بازه در تمدید روزشمار؛ فرم مدارک و بازه‌ها در Angular | سبد وثایق، استرداد و تعدیل بدون قرارداد مستقل مسدود است. `ENGINEERING_SOURCE_READY / UI_UAT_OPEN` |
+| دسترسی عملی تحلیلگر | ذخیره محلی نشست، حتی در وضعیت Oracle Read-only و `draftWritesEnabled=false`، بدون DML؛ ارسال نتیجه در گام آزمون و ریزمحاسبه Backend | هیچ نتیجه‌ای خودکار به‌عنوان `BUSINESS_ACCEPTED` ثبت نمی‌شود. ثبت مقایسه عددی فقط با اقدام صریح تحلیلگر. |
+| مسیر استقرار | بسته تجمیعی فایل‌های F6/F7، نصب‌کننده CMD مستقل از PowerShell، گزارش فایل‌های ایجاد/ویرایش/بدون تغییر و راستی‌آزمایی باینری با `fc /b` | Build کامل Maven/Angular و Windows و Oracle Runtime در محیط بسته‌بندی قابل اجرا نبود؛ قبل از UAT باید نصب واقعی با Build PASS ثبت شود. |
+
+**شواهد محلی توسعه:** ۱۰ سناریوی مستقل Java (خروجی عددی و مسدودسازی)، ۸ آزمون JUnit جدید در اجرا با وابستگی‌های ایزوله، و کنترل نحوی فایل‌های TypeScript موفق؛ این اعداد جایگزین Maven/Angular CI یا UAT نیستند.
+
+**کارهای باز و ممنوعیت پرش فاز:** پوشش کامل ۱۱۱ ترکیب حوزه/عملیات/نوع مبلغ در ماتریس F7، اصلاح نقص‌های F7 با بازخورد تحلیلگر، احراز صحت نسخه‌های تاریخی و مقرراتی، سپس فقط **F8**. F9/UAT جامع و F10/Oracle Write و امنیت طبق فاز مصوب باقی می‌مانند. در گفت‌وگوی بعدی ابتدا همین آخرین نقطه کنترل و سورس موجود خوانده شود، نه طراحی نقشه راه جدید.

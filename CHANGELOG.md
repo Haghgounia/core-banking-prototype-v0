@@ -1,3 +1,26 @@
+## FEE3 F7 Domain Integration — 2026-10-29
+
+- Connected existing LOAN R4C1/R4C2, QARD R4C3, GUARANTEE R4B2 engines into one no-write F7 UI-to-Backend preview contract with exact money strings and detailed diagnostic trace.
+- Added required loan/Qard evidence inputs, guarantee single/portfolio mapping, and an explicit fail-closed path for domain operations without certified R4 routes.
+- Preserved all F5–F10 phase boundaries, Oracle read-only restrictions and analyst-led UAT. See `docs/fee3/FEE3-F7-DOMAIN-UI-INTEGRATION-2026-10-29.md`.
+
+## FEE3 F6-E2E-02 — 2026-10-29 — Backend editable FORMULA preview, analyst UI and roadmap checkpoint
+
+- Connected the ninth general method (`FORMULA`) from the existing FEE3 wizard to the stateless Java F6 simulation API.
+- Added bounded decimal expression AST with whitelisted functions, named-parameter checks, PMT/IPMT, deterministic trace, existing tax/rounding constraints, and strict no-financial-write rules.
+- Kept F2 reference formula codes and all F7 specialized methods segregated; intentionally blocked unqualified calculation.
+- Appended checkpoint 10 to the canonical F5-F10 roadmap without changing its structure. Documented development verification and UI-only analyst UAT.
+- Install reports precheck/backup/apply/build/rollback stages and preserves source drift guards; no automatic Git commit.
+- See `docs/fee3/FEE3-F6-E2E-02-RELEASE.md`. Not a claim of full Maven/Angular build or business UAT.
+
+## FEE3 F6-E2E-01 — 2026-10-29 — Backend simulation + analyst UI + roadmap lock
+
+- Added stateless Spring REST `POST /api/v1/fee3/simulations/preview` using the existing Java F6 calculation engine (eight general methods); no Oracle access, posting, approval or tariff activation.
+- Financial values in the new API are decimal strings. For unreviewed tax the API exposes only pre-tax IRR and intentionally returns no tax/payable total.
+- Angular wizard step “آزمون و جمع‌بندی” now calls the backend for general methods, displays breakdown/diagnostics and requires explicit analyst expected-amount agreement before recording session-only arithmetic evidence. Domain-specific/FORMULA local previews remain labelled as incomplete F7 integration.
+- Locked canonical phase sequence F5-F10 in `docs/fee3/FEE3-FCE-V13.8.84-CANONICAL-ROADMAP-FA.md` with a stable roadmap pointer in `docs/roadmap/`.
+- This is SOURCE_CANDIDATE pending the recipient environment's Maven/Angular build and functional UAT. Do not infer banking approval or Oracle write authorization.
+
 ## ORG R2-D — 2026-10-25 — تکمیل نقشه و انتساب صریح نوع GEO
 
 - افزودن قرارداد `GEO_ENTITY_TYPE_CODE` برای تشخیص شهر و دهستان در ORG؛ DDL اختیاری و بدون تغییر داده‌های موجود.
@@ -1632,3 +1655,18 @@
 - Revalidates governance, approval evidence, validity dates (DB clock) and live-product `canOpen` where relevant.
 - No changes to product code format, issued codes, product activation, approval status or transaction processing.
 - Prototype header actor is **not** authorization; SSO/RBAC is required before production use.
+
+## 2026-10-29 — FEE3 F7 documented domain continuation
+
+- Preserve F5–F10 baseline; cumulative F6 and F7 Java/Angular implementation.
+- LC, cheque-book, historical 1404 collateral valuation previews with documentary gates.
+- Historical 1404 valuation cannot be calculated as current 1405 bank tariff.
+- Pre-tax-only decimal-string result, auditable breakdown and no Oracle mutation/Posting.
+- Analyst UAT remains separate; Windows and full application build pending.
+
+### FEE3 F7 — CAL2 late-damage and guarantee lifecycle source integration (2026-10-29)
+- Added SELECT-only CAL2 bank-day evidence for bounded late-damage preview (three explicit holiday policies).
+- Added documented guarantee renewal/change preview with independently approved basis; no issuance rate or portfolio inheritance.
+- Added F7 analyst form entries and temporary in-session draft persistence while Oracle writes remain disabled.
+- Added reproducible contract-unit tests, updated the unchanged F5–F10 canonical roadmap and kept F8/F9/F10 pending.
+- No Oracle DML/DDL, payment collection or GL posting; Maven/Angular Windows build and business acceptance not yet verified.
