@@ -18,9 +18,9 @@ try {
   for (const token of ['CREATE TABLE ORG.CONTACT_POINTS','FK_OUCP_CONTACT_MASTER','FK_SPCP_CONTACT_MASTER','EXISTING_ASSOCIATIONS','NO LEGACY/CIF DATA WAS CHANGED'])
     assert(script.includes(token), `schema guard missing ${token}`);
   assert(service.includes('lockUnit(input.unitId())') && service.includes('validateAssignmentUniqueness(input'), 'transaction conflict guard missing');
-  assert(service.includes('ORG.CONTACT_POINTS') && service.includes('ORG.ORGANIZATION_UNIT_CONTACT_POINTS'), 'canonical ORG sources missing');
+  assert(service.includes('ORG.ORGANIZATION_UNIT_CONTACT_POINTS') && !/\b(?:FROM|JOIN|INTO|UPDATE) ORG\.CONTACT_POINTS(?:\s|$)/m.test(service), 'OUCP-only operational target missing');
   assert(!service.includes('CIF.CONTACT_POINT'), 'CIF coupling introduced');
-  assert(service.includes('SELECT_ROWS') && service.includes('INSERT INTO ORG.CONTACT_POINTS'), 'missing contact value persistence');
+  assert(service.includes('SELECT_ROWS') && service.includes('INSERT INTO ORG.ORGANIZATION_UNIT_CONTACT_POINTS') && service.includes('CONTACT_TYPE_CODE, CONTACT_VALUE, DISPLAY_NAME_FA') && service.includes('requireWriteAccess()'), 'OUCP-only contact persistence or write guard missing');
   assert(controller.includes('@PostMapping') && controller.includes('@PutMapping') && controller.includes('@GetMapping'), 'API operations missing');
   assert(ui.includes('OrganizationUnitPickerComponent') && ui.includes('PersianDateInputComponent'), 'unit picker or Persian date inputs missing');
   assert(ui.includes('contactValue') && !ui.includes('formControlName="contactPointId"'), 'contact user interface not corrected');

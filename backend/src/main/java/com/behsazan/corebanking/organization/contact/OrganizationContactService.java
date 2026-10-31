@@ -4,6 +4,7 @@ import com.behsazan.corebanking.organization.contact.OrganizationContactModels.*
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +20,9 @@ import java.util.regex.Pattern;
 
 /**
  * Organizational (not CIF/party) contact endpoint management.
- * A new immutable contact-point master row is created when its value changes,
- * so two units sharing an endpoint never inadvertently change one another's details.
+ * ORG.ORGANIZATION_UNIT_CONTACT_POINTS is the sole operational contact store.
+ * Historical CONTACT_POINT_ID is preserved for pre-cutover rows, nullable for new rows.
+ * No DML or joins to ORG.CONTACT_POINTS, and no DML to ORG.CONTACT_POINTS_V2.
  */
 @Service
 @ConditionalOnProperty(prefix = "core-banking.organization.contacts", name = "storage-mode",
@@ -33,25 +35,42 @@ public class OrganizationContactService implements OrganizationContactOperations
     private static final Pattern URL = Pattern.compile("^https?://[^\\s]+$", Pattern.CASE_INSENSITIVE);
 
     private final NamedParameterJdbcTemplate jdbc;
+    private final boolean unitWritesApproved;
 
-    public OrganizationContactService(NamedParameterJdbcTemplate jdbc) { this.jdbc = jdbc; }
+    public OrganizationContactService(NamedParameterJdbcTemplate jdbc,
+            @Value("${core-banking.organization.contacts.unit-writes-enabled:false}")
+            boolean unitWritesApproved) {
+        this.jdbc = jdbc;
+        this.unitWritesApproved = unitWritesApproved;
+    }
 
     @Transactional(readOnly = true)
     public ContactReadiness readiness() {
-        Long master = jdbc.queryForObject("SELECT COUNT(*) FROM ALL_TABLES WHERE OWNER='ORG' AND TABLE_NAME='CONTACT_POINTS'",
-                Map.of(), Long.class);
-        Long unitFk = jdbc.queryForObject("SELECT COUNT(*) FROM ALL_CONSTRAINTS WHERE OWNER='ORG' AND TABLE_NAME='ORGANIZATION_UNIT_CONTACT_POINTS' AND CONSTRAINT_NAME='FK_OUCP_CONTACT_MASTER' AND CONSTRAINT_TYPE='R' AND STATUS='ENABLED'",
-                Map.of(), Long.class);
-        Long serviceFk = jdbc.queryForObject("SELECT COUNT(*) FROM ALL_CONSTRAINTS WHERE OWNER='ORG' AND TABLE_NAME='SERVICE_POINT_CONTACT_POINTS' AND CONSTRAINT_NAME='FK_SPCP_CONTACT_MASTER' AND CONSTRAINT_TYPE='R' AND STATUS='ENABLED'",
-                Map.of(), Long.class);
-        Long rowVersion = jdbc.queryForObject("SELECT COUNT(*) FROM ALL_TAB_COLUMNS WHERE OWNER='ORG' AND TABLE_NAME='ORGANIZATION_UNIT_CONTACT_POINTS' AND COLUMN_NAME='ROW_VERSION'",
-                Map.of(), Long.class);
-        boolean hasRowVersion = rowVersion != null && rowVersion == 1;
-        boolean hasMaster = master != null && master == 1;
-        boolean hasUnitFk = unitFk != null && unitFk == 1;
-        boolean hasServiceFk = serviceFk != null && serviceFk == 1;
-        return new ContactReadiness(hasMaster, hasUnitFk, hasServiceFk, hasRowVersion,
-                hasMaster && hasUnitFk && hasServiceFk && hasRowVersion, "LEGACY", true);
+        Long master = metadata("SELECT COUNT(*) FROM ALL_TABLES WHERE OWNER='ORG' AND TABLE_NAME='CONTACT_POINTS'");
+        Long unitFk = metadata("SELECT COUNT(*) FROM ALL_CONSTRAINTS WHERE OWNER='ORG' AND TABLE_NAME='ORGANIZATION_UNIT_CONTACT_POINTS' AND CONSTRAINT_NAME='FK_OUCP_CONTACT_MASTER' AND CONSTRAINT_TYPE='R' AND STATUS='ENABLED'");
+        Long serviceFk = metadata("SELECT COUNT(*) FROM ALL_CONSTRAINTS WHERE OWNER='ORG' AND TABLE_NAME='SERVICE_POINT_CONTACT_POINTS' AND CONSTRAINT_NAME='FK_SPCP_CONTACT_MASTER' AND CONSTRAINT_TYPE='R' AND STATUS='ENABLED'");
+        Long rowVersion = metadata("SELECT COUNT(*) FROM ALL_TAB_COLUMNS WHERE OWNER='ORG' AND TABLE_NAME='ORGANIZATION_UNIT_CONTACT_POINTS' AND COLUMN_NAME='ROW_VERSION' AND NULLABLE='N'");
+        Long requiredFields = metadata("""
+                SELECT COUNT(*) FROM ALL_TAB_COLUMNS WHERE OWNER='ORG'
+                 AND TABLE_NAME='ORGANIZATION_UNIT_CONTACT_POINTS'
+                 AND COLUMN_NAME IN ('CONTACT_TYPE_CODE','CONTACT_VALUE','DISPLAY_NAME_FA','SOURCE_CODE','SOURCE_CREATED_AT')
+                """);
+        Long nullableLegacy = metadata("""
+                SELECT COUNT(*) FROM ALL_TAB_COLUMNS WHERE OWNER='ORG'
+                 AND TABLE_NAME='ORGANIZATION_UNIT_CONTACT_POINTS'
+                 AND COLUMN_NAME='CONTACT_POINT_ID' AND NULLABLE='Y'
+                """);
+        boolean schemaReady = equal(rowVersion, 1) && equal(requiredFields, 5);
+        boolean canWrite = schemaReady && unitWritesApproved && equal(unitFk, 0)
+                && equal(serviceFk, 0) && equal(nullableLegacy, 1);
+        return new ContactReadiness(equal(master, 1), equal(unitFk, 1), equal(serviceFk, 1),
+                equal(rowVersion, 1), schemaReady, "UNIT", canWrite);
+    }
+
+    private Long metadata(String sql) { return jdbc.queryForObject(sql, Map.of(), Long.class); }
+    private static boolean equal(Long value, long expected) { return value != null && value == expected; }
+    private void requireWriteAccess() {
+        if (!readiness().writesEnabled()) throw OrganizationContactException.writesDisabled();
     }
 
     @Transactional(readOnly = true)
@@ -76,18 +95,19 @@ public class OrganizationContactService implements OrganizationContactOperations
     public ContactRow create(ContactInput raw) {
         Validated input = validate(raw);
         requireSchema();
+        requireWriteAccess();
         lockUnit(input.unitId());
         requireActiveRole(input.roleId());
         validateAssignmentUniqueness(input, null);
-        long masterId = nextId("ORG.SEQ_CONTACT_POINTS");
-        insertMaster(masterId, input);
-        long assignmentId = nextId("ORG.SEQ_ORGANIZATION_UNIT_CONTACT_POINTS");
+        long assignmentId = nextId();
         jdbc.update("""
                 INSERT INTO ORG.ORGANIZATION_UNIT_CONTACT_POINTS
-                  (ORGANIZATION_UNIT_CONTACT_POINT_ID, ORGANIZATION_UNIT_ID, CONTACT_POINT_ID,
+                  (ORGANIZATION_UNIT_CONTACT_POINT_ID, ORGANIZATION_UNIT_ID,
+                   CONTACT_TYPE_CODE, CONTACT_VALUE, DISPLAY_NAME_FA, SOURCE_CODE, SOURCE_CREATED_AT,
                    CONTACT_ROLE_ID, PRIMARY_FLAG, EFFECTIVE_FROM, EFFECTIVE_TO)
-                VALUES (:id,:unitId,:contactPointId,:roleId,:primaryFlag,:effectiveFrom,:effectiveTo)
-                """, assignmentParams(assignmentId, input, masterId));
+                VALUES (:id,:unitId,:type,:value,:label,'MANUAL',SYSTIMESTAMP,
+                        :roleId,:primaryFlag,:effectiveFrom,:effectiveTo)
+                """, assignmentParams(assignmentId, input));
         return requireRow(input.unitId(), assignmentId);
     }
 
@@ -96,6 +116,7 @@ public class OrganizationContactService implements OrganizationContactOperations
         if (assignmentId <= 0) throw OrganizationContactException.invalid("شناسه راه تماس معتبر نیست.");
         Validated input = validate(raw);
         requireSchema();
+        requireWriteAccess();
         lockUnit(input.unitId());
         // Lock existing assignment after parent lock to serialize writes for the same unit.
         List<ContactRow> existing = jdbc.query(SELECT_ROWS + """
@@ -113,19 +134,20 @@ public class OrganizationContactService implements OrganizationContactOperations
         boolean endpointChanged = !old.contactTypeCode().equals(input.type())
                 || !old.contactValue().equals(input.value())
                 || !normalizeLabel(old.displayNameFa()).equals(normalizeLabel(input.label()));
-        long masterId = old.contactPointId();
-        if (endpointChanged) {
-            masterId = nextId("ORG.SEQ_CONTACT_POINTS");
-            insertMaster(masterId, input); // Never UPDATE a contact point used by other units.
-        }
+        // Preserve the historical CONTACT_POINT_ID even when the contact value changes;
+        // never update a master shared by multiple organization units.
         int count = jdbc.update("""
                 UPDATE ORG.ORGANIZATION_UNIT_CONTACT_POINTS
-                   SET CONTACT_POINT_ID=:contactPointId, CONTACT_ROLE_ID=:roleId,
-                       PRIMARY_FLAG=:primaryFlag, EFFECTIVE_FROM=:effectiveFrom,
-                       EFFECTIVE_TO=:effectiveTo, ROW_VERSION=ROW_VERSION+1
+                   SET CONTACT_TYPE_CODE=:type, CONTACT_VALUE=:value, DISPLAY_NAME_FA=:label,
+                       SOURCE_CODE=CASE WHEN :endpointChanged=1 THEN 'MANUAL' ELSE SOURCE_CODE END,
+                       SOURCE_CREATED_AT=CASE WHEN :endpointChanged=1 THEN SYSTIMESTAMP ELSE SOURCE_CREATED_AT END,
+                       CONTACT_ROLE_ID=:roleId, PRIMARY_FLAG=:primaryFlag,
+                       EFFECTIVE_FROM=:effectiveFrom, EFFECTIVE_TO=:effectiveTo,
+                       ROW_VERSION=ROW_VERSION+1
                  WHERE ORGANIZATION_UNIT_CONTACT_POINT_ID=:id AND ORGANIZATION_UNIT_ID=:unitId
                    AND ROW_VERSION=:expectedVersion
-                """, assignmentParams(assignmentId, input, masterId)
+                """, assignmentParams(assignmentId, input)
+                  .addValue("endpointChanged", endpointChanged ? 1 : 0)
                   .addValue("expectedVersion", raw.expectedRowVersion()));
         if (count != 1) throw OrganizationContactException.conflict("رکورد راه تماس به‌روزرسانی نشد.");
         return requireRow(input.unitId(), assignmentId);
@@ -134,11 +156,10 @@ public class OrganizationContactService implements OrganizationContactOperations
     private static final String SELECT_ROWS = """
             SELECT a.ORGANIZATION_UNIT_CONTACT_POINT_ID, a.CONTACT_POINT_ID,
                    a.ORGANIZATION_UNIT_ID, u.UNIT_CODE, u.NAME_FA AS UNIT_NAME_FA,
-                   m.CONTACT_TYPE_CODE, m.CONTACT_VALUE, m.DISPLAY_NAME_FA, m.SOURCE_CODE,
+                   a.CONTACT_TYPE_CODE, a.CONTACT_VALUE, a.DISPLAY_NAME_FA, a.SOURCE_CODE,
                    a.CONTACT_ROLE_ID, r.ROLE_CODE, r.NAME_FA AS ROLE_NAME_FA,
                    a.PRIMARY_FLAG, a.EFFECTIVE_FROM, a.EFFECTIVE_TO, a.ROW_VERSION
               FROM ORG.ORGANIZATION_UNIT_CONTACT_POINTS a
-              JOIN ORG.CONTACT_POINTS m ON m.CONTACT_POINT_ID=a.CONTACT_POINT_ID
               JOIN ORG.CONTACT_ROLES r ON r.CONTACT_ROLE_ID=a.CONTACT_ROLE_ID
               JOIN ORG.ORGANIZATION_UNITS u ON u.ORGANIZATION_UNIT_ID=a.ORGANIZATION_UNIT_ID
             """;
@@ -148,7 +169,7 @@ public class OrganizationContactService implements OrganizationContactOperations
         String sql = SELECT_ROWS
                 + " WHERE a.ORGANIZATION_UNIT_ID=:unitId "
                 + (assignmentId == null ? "" : " AND a.ORGANIZATION_UNIT_CONTACT_POINT_ID=:assignmentId ")
-                + " ORDER BY a.PRIMARY_FLAG DESC, r.CONTACT_ROLE_ID, m.CONTACT_TYPE_CODE, "
+                + " ORDER BY a.PRIMARY_FLAG DESC, r.CONTACT_ROLE_ID, a.CONTACT_TYPE_CODE, "
                 + "a.EFFECTIVE_FROM DESC NULLS LAST";
         MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("unitId", unitId);
         if (assignmentId != null) parameters.addValue("assignmentId", assignmentId);
@@ -162,8 +183,10 @@ public class OrganizationContactService implements OrganizationContactOperations
     }
 
     private static ContactRow toRow(ResultSet rs) throws SQLException {
+        long historicalId = rs.getLong("CONTACT_POINT_ID");
+        Long legacyId = rs.wasNull() ? null : historicalId;
         return new ContactRow(
-                rs.getLong("ORGANIZATION_UNIT_CONTACT_POINT_ID"), rs.getLong("CONTACT_POINT_ID"),
+                rs.getLong("ORGANIZATION_UNIT_CONTACT_POINT_ID"), legacyId,
                 rs.getLong("ORGANIZATION_UNIT_ID"), rs.getString("UNIT_CODE"), rs.getString("UNIT_NAME_FA"),
                 rs.getString("CONTACT_TYPE_CODE"), rs.getString("CONTACT_VALUE"), rs.getString("DISPLAY_NAME_FA"),
                 rs.getLong("CONTACT_ROLE_ID"), rs.getString("ROLE_CODE"), rs.getString("ROLE_NAME_FA"),
@@ -188,16 +211,15 @@ public class OrganizationContactService implements OrganizationContactOperations
         // Inclusive effective-date endpoints (same as existing ORG CHECK constraints).
         String conditions = """
                 FROM ORG.ORGANIZATION_UNIT_CONTACT_POINTS a
-                JOIN ORG.CONTACT_POINTS m ON m.CONTACT_POINT_ID=a.CONTACT_POINT_ID
-                WHERE a.ORGANIZATION_UNIT_ID=:unitId AND a.CONTACT_ROLE_ID=:roleId
-                  AND m.CONTACT_TYPE_CODE=:contactType
+                  WHERE a.ORGANIZATION_UNIT_ID=:unitId AND a.CONTACT_ROLE_ID=:roleId
+                  AND a.CONTACT_TYPE_CODE=:contactType
                   AND (:excludedId IS NULL OR a.ORGANIZATION_UNIT_CONTACT_POINT_ID<>:excludedId)
                   AND NVL(a.EFFECTIVE_FROM, DATE '0001-01-01') <= NVL(:effectiveTo, DATE '9999-12-31')
                   AND NVL(:effectiveFrom, DATE '0001-01-01') <= NVL(a.EFFECTIVE_TO, DATE '9999-12-31')
                 """;
         String valueComparison = phoneType(input.type())
-                ? " AND REGEXP_REPLACE(m.CONTACT_VALUE, '[^0-9]', '')=:contactValueKey"
-                : " AND UPPER(TRIM(m.CONTACT_VALUE))=:contactValueKey";
+                ? " AND REGEXP_REPLACE(a.CONTACT_VALUE, '[^0-9]', '')=:contactValueKey"
+                : " AND UPPER(TRIM(a.CONTACT_VALUE))=:contactValueKey";
         Long exactDuplicates = jdbc.queryForObject("SELECT COUNT(*) " + conditions
                 + valueComparison, p, Long.class);
         if (exactDuplicates != null && exactDuplicates > 0)
@@ -211,19 +233,10 @@ public class OrganizationContactService implements OrganizationContactOperations
         }
     }
 
-    private void insertMaster(long id, Validated input) {
-        jdbc.update("""
-                INSERT INTO ORG.CONTACT_POINTS
-                  (CONTACT_POINT_ID, CONTACT_TYPE_CODE, CONTACT_VALUE, DISPLAY_NAME_FA, SOURCE_CODE)
-                VALUES (:id,:type,:value,:label,'MANUAL')
-                """, new MapSqlParameterSource().addValue("id", id)
-                .addValue("type", input.type()).addValue("value", input.value())
-                .addValue("label", input.label()));
-    }
-
-    private MapSqlParameterSource assignmentParams(long id, Validated input, long masterId) {
+    private MapSqlParameterSource assignmentParams(long id, Validated input) {
         return new MapSqlParameterSource().addValue("id", id).addValue("unitId", input.unitId())
-                .addValue("contactPointId", masterId).addValue("roleId", input.roleId())
+                .addValue("type", input.type()).addValue("value", input.value())
+                .addValue("label", input.label()).addValue("roleId", input.roleId())
                 .addValue("primaryFlag", input.primary() ? 1 : 0)
                 .addValue("effectiveFrom", sqlDate(input.from()), java.sql.Types.DATE)
                 .addValue("effectiveTo", sqlDate(input.to()), java.sql.Types.DATE);
@@ -254,14 +267,11 @@ public class OrganizationContactService implements OrganizationContactOperations
             throw OrganizationContactException.invalid("نقش انتخاب‌شده برای راه تماس فعال یا معتبر نیست.");
     }
 
-    private long nextId(String sequence) {
-        // Only constants provided by this class; never sourced from HTTP/user input.
-        if (!sequence.equals("ORG.SEQ_CONTACT_POINTS")
-                && !sequence.equals("ORG.SEQ_ORGANIZATION_UNIT_CONTACT_POINTS"))
-            throw new IllegalArgumentException("Unexpected sequence");
-        Long id = jdbc.queryForObject("SELECT " + sequence + ".NEXTVAL FROM DUAL", Map.of(), Long.class);
+    private long nextId() {
+        Long id = jdbc.queryForObject("SELECT ORG.SEQ_ORGANIZATION_UNIT_CONTACT_POINTS.NEXTVAL FROM DUAL",
+                Map.of(), Long.class);
         if (id == null || id < 1 || id >= 100_000_000L)
-            throw OrganizationContactException.conflict("دامنه شناسه راه تماس به پایان رسیده است.");
+            throw OrganizationContactException.conflict("شناسه انتساب راه تماس معتبر نیست.");
         return id;
     }
 

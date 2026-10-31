@@ -17,16 +17,17 @@ try {
   const refUi = read('frontend/src/app/features/reference-data/presentation/reference-page.component.html');
   const unitPicker = read('frontend/src/app/features/organization/organization-unit-picker.component.ts');
   const map = read('frontend/src/app/features/organization/organization-coordinate-map-picker.component.ts');
-  for (const hidden of ['organization-unit-classifications', 'organization-unit-relationship-rules',
+  for (const hidden of ['organization-unit-classifications',
     'foreign-exchange-service-profiles', 'organization-unit-geo-coverages']) {
     const menuBlocks = [...menu.matchAll(/resources:\s*\[([\s\S]*?)\]/g)].map(x => x[1]);
     assert(!menuBlocks.some(block => block.includes(`'${hidden}'`)), `${hidden} in menu`);
     assert(desc.includes(`"${hidden}"`), `${hidden} descriptor was removed`);
   }
+  assert(!desc.includes('"organization-unit-relationship-rules"'), 'retired rule descriptor still published');
   assert([...menu.split('readonly groups:')[1].split('readonly gradeTools')[0].matchAll(/title: '[^']+', description:/g)].length === 7, 'ORG menu must have 7 topic groups');
   assert(menuHtml.includes('quickLinks') && menuHtml.includes('toggleGroup(group)'), 'quick access/collapsible groups missing');
   assert(!menuHtml.includes('شبکه') && !shell.includes('شبکه شعب') && !desc.includes('"توسعه شبکه"'), 'obsolete UI wording remains');
-  console.log('PASS navigation: 7 groups, quick links, 7 hidden links, no unwanted network wording');
+  console.log('PASS navigation: 7 groups, quick links, 6 hidden descriptors, no unwanted network wording');
 
   assert(levelUi.includes('value="درجه‌بندی شعب" readonly'), 'grade scheme is not readonly');
   assert(!levelUi.includes('[(ngModel)]="form.gradeSchemeCode"'), 'grade scheme still editable');

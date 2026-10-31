@@ -18,12 +18,13 @@ const [preview, add, backfill, verify] = [
   '04-ORG-UNIT-LOCATIONS-VERIFY-READONLY.sql'
 ].map(name => read(base + name));
 const provider = read('backend/src/main/java/com/behsazan/corebanking/organization/descriptor/OrganizationDescriptorProvider.java');
-for (const token of [
-  '"ORGANIZATION_UNIT_LOCATIONS"', '"SEQ_ORGANIZATION_UNIT_LOCATIONS"',
-  '"LOCATIONS"', '"POSTAL_ADDRESSES"',
-  'lookup("locationId", "LOCATION_ID", "مکان", "locations", true, true)'
-]) assert(provider.includes(token), `legacy descriptor compatibility missing: ${token}`);
-console.log('PASS legacy descriptors and location references retained during R1');
+for (const token of ['"ORGANIZATION_UNIT_LOCATIONS"', '"SEQ_ORGANIZATION_UNIT_LOCATIONS"',
+    '"organization-unit-locations"', '"addressFa"']) {
+  assert(provider.includes(token), `R4 canonical descriptor missing: ${token}`);
+}
+assert(!provider.includes('return descriptor("locations"'), 'legacy LOCATIONS descriptor still publicly defined');
+assert(!provider.includes('return descriptor("postal-addresses"'), 'legacy POSTAL_ADDRESSES descriptor still publicly defined');
+console.log('PASS R4 canonical-only public descriptor; historical R1 migration evidence retained');
 
 const backend = read('backend/src/main/java/com/behsazan/corebanking/organization/location/application/OrganizationUnitLocationReviewService.java');
 const controller = read('backend/src/main/java/com/behsazan/corebanking/organization/location/web/OrganizationUnitLocationReviewController.java');

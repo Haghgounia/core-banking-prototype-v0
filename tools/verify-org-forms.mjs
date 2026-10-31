@@ -16,7 +16,6 @@ const expected = [
   'employee-assignments',
   'employee-assignment-roles',
   'foreign-exchange-service-profiles',
-  'locations',
   'organizations',
   'organization-units',
   'organization-unit-classifications',
@@ -27,14 +26,12 @@ const expected = [
   'organization-unit-locations',
   'organization-unit-point-of-service-assignments',
   'organization-unit-relationships',
-  'organization-unit-relationship-rules',
   'organization-unit-relationship-types',
   'organization-unit-service-capabilities',
   'organization-unit-types',
   'points-of-service',
   'point-of-service-contact-points',
   'point-of-service-types',
-  'postal-addresses',
   'self-service-terminals',
   'self-service-terminal-assignments',
   'self-service-terminal-types',
@@ -44,7 +41,7 @@ const expected = [
 const provider = read('backend/src/main/java/com/behsazan/corebanking/organization/descriptor/OrganizationDescriptorProvider.java');
 const actual = [...provider.matchAll(/return\s+descriptor\(\s*"([^"]+)"[\s\S]*?schemaName,\s*"([A-Z0-9_]+)"/g)]
   .map(([, resource, table]) => ({resource, table}));
-if (actual.length !== 27) fail(`expected 27 ORG descriptors, found ${actual.length}`);
+if (actual.length !== 24) fail(`expected 24 R6 active ORG descriptors, found ${actual.length}`);
 const actualResources = actual.map(x => x.resource).sort();
 if (JSON.stringify(actualResources) !== JSON.stringify(expected)) {
   const missing = expected.filter(x => !actualResources.includes(x));
@@ -62,7 +59,7 @@ for (const {resource, table} of actual) {
   const physicalTable = servicePointTableNames[resource] ?? expectedTable;
   if (table !== physicalTable) fail(`${resource}: expected table ${physicalTable}, found ${table}`);
 }
-ok('27 ORG table descriptors and resource/table mappings');
+ok('24 active ORG descriptors (legacy relationship rules and location masters retired)');
 const retiredHours = [
   'operating-schedules', 'operating-schedule-intervals',
   'organization-unit-operating-schedules', 'organization-unit-operating-exceptions',
@@ -95,13 +92,12 @@ ok('sidebar entry');
 const menu = read('frontend/src/app/features/organization/organization-menu.component.ts');
 const resourceBlocks = [...menu.matchAll(/resources:\s*\[([\s\S]*?)\]/g)].map(m => m[1]);
 const menuResourceMatches = resourceBlocks.flatMap(block => [...block.matchAll(/['"]([^'"]+)['"]/g)].map(m => m[1]));
-// Retired UI entries remain as descriptors in order to preserve existing Oracle tables and records.
+// R4: old source-table descriptors are no longer public; the canonical lookup stays registered.
 const hiddenFromPrototypeMenu = new Set([
   'organization-unit-classifications',
-  'organization-unit-relationship-rules',
   'foreign-exchange-service-profiles',
   'organization-unit-geo-coverages',
-  'locations', 'postal-addresses', 'organization-unit-locations',
+  'organization-unit-locations',
   'organization-unit-contact-points', 'point-of-service-contact-points'
 ]);
 for (const resource of expected) {
@@ -110,7 +106,7 @@ for (const resource of expected) {
   if (count !== expectedCount) fail(`menu resource ${resource} appears ${count} times; expected ${expectedCount}`);
 }
 if (menuResourceMatches.length !== 18) fail(`menu expected 18 resources, found ${menuResourceMatches.length}`);
-ok('menu shows 18 ORG reference forms; 9 intentionally hidden, all 27 backend descriptors preserved');
+ok('menu shows 18 ORG reference forms; 6 hidden active descriptors; old masters not published');
 
 const referencePageTs = read('frontend/src/app/features/reference-data/presentation/reference-page.component.ts');
 const referencePageHtml = read('frontend/src/app/features/reference-data/presentation/reference-page.component.html');
@@ -127,15 +123,13 @@ const expectedOrgFilters = {
   'organization-units': ['organizationId', 'statusCode'],
   'organization-unit-relationship-types': ['hierarchicalFlag'],
   'organization-unit-relationships': ['sourceOrganizationUnitId', 'targetOrganizationUnitId', 'organizationUnitRelationshipTypeId'],
-  'organization-unit-relationship-rules': ['organizationUnitRelationshipTypeId', 'sourceOrganizationUnitTypeId', 'targetOrganizationUnitTypeId'],
   'organization-unit-lifecycle-events': ['organizationUnitLifecycleEventTypeId', 'successorOrganizationUnitId'],
-  'postal-addresses': ['addressTypeCode'],
-  'organization-unit-locations': ['locationId', 'locationRoleCode'],
+  'organization-unit-locations': ['organizationUnitId', 'locationRoleCode'],
   'organization-unit-geo-coverages': ['coverageTypeCode'],
   'employee-assignments': ['employeeAssignmentRoleId', 'primaryFlag'],
   'organization-unit-service-capabilities': ['serviceCapabilityId', 'statusCode'],
   'foreign-exchange-service-profiles': ['recordIncomeFlag', 'statusCode'],
-  'points-of-service': ['pointOfServiceTypeId', 'locationId', 'statusCode'],
+  'points-of-service': ['pointOfServiceTypeId', 'organizationUnitLocationId', 'statusCode'],
   'organization-unit-point-of-service-assignments': ['pointOfServiceId', 'assignmentRoleCode'],
   'point-of-service-contact-points': ['contactRoleId', 'primaryFlag'],
   'self-service-terminals': ['selfServiceTerminalTypeId', 'statusCode'],

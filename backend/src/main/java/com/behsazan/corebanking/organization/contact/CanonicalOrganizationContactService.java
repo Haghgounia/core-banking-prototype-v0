@@ -22,11 +22,13 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * R3-B2: Single-table organizational contact implementation. It NEVER addresses the staging table;
- * ORG.CONTACT_POINTS must become canonical through a separately authorized DBA cutover.
- * Activated exclusively via storage-mode=canonical. Writes require a second explicit opt-in.
- * The former association ID is the canonical CONTACT_POINT_ID for all 6844 migrated rows.
- * Audit actor PROTOTYPE is a transparent non-authenticated demo placeholder, NOT an identity claim.
+ * R5: Canonical organization-unit contacts persist only to ORG.CONTACT_POINTS_V2.
+ * Legacy ORG.CONTACT_POINTS and association tables remain intact until a separate retirement.
+ * Activated exclusively via storage-mode=canonical; writes require an additional opt-in.
+ * CONTACT_POINT_ID is the canonical record ID; LEGACY_ASSOCIATION_ID preserves lineage.
+ * The public compatibility alias intentionally equals the canonical record ID, including
+ * migrated rows whose historical association ID differs from the new generated V2 key.
+ * Audit actor PROTOTYPE is a non-authenticated demo placeholder, NOT a real identity.
  */
 @Service
 @ConditionalOnProperty(prefix = "core-banking.organization.contacts", name = "storage-mode",
@@ -46,7 +48,7 @@ public class CanonicalOrganizationContactService implements OrganizationContactO
                    c.CONTACT_TYPE_CODE, c.CONTACT_VALUE, c.DISPLAY_NAME_FA, c.SOURCE_CODE,
                    c.CONTACT_ROLE_ID, r.ROLE_CODE, r.NAME_FA AS ROLE_NAME_FA,
                    c.PRIMARY_FLAG, c.EFFECTIVE_FROM, c.EFFECTIVE_TO, c.ROW_VERSION
-              FROM ORG.CONTACT_POINTS c
+              FROM ORG.CONTACT_POINTS_V2 c
               JOIN ORG.CONTACT_ROLES r ON r.CONTACT_ROLE_ID=c.CONTACT_ROLE_ID
               JOIN ORG.ORGANIZATION_UNITS u ON u.ORGANIZATION_UNIT_ID=c.ORGANIZATION_UNIT_ID
             """;
@@ -66,11 +68,11 @@ public class CanonicalOrganizationContactService implements OrganizationContactO
     public ContactReadiness readiness() {
         Long table = count("""
                 SELECT COUNT(*) FROM ALL_TABLES
-                 WHERE OWNER='ORG' AND TABLE_NAME='CONTACT_POINTS'
+                 WHERE OWNER='ORG' AND TABLE_NAME='CONTACT_POINTS_V2'
                 """);
         Long columns = count("""
                 SELECT COUNT(DISTINCT COLUMN_NAME) FROM ALL_TAB_COLUMNS
-                 WHERE OWNER='ORG' AND TABLE_NAME='CONTACT_POINTS'
+                 WHERE OWNER='ORG' AND TABLE_NAME='CONTACT_POINTS_V2'
                    AND COLUMN_NAME IN
                      ('CONTACT_POINT_ID','ORGANIZATION_UNIT_ID','CONTACT_TYPE_CODE','CONTACT_VALUE',
                       'DISPLAY_NAME_FA','CONTACT_ROLE_ID','PRIMARY_FLAG','EFFECTIVE_FROM','EFFECTIVE_TO',
@@ -82,16 +84,34 @@ public class CanonicalOrganizationContactService implements OrganizationContactO
                 SELECT COUNT(*) FROM ALL_CONSTRAINTS pk
                   JOIN ALL_CONS_COLUMNS pc ON pc.OWNER=pk.OWNER
                      AND pc.CONSTRAINT_NAME=pk.CONSTRAINT_NAME
-                 WHERE pk.OWNER='ORG' AND pk.TABLE_NAME='CONTACT_POINTS'
+                 WHERE pk.OWNER='ORG' AND pk.TABLE_NAME='CONTACT_POINTS_V2'
                    AND pk.CONSTRAINT_TYPE='P' AND pk.STATUS='ENABLED'
                    AND pk.VALIDATED='VALIDATED' AND pc.COLUMN_NAME='CONTACT_POINT_ID'
                 """);
         Long version = count("""
                 SELECT COUNT(*) FROM ALL_TAB_COLUMNS
-                 WHERE OWNER='ORG' AND TABLE_NAME='CONTACT_POINTS' AND COLUMN_NAME='ROW_VERSION'
+                 WHERE OWNER='ORG' AND TABLE_NAME='CONTACT_POINTS_V2' AND COLUMN_NAME='ROW_VERSION'
+                """);
+        // Preserve data safety: only switch when every legacy unit association has a
+        // linked V2 row. Do NOT compare mutable legacy business values here: after an
+        // authorized canonical write, divergence from the frozen legacy snapshot is expected.
+        Long missing = count("""
+                SELECT COUNT(*) FROM ORG.ORGANIZATION_UNIT_CONTACT_POINTS a
+                 WHERE NOT EXISTS (SELECT 1 FROM ORG.CONTACT_POINTS_V2 v
+                    WHERE v.LEGACY_ASSOCIATION_ID=a.ORGANIZATION_UNIT_CONTACT_POINT_ID)
+                """);
+        Long orphan = count("""
+                SELECT COUNT(*) FROM ORG.CONTACT_POINTS_V2 v
+                 WHERE v.LEGACY_ASSOCIATION_ID IS NOT NULL
+                   AND NOT EXISTS (SELECT 1 FROM ORG.ORGANIZATION_UNIT_CONTACT_POINTS a
+                      WHERE a.ORGANIZATION_UNIT_CONTACT_POINT_ID=v.LEGACY_ASSOCIATION_ID)
+                """);
+        Long servicePointAssociations = count("""
+                SELECT COUNT(*) FROM ORG.SERVICE_POINT_CONTACT_POINTS
                 """);
         boolean ready = equal(table, 1) && equal(columns, 15)
-                && equal(unitFk, 1) && equal(roleFk, 1) && equal(pk, 1) && equal(version, 1);
+                && equal(unitFk, 1) && equal(roleFk, 1) && equal(pk, 1) && equal(version, 1)
+                && equal(missing, 0) && equal(orphan, 0) && equal(servicePointAssociations, 0);
         return new ContactReadiness(equal(table, 1), equal(unitFk, 1), false,
                 equal(version, 1), ready, "CANONICAL", ready && allowWrites);
     }
@@ -103,7 +123,7 @@ public class CanonicalOrganizationContactService implements OrganizationContactO
                     AND fc.CONSTRAINT_NAME=fk.CONSTRAINT_NAME
                   JOIN ALL_CONSTRAINTS target ON target.OWNER=fk.R_OWNER
                     AND target.CONSTRAINT_NAME=fk.R_CONSTRAINT_NAME
-                 WHERE fk.OWNER='ORG' AND fk.TABLE_NAME='CONTACT_POINTS'
+                 WHERE fk.OWNER='ORG' AND fk.TABLE_NAME='CONTACT_POINTS_V2'
                    AND fk.CONSTRAINT_TYPE='R' AND fk.STATUS='ENABLED'
                    AND fk.VALIDATED='VALIDATED' AND fc.COLUMN_NAME=:fkColumn
                    AND target.OWNER='ORG' AND target.TABLE_NAME=:targetTable
@@ -143,7 +163,7 @@ public class CanonicalOrganizationContactService implements OrganizationContactO
         validateUniqueness(input, null);
         KeyHolder key = new GeneratedKeyHolder();
         int inserted = jdbc.update("""
-                INSERT INTO ORG.CONTACT_POINTS
+                INSERT INTO ORG.CONTACT_POINTS_V2
                   (ORGANIZATION_UNIT_ID, CONTACT_TYPE_CODE, CONTACT_VALUE, DISPLAY_NAME_FA,
                    CONTACT_ROLE_ID, PRIMARY_FLAG, EFFECTIVE_FROM, EFFECTIVE_TO,
                    SOURCE_CODE, CREATED_BY)
@@ -178,7 +198,7 @@ public class CanonicalOrganizationContactService implements OrganizationContactO
         requireActiveRole(input.roleId());
         validateUniqueness(input, recordId);
         int updated = jdbc.update("""
-                UPDATE ORG.CONTACT_POINTS
+                UPDATE ORG.CONTACT_POINTS_V2
                    SET CONTACT_TYPE_CODE=:type, CONTACT_VALUE=:value, DISPLAY_NAME_FA=:label,
                        CONTACT_ROLE_ID=:roleId, PRIMARY_FLAG=:primaryFlag,
                        EFFECTIVE_FROM=:effectiveFrom, EFFECTIVE_TO=:effectiveTo,
@@ -238,7 +258,8 @@ public class CanonicalOrganizationContactService implements OrganizationContactO
     }
     private static ContactRow toRow(ResultSet rs) throws SQLException {
         long id = rs.getLong("CONTACT_POINT_ID");
-        // Stable, backwards-compatible association ID alias. These are intentionally identical.
+        // Public API compatibility alias identifies the V2 record. Historical assignment ID
+        // is held separately in V2.LEGACY_ASSOCIATION_ID and need not equal this key.
         return new ContactRow(id, id, rs.getLong("ORGANIZATION_UNIT_ID"),
                 rs.getString("UNIT_CODE"), rs.getString("UNIT_NAME_FA"),
                 rs.getString("CONTACT_TYPE_CODE"), rs.getString("CONTACT_VALUE"),
@@ -260,7 +281,7 @@ public class CanonicalOrganizationContactService implements OrganizationContactO
                         : input.value().toUpperCase(Locale.ROOT))
                 .addValue("excludedId", excludedId, Types.NUMERIC);
         String base = """
-                FROM ORG.CONTACT_POINTS c
+                FROM ORG.CONTACT_POINTS_V2 c
                 WHERE c.ORGANIZATION_UNIT_ID=:unitId AND c.CONTACT_ROLE_ID=:roleId
                   AND c.CONTACT_TYPE_CODE=:type
                   AND (:excludedId IS NULL OR c.CONTACT_POINT_ID<>:excludedId)

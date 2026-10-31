@@ -47,7 +47,13 @@ public class OrganizationUnitLocationService {
                    (SELECT COUNT(*) FROM ALL_TAB_COLUMNS WHERE OWNER='ORG' AND TABLE_NAME='ORGANIZATION_UNIT_LOCATIONS' AND COLUMN_NAME='GEO_ENTITY_TYPE_CODE') AS GEO_TYPE_COL,
                    (SELECT COUNT(*) FROM ALL_CONSTRAINTS WHERE OWNER='ORG'
                     AND TABLE_NAME='ORGANIZATION_UNIT_LOCATIONS' AND CONSTRAINT_NAME='CK_OUL_R2D_GEO_TYPE'
-                    AND CONSTRAINT_TYPE='C' AND STATUS='ENABLED') AS GEO_TYPE_CHECK
+                    AND CONSTRAINT_TYPE='C' AND STATUS='ENABLED') AS GEO_TYPE_CHECK,
+                   (SELECT COUNT(*) FROM ALL_CONSTRAINTS CHILD
+                     JOIN ALL_CONSTRAINTS PARENT
+                       ON PARENT.OWNER=CHILD.R_OWNER AND PARENT.CONSTRAINT_NAME=CHILD.R_CONSTRAINT_NAME
+                    WHERE CHILD.OWNER='ORG' AND CHILD.TABLE_NAME='ORGANIZATION_UNIT_LOCATIONS'
+                      AND CHILD.CONSTRAINT_TYPE='R'
+                      AND PARENT.OWNER='ORG' AND PARENT.TABLE_NAME='LOCATIONS') AS LEGACY_LOCATION_FK
                  FROM DUAL
                 """;
         return jdbc.queryForObject(sql,new MapSqlParameterSource(),(rs,i)-> {
@@ -56,7 +62,8 @@ public class OrganizationUnitLocationService {
             boolean u=rs.getInt("USAGE_COLS")==2;
             boolean a=rs.getInt("AUDIT_TABLE")==1 && rs.getInt("AUDIT_SEQ")==1;
             boolean g=rs.getInt("GEO_TYPE_COL")==1 && rs.getInt("GEO_TYPE_CHECK")==1;
-            return new Readiness(n,m,u,a,g,n&&m&&u&&a&&g);
+            boolean detached=rs.getInt("LEGACY_LOCATION_FK")==0;
+            return new Readiness(n,m,u,a,g,detached,n&&m&&u&&a&&g&&detached);
         });
     }
 

@@ -22,7 +22,7 @@ public final class OrganizationContactModels {
 
     public record ContactRow(
             long organizationUnitContactPointId,
-            long contactPointId,
+            Long contactPointId,
             long organizationUnitId,
             String unitCode,
             String unitNameFa,

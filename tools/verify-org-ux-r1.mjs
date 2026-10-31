@@ -12,7 +12,7 @@ try {
     const resourceBlocks = [...menu.matchAll(/resources:\s*\[([\s\S]*?)\]/g)].map(x => x[1]);
     check(resourceBlocks.every(block => !block.includes(`'${hidden}'`)), `${hidden} remains visible in menu`);
   }
-  console.log('PASS 4 obsolete menu entries hidden; descriptors/tables retained');
+  console.log('PASS 4 obsolete menu entries hidden; R6 rule descriptor independently retired');
 
   const descriptor = read('backend/src/main/java/com/behsazan/corebanking/organization/descriptor/OrganizationDescriptorProvider.java');
   check(descriptor.includes('stringSelect("reasonCode", "REASON_CODE", "علت رویداد"'), 'reasonCode is still free text');

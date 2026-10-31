@@ -22,10 +22,13 @@ try {
   check(api.includes('OrganizationContactOperations'), 'Controller must use exactly one implementation');
   check(models.includes('String storageMode, boolean writesEnabled'), 'Readiness contract is incomplete');
   check(canonical.includes('if (!allowWrites) throw OrganizationContactException.writesDisabled()'), 'Explicit write guard missing');
-  check(canonical.includes('equal(columns, 15)') && canonical.includes('equal(unitFk, 1)') && canonical.includes('equal(roleFk, 1)'), 'Fail-closed schema check missing');
+  check(canonical.includes('equal(columns, 15)') && canonical.includes('equal(unitFk, 1)') && canonical.includes('equal(roleFk, 1)') && canonical.includes('equal(missing, 0)') && canonical.includes('equal(servicePointAssociations, 0)'), 'Fail-closed R5 schema and coverage check missing');
   check(canonical.includes('return new ContactRow(id, id,'), 'Compatibility identity alias missing');
-  for (const bad of ['INSERT INTO ORG.ORGANIZATION_UNIT_CONTACT_POINTS', 'UPDATE ORG.ORGANIZATION_UNIT_CONTACT_POINTS', 'INSERT INTO ORG.CONTACT_POINTS_V2', 'UPDATE ORG.CONTACT_POINTS_V2'])
-    check(!canonical.includes(bad), `Forbidden canonical write target: ${bad}`);
+  // R5 deliberately enables V2 as the canonical target, while all legacy write targets
+  // must remain forbidden in the canonical implementation.
+  for (const bad of ['INSERT INTO ORG.ORGANIZATION_UNIT_CONTACT_POINTS', 'UPDATE ORG.ORGANIZATION_UNIT_CONTACT_POINTS', 'INSERT INTO ORG.CONTACT_POINTS\n', 'UPDATE ORG.CONTACT_POINTS\n'])
+    check(!canonical.includes(bad), `Forbidden legacy write target in canonical service: ${bad}`);
+  check(canonical.includes('INSERT INTO ORG.CONTACT_POINTS_V2') && canonical.includes('UPDATE ORG.CONTACT_POINTS_V2'), 'Canonical V2 write target missing');
   check(canonical.includes('ROW_VERSION=ROW_VERSION+1') && canonical.includes('AND ROW_VERSION=:expectedVersion'), 'Optimistic concurrency missing');
   check(canonical.includes('FOR UPDATE OF c.CONTACT_ROLE_ID') && canonical.includes('lockUnit(input.unitId())'), 'Writer locking missing');
   check(canonical.includes("'MANUAL', :actor") && canonical.includes('UPDATED_AT=SYSTIMESTAMP'), 'Auditing missing');

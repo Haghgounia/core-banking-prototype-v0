@@ -87,11 +87,16 @@ export const routes: Routes = [
       {path: 'cif/reference/:resource', redirectTo: 'cif/reference-data/:resource'},
 
       {path: 'organization', loadComponent: () => import('./features/organization/organization-menu.component').then(m => m.OrganizationMenuComponent)},
-      {path: 'organization/unit-locations-review', loadComponent: () => import('./features/organization/organization-unit-locations-review.component').then(m => m.OrganizationUnitLocationsReviewComponent)},
+      // R4: historic source comparisons are separate DBA diagnostics, not an operational screen.
+      {path: 'organization/unit-locations-review', redirectTo: 'organization/unit-locations-canonical', pathMatch: 'full'},
       {path: 'organization/unit-locations-canonical', loadComponent: () => import('./features/organization/organization-unit-locations-canonical.component').then(m => m.OrganizationUnitLocationsCanonicalComponent)},
       {path: 'organization/branch-map', loadComponent: () => import('./features/organization/organization-branch-map.component').then(m => m.OrganizationBranchMapComponent)},
       {path: 'organization/unit-contacts', loadComponent: () => import('./features/organization/organization-unit-contacts.component').then(m => m.OrganizationUnitContactsComponent)},
       {path: 'organization/organization-unit-contact-points', redirectTo: 'organization/unit-contacts', pathMatch: 'full'},
+      // R4: old three-table generic endpoints are not a navigation surface after cutover.
+      {path: 'organization/locations', redirectTo: 'organization/unit-locations-canonical', pathMatch: 'full'},
+      {path: 'organization/postal-addresses', redirectTo: 'organization/unit-locations-canonical', pathMatch: 'full'},
+      {path: 'organization/organization-unit-locations', redirectTo: 'organization/unit-locations-canonical', pathMatch: 'full'},
       {path: 'organization/grade-levels', loadComponent: () => import('./features/organization/organization-grade-levels.component').then(m => m.OrganizationGradeLevelsComponent)},
       {path: 'organization/grade-periods', loadComponent: () => import('./features/organization/organization-grade-periods.component').then(m => m.OrganizationGradePeriodsComponent)},
       // Deprecated ORG working-hours routes now point to the CAL2 source of truth.
@@ -103,6 +108,8 @@ export const routes: Routes = [
       {path: 'organization/point-of-service-operating-schedules', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
       {path: 'organization/point-of-service-operating-exceptions', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
       {path: 'organization/point-of-service-operating-exception-intervals', redirectTo: 'calendar2/reference-data', pathMatch: 'full'},
+      // R6: legacy relationship-rule registry is retired; keep links from opening old editor.
+      {path: 'organization/organization-unit-relationship-rules', redirectTo: 'organization', pathMatch: 'full'},
       {path: 'organization/:resource', loadComponent: () => import('./features/reference-data/presentation/reference-page.component').then(m => m.ReferencePageComponent)},
 
       {path: 'geography-tree', loadComponent: () => import('./features/geography-tree/geography-tree.component').then(m => m.GeographyTreeComponent)},

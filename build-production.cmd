@@ -190,10 +190,20 @@ rem ORG location menu cleanup + contact master read-only screening.
 node "%ROOT%tools\verify-org-menu-contact-review.mjs" || exit /b 1
 node "%ROOT%tools\verify-org-contacts-r1.mjs" || exit /b 1
 node "%ROOT%tools\verify-org-contacts-r3b2.mjs" || exit /b 1
+rem R5-A: contact V2 target contract and fail-closed staged backfill safety.
+node "%ROOT%tools\verify-org-contacts-r5.mjs" || exit /b 1
+rem R5-B/R6: read-only contact cutover and ORG relationship-rule deprecation.
+node "%ROOT%tools\verify-org-r5b-r6.mjs" || exit /b 1
+rem R5-C2: OUCP-only operational store, master retirement and safe write gates.
+node "%ROOT%tools\verify-org-contact-r5c2.mjs" || exit /b 1
 rem ORG R2-C: geographic map + operational UI + data-safety verification.
 node "%ROOT%tools\verify-org-r2c-map-ux.mjs" || exit /b 1
 rem ORG R2-D typed GEO and map/location closure gate.
 node "%ROOT%tools\verify-org-map-r2d-closure.mjs" || exit /b 1
+rem ORG R3: canonical location is independent from legacy LOCATIONS.
+node "%ROOT%tools\verify-org-canonical-location-independence.mjs" || exit /b 1
+rem ORG R4: canonical point-of-service location + historic source archival gates.
+node "%ROOT%tools\verify-org-legacy-location-r4.mjs" || exit /b 1
 echo [VERIFY] CIF ISIC2 clean hierarchy...
 node "%ROOT%tools\verify-cif-isic2.mjs" || exit /b 1
 

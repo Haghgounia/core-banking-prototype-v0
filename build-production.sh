@@ -105,9 +105,18 @@ node "$ROOT/tools/verify-org-unit-location-r2a.mjs"
 node "$ROOT/tools/verify-org-menu-contact-review.mjs"
 node "$ROOT/tools/verify-org-contacts-r1.mjs"
 node "$ROOT/tools/verify-org-contacts-r3b2.mjs"
+node "$ROOT/tools/verify-org-contacts-r5.mjs"
+# R5-B/R6: canonical read-only cutover and relationship-rule deprecation.
+node "$ROOT/tools/verify-org-r5b-r6.mjs"
+# R5-C2: OUCP-only operational store, master retirement and safe write gates.
+node "$ROOT/tools/verify-org-contact-r5c2.mjs"
 # ORG R2-C: map and business-facing location/contact UI.
 node "$ROOT/tools/verify-org-r2c-map-ux.mjs"
 node "$ROOT/tools/verify-org-map-r2d-closure.mjs"
+# ORG R3: canonical location FK-detachment and UI source integrity.
+node "$ROOT/tools/verify-org-canonical-location-independence.mjs"
+# ORG R4: canonical service-point location + archival rename safety.
+node "$ROOT/tools/verify-org-legacy-location-r4.mjs"
 node "$ROOT/tools/verify-cif-isic2.mjs"
 node "$ROOT/tools/verify-pdl-product-builder.mjs"
 # PB-R13: audited deposit form parity with reviewed standalone HTML.

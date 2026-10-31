@@ -111,11 +111,8 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                 organizationUnitClassifications(),
                 organizationUnitRelationshipTypes(),
                 organizationUnitRelationships(),
-                organizationUnitRelationshipRules(),
                 organizationUnitLifecycleEventTypes(),
                 organizationUnitLifecycleEvents(),
-                locations(),
-                postalAddresses(),
                 organizationUnitLocations(),
                 organizationUnitGeoCoverages(),
                 serviceCapabilities(),
@@ -127,15 +124,13 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                 pointOfServiceContactPoints(),
                 selfServiceTerminalTypes(),
                 selfServiceTerminals(),
-                selfServiceTerminalAssignments(),
-                organizationUnitContactPoints()
+                selfServiceTerminalAssignments()
         ));
-        // After cutover, neither legacy contact association nor the zero-row POS contact
-        // editor may be exposed as a generic resource. The latter remains out of scope.
-        if ("canonical".equalsIgnoreCase(contactsStorageMode)) {
-            entries.removeIf(item -> "organization-unit-contact-points".equals(item.resource())
-                    || "point-of-service-contact-points".equals(item.resource()));
-        }
+        // The OUCP generic CRUD editor is permanently hidden: the dedicated form
+        // owns validation and never exposes the historical CONTACT_POINT_ID for writing.
+        entries.removeIf(item -> "organization-unit-contact-points".equals(item.resource())
+                || "canonical".equalsIgnoreCase(contactsStorageMode)
+                   && "point-of-service-contact-points".equals(item.resource()));
         return List.copyOf(entries);
     }
 
@@ -287,21 +282,6 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                 ));
     }
 
-    private ReferenceTableDescriptor organizationUnitRelationshipRules() {
-        return descriptor("organization-unit-relationship-rules", CATEGORY, "قواعد روابط انواع واحدها", "rule",
-                schemaName, "ORGANIZATION_UNIT_RELATIONSHIP_RULES", "SEQ_ORGANIZATION_UNIT_RELATIONSHIP_RULES",
-                "organizationUnitRelationshipRuleId", "ORGANIZATION_UNIT_RELATIONSHIP_RULE_ID",
-                "organizationUnitRelationshipRuleId", "organizationUnitRelationshipRuleId", null,
-                fields(
-                        id("organizationUnitRelationshipRuleId", "ORGANIZATION_UNIT_RELATIONSHIP_RULE_ID", "شناسه"),
-                        lookup("organizationUnitRelationshipTypeId", "ORGANIZATION_UNIT_RELATIONSHIP_TYPE_ID", "نوع رابطه", "organization-unit-relationship-types", true, true),
-                        lookup("sourceOrganizationUnitTypeId", "SOURCE_ORGANIZATION_UNIT_TYPE_ID", "نوع واحد مبدأ", "organization-unit-types", true, true),
-                        lookup("targetOrganizationUnitTypeId", "TARGET_ORGANIZATION_UNIT_TYPE_ID", "نوع واحد مقصد", "organization-unit-types", true, true),
-                        text("operationTypeCode", "OPERATION_TYPE_CODE", "کد نوع عملیات", false, true, true, 30),
-                        text("subsystemCode", "SUBSYSTEM_CODE", "کد زیرسامانه", false, true, true, 30)
-                ));
-    }
-
     private ReferenceTableDescriptor organizationUnitLifecycleEventTypes() {
         return descriptor("organization-unit-lifecycle-event-types", CATEGORY, "انواع رویداد چرخه عمر واحد", "published_with_changes",
                 schemaName, "ORGANIZATION_UNIT_LIFECYCLE_EVENT_TYPES", "SEQ_ORGANIZATION_UNIT_LIFECYCLE_EVENT_TYPES",
@@ -333,58 +313,22 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                 ));
     }
 
-    private ReferenceTableDescriptor locations() {
-        return descriptor("locations", CATEGORY, "مکان‌های فیزیکی", "location_on",
-                schemaName, "LOCATIONS", "SEQ_LOCATIONS",
-                "locationId", "LOCATION_ID", "geoEntityId", "descriptionFa", null,
-                fields(
-                        id("locationId", "LOCATION_ID", "شناسه"),
-                        lookup("geoEntityId", "GEO_ENTITY_ID", "شهر / موجودیت جغرافیایی GEO", "cities", true, true),
-                        number("latitude", "LATITUDE", "عرض جغرافیایی", true, true, null),
-                        number("longitude", "LONGITUDE", "طول جغرافیایی", true, true, null),
-                        stringSelect("coordinateReferenceSystemCode", "COORDINATE_REFERENCE_SYSTEM_CODE", "سامانه مرجع مختصات", true, false, "WGS84", COORDINATE_REFERENCE_SYSTEMS),
-                        text("descriptionFa", "DESCRIPTION_FA", "شرح مکان", true, true, true, 500),
-                        text("descriptionEn", "DESCRIPTION_EN", "شرح انگلیسی", false, false, true, 500)
-                ));
-    }
-
-    private ReferenceTableDescriptor postalAddresses() {
-        ParentDescriptor parent = parent("locations", "locationId", "LOCATION_ID", "مکان");
-        return descriptor("postal-addresses", CATEGORY, "نشانی‌های پستی", "home_pin",
-                schemaName, "POSTAL_ADDRESSES", "SEQ_POSTAL_ADDRESSES",
-                "postalAddressId", "POSTAL_ADDRESS_ID", "postalCode", "addressFa", parent,
-                fields(
-                        id("postalAddressId", "POSTAL_ADDRESS_ID", "شناسه"),
-                        lookup("locationId", "LOCATION_ID", "مکان", "locations", true, false),
-                        stringSelect("addressTypeCode", "ADDRESS_TYPE_CODE", "نوع نشانی", true, true, "PHYSICAL", ADDRESS_TYPES),
-                        text("mainStreetFa", "MAIN_STREET_FA", "خیابان اصلی - فارسی", false, false, true, 300),
-                        text("mainStreetEn", "MAIN_STREET_EN", "خیابان اصلی - انگلیسی", false, false, true, 300),
-                        text("secondaryStreetFa", "SECONDARY_STREET_FA", "خیابان فرعی - فارسی", false, false, true, 300),
-                        text("secondaryStreetEn", "SECONDARY_STREET_EN", "خیابان فرعی - انگلیسی", false, false, true, 300),
-                        text("squareCrossroadFa", "SQUARE_CROSSROAD_FA", "میدان / تقاطع - فارسی", false, false, true, 300),
-                        text("squareCrossroadEn", "SQUARE_CROSSROAD_EN", "میدان / تقاطع - انگلیسی", false, false, true, 300),
-                        text("buildingNo", "BUILDING_NO", "پلاک / شماره ساختمان", false, true, true, 30),
-                        text("postalCode", "POSTAL_CODE", "کد پستی", false, true, true, 20),
-                        text("addressFa", "ADDRESS_FA", "نشانی کامل فارسی", false, true, true, 1000),
-                        text("addressEn", "ADDRESS_EN", "نشانی کامل انگلیسی", false, false, true, 1000),
-                        text("additionalAddressFa", "ADDITIONAL_ADDRESS_FA", "توضیحات تکمیلی نشانی", false, false, false, 500),
-                        text("additionalAddressEn", "ADDITIONAL_ADDRESS_EN", "توضیحات تکمیلی انگلیسی", false, false, false, 500)
-                ));
-    }
-
+    /**
+     * Canonical location lookup for points of service. This generic resource is read-only:
+     * changes must go through the audited /organization/unit-locations API.
+     * Addresses, not legacy LOCATION_IDs, are used as lookup labels.
+     */
     private ReferenceTableDescriptor organizationUnitLocations() {
         ParentDescriptor parent = parent("organization-units", "organizationUnitId", "ORGANIZATION_UNIT_ID", "واحد سازمانی");
-        return descriptor("organization-unit-locations", CATEGORY, "محل استقرار واحدها", "my_location",
+        return descriptor("organization-unit-locations", CATEGORY, "محل استقرار واحدها (مرجع)", "my_location",
                 schemaName, "ORGANIZATION_UNIT_LOCATIONS", "SEQ_ORGANIZATION_UNIT_LOCATIONS",
                 "organizationUnitLocationId", "ORGANIZATION_UNIT_LOCATION_ID",
-                "organizationUnitLocationId", "organizationUnitLocationId", parent,
+                "organizationUnitLocationId", "addressFa", parent,
                 fields(
-                        id("organizationUnitLocationId", "ORGANIZATION_UNIT_LOCATION_ID", "شناسه"),
+                        id("organizationUnitLocationId", "ORGANIZATION_UNIT_LOCATION_ID", "شناسه استقرار"),
                         lookup("organizationUnitId", "ORGANIZATION_UNIT_ID", "واحد سازمانی", "organization-units", true, false),
-                        lookup("locationId", "LOCATION_ID", "مکان", "locations", true, true),
-                        stringSelect("locationRoleCode", "LOCATION_ROLE_CODE", "نقش مکان", true, true, "PRIMARY", LOCATION_ROLES),
-                        date("effectiveFrom", "EFFECTIVE_FROM", "شروع اعتبار", false, true),
-                        date("effectiveTo", "EFFECTIVE_TO", "پایان اعتبار", false, true)
+                        text("addressFa", "ADDRESS_FA", "نشانی رسمی", false, true, true, 1000),
+                        stringSelect("locationRoleCode", "LOCATION_ROLE_CODE", "نقش استقرار", true, true, "PRIMARY", LOCATION_ROLES)
                 ));
     }
 
@@ -475,7 +419,10 @@ public class OrganizationDescriptorProvider implements ReferenceDescriptorProvid
                 fields(
                         id("pointOfServiceId", "POINT_OF_SERVICE_ID", "شناسه"),
                         lookup("pointOfServiceTypeId", "POINT_OF_SERVICE_TYPE_ID", "نوع نقطه خدمت", "point-of-service-types", true, true),
-                        lookup("locationId", "LOCATION_ID", "مکان", "locations", true, true),
+                        // Hosted service points explicitly refer to a canonical unit-location row.
+                        // Standalone sites are not guessed or auto-assigned to a branch.
+                        lookup("organizationUnitLocationId", "ORGANIZATION_UNIT_LOCATION_ID",
+                                "محل استقرار واحد میزبان", "organization-unit-locations", true, true),
                         text("pointOfServiceCode", "POINT_OF_SERVICE_CODE", "کد نقطه خدمت", false, true, true, 50),
                         text("nameFa", "NAME_FA", "نام فارسی", true, true, true, 250),
                         text("nameEn", "NAME_EN", "نام انگلیسی", false, true, true, 250),

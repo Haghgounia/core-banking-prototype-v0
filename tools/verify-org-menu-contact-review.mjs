@@ -17,7 +17,8 @@ try {
   for (const resource of legacy) {
     check(!resources.includes(resource), `${resource} still in visible ORG menu`);
     check(!new RegExp(`resource: '${resource}'`).test(menu), `${resource} still in ORG quick links`);
-    check(provider.includes(`"${resource}"`), `${resource} legacy backend descriptor was removed`);
+    if (resource === 'organization-unit-locations') check(provider.includes(`"${resource}"`), 'canonical lookup descriptor missing');
+    else check(!provider.includes(`return descriptor("${resource}"`), `${resource} legacy descriptor still published`);
     check(!html.includes(`routerLink="/organization/${resource}"`), `${resource} link in menu template`);
     check(!review.includes(`routerLink="/organization/${resource}"`), `${resource} link in legacy source inspection page`);
   }
@@ -33,7 +34,7 @@ try {
   check(!canonical.includes('مکان و نشانی تجمیعی واحدهای سازمانی') && canonical.includes('نشانی و موقعیت شعب و واحدها'), 'canonical location title not updated');
   check(resources.length===18, `expected 18 visible generic ORG resources; found ${resources.length}`);
   console.log('PASS user menu: 3 retired location forms hidden; 1 canonical entry; dedicated contacts route');
-  console.log('PASS historical descriptors retained pre-cutover; unsafe contact generic menu entries hidden');
+  console.log('PASS R4 public legacy descriptors retired; unsafe contact generic menu entries hidden');
 
   const sourceWithoutComments = sql.replace(/^\s*--.*$/gm, '').replace(/^\s*PROMPT .*$/gm, '');
   check(!/\b(?:INSERT\s+INTO|UPDATE\s+\S+\s+SET|DELETE\s+FROM|TRUNCATE\s+TABLE|ALTER\s+TABLE|CREATE\s+TABLE|DROP\s+TABLE|MERGE\s+INTO|COMMIT\s*;|ROLLBACK\s*;)\b/i.test(sourceWithoutComments), 'contact baseline contains DDL or DML');

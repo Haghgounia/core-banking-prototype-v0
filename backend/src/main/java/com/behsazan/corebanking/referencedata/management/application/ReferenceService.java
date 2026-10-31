@@ -137,9 +137,8 @@ public class ReferenceService {
     }
 
     private static void requireNotLegacyGenericWrite(String resource) {
-        // After the R1 backfill, the three generic legacy editors would create two competing
-        // sources of truth. Keep their descriptors/routes for reading, but require canonical
-        // writes with audit via the dedicated location API.
+        // R4: source-table descriptors are no longer published. Retain this defense-in-depth
+        // guard against legacy URLs/clients; only the dedicated audited canonical API writes locations.
         if ("locations".equals(resource) || "postal-addresses".equals(resource)
                 || "organization-unit-locations".equals(resource)) {
             throw new ReferenceValidationException(
@@ -157,6 +156,11 @@ public class ReferenceService {
             throw new ReferenceValidationException(
                     "ثبت اطلاعات تماس واحدها فقط از فرم اختصاصی اطلاعات تماس واحدهای سازمانی مجاز است.",
                     Map.of("resource", "به مسیر /organization/unit-contacts مراجعه کنید."));
+        }
+        if ("organization-unit-relationship-rules".equals(resource)) {
+            throw new ReferenceValidationException(
+                    "جدول قواعد قدیمی روابط انواع واحدهای سازمانی بازنشسته شده است.",
+                    Map.of("resource", "این مسیر از دسترس عملیاتی خارج است؛ از فرم روابط واحدهای سازمانی استفاده کنید."));
         }
         if ("organization-unit-classifications".equals(resource)) {
             throw new ReferenceValidationException(

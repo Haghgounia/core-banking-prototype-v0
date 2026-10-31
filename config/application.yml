@@ -35,12 +35,18 @@ management:
 
 core-banking:
   organization:
+    locations:
+      # R4: legacy three-table reconciliation endpoints are DBA-only and disabled by default.
+      # Leave false after renaming ORG.LOCATIONS / ORG.POSTAL_ADDRESSES.
+      legacy-review-enabled: ${ORG_LEGACY_LOCATION_REVIEW_ENABLED:false}
     contacts:
-      # R3-B2: legacy remains the sole live writer until an approved DBA cutover.
-      # Canonical storage is activated only after ORG.CONTACT_POINTS has the 20-column schema.
+      # R5-C2: default legacy-named bean now reads OUCP snapshot directly.
+      # Explicit mode=canonical still selects the older V2 pilot; do not activate it.
+      # Contact source cutover is independently gated by ORG_CONTACT_UNIT_WRITES_ENABLED.
       storage-mode: ${ORG_CONTACT_STORAGE_MODE:legacy}
       # Additional explicit opt-in; leave false until controlled post-cutover UAT.
       canonical-writes-enabled: ${ORG_CONTACT_CANONICAL_WRITES_ENABLED:false}
+      unit-writes-enabled: ${ORG_CONTACT_UNIT_WRITES_ENABLED:false}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
   schemas:

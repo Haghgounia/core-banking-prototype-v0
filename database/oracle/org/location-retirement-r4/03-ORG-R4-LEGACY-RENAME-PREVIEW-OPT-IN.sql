@@ -1,0 +1,182 @@
+-- ORG R4-B archival rename, never DROP, never DML, Oracle SQL Developer F5.
+-- Manual gate: after R4-A, UAT, functional readiness, external consumers / DBA review.
+-- The two historical tables continue to preserve all 1337+ source rows.
+-- Two-step DDL may partially complete: repeat the script if POSTAL was renamed
+-- but LOCATIONS was not, ONLY after DBA investigates the cause.
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET VERIFY OFF
+DEFINE APPLY_CHANGES = NO
+DEFINE CONFIRM_RUNTIME_CUTOVER = NO
+DEFINE CONFIRM_EXTERNAL_CONSUMERS = NO
+PROMPT =====================================================================
+PROMPT ORG R4-B LEGACY LOCATIONS AND POSTAL ADDRESSES ARCHIVAL - PREVIEW FIRST
+PROMPT This phase must not be applied until runtime/UAT & DBA/external checks pass.
+PROMPT =====================================================================
+DECLARE
+  v_apply VARCHAR2(3) := UPPER(TRIM('&&APPLY_CHANGES'));
+  v_runtime VARCHAR2(3) := UPPER(TRIM('&&CONFIRM_RUNTIME_CUTOVER'));
+  v_external VARCHAR2(3) := UPPER(TRIM('&&CONFIRM_EXTERNAL_CONSUMERS'));
+  v_l_src NUMBER; v_l_dst NUMBER; v_p_src NUMBER; v_p_dst NUMBER;
+  v_l_table VARCHAR2(128); v_p_table VARCHAR2(128);
+  v_l_rows NUMBER := 0; v_p_rows NUMBER := 0; v_ul_rows NUMBER := 0;
+  v_sp_rows NUMBER := 0; v_sp_old NUMBER := 0;
+  v_legacy_fk NUMBER := 0; v_p_fk NUMBER := 0; v_unknown_fk NUMBER := 0;
+  v_can_fk NUMBER := 0; v_sp_col NUMBER := 0; v_r3 NUMBER := 0;
+  v_not_covered_l NUMBER := 0; v_not_covered_p NUMBER := 0;
+  v_missing_source NUMBER := 0; v_drift NUMBER := 0;
+  v_stored NUMBER := 0; v_synonyms NUMBER := 0; v_triggers NUMBER := 0;
+  v_migrated NUMBER := 0; v_unbackfilled NUMBER := 0;
+  v_sp_check NUMBER := 0; v_blockers NUMBER := 0; v_renamed NUMBER := 0;
+  FUNCTION table_count(p_name VARCHAR2) RETURN NUMBER IS v_n NUMBER; BEGIN
+    SELECT COUNT(*) INTO v_n FROM ALL_TABLES WHERE OWNER='ORG' AND TABLE_NAME=p_name;
+    RETURN v_n;
+  END;
+  PROCEDURE rename_table(p_source VARCHAR2,p_target VARCHAR2) IS
+  BEGIN
+    EXECUTE IMMEDIATE 'ALTER TABLE ORG.'||p_source||' RENAME TO '||p_target;
+    v_renamed:=v_renamed+1;
+    DBMS_OUTPUT.PUT_LINE('RENAMED | ORG.'||p_source||' -> ORG.'||p_target);
+  END;
+BEGIN
+  IF v_apply NOT IN ('NO','YES') OR v_runtime NOT IN ('NO','YES') OR v_external NOT IN ('NO','YES') THEN
+    RAISE_APPLICATION_ERROR(-20941,'All opt-in flags must be NO or YES.');
+  END IF;
+  v_l_src:=table_count('LOCATIONS');
+  v_l_dst:=table_count('DEPRECATED_LOCATIONS');
+  v_p_src:=table_count('POSTAL_ADDRESSES');
+  v_p_dst:=table_count('DEPRECATED_POSTAL_ADDRESSES');
+  IF v_l_src+v_l_dst<>1 OR v_p_src+v_p_dst<>1 THEN
+    RAISE_APPLICATION_ERROR(-20942,'Both legacy table identities must exist EXACTLY once: originals or renamed.');
+  END IF;
+  v_l_table:=CASE WHEN v_l_src=1 THEN 'LOCATIONS' ELSE 'DEPRECATED_LOCATIONS' END;
+  v_p_table:=CASE WHEN v_p_src=1 THEN 'POSTAL_ADDRESSES' ELSE 'DEPRECATED_POSTAL_ADDRESSES' END;
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ORG.'||v_l_table INTO v_l_rows;
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ORG.'||v_p_table INTO v_p_rows;
+  SELECT COUNT(*) INTO v_ul_rows FROM ORG.ORGANIZATION_UNIT_LOCATIONS;
+  SELECT COUNT(*) INTO v_sp_rows FROM ORG.SERVICE_POINTS;
+  SELECT COUNT(*) INTO v_sp_old FROM ORG.SERVICE_POINTS WHERE LOCATION_ID IS NOT NULL;
+  SELECT COUNT(*) INTO v_sp_col FROM ALL_TAB_COLUMNS
+   WHERE OWNER='ORG' AND TABLE_NAME='SERVICE_POINTS'
+     AND COLUMN_NAME='ORGANIZATION_UNIT_LOCATION_ID' AND NULLABLE='N';
+  SELECT COUNT(*) INTO v_r3 FROM ALL_TAB_COLUMNS
+   WHERE OWNER='ORG' AND TABLE_NAME='ORGANIZATION_UNIT_LOCATIONS'
+     AND COLUMN_NAME='LOCATION_ID' AND NULLABLE='Y';
+  SELECT COUNT(*) INTO v_can_fk FROM ALL_CONSTRAINTS C JOIN ALL_CONSTRAINTS P
+    ON P.OWNER=C.R_OWNER AND P.CONSTRAINT_NAME=C.R_CONSTRAINT_NAME
+   WHERE C.OWNER='ORG' AND C.TABLE_NAME='SERVICE_POINTS' AND C.CONSTRAINT_TYPE='R'
+     AND C.CONSTRAINT_NAME='FK_SP_R4_CANONICAL_LOCATION'
+     AND C.STATUS='ENABLED' AND C.VALIDATED='VALIDATED'
+     AND P.OWNER='ORG' AND P.TABLE_NAME='ORGANIZATION_UNIT_LOCATIONS';
+  SELECT COUNT(*) INTO v_legacy_fk FROM ALL_CONSTRAINTS C JOIN ALL_CONSTRAINTS P
+    ON P.OWNER=C.R_OWNER AND P.CONSTRAINT_NAME=C.R_CONSTRAINT_NAME
+   WHERE C.OWNER='ORG' AND C.TABLE_NAME='SERVICE_POINTS' AND C.CONSTRAINT_TYPE='R'
+     AND P.OWNER='ORG' AND P.TABLE_NAME=v_l_table;
+  SELECT COUNT(*) INTO v_p_fk FROM ALL_CONSTRAINTS C JOIN ALL_CONSTRAINTS P
+    ON P.OWNER=C.R_OWNER AND P.CONSTRAINT_NAME=C.R_CONSTRAINT_NAME
+   WHERE C.OWNER='ORG' AND C.TABLE_NAME=v_p_table AND C.CONSTRAINT_TYPE='R'
+     AND C.STATUS='ENABLED' AND C.VALIDATED='VALIDATED'
+     AND P.OWNER='ORG' AND P.TABLE_NAME=v_l_table;
+  SELECT COUNT(*) INTO v_unknown_fk FROM ALL_CONSTRAINTS C JOIN ALL_CONSTRAINTS P
+    ON P.OWNER=C.R_OWNER AND P.CONSTRAINT_NAME=C.R_CONSTRAINT_NAME
+   WHERE P.OWNER='ORG' AND P.TABLE_NAME IN (v_l_table,v_p_table)
+     AND NOT (C.OWNER='ORG' AND C.TABLE_NAME=v_p_table AND P.TABLE_NAME=v_l_table
+              AND C.CONSTRAINT_NAME='FK_POSTAL_ADDRESSES_LOCATION_ID');
+  SELECT COUNT(*) INTO v_stored FROM ALL_DEPENDENCIES
+   WHERE REFERENCED_OWNER='ORG' AND REFERENCED_NAME IN (v_l_table,v_p_table)
+     AND TYPE NOT IN ('SYNONYM')
+     AND NOT (OWNER='ORG' AND NAME IN (v_l_table,v_p_table));
+  SELECT COUNT(*) INTO v_synonyms FROM ALL_SYNONYMS
+   WHERE TABLE_OWNER='ORG' AND TABLE_NAME IN (v_l_table,v_p_table);
+  SELECT COUNT(*) INTO v_triggers FROM ALL_TRIGGERS
+   WHERE TABLE_OWNER='ORG' AND TABLE_NAME IN (v_l_table,v_p_table);
+  SELECT COUNT(*) INTO v_migrated FROM ORG.ORGANIZATION_UNIT_LOCATIONS
+   WHERE LEGACY_BACKFILL_FLAG=1;
+  SELECT COUNT(*) INTO v_unbackfilled FROM ORG.ORGANIZATION_UNIT_LOCATIONS
+   WHERE LOCATION_ID IS NOT NULL AND NVL(LEGACY_BACKFILL_FLAG,0)<>1;
+  SELECT COUNT(*) INTO v_sp_check FROM ALL_CONSTRAINTS
+   WHERE OWNER='ORG' AND TABLE_NAME='SERVICE_POINTS'
+     AND CONSTRAINT_NAME='CK_SP_R4_NO_LEGACY' AND STATUS='ENABLED' AND VALIDATED='VALIDATED';
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ORG.'||v_l_table||' L WHERE NOT EXISTS ('
+    ||'SELECT 1 FROM ORG.ORGANIZATION_UNIT_LOCATIONS UL WHERE UL.LOCATION_ID=L.LOCATION_ID)'
+    INTO v_not_covered_l;
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ORG.'||v_p_table||' P WHERE NOT EXISTS ('
+    ||'SELECT 1 FROM ORG.ORGANIZATION_UNIT_LOCATIONS UL WHERE UL.LEGACY_POSTAL_ADDRESS_ID=P.POSTAL_ADDRESS_ID)'
+    INTO v_not_covered_p;
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ORG.ORGANIZATION_UNIT_LOCATIONS UL '
+    ||'LEFT JOIN ORG.'||v_l_table||' L ON L.LOCATION_ID=UL.LOCATION_ID '
+    ||'LEFT JOIN ORG.'||v_p_table||' P ON P.POSTAL_ADDRESS_ID=UL.LEGACY_POSTAL_ADDRESS_ID '
+    ||'WHERE UL.LEGACY_BACKFILL_FLAG=1 AND '
+    ||'(L.LOCATION_ID IS NULL OR P.POSTAL_ADDRESS_ID IS NULL OR P.LOCATION_ID<>UL.LOCATION_ID)'
+    INTO v_missing_source;
+  -- 19 approved data fields + legacy postal ID, for unedited historical snapshots only.
+  -- Managed canonical edits are intentionally not compared against immutable source.
+  EXECUTE IMMEDIATE REPLACE(REPLACE(q'~SELECT COUNT(*) FROM ORG.ORGANIZATION_UNIT_LOCATIONS UL
+     JOIN ORG.#LOC# L ON L.LOCATION_ID=UL.LOCATION_ID
+     JOIN ORG.#POST# P ON P.POSTAL_ADDRESS_ID=UL.LEGACY_POSTAL_ADDRESS_ID
+    WHERE UL.LEGACY_BACKFILL_FLAG=1 AND NVL(UL.CANONICAL_MANAGED_FLAG,0)=0 AND (
+      DECODE(UL.GEO_ENTITY_ID,L.GEO_ENTITY_ID,0,1)+
+      DECODE(UL.LATITUDE,L.LATITUDE,0,1)+
+      DECODE(UL.LONGITUDE,L.LONGITUDE,0,1)+
+      DECODE(UL.COORDINATE_REFERENCE_SYSTEM_CODE,L.COORDINATE_REFERENCE_SYSTEM_CODE,0,1)+
+      DECODE(UL.LOCATION_DESCRIPTION_FA,L.DESCRIPTION_FA,0,1)+
+      DECODE(UL.LOCATION_DESCRIPTION_EN,L.DESCRIPTION_EN,0,1)+
+      DECODE(UL.ADDRESS_TYPE_CODE,P.ADDRESS_TYPE_CODE,0,1)+
+      DECODE(UL.MAIN_STREET_FA,P.MAIN_STREET_FA,0,1)+
+      DECODE(UL.MAIN_STREET_EN,P.MAIN_STREET_EN,0,1)+
+      DECODE(UL.SECONDARY_STREET_FA,P.SECONDARY_STREET_FA,0,1)+
+      DECODE(UL.SECONDARY_STREET_EN,P.SECONDARY_STREET_EN,0,1)+
+      DECODE(UL.SQUARE_CROSSROAD_FA,P.SQUARE_CROSSROAD_FA,0,1)+
+      DECODE(UL.SQUARE_CROSSROAD_EN,P.SQUARE_CROSSROAD_EN,0,1)+
+      DECODE(UL.BUILDING_NO,P.BUILDING_NO,0,1)+
+      DECODE(UL.POSTAL_CODE,P.POSTAL_CODE,0,1)+
+      DECODE(UL.ADDRESS_FA,P.ADDRESS_FA,0,1)+
+      DECODE(UL.ADDRESS_EN,P.ADDRESS_EN,0,1)+
+      DECODE(UL.ADDITIONAL_ADDRESS_FA,P.ADDITIONAL_ADDRESS_FA,0,1)+
+      DECODE(UL.ADDITIONAL_ADDRESS_EN,P.ADDITIONAL_ADDRESS_EN,0,1)+
+      DECODE(UL.LEGACY_POSTAL_ADDRESS_ID,P.POSTAL_ADDRESS_ID,0,1)
+    ) <> 0~'
+    -- Only whitelisted names determined from ALL_TABLES are substituted.
+    , '#LOC#', v_l_table), '#POST#', v_p_table) INTO v_drift;
+  IF v_l_rows=0 OR v_p_rows=0 OR v_ul_rows=0 OR v_migrated=0 THEN v_blockers:=v_blockers+1; END IF;
+  IF v_sp_col<>1 OR v_r3<>1 OR v_can_fk<>1 OR v_sp_check<>1
+     OR v_legacy_fk<>0 OR v_sp_old<>0 THEN v_blockers:=v_blockers+1; END IF;
+  IF v_unbackfilled<>0 THEN v_blockers:=v_blockers+1; END IF;
+  IF v_p_fk<>1 OR v_unknown_fk<>0 THEN v_blockers:=v_blockers+1; END IF;
+  IF v_not_covered_l<>0 OR v_not_covered_p<>0 OR v_missing_source<>0 OR v_drift<>0 THEN v_blockers:=v_blockers+1; END IF;
+  IF v_stored<>0 OR v_synonyms<>0 OR v_triggers<>0 THEN v_blockers:=v_blockers+1; END IF;
+  DBMS_OUTPUT.PUT_LINE('APPLY_CHANGES='||v_apply||' | CONFIRM_RUNTIME_CUTOVER='||v_runtime||
+    ' | CONFIRM_EXTERNAL_CONSUMERS='||v_external);
+  DBMS_OUTPUT.PUT_LINE('SOURCE | '||v_l_table||'='||v_l_rows||' | '||v_p_table||'='||v_p_rows||
+    ' | UNIT_LOCATIONS='||v_ul_rows||' | SERVICE_POINTS='||v_sp_rows);
+  DBMS_OUTPUT.PUT_LINE('PARITY | UNCOVERED_LOCATION='||v_not_covered_l||
+    ' | UNCOVERED_POSTAL='||v_not_covered_p||' | MISSING_SOURCES='||v_missing_source||
+    ' | UNMANAGED_SOURCE_DRIFT='||v_drift||' | UNBACKFILLED='||v_unbackfilled);
+  DBMS_OUTPUT.PUT_LINE('DEPENDENCIES | UNKNOWN_FK='||v_unknown_fk||' | POSTAL_TO_LOCATION_FK='||v_p_fk||
+    ' | STORED='||v_stored||' | SYNONYMS='||v_synonyms||' | TRIGGERS='||v_triggers);
+  DBMS_OUTPUT.PUT_LINE('PRECHECK | BLOCKERS='||v_blockers||
+    ' | LOCATION_RENAMED='||v_l_dst||' | POSTAL_RENAMED='||v_p_dst);
+  IF v_apply='NO' THEN
+    DBMS_OUTPUT.PUT_LINE('ORG_R4B_RENAME_PREVIEW_COMPLETE | NO DDL | NO DML');
+    RETURN;
+  END IF;
+  IF v_blockers<>0 THEN
+    RAISE_APPLICATION_ERROR(-20943,'R4-B blocked: inspect data parity and dependencies. No rename performed.');
+  END IF;
+  IF v_runtime<>'YES' OR v_external<>'YES' THEN
+    RAISE_APPLICATION_ERROR(-20944,'R4-B manual approvals missing: live app UAT + external consumers review.');
+  END IF;
+  IF v_p_src=1 THEN rename_table('POSTAL_ADDRESSES','DEPRECATED_POSTAL_ADDRESSES'); END IF;
+  IF v_l_src=1 THEN rename_table('LOCATIONS','DEPRECATED_LOCATIONS'); END IF;
+  IF table_count('LOCATIONS')<>0 OR table_count('POSTAL_ADDRESSES')<>0
+     OR table_count('DEPRECATED_LOCATIONS')<>1 OR table_count('DEPRECATED_POSTAL_ADDRESSES')<>1 THEN
+    RAISE_APPLICATION_ERROR(-20945,'R4-B post verify failed. DDL cannot roll back automatically.');
+  END IF;
+  DBMS_OUTPUT.PUT_LINE('ORG_R4B_LEGACY_RENAME_PASS | RENAMED_NOW='||v_renamed||
+    ' | BOTH_DEPRECATED=1 | SOURCE_DATA_PRESERVED=1 | NO DML');
+END;
+/
+PROMPT === TABLE NAME VERIFICATION (READ ONLY) ===
+SELECT TABLE_NAME FROM ALL_TABLES WHERE OWNER='ORG' AND TABLE_NAME IN
+ ('LOCATIONS','POSTAL_ADDRESSES','DEPRECATED_LOCATIONS','DEPRECATED_POSTAL_ADDRESSES')
+ ORDER BY TABLE_NAME;
+PROMPT IMPORTANT: DO NOT EXECUTE OBSOLETE ORG LEGACY DROP/RENAME SCRIPTS.

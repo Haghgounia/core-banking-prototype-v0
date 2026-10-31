@@ -8,7 +8,8 @@ public final class OrganizationUnitLocationModels {
     private OrganizationUnitLocationModels() {}
 
     public record Readiness(boolean locationIdNullable, boolean canonicalManagedFlagPresent,
-                            boolean usageColumnsPresent, boolean auditPresent, boolean geoTypePresent, boolean ready) {}
+                            boolean usageColumnsPresent, boolean auditPresent, boolean geoTypePresent,
+                            boolean legacyLocationFkDetached, boolean ready) {}
 
     public record EditInput(
             Long organizationUnitId, String locationRoleCode, LocalDate effectiveFrom, LocalDate effectiveTo,

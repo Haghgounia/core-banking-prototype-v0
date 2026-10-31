@@ -11,8 +11,22 @@ import java.util.List;
 @RequestMapping("/api/v1/organization/unit-locations")
 public class OrganizationUnitLocationController {
     private final OrganizationUnitLocationService service;
-    public OrganizationUnitLocationController(OrganizationUnitLocationService service) { this.service=service; }
+    private final OrganizationUnitLocationBrowseService browseService;
+    public OrganizationUnitLocationController(OrganizationUnitLocationService service,
+                                              OrganizationUnitLocationBrowseService browseService) {
+        this.service=service;
+        this.browseService=browseService;
+    }
 
+    /** Main ORG page: only the canonical unit-location table is read. */
+    @GetMapping("/browse")
+    public OrganizationUnitLocationBrowseService.BrowseSnapshot browse(
+            @RequestParam(required=false) Long organizationUnitId,
+            @RequestParam(required=false) String text,
+            @RequestParam(defaultValue="150") Integer limit,
+            @RequestParam(defaultValue="0") Integer page) {
+        return browseService.browse(organizationUnitId,text,limit,page);
+    }
     @GetMapping("/readiness") public Readiness readiness() { return service.readiness(); }
     @GetMapping("/{id}") public LocationDetails get(@PathVariable long id) { return service.get(id); }
     @GetMapping("/{id}/history") public List<AuditEntry> history(@PathVariable long id) {return service.history(id);}
