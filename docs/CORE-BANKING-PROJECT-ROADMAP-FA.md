@@ -147,3 +147,7 @@
 ### ORG-07A — اصلاح عملیاتی راه‌های تماس واحدها (سورس تحویل‌شده؛ نصب Oracle و UAT در انتظار)
 
 پس از اجرای SQL تشخیصی R0 در ۲۴ اکتبر ۲۰۲۶ مشخص شد ۱۲ نقش تماس موجود است اما **هر دو جدول انتساب تماس ORG صفر رکورد دارند**؛ هیچ شناسه تماس متصل به Master معتبر وجود ندارد. طراحی اصلاحی از CIF/Party مستقل است. در سورس کاری، `ORG.CONTACT_POINTS` با کلید `NUMBER(8)`, FKهای انتساب، کنترل نسخه، فرم اختصاصی انتخاب واحد/نوع/مقدار/نقش/تاریخ، API تراکنشی و منع نوشتن از Generic legacy آماده شده‌اند. **وضعیت: `SOURCE_RELEASED / ORACLE_NOT_APPLIED / BROWSER_AND_DB_UAT_PENDING`**. حذف جدول یا انتقال داده‌ای انجام نشده است. سند جزئیات: `docs/org-contacts/ORG-CONTACTS-R1-WORKING-NOTES-FA.md`. نسخه یکپارچه سورس ORG-CONTACTS-R1 تحویل شد؛ راهنمای نصب و محدودیت‌ها در `docs/org-contacts/ORG-CONTACTS-R1-RELEASE-INSTALL-FA.md` است.
+
+<!-- IAM-ROADMAP-R0-ENTRYPOINT -->
+## IAM User Management - canonical roadmap
+Reference: [IAM Canonical Roadmap](iam/IAM-CANONICAL-ROADMAP-FA.md). Status: R0.1 DATA_MODEL_ONLY, ORACLE_NOT_APPLIED; not an FEE3 phase change.

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 /** Read-only effective CAL2 bank-day map: no client-supplied holidays are trusted. */
 @Repository
-public final class Fee3F7Cal2WorkdayRepository {
+public class Fee3F7Cal2WorkdayRepository {
     private final JdbcClient jdbc;
     private final String schema;
     public Fee3F7Cal2WorkdayRepository(JdbcClient jdbc,

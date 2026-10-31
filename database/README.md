@@ -62,3 +62,7 @@ database/oracle/
 ### DPS2 Operational Opening v5 / 0.10.0
 
 برای ارتقا از 0.9.3، ابتدا `oracle/dps2/migrations/0.10.0-phase10-opening-operational-v5-foundation.sql` و سپس `oracle/dps2/migrations/0.10.0-phase10b-opening-operational-runtime-alignment.sql` اجرا شوند. Foundation نسخه R2 است و FKهای معادل را براساس رابطه شناسایی می‌کند. فایل `0.10.0-phase10a-constraint-reconciliation-repair.sql` فقط برای محیط‌هایی نگهداری می‌شود که نسخه اولیه Phase 10A را قبل از R2 اجرا کرده و با ORA-02275 متوقف شده‌اند.
+
+<!-- IAM-DATABASE-R0-ENTRYPOINT -->
+## IAM Oracle schema R0.1
+Read `database/oracle/iam/README.md`. Source-only DDL; no SQL is executed by installer.

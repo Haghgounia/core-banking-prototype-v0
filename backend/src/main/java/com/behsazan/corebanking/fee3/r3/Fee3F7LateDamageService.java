@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** F7 pure arithmetic + authoritative SELECT-only CAL2 calendar evidence. */
 @Service
-public final class Fee3F7LateDamageService {
+public class Fee3F7LateDamageService {
     private final Fee3R4C1JalaliDayRepository calendar;
     private final Fee3F7Cal2WorkdayRepository workdays;
     public Fee3F7LateDamageService(Fee3R4C1JalaliDayRepository calendar,

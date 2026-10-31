@@ -19,7 +19,8 @@ class Fee3F7DomainSimulationServiceTest {
     Fee3R4C2Service models=mock(Fee3R4C2Service.class);
     Fee3R4C3Service qard=mock(Fee3R4C3Service.class);
     Fee3R4B2Service guarantees=mock(Fee3R4B2Service.class);
-    Fee3F7DomainSimulationService service=new Fee3F7DomainSimulationService(loans,models,qard,guarantees);
+    Fee3F7LateDamageService lateDamage=mock(Fee3F7LateDamageService.class);
+    Fee3F7DomainSimulationService service=new Fee3F7DomainSimulationService(loans,models,qard,guarantees,lateDamage);
 
     private static DraftRequest draft(String module,String operation,String kind,String model) {
         return new DraftRequest(null,null,null,null,
@@ -37,7 +38,7 @@ class Fee3F7DomainSimulationServiceTest {
         assertEquals("BLOCKED",result.status());
         assertNull(result.amountIrr());
         assertFalse(result.financialPosting());
-        verifyNoInteractions(loans,models,qard,guarantees);
+        verifyNoInteractions(loans,models,qard,guarantees,lateDamage);
     }
     @Test void guaranteePassesThroughR4AndKeepsExactDecimalStrings() {
         var calc=new Fee3PreviewEngine.PreviewResult("SIMULATED",false,false,"PERCENT",
@@ -54,7 +55,7 @@ class Fee3F7DomainSimulationServiceTest {
         assertEquals("1000000",result.breakdown().get(0).get("basis"));
         assertFalse(result.approved());assertFalse(result.published());
         verify(guarantees,times(1)).preview(any());
-        verifyNoInteractions(loans,models,qard);
+        verifyNoInteractions(loans,models,qard,lateDamage);
     }
     @Test void deniedBankContractNeverManufacturesAmount() {
         var evidence=Fee3R4B2GuaranteeContract.blocked(null,LocalDate.of(2026,10,29),
@@ -71,7 +72,19 @@ class Fee3F7DomainSimulationServiceTest {
         var result=service.preview(request(draft("LOAN","LOAN_PROFIT","FINANCING_PROFIT","PARTICIPATION_REALIZED")));
         assertEquals("BLOCKED",result.status());
         verify(models).preview(any());
-        verifyNoInteractions(loans,qard,guarantees);
+        verifyNoInteractions(loans,qard,guarantees,lateDamage);
+    }
+
+    @Test void lateDamageDelegatesToCal2AwareServiceWithoutFallback() {
+        var requested=request(draft("LOAN","LATE_DAMAGE","LATE_DAMAGE",null));
+        var blocked=new Fee3F7DomainSimulationService.Result("BLOCKED","LOAN","LATE_DAMAGE",
+            Fee3F7LateDamageContract.CONTRACT,null,null,null,null,List.of(),
+            List.of("CAL2_BUSINESS_CALENDAR_COVERAGE_MISSING"),null,false,false,false,false);
+        when(lateDamage.preview(same(requested))).thenReturn(blocked);
+        var actual=service.preview(requested);
+        assertSame(blocked,actual);
+        verify(lateDamage,times(1)).preview(same(requested));
+        verifyNoInteractions(loans,models,qard,guarantees);
     }
     @Test void generalF6MustRejectSpecializedLoan() {
         var result=Fee3F6SimulationService.simulate(new Fee3PreviewEngine.PreviewRequest(
