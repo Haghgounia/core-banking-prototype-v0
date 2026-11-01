@@ -1,0 +1,719 @@
+import {Component, DestroyRef, computed, inject, signal} from '@angular/core';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import {ActivatedRoute} from '@angular/router';
+import {FormControl, FormRecord, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {debounceTime, distinctUntilChanged} from 'rxjs';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatSelectModule} from '@angular/material/select';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatSortModule, Sort} from '@angular/material/sort';
+import {MatTableModule} from '@angular/material/table';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {CatalogService} from '../../../core/catalog/catalog.service';
+import {CatalogItem, ReferenceFieldDescriptor} from '../../../core/models/catalog.model';
+import {ReferenceGateway} from '../application/reference.gateway';
+import {ReferenceStore} from '../application/reference.store';
+import {LookupOption, ReferenceRecordResponse} from '../domain/reference.model';
+import {DatabaseTablesComponent} from '../../../shared/ui/database-tables.component';
+import {EduLookupPanelComponent} from './edu-lookup-panel.component';
+import {OrganizationLocationService} from '../../organization/organization-location.service';
+import {OrganizationUnitPickerComponent} from '../../organization/organization-unit-picker.component';
+import {OrganizationCoordinateMapPickerComponent} from '../../organization/organization-coordinate-map-picker.component';
+import {PersianDateInputComponent} from '../../../shared/ui/persian-date-input.component';
+
+@Component({
+  selector: 'app-reference-page',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule, FormsModule, OrganizationUnitPickerComponent, OrganizationCoordinateMapPickerComponent, PersianDateInputComponent, MatAutocompleteModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule,
+    MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule,
+    MatSlideToggleModule, MatSortModule, MatTableModule, MatTooltipModule, DatabaseTablesComponent, EduLookupPanelComponent
+  ],
+  providers: [ReferenceStore],
+  templateUrl: './reference-page.component.html',
+  styleUrl: './reference-page.component.scss'
+})
+export class ReferencePageComponent {
+  readonly store = inject(ReferenceStore);
+  private readonly gateway = inject(ReferenceGateway);
+  private readonly catalog = inject(CatalogService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly organizationLocationService = inject(OrganizationLocationService);
+  private readonly sanitizer = inject(DomSanitizer);
+
+  private readonly eduFilterFields: Readonly<Record<string, readonly string[]>> = {
+    'edu-education-levels': ['educationSystemCode', 'isSelectable', 'activeFlag'],
+    'edu-education-fields': ['parentEducationFieldsId', 'educationSystemCode', 'fieldNodeTypeCode', 'isSelectable', 'activeFlag'],
+    'edu-education-field-levels': ['educationFieldsId', 'educationLevelsId', 'sourceId', 'activeFlag'],
+    'edu-education-institutions': ['institutionTypeCode', 'educationSystemCode', 'institutionStatusCode', 'isDegreeGranting', 'activeFlag'],
+    'edu-education-sources': ['sourceTypeCode', 'sourceYear', 'activeFlag'],
+    'edu-education-source-mappings': ['sourceId', 'entityTypeCode', 'mappingTypeCode', 'matchStatusCode', 'activeFlag']
+  };
+
+  private readonly organizationFilterFields: Readonly<Record<string, readonly string[]>> = {
+    'organizations': ['statusCode'],
+    'organization-units': ['organizationId', 'statusCode'],
+    'organization-unit-relationship-types': ['hierarchicalFlag'],
+    'organization-unit-relationships': ['sourceOrganizationUnitId', 'targetOrganizationUnitId', 'organizationUnitRelationshipTypeId'],
+    'organization-unit-lifecycle-events': ['organizationUnitLifecycleEventTypeId', 'successorOrganizationUnitId'],
+    'organization-unit-locations': ['organizationUnitId', 'locationRoleCode'],
+    'organization-unit-geo-coverages': ['coverageTypeCode'],
+    'employee-assignments': ['employeeAssignmentRoleId', 'primaryFlag'],
+    'organization-unit-service-capabilities': ['serviceCapabilityId', 'statusCode'],
+    'foreign-exchange-service-profiles': ['recordIncomeFlag', 'statusCode'],
+    'points-of-service': ['pointOfServiceTypeId', 'organizationUnitLocationId', 'statusCode'],
+    'organization-unit-point-of-service-assignments': ['pointOfServiceId', 'assignmentRoleCode'],
+    'point-of-service-contact-points': ['contactRoleId', 'primaryFlag'],
+    'self-service-terminals': ['selfServiceTerminalTypeId', 'statusCode'],
+    'self-service-terminal-assignments': ['organizationUnitId', 'assignmentRoleCode'],
+    'organization-unit-contact-points': ['contactRoleId', 'primaryFlag']
+  };
+
+  readonly searchControl = new FormControl('', {nonNullable: true});
+  readonly activeControl = new FormControl<boolean | null>(null);
+  readonly parentFilterControl = new FormControl<number | null>(null);
+  readonly organizationUnitTypeFilterControl = new FormControl<number | null>(null);
+  readonly advancedFilterForm = new FormRecord<FormControl<unknown>>({});
+  readonly advancedFilterFields = signal<readonly ReferenceFieldDescriptor[]>([]);
+  readonly advancedFilterLookupOptions = signal<Partial<Record<string, readonly LookupOption[]>>>({});
+  readonly form = new FormRecord<FormControl<unknown>>({});
+  readonly editorVisible = signal(false);
+  readonly hierarchyOptions = signal<Partial<Record<string, readonly LookupOption[]>>>({});
+  readonly lookupOptions = signal<Partial<Record<string, readonly LookupOption[]>>>({});
+  readonly parentFilterOptions = signal<readonly LookupOption[]>([]);
+  readonly hierarchyValues = signal<Readonly<Record<string, number | null>>>({});
+
+  readonly locationProvinceControl = new FormControl<number | null>(null);
+  readonly locationCitySearchControl = new FormControl('', {nonNullable: true});
+  readonly locationProvinceOptions = signal<readonly LookupOption[]>([]);
+  readonly locationCityOptions = signal<readonly LookupOption[]>([]);
+  readonly locationCityLoading = signal(false);
+  readonly selectedLocationCity = signal<LookupOption | null>(null);
+  readonly locationLatitude = signal<number | null>(null);
+  readonly locationLongitude = signal<number | null>(null);
+  readonly locationMapVisible = signal(false);
+  readonly locationMapPickerVisible = signal(false);
+
+  readonly organizationLocationPage = computed(() =>
+    this.store.descriptor()?.category === 'ORGANIZATION' && this.store.resource() === 'locations'
+  );
+  readonly organizationUnitsPage = computed(() =>
+    this.store.descriptor()?.category === 'ORGANIZATION' && this.store.resource() === 'organization-units'
+  );
+  readonly locationCoordinatesValid = computed(() => {
+    const latitude = this.locationLatitude();
+    const longitude = this.locationLongitude();
+    return latitude !== null && longitude !== null
+      && Number.isFinite(latitude) && Number.isFinite(longitude)
+      && latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
+  });
+  readonly locationMapEmbedUrl = computed<SafeResourceUrl | null>(() => {
+    if (!this.locationCoordinatesValid()) return null;
+    const latitude = this.locationLatitude() as number;
+    const longitude = this.locationLongitude() as number;
+    const delta = 0.006;
+    const bbox = [longitude - delta, latitude - delta, longitude + delta, latitude + delta]
+      .map(value => value.toFixed(7)).join(',');
+    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${latitude.toFixed(7)}%2C${longitude.toFixed(7)}`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  });
+
+  readonly editableFields = computed(() => {
+    const descriptor = this.store.descriptor();
+    return (descriptor?.fields ?? []).filter(field =>
+      !field.readOnly && !(field.type === 'LOOKUP' && field.apiName === descriptor?.parent?.apiField)
+    );
+  });
+  readonly gridFields = computed(() => {
+    const descriptor = this.store.descriptor();
+    const fields = [...(descriptor?.fields ?? []).filter(field => field.grid)];
+    if (descriptor?.category !== 'ORGANIZATION' || descriptor.resource !== 'organization-units') return fields;
+
+    const unitCodeIndex = fields.findIndex(field => field.apiName === 'unitCode');
+    const idIndex = fields.findIndex(field => field.apiName === descriptor.idApiName);
+    if (unitCodeIndex >= 0 && idIndex >= 0 && unitCodeIndex !== idIndex + 1) {
+      const [unitCodeField] = fields.splice(unitCodeIndex, 1);
+      const currentIdIndex = fields.findIndex(field => field.apiName === descriptor.idApiName);
+      fields.splice(currentIdIndex + 1, 0, unitCodeField);
+    }
+    return fields;
+  });
+  readonly systemFields = computed(() => {
+    const descriptor = this.store.descriptor();
+    return (descriptor?.fields ?? []).filter(field =>
+      field.readOnly && field.apiName !== descriptor?.idApiName
+    );
+  });
+  readonly displayedColumns = computed(() => [
+    ...this.gridFields().map(field => field.apiName),
+    ...(this.store.descriptor()?.parent ? ['parentName'] : []),
+    'actions'
+  ]);
+  readonly hierarchy = computed(() => this.buildHierarchy());
+  readonly parentLabel = computed(() => this.store.descriptor()?.parent?.label ?? 'والد');
+  readonly hasActiveField = computed(() =>
+    (this.store.descriptor()?.fields ?? []).some(field => field.apiName === 'isActive')
+  );
+  readonly hierarchyComplete = computed(() =>
+    this.hierarchy().every(item => this.hierarchyValues()[item.resource] !== null)
+  );
+  readonly pageSubtitle = computed(() =>
+    this.store.descriptor()?.category === 'ORGANIZATION'
+      ? 'جستجو و نگهداری اطلاعات واحدهای سازمانی'
+      : 'جست‌وجو، ثبت، ویرایش و حذف با Query پارامتری Oracle'
+  );
+
+  constructor() {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const resource = params.get('resource');
+      if (resource) void this.initialize(resource);
+    });
+
+    this.searchControl.valueChanges.pipe(
+      debounceTime(350), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef)
+    ).subscribe(text => void this.store.search({text, page: 0}));
+
+    this.activeControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(active => void this.store.search({active, page: 0}));
+
+    this.parentFilterControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(parentId => void this.store.search({parentId, page: 0}));
+
+    this.organizationUnitTypeFilterControl.valueChanges.pipe(
+      distinctUntilChanged(), takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      if (!this.organizationUnitsPage()) return;
+      void this.applyAdvancedFilters();
+    });
+
+    this.locationProvinceControl.valueChanges.pipe(
+      distinctUntilChanged(), takeUntilDestroyed(this.destroyRef)
+    ).subscribe(provinceId => {
+      if (!this.organizationLocationPage()) return;
+      this.selectedLocationCity.set(null);
+      this.form.controls['geoEntityId']?.setValue(null);
+      this.locationCitySearchControl.setValue('', {emitEvent: false});
+      void this.loadLocationCities(provinceId, '');
+    });
+
+    this.locationCitySearchControl.valueChanges.pipe(
+      debounceTime(250), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef)
+    ).subscribe(text => {
+      if (!this.organizationLocationPage()) return;
+      const selected = this.selectedLocationCity();
+      if (selected && text !== this.locationCityDisplay(selected)) {
+        this.selectedLocationCity.set(null);
+        this.form.controls['geoEntityId']?.setValue(null);
+      }
+      void this.loadLocationCities(this.locationProvinceControl.value, text);
+    });
+  }
+
+  async create(): Promise<void> {
+    this.store.clearSelection();
+    this.buildForm(null);
+    this.editorVisible.set(true);
+    await Promise.all([this.initializeHierarchy([]), this.initializeLookupFields()]);
+    await this.initializeOrganizationLocationEditor(null);
+  }
+
+  async edit(row: Readonly<Record<string, unknown>>): Promise<void> {
+    const descriptor = this.store.descriptor();
+    if (!descriptor) return;
+    const id = Number(row[descriptor.idApiName]);
+    const record = await this.store.select(id);
+    if (!record) return;
+    this.buildForm(record);
+    this.editorVisible.set(true);
+    await Promise.all([this.initializeHierarchy(record.ancestors), this.initializeLookupFields()]);
+    await this.initializeOrganizationLocationEditor(record);
+  }
+
+  closeEditor(): void {
+    this.editorVisible.set(false);
+    this.store.clearSelection();
+    this.form.reset();
+    this.locationMapVisible.set(false);
+    this.locationMapPickerVisible.set(false);
+    this.locationProvinceControl.setValue(null, {emitEvent: false});
+    this.locationCitySearchControl.setValue('', {emitEvent: false});
+    this.selectedLocationCity.set(null);
+    this.locationCityOptions.set([]);
+  }
+
+  async save(): Promise<void> {
+    const descriptor = this.store.descriptor();
+    if (!descriptor) return;
+    if (!this.hierarchyComplete()) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    const values: Record<string, unknown> = {};
+    for (const field of descriptor.fields.filter(item => !item.readOnly)) {
+      if (field.type === 'LOOKUP' && field.apiName === descriptor.parent?.apiField) {
+        const finalResource = this.hierarchy().at(-1)?.resource;
+        values[field.apiName] = finalResource ? this.hierarchyValues()[finalResource] : null;
+      } else {
+        values[field.apiName] = this.form.controls[field.apiName]?.value ?? null;
+      }
+    }
+    const selected = this.store.selected();
+    if (selected?.values['recordVersion'] !== null && selected?.values['recordVersion'] !== undefined) {
+      values['recordVersion'] = selected.values['recordVersion'];
+    }
+    if (await this.store.save(values)) this.closeEditor();
+  }
+
+  async remove(row: Readonly<Record<string, unknown>>): Promise<void> {
+    const descriptor = this.store.descriptor();
+    if (!descriptor) return;
+    const id = Number(row[descriptor.idApiName]);
+    const name = String(row[descriptor.nameApiName] ?? 'این رکورد');
+    if (window.confirm(`«${name}» حذف شود؟`)) await this.store.remove(id);
+  }
+
+  onPage(event: PageEvent): void {
+    void this.store.search({page: event.pageIndex, size: event.pageSize});
+  }
+
+  onSort(sort: Sort): void {
+    void this.store.search({sortBy: sort.active || null, direction: sort.direction === 'desc' ? 'desc' : 'asc'});
+  }
+
+  async onHierarchyChange(index: number, resource: string, value: number | null): Promise<void> {
+    const chain = this.hierarchy();
+    const values = {...this.hierarchyValues(), [resource]: value};
+    const options = {...this.hierarchyOptions()};
+    for (let i = index + 1; i < chain.length; i++) {
+      values[chain[i].resource] = null;
+      options[chain[i].resource] = [];
+    }
+    this.hierarchyValues.set(values);
+    this.hierarchyOptions.set(options);
+    const next = chain[index + 1];
+    if (next && value !== null) await this.loadOptions(next.resource, value);
+  }
+
+  selectLocationCity(cityId: number): void {
+    const selected = this.locationCityOptions().find(option => Number(option.value) === Number(cityId)) ?? null;
+    this.selectedLocationCity.set(selected);
+    this.form.controls['geoEntityId']?.setValue(selected?.value ?? null);
+    this.locationCitySearchControl.setValue(selected ? this.locationCityDisplay(selected) : '', {emitEvent: false});
+  }
+
+  openLocationCoordinatePicker(): void {
+    this.locationMapVisible.set(false);
+    this.locationMapPickerVisible.set(true);
+  }
+
+  applyLocationCoordinates(coordinates: {latitude: number; longitude: number}): void {
+    if (!Number.isFinite(coordinates.latitude) || !Number.isFinite(coordinates.longitude) ||
+        coordinates.latitude < -90 || coordinates.latitude > 90 ||
+        coordinates.longitude < -180 || coordinates.longitude > 180) return;
+    this.form.controls['latitude']?.setValue(coordinates.latitude);
+    this.form.controls['longitude']?.setValue(coordinates.longitude);
+    this.form.controls['latitude']?.markAsTouched();
+    this.form.controls['longitude']?.markAsTouched();
+    this.locationMapPickerVisible.set(false);
+    this.locationMapVisible.set(true);
+  }
+
+  selectedLocationCityName(): string {
+    return this.selectedLocationCity()?.label ?? '';
+  }
+
+  showLocationMap(): void {
+    if (this.locationCoordinatesValid()) this.locationMapVisible.set(true);
+  }
+
+  hideLocationMap(): void {
+    this.locationMapVisible.set(false);
+  }
+
+  openLocationMap(): void {
+    if (!this.locationCoordinatesValid()) return;
+    const latitude = this.locationLatitude() as number;
+    const longitude = this.locationLongitude() as number;
+    const url = `https://www.openstreetmap.org/?mlat=${latitude.toFixed(7)}&mlon=${longitude.toFixed(7)}#map=18/${latitude.toFixed(7)}/${longitude.toFixed(7)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  cell(row: Readonly<Record<string, unknown>>, field: ReferenceFieldDescriptor): string {
+    const value = row[field.apiName];
+    if (field.type === 'BOOLEAN') {
+      if (field.apiName === 'isActive') return value ? 'فعال' : 'غیرفعال';
+      return value ? 'بله' : 'خیر';
+    }
+    if (field.type === 'SELECT') return field.options.find(option => Number(option.value) === Number(value))?.label ?? String(value ?? '');
+    if (field.type === 'STRING_SELECT') return field.options.find(option => String(option.value) === String(value))?.label ?? String(value ?? '');
+    if (field.type === 'LOOKUP') {
+      if (value === null || value === undefined) return '—';
+      const option = this.lookupOptions()[field.apiName]?.find(item => Number(item.value) === Number(value));
+      if (this.isOrganizationUnitLookup(field)) {
+        const code = row[`${field.apiName}__unitCode`] ?? option?.code;
+        const label = row[`${field.apiName}__unitName`] ?? option?.label;
+        return this.organizationUnitGridValue(value, code, label);
+      }
+      return option?.label ?? String(value);
+    }
+    return value === null || value === undefined ? '—' : String(value);
+  }
+
+  parentCell(row: Readonly<Record<string, unknown>>): string {
+    const descriptor = this.store.descriptor();
+    if (descriptor?.category === 'ORGANIZATION' && descriptor.parent?.resource === 'organization-units') {
+      return this.organizationUnitGridValue(row['parentId'], row['parentUnitCode'], row['parentName']);
+    }
+    const value = row['parentName'];
+    return value === null || value === undefined || value === '' ? '—' : String(value);
+  }
+
+  isOrganizationUnitLookup(field: ReferenceFieldDescriptor): boolean {
+    return field.type === 'LOOKUP' && field.lookupResource === 'organization-units';
+  }
+
+  readonly lifecycleReasonCodes: Readonly<Record<string, readonly string[]>> = {
+    OPENED: ['NETWORK_EXPANSION', 'SERVICE_DEMAND', 'MANAGEMENT_DECISION', 'OTHER'],
+    ESTABLISHED: ['NETWORK_EXPANSION', 'SERVICE_DEMAND', 'MANAGEMENT_DECISION', 'OTHER'],
+    CREATED: ['NETWORK_EXPANSION', 'SERVICE_DEMAND', 'MANAGEMENT_DECISION', 'OTHER'],
+    RELOCATED: ['LEASE_EXPIRY', 'ACCESS_IMPROVEMENT', 'MANAGEMENT_DECISION', 'OTHER'],
+    MOVED: ['LEASE_EXPIRY', 'ACCESS_IMPROVEMENT', 'MANAGEMENT_DECISION', 'OTHER'],
+    MERGED: ['NETWORK_REORGANIZATION', 'COST_OPTIMIZATION', 'MANAGEMENT_DECISION', 'OTHER'],
+    CLOSED: ['LOW_ACTIVITY', 'COST_OPTIMIZATION', 'MANAGEMENT_DECISION', 'OTHER'],
+    RENAMED: ['RENAME_APPROVAL', 'NAMING_STANDARD', 'OTHER']
+  };
+
+  private selectedLifecycleReasonCodes(): readonly string[] | null {
+    const typeId = Number(this.form.controls['organizationUnitLifecycleEventTypeId']?.value);
+    const eventCode = this.lookupOptions()['organizationUnitLifecycleEventTypeId']
+      ?.find(item => Number(item.value) === typeId)?.code.toUpperCase() ?? '';
+    return this.lifecycleReasonCodes[eventCode] ?? null;
+  }
+
+  lifecycleReasonOptions(field: ReferenceFieldDescriptor): typeof field.options {
+    if (this.store.resource() !== 'organization-unit-lifecycle-events' || field.apiName !== 'reasonCode')
+      return field.options;
+    const allowed = this.selectedLifecycleReasonCodes();
+    if (!allowed) return field.options; // Unknown event type: do not hide all reasons.
+    const options = field.options.filter(item => allowed.includes(String(item.value)));
+    const legacy = this.form.controls['reasonCode']?.value;
+    // Display existing nonmatching value until the user changes the event type.
+    if (legacy && !options.some(item => String(item.value) === String(legacy))) {
+      const old = field.options.find(item => String(item.value) === String(legacy));
+      if (old) return [...options, old];
+    }
+    return options;
+  }
+
+  private organizationUnitGridValue(id: unknown, code: unknown, label: unknown): string {
+    const idText = id === null || id === undefined || id === '' ? '—' : String(id);
+    const codeText = code === null || code === undefined || code === '' ? '—' : String(code);
+    const labelText = label === null || label === undefined || label === '' ? '' : ` — ${String(label)}`;
+    return `شناسه ${idText} | کد ${codeText}${labelText}`;
+  }
+
+  isInvalid(field: ReferenceFieldDescriptor): boolean {
+    const control = this.form.controls[field.apiName];
+    return Boolean(control && control.invalid && control.touched);
+  }
+
+  auditValue(name: string): unknown {
+    return this.store.selected()?.values[name] ?? '—';
+  }
+
+  private async initialize(resource: string): Promise<void> {
+    await this.catalog.load();
+    await this.store.initialize(resource);
+    this.searchControl.setValue('', {emitEvent: false});
+    this.activeControl.setValue(null, {emitEvent: false});
+    this.parentFilterControl.setValue(null, {emitEvent: false});
+    this.organizationUnitTypeFilterControl.setValue(null, {emitEvent: false});
+    this.parentFilterOptions.set([]);
+    this.lookupOptions.set({});
+    this.locationProvinceOptions.set([]);
+    this.locationCityOptions.set([]);
+    this.locationProvinceControl.setValue(null, {emitEvent: false});
+    this.locationCitySearchControl.setValue('', {emitEvent: false});
+    this.selectedLocationCity.set(null);
+    this.locationMapVisible.set(false);
+    this.locationMapPickerVisible.set(false);
+    await Promise.all([this.initializeParentFilter(), this.initializeGridLookupFields(), this.initializeAdvancedFilters(resource)]);
+    this.editorVisible.set(false);
+  }
+
+  clearAdvancedFilters(): void {
+    for (const control of Object.values(this.advancedFilterForm.controls)) {
+      control.setValue(null, {emitEvent: false});
+    }
+    void this.applyAdvancedFilters();
+  }
+
+  private collectAdvancedFilters(): Record<string, string | number | boolean> {
+    const filters: Record<string, string | number | boolean> = {};
+    for (const filterField of this.advancedFilterFields()) {
+      const value = this.advancedFilterForm.controls[filterField.apiName]?.value;
+      if (value !== null && value !== undefined && value !== '') {
+        filters[filterField.apiName] = value as string | number | boolean;
+      }
+    }
+    if (this.organizationUnitsPage() && this.organizationUnitTypeFilterControl.value !== null) {
+      filters['organizationUnitTypeId'] = this.organizationUnitTypeFilterControl.value;
+    }
+    return filters;
+  }
+
+  private applyAdvancedFilters(): Promise<void> {
+    return this.store.search({filters: this.collectAdvancedFilters(), page: 0});
+  }
+
+  private async initializeAdvancedFilters(resource: string): Promise<void> {
+    for (const key of Object.keys(this.advancedFilterForm.controls)) {
+      this.advancedFilterForm.removeControl(key);
+    }
+    this.advancedFilterFields.set([]);
+    this.advancedFilterLookupOptions.set({});
+
+    const descriptor = this.store.descriptor();
+    if (!descriptor) return;
+    const names = descriptor.category === 'ORGANIZATION'
+      ? (this.organizationFilterFields[resource] ?? [])
+      : (this.eduFilterFields[resource] ?? []);
+    if (!names.length) return;
+
+    const fields = names
+      .map(name => descriptor.fields.find(field => field.apiName === name))
+      .filter((field): field is ReferenceFieldDescriptor => Boolean(field));
+    this.advancedFilterFields.set(fields);
+
+    for (const field of fields) {
+      const control = new FormControl<unknown>(null);
+      this.advancedFilterForm.addControl(field.apiName, control);
+      control.valueChanges.pipe(
+        debounceTime(field.type === 'NUMBER' ? 350 : 0),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe(() => void this.applyAdvancedFilters());
+    }
+
+    const lookupEntries = await Promise.all(fields
+      .filter(field => field.type === 'LOOKUP' && field.lookupResource && !this.isOrganizationUnitLookup(field))
+      .map(async field => [field.apiName, await this.gateway.lookup(field.lookupResource!)] as const));
+    this.advancedFilterLookupOptions.set(Object.fromEntries(lookupEntries));
+  }
+
+  private async initializeParentFilter(): Promise<void> {
+    const parent = this.store.descriptor()?.parent;
+    if (!parent) return;
+    if (parent.resource !== 'organization-units')
+      this.parentFilterOptions.set(await this.gateway.lookup(parent.resource));
+  }
+
+  private buildForm(record: ReferenceRecordResponse | null): void {
+    for (const key of Object.keys(this.form.controls)) this.form.removeControl(key);
+    const descriptor = this.store.descriptor();
+    if (!descriptor) return;
+    for (const field of descriptor.fields.filter(item =>
+      !item.readOnly && !(item.type === 'LOOKUP' && item.apiName === descriptor.parent?.apiField)
+    )) {
+      const value = record?.values[field.apiName] ?? field.defaultValue ?? (field.type === 'BOOLEAN' ? false : null);
+      const validators = [];
+      if (field.required) validators.push(Validators.required);
+      if (field.maxLength) validators.push(Validators.maxLength(field.maxLength));
+      this.form.addControl(field.apiName, new FormControl<unknown>(value, {validators}));
+    }
+    this.wirePersianNormalization('persianName', 'normalizedPersianName');
+    this.wirePersianNormalization('persianAffix', 'normalizedPersianAffix');
+    this.wireOrganizationLocationCoordinates();
+    if (descriptor.resource === 'organization-unit-lifecycle-events') {
+      this.form.controls['organizationUnitLifecycleEventTypeId']?.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+          const reason = this.form.controls['reasonCode'];
+          const allowed = this.selectedLifecycleReasonCodes();
+          if (reason && allowed && reason.value != null && !allowed.includes(String(reason.value))) {
+            reason.setValue(null);
+          }
+        });
+    }
+  }
+
+  private wirePersianNormalization(sourceField: string, targetField: string): void {
+    const source = this.form.controls[sourceField];
+    const target = this.form.controls[targetField];
+    if (!source || !target) return;
+    source.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
+      target.setValue(this.normalizePersianName(value), {emitEvent: false});
+    });
+    target.setValue(this.normalizePersianName(source.value), {emitEvent: false});
+  }
+
+  private normalizePersianName(value: unknown): string | null {
+    if (value === null || value === undefined) return null;
+    const normalized = String(value)
+      .trim()
+      .replace(/ي/g, 'ی')
+      .replace(/ى/g, 'ی')
+      .replace(/ك/g, 'ک')
+      .replace(/ة/g, 'ه')
+      .replace(/ۀ/g, 'ه')
+      .replace(/ـ/g, '')
+      .replace(/\u200c/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return normalized || null;
+  }
+
+  private async initializeLookupFields(): Promise<void> {
+    const descriptor = this.store.descriptor();
+    if (!descriptor) return;
+    const fields = descriptor.fields.filter(field =>
+      !field.readOnly && field.type === 'LOOKUP' && field.apiName !== descriptor.parent?.apiField && field.lookupResource
+      && !(this.organizationLocationPage() && field.apiName === 'geoEntityId')
+      && !this.isOrganizationUnitLookup(field)
+    );
+    const entries = await Promise.all(fields.map(async field => [
+      field.apiName,
+      await this.gateway.lookup(field.lookupResource as string)
+    ] as const));
+    this.lookupOptions.update(current => ({...current, ...Object.fromEntries(entries)}));
+  }
+
+  private async initializeOrganizationLocationEditor(record: ReferenceRecordResponse | null): Promise<void> {
+    if (!this.organizationLocationPage()) return;
+    this.locationProvinceOptions.set(await this.gateway.lookup('provinces'));
+    this.locationMapVisible.set(false);
+    this.locationMapPickerVisible.set(false);
+
+    const cityIdRaw = record?.values['geoEntityId'] ?? this.form.controls['geoEntityId']?.value;
+    const cityId = cityIdRaw === null || cityIdRaw === undefined || cityIdRaw === '' ? null : Number(cityIdRaw);
+    if (cityId === null || !Number.isFinite(cityId)) {
+      this.locationProvinceControl.setValue(null, {emitEvent: false});
+      this.locationCitySearchControl.setValue('', {emitEvent: false});
+      this.locationCityOptions.set([]);
+      this.selectedLocationCity.set(null);
+      return;
+    }
+
+    try {
+      const city = await this.gateway.findById('cities', cityId);
+      const provinceId = city.ancestors.find(ancestor => ancestor.resource === 'provinces')?.id ?? null;
+      const option: LookupOption = {
+        value: cityId,
+        code: String(city.values['cityCode'] ?? ''),
+        label: String(city.values['cityName'] ?? cityId)
+      };
+      this.locationProvinceControl.setValue(provinceId, {emitEvent: false});
+      this.selectedLocationCity.set(option);
+      this.locationCitySearchControl.setValue(this.locationCityDisplay(option), {emitEvent: false});
+      await this.loadLocationCities(provinceId, option.label);
+      if (!this.locationCityOptions().some(item => Number(item.value) === cityId)) {
+        this.locationCityOptions.update(items => [option, ...items]);
+      }
+    } catch {
+      this.locationProvinceControl.setValue(null, {emitEvent: false});
+      this.locationCitySearchControl.setValue(String(cityId), {emitEvent: false});
+      this.locationCityOptions.set([]);
+      this.selectedLocationCity.set(null);
+    }
+  }
+
+  private async loadLocationCities(provinceId: number | null, text: string): Promise<void> {
+    if (!this.organizationLocationPage()) return;
+    const query = text.trim();
+    if (provinceId === null && query.length < 2) {
+      this.locationCityOptions.set([]);
+      return;
+    }
+    this.locationCityLoading.set(true);
+    try {
+      this.locationCityOptions.set(await this.organizationLocationService.searchCities(provinceId, query, provinceId === null ? 120 : 500));
+    } catch {
+      this.locationCityOptions.set([]);
+    } finally {
+      this.locationCityLoading.set(false);
+    }
+  }
+
+  private locationCityDisplay(option: LookupOption): string {
+    return option.code ? `${option.label} (${option.code})` : option.label;
+  }
+
+  private wireOrganizationLocationCoordinates(): void {
+    if (!this.organizationLocationPage()) return;
+    const latitude = this.form.controls['latitude'];
+    const longitude = this.form.controls['longitude'];
+    const updateLatitude = (value: unknown) => this.locationLatitude.set(this.parseCoordinate(value));
+    const updateLongitude = (value: unknown) => this.locationLongitude.set(this.parseCoordinate(value));
+    updateLatitude(latitude?.value);
+    updateLongitude(longitude?.value);
+    latitude?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(updateLatitude);
+    longitude?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(updateLongitude);
+  }
+
+  private parseCoordinate(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  private async initializeGridLookupFields(): Promise<void> {
+    const descriptor = this.store.descriptor();
+    if (!descriptor) return;
+    const fields = descriptor.fields.filter(field =>
+      field.grid && field.type === 'LOOKUP' && field.apiName !== descriptor.parent?.apiField && field.lookupResource
+      && !this.isOrganizationUnitLookup(field)
+    );
+    const entries = await Promise.all(fields.map(async field => [
+      field.apiName,
+      await this.gateway.lookup(field.lookupResource as string)
+    ] as const));
+    this.lookupOptions.update(current => ({...current, ...Object.fromEntries(entries)}));
+  }
+
+  private buildHierarchy(): readonly CatalogItem[] {
+    const descriptor = this.store.descriptor();
+    if (!descriptor?.parent) return [];
+    const chain: CatalogItem[] = [];
+    let resource: string | null = descriptor.parent.resource;
+    while (resource) {
+      const item = this.catalog.find(resource);
+      if (!item) break;
+      chain.unshift(item);
+      resource = item.parentResource;
+    }
+    return chain;
+  }
+
+  private async initializeHierarchy(ancestors: readonly {resource: string; id: number}[]): Promise<void> {
+    const chain = this.hierarchy();
+    const values: Record<string, number | null> = {};
+    const options: Record<string, readonly LookupOption[]> = {};
+    this.hierarchyValues.set(values);
+    this.hierarchyOptions.set(options);
+    let parentId: number | null = null;
+    for (const item of chain) {
+      const loaded = item.resource === 'organization-units' ? [] : await this.gateway.lookup(item.resource, parentId);
+      options[item.resource] = loaded;
+      const existing = ancestors.find(ancestor => ancestor.resource === item.resource)?.id ?? null;
+      values[item.resource] = existing;
+      parentId = existing;
+      this.hierarchyOptions.set({...options});
+      this.hierarchyValues.set({...values});
+      if (existing === null) break;
+    }
+  }
+
+  private async loadOptions(resource: string, parentId: number | null): Promise<void> {
+    const loaded = resource === 'organization-units' ? [] : await this.gateway.lookup(resource, parentId);
+    this.hierarchyOptions.update(current => ({...current, [resource]: loaded}));
+  }
+}

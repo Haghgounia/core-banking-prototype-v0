@@ -1,0 +1,21 @@
+{
+  "release": "FEE3-STAGE6-R5-1800",
+  "baseline": "core-banking-prototype-v0-2026-11-01-1800.zip",
+  "scope": "Stage 6 frontend HTML/SCSS only",
+  "noBackend": true,
+  "noOracle": true,
+  "noRootPollution": true,
+  "noTSChangesNeeded": true,
+  "files": {
+    "frontend/src/app/features/fee3/fee3-workspace.component.html": {
+      "baseline_sha256": "40682703c1789a317d39e348821191d2c566f151f7f4b9efef72941755d374da",
+      "after_sha256": "a3df4c7e2aa500e83622ee879dd565b22a0526a18d850c16dbe9c0356bc6e281",
+      "changed": true
+    },
+    "frontend/src/app/features/fee3/fee3-workspace.component.scss": {
+      "baseline_sha256": "79614631b811cfd005a786b558843cad1d681805bb61ba68f8861124f7b2beb3",
+      "after_sha256": "5e92bd7cb04b1814cc06d65bf761c14fbb46af1ea4cd4d6dcc569d15323bb101",
+      "changed": true
+    }
+  }
+}

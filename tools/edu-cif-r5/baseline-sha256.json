@@ -1,0 +1,4 @@
+{
+  "backend/src/main/java/com/behsazan/corebanking/referencedata/education/descriptor/EduCanonicalDescriptorProvider.java": "04efc6d812e34a9fc86b1384b5cf73523d77ddb159d82380dd67aba701ab7b1d",
+  "backend/src/main/java/com/behsazan/corebanking/referencedata/education/web/EduLookupController.java": "59913095ce7d597e16438a5502a38515e8cfb4f03b9ec0e194554d7ee7dd4a4a"
+}
