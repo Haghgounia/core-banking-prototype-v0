@@ -196,6 +196,8 @@ rem R5-B/R6: read-only contact cutover and ORG relationship-rule deprecation.
 node "%ROOT%tools\verify-org-r5b-r6.mjs" || exit /b 1
 rem R5-C2: OUCP-only operational store, master retirement and safe write gates.
 node "%ROOT%tools\verify-org-contact-r5c2.mjs" || exit /b 1
+rem R5-C4B: eliminate runtime dependency on retired V2 and reject historic migration API.
+node "%ROOT%tools\verify-org-contact-r5c4b.mjs" || exit /b 1
 rem ORG R2-C: geographic map + operational UI + data-safety verification.
 node "%ROOT%tools\verify-org-r2c-map-ux.mjs" || exit /b 1
 rem ORG R2-D typed GEO and map/location closure gate.

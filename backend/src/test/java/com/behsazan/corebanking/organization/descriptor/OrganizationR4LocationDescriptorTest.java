@@ -10,7 +10,8 @@ class OrganizationR4LocationDescriptorTest {
     @Test
     void genericSourceTablesAreNotPublishedAfterCanonicalCutover() {
         List<ReferenceTableDescriptor> entries = new OrganizationDescriptorProvider().descriptors();
-        assertEquals(24, entries.size());
+        // R6 removed relationship-rule publishing; OUCP uses its dedicated contact form.
+        assertEquals(23, entries.size(), "The current ORG public descriptor contract is 23 entries");
         assertFalse(entries.stream().anyMatch(d -> "LOCATIONS".equals(d.tableName())));
         assertFalse(entries.stream().anyMatch(d -> "POSTAL_ADDRESSES".equals(d.tableName())));
         assertTrue(entries.stream().anyMatch(d -> "ORGANIZATION_UNIT_LOCATIONS".equals(d.tableName())));

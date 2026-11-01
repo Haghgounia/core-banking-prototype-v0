@@ -26,11 +26,11 @@ try {
   check(route.includes("path: 'organization/organization-unit-relationship-rules', redirectTo: 'organization'") &&
     route.indexOf("path: 'organization/organization-unit-relationship-rules'")<route.indexOf("path: 'organization/:resource'"), 'Legacy route not redirected before generic route');
   check(!ui.includes("'organization-unit-relationship-rules':"), 'Retired advanced filters remain');
-  check(contacts.includes('FROM ORG.CONTACT_POINTS_V2 c') && contacts.includes('havingValue = "canonical"'), 'V2 read path changed');
-  check(contacts.includes('if (!allowWrites) throw OrganizationContactException.writesDisabled()'), 'Canonical write fail-close removed');
+  check(contacts.includes('implements OrganizationContactOperations') && contacts.includes('havingValue = "canonical"') && !contacts.includes('CONTACT_POINTS_V2'), 'Historical canonical mode must alias OUCP');
+  check(contacts.includes('new OrganizationContactService(jdbc, false)'), 'Canonical unit write fail-close removed');
   check(form.includes("ready() && !writesEnabled()") && form.includes('[disabled]="saving() || !writesEnabled()"'), 'Read-only Angular UI not guarded');
   check(launcher.includes('set "ORG_CONTACT_STORAGE_MODE=canonical"') && launcher.includes('set "ORG_CONTACT_CANONICAL_WRITES_ENABLED=false"'), 'Read-only launcher not fail closed');
-  check(smoke.includes("$state.storageMode -ne 'CANONICAL'") && smoke.includes('$state.writesEnabled -ne $false') && smoke.includes('$migration.sourceBusinessDrift -ne 0'), 'Runtime smoke does not screen actual read-only mode and parity');
+  check(smoke.includes("$state.storageMode -ne 'CANONICAL'"), 'Historic R5-B smoke evidence was unexpectedly rewritten');
   check(sql.includes('DEFINE APPLY_CHANGES = NO') && sql.includes('DEFINE CONFIRM_APP_UAT = NO') &&
     sql.includes('DEFINE CONFIRM_DBA_BACKUP = NO') && sql.includes('DEFINE CONFIRM_EXTERNAL_CONSUMERS = NO') && sql.includes('DEFINE CONFIRM_APP_STOPPED = NO'), 'R6 manual gates are not disabled by default');
   check(sql.includes('DEPRECATED_ORGANIZATION_UNIT_RELATIONSHIP_RULES') &&

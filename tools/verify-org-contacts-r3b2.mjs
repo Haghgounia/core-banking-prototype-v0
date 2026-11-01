@@ -17,34 +17,36 @@ try {
   const conf = read('backend/src/main/resources/application.yml');
   const config = read('config/application.yml');
   const route = read('frontend/src/app/app.routes.ts');
-  check(legacy.includes('havingValue = "legacy", matchIfMissing = true'), 'Legacy must remain the default');
-  check(canonical.includes('havingValue = "canonical"'), 'Canonical mode needs explicit configuration');
-  check(api.includes('OrganizationContactOperations'), 'Controller must use exactly one implementation');
-  check(models.includes('String storageMode, boolean writesEnabled'), 'Readiness contract is incomplete');
-  check(canonical.includes('if (!allowWrites) throw OrganizationContactException.writesDisabled()'), 'Explicit write guard missing');
-  check(canonical.includes('equal(columns, 15)') && canonical.includes('equal(unitFk, 1)') && canonical.includes('equal(roleFk, 1)') && canonical.includes('equal(missing, 0)') && canonical.includes('equal(servicePointAssociations, 0)'), 'Fail-closed R5 schema and coverage check missing');
-  check(canonical.includes('return new ContactRow(id, id,'), 'Compatibility identity alias missing');
-  // R5 deliberately enables V2 as the canonical target, while all legacy write targets
-  // must remain forbidden in the canonical implementation.
-  for (const bad of ['INSERT INTO ORG.ORGANIZATION_UNIT_CONTACT_POINTS', 'UPDATE ORG.ORGANIZATION_UNIT_CONTACT_POINTS', 'INSERT INTO ORG.CONTACT_POINTS\n', 'UPDATE ORG.CONTACT_POINTS\n'])
-    check(!canonical.includes(bad), `Forbidden legacy write target in canonical service: ${bad}`);
-  check(canonical.includes('INSERT INTO ORG.CONTACT_POINTS_V2') && canonical.includes('UPDATE ORG.CONTACT_POINTS_V2'), 'Canonical V2 write target missing');
-  check(canonical.includes('ROW_VERSION=ROW_VERSION+1') && canonical.includes('AND ROW_VERSION=:expectedVersion'), 'Optimistic concurrency missing');
-  check(canonical.includes('FOR UPDATE OF c.CONTACT_ROLE_ID') && canonical.includes('lockUnit(input.unitId())'), 'Writer locking missing');
-  check(canonical.includes("'MANUAL', :actor") && canonical.includes('UPDATED_AT=SYSTIMESTAMP'), 'Auditing missing');
-  check(reference.includes('"point-of-service-contact-points".equals(resource)'), 'Service point generic write guard missing');
-  check(descriptor.includes('entries.removeIf') && descriptor.includes('"canonical".equalsIgnoreCase(contactsStorageMode)'), 'Retired descriptors not gated');
+  check(legacy.includes('havingValue = "legacy", matchIfMissing = true'), 'Default contact mode changed');
+  check(legacy.includes('INSERT INTO ORG.ORGANIZATION_UNIT_CONTACT_POINTS') &&
+    legacy.includes('UPDATE ORG.ORGANIZATION_UNIT_CONTACT_POINTS'), 'OUCP operational DML removed');
+  check(canonical.includes('havingValue = "canonical"'), 'Historical configuration alias missing');
+  check(canonical.includes('implements OrganizationContactOperations') &&
+    canonical.includes('new OrganizationContactService(jdbc, false)'), 'Canonical alias must use OUCP and its write gate');
+  check(!canonical.includes('CONTACT_POINTS_V2') && !canonical.includes('canonical-writes-enabled:false'),
+    'Canonical alias still exposes historical V2 access or bypass flag');
+  check(api.includes('OrganizationContactOperations'), 'Controller contract missing');
+  check(models.includes('String storageMode, boolean writesEnabled'), 'Readiness contract incomplete');
+  check(legacy.includes('equal(unitFk, 0)') && legacy.includes('equal(serviceFk, 0)') &&
+    legacy.includes('equal(nullableLegacy, 1)'), 'Detach gate removed');
+  check(legacy.includes('ROW_VERSION=ROW_VERSION+1') &&
+    legacy.includes('AND ROW_VERSION=:expectedVersion'), 'Optimistic concurrency missing');
+  check(legacy.includes('FOR UPDATE OF a.CONTACT_ROLE_ID') &&
+    legacy.includes('lockUnit(input.unitId())'), 'Writer lock missing');
+  check(legacy.includes('requireWriteAccess()'), 'Explicit OUCP write guard missing');
+  check(reference.includes('"point-of-service-contact-points".equals(resource)'), 'Service-point generic write guard missing');
+  check(descriptor.includes('entries.removeIf'), 'Retired descriptors not gated');
   check(!menu.includes("resources: ['contact-roles', 'organization-unit-contact-points']"), 'Old generic contact item still visible');
   check(!menu.includes("'point-of-service-contact-points']"), 'Unsafe POS contact item still visible');
-  check(ui.includes("this.storageMode.set(state.storageMode === 'CANONICAL'") && ui.includes('this.writesEnabled.set(state.writesEnabled !== false)'), 'Angular mode/read-only gating missing');
-  check(ui.includes('row.contactPointId !== row.organizationUnitContactPointId'), 'Canonical identity check missing in UI');
+  check(ui.includes('this.writesEnabled.set(state.writesEnabled !== false)'), 'Angular read-only gating missing');
+  check(ui.includes('row.contactPointId !== row.organizationUnitContactPointId'), 'Historical identity-display compatibility missing');
   check(ui.includes('!this.writesEnabled()'), 'Angular write guard missing');
   check(route.includes("path: 'organization/unit-contacts'"), 'Public contact route altered');
   for (const s of [conf, config]) {
     check(s.includes('storage-mode: ${ORG_CONTACT_STORAGE_MODE:legacy}'), 'Safe default storage-mode missing');
-    check(s.includes('canonical-writes-enabled: ${ORG_CONTACT_CANONICAL_WRITES_ENABLED:false}'), 'Safe default write flag missing');
+    check(s.includes('unit-writes-enabled: ${ORG_CONTACT_UNIT_WRITES_ENABLED:false}'), 'Safe unit write opt-in missing');
   }
-  check(!/\b(DROP\s+TABLE|TRUNCATE\s+TABLE|ALTER\s+TABLE)\b/i.test(canonical), 'Unexpected DDL in canonical service');
+  check(!/\b(DROP\s+TABLE|TRUNCATE\s+TABLE|ALTER\s+TABLE)\b/i.test(canonical), 'Unexpected DDL in alias service');
   console.log('ORG_CONTACT_R3B2_STATIC_VERIFY_PASS');
 } catch (error) {
   console.error('ORG_CONTACT_R3B2_STATIC_VERIFY_FAIL:', error.message);

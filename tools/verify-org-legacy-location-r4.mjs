@@ -66,7 +66,7 @@ check('R4.6 Post-verification and manual restore preserve metadata and rows',()=
 check('R4.7 Runtime readiness and JUnit keep contract verifiable',()=>{
   assert.ok(status.includes('@GetMapping') && status.includes('legacyForeignKeyDetached') && status.includes('ready) {}'));
   assert.ok(!status.includes('FROM ORG.LOCATIONS') && !status.includes('FROM ORG.POSTAL_ADDRESSES'));
-  assert.ok(tests.includes('assertEquals(24, entries.size())') && tests.includes('ORGANIZATION_UNIT_LOCATION_ID'));
+  assert.ok(tests.includes('assertEquals(23, entries.size(),') && tests.includes('ORGANIZATION_UNIT_LOCATION_ID'));
 });
 check('R4.8 Both production build scripts invoke R4 QA',()=>{
   for(const name of ['build-production.cmd','build-production.sh'])

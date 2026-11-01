@@ -14,21 +14,29 @@ try {
   const schema = read('database/oracle/org/contact-cutover-r5/01-ORG-R5-V2-UNIT-CONTACT-BACKFILL-OPT-IN.sql');
   const verify = read('database/oracle/org/contact-cutover-r5/02-ORG-R5-V2-CONTACT-COVERAGE-VERIFY-READONLY.sql');
   const ui = read('frontend/src/app/features/organization/organization-unit-contacts.component.ts');
-  test(legacy.includes('havingValue = "legacy", matchIfMissing = true') && legacy.includes('INSERT INTO ORG.ORGANIZATION_UNIT_CONTACT_POINTS') && !/\b(?:FROM|JOIN|INTO|UPDATE) ORG\.CONTACT_POINTS(?:\s|$)/m.test(legacy), 'OUCP-only default mode not preserved');
-  test(canonical.includes('havingValue = "canonical"') && canonical.includes('if (!allowWrites) throw OrganizationContactException.writesDisabled()'), 'Canonical opt-in write guards missing');
-  test(canonical.includes('FROM ORG.CONTACT_POINTS_V2 c') && canonical.includes('INSERT INTO ORG.CONTACT_POINTS_V2') && canonical.includes('UPDATE ORG.CONTACT_POINTS_V2'), 'Canonical reader/writer not V2');
-  test(!/\b(?:FROM|JOIN|INTO|UPDATE) ORG\.CONTACT_POINTS(?:\s|$)/m.test(canonical), 'Canonical service still consumes legacy master');
-  test(canonical.includes("TABLE_NAME='CONTACT_POINTS_V2'") && canonical.includes('equal(columns, 15)') && canonical.includes('equal(missing, 0)') && canonical.includes('equal(orphan, 0)') && canonical.includes('equal(servicePointAssociations, 0)'), 'Incomplete fail-closed readiness');
-  test(canonical.includes('return new ContactRow(id, id,') && canonical.includes('AND ROW_VERSION=:expectedVersion') && canonical.includes('lockUnit(input.unitId())'), 'Identity, concurrency or lock contract missing');
-  test(migrationApi.includes('migration') && migrationApi.includes('@GetMapping("/readiness")') && migrationApi.includes('missingLegacyLinks') && !migrationApi.includes('CONTACT_VALUE AS'), 'Migration counts-only endpoint missing');
+  // R5 historic V2 migration artifacts remain immutable evidence, but no Runtime API may query them.
+  test(legacy.includes('havingValue = "legacy", matchIfMissing = true') &&
+       legacy.includes('INSERT INTO ORG.ORGANIZATION_UNIT_CONTACT_POINTS') &&
+       !/\b(?:FROM|JOIN|INTO|UPDATE) ORG\.CONTACT_POINTS(?:\s|$)/m.test(legacy),
+       'OUCP-only default mode not preserved');
+  test(canonical.includes('havingValue = "canonical"') && canonical.includes('implements OrganizationContactOperations'),
+       'Canonical configuration must alias OUCP');
+  test(canonical.includes('new OrganizationContactService(jdbc, false)') && !canonical.includes('CONTACT_POINTS_V2'),
+       'Legacy canonical mode still depends on V2');
+  test(legacy.includes('ROW_VERSION=ROW_VERSION+1') && legacy.includes('AND ROW_VERSION=:expectedVersion') &&
+       legacy.includes('lockUnit(input.unitId())'), 'OUCP concurrency contract removed');
+  test(migrationApi.includes('@GetMapping("/readiness")') &&
+       migrationApi.includes('HttpStatus.GONE') &&
+       migrationApi.includes('ORG_V2_MIGRATION_ENDPOINT_RETIRED') &&
+       !migrationApi.includes('CONTACT_POINTS_V2'), 'Historical migration route must return 410 without V2 SQL');
   test(schema.includes('DEFINE APPLY_CHANGES = NO') && schema.includes('DEFINE CONFIRM_BACKUP = NO') && schema.includes('DEFINE CONFIRM_SOURCE_QUIESCED = NO'), 'Stage flags must be NO');
   test(schema.includes('MERGE INTO ORG.CONTACT_POINTS_V2') && schema.includes('ORG.SEQ_CONTACT_POINTS_V2.NEXTVAL') && schema.includes('LEGACY_ASSOCIATION_ID') && schema.includes('LEGACY_MASTER_CREATED_AT'), 'Safe V2 merge lineage missing');
   test(!/\b(?:DROP\s+TABLE|TRUNCATE\s+TABLE|DELETE\s+FROM|ALTER\s+TABLE|CREATE\s+TABLE|COMMIT\s*;)/i.test(schema) && schema.includes('NO AUTO_COMMIT'), 'Destructive SQL or automatic commit in migration');
   test(verify.includes('MISSING_LINKS') && verify.includes('SOURCE_BUSINESS_DRIFT') && verify.includes('NO DDL | NO DML'), 'Read-only verification missing');
-  test(ui.includes("this.storageMode.set(state.storageMode === 'CANONICAL'") && ui.includes('!this.writesEnabled()'), 'UI canonical read-only behavior changed');
+  test(ui.includes('!this.writesEnabled()') && ui.includes('this.writesEnabled.set(state.writesEnabled !== false)'), 'UI read-only behavior changed');
   for (const name of ['backend/src/main/resources/application.yml','config/application.yml']) {
     const conf = read(name);
-    test(conf.includes('storage-mode: ${ORG_CONTACT_STORAGE_MODE:legacy}') && conf.includes('canonical-writes-enabled: ${ORG_CONTACT_CANONICAL_WRITES_ENABLED:false}'), 'Unsafe defaults in '+name);
+    test(conf.includes('storage-mode: ${ORG_CONTACT_STORAGE_MODE:legacy}') && conf.includes('unit-writes-enabled: ${ORG_CONTACT_UNIT_WRITES_ENABLED:false}'), 'Unsafe defaults in '+name);
   }
   console.log(`ORG_CONTACT_R5_STATIC_PASS=${passed}`);
 } catch (e) { console.error('ORG_CONTACT_R5_STATIC_FAIL:', e.message); process.exitCode=1; }

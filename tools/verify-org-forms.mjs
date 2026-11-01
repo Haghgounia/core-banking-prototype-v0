@@ -41,7 +41,7 @@ const expected = [
 const provider = read('backend/src/main/java/com/behsazan/corebanking/organization/descriptor/OrganizationDescriptorProvider.java');
 const actual = [...provider.matchAll(/return\s+descriptor\(\s*"([^"]+)"[\s\S]*?schemaName,\s*"([A-Z0-9_]+)"/g)]
   .map(([, resource, table]) => ({resource, table}));
-if (actual.length !== 24) fail(`expected 24 R6 active ORG descriptors, found ${actual.length}`);
+if (actual.length !== 24) fail(`expected 24 ORG descriptor factory definitions, found ${actual.length}`);
 const actualResources = actual.map(x => x.resource).sort();
 if (JSON.stringify(actualResources) !== JSON.stringify(expected)) {
   const missing = expected.filter(x => !actualResources.includes(x));
@@ -59,7 +59,17 @@ for (const {resource, table} of actual) {
   const physicalTable = servicePointTableNames[resource] ?? expectedTable;
   if (table !== physicalTable) fail(`${resource}: expected table ${physicalTable}, found ${table}`);
 }
-ok('24 active ORG descriptors (legacy relationship rules and location masters retired)');
+// Factory methods and publicly registered descriptors are different contracts.
+// The OUCP generic descriptor still exists for historical compatibility, but its
+// factory is deliberately NOT registered: the dedicated contact form owns CRUD.
+const registration = provider.match(/List<ReferenceTableDescriptor> entries = new ArrayList<>\(List\.of\(([\s\S]*?)\)\);/);
+if (!registration) fail('Cannot locate ORG public descriptor registration list');
+const registeredFactories = [...registration[1].matchAll(/\b[A-Za-z][A-Za-z0-9_]*\(\)/g)].map(m => m[0]);
+if (registeredFactories.length !== 23) fail(`expected 23 publicly registered ORG descriptors, found ${registeredFactories.length}`);
+if (registeredFactories.includes('organizationUnitContactPoints()')) fail('OUCP generic descriptor must not be publicly registered');
+if (!provider.includes('entries.removeIf(item -> "organization-unit-contact-points".equals(item.resource())'))
+  fail('OUCP generic descriptor retirement guard missing');
+ok('24 ORG descriptor definitions; 23 public registrations (OUCP uses dedicated contact form)');
 const retiredHours = [
   'operating-schedules', 'operating-schedule-intervals',
   'organization-unit-operating-schedules', 'organization-unit-operating-exceptions',

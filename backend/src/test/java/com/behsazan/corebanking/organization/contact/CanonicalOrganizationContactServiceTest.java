@@ -10,52 +10,61 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+/** Historical configuration alias is safe even when selected explicitly. */
 class CanonicalOrganizationContactServiceTest {
     private static ContactInput phone(String value) {
         return new ContactInput(26435L, "PHONE", value, 1L, false,
                 null, null, null, null);
     }
 
+    private static void stubUnitSchema(NamedParameterJdbcTemplate jdbc) {
+        when(jdbc.queryForObject(anyString(), anyMap(), eq(Long.class))).thenAnswer(call -> {
+            String sql = call.getArgument(0);
+            if (sql.contains("COLUMN_NAME='ROW_VERSION'")) return 1L;
+            if (sql.contains("CONTACT_TYPE_CODE','CONTACT_VALUE'")) return 5L;
+            if (sql.contains("COLUMN_NAME='CONTACT_POINT_ID' AND NULLABLE='Y'")) return 1L;
+            return 0L;
+        });
+    }
+
     @Test
-    void createIsBlockedWithoutExplicitPostCutoverWriteApproval() {
+    void createIsBlockedWithoutUnitWriteApproval() {
         NamedParameterJdbcTemplate jdbc = mock(NamedParameterJdbcTemplate.class);
-        CanonicalOrganizationContactService service = new CanonicalOrganizationContactService(jdbc, false);
-        OrganizationContactException ex = assertThrows(OrganizationContactException.class,
+        stubUnitSchema(jdbc);
+        var service = new CanonicalOrganizationContactService(jdbc);
+        var ex = assertThrows(OrganizationContactException.class,
                 () -> service.create(phone("08134526468")));
         assertEquals("ORG_CONTACT_WRITES_DISABLED", ex.code());
-        verifyNoInteractions(jdbc);
+        // Metadata reads are allowed; there must be no DML.
+        verify(jdbc, never()).update(anyString(), any(Map.class));
     }
 
     @Test
-    void updateIsBlockedWithoutExplicitPostCutoverWriteApproval() {
+    void updateIsBlockedWithoutUnitWriteApproval() {
         NamedParameterJdbcTemplate jdbc = mock(NamedParameterJdbcTemplate.class);
-        CanonicalOrganizationContactService service = new CanonicalOrganizationContactService(jdbc, false);
-        OrganizationContactException ex = assertThrows(OrganizationContactException.class,
+        stubUnitSchema(jdbc);
+        var service = new CanonicalOrganizationContactService(jdbc);
+        var ex = assertThrows(OrganizationContactException.class,
                 () -> service.update(1811L, phone("08134526468")));
         assertEquals("ORG_CONTACT_WRITES_DISABLED", ex.code());
-        verifyNoInteractions(jdbc);
+        verify(jdbc, never()).update(anyString(), any(Map.class));
     }
 
     @Test
-    void canonicalReadinessFailsClosedOnOldMasterSchema() {
+    void canonicalAliasUsesUnitReadinessAndFailsClosedOnMissingSchema() {
         NamedParameterJdbcTemplate jdbc = mock(NamedParameterJdbcTemplate.class);
-        when(jdbc.queryForObject(anyString(), anyMap(), eq(Long.class)))
-                .thenAnswer(call -> {
-                    String sql = call.getArgument(0);
-                    return sql.contains("FROM ALL_TABLES") ? 1L : 0L;
-                });
-        CanonicalOrganizationContactService service = new CanonicalOrganizationContactService(jdbc, true);
-        var readiness = service.readiness();
-        assertEquals("CANONICAL", readiness.storageMode());
-        assertFalse(readiness.ready());
-        assertFalse(readiness.writesEnabled());
+        when(jdbc.queryForObject(anyString(), anyMap(), eq(Long.class))).thenReturn(0L);
+        var state = new CanonicalOrganizationContactService(jdbc).readiness();
+        assertEquals("UNIT", state.storageMode());
+        assertFalse(state.ready());
+        assertFalse(state.writesEnabled());
     }
 
     @Test
     void invalidPhoneIsRejectedBeforeOracleAccess() {
         NamedParameterJdbcTemplate jdbc = mock(NamedParameterJdbcTemplate.class);
-        CanonicalOrganizationContactService service = new CanonicalOrganizationContactService(jdbc, true);
-        OrganizationContactException ex = assertThrows(OrganizationContactException.class,
+        var service = new CanonicalOrganizationContactService(jdbc);
+        var ex = assertThrows(OrganizationContactException.class,
                 () -> service.create(phone("ABC")));
         assertEquals("ORG_CONTACT_INVALID", ex.code());
         verifyNoInteractions(jdbc);
