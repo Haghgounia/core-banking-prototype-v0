@@ -1,0 +1,28 @@
+{
+  "version": "IAM-R0.1",
+  "date": "2026-10-30",
+  "source_project": "Core Banking Prototype 0.11.0 (user-supplied 2026-10-30 snapshot)",
+  "schema": "IAM",
+  "source_legacy_sample": "010128-all(1).zip (naming reference only)",
+  "reference_tables": 14,
+  "foundation_tables": 16,
+  "governance_tables": 5,
+  "total_tables": 35,
+  "total_columns": 415,
+  "status": "SCHEMA_DESIGNED / STATIC_QA_PASS / ORACLE_NOT_APPLIED / APP_NOT_INTEGRATED",
+  "deployment": "OPT-IN ONLY / NO DDL EXECUTED",
+  "files": {
+    "docs/iam/ADR-IAM-001-FA.md": "2c12fa33943290ea9f1c0c01e10873d80b3d4b02a2065bf0703f32dfd112d757",
+    "docs/iam/IAM-CANONICAL-ROADMAP-FA.md": "5f7cdb674d34856b884574851202c2d7daf9ee2d36cb6e6d8d6fc4e0532888d0",
+    "docs/iam/IAM-NAMING-DATA-MODEL-FA.md": "41a891b529292a2f17fc208f8e53dc5ab299917fde351628d79e9069f2dbb172",
+    "docs/iam/IAM-R0-DATA-DICTIONARY.csv": "5cf6393b741cd73fe4cd772b6040273253513cc455cc24e5df337d9099f360b7",
+    "docs/roadmap/IAM-IMPLEMENTATION-ROADMAP.md": "c0928370d4399085ccfefcdb7157b355b54bd30a0e7df62611732abac3d3a6dc",
+    "tools/iam/verify-iam-foundation-model.cjs": "db1ee6f2e36c21318f6f5e8e2d7fef8d9a0fd60e8da65612458c26219f7821d2",
+    "database/oracle/iam/99-iam-verify-readonly.sql": "8e58e500d52b1c150c0bdcc3d23f646203cb972031dec180080e3ec168d399dd",
+    "database/oracle/iam/00-iam-precheck-readonly.sql": "7f146418794f8c3ea181a1b35fecbd9ecef8eaffc632d0923bcc4dbe568cdba3",
+    "database/oracle/iam/README.md": "b618078d56d56fae7d437dcaaa28081168b2016c779fbd17828d0a1d7bc3d702",
+    "database/oracle/iam/01-iam-foundation-ddl-opt-in.sql": "6fa2fbaf3c2bd709fa5feeccfb349e2cda0978702d3ada874ee49994e04c7b5e",
+    "database/oracle/iam/03-iam-reference-seed-opt-in.sql": "8c27cfe5e0ce6b0caa5d7369f258e0ab863f69903d084659beb69efb73cccf93",
+    "database/oracle/iam/02-iam-governance-ddl-opt-in.sql": "5fe7341693cdea1c3ab930dd30bae7d7c932e043392049fc0a4e3e2ca05ff31d"
+  }
+}

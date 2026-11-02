@@ -57,6 +57,12 @@ if errorlevel 1 (
   echo ERROR: IAM route is not embedded in the current JAR; rebuild required.
   exit /b 1
 )
+rem Reject JARs compiled before the secured S1B read-only boundary.
+node "%ROOT%\tools\iam\s1b\verify-s1b-artifact.cjs" "%JAR%"
+if errorlevel 1 (
+  echo ERROR: IAM-S1B backend proof is missing or stale; rebuild required.
+  exit /b 1
+)
 
 set "CONFIG_PATH=%ROOT%\config\application.yml"
 set "CONFIG_URI=%CONFIG_PATH:\=/%"

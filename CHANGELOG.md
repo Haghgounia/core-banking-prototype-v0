@@ -1,3 +1,11 @@
+## 2026-11-02 — IAM-R1.7 / S1B-RO.1 (secure read-only Backend foundation)
+
+- Implemented 10 IAM-S1B backend Java classes: isolated Spring Security 7 OAuth2 JWT gate, precise Domain/Context claims, separate SELECT-only Oracle reader, bounded four-GET API, metadata readiness, error contract and minimal read log.
+- Existing IAM-S1A route/UI remains unchanged. Backend IAM is default-disabled until trusted IdP, approved audience and dedicated DB reader are configured; no Oracle writes or new IAM mutations.
+- Added offline executable Java policy tests, JUnit policy regression, and fail-closed Windows/Unix production build guard.
+- Canonical IAM roadmap moved to R1.7 status with S1A browser acceptance evidence and outstanding IAM-01 gates.
+- SOURCE QA != compiled/verified Boot 4 runtime. No live Oracle or IdP access in packaging environment.
+
 ## FEE3 F7 Domain Integration — 2026-10-29
 
 - Connected existing LOAN R4C1/R4C2, QARD R4C3, GUARANTEE R4B2 engines into one no-write F7 UI-to-Backend preview contract with exact money strings and detailed diagnostic trace.

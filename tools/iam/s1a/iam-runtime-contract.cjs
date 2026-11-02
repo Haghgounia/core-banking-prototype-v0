@@ -157,4 +157,4 @@ function verifyJar(jarPath, root = ROOT) {
     return {release: proof.release, sourceSha256: proof.sourceSha256, routeAsset: proof.routeAsset, componentAsset: proof.componentAsset};
   } finally { jar.close(); }
 }
-module.exports = {RELEASE, ROOT, ROUTE, UI_MARKER, SOURCE_FILES, sha, sourceHash, distDirectory, makeProof, verifyJar};
+module.exports = {RELEASE, ROOT, ROUTE, UI_MARKER, SOURCE_FILES, sha, sourceHash, distDirectory, makeProof, verifyJar, openJar};

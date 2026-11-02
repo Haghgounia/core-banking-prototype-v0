@@ -26,6 +26,7 @@ if [ -f "$ROOT/app/BUILD-DIRTY" ]; then
   exit 1
 fi
 node "$ROOT/tools/iam/s1a/verify-s1a-artifact.cjs" "$JAR"
+node "$ROOT/tools/iam/s1b/verify-s1b-artifact.cjs" "$ROOT/app/core-banking-prototype.jar" || exit 1
 mkdir -p "$ROOT/logs"
 printf 'Starting Core Banking Prototype %s...\n' "$APP_VERSION"
 printf 'JAR: %s\n' "$JAR"

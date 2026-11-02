@@ -33,6 +33,17 @@ management:
       show-details: when_authorized
 
 core-banking:
+  iam:
+    s1b:
+      # Disabled until IdP, Security and DBA approve dedicated SELECT-only access.
+      reads-enabled: ${IAM_S1B_READS_ENABLED:false}
+      issuer: ${IAM_S1B_ISSUER:}
+      jwks-uri: ${IAM_S1B_JWKS_URI:}
+      audience: ${IAM_S1B_AUDIENCE:}
+      # Always a distinct, least-privileged Oracle reader, NOT the prototype SYSTEM datasource.
+      jdbc-url: ${IAM_S1B_JDBC_URL:}
+      jdbc-username: ${IAM_S1B_JDBC_USERNAME:}
+      jdbc-password: ${IAM_S1B_JDBC_PASSWORD:}
   organization:
     locations:
       # R4: legacy three-table reconciliation endpoints are DBA-only and disabled by default.

@@ -191,6 +191,8 @@ node "$ROOT/tools/verify-rgl-lite-r20.mjs"
 node "$ROOT/tools/fee3-backend/verify-r1.mjs"
 node "$ROOT/tools/fee3-backend/verify-r2.mjs"
 node "$ROOT/tools/iam/s1a/verify-s1a-visibility.cjs" source
+node "$ROOT/tools/iam/s1b/verify-s1b-security.mjs"
+node "$ROOT/tools/iam/s1b/emit-s1b-backend-proof.cjs"
 
 cd "$ROOT/backend"
 sh ./mvnw -DskipTests compile
@@ -222,6 +224,7 @@ mkdir -p "$ROOT/app"
 JAR="$ROOT/app/core-banking-prototype.jar"
 cp "$ROOT/backend/target/core-banking-prototype.jar" "$JAR"
 node "$ROOT/tools/iam/s1a/verify-s1a-artifact.cjs" "$JAR"
+node "$ROOT/tools/iam/s1b/verify-s1b-artifact.cjs" "$JAR"
 printf '%s\n' "$APP_VERSION" > "$ROOT/app/BUILD-VERSION"
 rm -f "$ROOT/app/BUILD-DIRTY"
 printf '\nBuilt version: %s\nJAR: %s\n' "$APP_VERSION" "$JAR"

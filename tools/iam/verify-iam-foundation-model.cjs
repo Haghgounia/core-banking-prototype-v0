@@ -1,0 +1,24 @@
+// IAM-R0 static source verifier; no Oracle access, no writes.
+const fs = require('fs');
+const path = require('path');
+const root = path.resolve(__dirname, '../..');
+const base = path.join(root,'database','oracle','iam');
+const read = (p) => fs.readFileSync(path.join(base,p),'utf8');
+const f=read('01-iam-foundation-ddl-opt-in.sql');
+const g=read('02-iam-governance-ddl-opt-in.sql');
+const full=f+'\n'+g;
+const tables=[...full.matchAll(/CREATE TABLE IAM\.([A-Z0-9_]+)\s*\(/g)].map(m=>m[1]);
+const seqs=[...full.matchAll(/CREATE SEQUENCE IAM\.SEQ_([A-Z0-9_]+)/g)].map(m=>m[1]);
+const constraints=[...full.matchAll(/CONSTRAINT ([A-Z0-9_]+) (?:PRIMARY KEY|FOREIGN KEY|UNIQUE|CHECK)/g)].map(m=>m[1]);
+const assert=(ok,msg)=>{if(!ok)throw new Error(msg);};
+assert(tables.length === 35,`Expected 35 IAM tables, found ${tables.length}`);
+assert(new Set(tables).size === tables.length,'Duplicate tables');
+assert(seqs.length === tables.filter(t=>!t.startsWith('REF_')).length,'Sequence/table mismatch');
+assert(constraints.every(c=>c.length<=30),'Oracle constraint identifier >30 chars');
+assert(new Set(constraints).size===constraints.length,'Duplicate constraints');
+assert(!/\bCREATE TABLE USR\./i.test(full),'Legacy USR detected');
+assert(!/\b(?:DROP|TRUNCATE|DELETE FROM)\b/i.test(full),'Destructive statement detected');
+assert(!/\bPASSWORD\s+(?:VARCHAR2|CHAR|CLOB)/i.test(full),'Password column detected');
+for(const target of ['USER_ACCOUNT','PRINCIPAL','ACCESS_ROLE','ROLE_ASSIGNMENT','IDENTITY_LINK','FEDERATED_IDENTITY','ACCESS_SCOPE']) assert(tables.includes(target),target+' missing');
+for(const fn of ['IAM-CANONICAL-ROADMAP-FA.md','IAM-NAMING-DATA-MODEL-FA.md','ADR-IAM-001-FA.md']) assert(fs.existsSync(path.join(root,'docs','iam',fn)),'Missing doc '+fn);
+console.log(`IAM_R0_STATIC_PASS: TABLES=${tables.length} SEQUENCES=${seqs.length} CONSTRAINTS=${constraints.length}; NO_DB_WRITE`);
