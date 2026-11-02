@@ -101,6 +101,15 @@
     </mat-nav-list>
     </app-sidebar-r22-group>
 
+    <app-sidebar-r22-group groupId="iam" label="مدیریت هویت و دسترسی" icon="admin_panel_settings" [collapsed]="sidebarCollapsed()">
+      <mat-nav-list class="section-list">
+        <a mat-list-item routerLink="/iam/user-management" routerLinkActive="active-link" matTooltip="مدیریت کاربران — محیط آزمایشی IAM" matTooltipPosition="before">
+          <mat-icon matListItemIcon>manage_accounts</mat-icon>
+          <span matListItemTitle>مدیریت کاربران (DEV)</span>
+        </a>
+      </mat-nav-list>
+    </app-sidebar-r22-group>
+
     <app-sidebar-r22-group groupId="references" label="داده‌های مرجع" icon="dataset" [collapsed]="sidebarCollapsed()">
       <mat-nav-list class="section-list reference-root-menu">
       <a mat-list-item routerLink="/reference-data" [class.active-link]="isReferenceSection()" matTooltip="اطلاعات پایه عمومی" matTooltipPosition="before">

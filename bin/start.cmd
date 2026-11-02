@@ -51,6 +51,13 @@ if /i not "%BUILT_VERSION%"=="%APP_VERSION%" (
   exit /b 1
 )
 
+rem A stale same-version JAR must not start without the IAM user-management screen.
+node "%ROOT%\tools\iam\s1a\verify-s1a-artifact.cjs" "%JAR%"
+if errorlevel 1 (
+  echo ERROR: IAM route is not embedded in the current JAR; rebuild required.
+  exit /b 1
+)
+
 set "CONFIG_PATH=%ROOT%\config\application.yml"
 set "CONFIG_URI=%CONFIG_PATH:\=/%"
 if not exist "%ROOT%\logs" mkdir "%ROOT%\logs"

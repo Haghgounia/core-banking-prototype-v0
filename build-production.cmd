@@ -312,6 +312,9 @@ rem FEE3-BE-R1: fail-closed Oracle contract and UAT write-boundary verification.
 node "%ROOT%tools\fee3-backend\verify-r1.mjs" || exit /b 1
 node "%ROOT%tools\fee3-backend\verify-r2.mjs" || exit /b 1
 
+rem IAM-S1A release gate: direct navigation must be present in the actual sources.
+node "%ROOT%tools\iam\s1a\verify-s1a-visibility.cjs" source || exit /b 1
+
 rem FIX62 fail-fast: compile Java before the Angular production build so type errors are caught early.
 cd /d "%ROOT%backend"
 call mvnw.cmd -DskipTests clean compile || exit /b 1
@@ -346,7 +349,10 @@ if exist "%ROOT%frontend\dist" rmdir /s /q "%ROOT%frontend\dist"
 
 cd /d "%ROOT%frontend"
 call npm install || exit /b 1
+node "%ROOT%tools\iam\s1a\verify-s1a-ui-mock.cjs" || exit /b 1
 call npm run build || exit /b 1
+node "%ROOT%tools\iam\s1a\verify-s1a-visibility.cjs" dist || exit /b 1
+node "%ROOT%tools\iam\s1a\emit-s1a-deploy-proof.cjs" || exit /b 1
 
 if exist "%ROOT%backend\src\main\resources\static" rmdir /s /q "%ROOT%backend\src\main\resources\static"
 mkdir "%ROOT%backend\src\main\resources\static"
@@ -355,6 +361,9 @@ if exist "%ROOT%frontend\dist\core-banking-ui\browser" (
 ) else (
   xcopy /e /i /y "%ROOT%frontend\dist\core-banking-ui\*" "%ROOT%backend\src\main\resources\static\" >nul
 )
+
+rem Copied static assets must match the freshly compiled IAM route.
+node "%ROOT%tools\iam\s1a\verify-s1a-visibility.cjs" static || exit /b 1
 
 cd /d "%ROOT%backend"
 rem PB-R21-HF5: reuse the Maven executable resolved during the early compile
@@ -374,6 +383,9 @@ if defined __MVNW_CMD__ (
 if not exist "%ROOT%app" mkdir "%ROOT%app"
 set "JAR=%ROOT%app\core-banking-prototype.jar"
 copy /y "%ROOT%backend\target\core-banking-prototype.jar" "%JAR%" >nul
+if errorlevel 1 exit /b 1
+rem Reject a same-version JAR if its Angular source or compiled assets differ.
+node "%ROOT%tools\iam\s1a\verify-s1a-artifact.cjs" "%JAR%" || exit /b 1
 >"%ROOT%app\BUILD-VERSION" echo %APP_VERSION%
 if not exist "%JAR%" (
   echo ERROR: Packaged JAR was not created.

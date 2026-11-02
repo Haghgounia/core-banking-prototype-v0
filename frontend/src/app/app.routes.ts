@@ -9,6 +9,7 @@ export const routes: Routes = [
     loadComponent: () => import('./layout/app-shell.component').then(m => m.AppShellComponent),
     children: [
       {path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)},
+      {path: 'iam/user-management', loadComponent: () => import('./features/iam/iam-s1a-demo.component').then(m => m.IamS1aDemoComponent)},
       {path: 'fee', loadComponent: () => import('./features/fee-admin/fee-admin-home.component').then(m => m.FeeAdminHomeComponent)},
       {path: 'fee/design/catalog', data: {mode: 'catalog'}, canDeactivate: [(c: unknown) => (c as FeeDesignStudioComponent).canLeave()], loadComponent: () => import('./features/fee-admin/fee-design-studio.component').then(m => m.FeeDesignStudioComponent)},
       {path: 'fee/design/rules', data: {mode: 'rules'}, canDeactivate: [(c: unknown) => (c as FeeDesignStudioComponent).canLeave()], loadComponent: () => import('./features/fee-admin/fee-design-studio.component').then(m => m.FeeDesignStudioComponent)},

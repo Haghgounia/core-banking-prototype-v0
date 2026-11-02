@@ -20,7 +20,7 @@ import static com.behsazan.corebanking.referencedata.descriptor.application.Refe
 @Component
 @Order(41)
 public class EduCanonicalDescriptorProvider implements ReferenceDescriptorProvider {
-    private static final String SCHEMA = "EDU";
+    private static final String SCHEMA = "CIF";
     private static final String CATEGORY = "EDU_REFERENCE";
 
     private static final List<SelectOption> YES_NO = List.of(

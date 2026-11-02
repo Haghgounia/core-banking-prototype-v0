@@ -53,7 +53,7 @@ for(const [route,label] of [
 }
 assert(newTs.includes('takeUntilDestroyed()') && newTs.includes('NavigationEnd'), 'active-group route tracking missing');
 assert(newTs.includes('this.manuallyExpanded.set(undefined)'), 'expanded group is not reset on navigation');
-assert(newTs.includes("['/fee', '/fee2', '/product-builder']"), 'product routes not recognized');
+assert(newTs.includes("['/fee', '/fee2', '/fee3', '/product-builder']"), 'product routes not recognized including FEE3');
 assert(newTs.includes('[hidden]="!collapsed() && !isExpanded()"'), 'collapsed rail or expanded navigation unavailable');
 assert(newTs.includes('[attr.aria-expanded]="isExpanded()"'), 'accordion lacks ARIA expanded state');
 assert(newCss.includes('var(--app-primary-soft)') && newCss.includes('var(--app-text)'), 'global theme tokens not used');

@@ -1670,3 +1670,12 @@
 - Added F7 analyst form entries and temporary in-session draft persistence while Oracle writes remain disabled.
 - Added reproducible contract-unit tests, updated the unchanged F5–F10 canonical roadmap and kept F8/F9/F10 pending.
 - No Oracle DML/DDL, payment collection or GL posting; Maven/Angular Windows build and business acceptance not yet verified.
+
+## IAM-R1.6 / S1A-C1 — 2026-11-02 (Consolidated Source/Release Gate)
+
+- Based exclusively on `core-banking-prototype-v0-2026-11-02-1751.zip` (project `0.11.0`); corrects the missing Angular `iam/user-management` route that caused fallback to Dashboard.
+- Adds standalone IAM User Management DEV simulator, independent sidebar group, active-route tracking, breadcrumb, and 17 domain/navigation tests; **no IAM server write API or Oracle changes**.
+- Integrates a fail-closed source -> compiled Angular -> Spring static -> executable JAR release verifier; ties IAM source SHA256 to compiled route/component chunks; includes live HTTP proof verifier.
+- Synchronizes authoritative IAM canonical roadmap: R0.1 historical, R1.5.1 exported physical snapshot, R1.3 proposed target, IAM-00 approval pending and IAM-01 still in progress.
+- Fixes R22 sidebar regression checker to preserve existing FEE3 route, without changing FEE3 UI.
+- Windows QA requires a fresh local npm/Maven build and browser UAT before a deploy claim; never treat a static verifier as a successful runtime build.

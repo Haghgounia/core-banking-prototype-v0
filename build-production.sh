@@ -3,6 +3,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"
 APP_VERSION="$(cat "$ROOT/VERSION")"
+mkdir -p "$ROOT/app"
+printf "%s\n" BUILD_IN_PROGRESS_OR_FAILED > "$ROOT/app/BUILD-DIRTY"
 echo "Building Core Banking Prototype $APP_VERSION..."
 
 node "$ROOT/tools/sync-system-specification.mjs"
@@ -188,6 +190,7 @@ node "$ROOT/tools/verify-rgl-lite-r20.mjs"
 
 node "$ROOT/tools/fee3-backend/verify-r1.mjs"
 node "$ROOT/tools/fee3-backend/verify-r2.mjs"
+node "$ROOT/tools/iam/s1a/verify-s1a-visibility.cjs" source
 
 cd "$ROOT/backend"
 sh ./mvnw -DskipTests compile
@@ -198,7 +201,10 @@ rm -rf "$ROOT/frontend/dist"
 
 cd "$ROOT/frontend"
 npm install
+node "$ROOT/tools/iam/s1a/verify-s1a-ui-mock.cjs"
 npm run build
+node "$ROOT/tools/iam/s1a/verify-s1a-visibility.cjs" dist
+node "$ROOT/tools/iam/s1a/emit-s1a-deploy-proof.cjs"
 
 rm -rf "$ROOT/backend/src/main/resources/static"
 mkdir -p "$ROOT/backend/src/main/resources/static"
@@ -208,10 +214,14 @@ else
   cp -R "$ROOT/frontend/dist/core-banking-ui/." "$ROOT/backend/src/main/resources/static/"
 fi
 
+node "$ROOT/tools/iam/s1a/verify-s1a-visibility.cjs" static
+
 cd "$ROOT/backend"
 sh ./mvnw clean package
 mkdir -p "$ROOT/app"
 JAR="$ROOT/app/core-banking-prototype.jar"
 cp "$ROOT/backend/target/core-banking-prototype.jar" "$JAR"
+node "$ROOT/tools/iam/s1a/verify-s1a-artifact.cjs" "$JAR"
 printf '%s\n' "$APP_VERSION" > "$ROOT/app/BUILD-VERSION"
+rm -f "$ROOT/app/BUILD-DIRTY"
 printf '\nBuilt version: %s\nJAR: %s\n' "$APP_VERSION" "$JAR"

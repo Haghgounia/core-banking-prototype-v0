@@ -21,6 +21,11 @@ if [ "$BUILT_VERSION" != "$APP_VERSION" ]; then
   printf 'Run ./build-production.sh before starting this source package.\n' >&2
   exit 1
 fi
+if [ -f "$ROOT/app/BUILD-DIRTY" ]; then
+  printf 'ERROR: previous build incomplete; refusing stale IAM runtime.\n' >&2
+  exit 1
+fi
+node "$ROOT/tools/iam/s1a/verify-s1a-artifact.cjs" "$JAR"
 mkdir -p "$ROOT/logs"
 printf 'Starting Core Banking Prototype %s...\n' "$APP_VERSION"
 printf 'JAR: %s\n' "$JAR"
