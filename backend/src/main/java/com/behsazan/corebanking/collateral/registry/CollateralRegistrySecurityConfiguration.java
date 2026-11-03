@@ -4,6 +4,7 @@ import com.behsazan.corebanking.collateral.reference.CollateralReferenceProperti
 import com.behsazan.corebanking.collateral.introduction.CollateralIntroductionProperties;
 import com.behsazan.corebanking.collateral.sponsor.CollateralSponsorProperties;
 import com.behsazan.corebanking.collateral.insurance.CollateralInsuranceProperties;
+import com.behsazan.corebanking.collateral.valuation.CollateralValuationProperties;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,7 @@ public class CollateralRegistrySecurityConfiguration {
             CollateralIntroductionProperties introduction,
             CollateralSponsorProperties sponsor,
             CollateralInsuranceProperties insurance,
+            CollateralValuationProperties valuation,
             @Qualifier("collateralJwtDecoder") ObjectProvider<JwtDecoder> decoder) throws Exception {
         http.securityMatcher("/api/v1/collaterals", "/api/v1/collaterals/**")
                 .csrf(AbstractHttpConfigurer::disable)
@@ -44,6 +46,17 @@ public class CollateralRegistrySecurityConfiguration {
         http.exceptionHandling(e -> e.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
                 .authorizeHttpRequests(r -> r
+                        // R3C: candidate validation is not a final approval or an allocation decision.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/valuations/validate")
+                        .hasAuthority("SCOPE_clt.collateral.introduce")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/valuations/requests")
+                        .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                valuation.requestWritesEnabled() && auth.get().getAuthorities().stream()
+                                .anyMatch(a -> "SCOPE_clt.collateral.introduce".equals(a.getAuthority()))))
+                        .requestMatchers(HttpMethod.GET, "/api/v1/collaterals/valuations/requests/mine")
+                        .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                valuation.requestWritesEnabled() && auth.get().getAuthorities().stream()
+                                .anyMatch(a -> "SCOPE_clt.collateral.introduce".equals(a.getAuthority()))))
                         // R3B: only insured-party candidate checks and optional STAGING writes.
                         .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/insurance-policies/validate")
                         .hasAuthority("SCOPE_clt.collateral.introduce")
