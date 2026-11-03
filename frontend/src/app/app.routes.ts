@@ -51,6 +51,10 @@ export const routes: Routes = [
       {path: 'cif/parties/:partyId/operations/lifecycle-merge', loadComponent: () => import('./features/cif/party-lifecycle-merge.component').then(m => m.PartyLifecycleMergeComponent)},
       {path: 'cif/parties/:partyId', loadComponent: () => import('./features/cif/party-360.component').then(m => m.Party360Component)},
 
+      // CLT-R1A:ROUTES:BEGIN
+      {path: 'collateral/reference-data', loadComponent: () => import('./features/collateral/clt-reference-workspace.component').then(m => m.CltReferenceWorkspaceComponent)},
+      {path: 'collateral/reference-data/:table', loadComponent: () => import('./features/collateral/clt-reference-workspace.component').then(m => m.CltReferenceWorkspaceComponent)},
+      // CLT-R1A:ROUTES:END
       {path: 'reference-data', loadComponent: () => import('./features/reference-hub/reference-hub.component').then(m => m.ReferenceHubComponent)},
       {path: 'reference-data/general', data: {scope: 'GENERAL'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},
       {path: 'reference-data/general/name-romanization-tool', loadComponent: () => import('./features/name-romanization-tool/name-romanization-tool.component').then(m => m.NameRomanizationToolComponent)},

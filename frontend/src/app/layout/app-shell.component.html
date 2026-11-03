@@ -110,6 +110,16 @@
       </mat-nav-list>
     </app-sidebar-r22-group>
 
+    <!-- CLT-R1A:SIDEBAR:BEGIN -->
+    <app-sidebar-r22-group groupId="collateral" label="مدیریت وثایق" icon="assured_workload" [collapsed]="sidebarCollapsed()">
+      <mat-nav-list class="section-list">
+        <a mat-list-item routerLink="/collateral/reference-data" routerLinkActive="active-link" matTooltip="اطلاعات پایه وثایق (R1A)" matTooltipPosition="before">
+          <mat-icon matListItemIcon>dataset</mat-icon><span matListItemTitle>اطلاعات پایه وثایق</span>
+        </a>
+      </mat-nav-list>
+    </app-sidebar-r22-group>
+    <!-- CLT-R1A:SIDEBAR:END -->
+
     <app-sidebar-r22-group groupId="references" label="داده‌های مرجع" icon="dataset" [collapsed]="sidebarCollapsed()">
       <mat-nav-list class="section-list reference-root-menu">
       <a mat-list-item routerLink="/reference-data" [class.active-link]="isReferenceSection()" matTooltip="اطلاعات پایه عمومی" matTooltipPosition="before">

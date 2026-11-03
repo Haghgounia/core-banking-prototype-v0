@@ -1,0 +1,1641 @@
+{
+  "source": "Collateral_DB_Specification_FA.html / CLT Export 2026-11-01",
+  "schema": "CLT",
+  "phase": "R1A",
+  "totalTables": 17,
+  "technicalSeedPreviewCount": 53,
+  "tables": [
+    {
+      "table": "COLLATERAL_TYPE_ATTRIBUTE",
+      "title": "ویژگی‌های هر نوع وثیقه",
+      "description": "رابطه بین نوع وثیقه و تعریف ویژگی اختصاصی آن و الزامات ثبت",
+      "category": "structure",
+      "primaryKey": "COLLATERAL_TYPE_ATTRIBUTE_ID",
+      "codeColumn": "",
+      "nameColumn": "",
+      "columns": [
+        {
+          "name": "COLLATERAL_TYPE_ATTRIBUTE_ID",
+          "label": "شناسه ارتباط نوع وثیقه و ویژگی",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "COLLATERAL_TYPE_ID",
+          "label": "شناسه نوع وثیقه",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "COLLATERAL_ATTRIBUTE_DEFINITION_ID",
+          "label": "شناسه تعریف ویژگی اختصاصی وثیقه",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "MANUAL_ENTRY_ALLOWED_FLAG",
+          "label": "نشانگر مجاز بودن ورود دستی مقدار ویژگی",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IS_REQUIRED",
+          "label": "نشانگر الزامی بودن ویژگی",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 0
+    },
+    {
+      "table": "REF_COLLATERAL_ATTRIBUTE_DATA_TYPE",
+      "title": "انواع داده ویژگی وثیقه",
+      "description": "انواع داده مجاز برای ویژگی‌های اختصاصی و قابلیت‌های وابسته به هر نوع داده",
+      "category": "structure",
+      "primaryKey": "REF_COLLATERAL_ATTRIBUTE_DATA_TYPE_ID",
+      "codeColumn": "ATTRIBUTE_DATA_TYPE_CODE",
+      "nameColumn": "ATTRIBUTE_DATA_TYPE_NAME",
+      "columns": [
+        {
+          "name": "REF_COLLATERAL_ATTRIBUTE_DATA_TYPE_ID",
+          "label": "شناسه فنی نوع داده ویژگی",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "ATTRIBUTE_DATA_TYPE_CODE",
+          "label": "کد نوع داده ویژگی",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "ATTRIBUTE_DATA_TYPE_NAME",
+          "label": "عنوان نوع داده ویژگی",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "SUPPORTS_MIN_MAX_FLAG",
+          "label": "نشانگر پشتیبانی نوع داده از حداقل و حداکثر",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "SUPPORTS_LENGTH_FLAG",
+          "label": "نشانگر پشتیبانی نوع داده از محدودیت طول",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "SUPPORTS_PRECISION_FLAG",
+          "label": "نشانگر پشتیبانی نوع داده از دقت عددی",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "SUPPORTS_OPTIONS_FLAG",
+          "label": "نشانگر پشتیبانی نوع داده از گزینه‌های انتخابی",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 5
+    },
+    {
+      "table": "REF_COLL_TXN_STATUS",
+      "title": "وضعیت‌های تراکنش وثیقه",
+      "description": "کدها و ویژگی‌های وضعیت تراکنش وثیقه",
+      "category": "operation",
+      "primaryKey": "REF_COLL_TXN_STATUS_ID",
+      "codeColumn": "TRANSACTION_STATUS_CODE",
+      "nameColumn": "TRANSACTION_STATUS_NAME",
+      "columns": [
+        {
+          "name": "REF_COLL_TXN_STATUS_ID",
+          "label": "شناسه فنی وضعیت تراکنش",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "TRANSACTION_STATUS_CODE",
+          "label": "کد مرجع وضعیت تراکنش وثیقه",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "TRANSACTION_STATUS_NAME",
+          "label": "عنوان وضعیت تراکنش",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IS_FINAL_FLAG",
+          "label": "نشانگر نهایی بودن وضعیت تراکنش",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IS_REVERSIBLE_FLAG",
+          "label": "نشانگر امکان برگشت تراکنش در این وضعیت",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 6
+    },
+    {
+      "table": "REF_CURRENCY",
+      "title": "ارزهای مرجع",
+      "description": "تعریف ارزها و تعداد ارقام خرد ارز بر اساس استاندارد ISO 4217",
+      "category": "valuation",
+      "primaryKey": "REF_CURRENCY_ID",
+      "codeColumn": "CURRENCY_CODE",
+      "nameColumn": "CURRENCY_NAME",
+      "columns": [
+        {
+          "name": "REF_CURRENCY_ID",
+          "label": "شناسه فنی ارز",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "CURRENCY_CODE",
+          "label": "کد سه‌حرفی ارز (ISO 4217)",
+          "dataType": "CHAR(3 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CURRENCY_NUMERIC_CODE",
+          "label": "کد عددی ارز (ISO 4217)",
+          "dataType": "CHAR(3 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "CURRENCY_NAME",
+          "label": "نام ارز",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "MINOR_UNIT_DIGITS",
+          "label": "تعداد ارقام اعشار واحد خرد ارز",
+          "dataType": "NUMBER(1,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 4
+    },
+    {
+      "table": "REF_VALUATION_TYPE",
+      "title": "انواع ارزیابی وثیقه",
+      "description": "کدها و عناوین انواع ارزیابی وثیقه",
+      "category": "valuation",
+      "primaryKey": "REF_VALUATION_TYPE_ID",
+      "codeColumn": "VALUATION_TYPE_CODE",
+      "nameColumn": "VALUATION_TYPE_NAME",
+      "columns": [
+        {
+          "name": "REF_VALUATION_TYPE_ID",
+          "label": "شناسه فنی نوع ارزیابی",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "VALUATION_TYPE_CODE",
+          "label": "کد مرجع نوع ارزیابی",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "VALUATION_TYPE_NAME",
+          "label": "عنوان نوع ارزیابی",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 4
+    },
+    {
+      "table": "REF_COLL_REVERSAL_REASON",
+      "title": "دلایل برگشت تراکنش وثیقه",
+      "description": "دلایل مجاز برای برگشت تراکنش‌های وثیقه",
+      "category": "operation",
+      "primaryKey": "REF_COLL_REVERSAL_REASON_ID",
+      "codeColumn": "REVERSAL_REASON_CODE",
+      "nameColumn": "REVERSAL_REASON_NAME",
+      "columns": [
+        {
+          "name": "REF_COLL_REVERSAL_REASON_ID",
+          "label": "شناسه فنی دلیل برگشت تراکنش",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "REVERSAL_REASON_CODE",
+          "label": "کد دلیل برگشت تراکنش",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "REVERSAL_REASON_NAME",
+          "label": "عنوان دلیل برگشت تراکنش",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 4
+    },
+    {
+      "table": "COLLATERAL_ATTRIBUTE_DEFINITION",
+      "title": "تعریف ویژگی‌های اختصاصی وثیقه",
+      "description": "شناسنامه ویژگی‌های اختصاصی وثیقه و نوع داده و تنظیمات آن‌ها",
+      "category": "structure",
+      "primaryKey": "COLLATERAL_ATTRIBUTE_DEFINITION_ID",
+      "codeColumn": "COLLATERAL_ATTRIBUTE_DEFINITION_CODE",
+      "nameColumn": "COLLATERAL_ATTRIBUTE_DEFINITION_NAME",
+      "columns": [
+        {
+          "name": "COLLATERAL_ATTRIBUTE_DEFINITION_ID",
+          "label": "شناسه تعریف ویژگی اختصاصی وثیقه",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "COLLATERAL_ATTRIBUTE_DEFINITION_CODE",
+          "label": "کد ویژگی اختصاصی وثیقه",
+          "dataType": "VARCHAR2(5 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "COLLATERAL_ATTRIBUTE_DEFINITION_NAME",
+          "label": "عنوان ویژگی اختصاصی وثیقه",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DATA_TYPE_CODE",
+          "label": "کد نوع داده ویژگی",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "LIST_VALUE",
+          "label": "فهرست مقادیر مجاز ویژگی اختصاصی",
+          "dataType": "VARCHAR2(150 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IS_REPEATABLE_FLAG",
+          "label": "نشانگر امکان ثبت چند مقدار برای ویژگی",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 0
+    },
+    {
+      "table": "COLLATERAL_TYPE",
+      "title": "انواع وثیقه",
+      "description": "انواع وثیقه و ضرایب پذیرش، بیمه‌پذیری و قواعد استفاده",
+      "category": "structure",
+      "primaryKey": "COLLATERAL_TYPE_ID",
+      "codeColumn": "COLLATERAL_TYPE_CODE",
+      "nameColumn": "COLLATERAL_TYPE_NAME",
+      "columns": [
+        {
+          "name": "COLLATERAL_TYPE_ID",
+          "label": "شناسه نوع وثیقه",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "COLLATERAL_TYPE_CODE",
+          "label": "کد نوع وثیقه",
+          "dataType": "VARCHAR2(3 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "COLLATERAL_TYPE_NAME",
+          "label": "عنوان نوع وثیقه",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "MORTGAGE_PERCENT_LOAN",
+          "label": "درصد ترهین برای تسهیلات",
+          "dataType": "NUMBER(3,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "USAGE_PERCENT_LOAN",
+          "label": "درصد قابل استفاده در تسهیلات",
+          "dataType": "NUMBER(3,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "MORTGAGE_PERCENT_GUARANTEE",
+          "label": "درصد ترهین برای ضمانت‌نامه",
+          "dataType": "NUMBER(3,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "USAGE_PERCENT_GUARANTEE",
+          "label": "درصد قابل استفاده در ضمانت‌نامه",
+          "dataType": "NUMBER(3,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "MORTGAGE_PERCENT_LETTERCREDIT",
+          "label": "درصد ترهین برای اعتبار اسنادی",
+          "dataType": "NUMBER(3,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "USAGE_PERCENT_LETTERCREDIT",
+          "label": "درصد قابل استفاده در اعتبار اسنادی",
+          "dataType": "NUMBER(3,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "USAGE_PERCENT_GREENLICENSE",
+          "label": "درصد قابل استفاده در جواز سبز",
+          "dataType": "NUMBER(3,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "INSURABLE",
+          "label": "نشانگر بیمه‌پذیر بودن نوع وثیقه",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "INSURANCE_CALCULATION_BASE",
+          "label": "مبنای محاسبه حق بیمه",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "COLLATERAL_GROUP_ID",
+          "label": "شناسه گروه وثیقه در بانک مرکزی",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "SPONSOR_REQUIRED",
+          "label": "نشانگر الزامی بودن ضامن",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "HAS_MULTIPLICITY",
+          "label": "نشانگر وجود تعدد در نوع وثیقه",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "RESERVE_RATIO",
+          "label": "ضریب محاسبه ذخیره مطالبات",
+          "dataType": "NUMBER(3,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "REVALUATION_INTERVAL_VALUE",
+          "label": "مقدار دوره ارزیابی مجدد",
+          "dataType": "NUMBER(2,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPON_REQUEST",
+          "label": "نشانگر عندالمطالبه بودن",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "EXCLUSIVE_USAGE",
+          "label": "نشانگر استفاده انحصاری از وثیقه",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "REQUIRED_RELEASE_INQUIRY",
+          "label": "نشانگر الزام استعلام پیش از آزادسازی",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CENTRALIZED_DEPOSIT_TYPES",
+          "label": "انواع سپرده متمرکز مرتبط",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "COLLATERAL_USAGE_TERM",
+          "label": "نحوه استفاده از نوع وثیقه",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "USE_IN_OTHER_BRANCHES",
+          "label": "نشانگر مجاز بودن استفاده در سایر شعب",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(20 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 0
+    },
+    {
+      "table": "COLLATERAL_GROUP",
+      "title": "گروه‌های وثیقه",
+      "description": "تعریف گروه‌های وثیقه و کد گروه",
+      "category": "structure",
+      "primaryKey": "COLLATERAL_GROUP_ID",
+      "codeColumn": "COLLATERAL_GROUP_CODE",
+      "nameColumn": "COLLATERAL_GROUP_NAME",
+      "columns": [
+        {
+          "name": "COLLATERAL_GROUP_ID",
+          "label": "شناسه گروه وثیقه",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "COLLATERAL_GROUP_CODE",
+          "label": "کد گروه وثیقه",
+          "dataType": "VARCHAR2(5 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "COLLATERAL_GROUP_NAME",
+          "label": "عنوان گروه وثیقه",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 0
+    },
+    {
+      "table": "REF_SOURCE_SYSTEM",
+      "title": "سامانه‌های مبدأ",
+      "description": "تعریف سامانه‌های مبدأ درخواست‌ها و رویدادهای وثیقه",
+      "category": "operation",
+      "primaryKey": "REF_SOURCE_SYSTEM_ID",
+      "codeColumn": "SOURCE_SYSTEM_CODE",
+      "nameColumn": "SOURCE_SYSTEM_NAME",
+      "columns": [
+        {
+          "name": "REF_SOURCE_SYSTEM_ID",
+          "label": "شناسه فنی سامانه مبدأ",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "SOURCE_SYSTEM_CODE",
+          "label": "کد مرجع سامانه مبدأ",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "SOURCE_SYSTEM_NAME",
+          "label": "نام سامانه مبدأ",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 5
+    },
+    {
+      "table": "REF_COLLATERAL_STATUS",
+      "title": "وضعیت‌های وثیقه",
+      "description": "کدهای وضعیت چرخه عمر وثیقه و نهایی یا فعال بودن آن‌ها",
+      "category": "operation",
+      "primaryKey": "REF_COLLATERAL_STATUS_ID",
+      "codeColumn": "COLLATERAL_STATUS_CODE",
+      "nameColumn": "COLLATERAL_STATUS_NAME",
+      "columns": [
+        {
+          "name": "REF_COLLATERAL_STATUS_ID",
+          "label": "شناسه فنی وضعیت وثیقه",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "COLLATERAL_STATUS_CODE",
+          "label": "کد مرجع وضعیت وثیقه",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "COLLATERAL_STATUS_NAME",
+          "label": "عنوان وضعیت وثیقه",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IS_ACTIVE_STATUS_FLAG",
+          "label": "نشانگر فعال محسوب شدن وضعیت",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IS_TERMINAL_STATUS_FLAG",
+          "label": "نشانگر وضعیت خاتمه‌یافته یا نهایی",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 7
+    },
+    {
+      "table": "COLLATERAL_INSURANCE_TYPE",
+      "title": "انواع بیمه‌نامه وثیقه",
+      "description": "انواع بیمه‌نامه قابل انتساب به وثیقه",
+      "category": "insurance",
+      "primaryKey": "COLLATERAL_INSURANCE_TYPE_ID",
+      "codeColumn": "COLLATERAL_INSURANCE_TYPE_CODE",
+      "nameColumn": "COLLATERAL_INSURANCE_TYPE_NAME",
+      "columns": [
+        {
+          "name": "COLLATERAL_INSURANCE_TYPE_ID",
+          "label": "شناسه نوع بیمه‌نامه وثیقه",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "COLLATERAL_INSURANCE_TYPE_CODE",
+          "label": "کد نوع بیمه‌نامه وثیقه",
+          "dataType": "VARCHAR2(50 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "COLLATERAL_INSURANCE_TYPE_NAME",
+          "label": "عنوان نوع بیمه‌نامه وثیقه",
+          "dataType": "VARCHAR2(200 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 0
+    },
+    {
+      "table": "REF_CHANNEL",
+      "title": "کانال‌های عملیات",
+      "description": "تعریف کانال‌های مبدأ عملیات مربوط به وثیقه",
+      "category": "operation",
+      "primaryKey": "REF_CHANNEL_ID",
+      "codeColumn": "CHANNEL_CODE",
+      "nameColumn": "CHANNEL_NAME",
+      "columns": [
+        {
+          "name": "REF_CHANNEL_ID",
+          "label": "شناسه فنی کانال",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "CHANNEL_CODE",
+          "label": "کد مرجع کانال",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CHANNEL_NAME",
+          "label": "نام کانال",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CHANNEL_TYPE_CODE",
+          "label": "کد دسته‌بندی کانال",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 4
+    },
+    {
+      "table": "INSURANCE_COMPANY",
+      "title": "شرکت‌های بیمه",
+      "description": "اطلاعات پایه شرکت‌های بیمه",
+      "category": "insurance",
+      "primaryKey": "INSURANCE_COMPANY_ID",
+      "codeColumn": "INSURANCE_COMPANY_CODE",
+      "nameColumn": "INSURANCE_COMPANY_NAME",
+      "columns": [
+        {
+          "name": "INSURANCE_COMPANY_ID",
+          "label": "شناسه شرکت بیمه",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "INSURANCE_COMPANY_CODE",
+          "label": "کد شرکت بیمه",
+          "dataType": "VARCHAR2(50 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "INSURANCE_COMPANY_NAME",
+          "label": "نام شرکت بیمه",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 0
+    },
+    {
+      "table": "REF_VALUATION_METHOD",
+      "title": "روش‌های ارزیابی وثیقه",
+      "description": "روش‌های قابل استفاده برای تعیین ارزش وثیقه",
+      "category": "valuation",
+      "primaryKey": "REF_VALUATION_METHOD_ID",
+      "codeColumn": "VALUATION_METHOD_CODE",
+      "nameColumn": "VALUATION_METHOD_NAME",
+      "columns": [
+        {
+          "name": "REF_VALUATION_METHOD_ID",
+          "label": "شناسه فنی روش ارزیابی",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "VALUATION_METHOD_CODE",
+          "label": "کد مرجع روش ارزیابی",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "VALUATION_METHOD_NAME",
+          "label": "عنوان روش ارزیابی",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 6
+    },
+    {
+      "table": "REF_VALUATION_STATUS",
+      "title": "وضعیت‌های ارزیابی وثیقه",
+      "description": "کدهای وضعیت رکورد ارزیابی و امکان ویرایش یا نهایی‌سازی",
+      "category": "valuation",
+      "primaryKey": "REF_VALUATION_STATUS_ID",
+      "codeColumn": "VALUATION_STATUS_CODE",
+      "nameColumn": "VALUATION_STATUS_NAME",
+      "columns": [
+        {
+          "name": "REF_VALUATION_STATUS_ID",
+          "label": "شناسه فنی وضعیت ارزیابی",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "VALUATION_STATUS_CODE",
+          "label": "کد مرجع وضعیت ارزیابی",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "VALUATION_STATUS_NAME",
+          "label": "عنوان وضعیت ارزیابی",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IS_FINAL_FLAG",
+          "label": "نشانگر نهایی بودن وضعیت ارزیابی",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IS_EDITABLE_FLAG",
+          "label": "نشانگر قابل ویرایش بودن وضعیت",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 5
+    },
+    {
+      "table": "REF_COLL_TXN_TYPE",
+      "title": "انواع تراکنش وثیقه",
+      "description": "کد و نوع تراکنش وثیقه شامل قابلیت برگشت و جهت پیش‌فرض",
+      "category": "operation",
+      "primaryKey": "REF_COLL_TXN_TYPE_ID",
+      "codeColumn": "TRANSACTION_TYPE_CODE",
+      "nameColumn": "TRANSACTION_TYPE_NAME",
+      "columns": [
+        {
+          "name": "REF_COLL_TXN_TYPE_ID",
+          "label": "شناسه فنی نوع تراکنش",
+          "dataType": "NUMBER(19,0)",
+          "required": true,
+          "primaryKey": true
+        },
+        {
+          "name": "TRANSACTION_TYPE_CODE",
+          "label": "کد مرجع نوع تراکنش وثیقه",
+          "dataType": "VARCHAR2(30 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "TRANSACTION_TYPE_NAME",
+          "label": "عنوان نوع تراکنش",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "IS_REVERSAL_FLAG",
+          "label": "نشانگر برگشتی بودن نوع تراکنش",
+          "dataType": "CHAR(1 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "DEFAULT_DIRECTION_CODE",
+          "label": "کد جهت پیش‌فرض تراکنش",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "DISPLAY_ORDER",
+          "label": "ترتیب نمایش",
+          "dataType": "NUMBER(5,0)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "STATUS",
+          "label": "وضعیت فعال یا غیرفعال بودن رکورد مرجع",
+          "dataType": "VARCHAR2(10 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_AT",
+          "label": "زمان ایجاد رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "CREATED_BY",
+          "label": "شناسه ایجادکننده رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": true,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_AT",
+          "label": "زمان آخرین ویرایش رکورد",
+          "dataType": "TIMESTAMP(6)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "UPDATED_BY",
+          "label": "شناسه آخرین ویرایشگر رکورد",
+          "dataType": "VARCHAR2(100 CHAR)",
+          "required": false,
+          "primaryKey": false
+        },
+        {
+          "name": "RECORD_VERSION",
+          "label": "شماره نسخه رکورد برای کنترل هم‌زمانی",
+          "dataType": "NUMBER(10,0)",
+          "required": true,
+          "primaryKey": false
+        }
+      ],
+      "seedCount": 3
+    }
+  ]
+}

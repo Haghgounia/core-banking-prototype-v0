@@ -1,0 +1,124 @@
+# نقشه راه مرجع توسعه ماژول وثایق (Collateral Management)
+
+**شناسه:** CLT-ROADMAP-R1.0  
+**وضعیت:** APPROVED FOR DEVELOPMENT PLANNING / تصویب‌شده به‌عنوان مبنای ثابت برنامه توسعه  
+**تاریخ:** 2026-11-03  
+**پروژه:** Core Banking Prototype  
+**Baseline سورس:** `core-banking-prototype-v0-2026-11-03-0910.zip` — `VERSION=0.11.0`  
+**Baseline تجربه کاربری:** `Collateral_UI_Final_Offline_V1.42_FA.html`  
+**مرجع مدل داده:** `Collateral_EA_Model_Candidate.xml` (مدل پیشنهادی) و `CLT-2026-11-1.txt` (استخراج DDL اسکیمای CLT)  
+**سطح تصویب:** تثبیت دامنه، مرزبندی ماژول، توالی فازها، کنترل تغییرات و معیارهای پذیرش. به معنای تصویب سیاست‌های بانکی، تغییر Schema، گواهی اجرای Oracle، آمادگی امنیتی یا مجوز استقرار نیست.
+
+## 1. مصوبات مبنایی (Fixed Decisions)
+
+1. ساختار جاری Modular Monolith و یک Backend JAR / Frontend Angular مشترک **حفظ** می‌شود. استخراج Microservice، تغییر به Maven Multi-Module، ایجاد مخزن مستقل یا Git Branch شرط شروع نیست.
+2. توسعه Collateral موازی IAM در Workspace مستقل و از Baseline ثابت `0.11.0` آغاز می‌شود. توسعه Collateral نباید کد IAM یا دیگر ماژول‌ها را بازنویسی کند.
+3. محدوده Backend تحت `com.behsazan.corebanking.collateral/**`، Frontend تحت `frontend/src/app/features/collateral/**`، SQL و ابزارهای جدید تحت `database/oracle/clt/**` و `tools/clt/**` تعریف می‌شود. این‌ها مسیرهای پیشنهادی توسعه‌اند و فعلاً در سورس ایجاد نشده‌اند.
+4. فایل‌های مشترک مانند `frontend/src/app/app.routes.ts`، `frontend/src/app/layout/app-shell.component.html`، `frontend/src/app/app.config.ts`، `backend/pom.xml`، تنظیمات Spring، امنیت سراسری، `VERSION` و اسکریپت‌های انتشار فقط در Integration Workspace تغییر می‌کنند؛ هیچ نسخه قدیمی از آن‌ها کپی/جایگزین نمی‌شود.
+5. هنگام ادغام، **آخرین نسخه کامل و معتبر پروژه** مبنا است، نه ZIP اختصاصی Collateral. تمام ماژول‌های موجود (CIF، DPS2، Reference Data، ORG، CAL2، FEE3، PDL، Posting، IAM و...) حفظ می‌شوند.
+6. معیار صحت کسب‌وکار: 14 قاعده `BR-01..BR-14` و 16 مورد `BUC`، کنترل‌های سناریویی `SUC-01..SUC-20`، و تعاملات UI V1.42. تغییر رفتار فقط از مسیر Change Record مستند و تأیید مرتبط انجام می‌شود.
+7. 17 Endpoint سند API و 14 سرویس سند Service **Target Contracts** هستند، نه سرویس‌های مستقر یا OpenAPI نهایی؛ پس از رفع تصمیمات مربوطه نسخه `CLT-API-v1` تثبیت می‌شود.
+8. مدل EA شامل 26 جدول/373 ستون/41 FK است، ولی وضعیت خود همه 26 کلاس `Proposed` است؛ فقط Package `Collateral Domain` در فایل EA وضعیت `Approved` دارد. بنابراین برچسب نام فایل SQL «Approved XMI» مجوز استقرار نیست.
+9. فایل `CLT-2026-11-1.txt` یک **DDL export** از اسکیمای `CLT` است، نه گزارش اجرای query زنده، شمارش رکوردها یا مجوز تغییر. هر DDL/DML روی Oracle ممنوع تا زمان تطبیق read-only و تصویب Migration.
+10. مقادیر مشتری، دارایی، بیمه‌گر، ضریب پذیرش و سیاست در UI آفلاین نمونه‌اند. فقط Seed فنی مجاز است *پس از بررسی* برای محیط آزمایشی استفاده شود؛ ورود Policy عملیاتی بدون تصویب بانک ممنوع است.
+11. Idempotency، کنترل نسخه `RECORD_VERSION`، محافظت رقابت روی ظرفیت، Audit، تفکیک وظایف و مجوز شعبه باید در Backend اجرا شوند؛ اتکا به اعتبارسنجی UI یا Header هویت دلخواه ممنوع است.
+12. تست فنی قبل از تحویل توسط مسیر توسعه انجام می‌شود؛ کاربر عمدتاً UAT عملکردی را در UI بررسی می‌کند. Oracle Write و فعال‌سازی یکپارچه‌سازی واقعی در گیت‌های پایانی هستند.
+
+## 2. خط مبنای بررسی 12 پیوست + سورس پروژه
+
+| ورودی | دامنه/نتیجه تأییدشده با بررسی ایستا |
+|---|---|
+| `Collateral_UI_Final_Offline_V1.42_FA.html` | مرجع رفتار و نمایش؛ شبیه‌ساز دارای state مرورگر و داده‌های نمونه؛ 15 مسیر؛ هیچ REST/Oracle واقعی |
+| `Collateral_Business_Use_Cases_FA.html` | 16 مورد کاربرد `BUC-01..16`؛ 14 قاعده `BR-01..14` |
+| `Collateral_System_Use_Cases_FA.html` | 20 مورد `SUC-01..20` و 15 شکاف `G-01..15` |
+| `Collateral_Service_Specification_FA.html` | 14 سرویس `SVC-01..14`، چرخه وضعیت، ظرفیت، کنترل تراکنش |
+| `Collateral_API_Contract_FA.html` | 17 Endpoint هدف، Bearer/ETag/Idempotency/Correlation و شکاف‌ها |
+| `Collateral_UI_Specification_FA.html` | 15 صفحه/مسیر، 10 آزمون `UAT-01..10`، مجوز و RTL |
+| `Collateral_User_Guide_FA.html` | 10 گام کاربری، تفکیک محیط عملیاتی و ستاد، هشدار آفلاین |
+| `Collateral_DB_Specification_FA.html` | 26 جدول، 373 ستون، 26 PK، 46 UNIQUE، 161 CHECK، 41 FK، 49 تعریف Index در XMI |
+| `Collateral_EA_Model_Candidate.xml` | همان 26 کلاس جدول، همگی Proposed؛ 3 Package (7 دامنه، 2 Trace، 17 Reference) |
+| `Collateral_Oracle_Schema_From_Approved_XMI.sql` | DDL پیشنهادی برای اسکیمای خالی؛ 26 ستون `IDENTITY`، 47 `CREATE INDEX` مستقل |
+| `Collateral_Oracle_Reference_Data_Seed.sql` | 53 رکورد فنی در 11 جدول؛ برای سیاست‌های بانکی و داده نمایشی Seed ندارد |
+| `CLT-2026-11-1.txt` | 26 جدول با همان 373 نام ستون، 26 Sequence با `NEXTVAL`؛ اختلاف ساخت/نام‌گذاری و 3 نوع ستون با DDL مشتق‌شده |
+| `core-banking-prototype-v0-2026-11-03-0910.zip` | نسخه کامل `0.11.0`؛ فاقد ماژول اختصاصی `collateral` در Backend/Frontend و فاقد `database/oracle/clt` |
+
+### 2.1. تمایزهای فیزیکی مهم
+
+- مدل پیشنهادی: 26 ستون Identity. استخراج `CLT`: شناسه‌ها با 26 Sequence مستقل تأمین می‌شوند. **هیچ `CREATE TABLE` جدید روی CLT موجود اجرا نشود.**
+- اختلاف‌های تایپی شناسایی‌شده: `COLLATERAL_ATTRIBUTE_DEFINITION_ITEM.TEXT_VALUE`: `VARCHAR2(4000 BYTE)` در SQL مدل در برابر `VARCHAR2(4000 CHAR)` در CLT؛ `COLLATERAL_GROUP.CREATED_BY`: `VARCHAR2(100 CHAR)` در برابر `VARCHAR2(100)`؛ `COLLATERAL_INSURANCE_TYPE.COLLATERAL_INSURANCE_TYPE_CODE`: `VARCHAR2(50 CHAR)` در برابر `VARCHAR2(50)`.
+- شمار PK/FK/UK/CHECK در دو متن برابر به دست آمد (26/41/46/161)، اما نام قیود و Indexها متفاوت است؛ همسانی *منطقی* تمام expressions به‌صورت خودکار تأیید نشده است. Validation روی Data Dictionary واقعی ضروری است.
+- `COLLATERAL_TRANSACTION.TRANSACTION_STATUS_CODE` مقدار پیش‌فرض `PENDING` دارد، درحالی‌که Seed جدول `REF_COLL_TXN_STATUS` کد `PENDING_APPROVAL` دارد و `PENDING` ندارد. این **G-16 مستقل** است و قبل از اولین نوشتن باید برطرف شود.
+- الگوریتم شماره انتظامی در UI به شکل «کد نوع + سال شمسی + شماره مشتری + توالی 3رقمی + رقم کنترل» است؛ طول نهایی با `COLLATERAL.COLLATERAL_NUMBER NUMBER(19)` و اندازه شناسه واقعی CIF باید قبل از اجرا بررسی شود؛ کد نوع می‌تواند تا پنج رقم باشد. این **G-17 مستقل** است. شماره انتظامی باید در API به‌صورت رشته برای حفظ دقت و صفرهای احتمالی حمل شود و Backend در محدوده فیزیکی تأیید کند.
+
+## 3. مرز دامنه و وابستگی‌ها
+
+**مالکیت Collateral:** معرفی/شناسنامه وثیقه، ویژگی‌های اختصاصی، ضامن، بیمه‌نامه، تاریخچه ارزیابی مرتبط با وثیقه، تخصیص و ظرفیت، آزادسازی، Audit و گزارش.
+
+**مالکیت خارج از Collateral:** مشتری/Party در CIF؛ سپرده/حساب و Hold در DPS2؛ ساختار شعبه در ORG؛ هویت، Authorization و SoD در IAM؛ اطلاعات تسهیلات/ضمانت‌نامه/LC در دامین‌های مصرف‌کننده؛ DMS و FX در سرویس‌های مستقل. Collateral فقط از Contract/Port/Adapter استفاده می‌کند.
+
+**BIAN:** تفکیک `Collateral Allocation Management` از `Party Asset Directory` باید در مدل مفهومی ثبت شود؛ شرح BIAN v14 مدیریت ارزش دارایی را در Party Asset Directory قرار می‌دهد. در Prototype فعلی، ذخیره تاریخچه ارزیابی در CLT طبق مستندات ارسالی پذیرفته‌شده برای طراحی موقت است؛ در ADR طراحی باید محل مرجع نهایی ارزیابی و نحوه همگام‌سازی با Party Asset Directory تصمیم‌گیری شود. منبع: https://bian.org/servicelandscape-14-0-0/object_15.html?object=40635
+
+### Integration Ports (قرارداد هدف)
+
+| Port | مبنا/مالک | وضعیت تصمیم |
+|---|---|---|
+| `PartyLookupPort` | `GET /api/v1/cif/parties/{partyId}` در سورس موجود | Adapter با کنترل KYC و شناسه Party؛ نیازمند اعتبارسنجی قرارداد |
+| `DepositHoldPort` | DPS2 `POST /api/v1/deposit-accounts/{accountId}/holds` و `.../{holdId}/release` | فقط برای وثیقه سپرده‌ای؛ `COLLATERAL_PLEDGE`, `COLLATERAL`, `ORIGIN_ONLY`؛ قرارداد امنیتی و ترتیب تراکنش باید تعیین تکلیف شود |
+| `ConsumerObligationPort` | تسهیلات/ضمانت‌نامه/LC | قرارداد شماره پرونده، بدهکاران، مبلغ و وضعیت؛ Adapter آزمایشی فقط در Dev |
+| `OrganizationAuthorizationPort` | ORG + IAM | مرز شعبه، مجوز نوع و معرفی؛ توکن معتبر و تفکیک وظایف |
+| `ReferencePolicyPort` | جداول تخصصی `CLT` با مالکیت سیاست و داده مرجع | تعاریف فنی از سیاست مصوب بانک جدا است |
+| `AssetDirectoryPort` | BIAN Party Asset Directory / مرجع دارایی آینده | طراحی و تصمیم مالکیت داده پیش از اتصال رسمی |
+| `FxRatePort`، `DocumentPort` | سرویس‌های ارزی/DMS | بدون اتصال واقعی هیچ عملیات مالی ارزی یا سندی واقعی ادعا نمی‌شود |
+
+## 4. نقشه راه نسخه‌دار و ثابت (R0..R7)
+
+> **قانون:** شناسه، نام و ترتیب فازهای R0 تا R7 در تحویل‌های بعدی تغییر نمی‌کند؛ تغییر دامنه فازها فقط از طریق Change Request نسخه‌دار امکان دارد. کار در هر فاز می‌تواند به Feature Slices تجمیع‌شده تقسیم شود. هر تحویل باید وضعیت تکمیل، باقی‌مانده، مانع، گام بعد و شواهد Diff/Build/UAT را ثبت کند.
+
+| فاز | عنوان قطعی | دامنه و تحویل قابل مشاهده | معیار خروج (Gate) |
+|---|---|---|---|
+| **R0** | تحلیل و تثبیت خط مبنا | این نقشه راه، Gap Register، مشخصات Baseline، ADRهای معماری، تعیین مالکیت فایل‌ها و تطبیق ایستای XMI/CLT | ثبت 12 منبع + سورس؛ تمام شکاف‌ها شماره‌دار؛ هیچ DDL/DML یا تغییر کد |
+| **R1** | اطلاعات پایه و حاکمیت قواعد | محیط ستاد، کاتالوگ گروه/نوع/ویژگی/بیمه/ارز/وضعیت، Read API و نسخه‌بندی رکورد، کنترل تغییر و Audit | کنترل یکتایی، نقش ستاد، Seed صرفاً فنی، G-10 و G-15 تعیین تکلیف؛ UAT ستاد |
+| **R2** | شناسنامه، معرفی و جست‌وجو | فهرست/جزئیات، دسترسی مستقیم با شماره انتظامی، استعلام Party، معرفی و ویژگی‌ها، اقلام شمارشی، درخواست اصلاحیه | BR-02/03/11، G-01/03/12/17 حل؛ شماره انتظامی پایدار؛ UAT-01/02/07/08 |
+| **R3** | ضامن، بیمه و ارزیابی | ثبت/تأیید/لغو ضامن، بیمه و تمدید، ارزیابی و تجدید ارزیابی، انقضای دوره‌ای | BR-05/06/07/12، G-04/05/06/07/11 حل؛ تاریخچه غیرقابل حذف؛ UAT-04/05/09 |
+| **R4** | ظرفیت و تخصیص بین‌دامنه‌ای | الگوریتم کفایت و کسری، سیاست مجاز، Consumer API، Idempotency، تخصیص اتمیک و کنترل مجوز بین‌واحدی | BR-08/09/10/13، G-02/09/13/16 حل؛ رقابت و تکرار تست‌شده؛ UAT-03/04/05 |
+| **R5** | رفع تخصیص، آزادسازی و سوابق | رفع تخصیص توسط دامین صاحب تعهد، آزادسازی نهایی، معرفی مجدد با شماره جدید، تراکنش‌ها/Status History/Reference Audit | BR-04/14، G-08/14 حل؛ عدم حذف سوابق و بازاستفاده شماره؛ UAT-06 |
+| **R6** | تکمیل رابط کاربری و UAT جامع | تکمیل همه 15 صفحه، گزارش ظرفیت و رویداد، داشبورد، دسترس‌پذیری و آزمون طراح/تحلیلگر | 10/10 سناریوی UAT و همه 16 BUC و 20 SUC ردیابی‌شده؛ RTL و نمایش 1366px |
+| **R7** | یکپارچه‌سازی، امنیت و آمادگی عملیاتی | اتصال نسخه جاری Core Banking، قرارداد IAM/ORG/CIF/DPS2، Migration کنترل‌شده Oracle، تست Integration/Regression/Performance/Security، Feature Flag و انتشار | تمام G-01..G-17 بسته یا با Waiver رسمی؛ Oracle evidence و مجوز عملیاتی مستقل؛ صفر بازنویسی ناخواسته ماژول‌های دیگر |
+
+**نکته مراحل:** توسعه UI به‌صورت قابل مشاهده از R1 تا R5 انجام می‌شود؛ R6 به معنای شروع دیرهنگام UI نیست، بلکه پوشش نهایی، گزارش و UAT کامل است. شروع R1..R6 وابسته به اتمام IAM نیست، اما فعال‌سازی عملیات واقعی دارای مجوز و R7 به کنترل امنیت معتبر نیاز دارد.
+
+## 5. معیارهای فنی اجباری در تمام مراحل
+
+- **Database:** Oracle در فازهای اولیه Read-Only یا Stub؛ هیچ اجرای خودکار SQL ارسالی؛ مسیر Migration بر اساس اسکیمای موجود CLT و Sequenceها.
+- **API:** OpenAPI نسخه‌دار و Schema validation؛ `X-Correlation-Id` و `Idempotency-Key` برای فرمان‌های مالی؛ `If-Match` یا معادل `RECORD_VERSION`؛ قرارداد خطا و عدم افشای منبع غیرمجاز.
+- **Concurrency:** `SELECT FOR UPDATE`/قفل مناسب یا Optimistic Lock در مرز تراکنش؛ آزمون دو تخصیص هم‌زمان که با هم از ظرفیت مجاز عبور نکنند.
+- **Security:** Deny-by-default برای API Collateral، JWT معتبر، Authorityهای Collateral، کنترل دوگانه مجوز نوع و معرفی برای دسترسی بین‌واحدی، Maker/Checker و عدم اعتماد به `X-User-Id` کاربر.
+- **Integration:** بدون خواندن/نوشتن مستقیم Schemaهای CIF/DPS2/ORG؛ فقط API/Adapter و قوانین Ownership.
+- **Audit:** ثبت منبع، تغییر، عامل، زمان، شناسه همبستگی و نسخه؛ رکوردهای قطعی قابل پاک‌شدن پنهان نباشند.
+- **UAT:** مقایسه با V1.42 بر اساس رفتار و سفر کاربر، نه انتقال خام HTML/JavaScript شبیه‌ساز به Angular.
+- **Build:** آزمون Maven و Angular، Contract Tests، Regression سناریوهای موجود پروژه، بررسی Diff فایل‌های مشترک، ثبت SHA و نسخه Master.
+- **Release:** هیچ تغییر به `app.routes.ts`, `app-shell.component.html`, IAM Security یا Build از کپی Collateral مستقیماً جایگزین نشود؛ ادغام کنترل‌شده لازم است.
+
+## 6. وضعیت در تاریخ تثبیت (2026-11-03)
+
+| بخش | وضعیت |
+|---|---|
+| شناسایی و بررسی ایستای 12 سند ارسالی | تکمیل |
+| تطبیق اولیه 26 جدول/373 ستون DDL و XMI | تکمیل |
+| ثبت G-01..G-17 و اولویت‌ها | تکمیل |
+| تصویب توالی ثابت R0..R7 به‌عنوان Baseline توسعه | تکمیل با درخواست کاربر |
+| تصویب رسمی تک‌تک تصمیمات Schema/Policy | باز؛ جزو Gateهای فازهای مربوطه |
+| تأیید ساختار واقعی Oracle با اتصال و Query خواندنی | انجام‌نشده؛ فقط CLT DDL export بررسی شده |
+| پیاده‌سازی Collateral در Java/Angular | شروع‌نشده؛ مطابق درخواست، این تحویل فقط تحلیل/نقشه راه است |
+| ادغام با IAM و اجرای UAT | انجام‌نشده |
+
+## 7. قواعد مدیریت تغییر و تحویل آینده
+
+- در هر گزارش: `CLT-ROADMAP-R1.0` و `Baseline source SHA256` ذکر شود.
+- هر فاز یک Acceptance Matrix شامل `BUC/SUC/API/UI/DB/BR`، تست، وضعیت و شواهد تولید کند.
+- هر Gap باید وضعیت `OPEN -> DECIDED -> IMPLEMENTED -> VERIFIED -> CLOSED` داشته باشد؛ `WAIVED` فقط با علت، مالک و تاریخ مجاز است.
+- نسخه‌های Collateral مستقل از محصول شماره می‌خورند (`CLT-R1`, `CLT-R2`, ...)، اما فقط Build یکپارچه نسخه اصلی محصول را تغییر می‌دهد.
+- هر تحویل ZIP فقط شامل تغییرات دامنه Collateral + Manifest و شواهد QA باشد؛ هیچ پوشه یا فایل دیگر بدون Change Request مشترک بازنویسی نشود.
+- توسعه بدون اجرای Oracle Write قابل شروع است؛ وصل‌کردن فرمان‌های واقعی مالی/سپرده‌ای قبل از احراز هویت و شواهد تراکنش ممنوع است.
+
+**تصمیم اجرایی:** پس از R0، گام بعد **R1 — اطلاعات پایه و حاکمیت قواعد** است. پیش از هر نوشتن عملیاتی، G-16 و G-17 و تصمیم‌های وابسته به آن مسیر باید به‌صورت رسمی resolved شوند.
