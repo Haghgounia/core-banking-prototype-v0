@@ -1,0 +1,30 @@
+{
+  "delivery": "R4B",
+  "version": "0.11.0",
+  "changed": [
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationConsumerBinding.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationRequestController.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationRequestExceptionHandler.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationRequestModels.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationRequestPolicy.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationRequestRepository.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationRequestService.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/capacity/CollateralCapacityService.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+    "backend/src/test/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationRequestPolicyTest.java",
+    "database/oracle/clt/r4b/00_ALLOCATION_CONTRACT_READONLY_PRECHECK.sql",
+    "docs/collateral/CLT-R4B-ALLOCATION-REQUEST-CONTRACT-FA.md",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-03-R4B.md",
+    "frontend/src/app/features/collateral/collateral-allocation-request-panel.component.html",
+    "frontend/src/app/features/collateral/collateral-allocation-request-panel.component.scss",
+    "frontend/src/app/features/collateral/collateral-allocation-request-panel.component.ts",
+    "frontend/src/app/features/collateral/collateral-allocation-request.service.ts",
+    "frontend/src/app/features/collateral/collateral-registry.component.html",
+    "frontend/src/app/features/collateral/collateral-registry.component.ts",
+    "tools/clt/r4b/AllocationRequestPolicySmoke.java"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r4b-2026-11-03T13-59-02-743Z",
+  "oracleExecution": false,
+  "allocationWritesEnabled": false,
+  "createdAt": "2026-11-03T13:59:02.840Z"
+}

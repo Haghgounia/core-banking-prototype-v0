@@ -46,6 +46,15 @@ public class CollateralRegistrySecurityConfiguration {
         http.exceptionHandling(e -> e.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
                 .authorizeHttpRequests(r -> r
+                        // R4B: analyst preview has READ scope; no trusted consumer authority implied.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/allocation-requests/preview")
+                        .hasAuthority("SCOPE_clt.collateral.read")
+                        // Service-only preflight additionally verifies signed JWT client_id/domain/grant in service.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/allocation-requests/service-preflight")
+                        .hasAuthority("SCOPE_clt.allocation.preflight")
+                        // R4A: what-if POST performs no mutation; explicit READ scope, not introduce.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/capacity/preview")
+                        .hasAuthority("SCOPE_clt.collateral.read")
                         // R3C: candidate validation is not a final approval or an allocation decision.
                         .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/valuations/validate")
                         .hasAuthority("SCOPE_clt.collateral.introduce")

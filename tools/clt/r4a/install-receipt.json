@@ -1,0 +1,28 @@
+{
+  "delivery": "R4A",
+  "version": "0.11.0",
+  "changed": [
+    "backend/src/main/java/com/behsazan/corebanking/collateral/capacity/CollateralCapacityController.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/capacity/CollateralCapacityExceptionHandler.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/capacity/CollateralCapacityModels.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/capacity/CollateralCapacityPolicy.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/capacity/CollateralCapacityRepository.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/capacity/CollateralCapacityService.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+    "backend/src/test/java/com/behsazan/corebanking/collateral/capacity/CollateralCapacityPolicyTest.java",
+    "database/oracle/clt/r4a/00_CAPACITY_READONLY_PRECHECK.sql",
+    "docs/collateral/CLT-R4A-CAPACITY-CONTRACT-FA.md",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-03-R4A.md",
+    "frontend/src/app/features/collateral/collateral-capacity-panel.component.html",
+    "frontend/src/app/features/collateral/collateral-capacity-panel.component.scss",
+    "frontend/src/app/features/collateral/collateral-capacity-panel.component.ts",
+    "frontend/src/app/features/collateral/collateral-capacity.service.ts",
+    "frontend/src/app/features/collateral/collateral-registry.component.html",
+    "frontend/src/app/features/collateral/collateral-registry.component.ts",
+    "tools/clt/r4a/CapacityPolicySmoke.java"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r4a-2026-11-03T13-23-40-425Z",
+  "oracleExecution": false,
+  "allocationWritesEnabled": false,
+  "createdAt": "2026-11-03T13:23:40.523Z"
+}
