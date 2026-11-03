@@ -1,0 +1,9 @@
+{
+  "release": "IAM-R1.9-S1B-RO3",
+  "sourceSha256": "d5e7199c72b63498a188618f056bb2af0ba26980036a58cdecbe78c9b2efb1b1",
+  "mode": "default-disabled",
+  "labTest": "ephemeral-jdk-rsa-2048-and-spring-http",
+  "requiresLiveIdpAcceptance": true,
+  "requiresLiveOracleAcceptance": true,
+  "oracleWrites": false
+}

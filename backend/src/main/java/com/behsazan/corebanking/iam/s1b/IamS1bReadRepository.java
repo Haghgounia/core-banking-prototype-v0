@@ -30,8 +30,22 @@ public class IamS1bReadRepository {
                 (org.springframework.jdbc.core.RowCallbackHandler) row -> {
                     found.computeIfAbsent(row.getString(1), k -> new HashSet<>()).add(row.getString(2));
                 });
-        return REQUIRED_COLUMNS.entrySet().stream().allMatch(e ->
-                found.getOrDefault(e.getKey(), Set.of()).containsAll(e.getValue()));
+        if (!REQUIRED_COLUMNS.entrySet().stream().allMatch(e ->
+                found.getOrDefault(e.getKey(), Set.of()).containsAll(e.getValue()))) return false;
+        // Dedicated reader must have no active roles or elevated session privileges.
+        // Exact direct IAM SELECT/READ grants are required: JDBC read-only is not a security boundary.
+        List<String> system = db.queryForList("SELECT PRIVILEGE FROM SESSION_PRIVS", String.class);
+        List<String> roles = db.queryForList("SELECT ROLE FROM SESSION_ROLES", String.class);
+        List<IamS1bOracleReadPolicy.Grant> grants = db.query(
+                "SELECT OWNER, TABLE_NAME, PRIVILEGE FROM USER_TAB_PRIVS_RECD",
+                (rs, row) -> new IamS1bOracleReadPolicy.Grant(rs.getString(1), rs.getString(2), rs.getString(3)));
+        if (!IamS1bOracleReadPolicy.leastPrivilege(system, roles, grants)) return false;
+        // A direct grant may be present while the actual SELECT still fails (e.g. policy restrictions).
+        for (String table : IamS1bOracleReadPolicy.TABLES) {
+            db.query("SELECT 1 FROM IAM." + table + " WHERE 1 = 0",
+                    (org.springframework.jdbc.core.RowCallbackHandler) row -> { });
+        }
+        return true;
     }
 
     public Optional<Domain> domain(String code) {

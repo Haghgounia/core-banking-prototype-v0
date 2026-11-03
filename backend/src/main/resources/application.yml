@@ -40,6 +40,7 @@ core-banking:
       issuer: ${IAM_S1B_ISSUER:}
       jwks-uri: ${IAM_S1B_JWKS_URI:}
       audience: ${IAM_S1B_AUDIENCE:}
+      max-token-lifetime-seconds: ${IAM_S1B_MAX_TOKEN_LIFETIME_SECONDS:3600}
       # Always a distinct, least-privileged Oracle reader, NOT the prototype SYSTEM datasource.
       jdbc-url: ${IAM_S1B_JDBC_URL:}
       jdbc-username: ${IAM_S1B_JDBC_USERNAME:}

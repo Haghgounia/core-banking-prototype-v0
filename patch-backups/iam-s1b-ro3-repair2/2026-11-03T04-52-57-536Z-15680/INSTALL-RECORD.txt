@@ -1,0 +1,14 @@
+Release=IAM-R1.9-S1B-RO3-REPAIR2
+Target=D:\Projects\core-banking-prototype-v0
+Changed=5
+Files=5
+MavenTest=PendingAfterSourceInstall
+Oracle=NoExecution
+IdP=NoConnection
+WriteApis=None
+GitCommit=None
+CHANGELOG.md bf7975edee9bc8ef0aacfbaad6a309d61669de1ce3d163df61f0106a7f91aa65 => 0a34f807551b46860063138f6888900df1f91e3a4f4a80a40b40c6abf4b54ea9
+backend/src/main/resources/iam-s1b-ro3-proof.json 428bc8f00dca9728a6a7a30cb4744140f3e1d00b502fa4c822c94e6eccf51615 => b8d551fe972a53e194da6d74950b519dce3f3d82b668a171f66f07fe9849c192
+backend/src/test/java/com/behsazan/corebanking/iam/s1b/IamS1bSignedHttpIntegrationTest.java c72e56d09a0d25e75dfbbec94cb1ba1be2997855fe86dc6e345a880d38d7f679 => ac642470a2d5a67a9ae99f2ce2148e9c7f0e812fc28d143d69eadde193876b94
+docs/iam/IAM-R1.9-S1B-RO3-REPAIR2-FA.md <created> => 10e76c6120bbab28c34f940bc58726f891bfbe6c62ad762dfa4775c3e237750d
+tools/iam/s1b/verify-s1b-ro3-contract.mjs a5519ba5a4340b2fa54ec011cce932aca0a3fbee20daba900620d45c22a9180b => fea637d6d65abad5453dece6c87824ed863e967d85eb7e4c48976b479fa76018

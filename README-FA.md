@@ -1,3 +1,12 @@
+### IAM-R1.9 / S1B-RO3 (آزمایشگاه HTTP امضاشده)
+
+- JWT Decoder اختصاصی و نام‌دار برای IAM، آزمون کلید موقت RSA و JUnit روی HTTP محلی با Repository ساختگی.
+- بدون تغییر فرم IAM-S1A و بدون ایجاد API نوشتنی؛ IdP/Oracle DEV واقعی همچنان نیازمند مجوز است.
+- کنترل QA: `node tools/iam/s1b/verify-s1b-ro3-contract.mjs` و سند `docs/iam/implementation/S1B/IAM-S1B-RO3-SIGNED-HTTP-LAB-FA.md`.
+
+### IAM-R1.8 / S1B-RO2 — مرز امنیتی توکن و Oracle DEV (۲۰۲۶-۱۱-۰۲)
+نسخه S1A فرم تأییدشده را حفظ می‌کند. S1B-RO2 به Backend فقط‌خواندنی JWT/RS256، بررسی Grant واقعی Oracle و Harness تست 401/403/200/503 می‌افزاید؛ همه پیش‌فرض غیرفعال. هیچ IAM Write و هیچ اجرای Oracle ندارد. برای راهنمای فعال‌سازی کنترل‌شده، `docs/iam/implementation/S1B/IAM-S1B-RO2-SECURITY-AND-ORACLE-ACCEPTANCE-FA.md` و نقشه راه `docs/iam/IAM-CANONICAL-ROADMAP-FA.md` را ببینید.
+
 **IAM-R1.7 / S1B-RO.1:** پایه Backend فقط‌خواندنی و ایزوله IAM با JWT و Oracle Reader مجزا اضافه شد. تنظیم پیش‌فرض غیرفعال است؛ فرم تأییدشده S1A بدون تغییر باقی مانده. راهنما: `docs/iam/implementation/S1B/IAM-S1B-RO1-SECURE-READ-FOUNDATION-FA.md`.
 
 ## ORG R2-B — وضعیت سورس قابل آزمون (24 Oct 2026)

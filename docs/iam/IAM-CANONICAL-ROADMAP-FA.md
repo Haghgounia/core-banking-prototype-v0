@@ -1,8 +1,8 @@
 # نقشه راه مرجع IAM — Core Banking Prototype
 
-**نسخه مرجع:** `IAM-R1.7 / S1B-RO.1` — ۲۰۲۶-۱۱-۰۲  
+**نسخه مرجع:** `IAM-R1.9 / S1B-RO3` — ۲۰۲۶-۱۱-۰۳  
 **مبنای واقعی سورس:** `core-banking-prototype-v0-2026-11-02-1751.zip`، نسخه نرم‌افزار `0.11.0`  
-**سطح اعتبار:** معماری هنوز در انتظار تصویب؛ S1A-C1 در مرورگر تأیید شده و S1B-RO.1 فقط یک Backend امن و غیرفعال پیش‌فرض برای Read Oracle است، **نه سامانه IAM عملیاتی**.  
+**سطح اعتبار:** معماری هنوز در انتظار تصویب؛ S1A-C1 در مرورگر تأیید شده و S1B-RO3 آزمون امضای RS256 و HTTP واقعی با Repository ایزوله را اضافه می‌کند. **نه سامانه IAM عملیاتی، نه اثبات اتصال به IdP/Oracle بانکی.**  
 **مالک ثبت وضعیت:** این فایل؛ `docs/roadmap/IAM-IMPLEMENTATION-ROADMAP.md` فقط نشانی پایدار آن است.
 
 ## ۱. تصمیم‌های ثابت معماری
@@ -32,7 +32,7 @@
 | کد | نام ثابت | خروجی/شرط عبور بدون تغییر ماهوی | وضعیت واقعی در S1A-C1 |
 |---|---|---|---|
 | IAM-00 | Architecture & Naming Baseline | ADR، مالکیت داده، Name Contract، Threat Model و تأیید معمار/امنیت | **DESIGN_PRESENT / APPROVAL_PENDING**؛ Snapshotها آشتی شده ولی ADRهای باز وجود دارد |
-| IAM-01 | User Management Data Foundation | Data Foundation، API/Service امن، Migration ایزوله و پذیرش UI/Oracle DEV | **IN_PROGRESS**؛ S1A-C1 Browser OK؛ Backend S1B-RO.1 Read-only آماده سورس ولی پیش‌فرض خاموش، فعال‌سازی IdP/Oracle و UAT باز |
+| IAM-01 | User Management Data Foundation | Data Foundation، API/Service امن، Migration ایزوله و پذیرش UI/Oracle DEV | **IN_PROGRESS**؛ S1A-C1 Browser OK؛ Backend S1B-RO3 آزمایش HTTP رمزنگاری‌شده افزوده؛ Backend پیش‌فرض خاموش، فعال‌سازی IdP/Oracle و UAT باز |
 | IAM-02 | Identity Federation & Authentication | OIDC/SSO/MFA، Federation، Provisioning/SCIM، مدیریت Token/Session | **NOT_STARTED** |
 | IAM-03 | Workforce & Organizational Scope | HR/ORG Linking، Joiner-Mover-Leaver، Branch/Region/Head Office Scope | **NOT_STARTED** |
 | IAM-04 | Authorization Engine | RBAC/ABAC/ReBAC، PDP/PEP، Deny-by-default و دامنه‌های CIF/FEE3/DPS2 | **NOT_STARTED** |
@@ -57,7 +57,7 @@
 | برش | محتوای تجمیعی | معیار پذیرش |
 |---|---|---|
 | S1A-C1 — تأیید UI | Route `#/iam/user-management`، گروه ناوبری، شبیه‌ساز حساب/Principal/Link، Negative Tests و کنترل سه‌لایه Build/Static/JAR | نصب و Browser UAT فرم در ۲۰۲۶-۱۱-۰۲ تأیید؛ Mock بودن و عدم یکپارچگی Oracle محفوظ |
-| S1B — جاری (S1B-RO.1) | JWT Trust Boundary مستقل، API GET، Oracle READ Pool مجزا و Policy Domain/Context؛ No Write | Static/Java policy QA در سورس؛ Maven/IdP و Oracle DEV Integration + 401/403/503 E2E و تصویب امنیت هنوز باز |
+| S1B — جاری (S1B-RO3) | JWT RS256 با Claims سخت‌گیرانه، API GET، بررسی واقعی حداقل‌مجوز Reader و Policy Domain/Context پیش از Oracle؛ No Write | Source/Pure Java QA؛ Maven و IdP/Oracle DEV Integration + 401/403/200/503 واقعی و تصویب امنیت هنوز باز |
 | S1C — پس از مجوز DBA | Read-only Runtime Recon، Delta Migration نسخه‌دار، Seed کنترل‌شده و Oracle DEV Integration | DBA/SEC Sign-off، Migration Integrity و Recovery/Negative Tests |
 | S1D — بستن IAM-01 | UAT یکپارچه User Management، trace و Release Evidence | UAT تحلیلگر، امنیت، DBA و Developer QA؛ ثبت تاریخ و صاحب تأیید |
 
@@ -99,3 +99,25 @@
 - **گام بعد:** پس از Build موفق، راه‌اندازی IAM DEV با حساب SELECT-only و IdP معتبر در محیط کنترل‌شده، آزمون HTTP 401/403/200/503، سپس تکمیل IAM-01 با Persisted Audit و عملیات نوشتنی صرفاً پس از Approval.
 - **ارجاع:** `docs/iam/implementation/S1B/IAM-S1B-RO1-SECURE-READ-FOUNDATION-FA.md`.
 - **شواهد Git:** ZIP بدون `.git` است. Git Diff و Commit را نمی‌توان در این بسته ادعا کرد.
+
+
+## ۱۰. ثبت پیشرفت IAM-R1.8 / S1B-RO2 (۲۰۲۶-۱۱-۰۲)
+
+- **مبنا:** استقرار موفق R1.7 روی سیستم کاربر (`IAM_S1B_RO1_DEPLOYED_DEFAULT_DISABLED`)؛ این Release جایگزین S1B-RO1 است، اما S1A-C1 و فرم آزمایشی را حفظ می‌کند.
+- **تغییر کد:** توکن‌های RS256 با کنترل Audience/Subject/iat/exp/حداکثر طول عمر/Claimهای typed، پاسخ‌های 401/403، کنترل Scope و Domain قبل از Oracle، بررسی مجوزهای واقعی Reader (`SESSION_PRIVS`، `SESSION_ROLES`، `USER_TAB_PRIVS_RECD`) و آزمون بدون ردیف SELECT.
+- **گستره:** همان ۴ GET قبلی، بدون اضافه‌شدن API نوشتنی، بدون تغییر UI و بدون DDL/DML/COMMIT.
+- **کیفیت قابل تکرار:** ۲۶ آزمون Java بدون وابستگی، ۲۶ کنترل ساختاری RO2، ۳ سناریوی ابزار HTTP؛ آزمون JUnit ثبت شده ولی تا Maven و IdP/Oracle واقعی اجرا نشود، Gate پذیرش نهایی باز است.
+- **قرارداد Reader:** فقط CREATE SESSION، بدون Role فعال، ۴ مجوز مستقیم READ/SELECT روی `SECURITY_DOMAINS`، `PRINCIPALS`، `USER_ACCOUNTS`، `IDENTITY_LINKS` در Schema IAM. اگر DBA معماری Grant دیگری پیشنهاد کند باید پیش از تغییر این قرارداد تصویب شود.
+- **گام بعد:** دریافت مصوبه SEC-IAM-01 / DATA-IAM-01، اتصال IdP و Oracle DEV در محیط کنترل‌شده، اجرای HTTP 401/403/200/503 و بررسی DBA، سپس تصمیم S1C (Migration و Audit ماندگار). **IAM-01 همچنان IN_PROGRESS است**.
+- **شواهد Git:** ZIP سورس فاقد `.git` است، Commit واقعی ادعا نمی‌شود؛ Patch دارای Diff و Manifest نسخه‌دار است.
+- **جزئیات:** `docs/iam/implementation/S1B/IAM-S1B-RO2-SECURITY-AND-ORACLE-ACCEPTANCE-FA.md`.
+
+## ۱۱. ثبت پیشرفت IAM-R1.9 / S1B-RO3 (۲۰۲۶-۱۱-۰۳)
+
+- **مبنا:** سورس تجمیعی IAM-R1.8. استقرار Patch تعمیرشده RO2 در سیستم کاربر هنوز با لاگ جدید تأیید نشده و گام‌های IAM-00 تا IAM-08 تغییر نام یا ترتیب ندارند.
+- **هدف:** آزمون امنیتیِ قابل تکرار در ApplicationContext واقعی Spring، بدون نیاز به Token بانکی یا Oracle DEV، برای کاهش ریسک Gate پذیرش.
+- **توسعه:** Decoder اختصاصی IAM با Qualifier ثابت؛ آزمون JUnit HTTP با RSA2048 موقت و Nimbus واقعی برای 401/403/200/503 در Repository Mock؛ ابزار ۱۲ سناریوی JDK، Proof وابسته به سورس و Guard جدید Build/JAR/Startup.
+- **QA انجام‌شده در محیط تولید بسته:** تست رمزنگاری JDK ۱۲/۱۲، کنترل ساختاری RO3، کنترل‌های پیشین RO1/RO2؛ آزمون کامل Maven/Spring در این محیط اجرا نشده است.
+- **Gate:** `LAB_HTTP_INTEGRATION` در انتظار نتیجه واقعی Maven بر ویندوز؛ `BANK_IDP_ORACLE_ACCEPTANCE` و SEC/DATA sign-off کاملاً باز. هیچ Oracle I/O یا IAM DDL/DML/COMMIT و هیچ API نوشتنی ندارد.
+- **گام بعد:** عبور از Gate تست JUnit، سپس Live IdP/Oracle DEV با حساب SELECT-only و اخذ 401/403/200/503 واقعی. پس از آن تصمیم برای S1C.
+- **سند اجرای QA:** `docs/iam/implementation/S1B/IAM-S1B-RO3-SIGNED-HTTP-LAB-FA.md`.

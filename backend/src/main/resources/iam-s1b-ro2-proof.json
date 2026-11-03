@@ -1,0 +1,10 @@
+{
+  "release": "IAM-R1.8-S1B-RO2",
+  "sourceSha256": "768a919b80caa5e1c83426d746c6a66e30ee3d2739826f9a58469c1d0cbc6ed7",
+  "mode": "default-disabled",
+  "allowedMethod": "GET",
+  "algorithm": "RS256",
+  "requiresVerifiedIssuer": true,
+  "requiresApprovedOracleReader": true,
+  "oracleWrites": false
+}

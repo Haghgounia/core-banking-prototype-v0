@@ -1,3 +1,29 @@
+## IAM-R1.9 / S1B-RO3 / REPAIR3 - 2026-11-03
+- Corrected Spring signed HTTP laboratory setup: test-owned real NimbusJwtDecoder with ephemeral RSA public key and direct invocation of the unmodified production SecurityFilterChain method. Eliminated @MockitoBean registration-time failure.
+- Added fail-closed verification of the test bean wiring; production IAM, UI, database and API enablement remain unchanged.
+- Pre-stop Maven remains mandatory; real IdP and Oracle acceptance remain pending.
+
+## IAM-R1.9 / S1B-RO3-REPAIR2 (2026-11-03)
+
+- Fixed isolated Spring HTTP laboratory startup under Spring Boot 4.1 / Spring Test 7: the named test-only JWT mock now uses `@MockitoBean` REPLACE_OR_CREATE rather than strict `enforceOverride=true` when the conditional production decoder bean is absent from the laboratory context.
+- Production `IamS1bSecurityConfiguration` and all read-only/deny-by-default policies remain unchanged. Test still cryptographically verifies every token through an ephemeral RS256 key and `NimbusJwtDecoder`.
+- Build continues to block deployment until the real Spring/JUnit signed HTTP test completes successfully; no IAM API write, Oracle IO or bank IdP acceptance is claimed.
+
+## IAM-R1.9 / S1B-RO3 — signed HTTP security acceptance laboratory (2026-11-03)
+
+- IAM-specific, named RS256 JwtDecoder for safe SecurityFilterChain isolation; no global JwtDecoder fallback.
+- Added test-scope, ephemeral RSA signing fixture and Spring Boot random-port HTTP integration test for 401/403/200/503 using only a mocked repository.
+- Added JDK21 12/12 cryptographic self-test, release QA, source-bound JAR proof and Windows/Linux build/start guards.
+- Default IAM API remains disabled; S1A UI unmodified; no Oracle DDL/DML/COMMIT, no IAM write.
+- Bank IdP/Oracle acceptance and Maven Windows execution remain OPEN until evidence is received.
+
+## 2026-11-02 — IAM-R1.8 / S1B-RO2 (JWT, privilege and IdP/Oracle acceptance)
+- Strict RS256/Issuer/Audience/subject/iat/exp and typed domain/context claims; 60..3600-second token lifetime cap.
+- Scope and Security Domain verified before Oracle metadata; Oracle reader direct SELECT-only grant proof and no active roles.
+- Distinct disabled-mode 403 and enabled-mode 401/403; GET-only on IAM. No IAM mutations or Oracle scripts executed.
+- Reproducible opt-in HTTP evidence and DBA SELECT-only SQL, full JAR/source release gates. Canonical roadmap R1.8.
+- Live IdP/Oracle acceptance, persistable audit and IAM-01 sign-off PENDING.
+
 ## 2026-11-02 — IAM-R1.7 / S1B-RO.1 (secure read-only Backend foundation)
 
 - Implemented 10 IAM-S1B backend Java classes: isolated Spring Security 7 OAuth2 JWT gate, precise Domain/Context claims, separate SELECT-only Oracle reader, bounded four-GET API, metadata readiness, error contract and minimal read log.

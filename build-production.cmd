@@ -316,8 +316,13 @@ rem IAM-S1A release gate: direct navigation must be present in the actual source
 node "%ROOT%tools\iam\s1a\verify-s1a-visibility.cjs" source || exit /b 1
 rem IAM-S1B: fail-closed isolated JWT/Oracle read-only boundary and offline Java negative tests.
 node "%ROOT%tools\iam\s1b\verify-s1b-security.mjs" || exit /b 1
+node "%ROOT%tools\iam\s1b\verify-s1b-ro2-security.mjs" || exit /b 1
+rem IAM-S1B-RO3: signed RS256 + HTTP acceptance laboratory (no live Oracle or IdP).
+node "%ROOT%tools\iam\s1b\verify-s1b-ro3-contract.mjs" || exit /b 1
 rem Bind compiled IAM classes to exactly this source; emit BEFORE Maven packaging.
 node "%ROOT%tools\iam\s1b\emit-s1b-backend-proof.cjs" || exit /b 1
+node "%ROOT%tools\iam\s1b\emit-s1b-ro2-proof.cjs" || exit /b 1
+node "%ROOT%tools\iam\s1b\emit-s1b-ro3-proof.cjs" || exit /b 1
 
 rem FIX62 fail-fast: compile Java before the Angular production build so type errors are caught early.
 cd /d "%ROOT%backend"
@@ -391,6 +396,8 @@ if errorlevel 1 exit /b 1
 rem Reject a same-version JAR if its Angular source or compiled assets differ.
 node "%ROOT%tools\iam\s1a\verify-s1a-artifact.cjs" "%JAR%" || exit /b 1
 node "%ROOT%tools\iam\s1b\verify-s1b-artifact.cjs" "%JAR%" || exit /b 1
+node "%ROOT%tools\iam\s1b\verify-s1b-ro2-artifact.cjs" "%JAR%" || exit /b 1
+node "%ROOT%tools\iam\s1b\verify-s1b-ro3-artifact.cjs" "%JAR%" || exit /b 1
 >"%ROOT%app\BUILD-VERSION" echo %APP_VERSION%
 if not exist "%JAR%" (
   echo ERROR: Packaged JAR was not created.

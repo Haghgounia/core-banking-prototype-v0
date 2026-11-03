@@ -17,12 +17,13 @@ const pom=read('backend/pom.xml'); const conf=read('backend/src/main/resources/a
 const props=read(backend+'IamS1bProperties.java'); const sec=read(backend+'IamS1bSecurityConfiguration.java');
 const ctl=read(backend+'IamS1bReadController.java'); const repo=read(backend+'IamS1bReadRepository.java');
 const service=read(backend+'IamS1bReadService.java'); const pool=read(backend+'IamS1bReaderPool.java');
+const tokenValidation=read(backend+'IamS1bTokenValidation.java');
 const road=read('docs/iam/IAM-CANONICAL-ROADMAP-FA.md');
 check('Boot 4.1 supported Resource Server starter',pom.includes('spring-boot-starter-security-oauth2-resource-server'));
 check('S1B default disabled',conf.includes('IAM_S1B_READS_ENABLED:false'));
 check('no static secret or demo token',!conf.match(/IAM_S1B_JDBC_PASSWORD:([^}\s]+)/));
-check('explicit issuer, JWKS and audience validation',/withJwkSetUri/.test(sec)&&/createDefaultWithIssuer/.test(sec)&&/getAudience/.test(sec));
-check('JWT expiry and actor required',/getExpiresAt\(\)/.test(sec)&&/getSubject\(\)/.test(sec));
+check('explicit issuer, JWKS and audience validation',/withJwkSetUri/.test(sec)&&/createDefaultWithIssuer/.test(sec)&&/getAudience/.test(tokenValidation));
+check('JWT expiry and actor required',/getExpiresAt\(\)/.test(tokenValidation)&&/getSubject\(\)/.test(tokenValidation));
 check('JWT RS256 decoder (standard library)',sec.includes('NimbusJwtDecoder')&&!sec.includes('parseJwtManually'));
 check('IAM API only matcher, not global retrofit',sec.includes('securityMatcher("/api/v1/iam/**")'));
 check('stateless session',sec.includes('SessionCreationPolicy.STATELESS'));

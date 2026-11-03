@@ -1,0 +1,113 @@
+spring:
+  application:
+    name: core-banking-prototype
+  datasource:
+    url: jdbc:oracle:thin:@//10.1.60.51:1522/FREEPDB1
+    username: SYSTEM
+    password: Oracle123
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 1
+      connection-timeout: 15000
+      validation-timeout: 5000
+  mvc:
+    problemdetails:
+      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 64MB
+      max-request-size: 96MB
+
+server:
+  port: ${SERVER_PORT:8091}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+
+core-banking:
+  iam:
+    s1b:
+      # Disabled until IdP, Security and DBA approve dedicated SELECT-only access.
+      reads-enabled: ${IAM_S1B_READS_ENABLED:false}
+      issuer: ${IAM_S1B_ISSUER:}
+      jwks-uri: ${IAM_S1B_JWKS_URI:}
+      audience: ${IAM_S1B_AUDIENCE:}
+      # Always a distinct, least-privileged Oracle reader, NOT the prototype SYSTEM datasource.
+      jdbc-url: ${IAM_S1B_JDBC_URL:}
+      jdbc-username: ${IAM_S1B_JDBC_USERNAME:}
+      jdbc-password: ${IAM_S1B_JDBC_PASSWORD:}
+  organization:
+    locations:
+      # R4: legacy three-table reconciliation endpoints are DBA-only and disabled by default.
+      # Leave false after renaming ORG.LOCATIONS / ORG.POSTAL_ADDRESSES.
+      legacy-review-enabled: ${ORG_LEGACY_LOCATION_REVIEW_ENABLED:false}
+    contacts:
+      # R5-C2: default legacy-named bean now reads OUCP snapshot directly.
+      # Explicit mode=canonical still selects the older V2 pilot; do not activate it.
+      # Contact source cutover is independently gated by ORG_CONTACT_UNIT_WRITES_ENABLED.
+      storage-mode: ${ORG_CONTACT_STORAGE_MODE:legacy}
+      # Additional explicit opt-in; leave false until controlled post-cutover UAT.
+      canonical-writes-enabled: ${ORG_CONTACT_CANONICAL_WRITES_ENABLED:false}
+      unit-writes-enabled: ${ORG_CONTACT_UNIT_WRITES_ENABLED:false}
+  # R2-B2 is opt-in. One local demo flag also activates durable server-side reconciliation.
+  # In a multi-user deployment wire an authenticated Principal and keep demo-enabled=false.
+  calendar2:
+    personal:
+      r2b2:
+        demo-enabled: ${CAL2_PERSONAL_R2B2_DEMO_ENABLED:false}
+        demo-subject: ${CAL2_PERSONAL_R2B2_DEMO_SUBJECT:prototype-admin}
+        issuer: ${CAL2_PERSONAL_R2B2_ISSUER:urn:core-banking:local}
+        zone: ${CAL2_PERSONAL_R2B2_ZONE:Asia/Tehran}
+        scheduler-enabled: ${CAL2_PERSONAL_R2B2_SCHEDULER_ENABLED:${CAL2_PERSONAL_R2B2_DEMO_ENABLED:false}}
+        scheduler-interval-ms: ${CAL2_PERSONAL_R2B2_INTERVAL_MS:60000}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+  schemas:
+    reference-data: GEO
+    deposit-product-factory: DPS
+    deposit-opening: DPS2
+    deposit-account: DPS2
+    cif: CIF
+    party-reference: CIF
+    fee: FEE
+    fee2: FEE2
+    calendar: CAL
+    calendar2: CAL2
+    product-definition: PDL
+    organization: ORG
+  deposit-opening:
+    prototype-activation-evidence:
+      # Prototype-only controlled adapter. Disable when real SIAH/Compliance/Restriction integrations are connected.
+      enabled: ${DEPOSIT_OPENING_PROTOTYPE_ACTIVATION_EVIDENCE_ENABLED:true}
+      final-compliance-validity-hours: ${DEPOSIT_OPENING_PROTOTYPE_FINAL_COMPLIANCE_VALIDITY_HOURS:24}
+    audit:
+      # Comma-separated FIELD_NAME or ENTITY.FIELD_NAME values. Values are masked in Audit CLOBs while SHA-256 hashes are retained.
+      sensitive-fields: ${DEPOSIT_OPENING_AUDIT_SENSITIVE_FIELDS:}
+  database-export:
+    enabled: false
+    schema: DPS
+    table-prefix: REF_
+    output-directory: database/oracle/exports
+  document-storage:
+    root: ${DOCUMENT_STORAGE_ROOT:./data/document-storage}
+    max-file-size-bytes: ${DOCUMENT_STORAGE_MAX_BYTES:20971520}
+logging:
+  file:
+    name: logs/core-banking-prototype.log
+  level:
+    root: INFO
+    com.behsazan.corebanking: INFO
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 10
+      total-size-cap: 200MB
+

@@ -1,6 +1,6 @@
 {
   "release": "IAM-R1.7-S1B-RO.1",
-  "sourceSha256": "120c401e1da78e8656c96d66267f2c3296f180d49d942485fd179b921d38e32b",
+  "sourceSha256": "27cdcb49eca39058e8a00aa7b7b1ecd248283f68b7d56b781b013550133703ca",
   "defaultEnabled": false,
   "endpointCount": 4,
   "binding": "jwt-issuer-audience-domain-context",

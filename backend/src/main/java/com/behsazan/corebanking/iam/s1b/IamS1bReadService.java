@@ -22,15 +22,18 @@ public class IamS1bReadService {
     /** Every read is authorized against both the signed token and the Oracle security domain. */
     public Domain authorizedDomain(JwtAuthenticationToken authentication, String requestedCode) {
         String code = IamS1bPolicy.domainCode(requestedCode);
-        // Check entitlement FIRST to avoid Oracle domain enumeration by unauthorized users.
+        // No Oracle I/O before verifying the *signed* scope and domain. Prevent unauthorized enumeration.
         List<String> domains = IamS1bPolicy.safeStringClaim(authentication.getToken().getClaims().get("iam_domains"));
-        if (!domains.contains(code)) deny(authentication, code, "domain_not_granted");
-        if (!repo.metadataReady()) throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "IAM_S1B_SCHEMA_NOT_READY");
-        Domain domain = repo.domain(code).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "IAM_S1B_DOMAIN_NOT_FOUND"));
         List<String> contexts = IamS1bPolicy.safeStringClaim(authentication.getToken().getClaims().get("iam_contexts"));
         List<String> scopes = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .filter(a -> a.startsWith("SCOPE_")).map(a -> a.substring(6)).toList();
+        if (authentication.getToken().getSubject() == null || authentication.getToken().getSubject().isBlank()
+                || !scopes.contains("iam.users.read") || !domains.contains(code)) {
+            deny(authentication, code, "scope_or_domain_not_granted");
+        }
+        if (!repo.metadataReady()) throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "IAM_S1B_SCHEMA_NOT_READY");
+        Domain domain = repo.domain(code).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "IAM_S1B_DOMAIN_NOT_FOUND"));
         if (!domain.active() || !IamS1bPolicy.canRead(authentication.getToken().getSubject(), scopes,
                 domains, contexts, domain.domainCode(), domain.context())) {
             deny(authentication, code, "context_or_scope_denied");

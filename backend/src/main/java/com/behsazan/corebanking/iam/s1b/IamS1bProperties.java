@@ -9,6 +9,7 @@ public record IamS1bProperties(
         String issuer,
         String jwksUri,
         String audience,
+        long maxTokenLifetimeSeconds,
         String jdbcUrl,
         String jdbcUsername,
         String jdbcPassword) {
@@ -16,6 +17,7 @@ public record IamS1bProperties(
     public void requireSafeReadConfiguration() {
         if (!readsEnabled) return;
         if (!isHttps(issuer) || !isHttps(jwksUri) || !present(audience)
+                || maxTokenLifetimeSeconds < 60 || maxTokenLifetimeSeconds > 3600
                 || !present(jdbcUrl) || !jdbcUrl.startsWith("jdbc:oracle:thin:")
                 || !present(jdbcUsername) || !present(jdbcPassword)) {
             throw new IllegalStateException("IAM_S1B_CONFIG_DENIED: explicit HTTPS issuer/JWKS, audience and isolated Oracle reader are mandatory");
@@ -34,7 +36,8 @@ public record IamS1bProperties(
         try {
             java.net.URI uri = java.net.URI.create(s);
             return "https".equalsIgnoreCase(uri.getScheme()) && uri.getHost() != null
-                    && uri.getUserInfo() == null && uri.getFragment() == null;
+                    && uri.getUserInfo() == null && uri.getFragment() == null
+                    && uri.getQuery() == null;
         } catch (IllegalArgumentException invalid) {
             return false;
         }

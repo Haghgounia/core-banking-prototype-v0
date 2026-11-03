@@ -64,6 +64,20 @@ if errorlevel 1 (
   exit /b 1
 )
 
+rem IAM-S1B-RO2: ensure hardened JWT + Oracle privilege classes are compiled in the same source.
+node "%ROOT%\tools\iam\s1b\verify-s1b-ro2-artifact.cjs" "%JAR%"
+if errorlevel 1 (
+  echo ERROR: IAM-S1B-RO2 runtime artifact missing/stale; run build-production.cmd.
+  exit /b 1
+)
+
+rem IAM-S1B-RO3: never run a same-version JAR without the signed HTTP lab source proof.
+node "%ROOT%\tools\iam\s1b\verify-s1b-ro3-artifact.cjs" "%JAR%"
+if errorlevel 1 (
+  echo ERROR: IAM-S1B-RO3 signed HTTP lab source/JAR proof is missing or stale.
+  exit /b 1
+)
+
 set "CONFIG_PATH=%ROOT%\config\application.yml"
 set "CONFIG_URI=%CONFIG_PATH:\=/%"
 if not exist "%ROOT%\logs" mkdir "%ROOT%\logs"
