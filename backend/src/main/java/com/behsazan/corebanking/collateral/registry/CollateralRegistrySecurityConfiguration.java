@@ -5,6 +5,7 @@ import com.behsazan.corebanking.collateral.introduction.CollateralIntroductionPr
 import com.behsazan.corebanking.collateral.sponsor.CollateralSponsorProperties;
 import com.behsazan.corebanking.collateral.insurance.CollateralInsuranceProperties;
 import com.behsazan.corebanking.collateral.valuation.CollateralValuationProperties;
+import com.behsazan.corebanking.collateral.allocation.CollateralAllocationIntakeProperties;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +32,7 @@ public class CollateralRegistrySecurityConfiguration {
             CollateralSponsorProperties sponsor,
             CollateralInsuranceProperties insurance,
             CollateralValuationProperties valuation,
+            CollateralAllocationIntakeProperties allocationIntake,
             @Qualifier("collateralJwtDecoder") ObjectProvider<JwtDecoder> decoder) throws Exception {
         http.securityMatcher("/api/v1/collaterals", "/api/v1/collaterals/**")
                 .csrf(AbstractHttpConfigurer::disable)
@@ -46,6 +48,21 @@ public class CollateralRegistrySecurityConfiguration {
         http.exceptionHandling(e -> e.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
                 .authorizeHttpRequests(r -> r
+                        // R4C request journal: service-only, default deny; NEVER allocation/hold writes.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/allocation-requests/intake")
+                        .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                allocationIntake.requestWritesEnabled() && auth.get().getAuthorities().stream()
+                                .anyMatch(a -> "SCOPE_clt.allocation.request".equals(a.getAuthority()))))
+                        .requestMatchers(HttpMethod.GET, "/api/v1/collaterals/*/allocation-requests/intake/readiness")
+                        .hasAuthority("SCOPE_clt.collateral.read")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/collaterals/*/allocation-requests/intake/journal")
+                        .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                allocationIntake.requestWritesEnabled() && auth.get().getAuthorities().stream()
+                                .anyMatch(a -> "SCOPE_clt.collateral.read".equals(a.getAuthority()))))
+                        .requestMatchers(HttpMethod.GET, "/api/v1/collaterals/*/allocation-requests/intake/receipts/*")
+                        .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                allocationIntake.requestWritesEnabled() && auth.get().getAuthorities().stream()
+                                .anyMatch(a -> "SCOPE_clt.allocation.request".equals(a.getAuthority()))))
                         // R4B: analyst preview has READ scope; no trusted consumer authority implied.
                         .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/allocation-requests/preview")
                         .hasAuthority("SCOPE_clt.collateral.read")

@@ -1,0 +1,32 @@
+{
+  "delivery": "R4C",
+  "version": "0.11.0",
+  "changed": [
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationIntakeConfiguration.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationIntakeController.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationIntakeExceptionHandler.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationIntakeModels.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationIntakePolicy.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationIntakeProperties.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationIntakeRepository.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationIntakeService.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationIntakeWriterPool.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+    "backend/src/main/resources/clt/allocation-intake.properties",
+    "backend/src/test/java/com/behsazan/corebanking/collateral/allocation/CollateralAllocationIntakePolicyTest.java",
+    "database/oracle/clt/r4c/00_ALLOCATION_INTAKE_READONLY_PRECHECK.sql",
+    "database/oracle/clt/r4c/01_ALLOCATION_INTAKE_CANDIDATE_NOT_APPROVED.sql",
+    "docs/collateral/CLT-R4C-ALLOCATION-INTAKE-CONTRACT-FA.md",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-03-R4C.md",
+    "frontend/src/app/features/collateral/collateral-allocation-request-panel.component.html",
+    "frontend/src/app/features/collateral/collateral-allocation-request-panel.component.scss",
+    "frontend/src/app/features/collateral/collateral-allocation-request-panel.component.ts",
+    "frontend/src/app/features/collateral/collateral-allocation-request.service.ts",
+    "tools/clt/r4c/AllocationIntakePolicySmoke.java"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r4c-2026-11-03T15-19-42-813Z",
+  "oracleExecution": false,
+  "allocationWritesEnabled": false,
+  "intakeWritesDefaultEnabled": false,
+  "createdAt": "2026-11-03T15:19:43.021Z"
+}
