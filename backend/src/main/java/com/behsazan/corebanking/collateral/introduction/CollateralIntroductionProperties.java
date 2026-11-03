@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 @ConfigurationProperties(prefix = "core-banking.collateral.introduction")
 public record CollateralIntroductionProperties(
         @DefaultValue("false") boolean draftWritesEnabled,
+        @DefaultValue("false") boolean reviewWorkflowEnabled,
         String writerJdbcUrl, String writerJdbcUsername, String writerJdbcPassword) {
     public void requireSafeWriter() {
         if (!draftWritesEnabled) throw new IllegalStateException("CLT_INTRODUCTION_DRAFT_WRITES_DISABLED");

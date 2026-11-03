@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /** Only public domain error codes leave this endpoint; no SQL or token details. */
-@RestControllerAdvice(assignableTypes = CollateralIntroductionController.class)
+@RestControllerAdvice(assignableTypes = {CollateralIntroductionController.class, CollateralIntroductionReviewController.class})
 public final class CollateralIntroductionExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(CollateralIntroductionExceptionHandler.class);
     @ExceptionHandler(IllegalArgumentException.class)

@@ -98,6 +98,16 @@ public class CollateralIntroductionRepository {
                 (rs, i) -> toDraft(rs), key, maker, branch);
         return records.isEmpty() ? null : records.getFirst();
     }
+    /** Reviewer can inspect the immutable draft only inside their branch, never their own. */
+    public Draft findForReviewer(CollateralIntroductionWriterPool pool, String reviewId,
+                                 String branch, String checker) {
+        List<Draft> records = pool.jdbc().query(selectDraft(extended(pool)) + """
+                 WHERE DRAFT_ID = (
+                      SELECT r.DRAFT_ID FROM CLT.CLT_INTRODUCTION_REVIEW r
+                       WHERE r.REVIEW_ID = ? AND r.BRANCH_CODE = ? AND r.MAKER_SUBJECT <> ?)
+                """, (rs, i) -> toDraft(rs), new BigDecimal(reviewId), branch, checker);
+        return records.isEmpty() ? null : records.getFirst();
+    }
     public String previousHash(CollateralIntroductionWriterPool pool, String draftId) {
         return pool.jdbc().queryForObject(
                 "SELECT REQUEST_HASH FROM CLT.CLT_INTRODUCTION_DRAFT WHERE DRAFT_ID = ?",
