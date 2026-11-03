@@ -113,6 +113,11 @@
     <!-- CLT-R1A:SIDEBAR:BEGIN -->
     <app-sidebar-r22-group groupId="collateral" label="مدیریت وثایق" icon="assured_workload" [collapsed]="sidebarCollapsed()">
       <mat-nav-list class="section-list">
+        <!-- CLT-R2A:LINK:BEGIN -->
+        <a mat-list-item routerLink="/collateral/registry" routerLinkActive="active-link" matTooltip="فهرست و شناسنامه وثایق (فقط خواندنی)" matTooltipPosition="before">
+          <mat-icon matListItemIcon>inventory_2</mat-icon><span matListItemTitle>شناسنامه و جست‌وجوی وثایق</span>
+        </a>
+        <!-- CLT-R2A:LINK:END -->
         <a mat-list-item routerLink="/collateral/reference-data" routerLinkActive="active-link" matTooltip="اطلاعات پایه وثایق (R1A)" matTooltipPosition="before">
           <mat-icon matListItemIcon>dataset</mat-icon><span matListItemTitle>اطلاعات پایه وثایق</span>
         </a>

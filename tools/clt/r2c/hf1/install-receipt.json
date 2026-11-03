@@ -1,0 +1,14 @@
+{
+  "id": "CLT-R2C-HF1",
+  "version": "0.11.0",
+  "changed": [
+    "backend/src/main/java/com/behsazan/corebanking/collateral/reference/CollateralReferenceRepository.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistryRepository.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionRepository.java",
+    "backend/src/test/java/com/behsazan/corebanking/collateral/CollateralRepositoryProxyCompatibilityTest.java",
+    "docs/collateral/CLT-R2C-HF1-RUNTIME-STARTUP-QA-FA.md"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r2c-hf1-2026-11-03T09-36-39-335Z",
+  "oracleExecution": false,
+  "timestamp": "2026-11-03T09:36:39.366Z"
+}

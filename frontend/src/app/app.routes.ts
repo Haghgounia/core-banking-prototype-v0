@@ -54,6 +54,9 @@ export const routes: Routes = [
       // CLT-R1A:ROUTES:BEGIN
       {path: 'collateral/reference-data', loadComponent: () => import('./features/collateral/clt-reference-workspace.component').then(m => m.CltReferenceWorkspaceComponent)},
       {path: 'collateral/reference-data/:table', loadComponent: () => import('./features/collateral/clt-reference-workspace.component').then(m => m.CltReferenceWorkspaceComponent)},
+      // CLT-R2A:ROUTES:BEGIN
+      {path: 'collateral/registry', loadComponent: () => import('./features/collateral/collateral-registry.component').then(m => m.CollateralRegistryComponent)},
+      // CLT-R2A:ROUTES:END
       // CLT-R1A:ROUTES:END
       {path: 'reference-data', loadComponent: () => import('./features/reference-hub/reference-hub.component').then(m => m.ReferenceHubComponent)},
       {path: 'reference-data/general', data: {scope: 'GENERAL'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},

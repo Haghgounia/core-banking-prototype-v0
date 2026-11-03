@@ -1,0 +1,31 @@
+{
+  "module": "CLT",
+  "delivery": "R2A",
+  "version": "0.11.0",
+  "changed": [
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistryConfiguration.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistryController.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistryExceptionHandler.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistryModels.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistryPolicy.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistryProperties.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistryRepository.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+    "backend/src/main/resources/clt/registry.properties",
+    "backend/src/test/java/com/behsazan/corebanking/collateral/registry/CollateralRegistryPolicyTest.java",
+    "database/oracle/clt/r2a/01_REGISTRY_READONLY_DIAGNOSTICS.sql",
+    "docs/collateral/CLT-R2A-IMPLEMENTATION-FA.md",
+    "docs/collateral/CLT-R2A-QA-REPORT-FA.md",
+    "frontend/src/app/features/collateral/collateral-registry-labels.ts",
+    "frontend/src/app/features/collateral/collateral-registry.component.html",
+    "frontend/src/app/features/collateral/collateral-registry.component.scss",
+    "frontend/src/app/features/collateral/collateral-registry.component.ts",
+    "frontend/src/app/features/collateral/collateral-registry.service.ts",
+    "frontend/src/app/app.routes.ts",
+    "frontend/src/app/layout/app-shell.component.html"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r2a-2026-11-03T07-59-47-919Z",
+  "oracleExecuted": false,
+  "registryWritesEnabled": false,
+  "at": "2026-11-03T07:59:47.975Z"
+}

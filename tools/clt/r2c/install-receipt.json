@@ -1,0 +1,29 @@
+{
+  "module": "CLT",
+  "delivery": "R2C",
+  "version": "0.11.0",
+  "changed": [
+    "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionController.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionModels.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionPolicy.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionRepository.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionService.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralSerialRangePolicy.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+    "backend/src/test/java/com/behsazan/corebanking/collateral/introduction/CollateralSerialRangePolicyTest.java",
+    "database/oracle/clt/r2c/00_DRAFT_EXTENSION_READONLY_PRECHECK.sql",
+    "database/oracle/clt/r2c/01_DRAFT_STAGE_EXTENSION_DBA_OPT_IN.sql",
+    "database/oracle/clt/r2c/02_FINAL_REGISTRATION_DATA_MODEL_DECISION_ONLY.sql",
+    "docs/collateral/CLT-R2C-IMPLEMENTATION-FA.md",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-03-R2C.md",
+    "frontend/src/app/features/collateral/collateral-introduction.component.html",
+    "frontend/src/app/features/collateral/collateral-introduction.component.scss",
+    "frontend/src/app/features/collateral/collateral-introduction.component.ts",
+    "frontend/src/app/features/collateral/collateral-introduction.service.ts",
+    "tools/clt/r2c/PolicySmoke.java"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r2c-2026-11-03T08-59-44-291Z",
+  "oracleExecution": false,
+  "finalRegistration": false,
+  "createdAt": "2026-11-03T08:59:44.380Z"
+}

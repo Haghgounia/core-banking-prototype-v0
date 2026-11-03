@@ -1,0 +1,13 @@
+-- =======================================================================
+-- DESIGN-ONLY, NOT EXECUTABLE. No CREATE/ALTER/INSERT statements here.
+-- A bank-approved design decision must settle before final registration:
+-- G-03: permanent item/serial range table, overlap + monetary invariant.
+-- G-12: canonical countability semantics: CLT.COLLATERAL_TYPE.HAS_MULTIPLICITY.
+-- G-14: stable asset identity and link to reintroduction; scoped uniqueness.
+-- G-17: exact registration number grammar/length/check-digit/sequence.
+-- G-01: amendment/decision persistence before R2 can formally close.
+-- G-16: CLT transaction default PENDING vs seeded PENDING_APPROVAL.
+-- Required technical proof: read-only Oracle dictionary profile, concurrency,
+-- replay, rollback, privilege separation and UAT of the approved design.
+-- =======================================================================
+PROMPT CLT_R2C_FINAL_REGISTRATION_REMAINS_DISABLED
