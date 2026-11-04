@@ -6,6 +6,8 @@ import com.behsazan.corebanking.collateral.sponsor.CollateralSponsorProperties;
 import com.behsazan.corebanking.collateral.insurance.CollateralInsuranceProperties;
 import com.behsazan.corebanking.collateral.valuation.CollateralValuationProperties;
 import com.behsazan.corebanking.collateral.allocation.CollateralAllocationIntakeProperties;
+import com.behsazan.corebanking.collateral.allocation.CollateralAllocationCapacityLockProperties;
+import com.behsazan.corebanking.collateral.unallocation.CollateralUnallocationIntakeProperties;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +35,8 @@ public class CollateralRegistrySecurityConfiguration {
             CollateralInsuranceProperties insurance,
             CollateralValuationProperties valuation,
             CollateralAllocationIntakeProperties allocationIntake,
+            CollateralAllocationCapacityLockProperties capacityLock,
+            CollateralUnallocationIntakeProperties unallocationIntake,
             @Qualifier("collateralJwtDecoder") ObjectProvider<JwtDecoder> decoder) throws Exception {
         http.securityMatcher("/api/v1/collaterals", "/api/v1/collaterals/**")
                 .csrf(AbstractHttpConfigurer::disable)
@@ -48,6 +52,48 @@ public class CollateralRegistrySecurityConfiguration {
         http.exceptionHandling(e -> e.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
                 .authorizeHttpRequests(r -> r
+                        // R5B: staged request register; no write to COLLATERAL_ALLOCATION or release.
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/collaterals/*/unallocation-requests/readiness")
+                        .hasAuthority("SCOPE_clt.collateral.read")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/collaterals/*/unallocation-requests/journal")
+                        .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                unallocationIntake.requestWritesEnabled() && auth.get().getAuthorities().stream()
+                                .anyMatch(a -> "SCOPE_clt.collateral.read".equals(a.getAuthority()))))
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/collaterals/*/allocations/*/unallocation/requests")
+                        .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                unallocationIntake.requestWritesEnabled() && auth.get().getAuthorities().stream()
+                                .anyMatch(a -> "SCOPE_clt.unallocation.request".equals(a.getAuthority()))))
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/collaterals/*/allocations/*/unallocation/requests/*")
+                        .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                unallocationIntake.requestWritesEnabled() && auth.get().getAuthorities().stream()
+                                .anyMatch(a -> "SCOPE_clt.unallocation.request".equals(a.getAuthority()))))
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/collaterals/*/allocations/*/unallocation/requests/*/cancel")
+                        .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                unallocationIntake.requestWritesEnabled() && auth.get().getAuthorities().stream()
+                                .anyMatch(a -> "SCOPE_clt.unallocation.request".equals(a.getAuthority()))))
+                        // R5A: history and analyst preflight read-only; service route has separate scope.
+                        // NEVER use the broad GET catch-all to authorize service POST requests.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/collaterals/*/allocations",
+                                "/api/v1/collaterals/*/allocations/readiness",
+                                "/api/v1/collaterals/*/allocations/*/transactions")
+                        .hasAuthority("SCOPE_clt.collateral.read")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/allocations/*/unallocation/preview")
+                        .hasAuthority("SCOPE_clt.collateral.read")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/allocations/*/unallocation/service-preflight")
+                        .hasAuthority("SCOPE_clt.unallocation.preflight")
+                        // R4D: bounded, no-write Oracle parent-row lock DIAGNOSTIC only.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/collaterals/*/allocation-requests/lock/readiness")
+                        .hasAuthority("SCOPE_clt.collateral.read")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/allocation-requests/lock/probes/*")
+                        .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(
+                                capacityLock.probeEnabled() && allocationIntake.requestWritesEnabled()
+                                && auth.get().getAuthorities().stream().anyMatch(a ->
+                                "SCOPE_clt.allocation.request".equals(a.getAuthority()))))
                         // R4C request journal: service-only, default deny; NEVER allocation/hold writes.
                         .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/allocation-requests/intake")
                         .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(

@@ -1,0 +1,32 @@
+{
+  "delivery": "R5B",
+  "version": "0.11.0",
+  "changed": [
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/unallocation/CollateralUnallocationIntakeConfiguration.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/unallocation/CollateralUnallocationIntakeController.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/unallocation/CollateralUnallocationIntakeExceptionHandler.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/unallocation/CollateralUnallocationIntakeModels.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/unallocation/CollateralUnallocationIntakePolicy.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/unallocation/CollateralUnallocationIntakeProperties.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/unallocation/CollateralUnallocationIntakeRepository.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/unallocation/CollateralUnallocationIntakeService.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/unallocation/CollateralUnallocationIntakeWriterPool.java",
+    "backend/src/main/resources/clt/unallocation-intake.properties",
+    "backend/src/test/java/com/behsazan/corebanking/collateral/unallocation/CollateralUnallocationIntakePolicyTest.java",
+    "database/oracle/clt/r5b/00_UNALLOCATION_INTAKE_READONLY_PRECHECK.sql",
+    "database/oracle/clt/r5b/01_UNALLOCATION_STAGING_CANDIDATE_NOT_APPROVED.sql",
+    "docs/collateral/CLT-R5B-UNALLOCATION-REQUEST-LIFECYCLE-CONTRACT-FA.md",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-04-R5B.md",
+    "frontend/src/app/features/collateral/collateral-unallocation-panel.component.html",
+    "frontend/src/app/features/collateral/collateral-unallocation-panel.component.ts",
+    "frontend/src/app/features/collateral/collateral-unallocation.service.ts",
+    "tools/clt/r5b/POLICY-SMOKE.cmd",
+    "tools/clt/r5b/UnallocationIntakePolicySmoke.java"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r5b-2026-11-04T07-11-17-497Z",
+  "oracleExecution": false,
+  "financialUnallocationWritesEnabled": false,
+  "finalReleaseEnabled": false,
+  "createdAt": "2026-11-04T07:11:17.588Z"
+}
