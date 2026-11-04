@@ -1,6 +1,7 @@
 package com.behsazan.corebanking.collateral.reporting;
 
 import com.behsazan.corebanking.collateral.registry.CollateralRegistryPolicy;
+import com.behsazan.corebanking.collateral.localuat.CltLocalUatProperties;
 import com.behsazan.corebanking.collateral.registry.CollateralRegistryProperties;
 import com.behsazan.corebanking.collateral.reporting.CollateralReportingModels.*;
 import java.util.List;
@@ -16,10 +17,12 @@ import org.springframework.web.server.ResponseStatusException;
 public class CollateralReportingController {
     private final CollateralReportingRepository repository;
     private final CollateralRegistryProperties registry;
+    private final CltLocalUatProperties localUat;
     public CollateralReportingController(CollateralReportingRepository repository,
-                                         CollateralRegistryProperties registry) {
+                                         CollateralRegistryProperties registry, CltLocalUatProperties localUat) {
         this.repository = repository;
         this.registry = registry;
+        this.localUat = localUat;
     }
     private String branch(Authentication authentication) {
         if (!(authentication instanceof JwtAuthenticationToken jwt) || !jwt.isAuthenticated()
@@ -53,7 +56,9 @@ public class CollateralReportingController {
                 throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "CLT_REPORT_COUNT_OVERFLOW");
             total += item.count();
         }
-        return new Overview("ORACLE_CLT_READ_ONLY", "JWT_COLLATERAL_BRANCH", branch, total,
+        return new Overview("ORACLE_CLT_READ_ONLY",
+                localUat.enabled() ? "LOCAL_UAT_FIXED_BRANCH" : "JWT_COLLATERAL_BRANCH",
+                branch, total,
                 statuses, exposure, false,
                 "Independent SELECT statements are not a serializable allocation snapshot; no new-allocation authorization.");
     }

@@ -21,6 +21,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /** Own CLT matcher; it neither modifies nor trusts the IAM S1B chain. */
 @Configuration(proxyBeanMethods = false)
+@ConditionalOnProperty(name = "CLT_LOCAL_UAT_READONLY_ENABLED",
+        havingValue = "false", matchIfMissing = true)
 public class CollateralSecurityConfiguration {
     @Bean("collateralJwtDecoder")
     @ConditionalOnProperty(prefix = "core-banking.collateral.reference", name = "reads-enabled", havingValue = "true")

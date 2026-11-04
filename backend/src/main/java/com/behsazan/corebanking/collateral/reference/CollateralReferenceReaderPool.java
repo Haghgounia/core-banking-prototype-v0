@@ -2,6 +2,7 @@ package com.behsazan.corebanking.collateral.reference;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /** Intentionally not a DataSource/JdbcTemplate Spring bean; the existing core datasource stays unchanged. */
@@ -26,6 +27,13 @@ public final class CollateralReferenceReaderPool implements AutoCloseable {
         jdbc.setQueryTimeout(10);
         jdbc.setFetchSize(50);
     }
+    /** Local single-machine GET-only UAT: borrow, never own or close, the application pool. */
+    public CollateralReferenceReaderPool(DataSource applicationDataSource) {
+        this.pool = null;
+        this.jdbc = new JdbcTemplate(applicationDataSource);
+        jdbc.setQueryTimeout(10);
+        jdbc.setFetchSize(50);
+    }
     public JdbcTemplate jdbc() { return jdbc; }
-    @Override public void close() { pool.close(); }
+    @Override public void close() { if (pool != null) pool.close(); }
 }

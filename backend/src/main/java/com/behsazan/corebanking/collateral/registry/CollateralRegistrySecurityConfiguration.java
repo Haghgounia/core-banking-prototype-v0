@@ -9,6 +9,7 @@ import com.behsazan.corebanking.collateral.allocation.CollateralAllocationIntake
 import com.behsazan.corebanking.collateral.allocation.CollateralAllocationCapacityLockProperties;
 import com.behsazan.corebanking.collateral.unallocation.CollateralUnallocationIntakeProperties;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /** Separate chain for contract /api/v1/collaterals; existing IAM/R1 chains remain untouched. */
 @Configuration(proxyBeanMethods = false)
+@ConditionalOnProperty(name = "CLT_LOCAL_UAT_READONLY_ENABLED",
+        havingValue = "false", matchIfMissing = true)
 public class CollateralRegistrySecurityConfiguration {
     @Bean
     @Order(3)

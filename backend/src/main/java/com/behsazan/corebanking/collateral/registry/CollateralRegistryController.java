@@ -1,6 +1,7 @@
 package com.behsazan.corebanking.collateral.registry;
 
 import com.behsazan.corebanking.collateral.registry.CollateralRegistryModels.*;
+import com.behsazan.corebanking.collateral.localuat.CltLocalUatProperties;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -15,11 +16,13 @@ import org.springframework.web.server.ResponseStatusException;
 public final class CollateralRegistryController {
     private final CollateralRegistryRepository repository;
     private final CollateralRegistryProperties registry;
+    private final CltLocalUatProperties localUat;
 
     public CollateralRegistryController(CollateralRegistryRepository repository,
-                                        CollateralRegistryProperties registry) {
+                                        CollateralRegistryProperties registry, CltLocalUatProperties localUat) {
         this.repository = repository;
         this.registry = registry;
+        this.localUat = localUat;
     }
     private String branch(Authentication authentication) {
         if (!registry.readsEnabled()) throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
@@ -39,7 +42,8 @@ public final class CollateralRegistryController {
     @GetMapping("/readiness")
     Readiness readiness(Authentication authentication) {
         branch(authentication);
-        return new Readiness(registry.readsEnabled(), false, "JWT_BRANCH_ONLY",
+        return new Readiness(registry.readsEnabled(), false,
+                localUat.enabled() ? "LOCAL_UAT_FIXED_BRANCH" : "JWT_BRANCH_ONLY",
                 "DECIMAL_STRING_MAX_19", "R2A_READ_ONLY");
     }
 
