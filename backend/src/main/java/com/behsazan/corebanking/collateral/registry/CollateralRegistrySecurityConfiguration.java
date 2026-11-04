@@ -52,6 +52,15 @@ public class CollateralRegistrySecurityConfiguration {
         http.exceptionHandling(e -> e.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
                 .authorizeHttpRequests(r -> r
+                        // R5C: historical evidence and diagnostic preview only. NO /final-release commit route.
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/collaterals/*/final-release/readiness",
+                                "/api/v1/collaterals/*/final-release/evidence",
+                                "/api/v1/collaterals/*/final-release/status-history")
+                        .hasAuthority("SCOPE_clt.collateral.read")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/collaterals/*/final-release/preview")
+                        .hasAuthority("SCOPE_clt.collateral.read")
                         // R5B: staged request register; no write to COLLATERAL_ALLOCATION or release.
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/collaterals/*/unallocation-requests/readiness")

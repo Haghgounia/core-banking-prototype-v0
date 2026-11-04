@@ -1,0 +1,33 @@
+{
+  "delivery": "R5C",
+  "version": "0.11.0",
+  "changed": [
+    "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralFinalReleaseConfiguration.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralFinalReleaseController.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralFinalReleaseExceptionHandler.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralFinalReleaseModels.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralFinalReleasePolicy.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralFinalReleaseProperties.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralFinalReleaseRepository.java",
+    "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralFinalReleaseService.java",
+    "backend/src/main/resources/clt/final-release.properties",
+    "backend/src/test/java/com/behsazan/corebanking/collateral/release/CollateralFinalReleasePolicyTest.java",
+    "database/oracle/clt/r5c/00_FINAL_RELEASE_READONLY_PRECHECK.sql",
+    "database/oracle/clt/r5c/01_FINAL_RELEASE_FINANCIAL_GATE_NOT_APPROVED.sql",
+    "docs/collateral/CLT-R5C-FINAL-RELEASE-EVIDENCE-CONTRACT-FA.md",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-04-R5C.md",
+    "frontend/src/app/features/collateral/collateral-final-release-panel.component.html",
+    "frontend/src/app/features/collateral/collateral-final-release-panel.component.scss",
+    "frontend/src/app/features/collateral/collateral-final-release-panel.component.ts",
+    "frontend/src/app/features/collateral/collateral-final-release.service.ts",
+    "frontend/src/app/features/collateral/collateral-registry.component.html",
+    "frontend/src/app/features/collateral/collateral-registry.component.ts",
+    "tools/clt/r5c/FinalReleasePolicySmoke.java",
+    "tools/clt/r5c/POLICY-SMOKE.cmd"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r5c-2026-11-04T07-46-37-100Z",
+  "oracleExecution": false,
+  "finalReleaseWritesEnabled": false,
+  "createdAt": "2026-11-04T07:46:37.198Z"
+}
