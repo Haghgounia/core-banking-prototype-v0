@@ -1,0 +1,26 @@
+{
+  "delivery": "R6C_UI_UAT",
+  "requires": "R6B_HF1",
+  "changed": [
+    "frontend/src/app/features/collateral/clt-r6c-ui-policy.ts",
+    "frontend/src/app/features/collateral/clt-r6c-uat-session.service.ts",
+    "frontend/src/app/features/collateral/collateral-registry.component.ts",
+    "frontend/src/app/features/collateral/collateral-registry.component.html",
+    "frontend/src/app/features/collateral/collateral-registry.component.scss",
+    "frontend/src/app/features/collateral/collateral-uat-workbench.component.ts",
+    "frontend/src/app/features/collateral/collateral-uat-workbench.component.html",
+    "frontend/src/app/features/collateral/collateral-uat-workbench.component.scss",
+    "frontend/src/app/features/collateral/collateral-r6a-catalog.ts",
+    "frontend/src/app/features/collateral/collateral-reports.component.ts",
+    "frontend/src/app/features/collateral/collateral-reports.component.html",
+    "frontend/src/app/features/collateral/collateral-reports.component.scss",
+    "docs/collateral/CLT-R6C-UX-UAT-RELEASE-FA.md",
+    "docs/collateral/CLT-R6C-ANALYST-UAT-CHECKLIST-FA.md",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-04-R6C.md",
+    "tools/clt/r6c/ui-policy-smoke.cjs"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r6c-2026-11-04T10-15-20-531Z",
+  "financialWrites": false,
+  "oracleExecution": false,
+  "createdAt": "2026-11-04T10:15:20.622Z"
+}

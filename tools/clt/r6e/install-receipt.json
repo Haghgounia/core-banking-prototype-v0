@@ -1,0 +1,21 @@
+{
+  "delivery": "R6E_READONLY_UAT_CONTRACTS",
+  "requires": "R6D",
+  "createdAt": "2026-11-04T11:21:49.431Z",
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r6e-2026-11-04T11-21-49-333Z",
+  "changed": [
+    "docs/collateral/CLT-R6E-REPORT-CONTRACT-AND-DETAIL-UAT-FA.md",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-04-R6E.md",
+    "frontend/src/app/features/collateral/clt-r6e-detail-contract.ts",
+    "frontend/src/app/features/collateral/clt-r6e-detail-diagnostics.component.html",
+    "frontend/src/app/features/collateral/clt-r6e-detail-diagnostics.component.scss",
+    "frontend/src/app/features/collateral/clt-r6e-detail-diagnostics.component.ts",
+    "frontend/src/app/features/collateral/clt-r6e-report-contract.ts",
+    "frontend/src/app/features/collateral/collateral-reports.component.ts",
+    "frontend/src/app/features/collateral/collateral-uat-workbench.component.html",
+    "frontend/src/app/features/collateral/collateral-uat-workbench.component.ts",
+    "tools/clt/r6e/policy-smoke.cjs"
+  ],
+  "financialWrites": false,
+  "oracleExecution": false
+}

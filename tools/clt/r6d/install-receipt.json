@@ -1,0 +1,21 @@
+{
+  "delivery": "R6D_READONLY_DIAGNOSTICS",
+  "requires": "R6C",
+  "createdAt": "2026-11-04T10:43:44.546Z",
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r6d-2026-11-04T10-43-44-481Z",
+  "changed": [
+    "docs/collateral/CLT-R6D-INTEGRATED-READONLY-DIAGNOSTICS-FA.md",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-04-R6D.md",
+    "frontend/src/app/features/collateral/clt-r6d-readonly-diagnostics-policy.ts",
+    "frontend/src/app/features/collateral/clt-r6d-readonly-diagnostics.component.html",
+    "frontend/src/app/features/collateral/clt-r6d-readonly-diagnostics.component.scss",
+    "frontend/src/app/features/collateral/clt-r6d-readonly-diagnostics.component.ts",
+    "frontend/src/app/features/collateral/clt-r6d-registry-contract.ts",
+    "frontend/src/app/features/collateral/collateral-registry.component.ts",
+    "frontend/src/app/features/collateral/collateral-uat-workbench.component.html",
+    "frontend/src/app/features/collateral/collateral-uat-workbench.component.ts",
+    "tools/clt/r6d/policy-smoke.cjs"
+  ],
+  "financialWrites": false,
+  "oracleExecution": false
+}
