@@ -58,6 +58,13 @@ export const routes: Routes = [
       {path: 'collateral/registry', loadComponent: () => import('./features/collateral/collateral-registry.component').then(m => m.CollateralRegistryComponent)},
       // CLT-R2A:ROUTES:END
       // CLT-R1A:ROUTES:END
+      // CLT:R6B:ROUTES:BEGIN
+      {path: 'collateral', data: {cltView: 'list'}, loadComponent: () => import('./features/collateral/collateral-registry.component').then(m => m.CollateralRegistryComponent)},
+      {path: 'collateral/lookup', data: {cltView: 'direct'}, loadComponent: () => import('./features/collateral/collateral-registry.component').then(m => m.CollateralRegistryComponent)},
+      {path: 'collateral/introduction', data: {cltView: 'introduction'}, loadComponent: () => import('./features/collateral/collateral-registry.component').then(m => m.CollateralRegistryComponent)},
+      {path: 'collateral/uat', data: {cltView: 'uat'}, loadComponent: () => import('./features/collateral/collateral-registry.component').then(m => m.CollateralRegistryComponent)},
+      {path: 'collateral/reports', loadComponent: () => import('./features/collateral/collateral-reports.component').then(m => m.CollateralReportsComponent)},
+      // CLT:R6B:ROUTES:END
       {path: 'reference-data', loadComponent: () => import('./features/reference-hub/reference-hub.component').then(m => m.ReferenceHubComponent)},
       {path: 'reference-data/general', data: {scope: 'GENERAL'}, loadComponent: () => import('./features/reference-menu/reference-menu.component').then(m => m.ReferenceMenuComponent)},
       {path: 'reference-data/general/name-romanization-tool', loadComponent: () => import('./features/name-romanization-tool/name-romanization-tool.component').then(m => m.NameRomanizationToolComponent)},

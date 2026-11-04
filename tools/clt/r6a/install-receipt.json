@@ -1,0 +1,26 @@
+{
+  "delivery": "R6A",
+  "version": "0.11.0",
+  "changed": [
+    "docs/collateral/CLT-R6A-ROUTE-INTEGRATION-BLOCKER-FA.md",
+    "docs/collateral/CLT-R6A-TRACEABILITY-MATRIX-FA.md",
+    "docs/collateral/CLT-R6A-UAT-EXECUTION-GUIDE-FA.md",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-04-R6A.md",
+    "frontend/src/app/features/collateral/collateral-r6a-catalog.ts",
+    "frontend/src/app/features/collateral/collateral-registry.component.html",
+    "frontend/src/app/features/collateral/collateral-registry.component.scss",
+    "frontend/src/app/features/collateral/collateral-registry.component.ts",
+    "frontend/src/app/features/collateral/collateral-uat-workbench.component.html",
+    "frontend/src/app/features/collateral/collateral-uat-workbench.component.scss",
+    "frontend/src/app/features/collateral/collateral-uat-workbench.component.ts",
+    "tools/clt/r6a/CLT-R6A-UAT-OFFLINE.html",
+    "tools/clt/r6a/uat-catalog-runtime.cjs",
+    "tools/clt/r6a/uat-policy-smoke.cjs"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r6a-2026-11-04T08-32-05-830Z",
+  "oracleExecution": false,
+  "sharedFilesChanged": [],
+  "financialWritesEnabled": false,
+  "routeAutoIntegration": false,
+  "createdAt": "2026-11-04T08:32:05.920Z"
+}

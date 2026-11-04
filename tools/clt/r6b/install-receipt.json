@@ -1,0 +1,149 @@
+{
+  "delivery": "R6B_NON_IAM",
+  "version": "0.11.0",
+  "changed": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reporting/CollateralReportingController.java",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "3c5198e8fd63c225fcc1e475645828f0368ac03c814de465bff06582ffb0cc09"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reporting/CollateralReportingExceptionHandler.java",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "76caf43e2321b220135bb3c9e8e5d6bdccf6005cff1a4659f58cba7c025e2593"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reporting/CollateralReportingModels.java",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "fc7602a6b4ced91fcde3c5795d94fcecc8588a186f1d4fd18dbf96152eb9aeed"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reporting/CollateralReportingPolicy.java",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "3da8e771c1a739eeab3570b819a5b0127022b2a93426565268360a122f07cc0a"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reporting/CollateralReportingRepository.java",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "1527a96e1174745f36a0076eb65909c9cbd6251310a4569a4606e61f3a40557b"
+    },
+    {
+      "path": "database/oracle/clt/r6b/00_CLT_R6B_DICTIONARY_READONLY.sql",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "533f1ee13e328e35b61d05b87ee37b9f7ac69a5ab254c79144338d34973f9947"
+    },
+    {
+      "path": "docs/collateral/CLT-R6B-ANALYST-UAT-PLAN-FA.md",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "2f555e434e47e9be81c21ea04252d2b4310bea341627bfe908d19abd0a073f87"
+    },
+    {
+      "path": "docs/collateral/CLT-R6B-NON-IAM-UI-REPORTING-CONTRACT-FA.md",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "18de075d580417d7842de0dd8325abb40117ecb0da749d206b839894dacf53ed"
+    },
+    {
+      "path": "docs/collateral/CLT-R7-NONIAM-EVIDENCE-GATES-FA.md",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "16eb914fb4b445ec20f75d0edebc0c8ad96e9ca6467d452bcd1a8805139fc34a"
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-04-R6B.md",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "f1ca9a5d2dd6e92a9b0b07a2b94ae56045e206ec82e430f5e2528cba107e9d71"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r6a-catalog.ts",
+      "kind": "payload",
+      "previousHash": "0fb166333ef274fdff3d5d18e7513c842363de1c10f9deaa86f7ffdf05500c51",
+      "newHash": "9cdb066352ff6837dd100e65f2f5fadafe4b285755ebedc3028ea293a2ab037d"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.html",
+      "kind": "payload",
+      "previousHash": "e81d4d6cbb89850cfc301caabd097869dd86a85bb41df4348f2c97698d6da833",
+      "newHash": "aaddb3542b02ce032a48c74ea7e7a9c9bb7104ac35432bd9053c2e72ab254fed"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.ts",
+      "kind": "payload",
+      "previousHash": "353fecfa60d19329cc38bdc64518a15d77bc8d2222389f2cc80fdf4d2b9e6d02",
+      "newHash": "7bd34eb922d7c1479c31149fa3522958ffcd593234a6ecd02ecf781ded1ccf8d"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.component.html",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "ab522a3313fefb62f438d70c149ec0daa6f7993ee065fbaa17f3006ab3f5db8d"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.component.scss",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "61c9b213628e40303b5d4b63e656bb935a17854bde3ab02bc312936dbe1b3d72"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.component.ts",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "686c33ec45e2edafdaa1d759fb179513c7389691e532de97a4aa66db654af65a"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.service.ts",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "4520441c0986c58bb00fb4343a536ce63d0f44ff9d6f22dda38e93e48d94df5a"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-uat-workbench.component.html",
+      "kind": "payload",
+      "previousHash": "c939615b43cecf6288c3b127ff162ec23b72c5b9ad3f6d19d6e9a69adc7f47b1",
+      "newHash": "b68b5e3af67000481a5f5cb35b1091b0209bf2137d743d07a22f0ea9e27bec1f"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-uat-workbench.component.scss",
+      "kind": "payload",
+      "previousHash": "35580c0ddbe9673a19fc30138ab64465c8c5f1ca9e71da5325fc2cb853f31cb9",
+      "newHash": "17396780e0cdb5203db15a2c19f60d51e319d5304dd295a13b1e03e8ac3dde10"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-uat-workbench.component.ts",
+      "kind": "payload",
+      "previousHash": "9908329f08dae4abe93367bad2e22642b549c804edbdb8b485fb5124a9297f34",
+      "newHash": "468aa418cd749534eccdd0873424c1da6f0e56689fbd292f10fd71be7bb5c22f"
+    },
+    {
+      "path": "tools/clt/r6b/CollateralReportingPolicySmoke.java",
+      "kind": "payload",
+      "previousHash": null,
+      "newHash": "cda8c59f9603af5471bb6d4dbb17366f42dbcec3fb8c0d8de3669cf2f20a1c88"
+    },
+    {
+      "path": "frontend/src/app/app.routes.ts",
+      "kind": "shared-anchor",
+      "previousHash": "6133a9d2d026adc4f68e502e1ee07a8f8db91eebde6e6bffa9cf0d1a0c2703cc",
+      "newHash": "7ea769d37b7e37f06f283f774b1ac9fac251bc2b49b8d1dcb68f1b03da9ae4de"
+    },
+    {
+      "path": "frontend/src/app/layout/app-shell.component.html",
+      "kind": "shared-anchor",
+      "previousHash": "1a5f9ff450c88acbff3e0a549c92bdc8338ff283844aae5700f2136890513dcb",
+      "newHash": "d033af29114e297cbbe74dbfc2814d906d9d12c2a8686f9d9d5c1816bd8796ea"
+    }
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r6b-2026-11-04T09-33-44-794Z",
+  "iamTouched": false,
+  "financialWrites": false,
+  "oracleExecution": false,
+  "createdAt": "2026-11-04T09:33:44.926Z"
+}
