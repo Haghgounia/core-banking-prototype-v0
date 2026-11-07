@@ -1,0 +1,15 @@
+{
+  "delivery": "CLT-R6K",
+  "at": "2026-11-07T06:19:47.461Z",
+  "pid": 19924,
+  "healthHttp": 200,
+  "groupsHttp": 200,
+  "browserHeaderHttp": 200,
+  "groupCount": 28,
+  "typeCount": 0,
+  "localOnly": true,
+  "getOnly": true,
+  "financialWrites": false,
+  "oracleDataWrite": false,
+  "analystUat": "NOT_RUN"
+}

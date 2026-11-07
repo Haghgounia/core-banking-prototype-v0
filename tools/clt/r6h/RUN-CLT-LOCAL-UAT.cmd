@@ -1,10 +1,13 @@
 @echo off
 setlocal EnableExtensions DisableDelayedExpansion
 set "TARGET=%~1"
-if not defined TARGET set "TARGET=D:\Projects\core-banking-prototype-v0"
-if not exist "%~dp0RUN-CLT-LOCAL-UAT.ps1" (
-  echo CLT_R6H_R2_RUNTIME_PS1_MISSING
-  exit /b 31
+if not defined TARGET for %%I in ("%~dp0..\..\..") do set "TARGET=%%~fI"
+echo CLT_R6K_CMD_ENTRY; TARGET=%TARGET%
+if not exist "%~dp0..\r6k\run-local-uat.cjs" (
+  echo CLT_R6K_LAUNCHER_MISSING
+  endlocal & exit /b 31
 )
-powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "%~dp0RUN-CLT-LOCAL-UAT.ps1" -TargetRoot "%TARGET%"
-exit /b %ERRORLEVEL%
+node "%~dp0..\r6k\run-local-uat.cjs" "%TARGET%"
+set "RC=%ERRORLEVEL%"
+if not "%RC%"=="0" echo CLT_R6K_START_INCOMPLETE; EXIT=%RC%
+endlocal & exit /b %RC%

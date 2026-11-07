@@ -1,0 +1,16 @@
+{
+  "delivery": "CLT-R6J",
+  "at": "2026-11-07T05:14:02.399Z",
+  "changed": [
+    "frontend/src/app/features/collateral/clt-r6j-registry-reference.ts",
+    "frontend/src/app/features/collateral/clt-reference-workspace.component.html",
+    "frontend/src/app/features/collateral/clt-reference-workspace.component.ts",
+    "frontend/src/app/features/collateral/clt-reference.service.ts",
+    "tools/clt/r6j/policy-smoke.cjs",
+    "docs/collateral/CLT-ROADMAP-R1.0-STATUS-2026-11-07-R6J.md"
+  ],
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\clt-r6j-20261107050759-23204",
+  "build": "PASS",
+  "jar": "PASS",
+  "uiUat": "NOT_RUN"
+}
