@@ -122,3 +122,21 @@
 - توسعه بدون اجرای Oracle Write قابل شروع است؛ وصل‌کردن فرمان‌های واقعی مالی/سپرده‌ای قبل از احراز هویت و شواهد تراکنش ممنوع است.
 
 **تصمیم اجرایی:** پس از R0، گام بعد **R1 — اطلاعات پایه و حاکمیت قواعد** است. پیش از هر نوشتن عملیاتی، G-16 و G-17 و تصمیم‌های وابسته به آن مسیر باید به‌صورت رسمی resolved شوند.
+
+
+## پیوست کنترل پیشرفت — CLT-STEP01 / T1 (2026-11-07)
+
+- سند تکمیلی نسخه‌دار: [ماتریس ۱۶ BUC، ۲۰ SUC، ۱۵ نما و گیت‌های داده](CLT-STEP01-FEATURE-COVERAGE-DATA-GATES-FA.md).
+- شاهد آزمون جاری: [CLT-R6L-T1-BROWSER-GATE-FA.md](CLT-R6L-T1-BROWSER-GATE-FA.md).
+- چارچوب R0 تا R7 تغییر نکرده است؛ گیت T1 منوط به نمایش ۲۸ گروه در مرورگر واقعی است. وضعیت از پیش‌ثبت‌شده R6K: UI=FAIL، نه PASS.
+- گیت داده: `CLT.COLLATERAL_GROUP=28`؛ `CLT.COLLATERAL_TYPE=0`؛ `CLT.COLLATERAL=0`. هیچ مجوز Oracle Write صادر نشده است.
+
+
+## CLT-R6M / T2-T3 (2026-11-07)
+
+- T1: R6L-HF1 real Chrome DOM and analyst screenshot confirmed 28 active Oracle groups; CLT-DEF-001 CLOSED.
+- T2: explicit code/title search, 20+8 pagination, native modal detail with Escape and focus, and zero-types state; independent browser acceptance gate added.
+- T3: negative empty/error states for registry and introduction without type data; no positive collateral creation gate is opened.
+- Detailed matrix: [CLT-STEP01-FEATURE-COVERAGE-DATA-GATES-FA.md](CLT-STEP01-FEATURE-COVERAGE-DATA-GATES-FA.md).
+- Implementation/UAT: [CLT-R6M-T2-T3-UI-UAT-FA.md](CLT-R6M-T2-T3-UI-UAT-FA.md).
+- Oracle group=28, active types=0, collateral=0; no DDL/DML, no IAM changes. R0-R7 unchanged.

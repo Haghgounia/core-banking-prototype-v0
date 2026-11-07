@@ -30,19 +30,30 @@ public final class CltLocalUatAuthenticationFilter extends OncePerRequestFilter 
         this.branchResolver = branchResolver;
     }
 
+    /** Safe guard diagnostics only: never report credentials, IP values or branch. */
+    private static String rejectionReason(HttpServletRequest request) {
+        if (!"127.0.0.1".equals(request.getRemoteAddr())) return "REMOTE_NOT_LOOPBACK";
+        if (!"127.0.0.1".equals(request.getLocalAddr())) return "SERVER_NOT_LOOPBACK";
+        if (!("localhost".equalsIgnoreCase(request.getServerName())
+                || "127.0.0.1".equals(request.getServerName()))) return "HOST_INVALID";
+        if (request.getHeader("Forwarded") != null
+                || request.getHeader("X-Forwarded-For") != null
+                || request.getHeader("X-Forwarded-Host") != null) return "FORWARDED_HEADER_DENIED";
+        return null;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain chain) throws ServletException, IOException {
-        if (!"127.0.0.1".equals(request.getRemoteAddr())
-                || !"127.0.0.1".equals(request.getLocalAddr())
-                || !("localhost".equalsIgnoreCase(request.getServerName())
-                    || "127.0.0.1".equals(request.getServerName()))
-                || request.getHeader("Forwarded") != null
-                || request.getHeader("X-Forwarded-For") != null
-                || request.getHeader("X-Forwarded-Host") != null) {
+        // CLT-R6L-T1: an earlier HTTP 403 must never be cached by the browser.
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+        String denyReason = rejectionReason(request);
+        if (denyReason != null) {
+            response.setHeader("X-CLT-Local-UAT", denyReason);
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "CLT_LOCAL_UAT_LOOPBACK_ONLY");
             return;
         }
+        response.setHeader("X-CLT-Local-UAT", "LOCAL_READ_ONLY_ACCEPTED");
         if (!"GET".equals(request.getMethod())) {
             // The SecurityFilterChain denies all non-GET methods.
             chain.doFilter(request, response);
@@ -54,6 +65,7 @@ public final class CltLocalUatAuthenticationFilter extends OncePerRequestFilter 
         try {
             serverBranch = branchResolver.resolve();
         } catch (ResponseStatusException ex) {
+            response.setHeader("X-CLT-Local-UAT", "BRANCH_DISCOVERY_UNAVAILABLE");
             response.sendError(ex.getStatusCode().value(), "CLT_LOCAL_UAT_BRANCH_DISCOVERY_UNAVAILABLE");
             return;
         }

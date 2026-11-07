@@ -69,6 +69,7 @@ class CltLocalUatSafetyTest {
         assertTrue(invoked.get());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
         assertTrue(response.getHeader("Cache-Control").contains("no-store"));
+        assertEquals("LOCAL_READ_ONLY_ACCEPTED", response.getHeader("X-CLT-Local-UAT"));
     }
 
     @Test void remoteAndProxyRequestsAreRejectedBeforeAnyController() throws Exception {
@@ -85,6 +86,10 @@ class CltLocalUatSafetyTest {
             filter.doFilter(request, response, (req, res) -> invoked.set(true));
             assertFalse(invoked.get());
             assertEquals(403, response.getStatus());
+            assertTrue(response.getHeader("Cache-Control").contains("no-store"));
+            assertEquals(index == 0 ? "REMOTE_NOT_LOOPBACK" :
+                    index == 1 ? "FORWARDED_HEADER_DENIED" : "HOST_INVALID",
+                    response.getHeader("X-CLT-Local-UAT"));
         }
     }
     @Test void oracleBranchDiscoveryFailureReturnsHttp503BeforeController() throws Exception {

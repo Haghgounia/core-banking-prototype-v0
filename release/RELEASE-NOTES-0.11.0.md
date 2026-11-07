@@ -27,3 +27,19 @@ Account Operations now supports controlled suspension, dormancy and reactivation
 - Fixed Deposit Opening funding-account ownership verification to use active Account Party rows (`details.parties`) instead of the removed legacy `details.owners` contract.
 - Added fail-fast detection for a locked runtime JAR on Windows production builds.
 - No database change is required.
+
+
+## CLT-R6L / T1 — آزمون مرورگر واقعی و ثبت سند پوشش (2026-11-07)
+
+- رفع نارسایی تشخیص HTTP در فرم اطلاعات پایه، جلوگیری از بازاستفاده پاسخ خطای کش‌شده، و افزودن نشانگر تشخیصی امن در فیلتر محلی GET-only.
+- ارائه آزمون خودکار Chrome Headless برای نمایش ۲۸ رکورد واقعی در Grid Angular (نه صرفاً HTTP 200). تا اجرای واقعی در Windows/Oracle، نتیجه Browser E2E تأیید نشده است.
+- ثبت `docs/collateral/CLT-STEP01-FEATURE-COVERAGE-DATA-GATES-FA.md` به‌عنوان ماتریس پوشش ۱۶ BUC / ۲۰ SUC / ۱۵ UI و گیت‌های داده، با ارجاع از نقشه راه.
+- IAM، سیاست‌های مرجع، داده‌های Oracle و عملیات مالی تغییری نکرده‌اند. `COLLATERAL_TYPE` و `COLLATERAL` همچنان نیازمند داده مصوب هستند.
+
+
+## CLT-R6M / T2 + negative T3 — Read-only UI and browser gate (2026-11-07)
+- Native accessible modal for collateral reference details, Escape close and focus restoration; technical columns moved to disclosure.
+- Explicit search action, clear action and applied filter separated from draft text; preserves 20/8 page behavior.
+- Type empty state vs authorization error and registry empty/error differentiation.
+- No new database/API write, no IAM modifications. Browser gate records its own receipt; no automatic PASS from a successful Maven build.
+- Detailed coverage and status: docs/collateral/CLT-R6M-T2-T3-UI-UAT-FA.md
