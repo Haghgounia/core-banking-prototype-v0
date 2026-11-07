@@ -43,3 +43,21 @@ Account Operations now supports controlled suspension, dormancy and reactivation
 - Type empty state vs authorization error and registry empty/error differentiation.
 - No new database/API write, no IAM modifications. Browser gate records its own receipt; no automatic PASS from a successful Maven build.
 - Detailed coverage and status: docs/collateral/CLT-R6M-T2-T3-UI-UAT-FA.md
+
+
+## CLT-R3C / Insurance Company catalog & analyst handoff (2026-11-07)
+
+- Direct collateral menu and insurance panel links to the already supported, authenticated, read-only `CLT.INSURANCE_COMPANY` reference page.
+- UI makes candidate/temporary `TMP-INS-1403-*` codes, inactive status and pending license/business approval explicit; candidate data is never shown as operationally eligible in insurance selector.
+- Generic proposal UI disabled for insurance-company reference until governing license and approval model is designed; no data updates or auto-activation.
+- R6M modal, search and paging maintained. Build, GET-only runtime verification and analyst UAT are distinct gates.
+- Full source diff, manifest, independent QA and UAT cases in CLT-R3C release bundle; R0–R7 unchanged.
+
+## CLT-RF1 — 17-reference read integration foundation (2026-11-07)
+
+- Integrated R3C insurer catalog UI with the 2026-11-07 16:52 full prototype baseline.
+- Added local-only `GET /api/v1/collateral/reference/uat-matrix` with two bounded SELECT checks (COUNT and allowlisted columns) per each of the 17 CLT reference tables.
+- Introduced an automatic GET-only 17/17 real API contract gate and JSON report; no assumption that registry group 200 implies all reference tables 200.
+- Reference landing page shows real connection states; 401/403/503 and empty table states remain separate; no-cache nonce protects against stale denials.
+- Insurer candidates remain inactive, with temporary codes and no automatic eligibility, activation, or Oracle writes.
+- Historical R0–R7 roadmap unchanged; runtime/JUnit and analyst UAT must be independently evidenced.

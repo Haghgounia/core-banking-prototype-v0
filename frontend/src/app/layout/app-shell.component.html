@@ -121,6 +121,11 @@
         <a mat-list-item routerLink="/collateral/reference-data" routerLinkActive="active-link" matTooltip="اطلاعات پایه وثایق (R1A)" matTooltipPosition="before">
           <mat-icon matListItemIcon>dataset</mat-icon><span matListItemTitle>اطلاعات پایه وثایق</span>
         </a>
+        <!-- CLT-R3C: direct insurer catalog; never an operational insurer picker. -->
+        <a mat-list-item routerLink="/collateral/reference-data/INSURANCE_COMPANY" routerLinkActive="active-link"
+          matTooltip="کاتالوگ نامزدهای شرکت بیمه — Oracle فقط‌خواندنی" matTooltipPosition="before" data-clt-r3c-menu>
+          <mat-icon matListItemIcon>verified_user</mat-icon><span matListItemTitle>شرکت‌های بیمه (مرجع)</span>
+        </a>
         <!-- CLT:R6B:NAV-EXT:BEGIN -->
         <a mat-list-item routerLink="/collateral/lookup" routerLinkActive="active-link" matTooltip="استعلام مستقیم وثیقه" matTooltipPosition="before">
           <mat-icon matListItemIcon>manage_search</mat-icon><span matListItemTitle>استعلام شماره انتظامی</span>

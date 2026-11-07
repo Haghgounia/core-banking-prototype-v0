@@ -1,0 +1,55 @@
+'use strict';
+// CLT-RF1: static contracts for the integrated, read-only 17-table reference foundation.
+const fs=require('node:fs');const path=require('node:path');const assert=require('node:assert/strict');
+const root=path.resolve(process.argv[2]||path.join(__dirname,'../../..'));
+const read=s=>fs.readFileSync(path.join(root,s),'utf8');
+const b='backend/src/main/java/com/behsazan/corebanking/collateral/';
+const f='frontend/src/app/features/collateral/';
+const catalog=JSON.parse(read('backend/src/main/resources/clt/reference-catalog.json'));
+const repo=read(b+'reference/CollateralReferenceRepository.java');
+const dto=read(b+'reference/CollateralReferenceModels.java');
+const ctl=read(b+'reference/CollateralReferenceLocalMatrixController.java');
+const sec=read(b+'localuat/CltLocalUatSecurityConfiguration.java');
+const auth=read(b+'localuat/CltLocalUatAuthenticationFilter.java');
+const props=read(b+'localuat/CltLocalUatProperties.java');
+const client=read(f+'clt-reference.service.ts');
+const component=read(f+'clt-reference-workspace.component.ts');
+const html=read(f+'clt-reference-workspace.component.html');
+const nav=read('frontend/src/app/layout/app-shell.component.html');
+const insRepo=read(b+'insurance/CollateralInsuranceRepository.java');
+const insHtml=read(f+'collateral-insurance-panel.component.html');
+const checks=[];const ok=(name,fn)=>{try{fn();checks.push(name);console.log('PASS | '+name);}catch(e){console.error('FAIL | '+name+': '+e.message);process.exitCode=1;}};
+ok('17 physical allowlisted reference tables',()=>{assert.equal(catalog.totalTables,17);assert.equal(catalog.tables.length,17);assert.equal(new Set(catalog.tables.map(x=>x.table)).size,17);});
+ok('every table has declared projection and PK',()=>{for(const t of catalog.tables){assert.ok(t.columns.length>0);assert.ok(t.columns.some(c=>c.name===t.primaryKey));}});
+ok('Oracle insurer table in reference catalog',()=>assert.ok(catalog.tables.some(t=>t.table==='INSURANCE_COMPANY')));
+ok('read matrix iterates immutable table allowlist',()=>assert.match(repo,/CollateralReferenceCatalog\.TABLES\.stream\(\)\.sorted\(\)/));
+ok('read matrix checks COUNT with bound table names',()=>assert.match(repo,/SELECT COUNT\(\*\) FROM CLT\./));
+ok('read matrix checks all physical columns',()=>assert.match(repo,/SELECT " \+ projection\(table\) \+ " FROM CLT\./));
+ok('read matrix contains no data modification',()=>{const fn=repo.slice(repo.indexOf('public ReferenceReadMatrix readinessMatrix()'),repo.indexOf('public Readiness readiness()'));assert.doesNotMatch(fn,/\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bMERGE\b|\bCOMMIT\b|\bEXECUTE\b/i);});
+ok('read matrix returns counts and explicit per-table unavailable state',()=>{assert.match(dto,/record TableReadProbe/);assert.match(dto,/record ReferenceReadMatrix/);assert.match(repo,/"READABLE"/);assert.match(repo,/"UNAVAILABLE"/);});
+ok('matrix endpoint local opt-in only',()=>assert.match(ctl,/@ConditionalOnProperty\(name = "CLT_LOCAL_UAT_READONLY_ENABLED", havingValue = "true"\)/));
+ok('matrix endpoint uses same reference controller path',()=>assert.match(ctl,/@RequestMapping\("\/api\/v1\/collateral\/reference"\)/));
+ok('matrix endpoint is GET only',()=>{assert.match(ctl,/@GetMapping\("\/uat-matrix"\)/);assert.doesNotMatch(ctl,/@PostMapping|@PutMapping|@DeleteMapping|@PatchMapping/);});
+ok('reference security chain remains strictly scoped',()=>{assert.match(sec,/http\.securityMatcher\("\/api\/v1\/collateral\/\*\*"\)/);assert.match(sec,/SCOPE_clt\.reference\.read/);});
+ok('reference write authorization still denied in local mode',()=>assert.match(sec,/\.anyRequest\(\)\.denyAll\(\)/));
+ok('local principal server-origin read only',()=>{assert.match(auth,/"SCOPE_clt\.reference\.read"/);assert.doesNotMatch(auth,/SCOPE_clt\.reference\.approve/);});
+ok('loopback-only and explicit launch flag remain',()=>{assert.match(props,/server\.address/);assert.match(auth,/REMOTE_NOT_LOOPBACK/);});
+ok('insurance selector still excludes INACTIVE',()=>assert.match(insRepo,/FROM CLT\.INSURANCE_COMPANY WHERE STATUS = 'ACTIVE'/));
+ok('no insurer automatic activation',()=>assert.doesNotMatch(ctl+repo+component,/UPDATE\s+CLT\.INSURANCE_COMPANY|SET\s+STATUS\s*=\s*'ACTIVE'/));
+ok('candidate insurer UI remains read only',()=>{assert.match(component,/readonly insurerCatalog/);assert.match(component,/!this\.insurerCatalog\(\)/);assert.match(html,/TMP-INS-1403/);});
+ok('insurer navigation and insurance panel links',()=>{assert.match(nav,/data-clt-r3c-menu/);assert.match(insHtml,/routerLink="\/collateral\/reference-data\/INSURANCE_COMPANY"/);});
+ok('reference forms read from existing independent API',()=>assert.match(client,/private readonly base = '\/api\/v1\/collateral\/reference'/));
+ok('reference matrix integrated in Angular',()=>{assert.match(client,/matrix\(\): Observable<CltReferenceMatrix>/);assert.match(component,/loadReadMatrix\(\)/);assert.match(html,/data-clt-reference-matrix/);});
+ok('single bounded UAT table summary',()=>{assert.match(html,/m\.expectedTables/);assert.match(html,/probe\.state/);assert.match(html,/probe\.rowCount/);});
+ok('reference reads invalidate browser cached denial',()=>assert.match(client,/params = params\.set\('_cltRead'/));
+ok('HTTP 401/403 and Oracle 503 distinguished',()=>{assert.match(component,/HTTP \$\{error\.status\}/);assert.match(component,/HTTP 503/);});
+ok('empty table and unreadable table are distinct',()=>{assert.match(repo,/count == null \? 0L : count/);assert.match(repo,/TableReadProbe\(name, null, "UNAVAILABLE"/);});
+ok('no new Oracle schema or seed in delivery',()=>{assert.doesNotMatch(ctl+repo+client,/\bCREATE TABLE\b|\bALTER TABLE\b|\bDROP TABLE\b|\bINSERT INTO CLT\./i);});
+// Optional TS parser, if the package environment has node_modules.
+let ts;try{ts=require(require.resolve('typescript',{paths:[path.join(root,'frontend'),__dirname]}));}catch{}
+if(ts){for(const file of ['clt-reference.service.ts','clt-reference-workspace.component.ts']) ok('TypeScript '+file,()=>{
+ const src=path.join(root,f,file);const result=ts.transpileModule(fs.readFileSync(src,'utf8'),{fileName:src,reportDiagnostics:true,compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022,experimentalDecorators:true}});
+ assert.equal((result.diagnostics||[]).filter(d=>d.category===ts.DiagnosticCategory.Error).length,0);
+});}else console.log('CLT_RF1_TSC_NOT_AVAILABLE_LOCALLY; WINDOWS_ANGULAR_BUILD_REQUIRED');
+if(process.exitCode)process.exit(1);
+console.log(`CLT_RF1_STATIC_PASS; CHECKS=${checks.length}; TABLES=17; ORACLE_WRITE=NONE`);

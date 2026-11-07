@@ -20,4 +20,9 @@ public final class CollateralReferenceModels {
 
     public record Readiness(boolean ready, int expectedTables, int visibleTables,
                             List<String> missingTables, String source) { }
+
+    /** One bounded read-only UAT inspection of every physical allowlisted reference table. */
+    public record TableReadProbe(String table, Long rowCount, String state, String issue) { }
+    public record ReferenceReadMatrix(int expectedTables, int readableTables, int unavailableTables,
+                                      List<TableReadProbe> tables, String source, boolean readOnly) { }
 }

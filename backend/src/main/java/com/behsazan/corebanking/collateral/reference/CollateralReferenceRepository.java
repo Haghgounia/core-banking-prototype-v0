@@ -67,6 +67,34 @@ public class CollateralReferenceRepository {
         return normalized(rows.getFirst());
     }
 
+    /**
+     * CLT-RF1: check COUNT plus compiled, allowlisted column projection for every
+     * reference table. A table with zero rows is READABLE, not an error. Unavailable
+     * tables do not conceal other results; no Oracle details are exposed in the API.
+     * This method never writes, changes schema, or supplies a data/permission fallback.
+     */
+    public ReferenceReadMatrix readinessMatrix() {
+        JdbcTemplate jdbc = db();
+        List<TableReadProbe> probes = new ArrayList<>();
+        for (String name : CollateralReferenceCatalog.TABLES.stream().sorted().toList()) {
+            Table table = catalog.require(name);
+            try {
+                Long count = jdbc.queryForObject("SELECT COUNT(*) FROM CLT." + name, Long.class);
+                // Parse the full physical projection even for an empty reference table.
+                jdbc.queryForList("SELECT " + projection(table) + " FROM CLT." + name
+                        + " WHERE ROWNUM <= 1");
+                probes.add(new TableReadProbe(name, count == null ? 0L : count,
+                        "READABLE", "NONE"));
+            } catch (org.springframework.dao.DataAccessException e) {
+                probes.add(new TableReadProbe(name, null, "UNAVAILABLE",
+                        "CLT_REFERENCE_TABLE_READ_UNAVAILABLE"));
+            }
+        }
+        int readable = (int) probes.stream().filter(p -> "READABLE".equals(p.state())).count();
+        return new ReferenceReadMatrix(CollateralReferenceCatalog.TABLES.size(), readable,
+                probes.size() - readable, List.copyOf(probes), "ORACLE_CLT_SELECT_ONLY", true);
+    }
+
     public Readiness readiness() {
         List<String> actual = db().queryForList(
                 "SELECT TABLE_NAME FROM ALL_TABLES WHERE OWNER = 'CLT' AND TABLE_NAME IN ("

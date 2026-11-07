@@ -140,3 +140,22 @@
 - Detailed matrix: [CLT-STEP01-FEATURE-COVERAGE-DATA-GATES-FA.md](CLT-STEP01-FEATURE-COVERAGE-DATA-GATES-FA.md).
 - Implementation/UAT: [CLT-R6M-T2-T3-UI-UAT-FA.md](CLT-R6M-T2-T3-UI-UAT-FA.md).
 - Oracle group=28, active types=0, collateral=0; no DDL/DML, no IAM changes. R0-R7 unchanged.
+
+
+## CLT-R3C / Insurance Catalog Analyst UAT (2026-11-07)
+
+- R3: Insurance Company Reference Data catalog is available through the **existing** `GET /api/v1/collateral/reference/INSURANCE_COMPANY` read-only API; no duplicate API or database table was introduced.
+- Read-only insurer list includes inactive Oracle rows. Policy registration selector continues to read only `STATUS='ACTIVE'` records and therefore excludes unverified candidates.
+- 42 insurer names and temporary codes were inserted in a **PRECOMMIT** SQL Developer session; persistence in a separate service session is **not yet proven** until Oracle GET returns them.
+- R3C makes the catalog accessible in collateral sidebar and insurance panel, documents candidate/approval boundaries, and disables generic reference mutation proposals for `INSURANCE_COMPANY`.
+- Open items: current CII license, insurer type, approved business line/territory, bank acceptability, canonical code, G-04, G-06, G-09; NO automatic activation.
+- R0–R7 phase names and scope unchanged. CLT-R6M T2 analyst acceptance remains independently open; no T2 or R3 business PASS is implied by this source update.
+- Evidence: [CLT-R3C-INSURANCE-CATALOG-UAT-FA.md](CLT-R3C-INSURANCE-CATALOG-UAT-FA.md).
+
+### ثبت وضعیت 2026-11-07 — CLT-RF1 (بدون تغییر فازهای R0 تا R7)
+
+- **R1 / Reference Foundation:** قرارداد عمومی ۱۷ جدول در Backend موجود بود، ولی Smoke قبلی R6K فقط دو Endpoint گروه/نوع (Registry) را می‌سنجید. RF1 Probe فقط‌خواندنی `uat-matrix` و آزمون Endpoint واقعی همه ۱۷ مرجع را اضافه می‌کند؛ وضعیت Runtime تا اجرای واقعی در بانک **NOT PROVEN** باقی می‌ماند.
+- **R3 / Insurance:** بسته R3C کاتالوگ نامزدها و لینک پنل بیمه را با آخرین سورس یکپارچه کرده است؛ ۴۲ شرکت تنها پس از COMMIT و HTTP 200 قابل اثبات‌اند. نامزدهای `INACTIVE` فعال یا واجد شرایط استفاده عملیاتی نیستند.
+- **R6 / Analyst UAT:** شروع بررسی‌های کارشناس بدون انتظار برای تکمیل جریان عملیاتی همچنان مجاز است. گیت Technical Integration از تأیید عملکردی مستقل است.
+- **R7 / Security:** خط مبنای احراز هویت، گیت مجوزهای مرجع و Loopback-only بدون گسترش دسترسی یا IAM حفظ می‌شوند.
+- سند شواهد: `docs/collateral/CLT-RF1-REFERENCE-FOUNDATION-17-UAT-FA.md`؛ خروجی محیطی `logs/clt-rf1-reference-matrix.json`.

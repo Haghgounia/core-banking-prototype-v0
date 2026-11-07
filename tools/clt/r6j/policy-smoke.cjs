@@ -67,7 +67,9 @@ try{
  });
  test('read-only UI hides reference writer for group and type',()=>{
   assert(workspace.text.includes('&& !this.registryActiveCatalog()'));
-  assert(workspace.text.includes('if (!this.registryActiveCatalog()) void this.loadGovernanceState()'));
+  // R3C/RF1 also exclude unlicensed insurer candidates from the reference writer workflow.
+  assert(workspace.text.includes('if (!this.registryActiveCatalog()) void this.loadGovernanceState()')
+    || workspace.text.includes('if (!this.registryActiveCatalog() && !this.insurerCatalog()) void this.loadGovernanceState()'));
  });
  test('read failures cannot be mistaken for zero Oracle records',()=>{
   assert(html.includes('صفر بودن نتایج به معنای خالی بودن Oracle نیست'));

@@ -150,3 +150,20 @@ T1 PASS is supported by the real Chrome run and screenshot, not the old Node-onl
 T2 code delivered for modal detail, explicit search/filter state, code/title/Persian-digit search and empty active types. Browser/analyst UAT remains an independent gate.
 T3 negative paths have clearer error vs empty messages; positive registration and introduction remain blocked by DATA-01 / DATA-04 and G-17.
 See [CLT-R6M-T2-T3-UI-UAT-FA.md](CLT-R6M-T2-T3-UI-UAT-FA.md).
+
+
+## CLT-R3C / R3 Insurance Company catalog (2026-11-07)
+
+- R3 / BUC-07 / SUC-09: **Catalog UI/code READY FOR ANALYST UAT; NOT BUSINESS ACCEPTED**.
+- Existing generic reference GET reads all insurer statuses from `CLT.INSURANCE_COMPANY`; existing insurance selector filters `STATUS='ACTIVE'`. R3C links both views and makes restrictions explicit in the UI.
+- Source-data gate: 42 candidate insurer names reported inserted by user with `COMMIT=MANUAL`; zero persisted candidates are not assumed, and independent Oracle GET is required for live runtime evidence.
+- Candidate data has temporary codes and all were inserted `INACTIVE`; no official insurer/line license verification or bank approval is available. No policy can be accepted for allocation based on this catalog.
+- UAT scenarios R3C-UAT-01..07 are versioned in [CLT-R3C-INSURANCE-CATALOG-UAT-FA.md](CLT-R3C-INSURANCE-CATALOG-UAT-FA.md).
+- Existing 16 BUC / 20 SUC / 15 UI coverage set is unchanged. G-04/G-06/G-09 and insurer selection eligibility remain **OPEN**. No DDL/DML, no IAM changes.
+
+## CLT-RF1 — گیت ۱۷ جدول Reference (2026-11-07)
+
+- در ۱۷ فرم اطلاعات پایه، **قابلیت پیاده‌سازی‌شده** خواندن از Oracle، نمایش رکورد، جست‌وجو و صفحه‌بندی است؛ نه عملیات نهایی CRUD نوشتنی.
+- معیار گیت جدید: خواندن و واکشی صفحه اول از **تمام ۱۷ جدول**؛ شواهد Runtime در `logs/clt-rf1-reference-matrix.json`.
+- گیت `INSURANCE_COMPANY`: ۴۲ شرکت نامزد (`TMP`، `INACTIVE`) تنها در صورت تأیید COMMIT و ۲۰۰ بودن Endpoint قابل اثبات‌اند؛ تا زمان تصویب رسمی بانک و پروانه هیچ انتخابگر عملیاتی نباید آن‌ها را واجد شرایط تلقی کند.
+- `READY_FOR_ANALYST_EXPLORATORY_UAT` به معنی `BUSINESS_ACCEPTED` یا مجوز Oracle Write نیست.
