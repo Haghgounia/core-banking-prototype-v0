@@ -61,3 +61,12 @@ Account Operations now supports controlled suspension, dormancy and reactivation
 - Reference landing page shows real connection states; 401/403/503 and empty table states remain separate; no-cache nonce protects against stale denials.
 - Insurer candidates remain inactive, with temporary codes and no automatic eligibility, activation, or Oracle writes.
 - Historical R0–R7 roadmap unchanged; runtime/JUnit and analyst UAT must be independently evidenced.
+
+## CLT-R3D — Insurance analyst form preview in the real R3 component (2026-11-07)
+
+- Enables business analysts to open the **same R3 insurance Angular form** from the existing `/collateral/uat` workspace even while `CLT.COLLATERAL` has zero real rows; does not fabricate a collateral entity.
+- Fetches insurer candidates, insurance types, and active collateral-type counts exclusively through the existing authenticated GET reference APIs; statuses remain source-faithful and incomplete pages are not interpreted as zero active.
+- Analyst preview forbids all per-collateral service calls, insurance validation POST and staging-request POST; unavailable references cannot be selected as authorized insurer options.
+- Adds browser-local form-shape checks and eight R3-only analyst UAT evidence cases with local JSON export. Original ten R6 UAT cases are unchanged.
+- No backend, Oracle, IAM, release version or operational writer feature-flag modification. G-04/G-06/G-09, official data approval and full R3 UAT remain open.
+- Reference: `docs/collateral/CLT-R3D-INSURANCE-ANALYST-UAT-FA.md`.
