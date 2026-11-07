@@ -1,0 +1,34 @@
+{
+  "format": "CLT-R6H-R5-RUNTIME-1",
+  "version": "0.11.0",
+  "generatedAt": "2026-11-04T14:42:51.189Z",
+  "pid": 15364,
+  "manifestSha256": "bd0163324fa2ba2fe4c96afa38d98f9a3d21c2379bba4f3613d11baa34117ce6",
+  "health": 200,
+  "localModeAttested": true,
+  "branch": "AUTO_ONE_BRANCH",
+  "financialWrites": false,
+  "userAcceptance": "NOT_RUN",
+  "r6d": [
+    {
+      "name": "registry-readiness",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "registry-page",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "report-overview",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "reference-summary",
+      "status": 200,
+      "passed": true
+    }
+  ]
+}

@@ -22,11 +22,13 @@ public class CollateralRegistryRepository {
     private static final String BASE = """
           FROM CLT.COLLATERAL c
           JOIN CLT.COLLATERAL_TYPE t ON t.COLLATERAL_TYPE_ID = c.COLLATERAL_TYPE_ID
+          LEFT JOIN CLT.COLLATERAL_GROUP g ON g.COLLATERAL_GROUP_ID = t.COLLATERAL_GROUP_ID
          WHERE c.BRANCH_CODE = ?
         """;
     private static final String COLUMNS = """
         SELECT c.COLLATERAL_ID, c.COLLATERAL_NUMBER, c.PARTY_ID,
                c.COLLATERAL_TYPE_ID, t.COLLATERAL_TYPE_NAME,
+               g.COLLATERAL_GROUP_CODE, g.COLLATERAL_GROUP_NAME,
                c.COLLATERAL_STATUS_CODE, c.ESTIMATE_AMOUNT, c.MORTGAGE_AMOUNT,
                c.INSURANCE_AMOUNT, c.VALID_FROM, c.VALID_TO,
                c.MULTIPLICITY, c.USAGE_CONDITION, c.USAGE_TERM,
@@ -40,12 +42,20 @@ public class CollateralRegistryRepository {
     private JdbcTemplate db() { return reader.getObject().jdbc(); }
 
     public Page list(String branch, String registrationNumber, int page, int size) {
+        return list(branch, registrationNumber, null, page, size);
+    }
+
+    /** R6I: the optional group filter is parameterized and always subordinate to the server branch. */
+    public Page list(String branch, String registrationNumber, String groupCode, int page, int size) {
         CollateralRegistryPolicy.pagination(page, size);
-        String filter = registrationNumber == null || registrationNumber.isBlank()
-                ? "" : " AND c.COLLATERAL_NUMBER = ?";
+        boolean hasNumber = registrationNumber != null && !registrationNumber.isBlank();
+        boolean hasGroup = groupCode != null && !groupCode.isBlank();
+        String filter = (hasNumber ? " AND c.COLLATERAL_NUMBER = ?" : "")
+                + (hasGroup ? " AND g.COLLATERAL_GROUP_CODE = ? AND g.STATUS = 'ACTIVE'" : "");
         List<Object> parameters = new ArrayList<>();
         parameters.add(CollateralRegistryPolicy.branch(branch));
-        if (!filter.isEmpty()) parameters.add(CollateralRegistryPolicy.id(registrationNumber));
+        if (hasNumber) parameters.add(CollateralRegistryPolicy.id(registrationNumber));
+        if (hasGroup) parameters.add(CollateralRegistryPolicy.groupCode(groupCode));
         JdbcTemplate jdbc = db();
         Long total = jdbc.queryForObject("SELECT COUNT(*) " + BASE + filter,
                 Long.class, parameters.toArray());
@@ -76,10 +86,22 @@ public class CollateralRegistryRepository {
         return normalize(rows.getFirst());
     }
 
+    /** The group catalog is global technical reference data, never a collateral ownership list. */
+    public List<Map<String, Object>> activeGroups() {
+        return db().queryForList("""
+                SELECT g.COLLATERAL_GROUP_ID, g.COLLATERAL_GROUP_CODE,
+                       g.COLLATERAL_GROUP_NAME, g.STATUS
+                  FROM CLT.COLLATERAL_GROUP g
+                 WHERE g.STATUS = 'ACTIVE'
+                 ORDER BY g.COLLATERAL_GROUP_CODE, g.COLLATERAL_GROUP_ID
+                 FETCH FIRST 200 ROWS ONLY
+                """).stream().map(CollateralRegistryRepository::normalize).toList();
+    }
+
     public List<Map<String, Object>> activeTypes() {
         return db().queryForList("""
                 SELECT t.COLLATERAL_TYPE_ID, t.COLLATERAL_TYPE_CODE, t.COLLATERAL_TYPE_NAME,
-                       t.COLLATERAL_GROUP_ID, g.COLLATERAL_GROUP_NAME, t.HAS_MULTIPLICITY,
+                       t.COLLATERAL_GROUP_ID, g.COLLATERAL_GROUP_CODE, g.COLLATERAL_GROUP_NAME, t.HAS_MULTIPLICITY,
                        t.INSURABLE, t.SPONSOR_REQUIRED, t.STATUS
                   FROM CLT.COLLATERAL_TYPE t
                   JOIN CLT.COLLATERAL_GROUP g ON g.COLLATERAL_GROUP_ID = t.COLLATERAL_GROUP_ID

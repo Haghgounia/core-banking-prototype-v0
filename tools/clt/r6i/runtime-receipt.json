@@ -1,0 +1,39 @@
+{
+  "format": "CLT-R6I-RUNTIME-1",
+  "generatedAt": "2026-11-06T14:18:22.861Z",
+  "version": "0.11.0",
+  "manifestSha256": "4ac18e76763767e6a164a8de818d1a8b8609155a9067ebb4101554801110f72e",
+  "localMode": "LOOPBACK_AUTO_SINGLE_BRANCH",
+  "readOnly": true,
+  "r6d": [
+    {
+      "name": "registry-readiness",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "registry-page",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "report-overview",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "reference-summary",
+      "status": 200,
+      "passed": true
+    }
+  ],
+  "activeGroupsTotal": 28,
+  "activeGroupsReturned": 28,
+  "activeTypesTotal": 0,
+  "linkedTypesReturned": 0,
+  "accessibleCollaterals": 0,
+  "group70Collaterals": 0,
+  "importedSourceCodesMissing": [],
+  "dataGate": "NO_ACTIVE_TYPES",
+  "analystUat": "NOT_RUN"
+}

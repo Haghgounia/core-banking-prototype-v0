@@ -62,7 +62,7 @@ public class CltLocalUatSecurityConfiguration {
                 // Strict GET allowlist. An added endpoint is NOT exposed automatically.
                 .requestMatchers(HttpMethod.GET,
                         "/api/v1/collaterals", "/api/v1/collaterals/readiness",
-                        "/api/v1/collaterals/types", "/api/v1/collaterals/types/*/attributes",
+                        "/api/v1/collaterals/groups", "/api/v1/collaterals/types", "/api/v1/collaterals/types/*/attributes",
                         "/api/v1/collaterals/by-registration/*",
                         "/api/v1/collaterals/reports/overview",
                         "/api/v1/collaterals/reports/recent-events",

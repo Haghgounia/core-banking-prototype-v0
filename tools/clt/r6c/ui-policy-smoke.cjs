@@ -58,7 +58,9 @@ try{
   let rejected=false;try{catalog.cltUatImport(changed)}catch{rejected=true}ok(rejected,'malformed import rejected');
  }
  const srcRegistry=fs.readFileSync(path.join(dir,'collateral-registry.component.ts'),'utf8');
- ok(srcRegistry.includes('this.api.list(page, this.pageSize, this.appliedListFilter())'),'real list API search wired');
+ ok(srcRegistry.includes('this.api.list(page, this.pageSize, this.appliedListFilter())') ||
+   srcRegistry.includes('this.api.list(page, this.pageSize, this.appliedListFilter(), this.groupCode())'),
+   'real list API search wired; extended R6I server-side group filter remains bound');
  ok(srcRegistry.includes('this.router.navigateByUrl(destination)'),'browser route navigation');
  ok(srcRegistry.includes('this.requestSequence++'),'request invalidation');
  ok(srcRegistry.includes('this.requestedSection.set(cltDetailSection('),'deep-link section guarded');

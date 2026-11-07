@@ -50,14 +50,28 @@ public final class CollateralRegistryController {
     @GetMapping
     Page list(Authentication authentication,
               @RequestParam(required = false) String registrationNumber,
+              @RequestParam(required = false) String groupCode,
               @RequestParam(defaultValue = "0") int page,
               @RequestParam(defaultValue = "20") int size) {
-        return repository.list(branch(authentication), registrationNumber, page, size);
+        if (groupCode != null) {
+            try { CollateralRegistryPolicy.groupCode(groupCode); }
+            catch (IllegalArgumentException ex) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CLT_REGISTRY_GROUP_CODE_INVALID");
+            }
+        }
+        return repository.list(branch(authentication), registrationNumber, groupCode, page, size);
     }
 
     @GetMapping("/by-registration/{number}")
     Map<String, Object> byRegistration(Authentication authentication, @PathVariable String number) {
         return repository.byRegistration(branch(authentication), number);
+    }
+
+    /** CLT_R6I_ACTIVE_GROUPS_20261104: safe, global technical catalog with a read-scope gate. */
+    @GetMapping(value = "/groups", name = "CLT_R6I_ACTIVE_GROUPS_20261104")
+    List<Map<String, Object>> groups(Authentication authentication) {
+        branch(authentication);
+        return repository.activeGroups();
     }
 
     @GetMapping("/types")
