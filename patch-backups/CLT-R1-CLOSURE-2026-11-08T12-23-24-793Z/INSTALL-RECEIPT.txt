@@ -1,0 +1,4 @@
+Patch=CLT-R1-CLOSURE-CANDIDATE-2026-11-08
+Files=13
+UTC=2026-11-08T12:23:24.915Z
+No database SQL executed. Oracle CRUD UAT is not proven by installation.

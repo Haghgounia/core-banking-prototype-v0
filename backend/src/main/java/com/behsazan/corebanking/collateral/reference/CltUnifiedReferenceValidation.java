@@ -39,6 +39,11 @@ final class CltUnifiedReferenceValidation {
             if (value.isBlank() || value.chars().anyMatch(Character::isISOControl))
                 throw new IllegalArgumentException("CLT_UNIFIED_EMPTY_OR_CONTROL");
             String type = column.dataType();
+            // R1 Closure: match the controlled ACTIVE/INACTIVE and CHAR(1) Y/N UI contract.
+            if ("STATUS".equals(column.name()) && !Set.of("ACTIVE", "INACTIVE").contains(value))
+                throw new IllegalArgumentException("CLT_UNIFIED_STATUS_INVALID");
+            if (type.matches("CHAR\\(1(?:\\s+(?:CHAR|BYTE))?\\)") && !Set.of("Y", "N").contains(value))
+                throw new IllegalArgumentException("CLT_UNIFIED_FLAG_INVALID");
             Matcher numeric = NUMBER.matcher(type);
             Matcher text = TEXT.matcher(type);
             if (numeric.matches()) {

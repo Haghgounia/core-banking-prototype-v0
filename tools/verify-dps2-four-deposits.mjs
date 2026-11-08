@@ -18,6 +18,19 @@ const wizardTs = read('frontend/src/app/features/four-deposits/deposit-opening-w
 const wizardHtml = read('frontend/src/app/features/four-deposits/deposit-opening-wizard.component.html');
 const opsTs = read('frontend/src/app/features/four-deposits/deposit-opening-operations.component.ts');
 const pageHtml = read('frontend/src/app/features/reference-data/presentation/reference-page.component.html');
+const persianDatePicker = read('frontend/src/app/shared/ui/persian-date-input.component.ts');
+const timestampCase = pageHtml.split("@case ('TIMESTAMP') {", 2)[1]?.split("@case ('TEXT') {", 1)[0] ?? '';
+const timestampPickerContract =
+  timestampCase.includes('<app-persian-date-input') &&
+  timestampCase.includes('[formControlName]="field.apiName"') &&
+  timestampCase.includes('[withTime]="true"') &&
+  timestampCase.includes('[withSeconds]="true"') &&
+  !timestampCase.includes('datetime-local') &&
+  persianDatePicker.includes('implements ControlValueAccessor') &&
+  persianDatePicker.includes('@Input() withSeconds = false') &&
+  persianDatePicker.includes('this.selectedSecond.set(Number(normalized.match(') &&
+  persianDatePicker.includes('this.withSeconds ?') &&
+  persianDatePicker.includes('this.onChange(value)');
 
 const refCount = (refProvider.match(/^\s{12}descriptor\(/gm) ?? []).length;
 const opCount = (opProvider.match(/^\s{12}descriptor\(/gm) ?? []).length;
@@ -68,7 +81,7 @@ const checks = [
   [wizardTs.includes('DEPOSIT_OPENING_REQUEST') && wizardTs.includes('DEPOSIT_OPENING_PARTY') && wizardTs.includes('DEPOSIT_OPENING_FUNDING') && wizardTs.includes('DEPOSIT_OPENING_CHECK') && wizardTs.includes('DEPOSIT_OPENING_DECISION'), 'wizard payload must cover core DPS2 opening entities'],
   [home.includes('قرض‌الحسنه پس‌انداز') && home.includes('حساب جاری') && home.includes('سپرده کوتاه‌مدت') && home.includes('سپرده بلندمدت') && home.includes('گواهی سپرده'), 'Four Deposits landing scope text is incomplete'],
   [opsTs.includes('dps2-opening-request') && opsTs.includes('dps2-opening-decision') && opsTs.includes('dps2-opening-batch'), 'operational forms grouping is incomplete'],
-  [pageHtml.includes("@case ('TIMESTAMP')") && pageHtml.includes('datetime-local'), 'generic reference UI must support TIMESTAMP editing'],
+  [timestampPickerContract, 'generic reference UI must use shared Persian TIMESTAMP editor (date, time, seconds, unchanged ISO form payload)'],
   [repository.includes('optionalField("updatedBy")') && repository.includes('optionalField("updatedAt")'), 'generic repository must maintain UPDATED_BY / UPDATED_AT when descriptors expose them'],
   [exists('docs/DPS2-0.3.97-FOUR-DEPOSITS-PHASE1-QA.md'), 'Phase 1 QA documentation is missing']
 ];
