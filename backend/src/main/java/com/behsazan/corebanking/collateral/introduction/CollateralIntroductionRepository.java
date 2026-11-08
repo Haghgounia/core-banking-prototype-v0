@@ -61,6 +61,38 @@ public class CollateralIntroductionRepository {
         return n != null && n == 1;
     }
 
+    /** The opt-in staging schema is not created by a launcher or installer. */
+    public boolean draftSchemaReady(CollateralIntroductionWriterPool pool) {
+        Integer tables = pool.jdbc().queryForObject("""
+                SELECT COUNT(*) FROM ALL_TABLES
+                 WHERE OWNER = 'CLT' AND TABLE_NAME IN
+                       ('CLT_INTRODUCTION_DRAFT', 'CLT_INTRODUCTION_DRAFT_AUDIT')
+                """, Integer.class);
+        Integer sequence = pool.jdbc().queryForObject("""
+                SELECT COUNT(*) FROM ALL_SEQUENCES
+                 WHERE SEQUENCE_OWNER = 'CLT' AND SEQUENCE_NAME = 'SEQ_CLT_INTRODUCTION_DRAFT'
+                """, Integer.class);
+        Integer columns = pool.jdbc().queryForObject("""
+                SELECT COUNT(*) FROM ALL_TAB_COLUMNS
+                 WHERE OWNER = 'CLT' AND TABLE_NAME = 'CLT_INTRODUCTION_DRAFT'
+                   AND COLUMN_NAME IN ('DRAFT_ID', 'MAKER_SUBJECT', 'BRANCH_CODE',
+                     'PARTY_ID', 'COLLATERAL_TYPE_ID', 'ESTIMATE_AMOUNT', 'CURRENCY_CODE',
+                     'VALID_FROM', 'VALID_TO', 'DEPOSIT_NUMBER', 'REMARKS', 'ATTRIBUTES_JSON',
+                     'IDEMPOTENCY_KEY', 'REQUEST_HASH', 'CORRELATION_ID', 'STATUS',
+                     'CREATED_AT', 'CREATED_BY', 'RECORD_VERSION')
+                """, Integer.class);
+        Integer auditColumns = pool.jdbc().queryForObject("""
+                SELECT COUNT(*) FROM ALL_TAB_COLUMNS
+                 WHERE OWNER = 'CLT' AND TABLE_NAME = 'CLT_INTRODUCTION_DRAFT_AUDIT'
+                   AND COLUMN_NAME IN ('DRAFT_ID','EVENT_CODE','EVENT_SUBJECT',
+                     'BRANCH_CODE','REQUEST_HASH','CORRELATION_ID')
+                """, Integer.class);
+        if (!Integer.valueOf(2).equals(tables) || !Integer.valueOf(1).equals(sequence)
+                || !Integer.valueOf(19).equals(columns) || !Integer.valueOf(6).equals(auditColumns)) return false;
+        extended(pool); // 0 or 2 extension columns is valid; exactly 1 fails closed.
+        return true;
+    }
+
     // Old R2B writer deployments continue to work for legacy (non-range) drafts.
     // The two R2C columns are optional and require an independently approved migration.
     private boolean extended(CollateralIntroductionWriterPool pool) {

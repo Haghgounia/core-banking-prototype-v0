@@ -56,9 +56,17 @@ public final class CollateralIntroductionService {
     }
     public Readiness readiness(Authentication authentication) {
         actor(authentication);
+        boolean ready = false;
+        if (properties.draftWritesEnabled() && registry.readsEnabled() && reference.readsEnabled()) {
+            try {
+                CollateralIntroductionWriterPool staging = writer.getIfAvailable();
+                ready = staging != null && repository.draftSchemaReady(staging);
+            } catch (RuntimeException unavailable) { ready = false; }
+        }
         return new Readiness(registry.readsEnabled() && reference.readsEnabled(),
-                properties.draftWritesEnabled(), false, false,
-                "R2C_DRAFT_PREPARATION_ONLY", "G-17_NOT_APPROVED");
+                ready, false, false,
+                ready ? "R2_DRAFT_STAGING_READY" : "R2_DRAFT_SCHEMA_NOT_READY",
+                "G-17_NOT_APPROVED");
     }
     private void requireRead() {
         if (!registry.readsEnabled() || !reference.readsEnabled())
@@ -140,7 +148,11 @@ public final class CollateralIntroductionService {
         if (!properties.draftWritesEnabled())
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "CLT_INTRODUCTION_DRAFT_WRITES_DISABLED");
-        return writer.getObject();
+        CollateralIntroductionWriterPool staging = writer.getIfAvailable();
+        if (staging == null || !repository.draftSchemaReady(staging))
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "CLT_INTRODUCTION_DRAFT_SCHEMA_NOT_READY");
+        return staging;
     }
     public Draft createDraft(Request request, Authentication authentication,
                              String idempotencyKey, String correlationId) {

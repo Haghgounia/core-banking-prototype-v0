@@ -47,7 +47,9 @@ for(const [name,body,mark] of [
  ['filter-group-logic',ts,'setGroupFilter(value:string)'],
  ['no-fake-data',ts,'this.catalogError.set('],
  ['group-in-grid',html,"field(row,'COLLATERAL_GROUP_NAME')"],
- ['group-in-detail',ts,"'COLLATERAL_GROUP_CODE', 'COLLATERAL_GROUP_NAME'"],
+ ['group-name-in-business-detail',ts,"'COLLATERAL_GROUP_NAME'"],
+ ['group-code-retained-in-audit',ts,"'COLLATERAL_GROUP_CODE'"],
+ ['detail-separates-business-and-audit',ts,"readonly businessFields ="],
  ['group-title-label',labels,'"COLLATERAL_GROUP_NAME"'],
  ['persist-branch-scope',repo,'WHERE c.BRANCH_CODE = ?'],
  ['intro-groups-request',introApi,'groups(): Observable<readonly CollateralRow[]>'],
@@ -59,7 +61,7 @@ for(const [name,body,mark] of [
  ['intro-type-disabled',introHtml,'[disabled]="!groupCode() || filteredTypes().length===0"'],
  ['direct-title',html,"mode()==='direct' ? labels.direct"],
  ['persian-404',labels,'وثیقه‌ای با این شماره در محدوده دسترسی'],
- ['no-jwt-only-description',report,'شعبه تأییدشده در Backend'],
+ ['server-branch-scope-in-report',report,'محدود به شعبه تأییدشده در سرویس'],
  ['policy-negative-tests',test,'groupCodeFilterAcceptsOnlyExactBusinessCode'],
  ]) yes(name,body.includes(mark));
 yes('no-java-dml', !/\b(?:INSERT\s+INTO|UPDATE\s+CLT\.|DELETE\s+FROM|MERGE\s+INTO)\b/i.test(repo+ctrl));

@@ -1,0 +1,4 @@
+Patch=CLT-R1-17-TABLE-UAT-MATRIX-2026-11-08
+Files=11
+UTC=2026-11-08T13:14:30.828Z
+No database SQL executed. Oracle CRUD UAT is not proven by installation.

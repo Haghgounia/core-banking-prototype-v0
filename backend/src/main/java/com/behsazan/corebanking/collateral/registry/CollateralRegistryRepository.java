@@ -23,13 +23,14 @@ public class CollateralRegistryRepository {
           FROM CLT.COLLATERAL c
           JOIN CLT.COLLATERAL_TYPE t ON t.COLLATERAL_TYPE_ID = c.COLLATERAL_TYPE_ID
           LEFT JOIN CLT.COLLATERAL_GROUP g ON g.COLLATERAL_GROUP_ID = t.COLLATERAL_GROUP_ID
+          LEFT JOIN CLT.REF_COLLATERAL_STATUS s ON s.COLLATERAL_STATUS_CODE = c.COLLATERAL_STATUS_CODE
          WHERE c.BRANCH_CODE = ?
         """;
     private static final String COLUMNS = """
         SELECT c.COLLATERAL_ID, c.COLLATERAL_NUMBER, c.PARTY_ID,
                c.COLLATERAL_TYPE_ID, t.COLLATERAL_TYPE_NAME,
                g.COLLATERAL_GROUP_CODE, g.COLLATERAL_GROUP_NAME,
-               c.COLLATERAL_STATUS_CODE, c.ESTIMATE_AMOUNT, c.MORTGAGE_AMOUNT,
+               c.COLLATERAL_STATUS_CODE, s.COLLATERAL_STATUS_NAME, c.ESTIMATE_AMOUNT, c.MORTGAGE_AMOUNT,
                c.INSURANCE_AMOUNT, c.VALID_FROM, c.VALID_TO,
                c.MULTIPLICITY, c.USAGE_CONDITION, c.USAGE_TERM,
                c.DEPOSIT_NUMBER, c.BRANCH_CODE, c.REMARKS, c.CURRENCY_CODE,
@@ -47,15 +48,30 @@ public class CollateralRegistryRepository {
 
     /** R6I: the optional group filter is parameterized and always subordinate to the server branch. */
     public Page list(String branch, String registrationNumber, String groupCode, int page, int size) {
+        return list(branch, registrationNumber, groupCode, null, null, null, page, size);
+    }
+
+    /** R2 consolidated: all criteria are exact, bound values, under the authenticated branch. */
+    public Page list(String branch, String registrationNumber, String groupCode,
+                     String partyId, String typeId, String statusCode, int page, int size) {
         CollateralRegistryPolicy.pagination(page, size);
         boolean hasNumber = registrationNumber != null && !registrationNumber.isBlank();
         boolean hasGroup = groupCode != null && !groupCode.isBlank();
+        boolean hasParty = partyId != null && !partyId.isBlank();
+        boolean hasType = typeId != null && !typeId.isBlank();
+        boolean hasStatus = statusCode != null && !statusCode.isBlank();
         String filter = (hasNumber ? " AND c.COLLATERAL_NUMBER = ?" : "")
-                + (hasGroup ? " AND g.COLLATERAL_GROUP_CODE = ? AND g.STATUS = 'ACTIVE'" : "");
+                + (hasGroup ? " AND g.COLLATERAL_GROUP_CODE = ? AND g.STATUS = 'ACTIVE'" : "")
+                + (hasParty ? " AND c.PARTY_ID = ?" : "")
+                + (hasType ? " AND c.COLLATERAL_TYPE_ID = ?" : "")
+                + (hasStatus ? " AND c.COLLATERAL_STATUS_CODE = ?" : "");
         List<Object> parameters = new ArrayList<>();
         parameters.add(CollateralRegistryPolicy.branch(branch));
         if (hasNumber) parameters.add(CollateralRegistryPolicy.id(registrationNumber));
         if (hasGroup) parameters.add(CollateralRegistryPolicy.groupCode(groupCode));
+        if (hasParty) parameters.add(CollateralRegistryPolicy.id(partyId));
+        if (hasType) parameters.add(CollateralRegistryPolicy.id(typeId));
+        if (hasStatus) parameters.add(CollateralRegistryPolicy.statusCode(statusCode));
         JdbcTemplate jdbc = db();
         Long total = jdbc.queryForObject("SELECT COUNT(*) " + BASE + filter,
                 Long.class, parameters.toArray());
@@ -95,6 +111,17 @@ public class CollateralRegistryRepository {
                  WHERE g.STATUS = 'ACTIVE'
                  ORDER BY g.COLLATERAL_GROUP_CODE, g.COLLATERAL_GROUP_ID
                  FETCH FIRST 200 ROWS ONLY
+                """).stream().map(CollateralRegistryRepository::normalize).toList();
+    }
+
+    public List<Map<String, Object>> activeStatuses() {
+        return db().queryForList("""
+                SELECT s.COLLATERAL_STATUS_CODE, s.COLLATERAL_STATUS_NAME,
+                       s.IS_ACTIVE_STATUS_FLAG, s.IS_TERMINAL_STATUS_FLAG
+                  FROM CLT.REF_COLLATERAL_STATUS s
+                 WHERE s.STATUS = 'ACTIVE'
+                 ORDER BY s.DISPLAY_ORDER, s.COLLATERAL_STATUS_CODE
+                 FETCH FIRST 100 ROWS ONLY
                 """).stream().map(CollateralRegistryRepository::normalize).toList();
     }
 

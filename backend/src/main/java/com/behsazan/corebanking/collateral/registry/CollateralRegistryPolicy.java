@@ -24,6 +24,12 @@ public final class CollateralRegistryPolicy {
         }
         return text;
     }
+    /** Business lifecycle status code: never interpolate it into SQL. */
+    public static String statusCode(String text) {
+        if (text == null || !text.matches("[A-Za-z0-9_-]{1,30}"))
+            throw new IllegalArgumentException("CLT_REGISTRY_STATUS_CODE_INVALID");
+        return text;
+    }
     public static void pagination(int page, int size) {
         if (page < 0 || page > 1000 || size < 1 || size > 50) {
             throw new IllegalArgumentException("CLT_REGISTRY_PAGE_INVALID");

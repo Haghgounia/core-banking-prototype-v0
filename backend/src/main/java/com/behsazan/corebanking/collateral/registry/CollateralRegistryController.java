@@ -51,6 +51,9 @@ public final class CollateralRegistryController {
     Page list(Authentication authentication,
               @RequestParam(required = false) String registrationNumber,
               @RequestParam(required = false) String groupCode,
+              @RequestParam(required = false) String partyId,
+              @RequestParam(required = false) String typeId,
+              @RequestParam(required = false) String statusCode,
               @RequestParam(defaultValue = "0") int page,
               @RequestParam(defaultValue = "20") int size) {
         if (groupCode != null) {
@@ -59,7 +62,15 @@ public final class CollateralRegistryController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CLT_REGISTRY_GROUP_CODE_INVALID");
             }
         }
-        return repository.list(branch(authentication), registrationNumber, groupCode, page, size);
+        try {
+            if (partyId != null && !partyId.isBlank()) CollateralRegistryPolicy.id(partyId);
+            if (typeId != null && !typeId.isBlank()) CollateralRegistryPolicy.id(typeId);
+            if (statusCode != null && !statusCode.isBlank()) CollateralRegistryPolicy.statusCode(statusCode);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CLT_REGISTRY_FILTER_INVALID");
+        }
+        return repository.list(branch(authentication), registrationNumber, groupCode,
+                partyId, typeId, statusCode, page, size);
     }
 
     @GetMapping("/by-registration/{number}")
@@ -72,6 +83,13 @@ public final class CollateralRegistryController {
     List<Map<String, Object>> groups(Authentication authentication) {
         branch(authentication);
         return repository.activeGroups();
+    }
+
+    /** Reference-driven lifecycle choices; not hardcoded UI state. */
+    @GetMapping("/statuses")
+    List<Map<String, Object>> statuses(Authentication authentication) {
+        branch(authentication);
+        return repository.activeStatuses();
     }
 
     @GetMapping("/types")
