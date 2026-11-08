@@ -10,6 +10,7 @@ import com.behsazan.corebanking.collateral.allocation.CollateralAllocationCapaci
 import com.behsazan.corebanking.collateral.unallocation.CollateralUnallocationIntakeProperties;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(name = "CLT_LOCAL_UAT_READONLY_ENABLED",
         havingValue = "false", matchIfMissing = true)
+@ConditionalOnExpression("'${core-banking.collateral.prototype.enabled:false}' == 'false'")
 public class CollateralRegistrySecurityConfiguration {
     @Bean
     @Order(3)

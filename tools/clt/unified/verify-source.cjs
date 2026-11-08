@@ -1,0 +1,38 @@
+'use strict';
+const fs=require('fs');
+const path=require('path');
+const root=path.resolve(process.argv[2]||path.join(__dirname,'../../../'));
+const read=(rel)=>fs.readFileSync(path.join(root,rel),'utf8');
+const all=(s, tests)=>tests.every(t=>s.includes(t));
+let count=0;
+function check(name, okay){if(!okay){console.error('FAIL | '+name);process.exitCode=1}else{count++;console.log('PASS | '+name)}}
+const config=read('config/clt-unified-local.yml');
+const start=read('bin/start.cmd');
+const security=read('backend/src/main/java/com/behsazan/corebanking/collateral/prototype/CltUnifiedPrototypeSecurityConfiguration.java');
+const reader=read('backend/src/main/java/com/behsazan/corebanking/collateral/reference/CollateralReferenceConfiguration.java');
+const repo=read('backend/src/main/java/com/behsazan/corebanking/collateral/reference/CltUnifiedReferenceRepository.java');
+const validation=read('backend/src/main/java/com/behsazan/corebanking/collateral/reference/CltUnifiedReferenceValidation.java');
+const ctl=read('backend/src/main/java/com/behsazan/corebanking/collateral/reference/CltUnifiedReferenceController.java');
+const app=read('frontend/src/app/features/collateral/clt-reference-workspace.component.ts');
+const html=read('frontend/src/app/features/collateral/clt-reference-workspace.component.html');
+const service=read('frontend/src/app/features/collateral/clt-reference.service.ts');
+check('same official bin/start.cmd loads additive CLT config', all(start,['bin','CLT_CONFIG_URI','CONFIG_URI','--spring.config.additional-location=']));
+check('no DB credentials in CLT overlay', all(config,['CLT_UNIFIED_ENABLED:true','SERVER_ADDRESS:127.0.0.1'])&&!/password:|username:|jdbc:oracle:/i.test(config));
+check('externalized original Oracle config retained', read('config/application.yml').includes('spring:')&&!read('config/application.yml').includes('prototype:'));
+check('unified mode is loopback-bound and rejects forwarded proxies', all(security,['"127.0.0.1".equals(address)','getRemoteAddr()','getLocalAddr()','getServerName()','X-Forwarded-For','X-Forwarded-Host']));
+check('IAM path not matched in CLT chain', !security.includes('"/api/v1/iam/**"')&&security.includes('"/api/v1/collaterals/**"'));
+check('read APIs no external bearer token required', all(security,['clt-unified-local-internal','JwtAuthenticationToken','HttpMethod.GET'])&&!security.includes('.oauth2ResourceServer('));
+check('business transactions and new collateral registration denied', all(security,['.anyRequest().denyAll()','/introduction-drafts/validate'])&&!security.includes('HttpMethod.POST, "/api/v1/collaterals/**"'));
+check('reference reader reuses application datasource', all(reader,['new CollateralReferenceReaderPool(applicationDataSource)','core-banking.collateral.prototype.enabled']));
+check('one Oracle datasource for all CRUD operations', all(repo,['DataSource dataSource','new JdbcTemplate(dataSource)','new DataSourceTransactionManager(dataSource)']));
+check('Spring Repository supports class based AOP, not final', /@Repository\s*public class CltUnifiedReferenceRepository\s*\{/.test(repo)&&!/\bfinal\s+class\s+CltUnifiedReferenceRepository\b/.test(repo));
+check('Spring CGLIB proxy regression test exists', all(read('backend/src/test/java/com/behsazan/corebanking/collateral/reference/CltUnifiedReferenceRepositoryProxyTest.java'),['ProxyFactory','setProxyTargetClass(true)','getProxy','isCglibProxy']));
+check('fixed CLT catalog and prepared DML', all(repo,['catalog.require(tableName)','SELECT CLT.SEQ_','INSERT INTO CLT.','UPDATE CLT.','DELETE FROM CLT.','args.toArray()']));
+check('optimistic locking for update and delete', (repo.match(/RECORD_VERSION = \?/g)||[]).length>=2);
+check('managed columns immutable through API payload', all(validation,['MANAGED.contains(column.name())','column.primaryKey()','column.required()']));
+check('17 reference table catalog remains', (read('backend/src/main/resources/clt/reference-catalog.json').match(/"table": "/g)||[]).length===17);
+check('GET / POST / PUT / DELETE direct CRUD endpoints', all(ctl,['@PostMapping("/{table}")','@PutMapping("/{table}/{id}")','@DeleteMapping("/{table}/{id}")','@GetMapping("/unified/status")']));
+check('frontend has direct Oracle create update delete actions', all(service,['createRecord(','updateRecord(','deleteRecord(','unifiedStatus('])&&all(app,['saveDirect()','deleteDirect(','startDirectCreate()']));
+check('frontend uses standard Material CRUD, status filtering, and typed fields', all(html,['data-clt-unified-crud','mat-table','mat-paginator','mat-form-field','editorColumns()','افزودن رکورد','matTooltip="حذف"']));
+if(process.exitCode){console.error(`CLT_UNIFIED_SOURCE_FAILED; PASSED=${count}/16`);process.exit(1)}
+console.log(`CLT_UNIFIED_SOURCE_PASS=18/18; ORACLE_TEST=NOT_RUN; WINDOWS_BUILD=NOT_RUN`);

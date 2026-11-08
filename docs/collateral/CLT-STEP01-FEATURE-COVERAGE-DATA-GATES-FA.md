@@ -181,3 +181,10 @@ See [CLT-R6M-T2-T3-UI-UAT-FA.md](CLT-R6M-T2-T3-UI-UAT-FA.md).
 | ثبت شواهد UAT | ده سناریوی رسمی R6 | هشت سناریوی مکمل بیمه + JSON جداگانه؛ ده سناریوی اصلی ثابت | NOT_RUN تا تصمیم تحلیلگر |
 
 **توالی تصمیم:** (۱) تحلیلگر پیش‌نمایش و فیلدها را بررسی کند، (۲) شکاف‌های UI/Business جمع‌آوری شوند، (۳) انواع و سیاست‌های مصوب بیمه و وثیقه از مالک داده اخذ شوند، (۴) سناریوی مثبت واقعی پس از گیت DATA-01/DATA-04 و کنترل‌های مالی اجرا شود. هیچ Seed یا فعال‌سازی خودکار از این نسخه ناشی نمی‌شود.
+
+
+### CLT-R3E — UX-only analyst correction (2026-11-07)
+- R3 Insurance Preview: REVIEW_READY; reviewer decision pending on mandatory deposit for non-deposit collateral, receivedAmount semantics, beneficiary/insured subject/documents and coverage policy.
+- R6 Technical diagnostics: collapsed by default; developer-only disclosure.
+- Oracle insurer catalog: 42 INACTIVE TMP candidates; no activation, no operational selectable insurers.
+- R3 write lifecycle and positive UAT: DATA_BLOCKED / POLICY_BLOCKED; zero Oracle writes in R3E.

@@ -1,0 +1,5 @@
+Patch: CLT-UNIFIED-2026-11-08-0932-R2-RUNTIME-FIX
+Time: 2026-11-08T07:26:51.734Z
+Applied files: 4
+Source: core-banking-prototype-v0-2026-11-08-0932.zip
+No Oracle SQL executed by installer.

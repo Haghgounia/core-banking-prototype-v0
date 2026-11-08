@@ -21,37 +21,67 @@ public class CollateralReferenceRepository {
     private JdbcTemplate db() { return readerPool.getObject().jdbc(); }
 
     public Rows list(String tableName, String search, int page, int size) {
+        return list(tableName, search, page, size, null, null, null, null, null);
+    }
+
+    /** CLT UI R3: pagination, status and sorting are enforced in Oracle for the entire result set. */
+    public Rows list(String tableName, String search, int page, int size, String status,
+                     String sort, String direction, String filterField, String filterValue) {
         Table table = catalog.require(tableName);
         if (page < 0 || page > 10000 || size < 1 || size > 50)
             throw new IllegalArgumentException("CLT_REFERENCE_INVALID_PAGE");
         String term = search == null ? "" : search.strip();
         if (term.length() > 80 || term.chars().anyMatch(Character::isISOControl))
             throw new IllegalArgumentException("CLT_REFERENCE_INVALID_SEARCH");
-        String columns = projection(table);
-        String source = "CLT." + table.table();
-        String filter = "";
+        List<String> predicates = new ArrayList<>();
         List<Object> args = new ArrayList<>();
         if (!term.isEmpty()) {
             LinkedHashSet<String> textFields = new LinkedHashSet<>();
             if (!table.codeColumn().isBlank()) textFields.add(table.codeColumn());
             if (!table.nameColumn().isBlank()) textFields.add(table.nameColumn());
             if (textFields.isEmpty()) throw new IllegalArgumentException("CLT_REFERENCE_SEARCH_NOT_SUPPORTED");
-            StringJoiner clauses = new StringJoiner(" OR ", " WHERE (", ")");
+            List<String> or = new ArrayList<>();
             for (String col : textFields) {
-                clauses.add("UPPER(" + col + ") LIKE ? ESCAPE '!'");
+                or.add("UPPER(" + col + ") LIKE ? ESCAPE '!'");
                 args.add("%" + term.toUpperCase(Locale.ROOT).replace("!", "!!")
                         .replace("%", "!%").replace("_", "!_") + "%");
             }
-            filter = clauses.toString();
+            predicates.add("(" + String.join(" OR ", or) + ")");
         }
+        if (status != null && !status.isBlank() && !"ALL".equals(status)) {
+            if (!List.of("ACTIVE", "INACTIVE").contains(status) || table.columns().stream().noneMatch(c -> "STATUS".equals(c.name())))
+                throw new IllegalArgumentException("CLT_REFERENCE_INVALID_STATUS_FILTER");
+            predicates.add("STATUS = ?");
+            args.add(status);
+        }
+        if (filterField != null && !filterField.isBlank()) {
+            if (!"COLLATERAL_TYPE_ATTRIBUTE".equals(table.table()) ||
+                !List.of("COLLATERAL_TYPE_ID", "COLLATERAL_ATTRIBUTE_DEFINITION_ID").contains(filterField) ||
+                filterValue == null || !filterValue.matches("[1-9][0-9]{0,18}"))
+                throw new IllegalArgumentException("CLT_REFERENCE_INVALID_RELATION_FILTER");
+            predicates.add(filterField + " = ?");
+            args.add(new BigDecimal(filterValue));
+        } else if (filterValue != null && !filterValue.isBlank()) {
+            throw new IllegalArgumentException("CLT_REFERENCE_INVALID_RELATION_FILTER");
+        }
+        String sortColumn = sort == null || sort.isBlank() ? table.primaryKey() : sort.toUpperCase(Locale.ROOT);
+        if (table.columns().stream().noneMatch(c -> c.name().equals(sortColumn)))
+            throw new IllegalArgumentException("CLT_REFERENCE_INVALID_SORT");
+        String sortDirection = direction == null || direction.isBlank() ? "DESC" : direction.toUpperCase(Locale.ROOT);
+        if (!List.of("ASC", "DESC").contains(sortDirection))
+            throw new IllegalArgumentException("CLT_REFERENCE_INVALID_DIRECTION");
+        String where = predicates.isEmpty() ? "" : " WHERE " + String.join(" AND ", predicates);
+        String source = "CLT." + table.table();
         JdbcTemplate jdbc = db();
-        Long total = jdbc.queryForObject("SELECT COUNT(*) FROM " + source + filter, Long.class, args.toArray());
+        Long total = jdbc.queryForObject("SELECT COUNT(*) FROM " + source + where, Long.class, args.toArray());
         List<Object> pageArgs = new ArrayList<>(args);
         pageArgs.add((long) page * size);
         pageArgs.add(size);
-        List<Map<String, Object>> rows = jdbc.queryForList("SELECT " + columns + " FROM " + source + filter
-                + " ORDER BY " + table.primaryKey() + " DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY",
-                pageArgs.toArray()).stream().map(CollateralReferenceRepository::normalized).toList();
+        List<Map<String, Object>> rows = jdbc.queryForList(
+                "SELECT " + projection(table) + " FROM " + source + where +
+                " ORDER BY " + sortColumn + " " + sortDirection + ", " + table.primaryKey() + " DESC" +
+                " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY", pageArgs.toArray())
+                .stream().map(CollateralReferenceRepository::normalized).toList();
         return new Rows(rows, total == null ? 0 : total, page, size, "ORACLE_CLT_READ_ONLY");
     }
 

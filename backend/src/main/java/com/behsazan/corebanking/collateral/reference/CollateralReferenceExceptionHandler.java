@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /** Never reveal Oracle details, schema privileges, SQL or internal exception messages to API clients. */
-@RestControllerAdvice(assignableTypes = {CollateralReferenceController.class, CollateralReferenceChangeController.class, CollateralReferenceLocalMatrixController.class})
+@RestControllerAdvice(assignableTypes = {CollateralReferenceController.class, CollateralReferenceChangeController.class, CollateralReferenceLocalMatrixController.class, CltUnifiedReferenceController.class})
 public final class CollateralReferenceExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(CollateralReferenceExceptionHandler.class);
     @ExceptionHandler(IllegalArgumentException.class)

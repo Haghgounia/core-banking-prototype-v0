@@ -70,3 +70,11 @@ Account Operations now supports controlled suspension, dormancy and reactivation
 - Adds browser-local form-shape checks and eight R3-only analyst UAT evidence cases with local JSON export. Original ten R6 UAT cases are unchanged.
 - No backend, Oracle, IAM, release version or operational writer feature-flag modification. G-04/G-06/G-09, official data approval and full R3 UAT remain open.
 - Reference: `docs/collateral/CLT-R3D-INSURANCE-ANALYST-UAT-FA.md`.
+
+
+### CLT-R3E — Consolidated analyst UAT UX correction (2026-11-07)
+- Technical R6D/R6E diagnostics moved into a collapsed optional section to keep the analyst-facing form and eight R3 insurance test cases in focus.
+- The production R3 insurance form is reused; analyst preview now distinguishes the current backend-mandated deposit number from an unapproved rule for non-deposit collateral.
+- Analyst-only annotations document unresolved received insurance amount definition, beneficiary, insured subject, documents, insurance currency source and policy/coverage gates.
+- No Oracle DDL/DML/COMMIT, no backend or IAM modification, no change to active-only insurer choice or real validation flow.
+- R3E QA is source/static until Windows Angular build and analyst visual UAT.

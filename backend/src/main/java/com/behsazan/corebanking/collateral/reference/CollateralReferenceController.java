@@ -28,8 +28,13 @@ public final class CollateralReferenceController {
     Rows list(@PathVariable String table,
               @RequestParam(required = false) String text,
               @RequestParam(defaultValue = "0") int page,
-              @RequestParam(defaultValue = "25") int size) {
-        return repository.list(table, text, page, size);
+              @RequestParam(defaultValue = "25") int size,
+              @RequestParam(required = false) String status,
+              @RequestParam(required = false) String sort,
+              @RequestParam(required = false) String direction,
+              @RequestParam(required = false) String filterField,
+              @RequestParam(required = false) String filterValue) {
+        return repository.list(table, text, page, size, status, sort, direction, filterField, filterValue);
     }
 
     @GetMapping("/{table}/{primaryKey}")

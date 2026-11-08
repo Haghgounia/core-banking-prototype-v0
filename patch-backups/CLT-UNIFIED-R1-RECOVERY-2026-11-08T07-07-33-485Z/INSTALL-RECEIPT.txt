@@ -1,0 +1,5 @@
+Patch: CLT-UNIFIED-2026-11-08-0932-R1
+Time: 2026-11-08T07:07:33.621Z
+Applied files: 16
+Source: core-banking-prototype-v0-2026-11-08-0932.zip
+No Oracle SQL executed by installer.

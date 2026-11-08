@@ -19,6 +19,9 @@ public class CollateralReferenceConfiguration {
     CollateralReferenceReaderPool collateralReferenceReaderPool(CollateralReferenceProperties config,
             CltLocalUatProperties local, CollateralRegistryProperties registry,
             Environment environment, DataSource applicationDataSource) {
+        if (environment.getProperty("core-banking.collateral.prototype.enabled", Boolean.class, false)) {
+            return new CollateralReferenceReaderPool(applicationDataSource);
+        }
         String launcherMode = environment.getProperty("CLT_LOCAL_UAT_READONLY_ENABLED", "false");
         if ("true".equalsIgnoreCase(launcherMode) != local.enabled())
             throw new IllegalStateException("CLT_R6H_LOCAL_MODE_BINDING_MISMATCH");

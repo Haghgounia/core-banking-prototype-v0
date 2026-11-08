@@ -1,0 +1,13 @@
+# CLT Unified local developer UAT overlay. Loaded by the canonical bin/start.cmd.
+# Contains NO Oracle credentials; the application's normal datasource is used.
+# DO NOT deploy this file/launcher configuration on shared or production servers.
+server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
+core-banking:
+  collateral:
+    prototype:
+      enabled: ${CLT_UNIFIED_ENABLED:true}
+    reference:
+      reads-enabled: ${CLT_REFERENCE_READS_ENABLED:${CLT_UNIFIED_ENABLED:true}}
+    registry:
+      reads-enabled: ${CLT_REGISTRY_READS_ENABLED:${CLT_UNIFIED_ENABLED:true}}

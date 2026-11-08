@@ -80,6 +80,13 @@ if errorlevel 1 (
 
 set "CONFIG_PATH=%ROOT%\config\application.yml"
 set "CONFIG_URI=%CONFIG_PATH:\=/%"
+rem CLT Unified: load local-only override after the normal shared Oracle config.
+set "CLT_CONFIG_PATH=%ROOT%\config\clt-unified-local.yml"
+if not exist "%CLT_CONFIG_PATH%" (
+  echo ERROR: CLT local configuration is missing.
+  exit /b 1
+)
+set "CLT_CONFIG_URI=%CLT_CONFIG_PATH:\=/%"
 if not exist "%ROOT%\logs" mkdir "%ROOT%\logs"
 set "LOG_FILE=%ROOT%\logs\core-banking-prototype.log"
 
@@ -87,7 +94,7 @@ echo Starting Core Banking Prototype %APP_VERSION%...
 echo JAR: %JAR%
 echo Configuration: %CONFIG_PATH%
 echo Log file: %LOG_FILE%
-java -jar "%JAR%" "--spring.config.additional-location=optional:file:/%CONFIG_URI%"
+java -jar "%JAR%" "--spring.config.additional-location=optional:file:/%CONFIG_URI%,optional:file:/%CLT_CONFIG_URI%"
 set "EXIT_CODE=%ERRORLEVEL%"
 echo.
 echo Core Banking Prototype process ended with code %EXIT_CODE%.
