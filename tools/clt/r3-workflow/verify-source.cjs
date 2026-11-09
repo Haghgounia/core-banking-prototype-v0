@@ -27,7 +27,20 @@ yes(service.includes("EVENT_CODE = 'REQUEST_CREATED'"),'creation_audit_guard');
 yes(service.includes('FOR UPDATE'),'row_lock');
 yes(service.includes('RECORD_VERSION = RECORD_VERSION + 1'),'optimistic_update');
 yes(service.includes('DECISION_REASON, EVENT_AT'),'reason_audit_event');
-yes(service.includes('validateForSubmission(kind, collateralId, id, auth)'),'submit_revalidation');
+yes(service.includes('CollateralR3WorkflowPolicy.requiresCurrentDomainValidation(action)') &&
+    service.includes('validateForStageDecision(kind, collateralId, id, action, auth)'),
+    'submit_and_review_revalidation');
+yes(policy.includes('action == Action.SUBMIT || action == Action.REVIEW'),
+    'positive_review_revalidates_current_domain');
+for(const domain of ['sponsor','insurance','valuation']) {
+  const domainService=read('backend/src/main/java/com/behsazan/corebanking/collateral/'+domain+'/Collateral'+domain[0].toUpperCase()+domain.slice(1)+'Service.java');
+  yes(domainService.includes('screenForReview(') &&
+      domainService.includes('"SCOPE_clt.collateral.review"'),
+      'independent_review_scope_'+domain);
+  yes(service.includes(domain+'.screenForReview(') && service.includes(domain+'.validate('),
+      'review_submits_are_separated_'+domain);
+}
+yes(service.includes('CLT_R3_WORKFLOW_REVIEW_REVALIDATION_BLOCKED'), 'review_fails_closed');
 yes(service.includes('Collatera'+'lSponsorService'),'sponsor_revalidation');
 yes(service.includes('CollateralInsuranceService'),'insurance_revalidation');
 yes(service.includes('CollateralValuationService'),'valuation_revalidation');

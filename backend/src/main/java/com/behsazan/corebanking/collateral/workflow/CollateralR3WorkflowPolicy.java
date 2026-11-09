@@ -40,6 +40,13 @@ public final class CollateralR3WorkflowPolicy {
     }
     public enum Action { SUBMIT, WITHDRAW, REVIEW, REJECT }
 
+    /** Validate live domain evidence at maker submit and again at positive independent review.
+     * Reject/withdraw must remain available when a business prerequisite has become invalid.
+     */
+    public static boolean requiresCurrentDomainValidation(Action action) {
+        return action == Action.SUBMIT || action == Action.REVIEW;
+    }
+
     public static String id(String value) {
         if (value == null || !value.matches("[1-9][0-9]{0,18}"))
             throw new IllegalArgumentException("CLT_R3_WORKFLOW_ID_INVALID");

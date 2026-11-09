@@ -81,7 +81,16 @@ public class CollateralSponsorService {
         return sponsors.list(sponsors.parent(who.branch(), CollateralSponsorPolicy.id(collateralId)), page, size);
     }
     public Validation validate(String collateralId, CandidateRequest request, Authentication authentication) {
-        scope(authentication, "SCOPE_clt.collateral.introduce");
+        return validateWithScope(collateralId, request, authentication, "SCOPE_clt.collateral.introduce");
+    }
+    /** Internal Stage screening: an independent reviewer need not hold maker's introduce scope. */
+    public Validation screenForReview(String collateralId, CandidateRequest request,
+            Authentication authentication) {
+        return validateWithScope(collateralId, request, authentication, "SCOPE_clt.collateral.review");
+    }
+    private Validation validateWithScope(String collateralId, CandidateRequest request,
+            Authentication authentication, String requiredScope) {
+        scope(authentication, requiredScope);
         var who = actor(authentication);
         requireRead();
         if (request == null) throw new IllegalArgumentException("CLT_SPONSOR_BODY_REQUIRED");

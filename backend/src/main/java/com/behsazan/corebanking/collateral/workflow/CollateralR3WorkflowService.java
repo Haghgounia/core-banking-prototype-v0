@@ -215,26 +215,34 @@ public final class CollateralR3WorkflowService {
             }
         };
     }
-    private void validateForSubmission(Kind kind, String collateralId, BigDecimal id,
-            Authentication auth) {
+    private void validateForStageDecision(Kind kind, String collateralId, BigDecimal id,
+            Action action, Authentication auth) {
+        // Positive Stage review must re-read current Oracle/CIF evidence, not trust submit-time checks.
+        // The reviewer has its own scope; it must not need maker's introduce authority.
+        boolean review = action == Action.REVIEW;
         Map<String,Object> source = jdbc.queryForMap("SELECT * FROM " + table(kind)
                 + " WHERE " + kind.idColumn + " = ?", id);
         boolean valid = switch (kind) {
-            case SPONSOR -> sponsor.validate(collateralId,
-                    new CollateralSponsorModels.CandidateRequest(n(source.get("PARTY_ID")),
-                            s(source.get("DEPOSIT_NUMBER")), s(source.get("JUSTIFICATION"))), auth)
-                    .eligibleForRequest();
-            case INSURANCE -> insurance.validate(collateralId,
-                    new CollateralInsuranceModels.CandidateRequest(
+            case SPONSOR -> {
+                var candidate = new CollateralSponsorModels.CandidateRequest(n(source.get("PARTY_ID")),
+                        s(source.get("DEPOSIT_NUMBER")), s(source.get("JUSTIFICATION")));
+                yield (review ? sponsor.screenForReview(collateralId, candidate, auth)
+                        : sponsor.validate(collateralId, candidate, auth)).eligibleForRequest();
+            }
+            case INSURANCE -> {
+                var candidate = new CollateralInsuranceModels.CandidateRequest(
                             s(source.get("INSURER_CODE")), n(source.get("INSURANCE_COMPANY_ID")),
                             n(source.get("COLLATERAL_INSURANCE_TYPE_ID")), s(source.get("DEPOSIT_NUMBER")),
                             s(source.get("INSURANCE_NUMBER")), n(source.get("INSURANCE_AMOUNT")),
                             n(source.get("INSURANCE_RECEIVED_AMOUNT")), n(source.get("TAX_AMOUNT")),
                             day(source.get("VALID_FROM")), day(source.get("VALID_TO")),
                             n(source.get("PREVIOUS_INSURANCE_ID")), s(source.get("CURRENCY_CODE")),
-                            s(source.get("JUSTIFICATION"))), auth).eligibleForRequest();
-            case VALUATION -> valuation.validate(collateralId,
-                    new CollateralValuationModels.CandidateRequest(
+                            s(source.get("JUSTIFICATION")));
+                yield (review ? insurance.screenForReview(collateralId, candidate, auth)
+                        : insurance.validate(collateralId, candidate, auth)).eligibleForRequest();
+            }
+            case VALUATION -> {
+                var candidate = new CollateralValuationModels.CandidateRequest(
                             s(source.get("VALUATION_TYPE_CODE")), s(source.get("VALUATION_METHOD_CODE")),
                             day(source.get("VALUATION_DATE")), n(source.get("VALUATION_AMOUNT")),
                             s(source.get("CURRENCY_CODE")), n(source.get("FORCED_SALE_VALUE")),
@@ -242,10 +250,14 @@ public final class CollateralR3WorkflowService {
                             n(source.get("VALUER_PARTY_ID")), s(source.get("VALUER_NAME")),
                             s(source.get("VALUATION_REFERENCE")), day(source.get("EFFECTIVE_FROM")),
                             day(source.get("EFFECTIVE_TO")), n(source.get("SUPERSEDES_VALUATION_HISTORY_ID")),
-                            s(source.get("JUSTIFICATION"))), auth).eligibleForStagingRequest();
+                            s(source.get("JUSTIFICATION")));
+                yield (review ? valuation.screenForReview(collateralId, candidate, auth)
+                        : valuation.validate(collateralId, candidate, auth)).eligibleForStagingRequest();
+            }
         };
         if (!valid) throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                "CLT_R3_WORKFLOW_SUBMISSION_REVALIDATION_BLOCKED");
+                review ? "CLT_R3_WORKFLOW_REVIEW_REVALIDATION_BLOCKED"
+                        : "CLT_R3_WORKFLOW_SUBMISSION_REVALIDATION_BLOCKED");
     }
     public StageRow transition(String kindName, String requestId,
             CollateralR3WorkflowController.Transition body, String correlation,
@@ -290,7 +302,8 @@ public final class CollateralR3WorkflowService {
             if (!Integer.valueOf(1).equals(evidence))
                 throw new ResponseStatusException(HttpStatus.CONFLICT,
                         "CLT_R3_WORKFLOW_CREATION_AUDIT_MISSING_OR_INVALID");
-            if (action == Action.SUBMIT) validateForSubmission(kind, collateralId, id, auth);
+            if (CollateralR3WorkflowPolicy.requiresCurrentDomainValidation(action))
+                validateForStageDecision(kind, collateralId, id, action, auth);
             int updated = jdbc.update("UPDATE " + table(kind)
                     + " SET STATUS_CODE = ?, RECORD_VERSION = RECORD_VERSION + 1 WHERE "
                     + kind.idColumn + " = ? AND BRANCH_CODE = ? AND STATUS_CODE = ? AND RECORD_VERSION = ?",

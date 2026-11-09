@@ -1,0 +1,92 @@
+{
+  "marker": "CLT-R3-REVIEW-REVALIDATION-2026-11-09",
+  "root": "D:\\Projects\\core-banking-prototype-v0",
+  "baseline": "core-banking-prototype-v0-2026-11-09-1720.zip",
+  "installedAt": "2026-11-09T14:30:29.212Z",
+  "changed": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/sponsor/CollateralSponsorService.java",
+      "existed": true,
+      "baselineSha256": "b28bf23117cd6b92a92a992118c654a3d116191d517c8b149ec0269c89d56be4",
+      "payloadSha256": "6e4c7e0fbd573570e087b708f2e923c15b353d1e86d48cb6974c3acc8934464e"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/insurance/CollateralInsuranceService.java",
+      "existed": true,
+      "baselineSha256": "b3c621408a1adad1feeef4c4c5030e31b14a4fa93906e8ce99e5919a01350a3f",
+      "payloadSha256": "3baaa2016e90ec8960cc2f9e0a5d79d71128d2d3045ade81edeb03686d3411b5"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/valuation/CollateralValuationService.java",
+      "existed": true,
+      "baselineSha256": "0ca8de2dd1a7d178c5ec5773865aa2ffdabf725264f2f17acfff8a66535ad0b9",
+      "payloadSha256": "f7c79e44da32a96078554df08189996ed7e5030c56fccce462aaf89ad6fcdf8e"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowService.java",
+      "existed": true,
+      "baselineSha256": "d8447b1eaf5c65905e651dcf5d70b7bcd033fe739a830a05bae4ce7636c2c53c",
+      "payloadSha256": "9f23b8404877365925ee4c42d8344729e9f87b65224450a3e457d9992e297cd6"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowPolicy.java",
+      "existed": true,
+      "baselineSha256": "eeffca5d5495eafef2dc1170b46c0d05b42a1efbb16e93f5a8b0b2d4aeb03556",
+      "payloadSha256": "f5ac235a13990f5da1cfd5a8df6846890af150c58d4702454f613ebe69c59e11"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowPolicyTest.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "b4176da46e673ee7dfa99f50c2971c03f076ef0d7e21d37bc06a89d28ec841b6"
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "existed": true,
+      "baselineSha256": "69ecd2e293b127454418aae45739394ce61bc9b932f707cc727eb697afc54ebb",
+      "payloadSha256": "aeedc35b0f484ace991876b6bea3852c5a04aa32de6872be9d1726963bef5c60"
+    },
+    {
+      "path": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "existed": true,
+      "baselineSha256": "4bb348debb453fa597bc73b87da6bdb1d6b342149eb23fca33b75b2114d58b09",
+      "payloadSha256": "1ac6d2e7706d038f5b1d12ce3d4d3508ae28614840ad79d7e5149f940f07e04e"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-STAGE-WORKFLOW-CHECKPOINT-2026-11-09.md",
+      "existed": true,
+      "baselineSha256": "814d2cc3d6cc0bcd4e2340536b079c6fe4c5e332a2d4e5d5cf59b767272dc048",
+      "payloadSha256": "7cafaeb786ecd9a1d032c0b68081cdc47ddeeffc3e04a8000204a5a29888b1a5"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-REVIEW-REVALIDATION-CHECKPOINT-2026-11-09.md",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "379705e999c8c66f6759076afdae9449da5c65c267cbe404e9594b84b480baca"
+    },
+    {
+      "path": "tools/clt/r3-review/R3ReviewSmoke.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "f731e47a29c2bb6df32f50caa343a3da7fd1703c848334dbe9f26a894c11e8da"
+    },
+    {
+      "path": "tools/clt/r3-review/JavaSyntaxCheck.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "c989a8c452b896b8c98247269c01f1715f65c8782bf733da8c0bd94722b71018"
+    },
+    {
+      "path": "tools/clt/r3-review/run-smoke.sh",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "b2414a4b7282fc82b244a4a219d7c298f0d7c0732923037e68c072f98f0269cd"
+    },
+    {
+      "path": "tools/clt/r3-workflow/verify-source.cjs",
+      "existed": true,
+      "baselineSha256": "306c734f0f36228138a36343b5d09091b74fe0f9565794740d3774a97cd55ff6",
+      "payloadSha256": "e1382beab1d1c516db936dd26383c96910076f7adc2df840f41c04a130de38b5"
+    }
+  ]
+}

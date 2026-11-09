@@ -94,7 +94,15 @@ public class CollateralValuationService {
                 "ORACLE_CLOCK_ASIA_TEHRAN_NOT_OFFICIAL_BUSINESS_DATE");
     }
     public Validation validate(String collateralId, CandidateRequest input, Authentication auth) {
-        requireAuthority(auth, "SCOPE_clt.collateral.introduce");
+        return validateWithScope(collateralId, input, auth, "SCOPE_clt.collateral.introduce");
+    }
+    /** Review-time re-evaluation of canonical reference and current supersession evidence. */
+    public Validation screenForReview(String collateralId, CandidateRequest input, Authentication auth) {
+        return validateWithScope(collateralId, input, auth, "SCOPE_clt.collateral.review");
+    }
+    private Validation validateWithScope(String collateralId, CandidateRequest input,
+            Authentication auth, String requiredScope) {
+        requireAuthority(auth, requiredScope);
         var who = actor(auth); readGate();
         var value = CollateralValuationPolicy.normalize(input);
         var parent = repo.parent(who.branch(), CollateralValuationPolicy.id(collateralId));

@@ -93,7 +93,15 @@ public class CollateralInsuranceService {
                 CollateralInsurancePolicy.id(collateralId)), CollateralInsurancePolicy.id(typeId));
     }
     public Validation validate(String collateralId, CandidateRequest request, Authentication auth) {
-        scope(auth, "SCOPE_clt.collateral.introduce");
+        return validateWithScope(collateralId, request, auth, "SCOPE_clt.collateral.introduce");
+    }
+    /** Re-check current insurer, type, policy period and renewal at independent Stage review. */
+    public Validation screenForReview(String collateralId, CandidateRequest request, Authentication auth) {
+        return validateWithScope(collateralId, request, auth, "SCOPE_clt.collateral.review");
+    }
+    private Validation validateWithScope(String collateralId, CandidateRequest request,
+            Authentication auth, String requiredScope) {
+        scope(auth, requiredScope);
         var who = actor(auth);
         requireRead();
         var candidate = CollateralInsurancePolicy.candidate(request);

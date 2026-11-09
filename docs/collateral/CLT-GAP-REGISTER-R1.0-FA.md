@@ -2,7 +2,7 @@
 
 **تاریخ:** 2026-11-03  
 **وضعیت:** Approved as issue register؛ تصمیم‌های ساختاری با برچسب OPEN هنوز مصوب نشده‌اند.  
-**منابع:** شکاف‌های G-01..G-15 عیناً از DB/API/UI/System/Service Specification پیوست استخراج شده‌اند. G-16 و G-17 حاصل تطبیق مستقل مدارک و کد شبیه‌ساز هستند.
+**منابع:** شکاف‌های G-01..G-15 عیناً از DB/API/UI/System/Service Specification پیوست استخراج شده‌اند. G-16 و G-17 حاصل تطبیق مستقل مدارک و کد شبیه‌ساز هستند. G-18 از قرارداد ارزیابی R3C و تطبیق UI V1.42 با DDL استخراج شده است.
 
 | شناسه | شکاف/تعارض | تصمیم اولیه/گزینه طراحی (نه تغییر خودکار) | گیت رفع | وضعیت |
 |---|---|---|---|---|
@@ -23,8 +23,9 @@
 | G-15 | Audit before/after تغییر داده مرجع موجود نیست | Reference Change Log با Actor, Reason, Before/After, Correlation | R1 | OPEN |
 | **G-16 (جدید)** | مقدار پیش‌فرض `COLLATERAL_TRANSACTION.TRANSACTION_STATUS_CODE='PENDING'` در DDL، ولی Seed فقط `PENDING_APPROVAL` (بدون PENDING) دارد | تعیین canonical code: ترجیح طراحی `PENDING_APPROVAL`، اصلاح کنترل‌شده Default یا Reference بعد از توافق؛ تست FK قبل از تراکنش | R0 decision / R4 gate | OPEN |
 | **G-17 (جدید)** | شماره انتظامی UI به شکل type+Jalali year+customer+3digits+check ساخته می‌شود و ممکن است از `NUMBER(19)` فراتر رود؛ JS Number و Long هم محدودیت دارند | تأیید Policy شماره‌گذاری و max length CIF؛ حفظ رشته در API؛ اعتبارسنجی طول/تکرار/Checksum و ظرفیت PK پیش از انتشار؛ اصلاح مدل فقط با Migration | R0 decision / R2 gate | OPEN |
+| **G-18 (R3C)** | UI V1.42 از `IS_APPRAISABLE_FLAG` و `REVALUATION_INTERVAL_UNIT` استفاده می‌کند، اما مدل فیزیکی فقط `REVALUATION_INTERVAL_VALUE` دارد | تعیین شمول ارزیابی و واحد روز/ماه/سال، قاعده محاسبه موعد و مدل ذخیره با Migration مصوب؛ `EFFECTIVE_TO` به‌جای سیاست دوره‌ای فرض نشود | R3 | OPEN |
 
-## سایر موارد قابل ردیابی (بدون تغییر شناسه G-01..G-17)
+## سایر موارد قابل ردیابی (با حفظ شناسه‌های G-01..G-18)
 
 - **D-01:** تطبیق physical `SEQUENCE` در CLT با `IDENTITY` در DDL مشتق‌شده؛ استفاده از اسکیمای واقعی و Migration، نه نصب مجدد.
 - **D-02:** سه اختلاف `VARCHAR2` از نظر BYTE/CHAR؛ بررسی Data Dictionary و `MAX_STRING_SIZE` قبل از Migration.
@@ -103,3 +104,12 @@
 - G-09: مسیرهای درخواست محلی در Security Chain مشترک مجاز و Backend محدود به Stage؛ اتصال/احراز Enterprise و قراردادهای مصرف‌کننده همچنان **OPEN**.
 - DATA: SQL تغییر Status Check و Event Reason فقط کاندید Fail-Closed و خارج از مدل EA مصوب است. هیچ DDL خودکار یا داده قطعی ایجاد نمی‌شود.
 - آخرین خط مبنای واقعی سورس: `core-banking-prototype-v0-2026-11-09-1618.zip`؛ تأیید نصب HF2 توسط کاربر. جزئیات [Checkpoint](CLT-R3-STAGE-WORKFLOW-CHECKPOINT-2026-11-09.md).
+
+
+## R3 REVIEW REVALIDATION — checkpoint 2026-11-09 (Baseline 1720)
+
+- G-04/G-06: کنترل نامزد بیمه‌گر، نوع پوشش، دوره و پیوند تمدید در لحظه `REVIEW` مجدداً اجرا می‌شود؛ مصوبه پوشش/لغو/تأیید بیمه همچنان **OPEN** است.
+- G-05/G-11: وضعیت ضامن، مالک، تکرار و CIF برای Reviewer مستقل دوباره استعلام می‌شود؛ چرخه تأیید/لغو و حداقل تعداد ضامنین **OPEN** است.
+- G-07/G-18: مرجع و اشاره‌گر ارزیابی جاری در لحظه بازبینی مجدداً بررسی می‌شود؛ وضعیت `FINAL` قطعی و قاعده تناوب/اعتبار **OPEN** است.
+- G-09: وابستگی به CIF/Oracle هنگام `REVIEW` به‌صورت Fail-closed باقی است. امنیت Enterprise و اتصال عملیاتی کامل **OPEN** است.
+- موفقیت نصب سورس به معنی اجرا/تأیید Migration، اوراکل زنده، UAT یا بسته‌شدن شکاف نیست. جزئیات: [Checkpoint](CLT-R3-REVIEW-REVALIDATION-CHECKPOINT-2026-11-09.md).
