@@ -24,6 +24,12 @@ final class CltUnifiedReferenceValidation {
         for (Column c : table.columns()) names.put(c.name(), c);
         Map<String, Object> safe = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : values.entrySet()) {
+            // The insurer-only WEBSITE_URL extension is allowlisted for this table only.
+            // Keep the R1 Closure STATUS and CHAR(1) validations for canonical columns.
+            if ("INSURANCE_COMPANY".equals(table.table()) && "WEBSITE_URL".equals(entry.getKey())) {
+                safe.put("WEBSITE_URL", CltInsuranceWebsitePolicy.normalized(entry.getValue()));
+                continue;
+            }
             Column column = names.get(entry.getKey());
             if (column == null || column.primaryKey() || MANAGED.contains(column.name()))
                 throw new IllegalArgumentException("CLT_UNIFIED_COLUMN_DENIED");

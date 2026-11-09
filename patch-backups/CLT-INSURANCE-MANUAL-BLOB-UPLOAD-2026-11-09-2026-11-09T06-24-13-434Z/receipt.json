@@ -1,0 +1,61 @@
+{
+  "patch": "CLT-INSURANCE-MANUAL-BLOB-UPLOAD-2026-11-09",
+  "project": "D:\\Projects\\core-banking-prototype-v0",
+  "backupDir": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-INSURANCE-MANUAL-BLOB-UPLOAD-2026-11-09-2026-11-09T06-24-13-434Z",
+  "applied": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reference/CltInsuranceLogoUploadService.java",
+      "original": null,
+      "after": "98a9934d9dc7ba0ea698f9d6eccfa9fbcc24af28259a2e9af3654bf6910ef1c1",
+      "backup": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reference/CltInsuranceLogoUploadController.java",
+      "original": null,
+      "after": "79fa75228933753c4427f3722176b5a520e43f6fc44a6e42b8dcad18ca180923",
+      "backup": null
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/reference/CltInsuranceLogoUploadServiceTest.java",
+      "original": null,
+      "after": "6b353e332d9fb2098bffd56a7857aa0b9b70d5a5f08296d20b726ab75d272e14",
+      "backup": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference.service.ts",
+      "original": "6fd777c7ac60eb7c30ab90e253b8487a87b81c98462ea84393026e956e4c4755",
+      "after": "f7320da28b1c8f8588d7eb180d0783926d699a25abadd99f31414e8768f90ec4",
+      "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-INSURANCE-MANUAL-BLOB-UPLOAD-2026-11-09-2026-11-09T06-24-13-434Z\\frontend\\src\\app\\features\\collateral\\clt-reference.service.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.ts",
+      "original": "f5d9f4605dadab61f85c27a589edaef01535a87650f04bd8fc13fa7faf925540",
+      "after": "ef60061763e2df50a72c280dbea4184356855cca145b6f385f312a921aee38e0",
+      "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-INSURANCE-MANUAL-BLOB-UPLOAD-2026-11-09-2026-11-09T06-24-13-434Z\\frontend\\src\\app\\features\\collateral\\clt-reference-workspace.component.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.html",
+      "original": "9f83e73325cf67082a74f9d70b46508fbd2317acdb223f07732f3b5071ffdd90",
+      "after": "2174e95c6547678a2b02d4845649181ecb9de1889612170e32238a45eea99060",
+      "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-INSURANCE-MANUAL-BLOB-UPLOAD-2026-11-09-2026-11-09T06-24-13-434Z\\frontend\\src\\app\\features\\collateral\\clt-reference-workspace.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.scss",
+      "original": "672cf45e7ee7617c212c2b438c04a14ebe5127b2d6094be6da9485b7266c8340",
+      "after": "0e8e1aa4189c3c3f20fb96e09071f1d1429d985475330cd6da0dbb8d8912bb5c",
+      "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-INSURANCE-MANUAL-BLOB-UPLOAD-2026-11-09-2026-11-09T06-24-13-434Z\\frontend\\src\\app\\features\\collateral\\clt-reference-workspace.component.scss"
+    },
+    {
+      "path": "tools/clt/logo-manual-upload/verify-source.cjs",
+      "original": null,
+      "after": "5d6d23e4384c2139b471b935da93e71fc8cc211a379bbe950d496e0552ba76e8",
+      "backup": null
+    },
+    {
+      "path": "docs/collateral/CLT-R1-INSURANCE-MANUAL-LOGO-2026-11-09-FA.md",
+      "original": null,
+      "after": "90065432e6d4a918e15c27e3100409c69961bf3d4f3bf9cf5dd00a7e89e2b02f",
+      "backup": null
+    }
+  ]
+}

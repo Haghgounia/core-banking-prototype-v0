@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+'use strict';
+const fs=require('node:fs'),path=require('node:path');
+const project=path.resolve(process.argv[2]||path.join(__dirname,'../../..'));
+const read=p=>fs.readFileSync(path.join(project,p),'utf8');
+let count=0;
+function check(file,regexp,label){if(!regexp.test(read(file)))throw Error('CLT_LOGO_UPLOAD_CONTRACT_FAILED='+label);count++}
+const back='backend/src/main/java/com/behsazan/corebanking/collateral/reference/';
+const front='frontend/src/app/features/collateral/';
+check(back+'CltInsuranceLogoUploadController.java',/RequestMapping\("\/api\/v1\/collateral\/reference\/logo-upload"\)/,'endpoint');
+check(back+'CltInsuranceLogoUploadController.java',/MULTIPART_FORM_DATA_VALUE/,'multipart');
+check(back+'CltInsuranceLogoUploadController.java',/RequestParam\("confirmed"\)/,'human-confirmation');
+check(back+'CltInsuranceLogoUploadController.java',/getSize\(\) > CltInsuranceImagePolicy\.MAX_BYTES/,'size');
+check(back+'CltInsuranceLogoUploadService.java',/CltInsuranceImagePolicy\.checkedContentType\(bytes\)/,'server-image-decode');
+check(back+'CltInsuranceLogoUploadService.java',/RECORD_VERSION=RECORD_VERSION\+1/,'version-increment');
+check(back+'CltInsuranceLogoUploadService.java',/RECORD_VERSION=\? AND LOGO IS NULL/,'never-overwrite');
+check(back+'CltInsuranceLogoUploadService.java',/transaction\.executeWithoutResult/,'transaction');
+check(back+'CltInsuranceLogoUploadService.java',/postCommit = blob\(id\)/,'independent-readback');
+check(back+'CltInsuranceLogoUploadService.java',/MessageDigest\.isEqual/,'hash-compare');
+check(front+'clt-reference.service.ts',/form\.set\('file', file, file\.name\)/,'file-form');
+check(front+'clt-reference-workspace.component.ts',/selectManualInsuranceLogo\(event: Event\)/,'file-selection');
+check(front+'clt-reference-workspace.component.ts',/manualLogoConfirmed\(\)/,'human-ui-confirmation');
+check(front+'clt-reference-workspace.component.ts',/uploadManualInsuranceLogo\(\)/,'send-file');
+check(front+'clt-reference-workspace.component.ts',/insuranceLogoStatus\(\)/,'status');
+check(front+'clt-reference-workspace.component.html',/data-clt-manual-logo-upload/,'edit-panel');
+check(front+'clt-reference-workspace.component.html',/data-clt-manual-logo-save/,'save-button');
+check(front+'clt-reference-workspace.component.html',/editInsurerLogo\(row\)/,'detail-navigation');
+check(front+'clt-reference-workspace.component.html',/data-clt-logo-import-once/,'existing-import-kept');
+check(front+'clt-reference-workspace.component.html',/data-clt-delete-dialog/,'r1-delete-kept');
+check(front+'clt-reference-workspace.component.html',/data-clt-audit/,'r1-audit-kept');
+console.log('CLT_MANUAL_LOGO_SOURCE_PASS='+count+'/'+count+'; ORACLE_WRITE_NOT_RUN; WINDOWS_BUILD_NOT_RUN');

@@ -1,0 +1,67 @@
+{
+  "patch": "CLT-INSURANCE-LOGO-INAPP-2026-11-09",
+  "at": "2026-11-09T05:19:51.994Z",
+  "no_sql_executed": true,
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reference/CltInsuranceImagePolicy.java",
+      "after": "7d5ddf59671c25a7fcb7b34c32d396d11d05e0c9e4393bc3d6c15a1e209c1b2d",
+      "mode": "ADD",
+      "before": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reference/CltInsuranceLogoImportService.java",
+      "after": "cd369a59095e09c61d967b1be23c0863681c23efaac031f2100389669aa800cc",
+      "mode": "ADD",
+      "before": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reference/CltInsuranceLogoImportController.java",
+      "after": "99a490f8553f519b6fb4b2c7dcc8158547846a8b8277e861f6195d784032f0b0",
+      "mode": "ADD",
+      "before": null
+    },
+    {
+      "path": "backend/src/main/resources/clt/insurance-logo-sources.tsv",
+      "after": "579dfb8654cfed1efff77bfd405c9347025f57e040033fd36373cd654c8b7663",
+      "mode": "ADD",
+      "before": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference.service.ts",
+      "after": "6fd777c7ac60eb7c30ab90e253b8487a87b81c98462ea84393026e956e4c4755",
+      "mode": "REPLACE",
+      "before": "83618cd62fe93f7160085d2ca0b697a55eb6001f6888b8025243c8f3b5b1557c"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.ts",
+      "after": "18acd7075eea86b4215879f539227c5d370bda6a720cf44f5fbaa4c00f18409c",
+      "mode": "REPLACE",
+      "before": "47fb4f0c9992e8dfd0c74d5b27589d4b062b0cbf6de8513990ff775a1bdc5d0b"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.html",
+      "after": "d28cf042041f2109a87e70520171b8308cd1c6bbd7ed1200a661b1944c90a8a6",
+      "mode": "REPLACE",
+      "before": "573ad999e2b9d1bb799e75e9333c3f77d1364433fdd4856f692db209c80e63da"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.scss",
+      "after": "672cf45e7ee7617c212c2b438c04a14ebe5127b2d6094be6da9485b7266c8340",
+      "mode": "REPLACE",
+      "before": "45f360b3dcf7a1afd5c631109a0e4445bedf47374b90bf35911b9c95a8020467"
+    },
+    {
+      "path": "docs/collateral/CLT-R1-INSURANCE-LOGO-INAPP-2026-11-09-FA.md",
+      "after": "8b18e55deb36ca98d06739312d6d16f4aeddd2d2b52d951b50547d9151d12af0",
+      "mode": "ADD",
+      "before": null
+    },
+    {
+      "path": "tools/clt/logo-import/verify-source.cjs",
+      "after": "be8dd10cc4f152cdcbbe959b5ad34eaa227fe431cbbf2918ebd68c07c38e01b5",
+      "mode": "ADD",
+      "before": null
+    }
+  ]
+}

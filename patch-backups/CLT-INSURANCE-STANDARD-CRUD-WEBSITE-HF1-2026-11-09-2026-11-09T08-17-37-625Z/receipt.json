@@ -1,0 +1,67 @@
+{
+  "patch": "CLT-INSURANCE-STANDARD-CRUD-WEBSITE-HF1-2026-11-09",
+  "project": "D:\\Projects\\core-banking-prototype-v0",
+  "backupDir": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-INSURANCE-STANDARD-CRUD-WEBSITE-HF1-2026-11-09-2026-11-09T08-17-37-625Z",
+  "applied": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reference/CltInsuranceWebsitePolicy.java",
+      "original": null,
+      "after": "f7d43eeb6f4b71c1610b7c0d7f10378f573a7a7bb4cb45432b17abaada8aefd6",
+      "backup": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reference/CltUnifiedReferenceValidation.java",
+      "original": "efb69e37f702d652c286148d93fc4877aea55dce5a11e091153313be6333b249",
+      "after": "2550c75ce27b4a0d57d3c9221f00c1ba4f24f57459081ff636a39cf65825f76c",
+      "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-INSURANCE-STANDARD-CRUD-WEBSITE-HF1-2026-11-09-2026-11-09T08-17-37-625Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\reference\\CltUnifiedReferenceValidation.java"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/reference/CltInsuranceWebsitePolicyTest.java",
+      "original": null,
+      "after": "2a2c32bd8892276d737321eb1ae3227910cf554877c9c6b163ce1a58f351d524",
+      "backup": null
+    },
+    {
+      "path": "docs/collateral/CLT-R1-INSURANCE-STANDARD-CRUD-WEBSITE-2026-11-09-FA.md",
+      "original": null,
+      "after": "52db80649332ce5c8cf47f96d9477cbc7275afb26e52310de179d8f83a943803",
+      "backup": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-insurance-website-policy.ts",
+      "original": null,
+      "after": "eedee1adb56b108d87873456f4029e682f66d5d8a8b42f1289bc3bb193a12583",
+      "backup": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.html",
+      "original": "2174e95c6547678a2b02d4845649181ecb9de1889612170e32238a45eea99060",
+      "after": "c8a811cae81810ecc55d952dfc47e7ef8200b7b50e92cf82f48b4e9c2e43b830",
+      "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-INSURANCE-STANDARD-CRUD-WEBSITE-HF1-2026-11-09-2026-11-09T08-17-37-625Z\\frontend\\src\\app\\features\\collateral\\clt-reference-workspace.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.scss",
+      "original": "0e8e1aa4189c3c3f20fb96e09071f1d1429d985475330cd6da0dbb8d8912bb5c",
+      "after": "92b92e89544748bdf75b9d7731bf2a560677b7352b5ff024b75fa208f4f1655e",
+      "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-INSURANCE-STANDARD-CRUD-WEBSITE-HF1-2026-11-09-2026-11-09T08-17-37-625Z\\frontend\\src\\app\\features\\collateral\\clt-reference-workspace.component.scss"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.ts",
+      "original": "ef60061763e2df50a72c280dbea4184356855cca145b6f385f312a921aee38e0",
+      "after": "22e9e095884b4bfb0a09f37b136ad307475559f0143310df4f379859c4662473",
+      "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-INSURANCE-STANDARD-CRUD-WEBSITE-HF1-2026-11-09-2026-11-09T08-17-37-625Z\\frontend\\src\\app\\features\\collateral\\clt-reference-workspace.component.ts"
+    },
+    {
+      "path": "tools/clt/insurance-crud-restore/WebsiteContractSmoke.java",
+      "original": null,
+      "after": "31f65a83b24edfbf6c9d0223000d4ad3004ea801f9337b854091d2ec77776a33",
+      "backup": null
+    },
+    {
+      "path": "tools/clt/insurance-crud-restore/verify-source.cjs",
+      "original": null,
+      "after": "319dc213a24417aa7510b714ca4accbda29509227d948a9fbdfdf0ab7e995fd6",
+      "backup": null
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "patch": "CLT-INSURANCE-LOGO-REPORT-HF1-2026-11-09",
+  "files": [
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.html",
+      "before": "d28cf042041f2109a87e70520171b8308cd1c6bbd7ed1200a661b1944c90a8a6",
+      "after": "9f83e73325cf67082a74f9d70b46508fbd2317acdb223f07732f3b5071ffdd90"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-reference-workspace.component.ts",
+      "before": "18acd7075eea86b4215879f539227c5d370bda6a720cf44f5fbaa4c00f18409c",
+      "after": "f5d9f4605dadab61f85c27a589edaef01535a87650f04bd8fc13fa7faf925540"
+    }
+  ]
+}
