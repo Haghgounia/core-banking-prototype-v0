@@ -182,7 +182,7 @@ public final class CollateralR3WorkflowService {
                 + " WHERE " + kind.idColumn + " = ?", id);
         return CollateralR3StageFingerprint.digest(kind, collateralId, source);
     }
-    private void validateForStageDecision(Kind kind, String collateralId, BigDecimal id,
+    void validateForStageDecision(Kind kind, String collateralId, BigDecimal id,
             Action action, Authentication auth) {
         // Positive Stage review must re-read current Oracle/CIF evidence, not trust submit-time checks.
         // The reviewer has its own scope; it must not need maker's introduce authority.

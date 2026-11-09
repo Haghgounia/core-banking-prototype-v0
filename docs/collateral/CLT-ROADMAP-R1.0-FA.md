@@ -268,3 +268,8 @@
 - تحویل `CLT-R3-POSTING-PREFLIGHT-2026-11-09` روی هر درخواست Stage API و نمایش «آمادگی ثبت قطعی فقط شواهد» اضافه می‌کند؛ Fingerprint و Audit و عدم تکرار فیزیکی و تغییر ارزیابی مرجع بررسی می‌شود.
 - نتیجه تکنیکی هرگز اجازه DML نیست؛ `finalPostingEnabled=false` و `policyApproved=false` حتی با کنترل‌های موفق. G-04/G-05/G-06/G-07/G-09/G-11/G-18 و Migration و UAT زنده **OPEN** می‌مانند.
 - مستند جدید: [Checkpoint پیش‌بررسی R3](CLT-R3-POSTING-PREFLIGHT-CHECKPOINT-2026-11-09.md) و [ماتریس تصمیم ثبت قطعی](CLT-R3-POSTING-DECISION-MATRIX-FA.md). R0..R7 بدون تغییر است؛ R4/R5 و UAT جامع R6 وارد فاز اجرا نشده‌اند.
+
+
+## R3 Sponsor Atomic Commit Candidate — Checkpoint 2026-11-09
+
+**فاز فعال R3** ثابت می‌ماند. پس از نصب موفق `CLT-R3-POSTING-PREFLIGHT`، مسیر تراکنشی مرحله‌ای ضامن تا جدول عملیاتی به‌صورت **کد قابل فعال‌سازی مشروط** پیاده‌سازی شد؛ Feature Flag و Bank Release همچنان غیرفعال/تأییدنشده‌اند. سند تفصیلی `CLT-R3-SPONSOR-ATOMIC-COMMIT-CHECKPOINT-2026-11-09.md` است. خروج فاز R3 و Gate G-05/G-11/G-09 اعلام نمی‌شود؛ بیمه/ارزیابی عملیاتی گام‌های بعد هستند. شاخه‌های R0..R7 بدون CR تغییر نکردند.

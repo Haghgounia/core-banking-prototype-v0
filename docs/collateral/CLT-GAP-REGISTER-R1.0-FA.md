@@ -138,3 +138,11 @@
 - برای **G-09** خواندن شواهد در یک SELECT از DataSource مشترک و Branch Principal انجام می‌شود؛ Integration و نقش‌های ثبت قطعی **OPEN** هستند.
 - تأیید کاربر صرفاً **نصب موفق Lifecycle Evidence** است. Preflight جدید هنوز روی Oracle بانک/UAT تأیید نشده و `policyApproved=false` / `finalPostingEligible=false` باقی می‌ماند.
 - تصمیم‌های لازم، مالکیت و کنترل اتمیک در [CLT-R3-POSTING-DECISION-MATRIX-FA.md](CLT-R3-POSTING-DECISION-MATRIX-FA.md) ثبت شدند؛ هیچ تصمیم به جای بانک تصویب یا هیچ Migration خودکار اجرا نشده است.
+
+
+## D-04 و تکمیل R3 Sponsor Commit Candidate — 2026-11-09
+
+- **D-04 (جدید، Technical/Data):** مطابق `Collateral_DB_Specification_FA(2).html`، مدل `CLT.COLLATERAL_SPONSOR` Unique مرکب روی `(COLLATERAL_ID,PARTY_ID)` ندارد. در R3 الگوریتم منع تکرار در Application وجود داشت، اما بدون Constraint فیزیکی چند Writer دیگر می‌توانند داده تکراری بسازند. تصمیم و پاک‌سازی داده با DBA/مالک داده باز است. `R3SponsorCommitService.schemaReady()` نبود `UQ_CLT_SPONSOR_COLL_PARTY` معتبر را رد می‌کند. **وضعیت OPEN**.
+- **G-05/G-11/G-09:** مسیر کد ثبت رابطه ضامن با `REVIEWED`, Revalidation و Oracle Ledger آماده است اما Approval واقعی و Migration اجرا نشده؛ وضعیت رسمی هر سه **OPEN**. ثبت رابطه ضامن برابر اعتبار ضامن برای تخصیص، گردش ابطال یا حداقل ضامن معتبر نیست.
+- **G-04/G-06/G-07/G-18:** هیچ Domain DML جدید برای بیمه یا ارزیابی فعال/ایجاد نشده؛ وضعیت **OPEN**.
+- تغییر شناسه، Gate یا نام R0..R7 انجام نشده است. مستند گام جدید: `CLT-R3-SPONSOR-ATOMIC-COMMIT-CHECKPOINT-2026-11-09.md`.

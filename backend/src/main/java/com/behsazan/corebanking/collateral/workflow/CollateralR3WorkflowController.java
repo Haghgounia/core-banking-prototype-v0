@@ -11,10 +11,13 @@ import org.springframework.web.bind.annotation.*;
 public class CollateralR3WorkflowController {
     private final CollateralR3WorkflowService workflow;
     private final CollateralR3PostingReadinessService posting;
+    private final CollateralR3SponsorCommitService sponsorCommit;
     public CollateralR3WorkflowController(CollateralR3WorkflowService workflow,
-            CollateralR3PostingReadinessService posting) {
+            CollateralR3PostingReadinessService posting,
+            CollateralR3SponsorCommitService sponsorCommit) {
         this.workflow = workflow;
         this.posting = posting;
+        this.sponsorCommit = sponsorCommit;
     }
     public record Transition(String action, String expectedVersion, String reason) {}
 
@@ -33,6 +36,23 @@ public class CollateralR3WorkflowController {
     public CollateralR3PostingReadinessPolicy.Readiness postingReadiness(@PathVariable String kind,
             @PathVariable String requestId, Authentication auth) {
         return posting.inspect(kind, requestId, auth);
+    }
+    /** Sponsor operational insert is disabled by default and additionally requires DBA/bank release. */
+    @GetMapping("/sponsor/posting-activation")
+    public CollateralR3SponsorCommitService.Activation sponsorActivation(Authentication auth) {
+        return sponsorCommit.activation(auth);
+    }
+    @GetMapping("/sponsor/{requestId}/receipt")
+    public CollateralR3SponsorCommitService.PostedEvidence sponsorReceipt(
+            @PathVariable String requestId, Authentication auth) {
+        return sponsorCommit.receipt(requestId, auth);
+    }
+    @PostMapping("/sponsor/{requestId}/commit")
+    public CollateralR3SponsorCommitPolicy.Receipt sponsorCommit(
+            @PathVariable String requestId,
+            @RequestBody CollateralR3SponsorCommitPolicy.Command body,
+            Authentication auth) {
+        return sponsorCommit.commit(requestId, body, auth);
     }
     @PostMapping("/{kind}/{requestId}/transition")
     public CollateralR3WorkflowService.StageRow transition(@PathVariable String kind,

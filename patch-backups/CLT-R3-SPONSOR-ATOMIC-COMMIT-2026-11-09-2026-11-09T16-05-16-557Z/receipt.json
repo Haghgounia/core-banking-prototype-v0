@@ -1,0 +1,104 @@
+{
+  "marker": "CLT-R3-SPONSOR-ATOMIC-COMMIT-2026-11-09",
+  "root": "D:\\Projects\\core-banking-prototype-v0",
+  "baseline": "core-banking-prototype-v0-2026-11-09-R3-POSTING-PREFLIGHT-SOURCE.zip",
+  "installedAt": "2026-11-09T16:05:16.650Z",
+  "changed": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3SponsorCommitPolicy.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "d94c6ef8af5c02fbf78975c1038bdf96b1f306ab103f9f6e0a80b5927f1a6f17"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3SponsorCommitService.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "b3ee704e7f7317ed7c7d82ed255414beec5dc256a0fb09cb81454ad3bb247594"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowService.java",
+      "existed": true,
+      "baselineSha256": "fc8d40636b2b321752a8c96c464db4204b2768a7dcf5b7e87a71398aba013cf9",
+      "payloadSha256": "4e88c81ac6bf3cbf27f92b63fb06873be3f326b607708bf660556d62fdb5eb9b"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowController.java",
+      "existed": true,
+      "baselineSha256": "72a5070cac57a85156ab52eec2b8e6cc797d85056b71c9a6de01ced51ea59ac5",
+      "payloadSha256": "3cb37e2dfc24c54699eca59d6eafce77c53af0fbaf6388833ae96f2cd33c43c1"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/workflow/CollateralR3SponsorCommitPolicyTest.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "797f7d7b1c225fb12cfed87e07b415ce32136d1e23639ca9cd5e311276b404ac"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-workflow.service.ts",
+      "existed": true,
+      "baselineSha256": "38cd614ba23d8cb30cebd9de85c46196990087bfd9f1059196216801df09463f",
+      "payloadSha256": "ff091e0f10aed8cee859fadd83b865ea898de039fc1c44a21bbf2961a651e04c"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.ts",
+      "existed": true,
+      "baselineSha256": "d9219af825f539225361b925a92bed1a88fd19da467d8e01795d0053ed93295f",
+      "payloadSha256": "2f7ed12b138310479217450f838cada7d9412c77d234720c35ca5f7292702597"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.html",
+      "existed": true,
+      "baselineSha256": "629d37c5fddb248516517e8d735df39bfdc0fbefef8182f50958a199768e225d",
+      "payloadSha256": "8757b5ce9e77e41b266a72dcef9747d613283deb50735316941c800d0a61a3ef"
+    },
+    {
+      "path": "tools/clt/r3-commit/R3SponsorCommitSmoke.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "651a78fa9fa2e9ad8282095895702ffc997129756c09e26075c5c32234c4f8ed"
+    },
+    {
+      "path": "tools/clt/r3-commit/verify-source.cjs",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "285a62e6ca7674e2ba0b26ffc6b068e5aeca3336aa799cc3475392a8cee82e2d"
+    },
+    {
+      "path": "database/oracle/clt/r3posting/00_SPONSOR_POSTING_READONLY_DICTIONARY.sql",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "6d851012a637498be470b960c06872e43502e1d9a95a68e58feecfec84be7c90"
+    },
+    {
+      "path": "database/oracle/clt/r3posting/01_SPONSOR_POSTING_LEDGER_RELEASE_CANDIDATE_NOT_APPROVED.sql",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "ecea39cfdff8f1fd13669f839077842de7c8c206439b179b1f97d90a74bcd548"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-SPONSOR-ATOMIC-COMMIT-CHECKPOINT-2026-11-09.md",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "38b96960e16560b04ef76fcb4ed802f202db86134b4d1df300a5160a3b124a31"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-SPONSOR-COMMIT-TRANSACTION-CONTRACT-FA.md",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "e0551e623f05c4fec0643dfbd5667c65b189d6c6d0a4e5684244d04224f620ad"
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "existed": true,
+      "baselineSha256": "153d235b81dff08f745db16763ffed1f4c5286a260d361d6a14586aa2db462ca",
+      "payloadSha256": "12e30c8957c1e1e14df4ab9e717e6417cde80e31ca183685ee7905e547e9307c"
+    },
+    {
+      "path": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "existed": true,
+      "baselineSha256": "bc76a979f01055ce81dec9d27c6f24c3ea0787899a6d35f94f1a2e90343c2ec9",
+      "payloadSha256": "210a4625533e8e50962e7618cfd79f438bbe4ad2fc3d6a4b0de0467092c1172d"
+    }
+  ]
+}
