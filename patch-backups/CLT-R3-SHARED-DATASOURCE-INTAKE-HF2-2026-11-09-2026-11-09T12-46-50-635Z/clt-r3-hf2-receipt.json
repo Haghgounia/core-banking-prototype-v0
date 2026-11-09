@@ -1,0 +1,164 @@
+{
+  "patch": "CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09",
+  "project": "D:\\Projects\\core-banking-prototype-v0",
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z",
+  "applied": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/insurance/CollateralInsuranceConfiguration.java",
+      "before": "81a78d972626592dbfb5c0bd0b6c66f6e6c24c8bb39ac1fe8bd02bdcbd205623",
+      "after": "dd5e9b2f1546740200ad4c7458def529ad99b610b69760777819d440a2025c5e",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\insurance\\CollateralInsuranceConfiguration.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/insurance/CollateralInsuranceWriterPool.java",
+      "before": "9fd814aa224ef0c9e4354e4f6e2eacb478267949226a0f6095b2891930739203",
+      "after": "bcbdfc20d8a30e2268cfba63e7b5b42cff15ea67673889c2a075dcb70ac34d32",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\insurance\\CollateralInsuranceWriterPool.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/prototype/CltR3SharedDatasourcePolicy.java",
+      "before": null,
+      "after": "412353cd0abd636533841bbeecbdd1e2df974aab12dd618d02a3e77c8d77bc5d",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/sponsor/CollateralSponsorConfiguration.java",
+      "before": "ff35023ee105db39dade87df988d3cd9bd06cf61db0cb74ee2458f2af7dd2006",
+      "after": "dcdba9de6809a2469e35e734220e890e9de639fc6bf0309f6fe2df9a652a2ce3",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\sponsor\\CollateralSponsorConfiguration.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/sponsor/CollateralSponsorWriterPool.java",
+      "before": "14855132ee23805a9d868edff4104c2d738a8c890a34db089a4fd7815f57e543",
+      "after": "60265984464f384ee97b44aade5971f0995bf56566d494ba06ec3acd332de7e9",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\sponsor\\CollateralSponsorWriterPool.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/valuation/CollateralValuationConfiguration.java",
+      "before": "6be9335591b77d4de1949b2566773770202a7a56c6e8fe676b48cbc7a30e7db9",
+      "after": "ed5f2b20c993e5f7d9afcd57a4cbde380a22a365ade088a2ab424437904030bb",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\valuation\\CollateralValuationConfiguration.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/valuation/CollateralValuationWriterPool.java",
+      "before": "2a0cd879311e6215cfea80ced044bed23081478298873db1d53e5e9c38a4e717",
+      "after": "1a47504f1176ffd67c75e96cebe7ef80f21c90093f22d2937d1af82e8208137c",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\valuation\\CollateralValuationWriterPool.java"
+    },
+    {
+      "path": "config/clt-unified-local.yml",
+      "before": "d09a9a759717f49a934773cf0357c29a79773f1487cc4b4958ce54ec377381e8",
+      "after": "4a07c52375f1f0b43130f67424ba1be1fd5f7184dd7241a61c596f903750d04e",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\config\\clt-unified-local.yml"
+    },
+    {
+      "path": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "before": "eb6ac0997ca2007ca04df0e154c4afed4a83474000a4db8439863bf71fc96bcf",
+      "after": "96c407d503e32b2471bc3ed36f9651552287be2a2743b5f118eb3b84b5b49e37",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\docs\\collateral\\CLT-GAP-REGISTER-R1.0-FA.md"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-SHARED-DATASOURCE-INTAKE-CHECKPOINT-2026-11-09.md",
+      "before": null,
+      "after": "5941978e4a27f9671d00ec08e5e16fe1917b54a416818d47cf159582a2db1fb3",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "before": "0f75eaa2d69bb37897ba12e2e158c1cd4f3cf1d63e97f335c8a9db3fdc22910e",
+      "after": "d570fdf56d74bdc29110edfcef1b20286db9cfb9c4a1598425ab3a3f8edb2a2b",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\docs\\collateral\\CLT-ROADMAP-R1.0-FA.md"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-insurance-panel.component.html",
+      "before": "6e7ab07b1e171ee80a97fe73eef988ec137648cfbdbacd2302bd34e126e05709",
+      "after": "09e6b0f9ed8cd289f5d876c48725876d584be560ec98229c2088257dccce3e65",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\frontend\\src\\app\\features\\collateral\\collateral-insurance-panel.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-insurance-panel.component.ts",
+      "before": "bf57f53483d6bef5d8570c0783e1003e15c0cc440ee41ce817a644ca20447622",
+      "after": "d29f66951728ccd21938948a7b569e5962fcb1f79b96bd70ec01bcfc93035779",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\frontend\\src\\app\\features\\collateral\\collateral-insurance-panel.component.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-insurance.service.ts",
+      "before": "03634144fa9122e5b399129293bb5e2f8f51105a457c7c416726b2acb6842869",
+      "after": "159114572bc8e643ec98579f57a1cee1f7ec8a62442d6aa5b54df59e076bf4b4",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\frontend\\src\\app\\features\\collateral\\collateral-insurance.service.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.html",
+      "before": null,
+      "after": "7edb22975123ffb5db8760bad33ffd435cb07371b777fd9e393d199ba541cb90",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.scss",
+      "before": null,
+      "after": "0062c3b71a828019f378f66f776a607d7fe2102b5a323e6c1f22c309561b36e8",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.ts",
+      "before": null,
+      "after": "44f4d34f34fc8a014038061e5b84279d15b9cd558d600eabde9d04b96dba13cb",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-sponsor-panel.component.html",
+      "before": "0c3342444ef65918b7725fb4f0d1961e5873174c8e4db03e6dd16aab66829abb",
+      "after": "a1a348f55f95c8217782867f05ff416926b5f8fd467d76b4fa50a8ee11a02103",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\frontend\\src\\app\\features\\collateral\\collateral-sponsor-panel.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-sponsor-panel.component.ts",
+      "before": "8275c68d9e32d5eec036e3c82e0c8519dc7e1e48427da6afe78b7a1889301b92",
+      "after": "fd57692671d0a104540d5efb534cdb6f223771a908ec11f002f8f2528c264a02",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\frontend\\src\\app\\features\\collateral\\collateral-sponsor-panel.component.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-valuation-panel.component.html",
+      "before": "0a4c707c7b65efaccb3c05e0b266e400a027155fcf0769dc0d2e8027820f4fda",
+      "after": "b4c326011df20019e12ad5bff0135e1e59114933b68968b024f3312487174329",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\frontend\\src\\app\\features\\collateral\\collateral-valuation-panel.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-valuation-panel.component.ts",
+      "before": "d309542975310c31f4b5be9fa4f78e933130e092b6ef6dc381163ff0ea5a0f5c",
+      "after": "9941c82bf44b99782f127a352a02bca70b537dcff61a7ff2f0efc5336c2f78d5",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\frontend\\src\\app\\features\\collateral\\collateral-valuation-panel.component.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-valuation.service.ts",
+      "before": "8d5e5d83933caa5f870441838e47704d937195cf603dc334b29bc8d853a07888",
+      "after": "e689046a5fc50622c02b54b36a11b23001374b53eb12b1c8f565b10c47b6c6ad",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09-2026-11-09T12-46-50-635Z\\frontend\\src\\app\\features\\collateral\\collateral-valuation.service.ts"
+    },
+    {
+      "path": "tools/clt/r3-shared/PolicySmoke.java",
+      "before": null,
+      "after": "e0c181a6e93d23987b485cfda8535a6fb2e25639d365f7b48a1572cc4aff287d",
+      "saved": null
+    },
+    {
+      "path": "tools/clt/r3-shared/verify-source.cjs",
+      "before": null,
+      "after": "fffbe7e5893ad447d77f56880f5e98de31ec9eab963964b4b317272f7b1514ca",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-R3-HF1-INSURANCE-SAFE-MERGE-CHECKPOINT-2026-11-09.md",
+      "before": null,
+      "after": "3c0bbf4085df48e94bfd42d95c3cb9efa2a347409cbec2e34b4a03fe62c2df2a",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-R3-HF2-THREE-PANEL-MERGE-CHECKPOINT-2026-11-09.md",
+      "before": null,
+      "after": "ffb2b37b6dbf7efb9e847d1a5ccff025919a07460d9c3de75f17eb2cd5e98be3",
+      "saved": null
+    }
+  ],
+  "time": "2026-11-09T12:46:50.796Z"
+}

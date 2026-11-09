@@ -16,6 +16,15 @@ core-banking:
       draft-writes-enabled: ${CLT_DRAFT_WRITES_ENABLED:${CLT_UNIFIED_ENABLED:true}}
       review-workflow-enabled: false
 
+    # R3: three existing request-stage services, same application datasource in loopback only.
+    # Each service still verifies its own request/event tables; no final-domain mutations.
+    sponsor:
+      request-writes-enabled: ${CLT_SPONSOR_REQUEST_WRITES_ENABLED:${CLT_UNIFIED_ENABLED:true}}
+    insurance:
+      request-writes-enabled: ${CLT_INSURANCE_REQUEST_WRITES_ENABLED:${CLT_UNIFIED_ENABLED:true}}
+    valuation:
+      request-writes-enabled: ${CLT_VALUATION_REQUEST_WRITES_ENABLED:${CLT_UNIFIED_ENABLED:true}}
+
     amendments:
       # Additive request/decision tables are never created by the launcher.
       writes-enabled: ${CLT_G01_WRITES_ENABLED:${CLT_UNIFIED_ENABLED:true}}

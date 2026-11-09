@@ -68,3 +68,29 @@
 | G-17 | گزارش آمادگی با کنترل‌های جدید ایمن‌تر شد؛ شماره‌گذاری هنوز غیرفعال است | تصویب طرح، دقت فیزیکی و یکتایی؛ OPEN |
 
 **نصب موفق سورس یا بازبینی `REVIEWED` به معنی تکمیل هیچ‌یک از Gaps یا مجوز ثبت قطعی نیست.**
+
+
+## وضعیت R3 / یکپارچه‌سازی DataSource و کارتابل درخواست‌ها (2026-11-09)
+
+| Gap | پیشرفت کدنویسی | مانع باقیمانده | وضعیت |
+|---|---|---|---|
+| G-04 | اعتبارسنجی نامزد بیمه و فهرست شرکت فعال حفظ شد؛ درخواست Stage روی DS مشترک | سیاست پوشش و پذیرش بیمه‌گر نیازمند تصویب | OPEN |
+| G-05/G-11 | ثبت نامزد ضامن و کارتابل Stage، بررسی CIF و منع تکرار حفظ شد | چرخه تأیید/لغو و حداقل ضامنین معتبر مصوب نیست | OPEN |
+| G-06 | درخواست مرحله‌ای بیمه و کارتابل؛ تمدید نهایی فعال نیست | قرارداد لغو/جایگزینی و Audit قطعی | OPEN |
+| G-07 | درخواست مرحله‌ای ارزیابی و کارتابل؛ سوابق فعلی فقط خواندنی | انتخاب کد وضعیت canonical `FINAL` و قواعد تأیید | OPEN |
+| G-09 | جریان‌های R3 از DataSource مشترک پروژه استفاده می‌کنند | صحت قرارداد اتصال واقعی Party/DMS/Consumer در تراکنش نهایی | OPEN |
+| G-14/G-17 | هیچ تغییر قطعی در صدور شماره انجام نشد | هویت پایدار دارایی و سیاست شماره انتظامی مصوب نشده‌اند | OPEN |
+
+**مرز تغییر:** سه جدول درخواست Stage (`..._SPONSOR_REQUEST`, `..._INSURANCE_REQUEST`, `..._VALUATION_REQUEST`) در XMI مرجع نیستند. SQLهای موجود صرفاً Candidate/Fail-Closed هستند و تا اجرای Migration مصوب، ثبت آنها فعال نیست. نصب موفق سورس، تصویب DBA یا تأیید زنده Oracle نیست.
+
+## R3-HF1 — اصلاح سازگاری فایل فرم بیمه در نصب (2026-11-09)
+
+- خطای `SOURCE_CHANGED_OR_UNKNOWN` در HTML فرم بیمه یک **تعارض نصب سورس** بود، نه تأیید/رد بانک درباره G-04 یا G-06.
+- HF1 فقط قطعه کارتابل Stage را با الحاق محافظت‌شده به فایل موجود اضافه می‌کند؛ بدون پاک‌کردن تغییرات تأییدنشده یا افزوده‌های سایت/لوگو.
+- هیچ Gap کسب‌وکاری بسته نشده است؛ **G-04/G-05/G-06/G-07/G-09/G-11 و G-14/G-17 OPEN** می‌مانند. Stage همچنان نیازمند جداول و مجوزهای داده است؛ UAT به پایان توسعه موکول است.
+
+## R3 HF2 installer compatibility checkpoint (2026-11-09)
+
+- HF1 failed precheck because the installed sponsor and valuation HTML differed from the package's hash allowlist. The program files were not changed.
+- HF2 adds protected append-only Stage-worklist insertion to the sponsor and valuation forms, alongside the pre-existing safe merge for the insurer form. No unrelated form content may be overwritten.
+- This packaging correction closes **no business gap**. G-04/G-05/G-06/G-07/G-09/G-11/G-14/G-17 stay OPEN; R3 staging Oracle prerequisites and final approval workflows remain pending.

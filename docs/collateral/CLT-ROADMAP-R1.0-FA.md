@@ -200,3 +200,37 @@
 - گزارش آمادگی ثبت قطعی به‌صورت مجزا وضعیت ایجاد Audit، ردیف‌های شمارشی Oracle و تعارض نامزد دارایی را نشان می‌دهد؛ هیچ تأیید عملیاتی یا شماره انتظامی ایجاد نمی‌کند.
 - مدارک تحویل: [CLT-R2-REVIEW-DECISION-CHECKPOINT-2026-11-09.md](CLT-R2-REVIEW-DECISION-CHECKPOINT-2026-11-09.md)، Gap Register به‌روزشده و QA-REPORT داخل بسته.
 - G-14/G-17 و مرزهای Oracle Migration تغییری نکرده‌اند؛ UAT به درخواست کاربر به انتهای توسعه منتقل است.
+
+
+## Checkpoint اجرایی 2026-11-09 — R3 / Shared Oracle Intake & Worklists
+
+**آخرین نصب موفق تأییدشده توسط کاربر:** `CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09`.
+**نسخه تحویلی بعدی:** `CLT-R3-SHARED-DATASOURCE-INTAKE-2026-11-09`.
+
+- توالی و عنوان ثابت **R0 تا R7 بدون تغییر** است. R2 همچنان با G-14/G-17 و Migrationهای تأییدنشده باز است؛ این تحویل شروع توسعه تکمیلی **R3 — ضامن، بیمه و ارزیابی** است. R4/R5 عملیات قطعی باز؛ R6/R7 پس از توسعه نهایی پذیرش می‌شوند.
+- سرویس‌های سه‌گانه R3 از اتصال جدید مستقل در نسخه محلی صرف‌نظر کرده و همان `DataSource` برنامه و تراکنش Oracle مشترک را برای **درخواست‌های Stage** به کار می‌گیرند. در محیط غیرمحلی محدودیت‌های قبلی برقرار می‌ماند.
+- کارتابل‌های درخواست‌های مرحله‌ای ضامن/بیمه/ارزیابی به فرم‌های اصلی متصل شده‌اند؛ هر درخواست فقط در محدوده کاربر و شعبه درخواست‌دهنده خوانده می‌شود و بعد از ذخیره دوباره دریافت می‌شود.
+- `CLT.COLLATERAL_SPONSOR`، `CLT.COLLATERAL_INSURANCE`، `CLT.COLLATERAL_VALUATION_HISTORY` و شماره انتظامی قطعی **هیچ نوشتن جدیدی ندارند**. اسکریپت‌های کاندید R3 همچنان نیازمند تصویب و نصب DBA هستند و خودکار اجرا نمی‌شوند.
+- وضعیت نهایی G-04/G-05/G-06/G-07/G-09/G-11/G-18 و G-14/G-17: **OPEN**. نتیجه `stagingSchemaVerified=false` در Oracle مانع فعال‌شدن ذخیره Stage است، نه شاهد شکست نصب سورس.
+- مدارک نسخه‌دار: [CLT-R3-SHARED-DATASOURCE-INTAKE-CHECKPOINT-2026-11-09.md](CLT-R3-SHARED-DATASOURCE-INTAKE-CHECKPOINT-2026-11-09.md). UAT به درخواست کاربر به پایان توسعه موکول است.
+
+## Checkpoint اصلاح نصب R3 / HF1 — 2026-11-09
+
+**مبنای نصب موفق تأییدشده توسط کاربر:** `CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09`.
+**بسته R3 اولیه:** `CLT-R3-SHARED-DATASOURCE-INTAKE-2026-11-09` در مرحله Precheck و پیش از اعمال هر تغییر، با خطای `SOURCE_CHANGED_OR_UNKNOWN` در `collateral-insurance-panel.component.html` متوقف شد. بنابراین نصب R3 قبلی **ناموفق/تأییدنشده** است.
+**نسخه اصلاحی:** `CLT-R3-SHARED-DATASOURCE-INTAKE-HF1-2026-11-09`.
+
+- فازهای **R0 تا R7 و نام/ترتیب آنها بدون تغییر** می‌مانند؛ R3 مرحله توسعه است و پذیرش UAT انجام نشده است.
+- برای فایل فرم بیمه، نصب دیگر جایگزینی کامل ندارد؛ فقط یک قطعه استاندارد کارتابل درخواست Stage با شرط `!analystPreview` و کنترل ساختاری دقیق پیش از `</section>` الحاق می‌شود. تغییرات موجود سایت/لوگو/قالب بیمه حفظ می‌شوند؛ هر ساختار نامعتبر بدون بازنویسی رد می‌شود.
+- سایر 24 فایل کد و مستندات با سیاست SHA-256 محافظت می‌شوند؛ Backup، نصب مجدد بدون تغییر و Rollback قابل بررسی هستند.
+- هیچ DDL یا DML در نصب انجام نمی‌شود. ثبت نهایی ضامن/بیمه‌نامه/ارزیابی، فعال‌سازی Stage بدون Migration، G-04..G-07/G-09/G-11 و G-14/G-17 همچنان OPEN هستند.
+- گزارش دقیق: [CLT-R3-HF1-INSURANCE-SAFE-MERGE-CHECKPOINT-2026-11-09.md](CLT-R3-HF1-INSURANCE-SAFE-MERGE-CHECKPOINT-2026-11-09.md).
+
+## R3 installation checkpoint - HF2 / 2026-11-09
+
+- User-confirmed last successful baseline: `CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09`.
+- Both previous R3 intake packages failed **during precheck, before changes were applied**: original version conflicted with the insurer panel HTML; HF1 subsequently conflicted with the sponsor and valuation panel HTML. HF1 was **not installed successfully**.
+- `CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09` extends safe, append-only guarded merging to **all three panels** (insurance, sponsor, valuation), retaining customized HTML and failing closed if anchors are missing. All non-HTML files remain SHA-256 guarded.
+- Canonical phase plan **R0 through R7 is unchanged**; this is an installer-compatibility correction, not a new R3 domain feature or proof of runtime readiness.
+- R3 Stage write prerequisites, database migrations, final registration and G-04/G-05/G-06/G-07/G-09/G-11/G-14/G-17 remain **OPEN**. User UAT is deferred until the end of development.
+- Delivery evidence: [CLT-R3-HF2-THREE-PANEL-MERGE-CHECKPOINT-2026-11-09.md](CLT-R3-HF2-THREE-PANEL-MERGE-CHECKPOINT-2026-11-09.md).

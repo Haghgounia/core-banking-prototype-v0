@@ -8,7 +8,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 /** Separate, optionally activated Oracle account limited to sponsor staging tables. */
 public final class CollateralSponsorWriterPool implements AutoCloseable {
-    private final HikariDataSource pool;
+    private final HikariDataSource pool; // null for shared application datasource
     private final JdbcTemplate jdbc;
     private final TransactionTemplate transaction;
 
@@ -29,7 +29,15 @@ public final class CollateralSponsorWriterPool implements AutoCloseable {
         transaction = new TransactionTemplate(new DataSourceTransactionManager(pool));
         transaction.setTimeout(15);
     }
+    /** Unified loopback mode: reuse the application Oracle datasource without another account. */
+    CollateralSponsorWriterPool(javax.sql.DataSource applicationDataSource) {
+        this.pool = null;
+        this.jdbc = new JdbcTemplate(applicationDataSource);
+        this.jdbc.setQueryTimeout(10);
+        this.transaction = new TransactionTemplate(new DataSourceTransactionManager(applicationDataSource));
+        this.transaction.setTimeout(15);
+    }
     public JdbcTemplate jdbc() { return jdbc; }
     public TransactionTemplate transaction() { return transaction; }
-    @Override public void close() { pool.close(); }
+    @Override public void close() { if (pool != null) pool.close(); }
 }

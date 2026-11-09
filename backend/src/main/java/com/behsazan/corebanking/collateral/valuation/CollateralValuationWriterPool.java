@@ -8,7 +8,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 /** Independent opt-in transaction and audit for staging requests; never touches base valuation DML. */
 public final class CollateralValuationWriterPool implements AutoCloseable {
-    private final HikariDataSource datasource;
+    private final HikariDataSource datasource; // null for shared application datasource
     private final JdbcTemplate jdbc;
     private final TransactionTemplate transaction;
     CollateralValuationWriterPool(CollateralValuationProperties properties) {
@@ -28,7 +28,15 @@ public final class CollateralValuationWriterPool implements AutoCloseable {
         transaction = new TransactionTemplate(new DataSourceTransactionManager(datasource));
         transaction.setTimeout(15);
     }
+    /** Unified loopback mode: reuse the same Oracle datasource as all other core-banking forms. */
+    CollateralValuationWriterPool(javax.sql.DataSource applicationDataSource) {
+        this.datasource = null;
+        this.jdbc = new JdbcTemplate(applicationDataSource);
+        this.jdbc.setQueryTimeout(10);
+        this.transaction = new TransactionTemplate(new DataSourceTransactionManager(applicationDataSource));
+        this.transaction.setTimeout(15);
+    }
     public JdbcTemplate jdbc() { return jdbc; }
     public TransactionTemplate transaction() { return transaction; }
-    @Override public void close() { datasource.close(); }
+    @Override public void close() { if (datasource != null) datasource.close(); }
 }
