@@ -71,6 +71,18 @@ public final class CollateralIntroductionReviewService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "CLT_REVIEW_DRAFT_NOT_MUTABLE");
         var existing = reviews.byDraft(pool, id, who.subject(), who.branch());
         if (existing != null) return replayOrConflict(pool, existing, key);
+        // Revalidate persisted bytes, creation audit, current CIF/type/attribute/range rules.
+        // A changed or stale stage record must never reach an independent checker queue.
+        var integrity = introduction.inspectDraft(auth, id);
+        if (!integrity.eligibleForReview())
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "CLT_R2_DRAFT_REVIEW_PREFLIGHT_BLOCKED:" + String.join(",", integrity.blockers()));
+        // Guard the proposal review against textually identical assets proposed by
+        // another owner. Same-owner revisions stay eligible; G-14 remains unresolved.
+        var candidate = introduction.inspectAssetCandidate(auth, id);
+        if (!candidate.eligibleForReviewSubmission())
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "CLT_ASSET_CANDIDATE_OTHER_OWNER_CONFLICT");
         String digest = drafts.previousHash(pool, id);
         try {
             return pool.transaction().execute(tx -> {
@@ -116,6 +128,22 @@ public final class CollateralIntroductionReviewService {
         String savedHash = reviews.draftHash(p, id, who.branch());
         if (!currentHash.equals(savedHash)) throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "CLT_REVIEW_DRAFT_FINGERPRINT_CHANGED");
+        try {
+            var reconstructed = new com.behsazan.corebanking.collateral.introduction.CollateralIntroductionModels.Request(
+                    draft.partyId(), draft.collateralTypeId(), draft.estimateAmount(),
+                    draft.currencyCode(), draft.validFrom(), draft.validTo(),
+                    draft.depositNumber(), draft.remarks(), draft.attributes(),
+                    draft.assetReference(), draft.itemRanges());
+            if (!savedHash.equals(CollateralIntroductionPolicy.sha256(
+                    CollateralIntroductionPolicy.normalize(reconstructed).canonical()))
+                    || !drafts.matchingCreationAudit(p, draft.draftId(), review.makerSubject(),
+                        who.branch(), savedHash)
+                    || !drafts.persistedRangesMatch(p, draft.draftId(), draft.itemRanges()))
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "CLT_REVIEW_STORED_SNAPSHOT_INVALID");
+        } catch (IllegalArgumentException invalid) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "CLT_REVIEW_STORED_SNAPSHOT_INVALID");
+        }
         return new ReviewSnapshot(id, draft, savedHash, false);
     }
     public Review decide(String reviewId, Decision request, Authentication auth,
@@ -146,9 +174,56 @@ public final class CollateralIntroductionReviewService {
             }
             try { CollateralIntroductionReviewPolicy.pending(current.status(), current.recordVersion()); }
             catch (IllegalArgumentException ex) { throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage()); }
+            // Re-run the full server-side checks within the decision transaction. A
+            // RETURNED decision is always available for legitimately defective drafts.
+            if ("REVIEWED".equals(decision.decision()))
+                requireFreshSnapshotForApproval(p, current, id, who.branch(), who.subject(), auth);
             if (reviews.decide(p, id, who.subject(), who.branch(), key, decision, trace) != 1)
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "CLT_REVIEW_CONCURRENT_DECISION");
             return reviews.byIdInBranch(p, id, who.branch());
         });
     }
+
+    private void requireFreshSnapshotForApproval(CollateralIntroductionWriterPool p, Review review,
+            String reviewId, String branch, String checker, Authentication authentication) {
+        var draft = drafts.findForReviewer(p, reviewId, branch, checker);
+        if (draft == null) throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "CLT_REVIEW_STAGED_DRAFT_MISSING");
+        String savedHash = reviews.draftHash(p, reviewId, branch);
+        boolean hashValid = false, auditValid = false, rangesValid = false, liveValid = false;
+        boolean stageChecked = false, crossOwner = false;
+        boolean hasCandidate = CollateralAssetCandidatePolicy.lookup(draft.assetReference()) != null;
+        try {
+            var storedRequest = new com.behsazan.corebanking.collateral.introduction.CollateralIntroductionModels.Request(
+                    draft.partyId(), draft.collateralTypeId(), draft.estimateAmount(),
+                    draft.currencyCode(), draft.validFrom(), draft.validTo(),
+                    draft.depositNumber(), draft.remarks(), draft.attributes(),
+                    draft.assetReference(), draft.itemRanges());
+            var normalized = CollateralIntroductionPolicy.normalize(storedRequest);
+            hashValid = savedHash != null && savedHash.equals(drafts.previousHash(p, draft.draftId()))
+                    && savedHash.equals(CollateralIntroductionPolicy.sha256(normalized.canonical()));
+            auditValid = hashValid && drafts.matchingCreationAudit(p, draft.draftId(),
+                    review.makerSubject(), branch, savedHash);
+            rangesValid = drafts.persistedRangesMatch(p, draft.draftId(), draft.itemRanges());
+            if (hashValid && auditValid && rangesValid) {
+                liveValid = introduction.validate(storedRequest, authentication).eligibleForDraft();
+            }
+            if (hasCandidate) {
+                stageChecked = drafts.candidateColumnReady(p);
+                if (stageChecked) crossOwner = drafts.stageCandidateMatches(p, draft).otherOwner() > 0;
+            }
+        } catch (RuntimeException invalidOrUnavailable) {
+            // A partially unavailable Oracle/CIF dependency never permits REVIEWED.
+            hashValid = false;
+        }
+        var result = CollateralReviewDecisionGuard.assess(
+                new CollateralReviewDecisionGuard.Evidence(
+                        "DRAFT".equals(draft.status()) && "1".equals(draft.recordVersion()),
+                        hashValid, auditValid, rangesValid, liveValid, stageChecked,
+                        crossOwner, hasCandidate));
+        if (!result.reviewAllowed())
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "CLT_REVIEW_APPROVAL_PREFLIGHT_BLOCKED:" + String.join(",", result.blockers()));
+    }
+
 }

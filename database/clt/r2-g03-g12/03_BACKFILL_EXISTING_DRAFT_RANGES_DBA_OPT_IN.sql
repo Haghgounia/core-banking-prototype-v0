@@ -1,0 +1,25 @@
+-- Optional reviewed migration of already-staged ITEM_RANGES_JSON into independent child rows.
+-- Validate each old JSON snapshot and its existing REQUEST_HASH before approval.
+-- This script is one-time: existing DRAFT_ID+ROW_NO rows are left intact.
+SET DEFINE OFF
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
+INSERT INTO CLT.CLT_INTRODUCTION_DRAFT_SERIAL_RANGE
+    (DRAFT_ID, ROW_NO, SERIAL_FROM, SERIAL_TO, TOTAL_AMOUNT_IRR, CREATED_BY, RECORD_VERSION)
+SELECT d.DRAFT_ID, j.ROW_ORD, j.SERIAL_FROM, j.SERIAL_TO,
+       TO_NUMBER(j.TOTAL_AMOUNT), d.CREATED_BY, 1
+  FROM CLT.CLT_INTRODUCTION_DRAFT d
+ CROSS APPLY JSON_TABLE(d.ITEM_RANGES_JSON, '$[*]'
+   COLUMNS (
+     ROW_ORD FOR ORDINALITY,
+     SERIAL_FROM VARCHAR2(100) PATH '$.serialFrom' ERROR ON ERROR,
+     SERIAL_TO VARCHAR2(100) PATH '$.serialTo' ERROR ON ERROR,
+     TOTAL_AMOUNT VARCHAR2(16) PATH '$.totalAmount' ERROR ON ERROR
+   )) j
+ WHERE d.ITEM_RANGES_JSON IS NOT NULL
+   AND NOT EXISTS (
+      SELECT 1 FROM CLT.CLT_INTRODUCTION_DRAFT_SERIAL_RANGE r
+       WHERE r.DRAFT_ID=d.DRAFT_ID AND r.ROW_NO=j.ROW_ORD);
+-- Compare normalized rows with original draft JSON and recompute counts via Java
+-- before using historical records in review. Never adjust REQUEST_HASH here.
+COMMIT;
+PROMPT G03_DRAFT_RANGE_BACKFILL_DONE_REQUIRES_READBACK

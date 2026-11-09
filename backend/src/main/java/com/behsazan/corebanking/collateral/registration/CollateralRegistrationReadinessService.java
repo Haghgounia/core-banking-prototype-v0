@@ -58,6 +58,8 @@ public final class CollateralRegistrationReadinessService {
         var draft = drafts.find(pool, review.draftId(), who.subject(), who.branch());
         String savedHash = reviews.draftHash(pool, id, who.branch());
         boolean storedMatches = false, recomputedMatches = false;
+        boolean creationAuditValid = false, persistedSerialRowsValid = false;
+        boolean assetStageChecked = false, crossOwnerStageConflict = false;
         boolean currentValid = false;
         boolean countable = false, serialsValid = false;
         String serialCount = "0";
@@ -77,6 +79,16 @@ public final class CollateralRegistrationReadinessService {
                 var normalized = CollateralIntroductionPolicy.normalize(request);
                 recomputedMatches = savedHash != null && savedHash.equals(
                         CollateralIntroductionPolicy.sha256(normalized.canonical()));
+                creationAuditValid = storedMatches && recomputedMatches &&
+                        drafts.matchingCreationAudit(pool, draft.draftId(), who.subject(),
+                                who.branch(), savedHash);
+                persistedSerialRowsValid = drafts.persistedRangesMatch(pool,
+                        draft.draftId(), draft.itemRanges());
+                if (draft.assetReference() != null && !draft.assetReference().isBlank()) {
+                    assetStageChecked = drafts.candidateColumnReady(pool);
+                    if (assetStageChecked)
+                        crossOwnerStageConflict = drafts.stageCandidateMatches(pool, draft).otherOwner() > 0;
+                }
                 // Always recheck the live CIF party and governed CLT references.
                 try {
                     var live = introduction.validate(request, authentication);
@@ -90,7 +102,7 @@ public final class CollateralRegistrationReadinessService {
                     countable = rules.countable();
                     var rows = com.behsazan.corebanking.collateral.introduction.CollateralSerialRangePolicy
                             .assess(countable, draft.currencyCode(), draft.estimateAmount(), draft.itemRanges());
-                    serialsValid = true;
+                    serialsValid = persistedSerialRowsValid;
                     serialCount = Integer.toString(rows.itemCount());
                 } catch (RuntimeException unavailable) { serialsValid = false; }
             } catch (RuntimeException invalidDraft) {
@@ -112,6 +124,7 @@ public final class CollateralRegistrationReadinessService {
                 review.checkerSubject(), who.branch(), savedHash, draft != null,
                 storedMatches, recomputedMatches, currentValid, validationReasons,
                 number19, posted, introductionType, countable, serialsValid,
-                serialCount, candidate, amount, currency));
+                serialCount, candidate, amount, currency, creationAuditValid,
+                persistedSerialRowsValid, assetStageChecked, crossOwnerStageConflict));
     }
 }

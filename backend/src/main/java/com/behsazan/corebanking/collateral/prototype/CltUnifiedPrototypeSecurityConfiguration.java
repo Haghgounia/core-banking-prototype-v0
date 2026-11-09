@@ -63,6 +63,9 @@ public class CltUnifiedPrototypeSecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/api/v1/collateral/reference/*").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/v1/collateral/reference/*/*").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/collateral/reference/*/*").permitAll()
+                // G-01: request journal only; independent decision still enforced server-side.
+                .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/amendments").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/amendments/*/decision").permitAll()
                 // Draft-only staging table, never CLT.COLLATERAL or final registration.
                 .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/introduction-drafts").permitAll()
                 // POST allowlist: these methods are business validation/preview only, no permanent CLT DML.

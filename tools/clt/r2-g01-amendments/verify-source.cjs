@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+'use strict';
+const fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'../../..');
+let count=0;
+function read(p){return fs.readFileSync(path.join(root,p),'utf8');}
+function check(label,test){if(!test)throw Error('CLT_G01_SOURCE_FAILED='+label);console.log('PASS | '+label);count++;}
+const base='backend/src/main/java/com/behsazan/corebanking/collateral/amendment/';
+const repo=read(base+'CollateralAmendmentRepository.java');
+const logic=read(base+'CollateralAmendmentService.java');
+const policy=read(base+'CollateralAmendmentPolicy.java');
+const controller=read(base+'CollateralAmendmentController.java');
+const sql=read('database/clt/r2-g01-amendments/001_CREATE_AMENDMENT_REQUEST.sql');
+const screen=read('frontend/src/app/features/collateral/collateral-amendment-panel.component.html');
+const registry=read('frontend/src/app/features/collateral/collateral-registry.component.html');
+const local=read('backend/src/main/java/com/behsazan/corebanking/collateral/prototype/CltUnifiedPrototypeSecurityConfiguration.java');
+const secured=read('backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java');
+check('G01 source package exists',repo.includes('class CollateralAmendmentRepository')&&logic.includes('class CollateralAmendmentService'));
+check('oracle used with shared datasource',repo.includes('DataSource dataSource')&&!repo.includes('HikariDataSource'));
+check('schema readiness fails closed',repo.includes('schemaReady()')&&logic.includes('CLT_G01_SCHEMA_MIGRATION_REQUIRED'));
+check('G01 extension is separate and opt-in',sql.includes('CREATE TABLE CLT.CLT_COLLATERAL_AMENDMENT')&&logic.includes('core-banking.collateral.amendments.writes-enabled'));
+check('no automatic DDL in Java', !/\b(CREATE TABLE|ALTER TABLE|DROP TABLE)\b/.test(repo+logic+controller));
+check('no destructive schema DDL',!/\bDROP\b|\bTRUNCATE\b|\bDELETE\s+FROM\b/i.test(sql.replace(/--[^\n]*/g,'')));
+check('proposals are independent',controller.includes('PostMapping("/{collateralId}/amendments")')&&repo.includes('AMENDMENT_SUBMITTED'));
+check('allowed fields are closed allowlist',policy.includes('ALLOWED = Set.of("ESTIMATE_AMOUNT", "VALID_TO", "DEPOSIT_NUMBER", "REMARKS")'));
+check('owner type registration number immutable', !policy.includes('put("PARTY_ID"')&& !repo.includes('UPDATE CLT.COLLATERAL SET PARTY_ID'));
+check('prior dependency blocks requests',repo.includes('CLT.COLLATERAL_SPONSOR')&&repo.includes('CLT.COLLATERAL_INSURANCE')&&repo.includes('CLT.COLLATERAL_VALUATION_HISTORY')&&repo.includes('CLT.COLLATERAL_ALLOCATION'));
+check('parent locking and version check',repo.includes('FOR UPDATE')&&repo.includes('RECORD_VERSION=?'));
+check('idempotency unique and hash',sql.includes('UQ_CLT_AMEND_IDEMP')&&logic.includes('CLT_G01_IDEMPOTENCY_REUSED'));
+check('single open request',sql.includes('UX_CLT_AMEND_PENDING')&&repo.includes('hasPending'));
+check('atomic apply and audit in transaction',logic.includes('transaction.execute')&&logic.includes('repo.audit(')&&repo.includes('UPDATE CLT.COLLATERAL SET ESTIMATE_AMOUNT'));
+check('checker must differ from maker',logic.includes('CLT_G01_MAKER_CANNOT_APPROVE'));
+check('reviewer scope is server enforced',logic.includes('SCOPE_clt.collateral.review'));
+check('approval rechecks dependencies',logic.includes('eligible(current)'));
+check('reject can close a stale proposal',logic.includes('if("APPROVE".equals(decision)) {\n                if(!current.version()'));
+check('source fingerprint is verified',logic.includes('CLT_G01_REQUEST_HASH_MISMATCH'));
+check('UI has independent tab',registry.includes('app-collateral-amendment-panel')&&screen.includes('درخواست اصلاحیه شناسنامه'));
+check('Persian date picker reused',screen.includes('app-persian-date-input'));
+check('local branch and actor are server-derived',logic.includes('JwtAuthenticationToken')&&local.includes('CLT_UNIFIED_LOOPBACK_ONLY'));
+check('prototype decision not falsely authorized',local.includes('SCOPE_clt.collateral.introduce')&&!local.includes('new SimpleGrantedAuthority("SCOPE_clt.collateral.review")'));
+check('role-based production API rules explicit',secured.includes('"/api/v1/collaterals/*/amendments/*/decision"'));
+check('final registration not introduced',!controller.includes('final-registration')&&!controller.includes('introductions/confirm'));
+check('canonical roadmap retained',read('docs/collateral/CLT-ROADMAP-R1.0-FA.md').includes('R0')&&read('docs/collateral/CLT-ROADMAP-R1.0-FA.md').includes('R7'));
+console.log('CLT_R2_G01_SOURCE_PASS='+count+'/'+count+'; LIVE_DB=NOT_EXECUTED; USER_UAT=DEFERRED');

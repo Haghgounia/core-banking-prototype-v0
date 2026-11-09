@@ -57,6 +57,14 @@ public class CollateralRegistrySecurityConfiguration {
         http.exceptionHandling(e -> e.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
                 .authorizeHttpRequests(r -> r
+                        // G-01 amendment: stage is a separate table; decision is gated by reviewer scope.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/collaterals/amendments/readiness",
+                                "/api/v1/collaterals/*/amendments")
+                        .hasAuthority("SCOPE_clt.collateral.read")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/amendments")
+                        .hasAuthority("SCOPE_clt.collateral.introduce")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/amendments/*/decision")
+                        .hasAuthority("SCOPE_clt.collateral.review")
                         // R5C: historical evidence and diagnostic preview only. NO /final-release commit route.
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/collaterals/*/final-release/readiness",

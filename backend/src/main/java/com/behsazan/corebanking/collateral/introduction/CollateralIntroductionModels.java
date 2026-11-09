@@ -35,10 +35,35 @@ public final class CollateralIntroductionModels {
                                String collateralTypeId, String estimateAmount,
                                String currencyCode, String createdAt, String recordVersion) {}
     public record DraftPage(List<DraftSummary> items, int page, int size, long totalElements) {}
+    /** Source-of-truth inspection of a stored Oracle stage snapshot; no final write. */
+    public record DraftIntegrity(String draftId, boolean eligibleForReview,
+            boolean snapshotConsistent, boolean auditConsistent, boolean currentRulesValid,
+            int serialItemCount, String serialTotalAmountIRR,
+            List<String> blockers, String stage) {}
+    /** Advisory stage candidate comparison, never an authoritative asset-identity verdict. */
+    public record AssetCandidateInspection(String draftId, String assetReference,
+            long sameOwnerDrafts, boolean otherOwnerConflict,
+            boolean eligibleForReviewSubmission, boolean identityVerified,
+            boolean finalRegistrationEnabled, String status, String explanation,
+            String comparisonScope) {}
+    /** Independent business flags and stage range persistence; no implicit default. */
+    public record TypeCountability(String collateralTypeId, boolean active,
+            boolean hasMultiplicity, Boolean isCountable, boolean configured,
+            boolean rangeTableReady, boolean finalRegistrationEnabled,
+            String configurationSource) {}
+    public record SerialRangePersistence(String draftId, boolean childTableReady,
+            boolean snapshotMatchesChildRows, int rangeRowCount, int itemCount,
+            String totalAmountIRR, String persistenceStage) {}
+    /** Candidate-only G-14 check; no definitive asset directory source exists yet. */
+    public record AssetIdentityPreflight(boolean stageCompared, boolean candidatePresent,
+                 boolean crossOwnerDraftConflict, long sameOwnerDrafts,
+                 boolean stableIdentityVerified, String source, List<String> blockers) {}
     public record RegistrationReview(boolean eligibleForDraft, boolean eligibleForFinalRegistration,
                  List<String> draftBlockers, List<String> finalizationBlockers,
                  int serialRangeRows, String serialItemCount, String serialTotalAmountIRR,
-                 String numberPolicy, String persistenceTarget) {}
+                 String numberPolicy, String persistenceTarget,
+                 CollateralNumberingFeasibilityPolicy.Assessment numberingFeasibility,
+                 AssetIdentityPreflight assetIdentityPreflight) {}
     public record Readiness(boolean registryReadsEnabled, boolean draftWritesEnabled,
                             boolean finalRegistrationEnabled, boolean migrationAutomatic,
                             String stage, String numberPolicy) {}

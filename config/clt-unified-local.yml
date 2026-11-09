@@ -15,3 +15,7 @@ core-banking:
       # Only approved opt-in staging tables can receive DRAFT records; no schema auto-creation.
       draft-writes-enabled: ${CLT_DRAFT_WRITES_ENABLED:${CLT_UNIFIED_ENABLED:true}}
       review-workflow-enabled: false
+
+    amendments:
+      # Additive request/decision tables are never created by the launcher.
+      writes-enabled: ${CLT_G01_WRITES_ENABLED:${CLT_UNIFIED_ENABLED:true}}

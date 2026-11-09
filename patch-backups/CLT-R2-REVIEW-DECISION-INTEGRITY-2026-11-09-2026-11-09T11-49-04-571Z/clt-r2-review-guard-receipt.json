@@ -1,0 +1,74 @@
+{
+  "patch": "CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09",
+  "project": "D:\\Projects\\core-banking-prototype-v0",
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09-2026-11-09T11-49-04-571Z",
+  "applied": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionReviewService.java",
+      "before": "fe2f976173fc4de818fe2d4cc9c9624ce95ccaa780d28008596fb44095db7453",
+      "after": "a8d90ade28d7891fd31ea30b9eb087648e76840824e7ea7f15b711eb9075128e",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09-2026-11-09T11-49-04-571Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionReviewService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralReviewDecisionGuard.java",
+      "before": null,
+      "after": "7f2e2ece76a3f69f3dbb09bc5feb6b1f4eeea4b6662388838a8277ee3b8f58f6",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/registration/CollateralRegistrationGatePolicy.java",
+      "before": "9037b31304f20e972f68c3a814557a148f5b94c921a821b29e62ba54a3dbe44c",
+      "after": "b9312d6dc4cff4dc0acad3f3c8614199f766239dbdb61ec56094293b4b6a9905",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09-2026-11-09T11-49-04-571Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\registration\\CollateralRegistrationGatePolicy.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/registration/CollateralRegistrationReadinessService.java",
+      "before": "a71f6211121f88fe5ed229d1deba160634bbb75b1a7062e070941d3247d19c67",
+      "after": "6af45ea8f48adc9273acb96d2d658e694a53e3af21881be7db65bc7f35207cb6",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09-2026-11-09T11-49-04-571Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\registration\\CollateralRegistrationReadinessService.java"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/introduction/CollateralReviewDecisionGuardTest.java",
+      "before": null,
+      "after": "63a70935540d61a7d96f0a4271d9ed16ba58637072a9a0a27303fb58b5e83d3b",
+      "saved": null
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/registration/CollateralRegistrationGatePolicyTest.java",
+      "before": "3fe13805c5c630467e6c403754dfd099cea2e599cf964ea9760e7cff26769cbf",
+      "after": "ba9816c4b07ae314f00f24a6d9e86b7ed7904856b2534f13d9b48d89f7431586",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09-2026-11-09T11-49-04-571Z\\backend\\src\\test\\java\\com\\behsazan\\corebanking\\collateral\\registration\\CollateralRegistrationGatePolicyTest.java"
+    },
+    {
+      "path": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "before": "4bcfac6c28ae99657c9a247d1c27f3b30c56a8d72b06eec01555f82fb71fe172",
+      "after": "eb6ac0997ca2007ca04df0e154c4afed4a83474000a4db8439863bf71fc96bcf",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09-2026-11-09T11-49-04-571Z\\docs\\collateral\\CLT-GAP-REGISTER-R1.0-FA.md"
+    },
+    {
+      "path": "docs/collateral/CLT-R2-REVIEW-DECISION-CHECKPOINT-2026-11-09.md",
+      "before": null,
+      "after": "bbeb1dc70b296dfebf95998ee8453dc104a200d2328231587410611dcae9c3c6",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "before": "47574530f88961d8c60420e734d7baa3949200d51b7eb8b5043e583a4eebb748",
+      "after": "0f75eaa2d69bb37897ba12e2e158c1cd4f3cf1d63e97f335c8a9db3fdc22910e",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-REVIEW-DECISION-INTEGRITY-2026-11-09-2026-11-09T11-49-04-571Z\\docs\\collateral\\CLT-ROADMAP-R1.0-FA.md"
+    },
+    {
+      "path": "tools/clt/r2-review-guard/PolicySmoke.java",
+      "before": null,
+      "after": "dd7450a86398ce0d486fe95e792110d162da947e8c55a8490157399cb25a1d06",
+      "saved": null
+    },
+    {
+      "path": "tools/clt/r2-review-guard/verify-source.cjs",
+      "before": null,
+      "after": "a33538aa664348bc86869f6db2df0f3cc7e8d986ef724102ba2b3daccb780cee",
+      "saved": null
+    }
+  ],
+  "time": "2026-11-09T11:49:04.662Z"
+}

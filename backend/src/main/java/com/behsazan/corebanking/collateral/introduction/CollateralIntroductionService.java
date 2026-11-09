@@ -72,6 +72,49 @@ public final class CollateralIntroductionService {
         if (!registry.readsEnabled() || !reference.readsEnabled())
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "CLT_INTRODUCTION_READS_DISABLED");
     }
+    /** Settings are read live from Oracle. A NULL or absent G-12 flag is unconfigured. */
+    public TypeCountability typeCountability(Authentication authentication, String typeId) {
+        actor(authentication);
+        requireRead();
+        String id = CollateralIntroductionPolicy.id(typeId);
+        TypeRules flags = repository.rules(id);
+        boolean stageReady = false;
+        try {
+            CollateralIntroductionWriterPool stage = writer.getIfAvailable();
+            stageReady = stage != null && repository.serialRangeTableReady(stage);
+        } catch (RuntimeException unavailable) { stageReady = false; }
+        return new TypeCountability(id, flags.active(), flags.hasMultiplicity(),
+                flags.countabilityConfigured() ? flags.countable() : null,
+                flags.countabilityConfigured(), stageReady, false,
+                "ORACLE_CLT_COLLATERAL_TYPE_IS_COUNTABLE_FLAG");
+    }
+
+    /** G-03: inspect independently persisted serial ranges for an owned draft. */
+    public SerialRangePersistence serialRanges(Authentication authentication, String draftId) {
+        Actor who = actor(authentication);
+        requireRead();
+        CollateralIntroductionWriterPool stage = writer();
+        String id = CollateralIntroductionPolicy.id(draftId);
+        Draft draft = repository.find(stage, id, who.subject(), who.branch());
+        if (draft == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "CLT_INTRODUCTION_DRAFT_NOT_FOUND");
+        boolean available = repository.serialRangeTableReady(stage);
+        boolean matching = repository.persistedRangesMatch(stage, id, draft.itemRanges());
+        int count = 0;
+        String amount = "0";
+        try {
+            var assessment = CollateralSerialRangePolicy.normalize(draft.itemRanges());
+            for (SerialRangeInput item : assessment) {
+                count += new java.math.BigInteger(item.serialTo()).subtract(
+                    new java.math.BigInteger(item.serialFrom())).intValueExact()+1;
+                amount = new BigDecimal(amount).add(new BigDecimal(item.totalAmount())).toPlainString();
+            }
+        } catch (RuntimeException invalid) { matching = false; }
+        return new SerialRangePersistence(id, available, matching,
+                draft.itemRanges().size(), count, amount,
+                available ? "ORACLE_IMMUTABLE_DRAFT_CHILD_ROWS" : "G03_MIGRATION_REQUIRED");
+    }
+
     public Validation validate(Request request, Authentication authentication) {
         actor(authentication);
         requireRead();
@@ -88,6 +131,10 @@ public final class CollateralIntroductionService {
         }
         TypeRules type = repository.rules(n.collateralTypeId());
         if (!type.active()) blockers.add("CLT_TYPE_NOT_ACTIVE");
+        if (type.active() && !type.countabilityConfigured())
+            blockers.add("G12_IS_COUNTABLE_FLAG_NOT_CONFIGURED");
+        if (type.countable() && !normalizedRangeStageAvailable())
+            blockers.add("G03_SERIAL_RANGE_CHILD_TABLE_NOT_READY");
         try {
             CollateralSerialRangePolicy.assess(type.countable(), n.currencyCode(),
                     n.estimateAmount(), n.itemRanges());
@@ -118,6 +165,12 @@ public final class CollateralIntroductionService {
         return new Validation(blockers.isEmpty(), false, List.copyOf(blockers),
                 n.partyId(), n.collateralTypeId(), type.attributes().size(), "FINAL_REGISTRATION_DISABLED");
     }
+    private boolean normalizedRangeStageAvailable() {
+        try {
+            CollateralIntroductionWriterPool stage = writer.getIfAvailable();
+            return stage != null && repository.serialRangeTableReady(stage);
+        } catch (RuntimeException unavailable) { return false; }
+    }
     public RegistrationReview registrationPreflight(Request request, Authentication authentication) {
         actor(authentication);
         requireRead();
@@ -136,13 +189,53 @@ public final class CollateralIntroductionService {
         } catch (IllegalArgumentException ignored) {
             // An invalid range appears in draftBlockers, not as an approved item count.
         }
+        // Always use the live Oracle TYPE CODE and current CIF Customer Number, never
+        // TYPE_ID or PARTY_ID masquerading as the corresponding business identifiers.
+        String typeCode = null, customerNo = null;
+        try { typeCode = repository.activeTypeCode(normalized.collateralTypeId()); }
+        catch (RuntimeException unavailable) { /* readiness remains blocked */ }
+        try { customerNo = party.currentVerifiedCustomerNumber(normalized.partyId()); }
+        catch (RuntimeException unavailable) { /* readiness remains blocked */ }
+        int actualPrecision = -1;
+        try { actualPrecision = repository.collateralNumberObservedPrecision(); }
+        catch (RuntimeException unavailable) { /* metadata missing cannot certify DB physical contract */ }
+        var feasibility = CollateralNumberingFeasibilityPolicy.assess(
+                typeCode, customerNo, customerNo != null, actualPrecision);
+        AssetIdentityPreflight assetEvidence;
+        if (CollateralAssetCandidatePolicy.lookup(normalized.assetReference()) == null) {
+            assetEvidence = new AssetIdentityPreflight(false, false, false, 0, false,
+                    "UNVERIFIED_STAGE_CANDIDATE", List.of("G14_ASSET_REFERENCE_MISSING"));
+        } else {
+            boolean compared = false, conflict = false;
+            long sameOwner = 0;
+            try {
+                CollateralIntroductionWriterPool stage = writer.getIfAvailable();
+                if (stage != null && repository.draftSchemaReady(stage)
+                        && repository.candidateColumnReady(stage)) {
+                    var matches = repository.preflightStageCandidateMatches(stage,
+                            normalized.collateralTypeId(), normalized.partyId(),
+                            normalized.assetReference());
+                    compared = true;
+                    sameOwner = matches.sameOwner();
+                    conflict = matches.otherOwner() > 0;
+                }
+            } catch (RuntimeException unavailable) { /* no false proof from unavailable Oracle */ }
+            List<String> identityBlockers = new ArrayList<>();
+            if (!compared) identityBlockers.add("G14_STAGE_CANDIDATE_CHECK_UNAVAILABLE");
+            if (conflict) identityBlockers.add("G14_OTHER_OWNER_STAGE_CONFLICT");
+            identityBlockers.add("G14_AUTHORITATIVE_ASSET_IDENTITY_NOT_VERIFIED");
+            assetEvidence = new AssetIdentityPreflight(compared, true, conflict,
+                    sameOwner, false, "ORACLE_CLT_DRAFT_CANDIDATE_ONLY",
+                    List.copyOf(identityBlockers));
+        }
         return new RegistrationReview(draft.eligibleForDraft(), false, draft.blockers(),
                 List.of("G-03_FINAL_RANGE_PERSISTENCE_NOT_APPROVED",
                         "G-14_STABLE_ASSET_IDENTITY_NOT_APPROVED",
                         "G-17_REGISTRATION_NUMBERING_NOT_APPROVED",
                         "G-01_AMENDMENT_STORAGE_OPEN"),
                 normalized.itemRanges().size(), Integer.toString(count), total,
-                "NO_SERVER_ISSUER_APPROVED", "DRAFT_STAGE_ONLY_NO_COLLATERAL_DML");
+                "NO_SERVER_ISSUER_APPROVED", "DRAFT_STAGE_ONLY_NO_COLLATERAL_DML",
+                feasibility, assetEvidence);
     }
     private CollateralIntroductionWriterPool writer() {
         if (!properties.draftWritesEnabled())
@@ -197,6 +290,84 @@ public final class CollateralIntroductionService {
         if (page < 0 || page > 1000 || size < 1 || size > 50)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CLT_DRAFT_PAGE_INVALID");
         return repository.listMine(writer(), who.subject(), who.branch(), page, size);
+    }
+
+    /** Independent read-back contract for an owned draft and its append-only creation audit.
+     * This is used by the UI and, crucially, enforced by the server on review submission.
+     * No client preview, cached browser data, or registration number is trusted. */
+    public DraftIntegrity inspectDraft(Authentication authentication, String draftId) {
+        Actor who = actor(authentication);
+        requireRead();
+        CollateralIntroductionWriterPool pool = writer();
+        String id = CollateralIntroductionPolicy.id(draftId);
+        Draft draft = repository.find(pool, id, who.subject(), who.branch());
+        if (draft == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "CLT_INTRODUCTION_DRAFT_NOT_FOUND");
+        String savedHash = repository.previousHash(pool, id);
+        boolean hashCorrect = false, rulesCorrect = false, serialsCorrect = false;
+        int itemCount = 0;
+        String total = "0";
+        List<String> currentBlockers = List.of("CLT_R2_DRAFT_CURRENT_RULES_NOT_VERIFIED");
+        try {
+            Request fromStorage = new Request(draft.partyId(), draft.collateralTypeId(),
+                    draft.estimateAmount(), draft.currencyCode(), draft.validFrom(),
+                    draft.validTo(), draft.depositNumber(), draft.remarks(),
+                    draft.attributes(), draft.assetReference(), draft.itemRanges());
+            Normalized normalized = CollateralIntroductionPolicy.normalize(fromStorage);
+            hashCorrect = savedHash != null && savedHash.equals(
+                    CollateralIntroductionPolicy.sha256(normalized.canonical()));
+            try {
+                Validation current = validateNormalized(normalized);
+                rulesCorrect = current.eligibleForDraft();
+                currentBlockers = current.blockers();
+            } catch (RuntimeException unavailable) {
+                currentBlockers = List.of("CLT_R2_DRAFT_CURRENT_RULES_NOT_VERIFIED");
+            }
+            try {
+                TypeRules typeRules = repository.rules(draft.collateralTypeId());
+                var counted = CollateralSerialRangePolicy.assess(typeRules.countable(),
+                        draft.currencyCode(), draft.estimateAmount(), draft.itemRanges());
+                serialsCorrect = typeRules.active() && typeRules.countabilityConfigured()
+                    && repository.persistedRangesMatch(pool, id, draft.itemRanges());
+                itemCount = counted.itemCount();
+                total = counted.totalAmountIRR();
+            } catch (RuntimeException invalid) {
+                serialsCorrect = false;
+            }
+        } catch (RuntimeException invalid) {
+            currentBlockers = List.of("CLT_R2_DRAFT_PERSISTED_PAYLOAD_INVALID");
+        }
+        boolean audit = savedHash != null && repository.matchingCreationAudit(pool,
+                id, who.subject(), who.branch(), savedHash);
+        var assessment = CollateralDraftIntegrityPolicy.assess(
+                new CollateralDraftIntegrityPolicy.Evidence("DRAFT".equals(draft.status()),
+                        "1".equals(draft.recordVersion()), hashCorrect, audit,
+                        rulesCorrect, serialsCorrect, currentBlockers));
+        return new DraftIntegrity(id, assessment.eligibleForReview(),
+                assessment.snapshotConsistent(), assessment.auditConsistent(),
+                assessment.currentRulesValid(), itemCount, total,
+                assessment.blockers(), "ORACLE_CLT_DRAFT_SNAPSHOT_NOT_REGISTERED");
+    }
+
+    /**
+     * R2/G-14: read-only, cross-branch aggregate comparison with no disclosure of other
+     * owners or their draft identifiers. It never certifies identity or enables final DML.
+     */
+    public AssetCandidateInspection inspectAssetCandidate(Authentication authentication, String draftId) {
+        Actor who = actor(authentication);
+        requireRead();
+        CollateralIntroductionWriterPool pool = writer();
+        String id = CollateralIntroductionPolicy.id(draftId);
+        Draft draft = repository.find(pool, id, who.subject(), who.branch());
+        if (draft == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "CLT_INTRODUCTION_DRAFT_NOT_FOUND");
+        if (!repository.candidateColumnReady(pool))
+            return CollateralAssetCandidatePolicy.assess(id, null, false, 0, 0);
+        if (CollateralAssetCandidatePolicy.lookup(draft.assetReference()) == null)
+            return CollateralAssetCandidatePolicy.assess(id, draft.assetReference(), true, 0, 0);
+        var counts = repository.stageCandidateMatches(pool, draft);
+        return CollateralAssetCandidatePolicy.assess(id, draft.assetReference(), true,
+                counts.sameOwner(), counts.otherOwner());
     }
 
     public Draft getDraft(Authentication authentication, String draftId) {

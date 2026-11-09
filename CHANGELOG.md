@@ -1713,3 +1713,8 @@
 - Synchronizes authoritative IAM canonical roadmap: R0.1 historical, R1.5.1 exported physical snapshot, R1.3 proposed target, IAM-00 approval pending and IAM-01 still in progress.
 - Fixes R22 sidebar regression checker to preserve existing FEE3 route, without changing FEE3 UI.
 - Windows QA requires a fresh local npm/Maven build and browser UAT before a deploy claim; never treat a static verifier as a successful runtime build.
+
+### 2026-11-09 — Collateral R2 G-01 (پیشنهاد اصلاحیه شناسنامه)
+- مدل افزایشی G-01 در `database/clt/r2-g01-amendments`؛ اجرای SQL نیازمند تصویب مستقل است، در Installer انجام نمی‌شود.
+- API و Frontend درخواست اصلاحیه، کنترل وابستگی قبل/بعد، Maker/Checker مستقل، OCC، Idempotency و Audit؛ اعمال Atomic تنها پس از تأیید معتبر.
+- بدون صدور شماره انتظامی یا تغییر پیش‌نویس‌های معرفی R2، IAM و بخش اطلاعات پایه بیمه‌گران. G-01 تا Migration، Build عملیاتی و پذیرش نهایی OPEN است.

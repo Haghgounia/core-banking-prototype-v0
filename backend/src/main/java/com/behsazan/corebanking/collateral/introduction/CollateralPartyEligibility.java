@@ -9,6 +9,16 @@ import org.springframework.stereotype.Component;
 public final class CollateralPartyEligibility {
     private final CifService cif;
     public CollateralPartyEligibility(CifService cif) { this.cif = cif; }
+    /** The CIF customer number is not the technical Party ID. Fail closed if not current/ready. */
+    public String currentVerifiedCustomerNumber(String partyId) {
+        long id;
+        try { id = new BigDecimal(partyId).longValueExact(); }
+        catch (ArithmeticException e) { return null; }
+        var status = cif.readiness(id);
+        if (!status.customerRole() || !status.readyForFinalization()) return null;
+        String number = status.customerNo();
+        return number == null || number.isBlank() ? null : number.strip();
+    }
     public boolean eligible(String partyId) {
         long id;
         try { id = new BigDecimal(partyId).longValueExact(); }

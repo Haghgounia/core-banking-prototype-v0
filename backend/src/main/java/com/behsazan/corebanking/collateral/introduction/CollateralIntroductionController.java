@@ -40,6 +40,26 @@ public final class CollateralIntroductionController {
         return service.mine(authentication, page, size);
     }
 
+    @GetMapping("/types/{typeId}/countability")
+    TypeCountability countability(@PathVariable String typeId, Authentication authentication) {
+        return service.typeCountability(authentication, typeId);
+    }
+
+    @GetMapping("/{draftId}/item-ranges")
+    SerialRangePersistence itemRanges(@PathVariable String draftId, Authentication authentication) {
+        return service.serialRanges(authentication, draftId);
+    }
+
+    @GetMapping("/{draftId}/integrity")
+    DraftIntegrity integrity(@PathVariable String draftId, Authentication authentication) {
+        return service.inspectDraft(authentication, draftId);
+    }
+
+    @GetMapping("/{draftId}/asset-candidate")
+    AssetCandidateInspection assetCandidate(@PathVariable String draftId, Authentication authentication) {
+        return service.inspectAssetCandidate(authentication, draftId);
+    }
+
     @GetMapping("/{draftId}")
     Draft byId(@PathVariable String draftId, Authentication authentication) {
         return service.getDraft(authentication, draftId);

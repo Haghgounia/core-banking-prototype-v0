@@ -1,0 +1,86 @@
+{
+  "patch": "CLT-R2-G14-G17-NUMBERING-PREFLIGHT-2026-11-09",
+  "project": "D:\\Projects\\core-banking-prototype-v0",
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G14-G17-NUMBERING-PREFLIGHT-2026-11-09-2026-11-09T11-25-50-359Z",
+  "applied": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionModels.java",
+      "before": "b9d366dcd910784337333037d6f6f31d500afcaf9a8968576d08b33477f2a1ef",
+      "after": "273cfe6f063072a33358c9398f54861214246b08e542f28e74aa4f5cc1482be2",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G14-G17-NUMBERING-PREFLIGHT-2026-11-09-2026-11-09T11-25-50-359Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionModels.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionRepository.java",
+      "before": "5aeef39aa4c3ab40f6e4c9d099b3997ea7e1d09cb42a2e81662d0db40a861c2d",
+      "after": "e3f309fb36fe5849cf6ff22ea81f1a325db20ed5446b75471ce19ba71345e617",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G14-G17-NUMBERING-PREFLIGHT-2026-11-09-2026-11-09T11-25-50-359Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionService.java",
+      "before": "bfc52e6a9d9dbafb40a02ee289b3e2d2f28d08fc554f87d9378f1984ac186c7a",
+      "after": "8a7acbec71746dc63431b0cde4bc507d83747cba6c4ab4fa0d3eb7e43a8dae2c",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G14-G17-NUMBERING-PREFLIGHT-2026-11-09-2026-11-09T11-25-50-359Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralNumberingFeasibilityPolicy.java",
+      "before": null,
+      "after": "8cbd61f17fd2fa646318c376cdba587be8ffb5da6ecf76ff2bf6f6a1bdde5713",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralPartyEligibility.java",
+      "before": "f1fb20736e5b3456f9a5049ac9f1c27576bff7d6790e66e13074ecb2cd138c33",
+      "after": "093c2978652e308eefd6d022575dfaa70b1334bd7fe11cf8b73db871bff36323",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G14-G17-NUMBERING-PREFLIGHT-2026-11-09-2026-11-09T11-25-50-359Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralPartyEligibility.java"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/introduction/CollateralNumberingFeasibilityPolicyTest.java",
+      "before": null,
+      "after": "ae76cdfcf42a8ac9af2efe9b8ab2bd2a8fb1f1935c87472724aef503b4b578f4",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "before": "2a708b47056adad632e81e1cd90a006adfe505cab4d53da6de2c455f3e1e3fe6",
+      "after": "4bcfac6c28ae99657c9a247d1c27f3b30c56a8d72b06eec01555f82fb71fe172",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G14-G17-NUMBERING-PREFLIGHT-2026-11-09-2026-11-09T11-25-50-359Z\\docs\\collateral\\CLT-GAP-REGISTER-R1.0-FA.md"
+    },
+    {
+      "path": "docs/collateral/CLT-R2-G14-G17-IMPLEMENTATION-CHECKPOINT-2026-11-09.md",
+      "before": null,
+      "after": "a81726a69354cafee31a283e8b494689ef1c16f1d237bd11932bdbac3f6a12d7",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "before": "6d5c15021e8c911f75ac0c4793e979b352389eab0c13059ab24c55a879fe9f82",
+      "after": "47574530f88961d8c60420e734d7baa3949200d51b7eb8b5043e583a4eebb748",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G14-G17-NUMBERING-PREFLIGHT-2026-11-09-2026-11-09T11-25-50-359Z\\docs\\collateral\\CLT-ROADMAP-R1.0-FA.md"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.component.html",
+      "before": "70ecbeece9af41bbacc9acb6387af752ebce41ee9e40e2565a8865cd1c32de01",
+      "after": "465d3611cab73c0c017a7de60b40c9d758a21d897c7632e9b093aef10b5e43b5",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G14-G17-NUMBERING-PREFLIGHT-2026-11-09-2026-11-09T11-25-50-359Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.service.ts",
+      "before": "11176b526b04cdbfdd859f879a30f0efb672a4255a51a5a641ca461b1c2ba70c",
+      "after": "fe47003dda2d46b28154ed282f01cee8437c71724ecb189be94727f07522ddf4",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G14-G17-NUMBERING-PREFLIGHT-2026-11-09-2026-11-09T11-25-50-359Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.service.ts"
+    },
+    {
+      "path": "tools/clt/r2-g14-g17/PolicySmoke.java",
+      "before": null,
+      "after": "e56b4bfc4a35767ef1430c3a4214dae82b73767f6f8e4c1c1cdfb167b4434cb8",
+      "saved": null
+    },
+    {
+      "path": "tools/clt/r2-g14-g17/verify-source.cjs",
+      "before": null,
+      "after": "3859fd251b45ba590b8d76b59492c0a9fbdce4ee7f9378b5bbc2efee7eee17af",
+      "saved": null
+    }
+  ],
+  "time": "2026-11-09T11:25:50.456Z"
+}

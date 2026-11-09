@@ -24,7 +24,21 @@ import tools.jackson.databind.json.JsonMapper;
 public class CollateralIntroductionRepository {
     public record AttributeRule(String id, String dataType, boolean required,
                                 boolean repeatable, boolean manualEntryAllowed, String listValue) {}
-    public record TypeRules(boolean active, boolean countable, List<AttributeRule> attributes) {}
+    public record TypeRules(boolean active, boolean countable, boolean countabilityConfigured,
+                            boolean hasMultiplicity, List<AttributeRule> attributes) {}
+    private record TypeFlags(String multiplicity, String countable) {}
+
+    /** G-12: IS_COUNTABLE_FLAG is independent from HAS_MULTIPLICITY.
+     * A missing/null countability decision is never inferred from multiplicity. */
+    public boolean countabilityColumnReady() {
+        Integer n = db().queryForObject("""
+            SELECT COUNT(*) FROM ALL_TAB_COLUMNS
+             WHERE OWNER = 'CLT' AND TABLE_NAME = 'COLLATERAL_TYPE'
+               AND COLUMN_NAME = 'IS_COUNTABLE_FLAG'
+            """, Integer.class);
+        return Integer.valueOf(1).equals(n);
+    }
+
 
     private final ObjectProvider<CollateralReferenceReaderPool> reader;
     private final JsonMapper json;
@@ -35,13 +49,17 @@ public class CollateralIntroductionRepository {
     private JdbcTemplate db() { return reader.getObject().jdbc(); }
 
     public TypeRules rules(String typeId) {
-        List<String> types = db().query("""
-                SELECT t.HAS_MULTIPLICITY
+        String countabilityExpression = countabilityColumnReady()
+                ? "t.IS_COUNTABLE_FLAG" : "CAST(NULL AS CHAR(1))";
+        List<TypeFlags> types = db().query("""
+                SELECT t.HAS_MULTIPLICITY,
+                """ + countabilityExpression + """ 
                   FROM CLT.COLLATERAL_TYPE t
                   JOIN CLT.COLLATERAL_GROUP g ON g.COLLATERAL_GROUP_ID = t.COLLATERAL_GROUP_ID
                  WHERE t.COLLATERAL_TYPE_ID = ? AND t.STATUS = 'ACTIVE' AND g.STATUS = 'ACTIVE'
-                """, (rs, i) -> rs.getString(1), new BigDecimal(typeId));
-        if (types.isEmpty()) return new TypeRules(false, false, List.of());
+                """, (rs, i) -> new TypeFlags(rs.getString(1), rs.getString(2)),
+                new BigDecimal(typeId));
+        if (types.isEmpty()) return new TypeRules(false, false, false, false, List.of());
         List<AttributeRule> attrs = db().query("""
                 SELECT d.COLLATERAL_ATTRIBUTE_DEFINITION_ID, d.DATA_TYPE_CODE,
                        a.IS_REQUIRED, d.IS_REPEATABLE_FLAG, a.MANUAL_ENTRY_ALLOWED_FLAG, d.LIST_VALUE
@@ -53,8 +71,57 @@ public class CollateralIntroductionRepository {
                 """, (rs, i) -> new AttributeRule(rs.getBigDecimal(1).toPlainString(),
                 rs.getString(2), "Y".equals(rs.getString(3)), "Y".equals(rs.getString(4)),
                 "Y".equals(rs.getString(5)), rs.getString(6)), new BigDecimal(typeId));
-        return new TypeRules(true, "Y".equals(types.getFirst()), List.copyOf(attrs));
+        var decision = CollateralCountabilityPolicy.evaluate(types.getFirst().countable(),
+                types.getFirst().multiplicity());
+        return new TypeRules(true, decision.countable(), decision.configured(),
+                decision.hasMultiplicity(), List.copyOf(attrs));
     }
+    /** G-17: verify actual Oracle NUMBER(19,0) metadata rather than trusting XMI alone. */
+    public int collateralNumberObservedPrecision() {
+        List<Integer> result = db().query("""
+                SELECT DATA_TYPE, DATA_PRECISION, DATA_SCALE
+                  FROM ALL_TAB_COLUMNS
+                 WHERE OWNER='CLT' AND TABLE_NAME='COLLATERAL'
+                   AND COLUMN_NAME='COLLATERAL_NUMBER'
+                """, (rs, i) -> {
+                    String kind = rs.getString(1);
+                    int precision = rs.getInt(2);
+                    if (rs.wasNull()) return -1;
+                    int scale = rs.getInt(3);
+                    if (rs.wasNull() || !"NUMBER".equals(kind) || scale != 0) return -1;
+                    return precision;
+                });
+        return result.size() == 1 ? result.getFirst() : -1;
+    }
+
+    /** Authoritative business-facing type code, not the numeric TYPE_ID. */
+    public String activeTypeCode(String typeId) {
+        List<String> rows = db().query("""
+                SELECT COLLATERAL_TYPE_CODE FROM CLT.COLLATERAL_TYPE
+                 WHERE COLLATERAL_TYPE_ID = ? AND STATUS = 'ACTIVE'
+                """, (rs, i) -> rs.getString(1), new BigDecimal(typeId));
+        return rows.isEmpty() ? null : rows.getFirst();
+    }
+
+    /** Pre-save G-14 comparison: no other owner's ID, record, or branch is disclosed. */
+    public CandidateCounts preflightStageCandidateMatches(CollateralIntroductionWriterPool pool,
+            String typeId, String partyId, String assetReference) {
+        if (!extended(pool)) throw new IllegalStateException("G14_STAGE_EXTENSION_REQUIRED");
+        String normalized = CollateralAssetCandidatePolicy.lookup(assetReference);
+        if (normalized == null) return new CandidateCounts(0, 0);
+        List<CandidateCounts> matches = pool.jdbc().query("""
+                SELECT COUNT(*) AS TOTAL_COUNT,
+                       COALESCE(SUM(CASE WHEN PARTY_ID = ? THEN 1 ELSE 0 END), 0) AS SAME_OWNER
+                  FROM CLT.CLT_INTRODUCTION_DRAFT
+                 WHERE COLLATERAL_TYPE_ID = ? AND STATUS = 'DRAFT'
+                   AND ASSET_REFERENCE IS NOT NULL
+                   AND UPPER(TRIM(ASSET_REFERENCE)) = ?
+                """, (rs, i) -> new CandidateCounts(rs.getLong("SAME_OWNER"),
+                        rs.getLong("TOTAL_COUNT") - rs.getLong("SAME_OWNER")),
+                new BigDecimal(partyId), new BigDecimal(typeId), normalized);
+        return matches.isEmpty() ? new CandidateCounts(0, 0) : matches.getFirst();
+    }
+
     public boolean currencyActive(String currencyCode) {
         Integer n = db().queryForObject("""
                 SELECT COUNT(*) FROM CLT.REF_CURRENCY
@@ -118,6 +185,81 @@ public class CollateralIntroductionRepository {
                        CREATED_AT, RECORD_VERSION
                 """ + extras + " FROM CLT.CLT_INTRODUCTION_DRAFT ";
     }
+    /** No attempt to infer a verified asset from stage text. No Party or branch identifiers are returned. */
+    public record CandidateCounts(long sameOwner, long otherOwner) {}
+    public boolean candidateColumnReady(CollateralIntroductionWriterPool pool) {
+        return extended(pool);
+    }
+    public CandidateCounts stageCandidateMatches(CollateralIntroductionWriterPool pool,
+            Draft current) {
+        if (!extended(pool)) throw new IllegalStateException("CLT_ASSET_STAGE_EXTENSION_REQUIRED");
+        String normalized = CollateralAssetCandidatePolicy.lookup(current.assetReference());
+        if (normalized == null) return new CandidateCounts(0, 0);
+        List<CandidateCounts> matches = pool.jdbc().query("""
+                SELECT COUNT(*) AS TOTAL_COUNT,
+                       COALESCE(SUM(CASE WHEN PARTY_ID = ? THEN 1 ELSE 0 END), 0) AS SAME_OWNER
+                  FROM CLT.CLT_INTRODUCTION_DRAFT
+                 WHERE COLLATERAL_TYPE_ID = ?
+                   AND DRAFT_ID <> ?
+                   AND STATUS = 'DRAFT'
+                   AND ASSET_REFERENCE IS NOT NULL
+                   AND UPPER(TRIM(ASSET_REFERENCE)) = ?
+                """, (rs, i) -> new CandidateCounts(rs.getLong("SAME_OWNER"),
+                        rs.getLong("TOTAL_COUNT") - rs.getLong("SAME_OWNER")),
+                new BigDecimal(current.partyId()), new BigDecimal(current.collateralTypeId()),
+                new BigDecimal(current.draftId()), normalized);
+        return matches.isEmpty() ? new CandidateCounts(0, 0) : matches.getFirst();
+    }
+
+    /** G-03: immutable child table. Columns are required as a group. */
+    public boolean serialRangeTableReady(CollateralIntroductionWriterPool pool) {
+        Integer tables = pool.jdbc().queryForObject("""
+            SELECT COUNT(*) FROM ALL_TABLES WHERE OWNER='CLT'
+             AND TABLE_NAME='CLT_INTRODUCTION_DRAFT_SERIAL_RANGE'
+            """, Integer.class);
+        if (!Integer.valueOf(1).equals(tables)) return false;
+        Integer columns = pool.jdbc().queryForObject("""
+            SELECT COUNT(*) FROM ALL_TAB_COLUMNS WHERE OWNER='CLT'
+             AND TABLE_NAME='CLT_INTRODUCTION_DRAFT_SERIAL_RANGE'
+             AND COLUMN_NAME IN ('DRAFT_ID','ROW_NO','SERIAL_FROM','SERIAL_TO',
+                'TOTAL_AMOUNT_IRR','CREATED_AT','CREATED_BY','RECORD_VERSION')
+            """, Integer.class);
+        return Integer.valueOf(8).equals(columns);
+    }
+
+    /** No fake success for JSON-only countable drafts. Historical rows need a reviewed backfill. */
+    public boolean persistedRangesMatch(CollateralIntroductionWriterPool pool,
+            String draftId, List<SerialRangeInput> snapshot) {
+        if (snapshot.isEmpty()) {
+            if (!serialRangeTableReady(pool)) return true;
+        } else if (!serialRangeTableReady(pool)) return false;
+        List<SerialRangeInput> rows = pool.jdbc().query("""
+                SELECT SERIAL_FROM,SERIAL_TO,TOTAL_AMOUNT_IRR
+                  FROM CLT.CLT_INTRODUCTION_DRAFT_SERIAL_RANGE
+                 WHERE DRAFT_ID=? ORDER BY ROW_NO
+                """, (rs, i) -> new SerialRangeInput(rs.getString(1), rs.getString(2),
+                    rs.getBigDecimal(3).toPlainString()), new BigDecimal(draftId));
+        return rows.equals(snapshot);
+    }
+
+    /** Child rows inserted within the same transaction as the draft and creation audit. */
+    public void insertSerialRanges(CollateralIntroductionWriterPool pool,
+            BigDecimal draftId, List<SerialRangeInput> ranges, String maker) {
+        if (ranges.isEmpty()) return;
+        if (!serialRangeTableReady(pool))
+            throw new IllegalStateException("G03_SERIAL_RANGE_MIGRATION_REQUIRED");
+        for (int i=0; i<ranges.size(); i++) {
+            SerialRangeInput row = ranges.get(i);
+            int inserted = pool.jdbc().update("""
+                INSERT INTO CLT.CLT_INTRODUCTION_DRAFT_SERIAL_RANGE
+                  (DRAFT_ID,ROW_NO,SERIAL_FROM,SERIAL_TO,TOTAL_AMOUNT_IRR,CREATED_BY,RECORD_VERSION)
+                VALUES (?,?,?,?,?,?,1)
+                """, draftId, i+1, row.serialFrom(), row.serialTo(),
+                    new BigDecimal(row.totalAmount()), maker);
+            if (inserted != 1) throw new IllegalStateException("G03_SERIAL_RANGE_INSERT_FAILED");
+        }
+    }
+
     /** Only own drafts, scoped by trusted server-side maker/branch; no user-supplied SQL filters. */
     public DraftPage listMine(CollateralIntroductionWriterPool pool, String maker, String branch,
                               int page, int size) {
@@ -169,6 +311,20 @@ public class CollateralIntroductionRepository {
                 """, (rs, i) -> toDraft(rs), new BigDecimal(reviewId), branch, checker);
         return records.isEmpty() ? null : records.getFirst();
     }
+    /** A matching, unique immutable creation audit is mandatory before submitting a review. */
+    public boolean matchingCreationAudit(CollateralIntroductionWriterPool pool, String draftId,
+                                         String maker, String branch, String digest) {
+        Integer matched = pool.jdbc().queryForObject("""
+                SELECT COUNT(*)
+                  FROM CLT.CLT_INTRODUCTION_DRAFT_AUDIT a
+                  JOIN CLT.CLT_INTRODUCTION_DRAFT d ON d.DRAFT_ID = a.DRAFT_ID
+                 WHERE d.DRAFT_ID = ? AND d.MAKER_SUBJECT = ? AND d.BRANCH_CODE = ?
+                   AND d.REQUEST_HASH = ? AND a.REQUEST_HASH = d.REQUEST_HASH
+                   AND a.EVENT_CODE = 'DRAFT_CREATED'
+                   AND a.EVENT_SUBJECT = d.MAKER_SUBJECT AND a.BRANCH_CODE = d.BRANCH_CODE
+                """, Integer.class, new BigDecimal(draftId), maker, branch, digest);
+        return Integer.valueOf(1).equals(matched);
+    }
     public String previousHash(CollateralIntroductionWriterPool pool, String draftId) {
         return pool.jdbc().queryForObject(
                 "SELECT REQUEST_HASH FROM CLT.CLT_INTRODUCTION_DRAFT WHERE DRAFT_ID = ?",
@@ -186,6 +342,8 @@ public class CollateralIntroductionRepository {
         try { rangeJson = json.writeValueAsString(request.itemRanges()); }
         catch (Exception e) { throw new IllegalStateException("CLT_R2C_SERIAL_JSON_UNAVAILABLE", e); }
         boolean hasExtension = extended(pool);
+        if (!request.itemRanges().isEmpty() && !serialRangeTableReady(pool))
+            throw new IllegalStateException("G03_SERIAL_RANGE_MIGRATION_REQUIRED");
         if (!hasExtension && (request.assetReference() != null || !request.itemRanges().isEmpty()))
             throw new IllegalStateException("CLT_R2C_STAGE_EXTENSION_NOT_APPLIED");
         pool.jdbc().update(con -> {
@@ -237,6 +395,9 @@ public class CollateralIntroductionRepository {
                     (DRAFT_ID, EVENT_CODE, EVENT_SUBJECT, BRANCH_CODE, REQUEST_HASH, CORRELATION_ID)
                 VALUES (?, 'DRAFT_CREATED', ?, ?, ?, ?)
                 """, newId, maker, branch, hash, correlation);
+        insertSerialRanges(pool, newId, request.itemRanges(), maker);
+        if (!persistedRangesMatch(pool, newId.toPlainString(), request.itemRanges()))
+            throw new IllegalStateException("G03_SERIAL_RANGE_READBACK_MISMATCH");
         return find(pool, newId.toPlainString(), maker, branch);
     }
     private Draft toDraft(ResultSet rs) throws SQLException {

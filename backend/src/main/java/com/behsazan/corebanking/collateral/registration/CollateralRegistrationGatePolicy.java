@@ -20,7 +20,9 @@ public final class CollateralRegistrationGatePolicy {
             boolean oracleNumber19Unique, boolean postedTransactionReferenceAvailable,
             boolean introductionTransactionReferenceAvailable,
             boolean countable, boolean serialRowsValid, String serialItemCount,
-            String assetReferenceCandidate, String estimateAmount, String currencyCode) {}
+            String assetReferenceCandidate, String estimateAmount, String currencyCode,
+            boolean creationAuditValid, boolean persistedSerialRowsValid,
+            boolean assetCandidateStageChecked, boolean assetCandidateOtherOwnerConflict) {}
 
     public static Report assess(Evidence e) {
         if (e == null || e.reviewId() == null || e.draftId() == null)
@@ -36,7 +38,11 @@ public final class CollateralRegistrationGatePolicy {
         add(checks, "SNAPSHOT_INTEGRITY", "تمامیت نسخه ذخیره شده", immutable ? "VERIFIED" : "BLOCKED",
                 immutable ? "اثر انگشت ذخیره شده با درخواست اصلی و نسخه بازبینی مطابقت دارد."
                           : "داده پیش نویس یا اثر انگشت آن ناقص، متفاوت یا غیرقابل بازسازی است.");
-        boolean liveValid = immutable && e.currentBusinessRulesValid();
+        add(checks, "CREATION_AUDIT", "ثبت تغییرناپذیر رخداد ایجاد پیش نویس",
+                e.creationAuditValid() ? "VERIFIED" : "BLOCKED",
+                e.creationAuditValid() ? "یک رخداد ایجاد مطابق اثر انگشت و مالک در Oracle موجود است."
+                    : "وجود یک رخداد ایجاد معتبر و مطابق اثر انگشت تأیید نشد.");
+        boolean liveValid = immutable && e.creationAuditValid() && e.currentBusinessRulesValid();
         add(checks, "LIVE_CIF_CLT_RECHECK", "بازاعتبارسنجی مالک و قواعد CLT", liveValid ? "VERIFIED" : "BLOCKED",
                 liveValid ? "اعتبارسنجی جاری CIF و اطلاعات پایه وثیقه موفق است."
                           : "استعلام جاری قابل تأیید نیست: " + String.join(", ",
@@ -55,9 +61,15 @@ public final class CollateralRegistrationGatePolicy {
                              : "کدهای INTRODUCTION یا POSTED در مرجع عملیاتی تأیید نشدند.");
         if (e.countable()) {
             add(checks, "COUNTABLE_ITEM_VALIDATION", "کنترل دامنه اقلام شمارشی",
-                    e.serialRowsValid() ? "VERIFIED" : "BLOCKED",
-                    e.serialRowsValid() ? "قواعد بازه، هم پوشانی و جمع مبلغ در نسخه ذخیره شده رعایت شده است."
-                                        : "بازه های ذخیره شده نیازمند اصلاح اند.");
+                    e.serialRowsValid() && e.persistedSerialRowsValid() ? "VERIFIED" : "BLOCKED",
+                    e.serialRowsValid() && e.persistedSerialRowsValid()
+                        ? "قواعد بازه و ردیف های فرزند Oracle با نسخه ذخیره شده تطبیق دارند."
+                        : "بازه ها یا ردیف های مستقل Oracle با تصویر پیش نویس تطبیق ندارند.");
+            add(checks, "SERIAL_CHILD_READBACK", "تطبیق ردیف های شمارشی پایگاه داده",
+                    e.persistedSerialRowsValid() ? "VERIFIED" : "BLOCKED",
+                    e.persistedSerialRowsValid()
+                        ? "ردیف های Oracle مطابق نسخه ذخیره شده اند."
+                        : "جدول فرزند یا مقدار ردیف های Oracle ناسازگار است.");
             add(checks, "G-03", "مدل قطعی نگهداری اقلام شمارشی", "DECISION_REQUIRED",
                     "افزونه قطعی اقلام و کنترل همزمانی باید در مدل EA/Oracle تصویب شود.");
             add(checks, "G-12", "یکسان سازی HAS_MULTIPLICITY و اقلام", "DECISION_REQUIRED",
@@ -72,6 +84,17 @@ public final class CollateralRegistrationGatePolicy {
                 hasCandidate ? "INFORMATIONAL" : "BLOCKED",
                 hasCandidate ? "در پیش نویس ثبت شده است؛ صحت و یکتایی آن هنوز احراز نشده است."
                              : "شناسه پیشنهادی دارایی برای اتصال به مرجع هویت ثبت نشده است.");
+        if (hasCandidate) {
+            String collisionStatus = !e.assetCandidateStageChecked() ? "BLOCKED"
+                    : e.assetCandidateOtherOwnerConflict() ? "BLOCKED" : "VERIFIED";
+            add(checks, "ASSET_STAGE_COLLISION", "بازبینی تعارض نامزد دارایی در Oracle",
+                    collisionStatus,
+                    !e.assetCandidateStageChecked()
+                        ? "نتیجه جست وجوی Stage در Oracle قابل تأیید نیست."
+                        : e.assetCandidateOtherOwnerConflict()
+                            ? "نامزد مشابه در پیش نویس متعلق به مالک دیگری موجود است؛ هویت مالک افشا نمی شود."
+                            : "در Stage تعارض مالک دیگر دیده نشد؛ احراز هویت قطعی دارایی هنوز انجام نشده است.");
+        }
         add(checks, "G-14", "هویت پایدار دارایی و معرفی مجدد", "DECISION_REQUIRED",
                 "مرجع یکتا، قواعد تطبیق و پیوند معرفی مجدد باید مصوب شود؛ شناسه نامزد کافی نیست.");
         add(checks, "G-17", "صدور شماره انتظامی و حدود ۱۹ رقم", "DECISION_REQUIRED",

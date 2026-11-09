@@ -1,0 +1,86 @@
+{
+  "patch": "CLT-R2-DRAFT-INTEGRITY-2026-11-09",
+  "project": "D:\\Projects\\core-banking-prototype-v0",
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-DRAFT-INTEGRITY-2026-11-09-2026-11-09T09-37-03-484Z",
+  "applied": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralDraftIntegrityPolicy.java",
+      "before": null,
+      "after": "d1d19a7ea3898322982a12d8b7a459e51cb975770fbd2ba08c498ef87f4dcb32",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionController.java",
+      "before": "9cbb0fc6feaf890f0d16a314fa021d062b06ee2c2ead184612b9979f05e67b56",
+      "after": "c8b089cac440599a1cc3ed658d5f294e9a99e92743c0efccdaa9316ace7c2b16",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-DRAFT-INTEGRITY-2026-11-09-2026-11-09T09-37-03-484Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionModels.java",
+      "before": "a56fdab34c841b6c003eb1e77c993873133012130b375154ed80fa9515d9e677",
+      "after": "737c13a82483e65e7e2141f91e1fea9fd3575dc61eb713211ae37aee98b8149b",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-DRAFT-INTEGRITY-2026-11-09-2026-11-09T09-37-03-484Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionModels.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionRepository.java",
+      "before": "2bf126dff409dfc3ad781284769a58fad96ac6c0735cf6e1e6f9e50851200ee3",
+      "after": "6d718319f9c9b973b86367625f44347d845e143edc0faebd1683d9c840927358",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-DRAFT-INTEGRITY-2026-11-09-2026-11-09T09-37-03-484Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionReviewService.java",
+      "before": "ccc37ef3d4f3981a0e6d7b0cd505f42c29640b19584cc231b0a4373e58534a75",
+      "after": "fe6efb6d93dcbb88552e95545c4bd8723976831177dbdd57854c61d4c868556a",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-DRAFT-INTEGRITY-2026-11-09-2026-11-09T09-37-03-484Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionReviewService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionService.java",
+      "before": "762a0a621c60038818bd816f4d9a5d1337ac07e03c168c2abb0032fcd1c7c853",
+      "after": "f89977582d066b4110641aac4c31246b7f9ec4cb76cfa8a6dfa053a4e95115bd",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-DRAFT-INTEGRITY-2026-11-09-2026-11-09T09-37-03-484Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionService.java"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/introduction/CollateralDraftIntegrityPolicyTest.java",
+      "before": null,
+      "after": "2e2263edc52f8472636d255550505f9f59da7f383215bffa53fa3e1b1779e76f",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-R2-DRAFT-INTEGRITY-2026-11-09-FA.md",
+      "before": null,
+      "after": "4b27371bde7868096708181ab1f804360270fe72ce5a9a35e3040216c0d5cf4f",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.component.html",
+      "before": "5aabbcf3382d2356209b793e508011fa72bde3f5ab744ec4f3a741ad6e013d4b",
+      "after": "d5a9e06ddfe57b0292111b20cefc8e247d13e617ab31513be8ca39ab3bf5d09a",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-DRAFT-INTEGRITY-2026-11-09-2026-11-09T09-37-03-484Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.component.scss",
+      "before": "fc1f2cea3c95e15b92c1475a14f4460504f3ae6e83e53f0b5f6a6d9dde2d4fc0",
+      "after": "eee8750c89dd670f8f250cbc58c9fede8a8cd028815caeeb1bbafaa208f04c17",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-DRAFT-INTEGRITY-2026-11-09-2026-11-09T09-37-03-484Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.component.scss"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.component.ts",
+      "before": "a5aa4a755b9498c2224dbc3df6d3310e464a33c31250d46b6f58ee0800590860",
+      "after": "4413a6aac7af0c9d29c58b02ec29d4b6fe3a03b26cfd306db8ecae1bcc72bece",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-DRAFT-INTEGRITY-2026-11-09-2026-11-09T09-37-03-484Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.component.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.service.ts",
+      "before": "dd1742a1c966bbb866bf47d0f6d891c33630643600527788a1f6f2deff084e85",
+      "after": "faaab02a3387bb5d6812d8c365230121e239a1557a484899f764ce4a064c1b29",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-DRAFT-INTEGRITY-2026-11-09-2026-11-09T09-37-03-484Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.service.ts"
+    },
+    {
+      "path": "tools/clt/r2-integrity/verify-source.cjs",
+      "before": null,
+      "after": "4ed70018b875d754f485e8fabb6aee9c8127f66ae98195004906d607ecef5fe2",
+      "saved": null
+    }
+  ],
+  "time": "2026-11-09T09:37:03.601Z"
+}

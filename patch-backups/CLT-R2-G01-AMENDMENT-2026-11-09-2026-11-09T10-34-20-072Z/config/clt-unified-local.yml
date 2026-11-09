@@ -1,0 +1,17 @@
+# CLT Unified local developer UAT overlay. Loaded by the canonical bin/start.cmd.
+# Contains NO Oracle credentials; the application's normal datasource is used.
+# DO NOT deploy this file/launcher configuration on shared or production servers.
+server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
+core-banking:
+  collateral:
+    prototype:
+      enabled: ${CLT_UNIFIED_ENABLED:true}
+    reference:
+      reads-enabled: ${CLT_REFERENCE_READS_ENABLED:${CLT_UNIFIED_ENABLED:true}}
+    registry:
+      reads-enabled: ${CLT_REGISTRY_READS_ENABLED:${CLT_UNIFIED_ENABLED:true}}
+    introduction:
+      # Only approved opt-in staging tables can receive DRAFT records; no schema auto-creation.
+      draft-writes-enabled: ${CLT_DRAFT_WRITES_ENABLED:${CLT_UNIFIED_ENABLED:true}}
+      review-workflow-enabled: false

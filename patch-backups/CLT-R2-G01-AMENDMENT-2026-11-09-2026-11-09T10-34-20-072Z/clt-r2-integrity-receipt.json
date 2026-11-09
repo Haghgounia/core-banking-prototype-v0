@@ -1,0 +1,128 @@
+{
+  "patch": "CLT-R2-G01-AMENDMENT-2026-11-09",
+  "project": "D:\\Projects\\core-banking-prototype-v0",
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G01-AMENDMENT-2026-11-09-2026-11-09T10-34-20-072Z",
+  "applied": [
+    {
+      "path": "CHANGELOG.md",
+      "before": "2826c24726f2e85a97bc5b5a6ff3499ddd1551c63a39e810f407249a8a21f52b",
+      "after": "7dee619ae503dbbe1580e3be2b1a55032c653d15de947b7dc1f8df7c0be8720e",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G01-AMENDMENT-2026-11-09-2026-11-09T10-34-20-072Z\\CHANGELOG.md"
+    },
+    {
+      "path": "README-FA.md",
+      "before": "4217f4ba1a6c1110ee1fea05f5a1ef5bae1a2c03adb55aa642546fce19ab5d83",
+      "after": "9ab9a5dacbf4439892f04fce1972ea9150cce2b744fd560b1cf435d802588294",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G01-AMENDMENT-2026-11-09-2026-11-09T10-34-20-072Z\\README-FA.md"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/amendment/CollateralAmendmentController.java",
+      "before": null,
+      "after": "185eb5609c50a317d34291a935ee78216f991de3bd694fd06e3579c5ed28eb62",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/amendment/CollateralAmendmentModels.java",
+      "before": null,
+      "after": "7d4875367186b41f7f492fb9534deabe6d0dbb26d8b49bb06aa85cbca66b7799",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/amendment/CollateralAmendmentPolicy.java",
+      "before": null,
+      "after": "8672ae64365bcbacc8b06b799eae44aaa9a60ada7adb597fce028794e68b69e5",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/amendment/CollateralAmendmentRepository.java",
+      "before": null,
+      "after": "d8e0278139b18e1920f513546e10b24d4f85d953451231e551a463c135c03f22",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/amendment/CollateralAmendmentService.java",
+      "before": null,
+      "after": "85d12c4c18dea7c44f0c25efdb60c2cfe0cf87b57d93eb8f7e7b46daa0e683e1",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/prototype/CltUnifiedPrototypeSecurityConfiguration.java",
+      "before": "8b651737d3a8c94096f74263a0f2b0543ca612e166624647799b878ca772c9f1",
+      "after": "4f259ab75effa265e5a8cacdd24ada9c588d76bc2dde1995c3fc4ab890577c33",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G01-AMENDMENT-2026-11-09-2026-11-09T10-34-20-072Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\prototype\\CltUnifiedPrototypeSecurityConfiguration.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+      "before": "56e9496d92983b8b19399a5c4158d443bdd29c7e18466a4936431f4360e12728",
+      "after": "3a0d95f0e4b8749da26aa4ce0b5773a01c52b16f8233e16cd446eebb84f7394a",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G01-AMENDMENT-2026-11-09-2026-11-09T10-34-20-072Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\registry\\CollateralRegistrySecurityConfiguration.java"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/amendment/CollateralAmendmentPolicyTest.java",
+      "before": null,
+      "after": "6e30993c41879771cf453e4e74d20dcc39a220d8efb785bfa48d5c93c4f811f7",
+      "saved": null
+    },
+    {
+      "path": "config/clt-unified-local.yml",
+      "before": "5743721d88c228f136af99759f9eba1f88f3b5efe3d6e55a8b99406c4f74890a",
+      "after": "d09a9a759717f49a934773cf0357c29a79773f1487cc4b4958ce54ec377381e8",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G01-AMENDMENT-2026-11-09-2026-11-09T10-34-20-072Z\\config\\clt-unified-local.yml"
+    },
+    {
+      "path": "database/clt/r2-g01-amendments/001_CREATE_AMENDMENT_REQUEST.sql",
+      "before": null,
+      "after": "29734f3a7f98d47f8b357ed83d87b78b3f1804c946a00365c6ee263233c387c2",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-R2-G01-AMENDMENT-2026-11-09-FA.md",
+      "before": null,
+      "after": "702787ecae6d86cff333e56a7a0ec1913b3767470232bfd88b02f45dd1f1848b",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-amendment-panel.component.html",
+      "before": null,
+      "after": "ae115c83701bdc3c2cf6c45aaecb877607f9dd50048187a56d25d310d98887d5",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-amendment-panel.component.scss",
+      "before": null,
+      "after": "622bacaee13d456906145f3f2ca4b3439e8e43be46084f4967ef3964a1ae7979",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-amendment-panel.component.ts",
+      "before": null,
+      "after": "dd26c6d981cf41d8be8b48bf490e33bb3cf9c1a917e88e7abe6eefcc55f0514b",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-amendment.service.ts",
+      "before": null,
+      "after": "04b5da436e047e7cc5e3ba6ac09e088dfd97705fffafffe88175aa1dff525cf3",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.html",
+      "before": "2e96868826b6379e02f85bf376b9c43d8bf00dce36dbbc35495fe7d5c8c7e0a5",
+      "after": "e0459c8779b2b9ab6b9e41ad83e0c41c713af8525b53e84fe0e1df1692f4ca6c",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G01-AMENDMENT-2026-11-09-2026-11-09T10-34-20-072Z\\frontend\\src\\app\\features\\collateral\\collateral-registry.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.ts",
+      "before": "f84bf42e127edeafc850baf48bfd0b284179fa1b21bc30500e907070226b791c",
+      "after": "0548c98a84a1b6a0092025c63615e28a7cc3d0d4588abf7ed2cbaa8049379b2f",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G01-AMENDMENT-2026-11-09-2026-11-09T10-34-20-072Z\\frontend\\src\\app\\features\\collateral\\collateral-registry.component.ts"
+    },
+    {
+      "path": "tools/clt/r2-g01-amendments/verify-source.cjs",
+      "before": null,
+      "after": "7e49d286e89accd1b56119665c44a07c9bfb175b28e7b7e7b839ac89f89acd21",
+      "saved": null
+    }
+  ],
+  "time": "2026-11-09T10:34:20.204Z"
+}

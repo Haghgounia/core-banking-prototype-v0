@@ -1,0 +1,98 @@
+{
+  "patch": "CLT-R2-G03-G12-SERIAL-RANGES-2026-11-09",
+  "project": "D:\\Projects\\core-banking-prototype-v0",
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G03-G12-SERIAL-RANGES-2026-11-09-2026-11-09T10-59-16-617Z",
+  "applied": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralCountabilityPolicy.java",
+      "before": null,
+      "after": "eb564a9a36f9e77325294f6f48fd4fa10e515f1e5687eb1a7fd655c9edc5840e",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionController.java",
+      "before": "6c7aecc3ee39733c5c0579b7cf4bb5d4d909c56ba11de77fe3370653213a313d",
+      "after": "af32865c5555740557614e835b05c0e15b1479754cfa6c19bf627ad2f5b2924b",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G03-G12-SERIAL-RANGES-2026-11-09-2026-11-09T10-59-16-617Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionModels.java",
+      "before": "c95bc54a6816496e7edca09806c528cc60a6ef7d037dfbf339c417bef32447e0",
+      "after": "b9d366dcd910784337333037d6f6f31d500afcaf9a8968576d08b33477f2a1ef",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G03-G12-SERIAL-RANGES-2026-11-09-2026-11-09T10-59-16-617Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionModels.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionRepository.java",
+      "before": "1577bef6d44f0fceb48a2a264fb10ad0c9166734c0422ec4da0e18c3931cb327",
+      "after": "5aeef39aa4c3ab40f6e4c9d099b3997ea7e1d09cb42a2e81662d0db40a861c2d",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G03-G12-SERIAL-RANGES-2026-11-09-2026-11-09T10-59-16-617Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionService.java",
+      "before": "155f3093af7435fae47dc173326cc656d775afd251401610c3721d9b21a9b4a7",
+      "after": "bfc52e6a9d9dbafb40a02ee289b3e2d2f28d08fc554f87d9378f1984ac186c7a",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G03-G12-SERIAL-RANGES-2026-11-09-2026-11-09T10-59-16-617Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionService.java"
+    },
+    {
+      "path": "database/clt/r2-g03-g12/00_READONLY_PRECHECK.sql",
+      "before": null,
+      "after": "dfc54fa69bcd02d3c8a32641f17106a68e6f3e9256755994c9881eca1e4fd2ad",
+      "saved": null
+    },
+    {
+      "path": "database/clt/r2-g03-g12/01_G12_FLAG_AND_G03_DRAFT_RANGES_DBA_OPT_IN.sql",
+      "before": null,
+      "after": "15a47d8888de86fc0e90fb2eb8983123c68f272421b57f17603c4d8662597a72",
+      "saved": null
+    },
+    {
+      "path": "database/clt/r2-g03-g12/02_G03_REGISTERED_RANGES_DBA_OPT_IN.sql",
+      "before": null,
+      "after": "af1e313225d98c8aed33b0c9f6ea16218c216fbebc5bdbe8d479ff583df8e7e0",
+      "saved": null
+    },
+    {
+      "path": "database/clt/r2-g03-g12/03_BACKFILL_EXISTING_DRAFT_RANGES_DBA_OPT_IN.sql",
+      "before": null,
+      "after": "17238c5c9d758d875e2161198a5c96f8e248edcdd3bfbcee9f2ac9b277e5adba",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-R2-G03-G12-IMPLEMENTATION-2026-11-09.md",
+      "before": null,
+      "after": "77be3ae5cb4504f4034a83ee1e14584e3a215563185d3b0d198dec0c8d69bc31",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.component.html",
+      "before": "fda0fc88ba6143bce6862e680391ce8ef2e5cffb12599eecd11840f3488512ab",
+      "after": "70ecbeece9af41bbacc9acb6387af752ebce41ee9e40e2565a8865cd1c32de01",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G03-G12-SERIAL-RANGES-2026-11-09-2026-11-09T10-59-16-617Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.component.ts",
+      "before": "c17db31b0df888f546e989d3c3d7cb5dd2de736eba0bb07460f0ff4ae7c685fc",
+      "after": "3bb0ae0ec5ad8598c8352eac62f2cd837ce39b319e94609bc6bef6da7addb06e",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G03-G12-SERIAL-RANGES-2026-11-09-2026-11-09T10-59-16-617Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.component.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.service.ts",
+      "before": "355178d54f48de19bc0f2ced11dad7a99bb8ead8b49a828a4ff1816e3ee712ec",
+      "after": "11176b526b04cdbfdd859f879a30f0efb672a4255a51a5a641ca461b1c2ba70c",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-G03-G12-SERIAL-RANGES-2026-11-09-2026-11-09T10-59-16-617Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.service.ts"
+    },
+    {
+      "path": "tools/clt/r2-g03-g12/PolicySmoke.java",
+      "before": null,
+      "after": "6a8b6484cacfcff2529d303138aeff413412656be68a80cf2d063d703abd6c81",
+      "saved": null
+    },
+    {
+      "path": "tools/clt/r2-g03-g12/verify-source.cjs",
+      "before": null,
+      "after": "5bdbfd0771aed2dd1ee8ae84acb7bd3b5870eb264577af4212c8d3e7e6781320",
+      "saved": null
+    }
+  ],
+  "time": "2026-11-09T10:59:16.731Z"
+}
