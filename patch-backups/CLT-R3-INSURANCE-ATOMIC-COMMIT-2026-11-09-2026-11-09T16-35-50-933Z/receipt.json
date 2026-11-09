@@ -1,0 +1,98 @@
+{
+  "marker": "CLT-R3-INSURANCE-ATOMIC-COMMIT-2026-11-09",
+  "root": "D:\\Projects\\core-banking-prototype-v0",
+  "baseline": "core-banking-prototype-v0-2026-11-09-R3-SPONSOR-ATOMIC-COMMIT-SOURCE.zip",
+  "installedAt": "2026-11-09T16:35:51.057Z",
+  "changed": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3InsuranceCommitPolicy.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "2588b444a530038f309d1a4025ce28df40cc6f3f9def77097c01e52045782dfc"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3InsuranceCommitService.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "1a8d735f1caccf5b94ed8306b56fa2897698f3e083bb7b41186eb92fb3612320"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowController.java",
+      "existed": true,
+      "baselineSha256": "3cb37e2dfc24c54699eca59d6eafce77c53af0fbaf6388833ae96f2cd33c43c1",
+      "payloadSha256": "0a68465289785cf0cbc849e692dadcd4574e4e72632291faaab00af42793b42d"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/workflow/CollateralR3InsuranceCommitPolicyTest.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "ddf307838b82f50867364fbcbbd78245c7a83690d9171129dd2c6aed8003bbe0"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-workflow.service.ts",
+      "existed": true,
+      "baselineSha256": "ff091e0f10aed8cee859fadd83b865ea898de039fc1c44a21bbf2961a651e04c",
+      "payloadSha256": "a692426a4ec1a55222e4f28a7ba110f54365321f1fb6a4820a1970b3bea8e6a0"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.ts",
+      "existed": true,
+      "baselineSha256": "2f7ed12b138310479217450f838cada7d9412c77d234720c35ca5f7292702597",
+      "payloadSha256": "77864345585653346d5e5200e8ac5f4412408365ab53ca4ea75f416f1f1b0aa0"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.html",
+      "existed": true,
+      "baselineSha256": "8757b5ce9e77e41b266a72dcef9747d613283deb50735316941c800d0a61a3ef",
+      "payloadSha256": "3c8b603ec02c3da60e347b896b42b4acc1e8b4b5b901f7009166c45df797ad30"
+    },
+    {
+      "path": "tools/clt/r3-insurance-commit/R3InsuranceCommitSmoke.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "cb118496c13d5e48e7fcef66f721638ca988a43dca757fb0d4d720ba9dc27fb1"
+    },
+    {
+      "path": "tools/clt/r3-insurance-commit/verify-source.cjs",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "93b6bde4a137cec95792101f182a161685ded21f9eeb7a05b5f4c39e6e8a5246"
+    },
+    {
+      "path": "database/oracle/clt/r3insurancepost/00_INSURANCE_POSTING_READONLY_DICTIONARY.sql",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "aef9251d002350daebcb77528ec5968c02dd4f7fa3a5cb63a80e5da303966d4e"
+    },
+    {
+      "path": "database/oracle/clt/r3insurancepost/01_INSURANCE_POSTING_SCHEMA_CANDIDATE_NOT_APPROVED.sql",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "38a90c9a6dc949c60883ec40dffed26a49266a2aba068df7e7899cb2a61ba450"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-INSURANCE-ATOMIC-COMMIT-CHECKPOINT-2026-11-09.md",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "bf274acc4f3aa3ccb58c0e15a1d7b88fe8f7df9c0e3a2f8affcd8d3bffa258e9"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-INSURANCE-TRANSACTION-CONTRACT-FA.md",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "ea6dea2bd240b56448c09e11a6d8c697603e95b303efba244bf5faefeb93bb6b"
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "existed": true,
+      "baselineSha256": "12e30c8957c1e1e14df4ab9e717e6417cde80e31ca183685ee7905e547e9307c",
+      "payloadSha256": "dd6c63c29913720fd211049195bfe67bfb6c008a52349a89eb221ac4dd0e09f2"
+    },
+    {
+      "path": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "existed": true,
+      "baselineSha256": "210a4625533e8e50962e7618cfd79f438bbe4ad2fc3d6a4b0de0467092c1172d",
+      "payloadSha256": "f2e21eb36915694dd7fa068168e9bbdf4d1432928bab37d7ace397198034d55e"
+    }
+  ]
+}

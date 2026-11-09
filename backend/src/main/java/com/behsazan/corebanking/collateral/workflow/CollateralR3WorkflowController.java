@@ -12,12 +12,15 @@ public class CollateralR3WorkflowController {
     private final CollateralR3WorkflowService workflow;
     private final CollateralR3PostingReadinessService posting;
     private final CollateralR3SponsorCommitService sponsorCommit;
+    private final CollateralR3InsuranceCommitService insuranceCommit;
     public CollateralR3WorkflowController(CollateralR3WorkflowService workflow,
             CollateralR3PostingReadinessService posting,
-            CollateralR3SponsorCommitService sponsorCommit) {
+            CollateralR3SponsorCommitService sponsorCommit,
+            CollateralR3InsuranceCommitService insuranceCommit) {
         this.workflow = workflow;
         this.posting = posting;
         this.sponsorCommit = sponsorCommit;
+        this.insuranceCommit = insuranceCommit;
     }
     public record Transition(String action, String expectedVersion, String reason) {}
 
@@ -53,6 +56,22 @@ public class CollateralR3WorkflowController {
             @RequestBody CollateralR3SponsorCommitPolicy.Command body,
             Authentication auth) {
         return sponsorCommit.commit(requestId, body, auth);
+    }
+    /** Bank-gated creation / renewal only. Cancellation is not silently inferred or applied. */
+    @GetMapping("/insurance/posting-activation")
+    public CollateralR3InsuranceCommitService.Activation insuranceActivation(Authentication auth) {
+        return insuranceCommit.activation(auth);
+    }
+    @GetMapping("/insurance/{requestId}/receipt")
+    public CollateralR3InsuranceCommitService.PostedEvidence insuranceReceipt(
+            @PathVariable String requestId, Authentication auth) {
+        return insuranceCommit.receipt(requestId, auth);
+    }
+    @PostMapping("/insurance/{requestId}/commit")
+    public CollateralR3InsuranceCommitPolicy.Receipt insuranceCommit(
+            @PathVariable String requestId,
+            @RequestBody CollateralR3InsuranceCommitPolicy.Command body, Authentication auth) {
+        return insuranceCommit.commit(requestId, body, auth);
     }
     @PostMapping("/{kind}/{requestId}/transition")
     public CollateralR3WorkflowService.StageRow transition(@PathVariable String kind,

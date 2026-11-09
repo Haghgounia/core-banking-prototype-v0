@@ -146,3 +146,15 @@
 - **G-05/G-11/G-09:** مسیر کد ثبت رابطه ضامن با `REVIEWED`, Revalidation و Oracle Ledger آماده است اما Approval واقعی و Migration اجرا نشده؛ وضعیت رسمی هر سه **OPEN**. ثبت رابطه ضامن برابر اعتبار ضامن برای تخصیص، گردش ابطال یا حداقل ضامن معتبر نیست.
 - **G-04/G-06/G-07/G-18:** هیچ Domain DML جدید برای بیمه یا ارزیابی فعال/ایجاد نشده؛ وضعیت **OPEN**.
 - تغییر شناسه، Gate یا نام R0..R7 انجام نشده است. مستند گام جدید: `CLT-R3-SPONSOR-ATOMIC-COMMIT-CHECKPOINT-2026-11-09.md`.
+
+
+## D-05 / R3 Insurance Atomic Create–Renew Candidate — 2026-11-09
+
+| Gap | پیشرفت در کد | شرط باقیمانده | وضعیت |
+|---|---|---|---|
+| G-04 | کنترل Rule مصوب `COLLATERAL_TYPE_ID × INSURANCE_TYPE_ID × CURRENCY_CODE × POLICY_REVISION` و حداقل مبلغ، در لحظه Commit | تعریف مجموعه پوشش‌های الزامی و کفایت برای Allocation در سطح بانک و تأیید Ruleهای واقعی | OPEN |
+| G-06 | مسیر CREATE/RENEW و حفظ ارتباط `PREVIOUS_INSURANCE_ID` با Replay و Audit تراکنش | چرخه Cancel/Revoke و اثر آن بر تخصیص، سوابق Append-only، قواعد جایگزینی | OPEN |
+| G-09 | اتصال Commit به Shared DataSource و الزام Release Integration و کنترل CIF/مالک در Revalidation | قرارداد و آزمون اعتبارسنجی بیمه‌گر خارجی | OPEN |
+| D-05 (جدید، فیزیکی/DBA) | قفل وثیقه و بررسی جانشین قبلی در سرویس وجود دارد | `COLLATERAL_INSURANCE.PREVIOUS_INSURANCE_ID` در مدل EA فقط Index غیریکتا دارد؛ برای جلوگیری از Race چند Writer، پس از تطبیق داده‌ها و تایید DBA قید Unique ضروری است | OPEN |
+
+**محدودیت:** در نبود Release مصوب، Schema Ledger/Rule و دو Unique معتبر Oracle، `insurance-enabled=false` و عملیات ثبت قطعی متوقف است. هیچ Gap با نصب سورس بسته اعلام نمی‌شود. **R3 ادامه دارد؛ R4 آغاز نشده است.**

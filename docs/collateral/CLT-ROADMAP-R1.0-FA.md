@@ -273,3 +273,11 @@
 ## R3 Sponsor Atomic Commit Candidate — Checkpoint 2026-11-09
 
 **فاز فعال R3** ثابت می‌ماند. پس از نصب موفق `CLT-R3-POSTING-PREFLIGHT`، مسیر تراکنشی مرحله‌ای ضامن تا جدول عملیاتی به‌صورت **کد قابل فعال‌سازی مشروط** پیاده‌سازی شد؛ Feature Flag و Bank Release همچنان غیرفعال/تأییدنشده‌اند. سند تفصیلی `CLT-R3-SPONSOR-ATOMIC-COMMIT-CHECKPOINT-2026-11-09.md` است. خروج فاز R3 و Gate G-05/G-11/G-09 اعلام نمی‌شود؛ بیمه/ارزیابی عملیاتی گام‌های بعد هستند. شاخه‌های R0..R7 بدون CR تغییر نکردند.
+
+
+## پیوست وضعیت R3 — کاندید ثبت/تمدید بیمه 2026-11-09
+
+- تحویل `CLT-R3-INSURANCE-ATOMIC-COMMIT-2026-11-09` به‌عنوان ادامه R3 (بدون تغییر فازهای R0..R7) کد ثبت اتمیک بیمه جدید/تمدیدی را از `REVIEWED` تا `COLLATERAL_INSURANCE` با Ledger و Receipt مجزا پیاده‌سازی می‌کند.
+- گیت `insurance-enabled=false` و بانک/DBA Release، Rule پوشش مصوب و Unique فیزیکی تمدید، قبل از DML اجباری هستند. این تحویل **هیچ عملیات قطعی فعال، Oracle Migration یا Approval جعلی** ندارد.
+- G-04/G-06/G-09 و D-05 همچنان **OPEN**؛ لغو و وضعیت اثربخش برای تخصیص پیاده‌سازی نشده است. ثبت ارزیابی R3 همچنان اولویت بعدی توسعه است.
+- شواهد: `CLT-R3-INSURANCE-ATOMIC-COMMIT-CHECKPOINT-2026-11-09.md` و `CLT-R3-INSURANCE-TRANSACTION-CONTRACT-FA.md`؛ QA در بسته نصب.
