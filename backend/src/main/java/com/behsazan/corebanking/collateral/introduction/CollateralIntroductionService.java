@@ -190,6 +190,15 @@ public final class CollateralIntroductionService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "CLT_INTRODUCTION_IDEMPOTENCY_CONFLICT");
         return previous;
     }
+    /** R2 operational worklist; this does not expose other makers or create final records. */
+    public DraftPage mine(Authentication authentication, int page, int size) {
+        Actor who = actor(authentication);
+        requireRead();
+        if (page < 0 || page > 1000 || size < 1 || size > 50)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CLT_DRAFT_PAGE_INVALID");
+        return repository.listMine(writer(), who.subject(), who.branch(), page, size);
+    }
+
     public Draft getDraft(Authentication authentication, String draftId) {
         Actor who = actor(authentication);
         requireRead();

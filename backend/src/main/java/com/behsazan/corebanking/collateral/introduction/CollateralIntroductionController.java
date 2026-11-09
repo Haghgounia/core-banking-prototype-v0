@@ -33,6 +33,13 @@ public final class CollateralIntroductionController {
         return service.createDraft(request, authentication, idempotencyKey, correlationId);
     }
 
+    @GetMapping("/mine")
+    DraftPage mine(@RequestParam(defaultValue = "0") int page,
+                   @RequestParam(defaultValue = "20") int size,
+                   Authentication authentication) {
+        return service.mine(authentication, page, size);
+    }
+
     @GetMapping("/{draftId}")
     Draft byId(@PathVariable String draftId, Authentication authentication) {
         return service.getDraft(authentication, draftId);

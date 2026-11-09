@@ -1,0 +1,68 @@
+{
+  "patch": "CLT-R2-INTRODUCTION-WORKLIST-2026-11-09",
+  "project": "D:\\Projects\\core-banking-prototype-v0",
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-INTRODUCTION-WORKLIST-2026-11-09-2026-11-09T09-09-11-147Z",
+  "applied": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionController.java",
+      "before": "5bc315b7681d2f6cbe86dddb4bb5064ff5bc8e527ebbf490d6246b0d82d5e3f0",
+      "after": "9cbb0fc6feaf890f0d16a314fa021d062b06ee2c2ead184612b9979f05e67b56",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-INTRODUCTION-WORKLIST-2026-11-09-2026-11-09T09-09-11-147Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionModels.java",
+      "before": "83d322bf878be5ef85dec4075cb6e2a070663ba3adbba29b6e3b653bc6e15975",
+      "after": "a56fdab34c841b6c003eb1e77c993873133012130b375154ed80fa9515d9e677",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-INTRODUCTION-WORKLIST-2026-11-09-2026-11-09T09-09-11-147Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionModels.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionRepository.java",
+      "before": "cd09e63f2f802436b2bb160269b833cb0715d2eb3f5bb334907361b7b7f7c5a5",
+      "after": "2bf126dff409dfc3ad781284769a58fad96ac6c0735cf6e1e6f9e50851200ee3",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-INTRODUCTION-WORKLIST-2026-11-09-2026-11-09T09-09-11-147Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionService.java",
+      "before": "a6d1a335e366e32d9f75d5de1e2894a948fb1e4a502e560d2435b7d2f949ebe3",
+      "after": "762a0a621c60038818bd816f4d9a5d1337ac07e03c168c2abb0032fcd1c7c853",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-INTRODUCTION-WORKLIST-2026-11-09-2026-11-09T09-09-11-147Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\introduction\\CollateralIntroductionService.java"
+    },
+    {
+      "path": "docs/collateral/CLT-R2-WORKLIST-IMPLEMENTATION-2026-11-09-FA.md",
+      "before": null,
+      "after": "0a3de3e0cf2d24569507f903d748f276a50a7a3448763737e8ce822e7f8a39fc",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.component.html",
+      "before": "49e04cc8a7252f986699eef7fb50d4a7e1862046ddcde603ea02de2b2731dac8",
+      "after": "5aabbcf3382d2356209b793e508011fa72bde3f5ab744ec4f3a741ad6e013d4b",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-INTRODUCTION-WORKLIST-2026-11-09-2026-11-09T09-09-11-147Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.component.scss",
+      "before": "f57971333435dcd10148daa65d01d354b33ffc530e804777587b91b859eb52dc",
+      "after": "fc1f2cea3c95e15b92c1475a14f4460504f3ae6e83e53f0b5f6a6d9dde2d4fc0",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-INTRODUCTION-WORKLIST-2026-11-09-2026-11-09T09-09-11-147Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.component.scss"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.component.ts",
+      "before": "a7995fc8dc1b8f542a8a45ebe059eacee6693ceec39ad02626083aaef50e3abf",
+      "after": "a5aa4a755b9498c2224dbc3df6d3310e464a33c31250d46b6f58ee0800590860",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-INTRODUCTION-WORKLIST-2026-11-09-2026-11-09T09-09-11-147Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.component.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-introduction.service.ts",
+      "before": "70e83ca89864bf40d80ac7091e9505533e1ec4b7208eb2107d41cfc265e02d1f",
+      "after": "dd1742a1c966bbb866bf47d0f6d891c33630643600527788a1f6f2deff084e85",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R2-INTRODUCTION-WORKLIST-2026-11-09-2026-11-09T09-09-11-147Z\\frontend\\src\\app\\features\\collateral\\collateral-introduction.service.ts"
+    },
+    {
+      "path": "tools/clt/r2-worklist/verify-source.cjs",
+      "before": null,
+      "after": "9b470afa281c9905e8c63fc8de4c24fb2ed578c7d5bae5a79cd6cc57d645b2a9",
+      "saved": null
+    }
+  ],
+  "time": "2026-11-09T09:09:11.266Z"
+}

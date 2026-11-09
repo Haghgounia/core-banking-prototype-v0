@@ -30,6 +30,11 @@ public final class CollateralIntroductionModels {
                         List<AttributeInput> attributes, String branchCode,
                         String createdAt, String recordVersion, String source,
                         String assetReference, List<SerialRangeInput> itemRanges) {}
+    /** Server-side bounded view of immutable drafts owned by the current maker and branch. */
+    public record DraftSummary(String draftId, String status, String partyId,
+                               String collateralTypeId, String estimateAmount,
+                               String currencyCode, String createdAt, String recordVersion) {}
+    public record DraftPage(List<DraftSummary> items, int page, int size, long totalElements) {}
     public record RegistrationReview(boolean eligibleForDraft, boolean eligibleForFinalRegistration,
                  List<String> draftBlockers, List<String> finalizationBlockers,
                  int serialRangeRows, String serialItemCount, String serialTotalAmountIRR,

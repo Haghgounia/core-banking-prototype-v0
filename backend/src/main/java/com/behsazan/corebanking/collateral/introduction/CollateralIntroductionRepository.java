@@ -2,6 +2,8 @@ package com.behsazan.corebanking.collateral.introduction;
 
 import com.behsazan.corebanking.collateral.introduction.CollateralIntroductionModels.AttributeInput;
 import com.behsazan.corebanking.collateral.introduction.CollateralIntroductionModels.Draft;
+import com.behsazan.corebanking.collateral.introduction.CollateralIntroductionModels.DraftPage;
+import com.behsazan.corebanking.collateral.introduction.CollateralIntroductionModels.DraftSummary;
 import com.behsazan.corebanking.collateral.introduction.CollateralIntroductionModels.SerialRangeInput;
 import com.behsazan.corebanking.collateral.introduction.CollateralIntroductionPolicy.Normalized;
 import com.behsazan.corebanking.collateral.reference.CollateralReferenceReaderPool;
@@ -116,6 +118,33 @@ public class CollateralIntroductionRepository {
                        CREATED_AT, RECORD_VERSION
                 """ + extras + " FROM CLT.CLT_INTRODUCTION_DRAFT ";
     }
+    /** Only own drafts, scoped by trusted server-side maker/branch; no user-supplied SQL filters. */
+    public DraftPage listMine(CollateralIntroductionWriterPool pool, String maker, String branch,
+                              int page, int size) {
+        int offset = Math.multiplyExact(page, size);
+        Long count = pool.jdbc().queryForObject("""
+                SELECT COUNT(*) FROM CLT.CLT_INTRODUCTION_DRAFT
+                 WHERE MAKER_SUBJECT = ? AND BRANCH_CODE = ?
+                """, Long.class, maker, branch);
+        List<DraftSummary> rows = pool.jdbc().query("""
+                SELECT DRAFT_ID, STATUS, PARTY_ID, COLLATERAL_TYPE_ID,
+                       ESTIMATE_AMOUNT, CURRENCY_CODE, CREATED_AT, RECORD_VERSION
+                  FROM CLT.CLT_INTRODUCTION_DRAFT
+                 WHERE MAKER_SUBJECT = ? AND BRANCH_CODE = ?
+                 ORDER BY CREATED_AT DESC, DRAFT_ID DESC
+                 OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+                """, (rs, rowNum) -> new DraftSummary(
+                    rs.getBigDecimal("DRAFT_ID").toPlainString(), rs.getString("STATUS"),
+                    rs.getBigDecimal("PARTY_ID").toPlainString(),
+                    rs.getBigDecimal("COLLATERAL_TYPE_ID").toPlainString(),
+                    rs.getBigDecimal("ESTIMATE_AMOUNT").stripTrailingZeros().toPlainString(),
+                    rs.getString("CURRENCY_CODE").strip(),
+                    rs.getTimestamp("CREATED_AT").toLocalDateTime().toString(),
+                    rs.getBigDecimal("RECORD_VERSION").toPlainString()),
+                maker, branch, offset, size);
+        return new DraftPage(List.copyOf(rows), page, size, count == null ? 0L : count);
+    }
+
     public Draft find(CollateralIntroductionWriterPool pool, String draftId,
                       String maker, String branch) {
         List<Draft> records = pool.jdbc().query(selectDraft(extended(pool))
