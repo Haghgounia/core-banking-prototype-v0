@@ -1,0 +1,74 @@
+{
+  "marker": "CLT-R3-LIFECYCLE-EVIDENCE-2026-11-09",
+  "root": "D:\\Projects\\core-banking-prototype-v0",
+  "baseline": "core-banking-prototype-v0-2026-11-09-R3-REVIEW-REVALIDATION-SOURCE.zip",
+  "installedAt": "2026-11-09T14:56:55.616Z",
+  "changed": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/lifecycle/CollateralR3LifecycleEvidencePolicy.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "5925a653e76588a66818ff1af73b3dc8d14e189723d499e9d8261065ca4b24c4"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/lifecycle/CollateralR3LifecycleEvidenceService.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "f9af9598dc4404f3d596aecf411204e0be3caf2e74bbb601497feaab5e091f98"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/lifecycle/CollateralR3LifecycleEvidenceController.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "44a15e14ef7bd7cc426c1b62bc30ad9060b6dfb84be908e23bb272f0b0cdee92"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/lifecycle/CollateralR3LifecycleEvidenceExceptionHandler.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "bdfaa00ad32e83f1dd707bd4fd2e74f0ec177bd5ed7943172ddf811278f5c61b"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/lifecycle/CollateralR3LifecycleEvidencePolicyTest.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "6d9218491755b1aee93801991f1e7d4e8cbcdec2e5756d87cc5633f9c902bf12"
+    },
+    {
+      "path": "tools/clt/r3-lifecycle/R3LifecycleSmoke.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "863604717c9fa4c243587baa1a49e32228fb837c9c1daf004d4c4bdd77950a20"
+    },
+    {
+      "path": "tools/clt/r3-lifecycle/verify-source.cjs",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "6321ba2779f3b245a3263a7bd3911ab02342cd46480ff0d586ac2786c0d91ed5"
+    },
+    {
+      "path": "tools/clt/r3-lifecycle/run-smoke.sh",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "2f781180a53256d4b5d661334b38907659f15cfde59a73a988aa8921c9cd04ee"
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "existed": true,
+      "baselineSha256": "aeedc35b0f484ace991876b6bea3852c5a04aa32de6872be9d1726963bef5c60",
+      "payloadSha256": "ece2e3c3a2608aad804d4da1d1f18217cdbff3b5f8309f6d7011f54e1d98b423"
+    },
+    {
+      "path": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "existed": true,
+      "baselineSha256": "1ac6d2e7706d038f5b1d12ce3d4d3508ae28614840ad79d7e5149f940f07e04e",
+      "payloadSha256": "385192bf0ffaf7755235e03b90a19af7b5a211ec8337d8e58e044ace71ebe372"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-LIFECYCLE-EVIDENCE-CHECKPOINT-2026-11-09.md",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "73a2a048755150c76fa6e285975f0f54c8d21ed9d5c8c44a4c26c33549046582"
+    }
+  ]
+}

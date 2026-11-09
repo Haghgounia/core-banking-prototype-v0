@@ -178,42 +178,9 @@ public final class CollateralR3WorkflowService {
         return rows.getFirst();
     }
     private String payloadDigest(Kind kind, BigDecimal id, String collateralId) {
-        // Recreate the identical normalized canonical payload from the Oracle Stage row,
-        // not from browser-supplied fields, and compare with immutable creation evidence.
         Map<String,Object> source = jdbc.queryForMap("SELECT * FROM " + table(kind)
                 + " WHERE " + kind.idColumn + " = ?", id);
-        return switch (kind) {
-            case SPONSOR -> {
-                var candidate = CollateralSponsorPolicy.candidate(n(source.get("PARTY_ID")),
-                        s(source.get("DEPOSIT_NUMBER")), s(source.get("JUSTIFICATION")));
-                yield CollateralSponsorPolicy.digest(collateralId + "\u001f" + candidate.canonical());
-            }
-            case INSURANCE -> {
-                var request = new CollateralInsuranceModels.CandidateRequest(
-                        s(source.get("INSURER_CODE")), n(source.get("INSURANCE_COMPANY_ID")),
-                        n(source.get("COLLATERAL_INSURANCE_TYPE_ID")), s(source.get("DEPOSIT_NUMBER")),
-                        s(source.get("INSURANCE_NUMBER")), n(source.get("INSURANCE_AMOUNT")),
-                        n(source.get("INSURANCE_RECEIVED_AMOUNT")), n(source.get("TAX_AMOUNT")),
-                        day(source.get("VALID_FROM")), day(source.get("VALID_TO")),
-                        n(source.get("PREVIOUS_INSURANCE_ID")), s(source.get("CURRENCY_CODE")),
-                        s(source.get("JUSTIFICATION")));
-                var candidate = CollateralInsurancePolicy.candidate(request);
-                yield CollateralInsurancePolicy.digest(collateralId + "\u001f" + candidate.canonical());
-            }
-            case VALUATION -> {
-                var request = new CollateralValuationModels.CandidateRequest(
-                        s(source.get("VALUATION_TYPE_CODE")), s(source.get("VALUATION_METHOD_CODE")),
-                        day(source.get("VALUATION_DATE")), n(source.get("VALUATION_AMOUNT")),
-                        s(source.get("CURRENCY_CODE")), n(source.get("FORCED_SALE_VALUE")),
-                        n(source.get("ELIGIBLE_VALUE")), n(source.get("HAIRCUT_PERCENT")),
-                        n(source.get("VALUER_PARTY_ID")), s(source.get("VALUER_NAME")),
-                        s(source.get("VALUATION_REFERENCE")), day(source.get("EFFECTIVE_FROM")),
-                        day(source.get("EFFECTIVE_TO")), n(source.get("SUPERSEDES_VALUATION_HISTORY_ID")),
-                        s(source.get("JUSTIFICATION")));
-                var candidate = CollateralValuationPolicy.normalize(request);
-                yield CollateralValuationPolicy.digest(collateralId + "\u001f" + candidate.canonical());
-            }
-        };
+        return CollateralR3StageFingerprint.digest(kind, collateralId, source);
     }
     private void validateForStageDecision(Kind kind, String collateralId, BigDecimal id,
             Action action, Authentication auth) {

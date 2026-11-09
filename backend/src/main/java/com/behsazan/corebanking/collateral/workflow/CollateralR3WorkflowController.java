@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/collaterals/r3-workflow")
 public class CollateralR3WorkflowController {
     private final CollateralR3WorkflowService workflow;
-    public CollateralR3WorkflowController(CollateralR3WorkflowService workflow) {
+    private final CollateralR3PostingReadinessService posting;
+    public CollateralR3WorkflowController(CollateralR3WorkflowService workflow,
+            CollateralR3PostingReadinessService posting) {
         this.workflow = workflow;
+        this.posting = posting;
     }
     public record Transition(String action, String expectedVersion, String reason) {}
 
@@ -24,6 +27,12 @@ public class CollateralR3WorkflowController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size, Authentication auth) {
         return workflow.pending(kind, page, size, auth);
+    }
+    /** Non-mutating posting preflight for an Oracle Stage request; never grants final DML. */
+    @GetMapping("/{kind}/{requestId}/posting-readiness")
+    public CollateralR3PostingReadinessPolicy.Readiness postingReadiness(@PathVariable String kind,
+            @PathVariable String requestId, Authentication auth) {
+        return posting.inspect(kind, requestId, auth);
     }
     @PostMapping("/{kind}/{requestId}/transition")
     public CollateralR3WorkflowService.StageRow transition(@PathVariable String kind,

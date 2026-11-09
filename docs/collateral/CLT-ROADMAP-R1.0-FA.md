@@ -252,3 +252,19 @@
 - برای هر سه دامنه ضامن/بیمه/ارزیابی، پیش از انتقال مثبت `REVIEW` قواعد زمان‌حال Oracle/CIF با Scope مستقل Reviewer دوباره اعتبارسنجی می‌شوند؛ Submit همچنان با Scope Maker بررسی می‌شود. REJECT/WITHDRAW بدون نیاز به معتبر بودن مجدد نامزد امکان‌پذیر می‌مانند.
 - **گیت بسته نشده:** G-04/05/06/07/09/11/18 و Migration Stage، ثبت نهایی و سیاست عملیاتی همچنان OPEN هستند؛ R2/G-14/G-17 نیز باز باقی مانده‌اند.
 - وضعیت تحویل در [CLT-R3-REVIEW-REVALIDATION-CHECKPOINT-2026-11-09.md](CLT-R3-REVIEW-REVALIDATION-CHECKPOINT-2026-11-09.md) ثبت است. UAT جامع R6 در پایان توسعه انجام می‌شود.
+
+
+## R3 — Checkpoint شواهد تجمیعی بدون ثبت قطعی (2026-11-09)
+
+- **نصب بسته قبلی `CLT-R3-REVIEW-REVALIDATION-2026-11-09` توسط کاربر موفق تأیید شد.** آخرین سورس مرجع توسعه در این تحویل، همان سورس حاصل از نصب آن بسته است، نه ZIP قدیمی `1720`.
+- بسته `CLT-R3-LIFECYCLE-EVIDENCE-2026-11-09` یک API خواندنی تجمیعی برای شواهد ضامن/بیمه/ارزیابی از **DataSource مشترک** اضافه می‌کند؛ داده‌های ثبت‌شده را معادل تأیید بانکی نمی‌داند و `eligibleForNewAllocation=false` را ثابت نگه می‌دارد.
+- **R3 فعال و باز است**؛ G-04/05/06/07/09/11/18، مدل چرخه عمر، Migration مصوب Oracle و آزمون زنده هنوز بازند. R0..R7 ثابت و R6/UAT جامع همچنان موکول به پایان توسعه است.
+- جزئیات: [Checkpoint R3 Lifecycle Evidence](CLT-R3-LIFECYCLE-EVIDENCE-CHECKPOINT-2026-11-09.md).
+
+
+## R3 — کنترل پیش‌بررسی ثبت قطعی پس از شواهد Lifecycle (2026-11-09)
+
+- **نصب موفق `CLT-R3-LIFECYCLE-EVIDENCE-2026-11-09` توسط کاربر تأیید شد.** مبنای بسته بعدی همین سورس نصب‌شده است.
+- تحویل `CLT-R3-POSTING-PREFLIGHT-2026-11-09` روی هر درخواست Stage API و نمایش «آمادگی ثبت قطعی فقط شواهد» اضافه می‌کند؛ Fingerprint و Audit و عدم تکرار فیزیکی و تغییر ارزیابی مرجع بررسی می‌شود.
+- نتیجه تکنیکی هرگز اجازه DML نیست؛ `finalPostingEnabled=false` و `policyApproved=false` حتی با کنترل‌های موفق. G-04/G-05/G-06/G-07/G-09/G-11/G-18 و Migration و UAT زنده **OPEN** می‌مانند.
+- مستند جدید: [Checkpoint پیش‌بررسی R3](CLT-R3-POSTING-PREFLIGHT-CHECKPOINT-2026-11-09.md) و [ماتریس تصمیم ثبت قطعی](CLT-R3-POSTING-DECISION-MATRIX-FA.md). R0..R7 بدون تغییر است؛ R4/R5 و UAT جامع R6 وارد فاز اجرا نشده‌اند.

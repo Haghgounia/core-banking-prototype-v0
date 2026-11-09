@@ -113,3 +113,28 @@
 - G-07/G-18: مرجع و اشاره‌گر ارزیابی جاری در لحظه بازبینی مجدداً بررسی می‌شود؛ وضعیت `FINAL` قطعی و قاعده تناوب/اعتبار **OPEN** است.
 - G-09: وابستگی به CIF/Oracle هنگام `REVIEW` به‌صورت Fail-closed باقی است. امنیت Enterprise و اتصال عملیاتی کامل **OPEN** است.
 - موفقیت نصب سورس به معنی اجرا/تأیید Migration، اوراکل زنده، UAT یا بسته‌شدن شکاف نیست. جزئیات: [Checkpoint](CLT-R3-REVIEW-REVALIDATION-CHECKPOINT-2026-11-09.md).
+
+
+## R3 Lifecycle Evidence — وضعیت توسعه 2026-11-09
+
+**نصب موفق پیش‌نیاز:** `CLT-R3-REVIEW-REVALIDATION-2026-11-09` (اعلام کاربر). کد خواندنی جدید `CLT-R3-LIFECYCLE-EVIDENCE-2026-11-09` داده‌های زیر را بدون استنتاج اعتبار قطعی منتشر می‌کند:
+
+| Gap | شواهد کدنویسی‌شده | مانع و وضعیت رسمی |
+|---|---|---|
+| G-04/G-06 | پرچم INSURABLE و تعداد تمام بیمه‌نامه‌های ثبت‌شده از Oracle | پوشش الزام‌آور، وضعیت تأیید/لغو و Renewal Audit همچنان **OPEN** |
+| G-05/G-11 | پرچم SPONSOR_REQUIRED و تعداد تمام ضامن‌های ثبت‌شده از Oracle | حداقل ضامنین معتبر و گردش تأیید/لغو همچنان **OPEN** |
+| G-07 | وجود ارزیابی جاری، وضعیت فیزیکی FINAL و مقدارهای Effective | قواعد تأیید و Actor/Role مصوب **OPEN** |
+| G-18 | نمایش تنها دوره Effective ثبت‌شده، بدون ساخت سررسید تجدید ارزیابی | Appraisability، تناوب/واحد و Business Date بانک **OPEN** |
+| G-09 | API خواندنی مشترک با branch-scope، بدون اتصال خارجی جدید | Party/Insurer/FX و گیت عملیاتی **OPEN** |
+
+**ممنوعیت استنتاج:** `recordedRows` برای ضامن یا بیمه معادل `validCount` نیست؛ وضعیت `FINAL` یا `WITHIN_RECORDED_EFFECTIVE_PERIOD` تأیید تخصیص نیست. هیچ Migration، DML روی جدول قطعی یا Feature Flag فعال نشده است. مسیر فازها بدون تغییر می‌ماند.
+
+
+## R3 Stage-to-Domain Posting Preflight — کنترل پیش از ثبت قطعی (2026-11-09)
+
+- برای **G-05/G-11** ثبت ضامن واقعی در Stage `REVIEWED`، Audit و Fingerprint و نبود تکرار جدول اصلی قابل بررسی شد؛ اما مدل لغو/تأیید و حداقل معتبر **OPEN** است.
+- برای **G-04/G-06** کنترل یکتایی بیمه‌گر/شماره و رویداد بازبین Stage اضافه شد؛ سیاست پوشش، تأیید/تمدید/لغو اصلی **OPEN** است.
+- برای **G-07/G-18** تطبیق اشاره‌گر ارزیابی با Supersedes و احتمال تکرار Reference اضافه شد؛ سیاست FINAL/تجدید ارزیابی/Business Date **OPEN** است.
+- برای **G-09** خواندن شواهد در یک SELECT از DataSource مشترک و Branch Principal انجام می‌شود؛ Integration و نقش‌های ثبت قطعی **OPEN** هستند.
+- تأیید کاربر صرفاً **نصب موفق Lifecycle Evidence** است. Preflight جدید هنوز روی Oracle بانک/UAT تأیید نشده و `policyApproved=false` / `finalPostingEligible=false` باقی می‌ماند.
+- تصمیم‌های لازم، مالکیت و کنترل اتمیک در [CLT-R3-POSTING-DECISION-MATRIX-FA.md](CLT-R3-POSTING-DECISION-MATRIX-FA.md) ثبت شدند؛ هیچ تصمیم به جای بانک تصویب یا هیچ Migration خودکار اجرا نشده است.
