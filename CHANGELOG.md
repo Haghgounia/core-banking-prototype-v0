@@ -1,3 +1,10 @@
+## CLT-R3 Stage Workflow — 2026-11-09
+- Source baseline: user full ZIP 2026-11-09 16:18, successful R3 HF2 installation confirmed.
+- Three R3 Stage request streams: maker submit/withdraw, independent reviewer screen/reject, atomic status/version/Audit.
+- Unified loopback DataSource POST allowlist for staging only; no IAM modification, no final collateral-domain mutations.
+- One shared Angular worklist; insurer, sponsor, valuation panel HTML preserved unchanged.
+- Versioned roadmap and gap register, fail-closed unapproved Oracle migration candidate; UAT deferred.
+
 ## IAM-R1.9 / S1B-RO3 / REPAIR3 - 2026-11-03
 - Corrected Spring signed HTTP laboratory setup: test-owned real NimbusJwtDecoder with ephemeral RSA public key and direct invocation of the unmodified production SecurityFilterChain method. Eliminated @MockitoBean registration-time failure.
 - Added fail-closed verification of the test bean wiring; production IAM, UI, database and API enablement remain unchanged.

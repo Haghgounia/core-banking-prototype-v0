@@ -94,3 +94,12 @@
 - HF1 failed precheck because the installed sponsor and valuation HTML differed from the package's hash allowlist. The program files were not changed.
 - HF2 adds protected append-only Stage-worklist insertion to the sponsor and valuation forms, alongside the pre-existing safe merge for the insurer form. No unrelated form content may be overwritten.
 - This packaging correction closes **no business gap**. G-04/G-05/G-06/G-07/G-09/G-11/G-14/G-17 stay OPEN; R3 staging Oracle prerequisites and final approval workflows remain pending.
+
+## R3 Stage Workflow — پیشرفت سورس 2026-11-09
+
+- G-05/G-11: Maker Submit/Withdraw و Reviewer Screening/Reject در Stage ضامن پیاده‌سازی شد؛ سیاست رسمی حداقل ضامن، تأیید/لغو قطعی و انتقال به جدول عملیاتی همچنان **OPEN**.
+- G-04/G-06: همین گردش Stage برای بیمه‌نامه، بدون ایجاد/تمدید/لغو بیمه مؤثر؛ شرایط اجباری، دامنه بیمه و بیمه‌گر مصوب **OPEN**.
+- G-07/G-18: همین گردش Stage برای ارزیابی؛ کد قطعی `FINAL`، تأیید ارزش و تناوب انقضا **OPEN**.
+- G-09: مسیرهای درخواست محلی در Security Chain مشترک مجاز و Backend محدود به Stage؛ اتصال/احراز Enterprise و قراردادهای مصرف‌کننده همچنان **OPEN**.
+- DATA: SQL تغییر Status Check و Event Reason فقط کاندید Fail-Closed و خارج از مدل EA مصوب است. هیچ DDL خودکار یا داده قطعی ایجاد نمی‌شود.
+- آخرین خط مبنای واقعی سورس: `core-banking-prototype-v0-2026-11-09-1618.zip`؛ تأیید نصب HF2 توسط کاربر. جزئیات [Checkpoint](CLT-R3-STAGE-WORKFLOW-CHECKPOINT-2026-11-09.md).

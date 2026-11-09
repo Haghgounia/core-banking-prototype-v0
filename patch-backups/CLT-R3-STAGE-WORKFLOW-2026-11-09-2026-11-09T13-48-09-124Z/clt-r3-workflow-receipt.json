@@ -1,0 +1,122 @@
+{
+  "patch": "CLT-R3-STAGE-WORKFLOW-2026-11-09",
+  "project": "D:\\Projects\\core-banking-prototype-v0",
+  "backup": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z",
+  "applied": [
+    {
+      "path": "CHANGELOG.md",
+      "before": "7dee619ae503dbbe1580e3be2b1a55032c653d15de947b7dc1f8df7c0be8720e",
+      "after": "77f4178d9c38ba47f8a0799d080e507945d511ba6a147ed102a8a71deac2107f",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z\\CHANGELOG.md"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/prototype/CltUnifiedPrototypeSecurityConfiguration.java",
+      "before": "4f259ab75effa265e5a8cacdd24ada9c588d76bc2dde1995c3fc4ab890577c33",
+      "after": "e1221b363095eb049e547b1b453f470ce14b2efabe0c75b751f014b92bddc74d",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z\\backend\\src\\main\\java\\com\\behsazan\\corebanking\\collateral\\prototype\\CltUnifiedPrototypeSecurityConfiguration.java"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowController.java",
+      "before": null,
+      "after": "76e19ee7104c5417db2c3a5faa3275aa8c791b61dd95b7fb1ec516156d294b0a",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowExceptionHandler.java",
+      "before": null,
+      "after": "4c3cf19f923a01ddf57341172ddb30615c53e8e6a57b2500e185a28ea5444b53",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowPolicy.java",
+      "before": null,
+      "after": "eeffca5d5495eafef2dc1170b46c0d05b42a1efbb16e93f5a8b0b2d4aeb03556",
+      "saved": null
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowService.java",
+      "before": null,
+      "after": "d8447b1eaf5c65905e651dcf5d70b7bcd033fe739a830a05bae4ce7636c2c53c",
+      "saved": null
+    },
+    {
+      "path": "database/oracle/clt/r3workflow/01_R3_STAGE_TRANSITIONS_CANDIDATE_NOT_APPROVED.sql",
+      "before": null,
+      "after": "3ef177446cecc8ec906ea4bdcaffbdffc07f033af0382b0c8fb59eb28205ec6f",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "before": "96c407d503e32b2471bc3ed36f9651552287be2a2743b5f118eb3b84b5b49e37",
+      "after": "4bb348debb453fa597bc73b87da6bdb1d6b342149eb23fca33b75b2114d58b09",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z\\docs\\collateral\\CLT-GAP-REGISTER-R1.0-FA.md"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-STAGE-WORKFLOW-CHECKPOINT-2026-11-09.md",
+      "before": null,
+      "after": "814d2cc3d6cc0bcd4e2340536b079c6fe4c5e332a2d4e5d5cf59b767272dc048",
+      "saved": null
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "before": "d570fdf56d74bdc29110edfcef1b20286db9cfb9c4a1598425ab3a3f8edb2a2b",
+      "after": "69ecd2e293b127454418aae45739394ce61bc9b932f707cc727eb697afc54ebb",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z\\docs\\collateral\\CLT-ROADMAP-R1.0-FA.md"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-insurance.service.ts",
+      "before": "159114572bc8e643ec98579f57a1cee1f7ec8a62442d6aa5b54df59e076bf4b4",
+      "after": "f0270f2d8b569ff5332e4c11a64bb42077dd79782c17df6c2b0cae8d0a686107",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z\\frontend\\src\\app\\features\\collateral\\collateral-insurance.service.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.html",
+      "before": "7edb22975123ffb5db8760bad33ffd435cb07371b777fd9e393d199ba541cb90",
+      "after": "84a378c9c53b3d5f31997d804708da3dc09eeef1f48fb84f4a221e6a71b4070a",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z\\frontend\\src\\app\\features\\collateral\\collateral-r3-draft-worklist.component.html"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.scss",
+      "before": "0062c3b71a828019f378f66f776a607d7fe2102b5a323e6c1f22c309561b36e8",
+      "after": "788c0b95df4b05183605dc705176aa048516dafcd133f48923c522833e9f1844",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z\\frontend\\src\\app\\features\\collateral\\collateral-r3-draft-worklist.component.scss"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.ts",
+      "before": "44f4d34f34fc8a014038061e5b84279d15b9cd558d600eabde9d04b96dba13cb",
+      "after": "f2e107e8b42c164c4f11989265cc87adf76f989be04ad0f2d58bf3b600f5acab",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z\\frontend\\src\\app\\features\\collateral\\collateral-r3-draft-worklist.component.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-workflow.service.ts",
+      "before": null,
+      "after": "1915c0be2d857cf61cc600012f4d4d678def60a39ed5ad35c08b5cabb121a7fd",
+      "saved": null
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-sponsor.service.ts",
+      "before": "7787d0ecc507c202f01c3e5703132821f0be2ac93255feb94a00fe0dd3e69720",
+      "after": "483e7bdfe2328bd1af426bd4fe6c33de396508b339190c221b1d27f1a5409cfd",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z\\frontend\\src\\app\\features\\collateral\\collateral-sponsor.service.ts"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-valuation.service.ts",
+      "before": "e689046a5fc50622c02b54b36a11b23001374b53eb12b1c8f565b10c47b6c6ad",
+      "after": "d12058df5bf2d1304e1bb16e8ad896af7c7106a0d1e8d8c2a4eec8c11f352910",
+      "saved": "D:\\Projects\\core-banking-prototype-v0\\patch-backups\\CLT-R3-STAGE-WORKFLOW-2026-11-09-2026-11-09T13-48-09-124Z\\frontend\\src\\app\\features\\collateral\\collateral-valuation.service.ts"
+    },
+    {
+      "path": "tools/clt/r3-workflow/WorkflowPolicySmoke.java",
+      "before": null,
+      "after": "ce9802dd9b71b9a21297e0dfe8ff3b3e6fc0d24572dfe393710332895f7b7091",
+      "saved": null
+    },
+    {
+      "path": "tools/clt/r3-workflow/verify-source.cjs",
+      "before": null,
+      "after": "306c734f0f36228138a36343b5d09091b74fe0f9565794740d3774a97cd55ff6",
+      "saved": null
+    }
+  ],
+  "time": "2026-11-09T13:48:09.236Z"
+}

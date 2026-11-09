@@ -31,7 +31,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /**
  * Local-only CLT prototype bridge. JWT is NOT supplied or required by the browser.
  * Legacy read services still consume an internally generated principal; no IAM API is affected.
- * Only allowlisted reference DML and no-write business previews are exposed.
+ * Only allowlisted reference and R3 Stage DML are exposed; no final-domain mutation is exposed.
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(prefix = "core-banking.collateral.prototype", name = "enabled", havingValue = "true")
@@ -66,6 +66,13 @@ public class CltUnifiedPrototypeSecurityConfiguration {
                 // G-01: request journal only; independent decision still enforced server-side.
                 .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/amendments").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/amendments/*/decision").permitAll()
+                // R3: Stage request writes use the shared Oracle DataSource, never final tables.
+                // Domain services still check branch, local actor, policies and Stage readiness.
+                .requestMatchers(HttpMethod.POST,
+                        "/api/v1/collaterals/*/sponsors/requests",
+                        "/api/v1/collaterals/*/insurance-policies/requests",
+                        "/api/v1/collaterals/*/valuations/requests",
+                        "/api/v1/collaterals/r3-workflow/*/*/transition").permitAll()
                 // Draft-only staging table, never CLT.COLLATERAL or final registration.
                 .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/introduction-drafts").permitAll()
                 // POST allowlist: these methods are business validation/preview only, no permanent CLT DML.

@@ -234,3 +234,13 @@
 - Canonical phase plan **R0 through R7 is unchanged**; this is an installer-compatibility correction, not a new R3 domain feature or proof of runtime readiness.
 - R3 Stage write prerequisites, database migrations, final registration and G-04/G-05/G-06/G-07/G-09/G-11/G-14/G-17 remain **OPEN**. User UAT is deferred until the end of development.
 - Delivery evidence: [CLT-R3-HF2-THREE-PANEL-MERGE-CHECKPOINT-2026-11-09.md](CLT-R3-HF2-THREE-PANEL-MERGE-CHECKPOINT-2026-11-09.md).
+
+## Checkpoint اجرایی 2026-11-09 — R3 / Stage Workflow مشترک
+
+**آخرین نصب موفق تأییدشده توسط کاربر:** `CLT-R3-SHARED-DATASOURCE-INTAKE-HF2-2026-11-09`؛ **مبنای نسخه کامل سورس:** `core-banking-prototype-v0-2026-11-09-1618.zip`.
+
+- **R0 تا R7 بدون تغییر در عنوان، ترتیب یا معیار خروج:** R2 همچنان دارای G-14/G-17 و Migrationهای باز؛ R3 در حال پیاده‌سازی؛ UAT جامع R6 و گیت عملیاتی R7 در انتهای توسعه.
+- سه درخواست Stage R3 اکنون دارای کد گردش `DRAFT/SUBMITTED/REVIEWED/REJECTED/WITHDRAWN` و رویداد Audit، کنترل هم‌زمانی و بازاعتبارسنجی Maker هستند؛ Reviewer مستقل با ثبت‌کننده یکی نیست.
+- در محیط محلی فقط مسیر POST **Stage** در همان Security Chain مجاز شده، نه ثبت قطعی. سه فایل HTML سفارشی ضامن/بیمه/ارزیابی هیچ تغییر ندارند.
+- SQL نمونه وضعیت/رویداد و فیلد دلیل، فقط Candidate با Guard اجرا-نشدنی است؛ اجرای DBA، Oracle Live و UAT تأیید نشده‌اند. هیچ Gap عملیاتی G-04/G-05/G-06/G-07/G-09/G-11/G-14/G-17/G-18 بسته نشده است.
+- سند اجرایی: [CLT-R3-STAGE-WORKFLOW-CHECKPOINT-2026-11-09.md](CLT-R3-STAGE-WORKFLOW-CHECKPOINT-2026-11-09.md).
