@@ -307,3 +307,8 @@
 - Permanent Java/Angular identifiers move from R3-named to domain-named; canonical workflow API has legacy alias. Old files are removed by guarded installer. Business forms preserved.
 - Both Stage flags default off; DBA SQL candidate does not run in install. No Oracle, Maven/Angular full build or UAT acceptance claimed.
 - See [BUC Delivery Checkpoint](CLT-USECASE-DELIVERY-CHECKPOINT-2026-11-10.md) and [Naming ADR](CLT-STABLE-DOMAIN-NAMING-2026-11-10-FA.md). Next developer task: continue true BUC09/BUC10 domain posting only after validated bank domain & concurrency decisions; BUC11/12 and other BUCs are tracked to end-to-end acceptance.
+
+
+### Checkpoint BUC11 — 2026-11-10
+
+مسیر کدنویسی ثبت نهایی وضعیت/تاریخچه/Permit آزادسازی به R5 افزوده شد؛ پذیرش Oracle و مصوبات G-20/G-21/G-22 باز است. این Checkpoint نام، ترتیب یا معیار خروج فازهای R0 تا R7 را تغییر نمی‌دهد. مستند: `CLT-BUC11-FINAL-RELEASE-POSTING-2026-11-10.md`.

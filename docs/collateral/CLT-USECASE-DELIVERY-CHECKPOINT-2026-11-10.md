@@ -16,7 +16,7 @@
 | 08 | ارزیابی و تجدید ارزیابی | Stage and conditional valuation FINAL/renewal candidate | valuer policy, cadence, migration and Oracle UAT | PARTIAL |
 | 09 | درخواست تخصیص وثیقه | **NEW** analyst-staged request POST/receipt/journal through shared DataSource in local prototype, with idempotency, debtors and branch checks | Consumer attestation, approved CLT MODULE_ID, policy, serializable capacity lock and **final allocation to CLT.COLLATERAL_ALLOCATION** | PARTIAL – Stage-only |
 | 10 | رفع تخصیص برای یک تعهد | **NEW** branch-limited analyst Stage submit/cancel with optimistic version and audit; Stage only | Consumer owner instruction/attestation, approved mapping, real `USED`/capacity finalization and Oracle UAT | PARTIAL – Stage-only |
-| 11 | آزادسازی نهایی وثیقه | R5 read-only evidence and preview exists; unchanged by this patch | bank legal-hold and ownership policy, all obligations removed, status history + final state mutation | NOT IMPLEMENTED for final effect |
+| 11 | آزادسازی نهایی وثیقه | **BUC11 new**: bank-permit-gated Oracle atomic final status/history/receipt source implementation; UI conditional commit + replay. Existing preview retained | DBA-approved permit schema and issuer, approved status mapping, lock protocol, live Oracle tests/UAT | IMPLEMENTED IN SOURCE; OPERATIONAL GATE OPEN |
 | 12 | معرفی مجدد دارایی آزادشده | history and uniqueness preflight foundations | approved reintroduction identity/registration, BUC11 final state, G-14 | NOT IMPLEMENTED end-to-end |
 | 13 | استعلام مستقیم با شماره انتظامی | direct lookup UI/API | identity uniqueness and G-17 authoritative numbering/UAT | PARTIAL |
 | 14 | پایش کسری پوشش | capacity/shortfall snapshots and report previews | bank minimum policy, insured/valued/current/allocated facts, operational scheduler | PARTIAL |
@@ -45,3 +45,7 @@
 ## Next engineering slice / exit criterion
 
 Implement the **approved consumer obligation adapter and true atomic allocation with capacity lock** (R4 / BUC09) after bank-domain ownership and Oracle schema facts are confirmed; then **real unallocation** (R5 / BUC10), **final collateral release** (R5 / BUC11), **reintroduction** (BUC12), and remaining BUC01..16 to complete verified UAT. Track per-BUC independently; do not redefine or rename the canonical R0..R7 phases.
+
+## BUC11 continuation (2026-11-10)
+
+The new BUC11 bank-permit-gated *final posting code* is in `collateral/release/CollateralReleasePostingService.java`. Unlike R5C read-only preflight, it contains atomic DML for `CLT.COLLATERAL` and `CLT.COLLATERAL_STATUS_HISTORY`, durable permit consumption and replay. The operation is default-disabled and requires a bank-approved auxiliary permit table; the default local prototype authentication cannot post. See `CLT-BUC11-FINAL-RELEASE-POSTING-2026-11-10.md`. This is **not** operational acceptance. Continue implementing remaining BUCs while banking gates are resolved.

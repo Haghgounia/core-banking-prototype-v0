@@ -4,6 +4,7 @@ import com.behsazan.corebanking.collateral.registry.CollateralRegistryPolicy;
 import com.behsazan.corebanking.collateral.localuat.CltLocalUatProperties;
 import com.behsazan.corebanking.collateral.registry.CollateralRegistryProperties;
 import com.behsazan.corebanking.collateral.reporting.CollateralReportingModels.*;
+import com.behsazan.corebanking.collateral.monitoring.CollateralCoverageMonitoringService;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -18,11 +19,17 @@ public class CollateralReportingController {
     private final CollateralReportingRepository repository;
     private final CollateralRegistryProperties registry;
     private final CltLocalUatProperties localUat;
+    private final CollateralCoverageMonitoringService coverage;
+    private final CollateralTimelineService timeline;
     public CollateralReportingController(CollateralReportingRepository repository,
-                                         CollateralRegistryProperties registry, CltLocalUatProperties localUat) {
+                                         CollateralRegistryProperties registry, CltLocalUatProperties localUat,
+                                         CollateralCoverageMonitoringService coverage,
+                                         CollateralTimelineService timeline) {
         this.repository = repository;
         this.registry = registry;
         this.localUat = localUat;
+        this.coverage = coverage;
+        this.timeline = timeline;
     }
     private String branch(Authentication authentication) {
         if (!(authentication instanceof JwtAuthenticationToken jwt) || !jwt.isAuthenticated()
@@ -68,6 +75,23 @@ public class CollateralReportingController {
             @RequestParam(defaultValue = "20") int limit) {
         String branch = requireAvailable(authentication);
         return repository.statusEvents(branch, CollateralReportingPolicy.eventLimit(limit));
+    }
+
+    /** BUC-14: all active allocations in verified branch; page-level exact recorded shortfall. */
+    @GetMapping("/coverage-monitor")
+    public CollateralCoverageMonitoringService.CoveragePage coverageMonitor(Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "30") int size) {
+        return coverage.report(requireAvailable(authentication), page, size);
+    }
+
+    /** BUC-16: direct registration-number history; unauthorized and missing indistinguishable. */
+    @GetMapping("/by-registration/{number}/history")
+    public CollateralTimelineService.Timeline history(Authentication authentication,
+            @PathVariable String number,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        return timeline.byRegistration(requireAvailable(authentication), number, page, size);
     }
 
     @GetMapping("/reference-summary")

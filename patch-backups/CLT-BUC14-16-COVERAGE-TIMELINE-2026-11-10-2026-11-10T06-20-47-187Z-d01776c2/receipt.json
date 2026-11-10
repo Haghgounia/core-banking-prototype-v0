@@ -1,0 +1,111 @@
+{
+  "patch": "CLT-BUC14-16-COVERAGE-TIMELINE-2026-11-10",
+  "createdAt": "2026-11-10T06:20:47.192Z",
+  "status": "INSTALLED",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/monitoring/CollateralCoverageMonitoringPolicy.java",
+      "action": "write",
+      "before": null,
+      "after": "4729381de0149d731410e00d245f8b80fd94ebb79d247efa7b45a22fc64c42de",
+      "beforeBytes": null,
+      "afterBytes": 4814
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/monitoring/CollateralCoverageMonitoringRepository.java",
+      "action": "write",
+      "before": null,
+      "after": "e848ce85689ea5c4bede1227a44f476958417ed9c3e444892aa2b37d64c31eb4",
+      "beforeBytes": null,
+      "afterBytes": 3626
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/monitoring/CollateralCoverageMonitoringService.java",
+      "action": "write",
+      "before": null,
+      "after": "ac47cc141778fef09a789853babf76f1cf5c62f3d00906ca0ccc37e93ff428ac",
+      "beforeBytes": null,
+      "afterBytes": 1640
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reporting/CollateralReportingController.java",
+      "action": "write",
+      "before": "c844d18c6f6a66e9309351e06e1eb8ebc4bc34358a25795dfa9b44d6ca18320a",
+      "after": "c0a9d25041a0384437032490872b12baa2d2e280d3d9fbb539dd22f5a870f331",
+      "beforeBytes": 4125,
+      "afterBytes": 5503
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reporting/CollateralTimelineRepository.java",
+      "action": "write",
+      "before": null,
+      "after": "140652460ef35f55c6fd8d0fcde1742fa217719874b216deeacef278b61f2d00",
+      "beforeBytes": null,
+      "afterBytes": 5578
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reporting/CollateralTimelineService.java",
+      "action": "write",
+      "before": null,
+      "after": "29a3ddfc83dfbcefd61508a6292a9053fd872e1fc863edb45979e129937df9dc",
+      "beforeBytes": null,
+      "afterBytes": 2371
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-business-usecase-report-contract.ts",
+      "action": "write",
+      "before": null,
+      "after": "369e15312d9292c2c5a72ee93a6c9e0a85292b76f5e77a0a780d17df1494d3f9",
+      "beforeBytes": null,
+      "afterBytes": 4226
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.component.html",
+      "action": "write",
+      "before": "a6d35c4826f2fd99fe72c6a19913aaba143aa464e6fc8e1b95b1c8de12bca5aa",
+      "after": "4336a0c94b25d7dfe8a449523503326985f3f67c498085c4e23e1516183c8d97",
+      "beforeBytes": 5557,
+      "afterBytes": 11431
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.component.scss",
+      "action": "write",
+      "before": "d63570210119716c2a8aae4c5feb5bd8dbae0b7d384e829322f70088b61cf1e6",
+      "after": "356629d4a9f016fe257c4d5f69feb151672ae22d03742fca6317f2ff6ae35432",
+      "beforeBytes": 2368,
+      "afterBytes": 3107
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.component.ts",
+      "action": "write",
+      "before": "5245af776ac5cdc5e75de2d891a8bea416effbd4975e94615ddf8bb365ac6d11",
+      "after": "94c48a73343ae5c6cba6f686c06e3499c13a4ac4e899aa5dcc5afd30d64d9cbe",
+      "beforeBytes": 4023,
+      "afterBytes": 6812
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.service.ts",
+      "action": "write",
+      "before": "4520441c0986c58bb00fb4343a536ce63d0f44ff9d6f22dda38e93e48d94df5a",
+      "after": "c25beb93da415e11af068acdcccfa7d33ac799df4fafded830b4d2d77025267c",
+      "beforeBytes": 1748,
+      "afterBytes": 4123
+    },
+    {
+      "path": "tools/clt/business-usecases/CoverageMonitoringSmoke.java",
+      "action": "write",
+      "before": null,
+      "after": "d6d3ea77d590445d5a502d6ef2d8661ca51fb5e7e832affc31f93251b5b4b531",
+      "beforeBytes": null,
+      "afterBytes": 5303
+    },
+    {
+      "path": "tools/clt/business-usecases/verify-usecases.cjs",
+      "action": "write",
+      "before": null,
+      "after": "345fa15378f094efc09b59271bbe27f51626d2328b609d3dee0adac45dc8a865",
+      "beforeBytes": null,
+      "afterBytes": 3450
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "patch": "CLT-BUC11-FINAL-RELEASE-COMMIT-2026-11-10",
+  "createdAt": "2026-11-10T06:50:53.873Z",
+  "status": "INSTALLED",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+      "action": "write",
+      "before": "3a0d95f0e4b8749da26aa4ce0b5773a01c52b16f8233e16cd446eebb84f7394a",
+      "after": "280e3203cddd4e5d112ddd31336cc02f58173a97bf2b969f19423ed4210a3d65",
+      "beforeBytes": 20418,
+      "afterBytes": 20705
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralReleasePostingController.java",
+      "action": "write",
+      "before": null,
+      "after": "6fd1d392707234c4c60d4c72307870841526e1cb724d685f8c222d5b5e0453fd",
+      "beforeBytes": null,
+      "afterBytes": 1328
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralReleasePostingModels.java",
+      "action": "write",
+      "before": null,
+      "after": "67f51c714b8a4bf0b61cbad35828760eeaccfe8ac101c37276ae56aa0313a46b",
+      "beforeBytes": null,
+      "afterBytes": 1164
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralReleasePostingPolicy.java",
+      "action": "write",
+      "before": null,
+      "after": "f8b04dc79c6317632bcaa945856cfb5e9125d8b007ce2ee77e02a30a41e68216",
+      "beforeBytes": null,
+      "afterBytes": 4674
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/release/CollateralReleasePostingService.java",
+      "action": "write",
+      "before": null,
+      "after": "3ecf99a9637926d509a9d33dd89773946ac6714c291eed27bfab1cf0f75bc20a",
+      "beforeBytes": null,
+      "afterBytes": 18998
+    },
+    {
+      "path": "database/oracle/clt/releasepost/00_RELEASE_POSTING_READONLY_DICTIONARY.sql",
+      "action": "write",
+      "before": null,
+      "after": "a88cd5c4b49cdc433d398f09e0307614a509de9fd4db7d6a55831b6df8f0df5c",
+      "beforeBytes": null,
+      "afterBytes": 930
+    },
+    {
+      "path": "database/oracle/clt/releasepost/01_RELEASE_PERMIT_SCHEMA_CANDIDATE_NOT_APPROVED.sql",
+      "action": "write",
+      "before": null,
+      "after": "f6a70c11db6b200c60e03c4aed806773230d41d574101275562f97f8ed271f05",
+      "beforeBytes": null,
+      "afterBytes": 2842
+    },
+    {
+      "path": "docs/collateral/CLT-BUC11-FINAL-RELEASE-POSTING-2026-11-10.md",
+      "action": "write",
+      "before": null,
+      "after": "1da241f8283a6cc8c6e2eb005eb55d33c721001c85711e92de80fe984dad9abb",
+      "beforeBytes": null,
+      "afterBytes": 5576
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "action": "write",
+      "before": "571b5c0a3b3ada8fde987f63c8e2f0d6c207095dabc54632b685317d9115fbc6",
+      "after": "c3e6efb5aa30b548fd8e085b8cf949d0f6509bbc324d72c0262e609d84821c4d",
+      "beforeBytes": 45520,
+      "afterBytes": 45924
+    },
+    {
+      "path": "docs/collateral/CLT-USECASE-DELIVERY-CHECKPOINT-2026-11-10.md",
+      "action": "write",
+      "before": "cabdf29334d3e3d65b355aecc711aed233afd485f92f8991c775e14161d06317",
+      "after": "f9113eb9e4c9e069e44d92f276509fa59cc6516ba2f82a63dd100afb40dc6fc7",
+      "beforeBytes": 7798,
+      "afterBytes": 8515
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-final-release-panel.component.html",
+      "action": "write",
+      "before": "69d5db25721e00eff0e93ad800341b8806914ffd756b9ee57491319f303f886c",
+      "after": "a55b5409bd5f01c69f5079c4964e29fa0e08302cce8a5f1f20d95bb86b64215c",
+      "beforeBytes": 4804,
+      "afterBytes": 7593
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-final-release-panel.component.scss",
+      "action": "write",
+      "before": "4fdf27065af29469be49ca1cb1d40362687ad15b4b57efbe0d090bb1cbd85271",
+      "after": "68f6110f7bd363a5134f66c7ee6ebf2bdba963b27d71fd76de18242eb4bf4ae6",
+      "beforeBytes": 2072,
+      "afterBytes": 2173
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-final-release-panel.component.ts",
+      "action": "write",
+      "before": "690e69397886334a13dd4b789ffbeb236283666d93de68aab603cb835a8194bf",
+      "after": "bd7e2b4e0cdf286e1e26df05b0fb6cb97b7d7392b0e0f129f6e3ed59031776b1",
+      "beforeBytes": 3976,
+      "afterBytes": 6766
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-final-release.service.ts",
+      "action": "write",
+      "before": "10dcc44cdf2aa0e79c7899a30a15cecf48082a8cfd6e6084a7e58ed7590733bc",
+      "after": "328f7f9bf67c0b3dc8c84f2bc7b4a309c3ab2bff7cc542d9d4935383e7a1fef9",
+      "beforeBytes": 2969,
+      "afterBytes": 4563
+    },
+    {
+      "path": "tools/clt/final-release-posting/ReleasePostingPolicySmoke.java",
+      "action": "write",
+      "before": null,
+      "after": "76f5593c5482b49e8d6c1fb2ec2958e510130c63d827671e6d1f7876f9bd407a",
+      "beforeBytes": null,
+      "afterBytes": 6702
+    },
+    {
+      "path": "tools/clt/final-release-posting/verify-source.cjs",
+      "action": "write",
+      "before": null,
+      "after": "3b5ecf20067c3111372ce602c3aa9e283db9fc22465d1b70e5a12285a5753946",
+      "beforeBytes": null,
+      "afterBytes": 5140
+    }
+  ]
+}

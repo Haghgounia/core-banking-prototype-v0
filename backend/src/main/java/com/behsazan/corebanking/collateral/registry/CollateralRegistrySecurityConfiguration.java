@@ -65,7 +65,10 @@ public class CollateralRegistrySecurityConfiguration {
                         .hasAuthority("SCOPE_clt.collateral.introduce")
                         .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/amendments/*/decision")
                         .hasAuthority("SCOPE_clt.collateral.review")
-                        // R5C: historical evidence and diagnostic preview only. NO /final-release commit route.
+                        // BUC-11: final posting is bank-permit-gated and independently reviewed.
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/final-release/commit")
+                        .hasAuthority("SCOPE_clt.collateral.review")
+                        // R5C: historical evidence and diagnostic preview only. new bank-permit posting is independently gated.
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/collaterals/*/final-release/readiness",
                                 "/api/v1/collaterals/*/final-release/evidence",
