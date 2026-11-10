@@ -63,6 +63,8 @@ public class CltUnifiedPrototypeSecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/api/v1/collateral/reference/*").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/v1/collateral/reference/*/*").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/collateral/reference/*/*").permitAll()
+                // Loopback analyst UAT journal ONLY; service verifies internal token and branch.
+                .requestMatchers(HttpMethod.PUT, "/api/v1/collaterals/uat/business-evidence").permitAll()
                 // G-01: request journal only; independent decision still enforced server-side.
                 .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/amendments").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/amendments/*/decision").permitAll()

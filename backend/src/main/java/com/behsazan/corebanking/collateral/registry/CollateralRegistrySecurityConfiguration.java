@@ -57,6 +57,9 @@ public class CollateralRegistrySecurityConfiguration {
         http.exceptionHandling(e -> e.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
                 .authorizeHttpRequests(r -> r
+                        // BUC/SUC analyst evidence, NOT a bank approval or collateral posting route.
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/collaterals/uat/business-evidence")
+                        .hasAuthority("SCOPE_clt.collateral.uat.write")
                         // G-01 amendment: stage is a separate table; decision is gated by reviewer scope.
                         .requestMatchers(HttpMethod.GET, "/api/v1/collaterals/amendments/readiness",
                                 "/api/v1/collaterals/*/amendments")

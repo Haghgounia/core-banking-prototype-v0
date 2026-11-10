@@ -62,3 +62,12 @@ The new BUC11 bank-permit-gated *final posting code* is in `collateral/release/C
 
 **Baseline confirmed installed by user:** `CLT-BUC09-10-16-POSTING-AUDIT-2026-11-10`.
 Latest proposed source adds single-use Stage CAS on BUC09/10 financial posting; independent bank cross-unit permission revalidation for BUC15 allocation, unresolved/null financial transaction and open cross-unit grant checks for BUC11, and BUC12 reintroduction cross-unit clearance proof. Analyst UI displays read-only lifecycle interlocks. All bank/DBA migrations remain **CANDIDATE NOT APPROVED**. No live end-to-end Oracle acceptance is claimed. R0..R7 labels and criteria are unchanged; reference `CLT-BUC09-10-11-12-15-LIFECYCLE-INTERLOCK-2026-11-10.md`.
+
+
+### Checkpoint 2026-11-10 - R6 16-BUC / 20-SUC analyst cockpit (source only)
+
+After user-confirmed installation of CLT-BUC09-10-11-12-15-LIFECYCLE-2026-11-10, this slice adds 32 manually scored scenarios across all 16 BUC and mapped 20 SUC, strict evidence export/import, a non-writing GET Oracle dictionary readiness probe with UNKNOWN for unavailability, live BUC-16 history within profile, and amendment navigation. Earlier 10 official UI cases and 17 reference tests remain separate. R6 is **NOT accepted**: live Oracle and full business UAT have not been executed; R0..R7 unchanged. See CLT-R6-BUC-SUC-INTEGRATED-UAT-2026-11-10.md.
+
+### Checkpoint 2026-11-10 — stable BUC/SUC UAT names and manual gap list
+
+After analyst-confirmed installation of `CLT-R6-BUC-SUC-UAT-TIMELINE-2026-11-10`, capability-scoped identifiers replace the phase-tagged Java/Angular production names. `BUC-01..16`, `SUC-01..20` remain official unchanged IDs. Historical `R6` in the approved roadmap and prior documents is a phase reference only. The legacy UAT evidence JSON format is import-only; a new capability-named format is exported. UAT gap register is based only on analyst `FAIL` / `BLOCKED` declarations, not Oracle dictionary inferences or bank acceptance. No schema changes, DDL, finance activation or IAM changes. See `CLT-BUC-SUC-UAT-EVIDENCE-GAPS-2026-11-10.md`.

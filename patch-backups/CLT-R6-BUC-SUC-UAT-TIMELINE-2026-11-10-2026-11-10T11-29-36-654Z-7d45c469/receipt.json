@@ -1,0 +1,183 @@
+{
+  "patch": "CLT-R6-BUC-SUC-UAT-TIMELINE-2026-11-10",
+  "createdAt": "2026-11-10T11:29:36.661Z",
+  "status": "INSTALLED",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/uat/CollateralR6ReadinessController.java",
+      "action": "write",
+      "before": null,
+      "after": "fc3d0e0e6971ccbcb68daad7098813ea98ff5eb76ac59f2de75287bbd246e214",
+      "beforeBytes": 0,
+      "afterBytes": 4650
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/uat/CollateralR6ReadinessPolicy.java",
+      "action": "write",
+      "before": null,
+      "after": "ac509a0b64a4be449f2aded0e7b61f320c2be5cf05f01514fe03c0f785e91a67",
+      "beforeBytes": 0,
+      "afterBytes": 3655
+    },
+    {
+      "path": "docs/collateral/CLT-R6-BUC-SUC-INTEGRATED-UAT-2026-11-10.md",
+      "action": "write",
+      "before": null,
+      "after": "39ed7627232054923d11bfca81cc62b9fdf1f27eccab71ffd7605d8ef96abfb6",
+      "beforeBytes": 0,
+      "afterBytes": 3395
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "action": "write",
+      "before": "6e0b5c572a26059fd760cc203872dce2a994ba47176cae80b60d7a97eaa59d1b",
+      "after": "47494a44fbdadb60aaeef0d329b6cbde425ccb0e179c47b6ef484e81b16fddf1",
+      "beforeBytes": 47180,
+      "afterBytes": 47819
+    },
+    {
+      "path": "docs/collateral/CLT-USECASE-DELIVERY-CHECKPOINT-2026-11-10.md",
+      "action": "write",
+      "before": "e58752e894488c2d2cdd9e115b7b67d542ca0575ad32692a8c0e9d07fe66bf73",
+      "after": "bd53a426eba91be3a158d05f384904ddcdbea8b032d554357c85b4a6df74b8fe",
+      "beforeBytes": 9973,
+      "afterBytes": 10612
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-r6-business-uat-contract.ts",
+      "action": "write",
+      "before": null,
+      "after": "8b378bd6a97bf12996cbc4e560d4de4e6b710fbcbb95a877948dcc86f35fe72c",
+      "beforeBytes": 0,
+      "afterBytes": 18911
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-r6-business-uat-session.service.ts",
+      "action": "write",
+      "before": null,
+      "after": "5305a7e0cf07a26c67478f4d0608175e49e314f2690a080773001dd7e96d3eea",
+      "beforeBytes": 0,
+      "afterBytes": 363
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-r6-business-uat.component.html",
+      "action": "write",
+      "before": null,
+      "after": "84991f37ae4210e294ed9af083737a086cfbfdf64d581fe2f4be5de19043ec74",
+      "beforeBytes": 0,
+      "afterBytes": 6324
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-r6-business-uat.component.scss",
+      "action": "write",
+      "before": null,
+      "after": "04e8bfb504612ed68787afffb4d8dbd2c67006db98d697c68f883e6659ea86c6",
+      "beforeBytes": 0,
+      "afterBytes": 3056
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-r6-business-uat.component.ts",
+      "action": "write",
+      "before": null,
+      "after": "69a2856c9f367c047112524d7a3dfb6558c6893d4f1d6f50b9fa9d925da38e8b",
+      "beforeBytes": 0,
+      "afterBytes": 8010
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-r6-business-uat.service.ts",
+      "action": "write",
+      "before": null,
+      "after": "56a357ebddaec77e669b41736db510b86bf5e7be3b3c6912374e9425a036e185",
+      "beforeBytes": 0,
+      "afterBytes": 483
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-r6c-ui-policy.ts",
+      "action": "write",
+      "before": "75b7957e6b3bc515a9843952def66b3bf7e9c715bfcc9c7e16fe3f21f404fbb2",
+      "after": "0eb5e0275eb6c62eb1c055d4ccae3f363763195a4f4ff2d9c462f203060582b2",
+      "beforeBytes": 3243,
+      "afterBytes": 3267
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r6a-catalog.ts",
+      "action": "write",
+      "before": "0ae02de2a909e0ed8e33083d642874db4e064cb24eebc94fe97cb2ff79b5853f",
+      "after": "e1d6eb181daa3bd2656fdb8dbcad0ab8c4365a7eff53063c6b70f7522194a2c8",
+      "beforeBytes": 13358,
+      "afterBytes": 13595
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.html",
+      "action": "write",
+      "before": "d44698b40b8234617041577ad269b5551c1bc08d564595317489cc501f57a4ca",
+      "after": "9dc866ddbef19ad7c8e06009d2a544e54db3e05d1496f615c3424af84c114dc2",
+      "beforeBytes": 12674,
+      "afterBytes": 12738
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.ts",
+      "action": "write",
+      "before": "7f402827ff83c7ef7171bd298d23023cc3b54b7dd8b0a6e64b2569d3e7d002d0",
+      "after": "d20084bcb04c917926ce3d5063f3474faf29079a095e84f239e6d601cd2c5361",
+      "beforeBytes": 16930,
+      "afterBytes": 17052
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-timeline-panel.component.html",
+      "action": "write",
+      "before": null,
+      "after": "45ac6287449474698b9fb808d4bc6c616a29c8278228a0f71b779ddcb0a4b821",
+      "beforeBytes": 0,
+      "afterBytes": 2264
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-timeline-panel.component.scss",
+      "action": "write",
+      "before": null,
+      "after": "7c570fe96d890f546d6ee987371a51f716bca9c980296155f7619a8f20e938f2",
+      "beforeBytes": 0,
+      "afterBytes": 1108
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-timeline-panel.component.ts",
+      "action": "write",
+      "before": null,
+      "after": "b4d62e339d85279125b13d1bef4a8bf56dd1611dff8831edbff9f7d6567943b7",
+      "beforeBytes": 0,
+      "afterBytes": 3670
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-uat-workbench.component.html",
+      "action": "write",
+      "before": "4cb16ae790b9144a70af3d16e2e3a822f892277251f68655ca0d8439a7bfc52e",
+      "after": "ce6af0ffab1d32da9fe7418c0879e6380295d8fd05aafac53c7a102798f6a200",
+      "beforeBytes": 9240,
+      "afterBytes": 9517
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-uat-workbench.component.ts",
+      "action": "write",
+      "before": "84c6155c093f6370a7f2eca2157b6df572083fcbe108c755f8716c9c5d7f4bbc",
+      "after": "6fcb96a7252c99cf15b3033735ce7cd2e59d71a5d8c75cf1a4a49fc4ad48bfb8",
+      "beforeBytes": 10849,
+      "afterBytes": 11048
+    },
+    {
+      "path": "tools/clt/r6/R6BusinessReadinessPolicySmoke.java",
+      "action": "write",
+      "before": null,
+      "after": "2971f30f7c55099d3d4b5ae9a34df7da19871d72fd4efe6a87c9195b62c9e0a0",
+      "beforeBytes": 0,
+      "afterBytes": 2308
+    },
+    {
+      "path": "tools/clt/r6/verify-source.cjs",
+      "action": "write",
+      "before": null,
+      "after": "3cfa2544b7ec2bb14a7e705245594205292ddeaa3944838b1af53b4d06b59baa",
+      "beforeBytes": 0,
+      "afterBytes": 4583
+    }
+  ]
+}

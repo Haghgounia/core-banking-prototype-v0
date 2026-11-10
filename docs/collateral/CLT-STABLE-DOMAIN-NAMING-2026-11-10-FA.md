@@ -21,3 +21,7 @@ Never encode delivery-phase identifiers (`R1`, `R2`, `R3`, `R4`, `R5`, `R6`, `R7
 
 - Rename provenance is not an attestation of a successful real Maven/Angular build or Oracle operation. Real runtime verification is required on the target Windows project.
 - Versioned developer-only tools and historical source comments may still contain the old phase IDs intentionally.
+
+## 2026-11-10 corrective checkpoint: UAT capability naming
+
+BUC/SUC UAT was erroneously introduced under phase `R6` Java/Angular names in an earlier delivery. The next `CLT-BUC-SUC-UAT-EVIDENCE-GAPS-2026-11-10` release corrects those active names, removes superseded files in one guarded patch, keeps the public `/api/v1/collaterals/uat/business-readiness` URL, accepts previous UAT JSON via legacy import, and exports only capability-based identifiers. Phase labels remain in the approved R0..R7 roadmap and historical documentation, **not in new persistent domain identifiers**.

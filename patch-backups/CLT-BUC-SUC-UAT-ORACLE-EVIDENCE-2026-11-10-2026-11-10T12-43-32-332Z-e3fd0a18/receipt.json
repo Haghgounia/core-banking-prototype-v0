@@ -1,0 +1,127 @@
+{
+  "patch": "CLT-BUC-SUC-UAT-ORACLE-EVIDENCE-2026-11-10",
+  "createdAt": "2026-11-10T12:43:32.338Z",
+  "status": "INSTALLED",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/prototype/CltUnifiedPrototypeSecurityConfiguration.java",
+      "action": "write",
+      "before": "27dc99a302dbf88ef255395a6f2556a0ee9d899bd0d8128bd1d9ceca4ccaaa63",
+      "after": "7e1f4bab8d291d41884296963bb5788b0ec99436a72d37837c59ac95bae038af",
+      "beforeBytes": 9796,
+      "afterBytes": 10000
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+      "action": "write",
+      "before": "ea624e0c3e8ca51cb96065eaedc4395bfabd2b298fc13da54819d09e03e0301b",
+      "after": "c8db0763246e1d8734a8ae1d176ee9da7ab7f8828ec8bc45b7ecab60f6bfd1bf",
+      "beforeBytes": 21602,
+      "afterBytes": 21878
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/uat/CollateralBusinessUatEvidenceController.java",
+      "action": "write",
+      "before": null,
+      "after": "4f122ade66be2bd2bc20c2dffa49e2ed5c0db22d06b480e813ecd193a896c59c",
+      "beforeBytes": 0,
+      "afterBytes": 1404
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/uat/CollateralBusinessUatEvidencePolicy.java",
+      "action": "write",
+      "before": null,
+      "after": "22d5c3ad0e84cfb29c0ac23161c670ef39d2dd50119a2e0f554760313375923b",
+      "beforeBytes": 0,
+      "afterBytes": 3056
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/uat/CollateralBusinessUatEvidenceService.java",
+      "action": "write",
+      "before": null,
+      "after": "738e31913f961e369bbee57549cd4b18cce1048157aa230357e64fdfe8cce78c",
+      "beforeBytes": 0,
+      "afterBytes": 12622
+    },
+    {
+      "path": "database/oracle/clt/business-uat/00_CLT_BUC_UAT_READONLY_DISCOVERY.sql",
+      "action": "write",
+      "before": null,
+      "after": "1766a74eaa24e07cf1c9829c10f71b22d812651bc7dc025b213fe983f145e1ac",
+      "beforeBytes": 0,
+      "afterBytes": 381
+    },
+    {
+      "path": "database/oracle/clt/business-uat/01_CLT_BUC_UAT_SCHEMA_CANDIDATE_NOT_APPROVED.sql",
+      "action": "write",
+      "before": null,
+      "after": "bb1dbd149a214989eb655dc4ef7495418ffcd4d712935b6eb72f114ee01f4027",
+      "beforeBytes": 0,
+      "afterBytes": 2701
+    },
+    {
+      "path": "docs/collateral/CLT-BUC-SUC-UAT-ORACLE-EVIDENCE-2026-11-10.md",
+      "action": "write",
+      "before": null,
+      "after": "9be7e451e552f01ed88fa11639a0766d32b54cc197a611696fbabe2a7681196f",
+      "beforeBytes": 0,
+      "afterBytes": 6876
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-business-uat-oracle-contract.ts",
+      "action": "write",
+      "before": null,
+      "after": "3b781d8d3c06da880a506219189309ced773dad29c2a60f0f6936814bea646b7",
+      "beforeBytes": 0,
+      "afterBytes": 3524
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-business-uat.component.html",
+      "action": "write",
+      "before": "2eb554423b3ab49d807717040f1b6ded53aaafce7f258804b8250ee4c6ea9100",
+      "after": "04487e7889b2c04fa60c8633bb3366335d301f2e54363070baffb676090ed056",
+      "beforeBytes": 7309,
+      "afterBytes": 9744
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-business-uat.component.scss",
+      "action": "write",
+      "before": "29bbb4c11136dec14a6020feac9651efcd43b7113a58647149259d83cbdc4979",
+      "after": "6415afc547129879ec149ccbe2caf6ee55d1973b050438d57b8d274edb4e7251",
+      "beforeBytes": 3510,
+      "afterBytes": 4042
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-business-uat.component.ts",
+      "action": "write",
+      "before": "fcc4291d12bba0ebcefb441d3dbc3a325df22edc58860aa243e5aae7eb9abc0c",
+      "after": "16f38263ffd10cb1b99274293f85b32e9de900d4650cdb016b6835716917483b",
+      "beforeBytes": 8784,
+      "afterBytes": 13934
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-business-uat.service.ts",
+      "action": "write",
+      "before": "f0151f217214304d818b1cafa6b8ef4f2e6372756f95a25d4983160de7dcd64e",
+      "after": "d2fd42f53a6f289a7d38291f2741802e21ea14713b046d7cb5e87604f3ee38b7",
+      "beforeBytes": 488,
+      "afterBytes": 959
+    },
+    {
+      "path": "tools/clt/business-uat/CollateralBusinessUatEvidenceSmoke.java",
+      "action": "write",
+      "before": null,
+      "after": "63820fd9d46e0716ee6a8c17c67e8f6d600163811c892dc8b3b12173054e342e",
+      "beforeBytes": 0,
+      "afterBytes": 5269
+    },
+    {
+      "path": "tools/clt/business-uat/verify-source.cjs",
+      "action": "write",
+      "before": "a4afc4795f1f07bb819b2aff1ad59066c3e72249cf51e5a1d02780c599b5eb66",
+      "after": "2c27730aa809e8756f0a4367a21d8eec9a10749a8183b358bbb4c92266e24c00",
+      "beforeBytes": 5180,
+      "afterBytes": 9137
+    }
+  ]
+}

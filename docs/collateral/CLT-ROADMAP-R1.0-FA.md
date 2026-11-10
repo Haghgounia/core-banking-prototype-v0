@@ -321,3 +321,8 @@
 ### Checkpoint 2026-11-10 — BUC09/10/11/12/15 Lifecycle Interlock
 
 پس از اعلام نصب موفق `CLT-BUC09-10-16-POSTING-AUDIT`، کد انتقال اتمیک Stage به `POSTED` برای جلوگیری از مصرف مجدد، احراز مجوز مستقل BUC15 زیر قفل و کنترل Grant باز در آزادسازی BUC11/معرفی مجدد BUC12 افزوده شد. سند مرجع: `CLT-BUC09-10-11-12-15-LIFECYCLE-INTERLOCK-2026-11-10.md`. تصویب مدل Stage و Permit، Backend واقعی/Oracle Live و UAT بانکی هنوز OPEN هستند؛ برنامه ثابت R0، R1، R2، R3، R4، R5، R6 و R7 بدون تغییر است.
+
+
+### Checkpoint 2026-11-10 - R6 16-BUC / 20-SUC analyst cockpit (source only)
+
+After user-confirmed installation of CLT-BUC09-10-11-12-15-LIFECYCLE-2026-11-10, this slice adds 32 manually scored scenarios across all 16 BUC and mapped 20 SUC, strict evidence export/import, a non-writing GET Oracle dictionary readiness probe with UNKNOWN for unavailability, live BUC-16 history within profile, and amendment navigation. Earlier 10 official UI cases and 17 reference tests remain separate. R6 is **NOT accepted**: live Oracle and full business UAT have not been executed; R0..R7 unchanged. See CLT-R6-BUC-SUC-INTEGRATED-UAT-2026-11-10.md.
