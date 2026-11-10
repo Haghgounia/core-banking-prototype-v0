@@ -1,0 +1,159 @@
+{
+  "patch": "CLT-BUC12-ASSET-REINTRODUCTION-2026-11-10",
+  "createdAt": "2026-11-10T07:33:21.059Z",
+  "status": "INSTALLED",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reintroduction/CollateralReintroductionController.java",
+      "action": "write",
+      "before": null,
+      "after": "6362397ab4b98cbc36fcdd93a104795babc56a2cfde6cbe628163bc4fca9001a",
+      "beforeBytes": null,
+      "afterBytes": 1757
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reintroduction/CollateralReintroductionExceptionHandler.java",
+      "action": "write",
+      "before": null,
+      "after": "4131bda966e17c33af33ed2732f81baefc343356e9a794ca859707ae14be7068",
+      "beforeBytes": null,
+      "afterBytes": 861
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reintroduction/CollateralReintroductionModels.java",
+      "action": "write",
+      "before": null,
+      "after": "59e0ac0a5c69a89fd1b709eebe2a7dacccb058231003d1e3afd4efad7cb56f69",
+      "beforeBytes": null,
+      "afterBytes": 2186
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reintroduction/CollateralReintroductionPolicy.java",
+      "action": "write",
+      "before": null,
+      "after": "664bf4adab152c706bd36f46a6afc7e65194ea29efd8f419feba83e7f0f2ab39",
+      "beforeBytes": null,
+      "afterBytes": 5707
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reintroduction/CollateralReintroductionService.java",
+      "action": "write",
+      "before": null,
+      "after": "71c4a50253d3cf92a788f95a2620c707a726b6070bdf72333aa79f6ad176f7f5",
+      "beforeBytes": null,
+      "afterBytes": 46943
+    },
+    {
+      "path": "database/oracle/clt/reintroduction/00_REINTRODUCTION_READONLY_DIAGNOSTICS.sql",
+      "action": "write",
+      "before": null,
+      "after": "822152875d491c0ea32ea8ce6a93d1e4625bbdef48a36500f1ef77b79eb7021a",
+      "beforeBytes": null,
+      "afterBytes": 1397
+    },
+    {
+      "path": "database/oracle/clt/reintroduction/01_REINTRODUCTION_PERMIT_SCHEMA_CANDIDATE_NOT_APPROVED.sql",
+      "action": "write",
+      "before": null,
+      "after": "df92f17dab9dc558cc6e058a06b9ce933099f0084a64773ecb5e8dbe84bd715b",
+      "beforeBytes": null,
+      "afterBytes": 5006
+    },
+    {
+      "path": "docs/collateral/CLT-BUC12-ASSET-REINTRODUCTION-2026-11-10.md",
+      "action": "write",
+      "before": null,
+      "after": "75773cee471f98db165c858a6250ced251087a5102b368337b331f4cef384722",
+      "beforeBytes": null,
+      "afterBytes": 5354
+    },
+    {
+      "path": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "action": "write",
+      "before": "aea2ec1d1810503a9a4b252afd20c7e1983aecd1645eccf839b6f8b15e4337db",
+      "after": "aa080d6a087eaea9c1df17bf1b899d771ee2266e88a50d982ec7386f43e6ec3a",
+      "beforeBytes": 26528,
+      "afterBytes": 27771
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "action": "write",
+      "before": "c3e6efb5aa30b548fd8e085b8cf949d0f6509bbc324d72c0262e609d84821c4d",
+      "after": "30722b4b5d6e6fbbef31b34088ec276bb04219135542f7995ec55ec85f5b4057",
+      "beforeBytes": 45924,
+      "afterBytes": 46513
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-r6c-ui-policy.ts",
+      "action": "write",
+      "before": "c5cf7185a1a2569dc0ea7fdb8d7a018ab65518b1876b17614abb47c173815c48",
+      "after": "6521219db3d222a4e69820a74dd206412052b4743af3d3591e2808b4e11701c2",
+      "beforeBytes": 3185,
+      "afterBytes": 3219
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.html",
+      "action": "write",
+      "before": "b1edc69c8e979b587bd2ee3f1834f42d8c7d93a2813aa57e96764fc82020feac",
+      "after": "09d794c2e6f1a561a7d064647a31bd9e5de1867726e9092ab2a50e7992da53eb",
+      "beforeBytes": 12371,
+      "afterBytes": 12484
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.ts",
+      "action": "write",
+      "before": "3ee5aefd41d2920cbe3b22096f3f330b68deea4c83305c214a44b530febf8686",
+      "after": "42c8c2d38a95407401213b4f0a62e8dd67daab62a744e6d6b881e90833f0b125",
+      "beforeBytes": 16507,
+      "afterBytes": 16722
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reintroduction-panel.component.html",
+      "action": "write",
+      "before": null,
+      "after": "34816c4e6af06f5c77c5483c500780f85af4210bc4e94da504b6531d7a7249ae",
+      "beforeBytes": null,
+      "afterBytes": 5990
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reintroduction-panel.component.scss",
+      "action": "write",
+      "before": null,
+      "after": "60a4ab5bc9d450149281ad424d0e9c7b9ede1473d7fdd1ce9f06b05cdcaebf77",
+      "beforeBytes": null,
+      "afterBytes": 1883
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reintroduction-panel.component.ts",
+      "action": "write",
+      "before": null,
+      "after": "fb51143a46b490cb3422072fc9eb3a99ad029d3dce2fb8add73bd1198727d87b",
+      "beforeBytes": null,
+      "afterBytes": 4976
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reintroduction.service.ts",
+      "action": "write",
+      "before": null,
+      "after": "1090aa3fdda6dc7b3cdcfbf6a036dc1c0655f0b52beff4b08978a3f10669962a",
+      "beforeBytes": null,
+      "afterBytes": 3441
+    },
+    {
+      "path": "tools/clt/reintroduction/ReintroductionPolicySmoke.java",
+      "action": "write",
+      "before": null,
+      "after": "c61a3ef47d8356ff8c9e8da82444d14282abc91a501f8ba9dec8fb51cfa114c7",
+      "beforeBytes": null,
+      "afterBytes": 5745
+    },
+    {
+      "path": "tools/clt/reintroduction/verify-source.cjs",
+      "action": "write",
+      "before": null,
+      "after": "fe0ef7fcfc361529766ff7c526cd8c25ce78591b1f111800e69cd36139a8cc80",
+      "beforeBytes": null,
+      "afterBytes": 4778
+    }
+  ]
+}

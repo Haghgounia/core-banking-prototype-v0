@@ -195,3 +195,15 @@
 | R5 G-19..G-22 (as referenced in phase-status records) | Local R5B Stage request and withdrawal with If-Match; no financial impact | Approved module mapping, domain-owner instruction, final unallocation and release semantics | **OPEN — verify exact official gap indexing** |
 
 **No gap closure:** `CLT_LOCAL_ANALYST` is an internally created local Stage actor, not external consumer attestation. Phase exit remains governed independently of source progress; [checkpoint](CLT-USECASE-DELIVERY-CHECKPOINT-2026-11-10.md).
+
+
+## BUC-12 — معرفی مجدد دارایی آزادشده، 2026-11-10
+
+| شکاف | پیشرفت کد | شرط باقی‌مانده | وضعیت |
+|---|---|---|---|
+| G-14 | هویت پایدار، تعارض شناسنامه جاری و زنجیره نسخه‌های تاریخی در ثبت اتمیک لحاظ شده است | تأیید Canonical Asset Identity، Backfill و Unique Oracle | **OPEN** |
+| G-17 | شماره جدید از Inventory/Permit مستقل بانک مصرف می‌شود؛ عدم استفاده مجدد بررسی می‌شود | تصویب مرجع صدور، طرح شماره‌گذاری و Migration | **OPEN** |
+| G-12 | اعتبارسنجی سریال‌ها، مبلغ، نوع شمارشی و ذخیره اقلام روی شناسنامه جدید | مصوبه IS_COUNTABLE_FLAG و جدول فیزیکی اقلام | **OPEN** |
+| BUC-11/R5 | ثبت جدید فقط با شاهد Permit POSTED آزادسازی قبلی و تاریخچه نهایی امکان‌پذیر است | فعال‌سازی و آزمون موفق BUC-11 بر Oracle زنده | **OPEN** |
+
+هیچ Gap با صرف نصب سورس بسته و بدون Approval و آزمون واقعی بسته اعلام نمی‌شود.
