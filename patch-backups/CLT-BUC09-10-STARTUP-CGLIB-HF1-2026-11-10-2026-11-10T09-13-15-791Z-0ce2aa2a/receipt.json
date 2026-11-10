@@ -1,0 +1,31 @@
+{
+  "patch": "CLT-BUC09-10-STARTUP-CGLIB-HF1-2026-11-10",
+  "createdAt": "2026-11-10T09:13:15.795Z",
+  "status": "INSTALLED",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/posting/CollateralPostingRepository.java",
+      "action": "write",
+      "before": "49a5d92af4b38a7d4f57ef61ae7fe637fc03c0bae8a1e80df5ac6c57f1083105",
+      "after": "0878d726749c9460712fe61fa7d35766d0e3dfab761959f305c7985e70b199a4",
+      "beforeBytes": 19325,
+      "afterBytes": 19319
+    },
+    {
+      "path": "tools/clt/posting/verify-runtime-proxy.cjs",
+      "action": "write",
+      "before": null,
+      "after": "dbdc4d9bf4e1f8c68bf57a9243332b8f7c804f079d40f754183020398001ccbb",
+      "beforeBytes": null,
+      "afterBytes": 3990
+    },
+    {
+      "path": "tools/clt/posting/verify-source.cjs",
+      "action": "write",
+      "before": "b423dda99d57b72d71ecda0932ee565904afb818b4d8ea4e7ce7ac02551c5cfb",
+      "after": "29f9cf2350995e23261169f647d21a3aba170c9c38d659b835be96555b36388c",
+      "beforeBytes": 4562,
+      "afterBytes": 4687
+    }
+  ]
+}

@@ -86,6 +86,7 @@ public class CltLocalUatSecurityConfiguration {
                         "/api/v1/collaterals/*/allocations/*/transactions",
                         "/api/v1/collaterals/*/allocation-requests/lock/readiness",
                         "/api/v1/collaterals/*/allocation-requests/intake/readiness",
+                        "/api/v1/collaterals/*/posting/readiness",
                         "/api/v1/collaterals/*/unallocation-requests/readiness",
                         "/api/v1/collaterals/*/final-release/readiness",
                         "/api/v1/collaterals/*/final-release/evidence",

@@ -65,6 +65,13 @@ public class CollateralRegistrySecurityConfiguration {
                         .hasAuthority("SCOPE_clt.collateral.introduce")
                         .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/amendments/*/decision")
                         .hasAuthority("SCOPE_clt.collateral.review")
+                        // BUC-09/BUC-10: only signed service credentials may consume an independently issued bank permit.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/collaterals/*/posting/readiness")
+                        .hasAuthority("SCOPE_clt.collateral.read")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/posting/allocate")
+                        .hasAuthority("SCOPE_clt.allocation.post")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/posting/unallocate")
+                        .hasAuthority("SCOPE_clt.unallocation.post")
                         // BUC-11: final posting is bank-permit-gated and independently reviewed.
                         .requestMatchers(HttpMethod.POST, "/api/v1/collaterals/*/final-release/commit")
                         .hasAuthority("SCOPE_clt.collateral.review")

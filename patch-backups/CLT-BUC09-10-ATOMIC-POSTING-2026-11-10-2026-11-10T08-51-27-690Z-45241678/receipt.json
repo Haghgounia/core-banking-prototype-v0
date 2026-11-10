@@ -1,0 +1,167 @@
+{
+  "patch": "CLT-BUC09-10-ATOMIC-POSTING-2026-11-10",
+  "createdAt": "2026-11-10T08:51:27.695Z",
+  "status": "INSTALLED",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/localuat/CltLocalUatSecurityConfiguration.java",
+      "action": "write",
+      "before": "d0311a1e2cce24257e02c576f8647b6f5daff1408478b41125e81c3c44a7b32b",
+      "after": "01c4badb6be53178f904db9d532a9ed8cf61964f0a4c5115b03589b9d5df3a79",
+      "beforeBytes": 5957,
+      "afterBytes": 6024
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/posting/CollateralPostingConfiguration.java",
+      "action": "write",
+      "before": null,
+      "after": "78d433c2f44d287bf047a01edd8525a18e2b40eb012ca863a5536b7f1b2d604d",
+      "beforeBytes": null,
+      "afterBytes": 327
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/posting/CollateralPostingController.java",
+      "action": "write",
+      "before": null,
+      "after": "2384c96023d4eeaf7d1ca4759217216989c74367cfff696260b5b6a891510758",
+      "beforeBytes": null,
+      "afterBytes": 1302
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/posting/CollateralPostingExceptionHandler.java",
+      "action": "write",
+      "before": null,
+      "after": "b793ea2a294c1069ec415100b75793336ab673975a6aabf1020865d3c737e590",
+      "beforeBytes": null,
+      "afterBytes": 1150
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/posting/CollateralPostingModels.java",
+      "action": "write",
+      "before": null,
+      "after": "4c7ca6f5058402b5e2cd5aa975fa94696e072228cf1dc3e2a8e15258bfe8056c",
+      "beforeBytes": null,
+      "afterBytes": 982
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/posting/CollateralPostingPolicy.java",
+      "action": "write",
+      "before": null,
+      "after": "d4e5985b46210126e648a6905734fd686453909cadad5799a9247193e2e7a1e4",
+      "beforeBytes": null,
+      "afterBytes": 6510
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/posting/CollateralPostingRepository.java",
+      "action": "write",
+      "before": null,
+      "after": "49a5d92af4b38a7d4f57ef61ae7fe637fc03c0bae8a1e80df5ac6c57f1083105",
+      "beforeBytes": null,
+      "afterBytes": 19325
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/posting/CollateralPostingService.java",
+      "action": "write",
+      "before": null,
+      "after": "a5d53932cb0f652e1bb75a32c22e336bc8ec023c83b231076f1c7f27c5cc1a62",
+      "beforeBytes": null,
+      "afterBytes": 24486
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+      "action": "write",
+      "before": "280e3203cddd4e5d112ddd31336cc02f58173a97bf2b969f19423ed4210a3d65",
+      "after": "5fb67ea0b44f21e396761ac4337b47dd773c624148180094d1fa491aeaf5be41",
+      "beforeBytes": 20705,
+      "afterBytes": 21333
+    },
+    {
+      "path": "backend/src/main/resources/clt/collateral-posting.properties",
+      "action": "write",
+      "before": null,
+      "after": "9eae33f23450927af7d633b3cb5dd66dd170901ca0de424a77ee275afcafbc7d",
+      "beforeBytes": null,
+      "afterBytes": 1193
+    },
+    {
+      "path": "database/oracle/clt/posting/00_BUC09_10_READONLY_DISCOVERY.sql",
+      "action": "write",
+      "before": null,
+      "after": "782ced36832330877334dae53a6dfb449242ee2abd3700dba2efe85414629ad6",
+      "beforeBytes": null,
+      "afterBytes": 1336
+    },
+    {
+      "path": "database/oracle/clt/posting/01_BUC09_10_BANK_PERMIT_CANDIDATE_NOT_APPROVED.sql",
+      "action": "write",
+      "before": null,
+      "after": "5fbca87c6925baab5184bf7a4ee8f716d14a668b8445781a5c0dc8a45f60406f",
+      "beforeBytes": null,
+      "afterBytes": 5138
+    },
+    {
+      "path": "docs/collateral/CLT-BUC09-10-ATOMIC-POSTING-2026-11-10.md",
+      "action": "write",
+      "before": null,
+      "after": "640912192fc1c6d98e718ac665725cf399ba3cd03bf04889d7f6954848bc983b",
+      "beforeBytes": null,
+      "afterBytes": 4975
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-allocation-request-panel.component.html",
+      "action": "write",
+      "before": "829457ebf619404f14d04b85e47cbd74e78922095d2353694024bedcaa819539",
+      "after": "d5fad05dbecfb59f0b551531b5dbe9222068be6b5d040d749c32d04c08646f03",
+      "beforeBytes": 7902,
+      "afterBytes": 8895
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-allocation-request-panel.component.ts",
+      "action": "write",
+      "before": "51e0e3c43001d742b0240ec26ab7cfa875402b82777f2151d3f6fd8c8a8acce2",
+      "after": "98792c4fc7e24b3f7466bc7b2ffb80336ddf2ff00bf042dfa02832a2fba52c25",
+      "beforeBytes": 11235,
+      "afterBytes": 11993
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-posting-readiness.service.ts",
+      "action": "write",
+      "before": null,
+      "after": "33af8ee5a24d01429e6b95887ed24746f559a1e3e0cb9bdf6b1abc0fbda1b8e8",
+      "beforeBytes": null,
+      "afterBytes": 941
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-unallocation-panel.component.html",
+      "action": "write",
+      "before": "c25920a4697a883a3dd8a601af64dbf8e87ecdab1709ba9e64b74ad6ecd16363",
+      "after": "543c0f704981c7a4bb97669b5045e1c6d406b55f491ecc5bb2a3b7727ef5fe3a",
+      "beforeBytes": 8229,
+      "afterBytes": 9275
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-unallocation-panel.component.ts",
+      "action": "write",
+      "before": "b9828c747ce1547efed09589b26178ae21549fa44b553ff9b73ae92687d7edf1",
+      "after": "50ad3559ee88619d2f044e3a9eaeca0b8c1927f6072b13c5f76d38294bdf3a6a",
+      "beforeBytes": 9553,
+      "afterBytes": 10268
+    },
+    {
+      "path": "tools/clt/posting/CollateralPostingPolicySmoke.java",
+      "action": "write",
+      "before": null,
+      "after": "24c5f5971b07b6a94c24ac4f263fdbbb8b3f18b167e792cbf80e12f2937faadb",
+      "beforeBytes": null,
+      "afterBytes": 4526
+    },
+    {
+      "path": "tools/clt/posting/verify-source.cjs",
+      "action": "write",
+      "before": null,
+      "after": "b423dda99d57b72d71ecda0932ee565904afb818b4d8ea4e7ce7ac02551c5cfb",
+      "beforeBytes": null,
+      "afterBytes": 4562
+    }
+  ]
+}
