@@ -80,6 +80,7 @@ public final class CollateralPostingService {
             statusCode(config("allocation-transaction-type"));
             statusCode(config("unallocation-transaction-type"));
             statusCode(config("posted-transaction-status"));
+            statusCode(config("source-system-code"));
             statusCode(config("allocation-direction"));
             statusCode(config("unallocation-direction"));
             String statuses=config("allocatable-collateral-statuses");
@@ -108,7 +109,8 @@ public final class CollateralPostingService {
                     && sequencePresent(config("transaction-id-sequence"))
                     && referencePresent("REF_COLL_TXN_TYPE","TRANSACTION_TYPE_CODE",config("allocation-transaction-type"))
                     && referencePresent("REF_COLL_TXN_TYPE","TRANSACTION_TYPE_CODE",config("unallocation-transaction-type"))
-                    && referencePresent("REF_COLL_TXN_STATUS","TRANSACTION_STATUS_CODE",config("posted-transaction-status"));
+                    && referencePresent("REF_COLL_TXN_STATUS","TRANSACTION_STATUS_CODE",config("posted-transaction-status"))
+                    && referencePresent("REF_SOURCE_SYSTEM","SOURCE_SYSTEM_CODE",config("source-system-code"));
         }catch(DataAccessException e){return false;}
     }
     private static final String[] PERMIT_COLUMNS={"PERMIT_ID","OPERATION_CODE","COLLATERAL_ID",
@@ -146,7 +148,7 @@ public final class CollateralPostingService {
                        AND CONSTRAINT_NAME IN ('PK_CLT_POST_PERMIT','FK_CLT_POST_COLLATERAL',
                          'UQ_CLT_POST_TXN_NO','UQ_CLT_POST_IDEMPOTENCY','CK_CLT_POST_OPERATION',
                          'CK_CLT_POST_STATUS','CK_CLT_POST_APPROVAL','CK_CLT_POST_CONSUMED',
-                         'CK_CLT_POST_RELEASE_MODE')
+                         'CK_CLT_POST_RELEASE_MODE','UQ_CLT_POST_SOURCE')
                     """,Integer.class);
             String identity=jdbc.queryForObject("""
                     SELECT LISTAGG(COLUMN_NAME,',') WITHIN GROUP (ORDER BY POSITION)
@@ -154,7 +156,7 @@ public final class CollateralPostingService {
                      WHERE OWNER='CLT' AND TABLE_NAME='CLT_COVERAGE_POST_PERMIT'
                        AND CONSTRAINT_NAME='UQ_CLT_POST_IDEMPOTENCY'
                     """,String.class);
-            return cols!=null && cols==PERMIT_COLUMNS.length && Integer.valueOf(9).equals(constraints)
+            return cols!=null && cols==PERMIT_COLUMNS.length && Integer.valueOf(10).equals(constraints)
                     && "CLIENT_ID,OPERATION_CODE,IDEMPOTENCY_KEY".equals(identity);
         }catch(DataAccessException e){return false;}
     }
@@ -176,6 +178,38 @@ public final class CollateralPostingService {
         Integer count=jdbc.queryForObject(sql,Integer.class,args.toArray());
         return count==null || count!=0;
     }
+    /** Gate on the approved POSTED status and the physical stage receipt columns.
+     *  These are bank migrations, never installed by the source patch. */
+    private boolean stagePostingReady(String table,String statusConstraint){
+        try {
+            if(!requiredColumns(table,"POSTED_TRANSACTION_ID","POSTED_ALLOCATION_ID",
+                    table.equals("CLT_CROSS_UNIT_INTENT")?"POSTED_AT_UTC":"POSTED_AT"))return false;
+            Integer c=jdbc.queryForObject("""
+                    SELECT COUNT(*) FROM ALL_CONSTRAINTS
+                     WHERE OWNER='CLT' AND TABLE_NAME=? AND CONSTRAINT_NAME=?
+                       AND STATUS='ENABLED' AND VALIDATED='VALIDATED'
+                       AND SEARCH_CONDITION_VC LIKE '%''POSTED''%'
+                    """,Integer.class,table,statusConstraint);
+            return Integer.valueOf(1).equals(c);
+        }catch(DataAccessException ex){return false;}
+    }
+    private boolean stageSchemasReady(){
+        return stagePostingReady("CLT_ALLOCATION_REQUEST","CK_CLT_ALLOC_REQ_STATUS")
+                && stagePostingReady("CLT_UNALLOC_REQ","CK_CLT_UA_REQ_STATUS")
+                && requiredColumns("CLT_ALLOCATION_REQUEST","REQUEST_ID","REQUEST_STATUS",
+                    "RECORD_VERSION","CLIENT_ID","PAYLOAD_DIGEST")
+                && requiredColumns("CLT_UNALLOC_REQ","REQUEST_ID","REQUEST_STATUS",
+                    "RECORD_VERSION","CLIENT_ID","PAYLOAD_DIGEST");
+    }
+    private boolean crossUnitPostingReady(){
+        return env.getProperty("core-banking.collateral.posting.cross-unit-allocation-enabled",
+                Boolean.class,false)
+                && stagePostingReady("CLT_CROSS_UNIT_INTENT","CK_CLT_CU_INTENT_STATUS")
+                && requiredColumns("CLT_CROSS_UNIT_GRANT","GRANT_ID","COLLATERAL_ID",
+                    "OWNER_BRANCH","CONSUMER_BRANCH","GRANT_STATUS",
+                    "SOURCE_RECORD_VERSION","VALID_UNTIL_UTC")
+                && requiredColumns("COLLATERAL_TYPE","USE_IN_OTHER_BRANCHES");
+    }
     private boolean coreSchemaReady(){
         try{
             return requiredColumns("COLLATERAL","COLLATERAL_ID","BRANCH_CODE","RECORD_VERSION",
@@ -183,32 +217,54 @@ public final class CollateralPostingService {
                         "VALID_TO","CURRENT_VALUATION_HISTORY_ID")
                     && requiredColumns("COLLATERAL_ALLOCATION","COLLATERAL_ALLOCATION_ID","COLLATERAL_ID",
                         "BRANCH_CODE","MODULE_ID","FILE_NUMBER","ALLOCATE_AMOUNT","CURRENCY_CODE",
-                        "USED","RECORD_VERSION","CREATED_AT","UPDATED_AT")
+                        "USED","RECORD_VERSION","CREATED_AT","CREATED_BY","UPDATED_AT","UPDATED_BY")
                     && requiredColumns("COLLATERAL_TRANSACTION","COLLATERAL_TRANSACTION_ID",
                         "COLLATERAL_ID","COLLATERAL_ALLOCATION_ID","COLLATERAL_TRANSACTION_NUMBER",
                         "TRANSACTION_TYPE_CODE","TRANSACTION_STATUS_CODE","TRANSACTION_DIRECTION_CODE",
-                        "TRANSACTION_AMOUNT","CURRENCY_CODE","EFFECTIVE_AT","ORIGINAL_TRANSACTION_ID")
+                        "TRANSACTION_AMOUNT","CURRENCY_CODE","EFFECTIVE_AT","ORIGINAL_TRANSACTION_ID",
+                        "SOURCE_SYSTEM_CODE","IDEMPOTENCY_KEY","CREATED_BY","OWNER_BRANCH_CODE",
+                        "EXECUTING_BRANCH_CODE","REQUEST_ID","TRANSACTION_AT","CREATED_AT","RECORD_VERSION")
+                    && requiredColumns("COLLATERAL_TXN_STATUS_HISTORY","COLLATERAL_TXN_STATUS_HIST_ID",
+                        "COLLATERAL_TRANSACTION_ID","STATUS_SEQUENCE_NO","FROM_STATUS_CODE","TO_STATUS_CODE",
+                        "CHANGED_AT","CHANGED_BY","CREATED_AT","CREATED_BY","RECORD_VERSION")
                     && !unknownRequired("COLLATERAL_ALLOCATION","COLLATERAL_ALLOCATION_ID","COLLATERAL_ID",
                         "BRANCH_CODE","MODULE_ID","FILE_NUMBER","ALLOCATE_AMOUNT","CURRENCY_CODE",
-                        "USED","RECORD_VERSION","CREATED_AT","UPDATED_AT")
+                        "USED","RECORD_VERSION","CREATED_AT","CREATED_BY","UPDATED_AT","UPDATED_BY")
                     && !unknownRequired("COLLATERAL_TRANSACTION","COLLATERAL_TRANSACTION_ID",
                         "COLLATERAL_ID","COLLATERAL_ALLOCATION_ID","COLLATERAL_TRANSACTION_NUMBER",
                         "TRANSACTION_TYPE_CODE","TRANSACTION_STATUS_CODE","TRANSACTION_DIRECTION_CODE",
-                        "TRANSACTION_AMOUNT","CURRENCY_CODE","EFFECTIVE_AT","ORIGINAL_TRANSACTION_ID");
+                        "TRANSACTION_AMOUNT","CURRENCY_CODE","EFFECTIVE_AT","ORIGINAL_TRANSACTION_ID",
+                        "SOURCE_SYSTEM_CODE","IDEMPOTENCY_KEY","CREATED_BY","OWNER_BRANCH_CODE",
+                        "EXECUTING_BRANCH_CODE","REQUEST_ID","TRANSACTION_AT","CREATED_AT","RECORD_VERSION")
+                    && !unknownRequired("COLLATERAL_TXN_STATUS_HISTORY","COLLATERAL_TXN_STATUS_HIST_ID",
+                        "COLLATERAL_TRANSACTION_ID","STATUS_SEQUENCE_NO","FROM_STATUS_CODE","TO_STATUS_CODE",
+                        "CHANGED_AT","CHANGED_BY","CREATED_AT","CREATED_BY","RECORD_VERSION")
+                    && transactionHistoryKeyGeneratedByOracle();
         }catch(DataAccessException e){return false;}
+    }
+    private boolean transactionHistoryKeyGeneratedByOracle(){
+        Integer count=jdbc.queryForObject("""
+                SELECT COUNT(*) FROM ALL_TAB_COLUMNS
+                 WHERE OWNER='CLT' AND TABLE_NAME='COLLATERAL_TXN_STATUS_HISTORY'
+                   AND COLUMN_NAME='COLLATERAL_TXN_STATUS_HIST_ID'
+                   AND (IDENTITY_COLUMN='YES' OR NVL(DEFAULT_LENGTH,0)>0)
+                """,Integer.class);
+        return Integer.valueOf(1).equals(count);
     }
     public Readiness readiness(Authentication auth){
         actor(auth,false,"");
         boolean permit=permitSchemaReady(),core=coreSchemaReady(),maps=mappingsExist();
+        boolean stages=stageSchemasReady();
         boolean local=localPrototype();
-        boolean ready=(enabled("ALLOCATE")||enabled("UNALLOCATE"))&&permit&&core&&maps&&!local;
+        boolean ready=(enabled("ALLOCATE")||enabled("UNALLOCATE"))&&permit&&core&&maps&&stages&&!local;
         return new Readiness(enabled("ALLOCATE"),enabled("UNALLOCATE"),permit,core,maps,local,ready,
-                ready?"BANK_PERMIT_REQUIRED_FOR_EACH_POSTING":"POSTING_DISABLED_OR_BANK_SCHEMA_MAPPING_NOT_PROVEN");
+                ready?"BANK_PERMIT_AND_SINGLE_USE_POSTED_STAGE_REQUIRED":
+                    "POSTING_DISABLED_OR_BANK_SCHEMA_MAPPING_OR_STAGE_LIFECYCLE_MISSING");
     }
     private void assertReady(String operation){
         if(localPrototype())throw stop(HttpStatus.FORBIDDEN,"POSTING_LOCAL_PROTOTYPE_FINANCIAL_WRITE_DENIED");
         if(!enabled(operation))throw stop(HttpStatus.SERVICE_UNAVAILABLE,"POSTING_OPERATION_DISABLED_DEFAULT");
-        if(!permitSchemaReady() || !coreSchemaReady() || !mappingsExist())
+        if(!permitSchemaReady() || !coreSchemaReady() || !mappingsExist() || !stageSchemasReady())
             throw stop(HttpStatus.SERVICE_UNAVAILABLE,"POSTING_BANK_SCHEMA_OR_REFERENCE_MAPPING_MISSING");
     }
     private void validateActorBinding(Actor who,Permit p){
@@ -227,14 +283,14 @@ public final class CollateralPostingService {
                 who.subject(),p.issuer(),p.expiresAt(),now,
                 p.obligationAttested(),p.debtorsAttested(),p.policyAttested(),
                 parent.id().equals(p.collateralId()),parent.branch().equals(p.ownerBranch())
-                && parent.branch().equals(p.consumerBranch()),
+                && who.branch().equals(p.consumerBranch()),
                 p.clientId()!=null,p.moduleId()!=null,parent.version().equals(p.collateralVersion()),
                 stage,original);
         List<String> problems=new ArrayList<>(CollateralPostingPolicy.blockers(proof));
         if(!nonempty(p.obligationReference()) || !nonempty(p.policyReference())
                 || !nonempty(p.debtorDigest()) || p.debtorDigest().length()!=64
                 || !nonempty(p.sourceDigest()) || !nonempty(p.transactionNumber())
-                || !p.transactionNumber().matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,99}"))
+                || !p.transactionNumber().matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,63}"))
             problems.add("POSTING_BANK_SOURCE_AND_TRANSACTION_REFERENCES_REQUIRED");
         if(!problems.isEmpty())throw stop(HttpStatus.CONFLICT,"POSTING_DENIED_"+problems.getFirst());
     }
@@ -273,10 +329,20 @@ public final class CollateralPostingService {
         assertReady(operation);
         Receipt response=tx.execute(txStatus->{
             // Lock parent FIRST for *both* operations; all other financial writers must cooperate.
-            Parent locked=repository.lockParent(jdbc,id,who.branch());
-            Permit p=repository.lockPermit(jdbc,permitId,id,who.branch());
+            // Trusted caller is the consumer; the parent must be locked in its OWN branch.
+            // The owner comes only from the authoritative collateral row, never the request.
+            String owner=repository.ownerBranch(jdbc,id);
+            Parent locked=repository.lockParent(jdbc,id,owner);
+            Permit p=repository.lockPermit(jdbc,permitId,id,owner);
             if(!operation.equals(p.operation()))throw stop(HttpStatus.NOT_FOUND,"POSTING_PERMIT_OPERATION_MISMATCH");
             validateActorBinding(who,p);
+            if(!who.branch().equals(p.consumerBranch()))
+                throw stop(HttpStatus.FORBIDDEN,"POSTING_CONSUMER_BRANCH_NOT_ATTESTED");
+            if(!owner.equals(p.ownerBranch()))
+                throw stop(HttpStatus.NOT_FOUND,"POSTING_OWNER_BRANCH_MISMATCH");
+            if(!owner.equals(p.consumerBranch()) && "ALLOCATE".equals(operation)
+                    && !crossUnitPostingReady())
+                throw stop(HttpStatus.SERVICE_UNAVAILABLE,"POSTING_CROSS_UNIT_BANK_CONTRACT_DISABLED");
             if("POSTED".equals(p.status())){
                 if(CollateralPostingPolicy.sameKey(key,p.key()) && nonempty(p.postedTransactionId())
                         && nonempty(p.postedAllocationId()) && nonempty(p.postedParentVersion()))
@@ -294,7 +360,7 @@ public final class CollateralPostingService {
             if(p.amount()==null || p.amount().signum()<=0 || p.amount().scale()>4
                     || p.amount().precision()>20)
                 throw stop(HttpStatus.CONFLICT,"POSTING_AMOUNT_NOT_NUMBER20_4");
-            Exposure e=repository.exposure(jdbc,id,who.branch(),p.currency());
+            Exposure e=repository.exposure(jdbc,id,owner,p.currency(),config("posted-transaction-status"));
             if(e.invalidUsage()!=0 || e.otherBranch()!=0 || e.mismatchedCurrencies()!=0
                     || e.pendingTransactionCount()!=0)
                 throw stop(HttpStatus.CONFLICT,"POSTING_ALLOCATION_OR_TRANSACTION_INTEGRITY_BLOCKER");
@@ -310,26 +376,31 @@ public final class CollateralPostingService {
                         e.activeAmount(),p.amount(),true);}
                 catch(IllegalArgumentException ex){throw stop(HttpStatus.CONFLICT,ex.getMessage());}
                 allocationId=repository.nextId(jdbc,config("allocation-id-sequence"));
-                repository.insertAllocation(jdbc,allocationId,p);
+                repository.insertAllocation(jdbc,allocationId,p,who.subject());
                 remaining=p.amount();
             }else{
                 if(p.allocationId()==null || p.allocationVersion()==null || p.originalTransactionId()==null)
                     throw stop(HttpStatus.CONFLICT,"POSTING_UNALLOCATION_PERMIT_FIELDS_MISSING");
-                Allocation a=repository.lockAllocation(jdbc,p.allocationId(),id,who.branch());
+                Allocation a=repository.lockAllocation(jdbc,p.allocationId(),id,owner);
                 if(!a.used() || !a.version().equals(p.allocationVersion())
                         || !a.moduleId().equals(p.moduleId()) || !a.fileNumber().equals(p.fileNumber())
                         || !a.currency().equals(p.currency()))
                     throw stop(HttpStatus.CONFLICT,"POSTING_UNALLOCATION_TARGET_CHANGED");
                 try{remaining=CollateralPostingPolicy.unallocationRemaining(a.amount(),p.amount(),p.releaseMode());}
                 catch(IllegalArgumentException ex){throw stop(HttpStatus.CONFLICT,ex.getMessage());}
-                repository.updateAllocation(jdbc,a,remaining);
+                repository.updateAllocation(jdbc,a,remaining,who.subject());
                 allocationId=a.id();
             }
             String transactionId=repository.nextId(jdbc,config("transaction-id-sequence"));
             repository.insertTransaction(jdbc,transactionId,allocationId,p,
                     config("ALLOCATE".equals(operation)?"allocation-transaction-type":"unallocation-transaction-type"),
                     config("posted-transaction-status"),
-                    config("ALLOCATE".equals(operation)?"allocation-direction":"unallocation-direction"));
+                    config("ALLOCATE".equals(operation)?"allocation-direction":"unallocation-direction"),
+                    config("source-system-code"),key,who.subject());
+            repository.insertInitialTransactionStatus(jdbc,transactionId,
+                    config("posted-transaction-status"),who.subject());
+            // Stage, core allocation, txn history, parent and permit commit or roll back TOGETHER.
+            repository.consumeReviewedStage(jdbc,p,transactionId,allocationId);
             String version=repository.bumpParent(jdbc,parent,who.subject());
             repository.consumePermit(jdbc,p,key,who.subject(),transactionId,allocationId,version,remaining);
             var posted=new Permit(p.id(),p.operation(),p.collateralId(),p.ownerBranch(),

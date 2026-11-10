@@ -32,10 +32,14 @@ public class CollateralTimelineService {
         Map<String,Object> parent = registry.byRegistration(branch, registrationNumber);
         String collateralId = id(parent.get("COLLATERAL_ID"));
         String number = id(parent.get("COLLATERAL_NUMBER"));
-        var received = repository.events(branch, collateralId, page, size);
+        var batch = repository.events(branch, collateralId, page, size);
+        var received = batch.events();
         boolean more = received.size() > size;
+        String evidence = "BUC16_PERSISTED_CLT_ROWS_ONLY; TRANSACTION_LEDGER="
+                +(batch.transactionIncluded()?"AVAILABLE":"SCHEMA_NOT_AVAILABLE")
+                +"; TXN_STATUS_HISTORY="+(batch.statusHistoryIncluded()?"AVAILABLE":"SCHEMA_NOT_AVAILABLE")
+                +"; ALLOCATION_UPDATE_IS_LAST_EDIT_NOT_RELEASE_EVENT; NOT_COMPLETE_AUDIT_LOG";
         return new Timeline(collateralId, number, branch, page, size,
-                List.copyOf(received.subList(0, Math.min(received.size(), size))), more, false,
-                "BUC16_PERSISTED_CLT_ROWS_ONLY; ALLOCATION_UPDATE_IS_LAST_EDIT_NOT_EVENT_SOURCED_HISTORY; NOT_COMPLETE_AUDIT_LOG");
+                List.copyOf(received.subList(0, Math.min(received.size(), size))), more, false,evidence);
     }
 }

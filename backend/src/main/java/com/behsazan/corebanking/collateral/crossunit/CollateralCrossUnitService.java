@@ -282,6 +282,9 @@ public final class CollateralCrossUnitService {
     }
     private Grant saveGrant(Actor a,String id,String target,String reference,String key,String digest){
         Grant r=tx.execute(s->{
+            // Single lock order for BUC-09/11/15: COLLATERAL -> GRANT/INTENT.
+            // Never lock the grant before its parent (Oracle deadlock prevention).
+            Parent p=ownerCollateral(id,a.branch(),true);
             Grant old=grantByRequest(a,key,true);
             if(old!=null) {
                 if(!id.equals(old.collateralId()) || !target.equals(old.consumerBranch())
@@ -289,7 +292,6 @@ public final class CollateralCrossUnitService {
                     throw error(HttpStatus.CONFLICT,"CLT_CROSS_UNIT_GRANT_IDEMPOTENCY_CONFLICT");
                 return old;
             }
-            Parent p=ownerCollateral(id,a.branch(),true);
             if(!p.typePermission()||!p.active())throw error(HttpStatus.UNPROCESSABLE_ENTITY,
                     "CLT_CROSS_UNIT_TYPE_OR_COLLATERAL_NOT_PERMITTED");
             BigDecimal grantId=db.queryForObject("SELECT CLT.SEQ_CLT_CU_GRANT.NEXTVAL FROM DUAL",BigDecimal.class);
@@ -319,11 +321,12 @@ public final class CollateralCrossUnitService {
                 ?CollateralCrossUnitPolicy.expiry(command.validUntilUtc(),Instant.now()):null;
         requireDecisions();
         Grant r=tx.execute(s->{
+            // Same parent-first lock order as financial posting and final release.
+            Parent p=ownerCollateral(collateral,a.branch(),true);
             Grant current=grantById(collateral,a.branch(),grantId,true);
             if(!"PENDING".equals(current.status()))throw error(HttpStatus.CONFLICT,
                     "CLT_CROSS_UNIT_GRANT_ALREADY_DECIDED");
             CollateralCrossUnitPolicy.checker(current.maker(),a.subject());
-            Parent p=ownerCollateral(collateral,a.branch(),true);
             if(!p.version().equals(current.sourceRecordVersion()) || !p.typePermission() || !p.active())
                 throw error(HttpStatus.CONFLICT,"CLT_CROSS_UNIT_GRANT_SOURCE_CHANGED_OR_DISABLED");
             String status="APPROVE".equals(command.decision())?"APPROVED":"REJECTED";
@@ -348,6 +351,7 @@ public final class CollateralCrossUnitService {
         String reason=CollateralCrossUnitPolicy.reference(command.reasonReference());
         requireDecisions();
         Grant result=tx.execute(s->{
+            ownerCollateral(collateral,a.branch(),true); // parent BEFORE grant, always
             Grant current=grantById(collateral,a.branch(),grantId,true);
             if(!"APPROVED".equals(current.status()))throw error(HttpStatus.CONFLICT,
                     "CLT_CROSS_UNIT_ONLY_APPROVED_GRANTS_REVOKABLE");
@@ -382,13 +386,15 @@ public final class CollateralCrossUnitService {
         return rows.isEmpty()?null:rows.getFirst();
     }
     private static IntentReceipt receipt(ExistingIntent r,boolean replay){
+        boolean posted="POSTED".equals(r.status());
         return new IntentReceipt(r.id(),r.collateralId(),r.registration(),r.grantId(),
                 r.ownerBranch(),r.consumerBranch(),r.consumerDomain(),r.caseReference(),
                 r.fileNumber(),r.amount(),r.currency(),r.debtorCount(),r.status(),
-                replay,false,r.created(),r.digest(),List.of(
+                replay,posted,r.created(),r.digest(),posted ? List.of(
+                "BUC09_ATOMIC_POSTING_COMPLETED_USE_FINANCIAL_LEDGER_AS_AUTHORITY") : List.of(
                 "G09_CONSUMER_OBLIGATION_NOT_ATTESTED_BY_CLT",
-                "G02_ALLOCATION_LEDGER_FINALIZATION_NOT_IMPLEMENTED",
-                "G16_CROSS_DOMAIN_ATOMIC_CAPACITY_LOCK_NOT_IMPLEMENTED",
+                "G02_BANK_PERMIT_FOR_ATOMIC_ALLOCATION_REQUIRED",
+                "G16_CROSS_DOMAIN_ATOMIC_CAPACITY_LOCK_NOT_COMPLETED",
                 "CLT_CROSS_UNIT_STAGE_NOT_FINANCIAL_ALLOCATION"));
     }
     public IntentReceipt stageAnalyst(IntentCommand command,String key,Authentication auth){

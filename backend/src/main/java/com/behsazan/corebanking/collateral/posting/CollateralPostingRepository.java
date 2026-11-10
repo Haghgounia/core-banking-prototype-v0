@@ -45,6 +45,15 @@ public class CollateralPostingRepository {
     private static BigDecimal n(String text){return new BigDecimal(text);}
     private static ResponseStatusException deny(String code){return new ResponseStatusException(HttpStatus.CONFLICT,code);}
 
+    /** Resolve the owner without taking a lock: the parent FOR UPDATE still comes first.
+     *  The owner is NEVER supplied by the consumer request or JWT. */
+    public String ownerBranch(JdbcTemplate jdbc,String id) {
+        var rows=jdbc.query("SELECT BRANCH_CODE FROM CLT.COLLATERAL WHERE COLLATERAL_ID=?",
+                (r,i)->r.getString(1),n(id));
+        if(rows.size()!=1 || rows.getFirst()==null || rows.getFirst().isBlank())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"POSTING_COLLATERAL_NOT_FOUND");
+        return rows.getFirst();
+    }
     public Parent lockParent(JdbcTemplate jdbc,String id,String branch){
         var rows=jdbc.query("""
                 SELECT COLLATERAL_ID,BRANCH_CODE,COLLATERAL_STATUS_CODE,RECORD_VERSION,CURRENCY_CODE,
@@ -122,37 +131,112 @@ public class CollateralPostingRepository {
         if(rows.size()!=1)throw new ResponseStatusException(HttpStatus.NOT_FOUND,"POSTING_PERMIT_NOT_FOUND");
         return rows.getFirst();
     }
+    /** BUC-15: the locked grant AND locked intent are revalidated under the locked
+     *  collateral parent. Revocation cannot race the posting decision. */
+    private boolean matchesCrossUnitIntent(JdbcTemplate db,Permit p) {
+        if(p.sourceRequestId()==null || p.sourceDigest()==null || p.clientId()==null
+                || p.ownerBranch().equals(p.consumerBranch()))return false;
+        var ids=db.query("""
+                SELECT i.INTENT_ID
+                  FROM CLT.CLT_CROSS_UNIT_INTENT i
+                  JOIN CLT.CLT_CROSS_UNIT_GRANT g ON g.GRANT_ID=i.GRANT_ID
+                  JOIN CLT.COLLATERAL c ON c.COLLATERAL_ID=i.COLLATERAL_ID
+                  JOIN CLT.COLLATERAL_TYPE t ON t.COLLATERAL_TYPE_ID=c.COLLATERAL_TYPE_ID
+                 WHERE i.INTENT_ID=? AND i.COLLATERAL_ID=? AND i.OWNER_BRANCH=?
+                   AND i.CONSUMER_BRANCH=? AND i.CLIENT_ID=? AND i.CONSUMER_DOMAIN=?
+                   AND i.CASE_REFERENCE=? AND i.FILE_NUMBER=? AND i.AMOUNT=?
+                   AND i.CURRENCY_CODE=? AND i.PAYLOAD_DIGEST=?
+                   AND i.INTENT_STATUS='RECORDED_NOT_ALLOCATED' AND i.DEBTOR_COUNT>0
+                   AND i.REGISTRATION_NUMBER=c.COLLATERAL_NUMBER
+                   AND g.COLLATERAL_ID=i.COLLATERAL_ID AND g.OWNER_BRANCH=i.OWNER_BRANCH
+                   AND g.CONSUMER_BRANCH=i.CONSUMER_BRANCH
+                   AND g.GRANT_STATUS='APPROVED'
+                   AND g.SOURCE_RECORD_VERSION=c.RECORD_VERSION
+                   AND g.VALID_UNTIL_UTC>SYS_EXTRACT_UTC(SYSTIMESTAMP)
+                   AND c.BRANCH_CODE=? AND c.RECORD_VERSION=?
+                   AND t.USE_IN_OTHER_BRANCHES='Y' AND t.STATUS='ACTIVE'
+                 FOR UPDATE OF g.GRANT_STATUS,i.INTENT_STATUS WAIT 2
+                """,(r,i)->num(r.getBigDecimal(1)),n(p.sourceRequestId()),n(p.collateralId()),
+                p.ownerBranch(),p.consumerBranch(),p.clientId(),p.domain(),p.caseReference(),
+                n(p.fileNumber()),p.amount(),p.currency(),p.sourceDigest(),
+                p.ownerBranch(),n(p.collateralVersion()));
+        return ids.size()==1 && p.sourceRequestId().equals(ids.getFirst());
+    }
     public boolean matchesReviewedStage(JdbcTemplate db,Permit p){
         if(p.sourceRequestId()==null || p.sourceDigest()==null || p.sourceDigest().length()!=64)return false;
         String sql;
         Object[] args;
+        if("ALLOCATE".equals(p.operation()) && !p.ownerBranch().equals(p.consumerBranch()))
+            return matchesCrossUnitIntent(db,p);
         if("ALLOCATE".equals(p.operation())) {
             sql="""
                 SELECT COUNT(*) FROM CLT.CLT_ALLOCATION_REQUEST
                  WHERE REQUEST_ID=? AND COLLATERAL_ID=? AND BRANCH_CODE=?
                    AND CONSUMER_DOMAIN=? AND CASE_REFERENCE=? AND FILE_NUMBER=? AND AMOUNT=? AND CURRENCY_CODE=?
-                   AND PAYLOAD_DIGEST=? AND REQUEST_STATUS='RECORDED_NOT_ALLOCATED'
+                   AND PAYLOAD_DIGEST=? AND CLIENT_ID=?
+                   AND REQUEST_STATUS='RECORDED_NOT_ALLOCATED'
                    AND DEBTOR_COUNT>0 AND SPONSOR_CONFLICT=0
                 """;
             args=new Object[]{n(p.sourceRequestId()),n(p.collateralId()),p.ownerBranch(),p.domain(),p.caseReference(),
-                    n(p.fileNumber()),p.amount(),p.currency(),p.sourceDigest()};
+                    n(p.fileNumber()),p.amount(),p.currency(),p.sourceDigest(),p.clientId()};
         } else if("UNALLOCATE".equals(p.operation())) {
             sql="""
                 SELECT COUNT(*) FROM CLT.CLT_UNALLOC_REQ
                  WHERE REQUEST_ID=? AND COLLATERAL_ID=? AND ALLOCATION_ID=? AND BRANCH_CODE=?
                    AND CONSUMER_DOMAIN=? AND MODULE_ID=? AND FILE_NUMBER=?
                    AND REQUESTED_AMOUNT=? AND CURRENCY_CODE=? AND RELEASE_MODE=?
-                   AND PAYLOAD_DIGEST=? AND REQUEST_STATUS='RECORDED_NOT_UNALLOCATED'
+                   AND PAYLOAD_DIGEST=? AND CLIENT_ID=?
+                   AND REQUEST_STATUS='RECORDED_NOT_UNALLOCATED'
                    AND EXPECTED_ALLOC_VERSION=?
                 """;
             args=new Object[]{n(p.sourceRequestId()),n(p.collateralId()),n(p.allocationId()),
-                    p.ownerBranch(),p.domain(),n(p.moduleId()),n(p.fileNumber()),p.amount(),
-                    p.currency(),p.releaseMode(),p.sourceDigest(),n(p.allocationVersion())};
+                    p.consumerBranch(),p.domain(),n(p.moduleId()),n(p.fileNumber()),p.amount(),
+                    p.currency(),p.releaseMode(),p.sourceDigest(),p.clientId(),n(p.allocationVersion())};
         } else return false;
         Integer count=db.queryForObject(sql,Integer.class,args);
         return Integer.valueOf(1).equals(count);
     }
-    public Exposure exposure(JdbcTemplate jdbc,String id,String branch,String currency){
+    /** Atomic Stage -> POSTED transition: a second bank permit cannot consume the
+     *  same reviewed request, even with a different transaction number. */
+    public void consumeReviewedStage(JdbcTemplate db,Permit p,String transactionId,
+            String allocationId) {
+        int count;
+        if("ALLOCATE".equals(p.operation()) && !p.ownerBranch().equals(p.consumerBranch())){
+            count=db.update("""
+                    UPDATE CLT.CLT_CROSS_UNIT_INTENT
+                       SET INTENT_STATUS='POSTED',POSTED_TRANSACTION_ID=?,
+                           POSTED_ALLOCATION_ID=?,POSTED_AT_UTC=SYS_EXTRACT_UTC(SYSTIMESTAMP)
+                     WHERE INTENT_ID=? AND COLLATERAL_ID=? AND OWNER_BRANCH=?
+                       AND CONSUMER_BRANCH=? AND CLIENT_ID=? AND PAYLOAD_DIGEST=?
+                       AND INTENT_STATUS='RECORDED_NOT_ALLOCATED'
+                    """,n(transactionId),n(allocationId),n(p.sourceRequestId()),n(p.collateralId()),
+                    p.ownerBranch(),p.consumerBranch(),p.clientId(),p.sourceDigest());
+        }else if("ALLOCATE".equals(p.operation())){
+            count=db.update("""
+                    UPDATE CLT.CLT_ALLOCATION_REQUEST
+                       SET REQUEST_STATUS='POSTED',POSTED_TRANSACTION_ID=?,
+                           POSTED_ALLOCATION_ID=?,POSTED_AT=SYSTIMESTAMP,
+                           RECORD_VERSION=RECORD_VERSION+1
+                     WHERE REQUEST_ID=? AND COLLATERAL_ID=? AND BRANCH_CODE=?
+                       AND CLIENT_ID=? AND PAYLOAD_DIGEST=?
+                       AND REQUEST_STATUS='RECORDED_NOT_ALLOCATED'
+                    """,n(transactionId),n(allocationId),n(p.sourceRequestId()),n(p.collateralId()),
+                    p.ownerBranch(),p.clientId(),p.sourceDigest());
+        }else if("UNALLOCATE".equals(p.operation())){
+            count=db.update("""
+                    UPDATE CLT.CLT_UNALLOC_REQ
+                       SET REQUEST_STATUS='POSTED',POSTED_TRANSACTION_ID=?,
+                           POSTED_ALLOCATION_ID=?,POSTED_AT=SYSTIMESTAMP,
+                           UPDATED_AT=SYSTIMESTAMP,RECORD_VERSION=RECORD_VERSION+1
+                     WHERE REQUEST_ID=? AND COLLATERAL_ID=? AND ALLOCATION_ID=?
+                       AND BRANCH_CODE=? AND CLIENT_ID=? AND PAYLOAD_DIGEST=?
+                       AND REQUEST_STATUS='RECORDED_NOT_UNALLOCATED'
+                    """,n(transactionId),n(allocationId),n(p.sourceRequestId()),n(p.collateralId()),
+                    n(p.allocationId()),p.consumerBranch(),p.clientId(),p.sourceDigest());
+        }else throw deny("POSTING_UNKNOWN_OPERATION_STAGE");
+        if(count!=1)throw deny("POSTING_SOURCE_STAGE_ALREADY_CONSUMED_OR_CHANGED");
+    }
+    public Exposure exposure(JdbcTemplate jdbc,String id,String branch,String currency,String postedStatus){
         var rows=jdbc.query("""
                 SELECT COALESCE(SUM(CASE WHEN USED='YES' AND CURRENCY_CODE=?
                          THEN ALLOCATE_AMOUNT ELSE 0 END),0) AS ACTIVE_AMOUNT,
@@ -175,8 +259,8 @@ public class CollateralPostingRepository {
         Long pending=jdbc.queryForObject("""
                 SELECT COUNT(*) FROM CLT.COLLATERAL_TRANSACTION
                  WHERE COLLATERAL_ID=? AND (TRANSACTION_STATUS_CODE IS NULL
-                        OR TRANSACTION_STATUS_CODE IN ('PENDING','PENDING_APPROVAL'))
-                """,Long.class,n(id));
+                        OR TRANSACTION_STATUS_CODE NOT IN (?, 'POSTED','COMPLETED','CANCELLED','REJECTED'))
+                """,Long.class,n(id),postedStatus);
         long[] row=rows.getFirst();
         return new Exposure(amount,row[0],row[1],row[2],row[3],pending==null?-1:pending);
     }
@@ -202,8 +286,10 @@ public class CollateralPostingRepository {
                  WHERE COLLATERAL_TRANSACTION_ID=? AND COLLATERAL_ID=?
                    AND COLLATERAL_ALLOCATION_ID=?
                    AND TRANSACTION_TYPE_CODE=? AND TRANSACTION_STATUS_CODE=?
+                   AND OWNER_BRANCH_CODE=? AND EXECUTING_BRANCH_CODE=? AND CURRENCY_CODE=?
                 """,Integer.class,n(p.originalTransactionId()),n(p.collateralId()),
-                n(p.allocationId()),allocationTxnType,postedTxnStatus);
+                n(p.allocationId()),allocationTxnType,postedTxnStatus,
+                p.ownerBranch(),p.consumerBranch(),p.currency());
         return Integer.valueOf(1).equals(c);
     }
     public LocalDate bankCalendarDay(JdbcTemplate db){
@@ -224,30 +310,32 @@ public class CollateralPostingRepository {
         if(id==null || id.signum()<=0)throw deny("POSTING_SEQUENCE_NOT_AVAILABLE");
         return id.toPlainString();
     }
-    public void insertAllocation(JdbcTemplate db,String allocationId,Permit p){
+    public void insertAllocation(JdbcTemplate db,String allocationId,Permit p,String poster){
         int count=db.update("""
                 INSERT INTO CLT.COLLATERAL_ALLOCATION
                    (COLLATERAL_ALLOCATION_ID,COLLATERAL_ID,BRANCH_CODE,MODULE_ID,
-                    FILE_NUMBER,ALLOCATE_AMOUNT,CURRENCY_CODE,USED,RECORD_VERSION,CREATED_AT,UPDATED_AT)
-                VALUES (?,?,?,?,?,?,?,'YES',1,SYSTIMESTAMP,SYSTIMESTAMP)
+                    FILE_NUMBER,ALLOCATE_AMOUNT,CURRENCY_CODE,USED,RECORD_VERSION,
+                    CREATED_AT,CREATED_BY,UPDATED_AT)
+                VALUES (?,?,?,?,?,?,?,'YES',1,SYSTIMESTAMP,?,SYSTIMESTAMP)
                 """,n(allocationId),n(p.collateralId()),p.ownerBranch(),n(p.moduleId()),
-                n(p.fileNumber()),p.amount(),p.currency());
+                n(p.fileNumber()),p.amount(),p.currency(),poster);
         if(count!=1)throw deny("POSTING_ALLOCATION_INSERT_NOT_EXACTLY_ONE");
     }
-    public void updateAllocation(JdbcTemplate db,Allocation a,BigDecimal remaining){
+    public void updateAllocation(JdbcTemplate db,Allocation a,BigDecimal remaining,String poster){
         boolean full=remaining.signum()==0;
         int count=db.update("""
                 UPDATE CLT.COLLATERAL_ALLOCATION
                    SET ALLOCATE_AMOUNT=?,USED=?,RECORD_VERSION=RECORD_VERSION+1,
-                       UPDATED_AT=SYSTIMESTAMP
+                       UPDATED_AT=SYSTIMESTAMP,UPDATED_BY=?
                  WHERE COLLATERAL_ALLOCATION_ID=? AND COLLATERAL_ID=?
                    AND RECORD_VERSION=? AND USED='YES' AND ALLOCATE_AMOUNT=?
-                """,full?a.amount():remaining,full?"NO":"YES",n(a.id()),n(a.collateralId()),
+                """,full?a.amount():remaining,full?"NO":"YES",poster,n(a.id()),n(a.collateralId()),
                 n(a.version()),a.amount());
         if(count!=1)throw deny("POSTING_ALLOCATION_CAS_LOST");
     }
     public void insertTransaction(JdbcTemplate db,String transactionId,String allocationId,
-            Permit p,String type,String status,String direction){
+            Permit p,String type,String status,String direction,String sourceSystem,
+            String idempotencyKey,String poster){
         Integer exists=db.queryForObject("""
                 SELECT COUNT(*) FROM CLT.COLLATERAL_TRANSACTION
                  WHERE COLLATERAL_TRANSACTION_NUMBER=?
@@ -258,12 +346,24 @@ public class CollateralPostingRepository {
                    (COLLATERAL_TRANSACTION_ID,COLLATERAL_ID,COLLATERAL_ALLOCATION_ID,
                     COLLATERAL_TRANSACTION_NUMBER,TRANSACTION_TYPE_CODE,TRANSACTION_STATUS_CODE,
                     TRANSACTION_DIRECTION_CODE,TRANSACTION_AMOUNT,CURRENCY_CODE,EFFECTIVE_AT,
-                    ORIGINAL_TRANSACTION_ID)
-                VALUES (?,?,?,?,?,?,?,?,?,SYSTIMESTAMP,?)
+                    ORIGINAL_TRANSACTION_ID,SOURCE_SYSTEM_CODE,IDEMPOTENCY_KEY,CREATED_BY,
+                    OWNER_BRANCH_CODE,EXECUTING_BRANCH_CODE,REQUEST_ID,TRANSACTION_AT,CREATED_AT,RECORD_VERSION)
+                VALUES (?,?,?,?,?,?,?,?,?,SYSTIMESTAMP,?,?,?,?,?,?,?,SYSTIMESTAMP,SYSTIMESTAMP,1)
                 """,n(transactionId),n(p.collateralId()),n(allocationId),p.transactionNumber(),
                 type,status,direction,p.amount(),p.currency(),
-                p.originalTransactionId()==null?null:n(p.originalTransactionId()));
+                p.originalTransactionId()==null?null:n(p.originalTransactionId()),
+                sourceSystem,idempotencyKey,poster,p.ownerBranch(),p.consumerBranch(),p.sourceRequestId());
         if(count!=1)throw deny("POSTING_TRANSACTION_INSERT_NOT_EXACTLY_ONE");
+    }
+    /** The first posted state is immutable historical evidence, not an inferred allocation edit. */
+    public void insertInitialTransactionStatus(JdbcTemplate db,String transactionId,String status,String poster){
+        int count=db.update("""
+                INSERT INTO CLT.COLLATERAL_TXN_STATUS_HISTORY
+                   (COLLATERAL_TRANSACTION_ID,STATUS_SEQUENCE_NO,FROM_STATUS_CODE,TO_STATUS_CODE,
+                    CHANGED_AT,CHANGED_BY,CREATED_AT,CREATED_BY,RECORD_VERSION)
+                VALUES (?,1,NULL,?,SYSTIMESTAMP,?,SYSTIMESTAMP,?,1)
+                """,n(transactionId),status,poster,poster);
+        if(count!=1)throw deny("POSTING_TRANSACTION_STATUS_HISTORY_INSERT_NOT_EXACTLY_ONE");
     }
     public String bumpParent(JdbcTemplate db,Parent parent,String subject){
         int changed=db.update("""

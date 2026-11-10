@@ -1,0 +1,103 @@
+{
+  "patch": "CLT-BUC09-10-16-POSTING-AUDIT-2026-11-10",
+  "createdAt": "2026-11-10T09:55:05.203Z",
+  "status": "INSTALLED",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/posting/CollateralPostingRepository.java",
+      "action": "write",
+      "before": "0878d726749c9460712fe61fa7d35766d0e3dfab761959f305c7985e70b199a4",
+      "after": "bbe4c626c7bc2294d0f988dc2dc66e1b96c0e6dcb7c77e7f18f13fd7a4233468",
+      "beforeBytes": 19319,
+      "afterBytes": 20497
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/posting/CollateralPostingService.java",
+      "action": "write",
+      "before": "a5d53932cb0f652e1bb75a32c22e336bc8ec023c83b231076f1c7f27c5cc1a62",
+      "after": "53ac97b20c15090046dd9d402b7d694a47a3e000d065e46b51239aca8e7332ce",
+      "beforeBytes": 24486,
+      "afterBytes": 26513
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reporting/CollateralTimelineRepository.java",
+      "action": "write",
+      "before": "140652460ef35f55c6fd8d0fcde1742fa217719874b216deeacef278b61f2d00",
+      "after": "1ffcf0d5617055de24eeea4957729b27fb7978ce90bf45c9e75f02339ffb743c",
+      "beforeBytes": 5578,
+      "afterBytes": 9026
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/reporting/CollateralTimelineService.java",
+      "action": "write",
+      "before": "29a3ddfc83dfbcefd61508a6292a9053fd872e1fc863edb45979e129937df9dc",
+      "after": "983ae96245721021dcb797d09548134c3a252536a14adf75a1690e8c0f28340b",
+      "beforeBytes": 2371,
+      "afterBytes": 2649
+    },
+    {
+      "path": "backend/src/main/resources/clt/collateral-posting.properties",
+      "action": "write",
+      "before": "9eae33f23450927af7d633b3cb5dd66dd170901ca0de424a77ee275afcafbc7d",
+      "after": "76d764e20e66899db458f708a8281388a4c165be3b949e84bcb0b5ce0945facd",
+      "beforeBytes": 1193,
+      "afterBytes": 1354
+    },
+    {
+      "path": "docs/collateral/CLT-BUC09-10-16-ORACLE-POSTING-LEDGER-2026-11-10.md",
+      "action": "write",
+      "before": null,
+      "after": "55c76ade28ad58a70bab57321e291333b837277176e44c8db09faade81a98900",
+      "beforeBytes": null,
+      "afterBytes": 6002
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-business-usecase-report-contract.ts",
+      "action": "write",
+      "before": "369e15312d9292c2c5a72ee93a6c9e0a85292b76f5e77a0a780d17df1494d3f9",
+      "after": "f7eb7b25266ee15968140f509fb243e86c9d1a3909d5d997e23f26696ae90915",
+      "beforeBytes": 4226,
+      "afterBytes": 4261
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.component.html",
+      "action": "write",
+      "before": "4336a0c94b25d7dfe8a449523503326985f3f67c498085c4e23e1516183c8d97",
+      "after": "c64de56a710290c391fad416688008628f6974268174a93caa2efe95f5f045e3",
+      "beforeBytes": 11431,
+      "afterBytes": 11615
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.component.ts",
+      "action": "write",
+      "before": "94c48a73343ae5c6cba6f686c06e3499c13a4ac4e899aa5dcc5afd30d64d9cbe",
+      "after": "a9612ddca500d0039e7c75ab4b164f1e49af39905058d6ec2bd9195369703017",
+      "beforeBytes": 6812,
+      "afterBytes": 7773
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-reports.service.ts",
+      "action": "write",
+      "before": "c25beb93da415e11af068acdcccfa7d33ac799df4fafded830b4d2d77025267c",
+      "after": "34a5cb31c825acfd993975ca1ab62ca5b8e89b4a66f9249ba8391a168b1faa2d",
+      "beforeBytes": 4123,
+      "afterBytes": 4166
+    },
+    {
+      "path": "tools/clt/posting/CollateralPostingOracleBindingSmoke.java",
+      "action": "write",
+      "before": null,
+      "after": "9b603f425db7d8badf6c0122a5443c8ceb1eac753203b22fe551e752f4884bd4",
+      "beforeBytes": null,
+      "afterBytes": 5400
+    },
+    {
+      "path": "tools/clt/posting/verify-oracle-contract.cjs",
+      "action": "write",
+      "before": null,
+      "after": "5151bdc8abe4f34014e41cd23366f8a2a15d4370cc050962a30cfd7342dca07f",
+      "beforeBytes": null,
+      "afterBytes": 5195
+    }
+  ]
+}

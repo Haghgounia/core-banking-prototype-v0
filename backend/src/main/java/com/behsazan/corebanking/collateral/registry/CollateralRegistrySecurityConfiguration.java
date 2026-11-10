@@ -79,7 +79,10 @@ public class CollateralRegistrySecurityConfiguration {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/collaterals/*/final-release/readiness",
                                 "/api/v1/collaterals/*/final-release/evidence",
-                                "/api/v1/collaterals/*/final-release/status-history")
+                                "/api/v1/collaterals/*/final-release/status-history",
+                                "/api/v1/collaterals/*/final-release/posting-readiness",
+                                "/api/v1/collaterals/*/final-release/approved-permits",
+                                "/api/v1/collaterals/*/final-release/lifecycle-interlocks")
                         .hasAuthority("SCOPE_clt.collateral.read")
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/collaterals/*/final-release/preview")

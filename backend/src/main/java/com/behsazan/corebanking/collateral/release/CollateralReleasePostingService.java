@@ -180,9 +180,55 @@ public final class CollateralReleasePostingService {
     private long unresolvedTransactions(String collateralId){
         return Objects.requireNonNull(jdbc.queryForObject("""
                 SELECT COUNT(*) FROM CLT.COLLATERAL_TRANSACTION
-                 WHERE COLLATERAL_ID=? AND TRANSACTION_STATUS_CODE NOT IN
-                       ('COMPLETED','POSTED','REJECTED','CANCELLED')
+                 WHERE COLLATERAL_ID=? AND (TRANSACTION_STATUS_CODE IS NULL
+                       OR TRANSACTION_STATUS_CODE NOT IN
+                       ('COMPLETED','POSTED','REJECTED','CANCELLED'))
                 """,Long.class,num(collateralId)));
+    }
+    private record CrossUnitPermissionEvidence(long openGrants, boolean schemaInstalled) {}
+    /** No cross-branch grant can remain PENDING/APPROVED when the collateral is finalized.
+     *  Absence of the CLT_CROSS_UNIT_GRANT table is valid only if BUC-15 was never provisioned.
+     *  A partially installed dictionary fails closed rather than silently returning zero. */
+    private CrossUnitPermissionEvidence crossUnitPermissions(String collateralId) {
+        try {
+            Integer tables=jdbc.queryForObject("""
+                    SELECT COUNT(*) FROM ALL_TABLES
+                     WHERE OWNER='CLT' AND TABLE_NAME='CLT_CROSS_UNIT_GRANT'
+                    """,Integer.class);
+            if(Integer.valueOf(0).equals(tables))return new CrossUnitPermissionEvidence(0,false);
+            if(!Integer.valueOf(1).equals(tables))
+                throw stop(HttpStatus.SERVICE_UNAVAILABLE,"RELEASE_CROSS_UNIT_DICTIONARY_UNAVAILABLE");
+            Integer columns=jdbc.queryForObject("""
+                    SELECT COUNT(DISTINCT COLUMN_NAME) FROM ALL_TAB_COLUMNS
+                     WHERE OWNER='CLT' AND TABLE_NAME='CLT_CROSS_UNIT_GRANT'
+                       AND COLUMN_NAME IN ('COLLATERAL_ID','GRANT_STATUS','OWNER_BRANCH')
+                    """,Integer.class);
+            if(!Integer.valueOf(3).equals(columns))
+                throw stop(HttpStatus.SERVICE_UNAVAILABLE,"RELEASE_CROSS_UNIT_SCHEMA_INCOMPLETE");
+            Long opened=jdbc.queryForObject("""
+                    SELECT COUNT(*) FROM CLT.CLT_CROSS_UNIT_GRANT
+                     WHERE COLLATERAL_ID=? AND GRANT_STATUS IN ('PENDING','APPROVED')
+                    """,Long.class,num(collateralId));
+            if(opened==null)throw stop(HttpStatus.SERVICE_UNAVAILABLE,"RELEASE_GRANT_CHECK_UNAVAILABLE");
+            return new CrossUnitPermissionEvidence(opened,true);
+        }catch(DataAccessException ex){throw stop(HttpStatus.SERVICE_UNAVAILABLE,
+                "RELEASE_CROSS_UNIT_GRANT_EVIDENCE_UNAVAILABLE");}
+    }
+    /** Analyst can inspect the same Oracle preconditions checked by bank-gated posting.
+     *  This endpoint has no mutation, no bank permit issuance and no cross-branch disclosure. */
+    public LifecycleInterlocks lifecycle(String rawId,Authentication auth) {
+        Actor who=actor(auth,false);
+        String id=CollateralReleasePostingPolicy.decimalId(rawId);
+        collateral(id,who.branch(),false);
+        long[] a=allocationCounts(id,who.branch());
+        long transactions=unresolvedTransactions(id);
+        var grants=crossUnitPermissions(id);
+        boolean clear=a[0]==0 && a[1]==0 && a[2]==0
+                && transactions==0 && grants.openGrants()==0;
+        return new LifecycleInterlocks(id,a[0],a[1],a[2],transactions,
+                grants.openGrants(),grants.schemaInstalled(),clear,
+                clear?"CAPACITY_AND_CROSS_UNIT_INTERLOCKS_CLEAR_LEGAL_APPROVAL_STILL_REQUIRED":
+                    "RELEASE_HAS_ACTIVE_ALLOCATION_TRANSACTION_OR_CROSS_UNIT_PERMISSION");
     }
     private StatusHistory lastHistory(String collateralId){
         List<StatusHistory> rows=jdbc.query("""
@@ -227,6 +273,9 @@ public final class CollateralReleasePostingService {
             }
             long[] alloc=allocationCounts(id,who.branch());
             long unresolved=unresolvedTransactions(id);
+            CrossUnitPermissionEvidence crossUnit=crossUnitPermissions(id);
+            if(crossUnit.openGrants()!=0)
+                throw stop(HttpStatus.CONFLICT,"RELEASE_CROSS_UNIT_GRANTS_NOT_CLOSED");
             StatusHistory history=lastHistory(id);
             LocalDateTime now=jdbc.queryForObject("SELECT CAST(SYSTIMESTAMP AS TIMESTAMP) FROM DUAL",
                     (r,i)->at(r.getTimestamp(1)));

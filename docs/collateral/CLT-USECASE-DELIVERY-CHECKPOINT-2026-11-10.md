@@ -57,3 +57,8 @@ The new BUC11 bank-permit-gated *final posting code* is in `collateral/release/C
 - G-13 is **NOT CLOSED**: 4 CLT tables/sequences/indexes require bank/DBA approval and actual Oracle execution; organizational branch authority and reviewer scope require bank contract.
 - Cross-branch allocation posting and capacity usage (BUC-09) remain **NOT IMPLEMENTED/NOT ENABLED**; no false BUC-15 operational acceptance.
 - Details in `CLT-BUC15-CROSS-UNIT-USECASE-2026-11-10.md`. R0–R7 roadmap phase definitions unchanged.
+
+### 2026-11-10 — BUC09/10/11/12/15 lifecycle interlock (after posting audit installation)
+
+**Baseline confirmed installed by user:** `CLT-BUC09-10-16-POSTING-AUDIT-2026-11-10`.
+Latest proposed source adds single-use Stage CAS on BUC09/10 financial posting; independent bank cross-unit permission revalidation for BUC15 allocation, unresolved/null financial transaction and open cross-unit grant checks for BUC11, and BUC12 reintroduction cross-unit clearance proof. Analyst UI displays read-only lifecycle interlocks. All bank/DBA migrations remain **CANDIDATE NOT APPROVED**. No live end-to-end Oracle acceptance is claimed. R0..R7 labels and criteria are unchanged; reference `CLT-BUC09-10-11-12-15-LIFECYCLE-INTERLOCK-2026-11-10.md`.

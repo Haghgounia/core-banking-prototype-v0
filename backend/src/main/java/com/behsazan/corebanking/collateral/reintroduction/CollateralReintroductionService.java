@@ -206,6 +206,29 @@ public final class CollateralReintroductionService {
         if(rows.size()!=1)throw stop(HttpStatus.NOT_FOUND,"REINTRO_COLLATERAL_NOT_FOUND");
         return rows.getFirst();
     }
+    /** BUC-15 interlock: an older BUC-11 permit is insufficient if a pending or
+     *  approved cross-branch grant still survives. No new grant may be inferred
+     *  from an HTTP request, and a partial cross-unit schema fails closed. */
+    private boolean crossUnitCleared(Old old){
+        Integer count=db.queryForObject("""
+                SELECT COUNT(*) FROM ALL_TABLES
+                 WHERE OWNER='CLT' AND TABLE_NAME='CLT_CROSS_UNIT_GRANT'
+                """,Integer.class);
+        if(Integer.valueOf(0).equals(count))return true;
+        if(!Integer.valueOf(1).equals(count))return false;
+        Integer cols=db.queryForObject("""
+                SELECT COUNT(DISTINCT COLUMN_NAME) FROM ALL_TAB_COLUMNS
+                 WHERE OWNER='CLT' AND TABLE_NAME='CLT_CROSS_UNIT_GRANT'
+                   AND COLUMN_NAME IN ('COLLATERAL_ID','OWNER_BRANCH','GRANT_STATUS')
+                """,Integer.class);
+        if(!Integer.valueOf(3).equals(cols))return false;
+        Long unresolved=db.queryForObject("""
+                SELECT COUNT(*) FROM CLT.CLT_CROSS_UNIT_GRANT
+                 WHERE COLLATERAL_ID=? AND OWNER_BRANCH=?
+                   AND GRANT_STATUS IN ('PENDING','APPROVED')
+                """,Long.class,number(old.id()),old.branch());
+        return Long.valueOf(0).equals(unresolved);
+    }
     private boolean released(Old old){
         // BUC-11 evidence: real posted permit + last immutable status event; state alone is not enough.
         Integer posted=db.queryForObject("""
@@ -213,7 +236,7 @@ public final class CollateralReintroductionService {
                  WHERE COLLATERAL_ID=? AND BRANCH_CODE=? AND PERMIT_STATUS='POSTED'
                    AND POSTED_RECORD_VERSION=? AND TO_STATUS_CODE=? AND STATUS_HISTORY_ID IS NOT NULL
                 """,Integer.class,number(old.id()),old.branch(),number(old.version()),old.status());
-        return Integer.valueOf(1).equals(posted);
+        return Integer.valueOf(1).equals(posted) && crossUnitCleared(old);
     }
     private boolean historyReleased(Old old){
         List<String> rows=db.query("""

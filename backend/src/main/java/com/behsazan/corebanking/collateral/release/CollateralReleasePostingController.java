@@ -13,6 +13,10 @@ public final class CollateralReleasePostingController {
     public CollateralReleasePostingController(CollateralReleasePostingService service){this.service=service;}
     @GetMapping("/posting-readiness")
     public Readiness readiness(Authentication auth){return service.readiness(auth);}
+    @GetMapping("/lifecycle-interlocks")
+    public LifecycleInterlocks lifecycle(@PathVariable String collateralId,Authentication auth){
+        return service.lifecycle(collateralId,auth);
+    }
     @GetMapping("/approved-permits")
     public Permits approved(@PathVariable String collateralId,Authentication auth){return service.permits(collateralId,auth);}
     @PostMapping("/commit")

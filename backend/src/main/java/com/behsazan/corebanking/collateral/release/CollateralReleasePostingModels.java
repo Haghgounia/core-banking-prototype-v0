@@ -12,6 +12,10 @@ public final class CollateralReleasePostingModels {
             String targetStatus, String baseVersion, String approvalReference,
             String expiresAt, String postedAt, String postedVersion) {}
     public record Permits(List<PermitView> items, String source) {}
+    public record LifecycleInterlocks(String collateralId,long activeAllocations,
+            long foreignBranchAllocationRows,long unknownAllocationRows,
+            long unresolvedTransactions,long openCrossUnitGrants,
+            boolean crossUnitGrantSchemaInstalled,boolean capacityInterlocksClear,String decision) {}
     public record FinalizeCommand(String permitId) {}
     public record Receipt(String collateralId, String permitId, String status,
             String previousStatus, String finalStatus, String previousVersion,

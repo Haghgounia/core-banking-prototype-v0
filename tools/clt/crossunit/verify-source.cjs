@@ -26,7 +26,7 @@ try{
    'consumers.authenticatedClient(','sponsors.sponsorDebtorMatches(',
    'capacity.evidenceForVerifiedBranch(', 'RECORDED_NOT_ALLOCATED',
    'CLT.CLT_CROSS_UNIT_GRANT_EVENT','CLT.CLT_CROSS_UNIT_INTENT_DEBTOR',
-   'CLT_CROSS_UNIT_FX_POLICY_NOT_APPROVED','G02_ALLOCATION_LEDGER_FINALIZATION_NOT_IMPLEMENTED'
+   'CLT_CROSS_UNIT_FX_POLICY_NOT_APPROVED','G02_BANK_PERMIT_FOR_ATOMIC_ALLOCATION_REQUIRED'
  ]);
  contains(pkg+'CollateralCrossUnitController.java',[
   '/api/v1/collaterals/cross-unit','/by-registration/{registrationNumber}',
