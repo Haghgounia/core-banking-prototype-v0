@@ -49,3 +49,11 @@ Implement the **approved consumer obligation adapter and true atomic allocation 
 ## BUC11 continuation (2026-11-10)
 
 The new BUC11 bank-permit-gated *final posting code* is in `collateral/release/CollateralReleasePostingService.java`. Unlike R5C read-only preflight, it contains atomic DML for `CLT.COLLATERAL` and `CLT.COLLATERAL_STATUS_HISTORY`, durable permit consumption and replay. The operation is default-disabled and requires a bank-approved auxiliary permit table; the default local prototype authentication cannot post. See `CLT-BUC11-FINAL-RELEASE-POSTING-2026-11-10.md`. This is **not** operational acceptance. Continue implementing remaining BUCs while banking gates are resolved.
+
+
+## Checkpoint 2026-11-10 — BUC-15 Cross-unit authorization/source
+
+- BUC-15/BR-10/SUC-19: owner-branch grant request, independent bank decision and revocation, exact cross-branch lookup with double grant, and durable nonfinancial consumer/analyst intent implemented in code and UI.
+- G-13 is **NOT CLOSED**: 4 CLT tables/sequences/indexes require bank/DBA approval and actual Oracle execution; organizational branch authority and reviewer scope require bank contract.
+- Cross-branch allocation posting and capacity usage (BUC-09) remain **NOT IMPLEMENTED/NOT ENABLED**; no false BUC-15 operational acceptance.
+- Details in `CLT-BUC15-CROSS-UNIT-USECASE-2026-11-10.md`. R0–R7 roadmap phase definitions unchanged.

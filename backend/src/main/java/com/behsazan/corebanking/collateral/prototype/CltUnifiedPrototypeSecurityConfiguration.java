@@ -73,6 +73,8 @@ public class CltUnifiedPrototypeSecurityConfiguration {
                         "/api/v1/collaterals/*/insurance-policies/requests",
                         "/api/v1/collaterals/*/valuations/requests",
                         "/api/v1/collaterals/*/allocation-requests/intake/analyst",
+                        "/api/v1/collaterals/cross-unit/owner/*/grants",
+                        "/api/v1/collaterals/cross-unit/intents/analyst",
                         "/api/v1/collaterals/*/allocations/*/unallocation/analyst-requests",
                         "/api/v1/collaterals/*/allocations/*/unallocation/analyst-requests/*/cancel",
                         "/api/v1/collaterals/workflow/*/*/transition",

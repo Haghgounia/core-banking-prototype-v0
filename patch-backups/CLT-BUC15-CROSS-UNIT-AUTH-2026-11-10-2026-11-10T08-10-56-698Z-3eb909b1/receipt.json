@@ -1,0 +1,167 @@
+{
+  "patch": "CLT-BUC15-CROSS-UNIT-AUTH-2026-11-10",
+  "createdAt": "2026-11-10T08:10:56.703Z",
+  "status": "INSTALLED",
+  "files": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/crossunit/CollateralCrossUnitController.java",
+      "action": "write",
+      "before": null,
+      "after": "ae2fb9b9523799256874319c88b17b1bd6901e7d73a7f0fd1a4ac71487b98ed2",
+      "beforeBytes": null,
+      "afterBytes": 2703
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/crossunit/CollateralCrossUnitExceptionHandler.java",
+      "action": "write",
+      "before": null,
+      "after": "2440e7d8820c1cfea231b9da3fde35356871f20d9e58bfb028517ef1f4d9266b",
+      "beforeBytes": null,
+      "afterBytes": 742
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/crossunit/CollateralCrossUnitModels.java",
+      "action": "write",
+      "before": null,
+      "after": "7b07cb609a8d0db64048a4072e2993803f311d2ba4fe0d948ee6e923f1d08972",
+      "beforeBytes": null,
+      "afterBytes": 2162
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/crossunit/CollateralCrossUnitPolicy.java",
+      "action": "write",
+      "before": null,
+      "after": "a95e851407c80fa5a0bfcacdc04a5d18740e59746ca2f73b747b818edcd712a0",
+      "beforeBytes": null,
+      "afterBytes": 4360
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/crossunit/CollateralCrossUnitService.java",
+      "action": "write",
+      "before": null,
+      "after": "569271bb61608fa40e848b29d9844a4ce79b99ad703f3a68a5b96dbbe8e4ab23",
+      "beforeBytes": null,
+      "afterBytes": 32750
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/prototype/CltUnifiedPrototypeSecurityConfiguration.java",
+      "action": "write",
+      "before": "38df1077deb90003482783d8f9069d74d949e9666cf9ce0a9a6f4d6b6fda29a4",
+      "after": "27dc99a302dbf88ef255395a6f2556a0ee9d899bd0d8128bd1d9ceca4ccaaa63",
+      "beforeBytes": 9649,
+      "afterBytes": 9796
+    },
+    {
+      "path": "database/oracle/clt/crossunit/00_BUC15_READONLY_DISCOVERY.sql",
+      "action": "write",
+      "before": null,
+      "after": "dc10349ba51535cf53baf4f2bdba4c416b808d793560c1b0259c9016e80d1a14",
+      "beforeBytes": null,
+      "afterBytes": 744
+    },
+    {
+      "path": "database/oracle/clt/crossunit/01_BUC15_CROSS_UNIT_SCHEMA_CANDIDATE_NOT_APPROVED.sql",
+      "action": "write",
+      "before": null,
+      "after": "c38bcc38fdfc30d4f347bef5ed9cf7ba6bd136df6081f6d2dd3e87695aee6142",
+      "beforeBytes": null,
+      "afterBytes": 5502
+    },
+    {
+      "path": "docs/collateral/CLT-BUC15-CROSS-UNIT-USECASE-2026-11-10.md",
+      "action": "write",
+      "before": null,
+      "after": "2d204f12d8b3f200c99c9bfed6b23b2f577dbfba205e672b4fdca117f040e471",
+      "beforeBytes": null,
+      "afterBytes": 7109
+    },
+    {
+      "path": "docs/collateral/CLT-USECASE-DELIVERY-CHECKPOINT-2026-11-10.md",
+      "action": "write",
+      "before": "f9113eb9e4c9e069e44d92f276509fa59cc6516ba2f82a63dd100afb40dc6fc7",
+      "after": "dd0f6ff1c26a857676b0ffc5428d338b5e452237e33ca0812a7acdaee120ca83",
+      "beforeBytes": 8515,
+      "afterBytes": 9233
+    },
+    {
+      "path": "frontend/src/app/app.routes.ts",
+      "action": "write",
+      "before": "7ea769d37b7e37f06f283f774b1ac9fac251bc2b49b8d1dcb68f1b03da9ae4de",
+      "after": "08810d0fea3a0cab2d7aff464daa2279fbd6f928634ddd965fe65c0c232a21f3",
+      "beforeBytes": 19023,
+      "afterBytes": 19209
+    },
+    {
+      "path": "frontend/src/app/features/collateral/clt-r6c-ui-policy.ts",
+      "action": "write",
+      "before": "6521219db3d222a4e69820a74dd206412052b4743af3d3591e2808b4e11701c2",
+      "after": "75b7957e6b3bc515a9843952def66b3bf7e9c715bfcc9c7e16fe3f21f404fbb2",
+      "beforeBytes": 3219,
+      "afterBytes": 3243
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-cross-unit-workbench.component.html",
+      "action": "write",
+      "before": null,
+      "after": "4ad703563878a82c7c3a0226832c7ba3a22bf6447c26ac1c2f261aa40ab15f6d",
+      "beforeBytes": null,
+      "afterBytes": 10358
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-cross-unit-workbench.component.scss",
+      "action": "write",
+      "before": null,
+      "after": "90eed621c0b5d78c73f647b4b3484d3f043440fdca56d60eca3f978e7882034c",
+      "beforeBytes": null,
+      "afterBytes": 2581
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-cross-unit-workbench.component.ts",
+      "action": "write",
+      "before": null,
+      "after": "e98962618379750a54601d4d4e4d2d40da2f407407606ebe7d1fbc1eae5bd903",
+      "beforeBytes": null,
+      "afterBytes": 10746
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-cross-unit.service.ts",
+      "action": "write",
+      "before": null,
+      "after": "78ea6c5d3c93fb9bfac746ca0c32a516fe7f3886b84ff575e39ee42f79b33601",
+      "beforeBytes": null,
+      "afterBytes": 4018
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.html",
+      "action": "write",
+      "before": "09d794c2e6f1a561a7d064647a31bd9e5de1867726e9092ab2a50e7992da53eb",
+      "after": "d44698b40b8234617041577ad269b5551c1bc08d564595317489cc501f57a4ca",
+      "beforeBytes": 12484,
+      "afterBytes": 12674
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.ts",
+      "action": "write",
+      "before": "42c8c2d38a95407401213b4f0a62e8dd67daab62a744e6d6b881e90833f0b125",
+      "after": "7f402827ff83c7ef7171bd298d23023cc3b54b7dd8b0a6e64b2569d3e7d002d0",
+      "beforeBytes": 16722,
+      "afterBytes": 16930
+    },
+    {
+      "path": "tools/clt/crossunit/CrossUnitPolicySmoke.java",
+      "action": "write",
+      "before": null,
+      "after": "a72f2b0fb3adf58fea9c0aa8c5513c93c94bd765607787e9de49843bfcb97c38",
+      "beforeBytes": null,
+      "afterBytes": 3339
+    },
+    {
+      "path": "tools/clt/crossunit/verify-source.cjs",
+      "action": "write",
+      "before": null,
+      "after": "4bc1aece896dc7eb59cc0d35a1385564c52a29bfd7258e5195bbc2e8813963e4",
+      "beforeBytes": null,
+      "afterBytes": 3986
+    }
+  ]
+}
