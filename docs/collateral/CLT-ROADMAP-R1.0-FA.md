@@ -326,3 +326,17 @@
 ### Checkpoint 2026-11-10 - R6 16-BUC / 20-SUC analyst cockpit (source only)
 
 After user-confirmed installation of CLT-BUC09-10-11-12-15-LIFECYCLE-2026-11-10, this slice adds 32 manually scored scenarios across all 16 BUC and mapped 20 SUC, strict evidence export/import, a non-writing GET Oracle dictionary readiness probe with UNKNOWN for unavailability, live BUC-16 history within profile, and amendment navigation. Earlier 10 official UI cases and 17 reference tests remain separate. R6 is **NOT accepted**: live Oracle and full business UAT have not been executed; R0..R7 unchanged. See CLT-R6-BUC-SUC-INTEGRATED-UAT-2026-11-10.md.
+
+## پیوست اجرایی 2026-11-10 — اولویت جاری و خط مبنای ۱۶ BUC
+
+**این پیوست آخرین وضعیت اجرایی در تاریخ ۱۰ نوامبر ۲۰۲۶ است و بندهای رسمی ۱ تا ۷ و فازهای R0..R7 را بازتعریف نمی‌کند.** بخش «وضعیت در تاریخ تثبیت (2026-11-03)» یک تصویر تاریخی است و نباید وضعیت فعلی سورس تلقی شود.
+
+**اولویت بعدی:** شواهد Read-only از Oracle مشترک و آماده‌سازی داده/قواعد لازم برای اولین چرخه واقعی معرفی و استعلام وثیقه (BUC-01/02/03/04/13). سپس تکمیل ضامن/بیمه/ارزیابی و ظرفیت (BUC-06/07/08/14)، ثبت‌های اتمیِ مشروط و چرخه عمر (BUC-09/10/11/12/15/16)، و در پایان پذیرش ۱۶ BUC و ۲۰ SUC. این ترتیب «اولویت اجرای Feature Slices» است، نه تغییر فازهای مصوب.
+
+**نسخه نصب‌شده تأییدشده توسط کاربر:** `CLT-BUC-SUC-UAT-EVIDENCE-GAPS-2026-11-10`. **نسخه تحویل‌شده بعدی، بدون تأیید نصب در تاریخ این پیوست:** `CLT-BUC-SUC-UAT-ORACLE-EVIDENCE-2026-11-10`. مسیر Oracle UAT Evidence و SQL آن هنوز Candidate/Bank-Gated است. شواهد تأیید ۰ تا ۱۶ BUC به‌صورت مستقل باید اخذ شود؛ «عدم وجود شاهد پذیرش» مساوی «شکست آزمون» نیست.
+
+**سند الزامیِ ردیابی اجرا برای تحویل بعدی:** [CLT-EXECUTION-BASELINE-2026-11-10-FA.md](CLT-EXECUTION-BASELINE-2026-11-10-FA.md). شامل ماتریس هر ۱۶ BUC، پنج اولویت اجرایی، Gap/Owner/Gate، تعریف شواهد و مرز عدم اجرای DDL/Posting بدون تأیید بانک و DBA است. به‌روزرسانی اجرای هر تحویل باید همراه همین نقشه راه و Gap Register با Source Diff/Build/Oracle/UAT انجام شود. کدهای فازی فقط برای مستند ردیابی معتبرند، نه نام دائم کلاس/API/ZIP.
+
+### Checkpoint P1 - CLT Oracle Reference Reconciliation (2026-11-10)
+
+The P1 source implementation is delivered on the 2026-11-10-1658 full-project source, with the approved roadmap R0..R7 unchanged. A new read-only shared-DataSource reconciliation API and a panel in the existing analyst BUC workbench cover 17 references, branch-scoped registry counts, sequence visibility, NUMBER(19)/unique checks and G-16 status/default evidence. The three customized Collateral form HTML files are untouched. No Oracle live query or bank acceptance has been verified in this packaging environment. The next business gate remains BUC-03/BUC-13 Oracle readback under approved G-03/G-12/G-14/G-17 decisions. Details: [P1 Checkpoint](CLT-ORACLE-REFERENCE-RECONCILIATION-CHECKPOINT-2026-11-10.md).

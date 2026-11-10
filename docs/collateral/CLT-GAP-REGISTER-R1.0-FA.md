@@ -207,3 +207,20 @@
 | BUC-11/R5 | ثبت جدید فقط با شاهد Permit POSTED آزادسازی قبلی و تاریخچه نهایی امکان‌پذیر است | فعال‌سازی و آزمون موفق BUC-11 بر Oracle زنده | **OPEN** |
 
 هیچ Gap با صرف نصب سورس بسته و بدون Approval و آزمون واقعی بسته اعلام نمی‌شود.
+
+## اولویت اجرای Gapها — Checkpoint 2026-11-10 (بدون تغییر وضعیت رسمی)
+
+این بخش فقط تقدم عملیاتی شکاف‌ها را بر اساس [Execution Baseline](CLT-EXECUTION-BASELINE-2026-11-10-FA.md) ثبت می‌کند؛ **هیچ `OPEN` به `CLOSED` تبدیل نشده است**. فایل مرجع فازهای R0..R7 تغییر نمی‌کند.
+
+| تقدم | شکاف‌ها/وابستگی | ملاک بسته‌شدن |
+|---|---|---|
+| ۱ | G-03/12/14/17 و داده ۱۷ مرجع | شواهد Oracle زنده، تصمیم Policy/Schema، ثبت و Readback شناسنامه و شماره |
+| ۲ | G-04/05/06/07/10/11/18 و D-04..07 | سیاست مصوب بانک، Migration DBA، آزمون آثار واقعی و تاریخچه |
+| ۳ | G-02/09/13/16 و قرارداد Consumer/Permit/Module/Status | تایید Domain Owner، Oracle Atomicity و Idempotency، رگرسیون BUC-09/10/11/12/15 |
+| ۴ | Oracle Candidate ثبت شواهد UAT، ۳۲ سناریو، ۲۰ SUC | DBA Approval برای پایایی، شواهد واقعی تحلیلگر و تایید مستقل بانک |
+
+**تفاوت دو Baseline:** آخرین نصب تأییدشده `CLT-BUC-SUC-UAT-EVIDENCE-GAPS-2026-11-10` است. بسته `CLT-BUC-SUC-UAT-ORACLE-EVIDENCE-2026-11-10` تحویل شده ولی نصب آن در تاریخ این Checkpoint هنوز در گفتگو تأیید نشده است. داده/Schema جاری Oracle باید دوباره استعلام شود؛ شمارش تاریخی Zero را به‌عنوان وضعیت زنده تعمیم ندهید.
+
+### P1 source evidence checkpoint - 2026-11-10
+
+New technical reconciliation covers *observation* of G-16 and G-17 and visibility for G-03/G-12/G-14; it does not change OPEN/CLOSED decisions. Database UNKNOWN, insufficient privileges, unseen approved policy and missing operational UAT all keep the respective gaps open. Evidence link: `CLT-ORACLE-REFERENCE-RECONCILIATION-CHECKPOINT-2026-11-10.md`.

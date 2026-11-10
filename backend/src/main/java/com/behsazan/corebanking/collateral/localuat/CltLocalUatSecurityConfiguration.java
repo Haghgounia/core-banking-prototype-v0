@@ -72,6 +72,8 @@ public class CltLocalUatSecurityConfiguration {
                         "/api/v1/collaterals/valuations/readiness",
                         "/api/v1/collaterals/introduction-drafts/readiness",
                         "/api/v1/collaterals/introduction-reviews/readiness",
+                        // CLT P1: branch-scoped, strictly read-only analyst reconciliation probe.
+                        "/api/v1/collaterals/uat/oracle-reconciliation",
                         "/api/v1/collaterals/*",
                         "/api/v1/collaterals/*/sponsors",
                         "/api/v1/collaterals/*/insurance-policies",
