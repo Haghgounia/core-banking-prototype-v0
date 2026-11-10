@@ -211,6 +211,14 @@ public class CollateralRegistrySecurityConfiguration {
                                 introduction.draftWritesEnabled() && introduction.reviewWorkflowEnabled()
                                 && auth.get().getAuthorities().stream()
                                 .anyMatch(a -> "SCOPE_clt.collateral.review".equals(a.getAuthority()))))
+                        // BUC-03 readback is maker-only, not a final posting capability.
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/collaterals/introduction-reviews/*/registration-readback")
+                        .hasAuthority("SCOPE_clt.collateral.introduce")
+                        // BUC-13 readback is still branch-scoped and read-only.
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/collaterals/by-registration/*/verified-readback")
+                        .hasAuthority("SCOPE_clt.collateral.read")
                         // R2E: explicit read-only maker scope, no POST final registration route.
                         .requestMatchers(HttpMethod.GET, "/api/v1/collaterals/introduction-reviews/*/finalization-readiness")
                         .access((auth, context) -> new org.springframework.security.authorization.AuthorizationDecision(

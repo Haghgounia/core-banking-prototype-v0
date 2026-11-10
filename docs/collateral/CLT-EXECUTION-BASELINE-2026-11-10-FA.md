@@ -108,3 +108,13 @@
 | Policy/DBA approval, business UAT, bank sign-off | OPEN / NOT_ATTESTED | Never infer from technical metadata |
 
 **No phase promotion:** R0..R7 remain canonical; P1..P5 are execution priorities only. No IAM development, CLT-specific launcher, financial DML, schema migration or permission bypass was introduced. The next action is observe actual Oracle and resolve data/policy gates before claiming BUC-03 and BUC-13 readiness.
+
+---
+## Execution update 2026-11-10: BUC-03/13 Oracle readback implementation
+
+- P1 installer/build: analyst confirmed `CLT_P1_APPLIED=16/16`, `CLT_HF1_RUNTIME_VERIFIED_PASS=YES`, `CLT_HF1_VERIFICATION_PASS=YES`. The previously recorded installation state in section 1 is historical and superseded for P1 installation only.
+- P1 live technical evidence: `CLT-ORACLE-REFERENCE-RECONCILIATION-2026-11-10.json`, FREEPDB1, 13 of 17 references contain rows and 4 are observed empty; branch `CLT_NO_DATA` has 0 collateral records; bankAccepted=false.
+- P2 source progress: new BUC-13 by-number full readback, BUC-03 maker/branch-scoped review registration readback, verified-number, asset, review, draft and child evidence. Endpoints are GET-only and use the shared application datasource.
+- P2 source tests are not evidence of production Build/Oracle/UAT; `BUILD_VERIFIED`, `ORACLE_VERIFIED`, `ANALYST_UAT_PASSED`, `BANK_ACCEPTED` remain NOT_VERIFIED/false for the new feature.
+- Final Oracle registration posting is not included or enabled. Business G-03/G-12/G-14/G-16/G-17 and missing approved type catalog still block acceptance. No DDL/Seed/data mutation is performed.
+- Detailed checkpoint: `CLT-BUC03-BUC13-REGISTRATION-READBACK-CHECKPOINT-2026-11-10.md`.

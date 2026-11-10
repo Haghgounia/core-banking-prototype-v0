@@ -1,0 +1,127 @@
+{
+  "package": "CLT-BUC03-BUC13-READBACK-HF1-2026-11-10",
+  "root": "D:\\Projects\\core-banking-prototype-v0",
+  "timestamp": "2026-11-10T15:54:47.741Z",
+  "files": [
+    {
+      "relativePath": "backend/src/main/java/com/behsazan/corebanking/collateral/introduction/CollateralIntroductionReviewController.java",
+      "operation": "REPLACE",
+      "oldSha256": "1417ae39919c0fe678158aaa1da89a98cf47b2629f184dd922f43b3cb71754fb",
+      "newSha256": "01f5f461e767bc408a2084670c66ddf72e255742a15af303871972b5567b88dd"
+    },
+    {
+      "relativePath": "backend/src/main/java/com/behsazan/corebanking/collateral/localuat/CltLocalUatSecurityConfiguration.java",
+      "operation": "REPLACE",
+      "oldSha256": "5efde9a8989900f57e56580990b2e091f8e572ad17fca44cb0b64c7f09e91e36",
+      "newSha256": "dcf853f8de122b0beaaab363e11d8ba4433559d7398c441b30b6525a70606940"
+    },
+    {
+      "relativePath": "backend/src/main/java/com/behsazan/corebanking/collateral/registration/CollateralRegistrationReadbackModels.java",
+      "operation": "ADD",
+      "oldSha256": null,
+      "newSha256": "80c268cc8b50b5e922bdc716daa729b72bb541632eda7f915bad75707a7a2a03"
+    },
+    {
+      "relativePath": "backend/src/main/java/com/behsazan/corebanking/collateral/registration/CollateralRegistrationReadbackPolicy.java",
+      "operation": "ADD",
+      "oldSha256": null,
+      "newSha256": "0276db9f57600badabcf6d891e83b97d966114d16a5f56f5bc89853630d77899"
+    },
+    {
+      "relativePath": "backend/src/main/java/com/behsazan/corebanking/collateral/registration/CollateralRegistrationReadbackService.java",
+      "operation": "ADD",
+      "oldSha256": null,
+      "newSha256": "16af1c20b6edbb21014c13c6827afb7df96b50252a068c548a1347afe20b3930"
+    },
+    {
+      "relativePath": "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistryController.java",
+      "operation": "REPLACE",
+      "oldSha256": "efe230744b829d8da367e87de06ef1a991f22b406ca09228190e987314c2cbe2",
+      "newSha256": "24fbed6b15a0323fc086ffd4f9f4d114731498109796ad251a9f484121ade3f1"
+    },
+    {
+      "relativePath": "backend/src/main/java/com/behsazan/corebanking/collateral/registry/CollateralRegistrySecurityConfiguration.java",
+      "operation": "REPLACE",
+      "oldSha256": "c8db0763246e1d8734a8ae1d176ee9da7ab7f8828ec8bc45b7ecab60f6bfd1bf",
+      "newSha256": "4c11c56582563a361423917fa25b780c0cacae36a37b7234481ca71191a5afe2"
+    },
+    {
+      "relativePath": "backend/src/test/java/com/behsazan/corebanking/collateral/registration/CollateralRegistrationReadbackPolicyTest.java",
+      "operation": "ADD",
+      "oldSha256": null,
+      "newSha256": "a8fa7806d57895db36ed3ba8bfef6fdb8ea59d75144da90e8f429a54142bb7bf"
+    },
+    {
+      "relativePath": "docs/collateral/CLT-BUC03-BUC13-REGISTRATION-READBACK-CHECKPOINT-2026-11-10.md",
+      "operation": "ADD",
+      "oldSha256": null,
+      "newSha256": "7a933905b28e66531f72e17a9088b6a2b7107912f10f8fff9f80285a3405997b"
+    },
+    {
+      "relativePath": "docs/collateral/CLT-EXECUTION-BASELINE-2026-11-10-FA.md",
+      "operation": "REPLACE",
+      "oldSha256": "e77453c0e42519ed3c26d57da68cc3d287eb9c3882a877f54668ce5b3d8501c9",
+      "newSha256": "202808f84e18f7e8caf101f4718453563937739fb917b3e07d6847923a09abdd"
+    },
+    {
+      "relativePath": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "operation": "REPLACE",
+      "oldSha256": "842837a72342d47888763e83d475eb0d6fa311c3c0797a227b59bbfec0c09f89",
+      "newSha256": "08f56ccd87353295864ec5075d3721efbdc541629ea6d72b0baf58e021076d24"
+    },
+    {
+      "relativePath": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "operation": "REPLACE",
+      "oldSha256": "43d8cd7f153f027fbc5db70151fde65d6742a5b878ef3c0e238f046f7f69bf65",
+      "newSha256": "2f359b3dcaf050bfa82a2403a22824b9582b7aa76b517fde10cd64efde5fd94f"
+    },
+    {
+      "relativePath": "frontend/src/app/features/collateral/collateral-introduction.component.html",
+      "operation": "REPLACE",
+      "oldSha256": "465d3611cab73c0c017a7de60b40c9d758a21d897c7632e9b093aef10b5e43b5",
+      "newSha256": "7dc7738317aeb2a1b4c716cc021cd77f24e04ef7dc43310cbda52518080aff6b"
+    },
+    {
+      "relativePath": "frontend/src/app/features/collateral/collateral-introduction.component.ts",
+      "operation": "REPLACE",
+      "oldSha256": "8c89937fe312db09bce035a66a3a142185fe3788d5d781fbe2b42baab4dead69",
+      "newSha256": "41e05e4727df0148a2eea5e6ba3551b859efa8e04b665d4f50eba1f960ac3621"
+    },
+    {
+      "relativePath": "frontend/src/app/features/collateral/collateral-introduction.service.ts",
+      "operation": "REPLACE",
+      "oldSha256": "fe47003dda2d46b28154ed282f01cee8437c71724ecb189be94727f07522ddf4",
+      "newSha256": "4cf8642e518a97f6bcbf331ca10820a8f71809a41ec4ceb3a403eebc3abc9fbf"
+    },
+    {
+      "relativePath": "frontend/src/app/features/collateral/collateral-registration-readback-contract.ts",
+      "operation": "ADD",
+      "oldSha256": null,
+      "newSha256": "52f8afaf699bcdda9335f6d7bacbd3cd708d1d5724e43bd759cdd0f461a86d67"
+    },
+    {
+      "relativePath": "frontend/src/app/features/collateral/collateral-registry.component.html",
+      "operation": "REPLACE",
+      "oldSha256": "9dc866ddbef19ad7c8e06009d2a544e54db3e05d1496f615c3424af84c114dc2",
+      "newSha256": "c21f03dae453821d634e87e173f5546d92288b1db8a7c4b6bc7c68de8eebc424"
+    },
+    {
+      "relativePath": "frontend/src/app/features/collateral/collateral-registry.component.ts",
+      "operation": "REPLACE",
+      "oldSha256": "d20084bcb04c917926ce3d5063f3474faf29079a095e84f239e6d601cd2c5361",
+      "newSha256": "d745f97a0fb617466fb7f8bbc5f09582252632402ff783b61e4a3b820c5ce362"
+    },
+    {
+      "relativePath": "frontend/src/app/features/collateral/collateral-registry.service.ts",
+      "operation": "REPLACE",
+      "oldSha256": "4a0cdbbe85403ae06c550622f9931404495e6f22a16a58460f5e5e08448bbc5c",
+      "newSha256": "2e07e1bdea833242a5969612b2eecf41632ce08aa737541e376fd7ac9e7c1f41"
+    },
+    {
+      "relativePath": "tools/clt/readback/verify-source.cjs",
+      "operation": "ADD",
+      "oldSha256": null,
+      "newSha256": "7cd5d87b9a048bbe20b0f0e83f13cac4dc16aed785565e6d7e27b9ab1feb4c2e"
+    }
+  ]
+}

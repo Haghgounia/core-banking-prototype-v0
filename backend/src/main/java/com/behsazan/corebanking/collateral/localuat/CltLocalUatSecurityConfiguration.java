@@ -64,6 +64,7 @@ public class CltLocalUatSecurityConfiguration {
                         "/api/v1/collaterals", "/api/v1/collaterals/readiness",
                         "/api/v1/collaterals/groups", "/api/v1/collaterals/types", "/api/v1/collaterals/types/*/attributes",
                         "/api/v1/collaterals/by-registration/*",
+                        "/api/v1/collaterals/by-registration/*/verified-readback",
                         "/api/v1/collaterals/reports/overview",
                         "/api/v1/collaterals/reports/recent-events",
                         "/api/v1/collaterals/reports/reference-summary",

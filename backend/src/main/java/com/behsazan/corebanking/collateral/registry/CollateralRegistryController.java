@@ -17,12 +17,15 @@ public final class CollateralRegistryController {
     private final CollateralRegistryRepository repository;
     private final CollateralRegistryProperties registry;
     private final CltLocalUatProperties localUat;
+    private final com.behsazan.corebanking.collateral.registration.CollateralRegistrationReadbackService readback;
 
     public CollateralRegistryController(CollateralRegistryRepository repository,
-                                        CollateralRegistryProperties registry, CltLocalUatProperties localUat) {
+                                        CollateralRegistryProperties registry, CltLocalUatProperties localUat,
+            com.behsazan.corebanking.collateral.registration.CollateralRegistrationReadbackService readback) {
         this.repository = repository;
         this.registry = registry;
         this.localUat = localUat;
+        this.readback = readback;
     }
     private String branch(Authentication authentication) {
         if (!registry.readsEnabled()) throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
@@ -76,6 +79,13 @@ public final class CollateralRegistryController {
     @GetMapping("/by-registration/{number}")
     Map<String, Object> byRegistration(Authentication authentication, @PathVariable String number) {
         return repository.byRegistration(branch(authentication), number);
+    }
+
+    /** BUC-13: branch-scoped full readback, no registration or approval mutation. */
+    @GetMapping("/by-registration/{number}/verified-readback")
+    com.behsazan.corebanking.collateral.registration.CollateralRegistrationReadbackModels.Report
+    verifiedReadback(Authentication authentication, @PathVariable String number) {
+        return readback.byNumber(branch(authentication), number);
     }
 
     /** CLT_R6I_ACTIVE_GROUPS_20261104: safe, global technical catalog with a read-scope gate. */

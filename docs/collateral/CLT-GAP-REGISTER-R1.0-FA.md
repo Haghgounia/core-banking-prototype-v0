@@ -224,3 +224,8 @@
 ### P1 source evidence checkpoint - 2026-11-10
 
 New technical reconciliation covers *observation* of G-16 and G-17 and visibility for G-03/G-12/G-14; it does not change OPEN/CLOSED decisions. Database UNKNOWN, insufficient privileges, unseen approved policy and missing operational UAT all keep the respective gaps open. Evidence link: `CLT-ORACLE-REFERENCE-RECONCILIATION-CHECKPOINT-2026-11-10.md`.
+
+---
+## P2 source checkpoint 2026-11-10: verified registration-number readback
+
+G-03/G-12/G-14/G-16/G-17 remain OPEN. A new read-only BUC-03/13 linkage service can inspect an existing registered collateral against `CLT_REGISTRATION_LEDGER`, `CLT_REGISTRATION_NUMBER_AUTHORITY`, `CLT_INTRODUCTION_REVIEW`, `CLT_INTRODUCTION_DRAFT`, asset identity/link and registered serial rows. Missing schema is `LEDGER_SCHEMA_NOT_READY`, historical core rows lacking a ledger are `HISTORICAL_CORE_WITHOUT_LEDGER`, and contradictions are `READBACK_MISMATCH` rather than a success. No new bank approval, migration, numbering or registration writes are asserted. Reference emptiness is grounded in the latest P1 Oracle JSON. See `CLT-BUC03-BUC13-REGISTRATION-READBACK-CHECKPOINT-2026-11-10.md`.

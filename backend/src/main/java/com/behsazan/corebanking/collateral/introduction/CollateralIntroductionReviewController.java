@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.*;
 public final class CollateralIntroductionReviewController {
     private final CollateralIntroductionReviewService service;
     private final com.behsazan.corebanking.collateral.registration.CollateralRegistrationReadinessService registration;
+    private final com.behsazan.corebanking.collateral.registration.CollateralRegistrationReadbackService readback;
     public CollateralIntroductionReviewController(CollateralIntroductionReviewService service,
-            com.behsazan.corebanking.collateral.registration.CollateralRegistrationReadinessService registration) {
+            com.behsazan.corebanking.collateral.registration.CollateralRegistrationReadinessService registration,
+            com.behsazan.corebanking.collateral.registration.CollateralRegistrationReadbackService readback) {
         this.service = service;
         this.registration = registration;
+        this.readback = readback;
     }
     @GetMapping("/introduction-reviews/readiness")
     ReviewReadiness readiness(Authentication actor) { return service.readiness(actor); }
@@ -45,6 +48,13 @@ public final class CollateralIntroductionReviewController {
     com.behsazan.corebanking.collateral.registration.CollateralRegistrationReadinessModels.Report
     finalizationReadiness(@PathVariable String reviewId, Authentication actor) {
         return registration.report(reviewId, actor);
+    }
+
+    /** BUC-03: only the maker may resolve an Oracle registration for this review. */
+    @GetMapping("/introduction-reviews/{reviewId}/registration-readback")
+    com.behsazan.corebanking.collateral.registration.CollateralRegistrationReadbackModels.Report
+    registrationReadback(@PathVariable String reviewId, Authentication actor) {
+        return readback.byReview(actor, reviewId);
     }
 
     @PostMapping("/introduction-reviews/{reviewId}/decision")

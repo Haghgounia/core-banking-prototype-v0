@@ -340,3 +340,8 @@ After user-confirmed installation of CLT-BUC09-10-11-12-15-LIFECYCLE-2026-11-10,
 ### Checkpoint P1 - CLT Oracle Reference Reconciliation (2026-11-10)
 
 The P1 source implementation is delivered on the 2026-11-10-1658 full-project source, with the approved roadmap R0..R7 unchanged. A new read-only shared-DataSource reconciliation API and a panel in the existing analyst BUC workbench cover 17 references, branch-scoped registry counts, sequence visibility, NUMBER(19)/unique checks and G-16 status/default evidence. The three customized Collateral form HTML files are untouched. No Oracle live query or bank acceptance has been verified in this packaging environment. The next business gate remains BUC-03/BUC-13 Oracle readback under approved G-03/G-12/G-14/G-17 decisions. Details: [P1 Checkpoint](CLT-ORACLE-REFERENCE-RECONCILIATION-CHECKPOINT-2026-11-10.md).
+
+---
+## Implementation checkpoint 2026-11-10 (no R0-R7 phase changes)
+
+The P1 Oracle reconciliation build/runtime was verified by the analyst (`16/16`, runtime PASS). The live JSON found four empty reference catalogs, G-16 reference/default mismatch and missing bank-authorized write/readback evidence. The next P2 source delivery implements a non-mutating BUC-03 maker-specific registration readback and BUC-13 full registration-number readback (Oracle ledger, review, draft, asset link and child rows when present). Final registration posting and any number allocation remain disabled pending G-03/G-12/G-14/G-16/G-17 approvals. Details are in `CLT-BUC03-BUC13-REGISTRATION-READBACK-CHECKPOINT-2026-11-10.md`. Status: SOURCE_IMPLEMENTED; new production Build, Oracle E2E, analyst UAT and bank acceptance NOT_VERIFIED.
