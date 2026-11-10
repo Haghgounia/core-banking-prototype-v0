@@ -281,3 +281,12 @@
 - گیت `insurance-enabled=false` و بانک/DBA Release، Rule پوشش مصوب و Unique فیزیکی تمدید، قبل از DML اجباری هستند. این تحویل **هیچ عملیات قطعی فعال، Oracle Migration یا Approval جعلی** ندارد.
 - G-04/G-06/G-09 و D-05 همچنان **OPEN**؛ لغو و وضعیت اثربخش برای تخصیص پیاده‌سازی نشده است. ثبت ارزیابی R3 همچنان اولویت بعدی توسعه است.
 - شواهد: `CLT-R3-INSURANCE-ATOMIC-COMMIT-CHECKPOINT-2026-11-09.md` و `CLT-R3-INSURANCE-TRANSACTION-CONTRACT-FA.md`؛ QA در بسته نصب.
+
+
+## R3 — Checkpoint ثبت اتمیک ارزیابی و تجدید ارزیابی (2026-11-09)
+
+- **آخرین نصب موفق اعلام‌شده توسط کاربر:** `CLT-R3-INSURANCE-ATOMIC-COMMIT-2026-11-09`. نسخه تحویل این گام `CLT-R3-VALUATION-ATOMIC-COMMIT-2026-11-09` است. عنوان/ترتیب R0 تا R7 تغییر نکرده‌اند.
+- مسیر کد **ثبت اولیه و تجدید ارزیابی** از Stage `REVIEWED` به `COLLATERAL_VALUATION_HISTORY` با Status `FINAL`، تغییر وضعیت سابق به `SUPERSEDED`، بروزرسانی CAS اشاره‌گر `CURRENT_VALUATION_HISTORY_ID` و Ledger/Receipt **اتمیک** پیاده‌سازی می‌شود.
+- گیت `core-banking.collateral.r3-posting.valuation-enabled=false`، Release/Rule بانک، دیکشنری DBA و آزمون Oracle پیش از DML ضروری است. هیچ DDL یا عملیات قطعی خودکار اجرا نمی‌شود.
+- G-07/G-18/G-09/G-10 و D-06 در وضعیت **OPEN** باقی‌اند؛ `FINAL` به‌تنهایی دلیل کفایت برای تخصیص R4 نیست.
+- اسناد: `CLT-R3-VALUATION-ATOMIC-COMMIT-CHECKPOINT-2026-11-09.md`، `CLT-R3-VALUATION-TRANSACTION-CONTRACT-FA.md` و `QA-REPORT.json` در Patch. بعدی: جمع‌بندی شکاف‌های R3، لغو بیمه طبق G-06 و معیار عبور به R4.

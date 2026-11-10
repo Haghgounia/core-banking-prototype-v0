@@ -158,3 +158,16 @@
 | D-05 (جدید، فیزیکی/DBA) | قفل وثیقه و بررسی جانشین قبلی در سرویس وجود دارد | `COLLATERAL_INSURANCE.PREVIOUS_INSURANCE_ID` در مدل EA فقط Index غیریکتا دارد؛ برای جلوگیری از Race چند Writer، پس از تطبیق داده‌ها و تایید DBA قید Unique ضروری است | OPEN |
 
 **محدودیت:** در نبود Release مصوب، Schema Ledger/Rule و دو Unique معتبر Oracle، `insurance-enabled=false` و عملیات ثبت قطعی متوقف است. هیچ Gap با نصب سورس بسته اعلام نمی‌شود. **R3 ادامه دارد؛ R4 آغاز نشده است.**
+
+
+## D-06 / R3 Valuation Atomic Finalization Candidate — 2026-11-09
+
+| شناسه | پیشرفت در کد | کنترل بانک/DBA باقی‌مانده | وضعیت |
+|---|---|---|---|
+| G-07 | کد گذار Stage REVIEWED به History FINAL و تغییر قبلی به SUPERSEDED با Audit/Receipt | نگاشت مصوب APPROVED/UI به FINAL/Oracle و سیاست نقش تأییدکننده | OPEN |
+| G-18 | Rule مصوب نوع وثیقه برای Appraisable و `DAY/MONTH/YEAR`، Anchor و EffectiveTo؛ بدون مقدار پیش‌فرض | اصلاح یا تصویب محل ذخیره، مرز تاریخ و Business Date بانک | OPEN |
+| G-09 | کنترل وجود Rule صلاحیت ارزیاب و Currency برابر وثیقه؛ حالت نامعتبر Fail-Closed | اعتبارسنجی حرفه‌ای/سرویس بیرونی ارزیاب و FX | OPEN |
+| G-10 | منع Value منفی/صفر و ارزش فرعی بزرگتر از Amount؛ بدون تولید خودکار مقدار | سیاست Haircut/EligibleValue رسمی برای تخصیص | OPEN |
+| D-06 (فنی/DBA) | در Service موجودیت Identity، Unique دوگانه sequence/supersedes، FK مرکب و CAS بررسی می‌شوند؛ SQL تشخیص فقط خواندنی است | تطبیق DB فیزیکی واقعی و داده‌های گذشته با مشخصات `Collateral_DB_Specification_FA(2).html` و امضای Migration/Recovery پیش از فعال‌سازی | OPEN |
+
+**محدودیت:** این نسخه اثبات اتصال زنده Oracle نیست و Feature Flag ارزیابی خاموش می‌ماند. جداول Release/Rule/Ledger فقط کاندید هستند؛ هیچ بانک/DBA Approval جعل یا هیچ Gap بسته نشده است.
