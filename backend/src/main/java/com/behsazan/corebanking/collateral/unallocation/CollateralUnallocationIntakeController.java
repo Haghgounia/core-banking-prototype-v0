@@ -25,6 +25,19 @@ public class CollateralUnallocationIntakeController {
             @RequestBody PreviewRequest request,Authentication auth){
         return service.submit(collateralId,allocationId,request,key,etag,auth);
     }
+    /** Branch operator can stage a request without an external service JWT; NEVER changes USED. */
+    @PostMapping("/allocations/{allocationId}/unallocation/analyst-requests")
+    public Receipt submitAnalyst(@PathVariable String collateralId,@PathVariable String allocationId,
+            @RequestHeader("Idempotency-Key") String key,@RequestHeader("If-Match") String etag,
+            @RequestBody PreviewRequest request,Authentication auth) {
+        return service.submitAnalyst(collateralId,allocationId,request,key,etag,auth);
+    }
+    @PostMapping("/allocations/{allocationId}/unallocation/analyst-requests/{requestId}/cancel")
+    public Receipt cancelAnalyst(@PathVariable String collateralId,@PathVariable String allocationId,
+            @PathVariable String requestId,@RequestHeader("Idempotency-Key") String key,
+            @RequestHeader("If-Match") String etag,@RequestBody CancelRequest request,Authentication auth) {
+        return service.cancelAnalyst(collateralId,allocationId,requestId,request,key,etag,auth);
+    }
     @GetMapping("/allocations/{allocationId}/unallocation/requests/{requestId}")
     public Receipt receipt(@PathVariable String collateralId,@PathVariable String allocationId,
             @PathVariable String requestId,@RequestParam("consumerDomain") String consumerDomain,Authentication auth){

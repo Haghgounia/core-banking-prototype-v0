@@ -7,12 +7,12 @@ for(const modulePath of [path.join(root,'frontend','node_modules','typescript'),
   try { ts=require(modulePath); break; } catch(e) { if(e.code!=='MODULE_NOT_FOUND') throw e; }
 }
 if(!ts){console.error('CLT_R2_R3_TYPESCRIPT_MISSING_AFTER_BUILD');process.exit(1);}
-const file=path.join(root,'frontend/src/app/features/collateral/clt-r2r3-presentation.ts');
+const file=path.join(root,'frontend/src/app/features/collateral/collateral-presentation.ts');
 const source=fs.readFileSync(file,'utf8');
 const out=ts.transpileModule(source,{fileName:file,reportDiagnostics:true,compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}});
 assert.equal(out.diagnostics?.length||0,0);
 const moduleExports={};vm.runInNewContext(out.outputText,{exports:moduleExports,Intl,Date,Number,RegExp,String,Array});
-const {cltR2PersianDate:date,cltR2StatusName:status,cltR3PersistedDraftMatches:match}=moduleExports;
+const {cltR2PersianDate:date,cltR2StatusName:status,cltPersistedDraftMatches:match}=moduleExports;
 let tested=0;const test=(label,fn)=>{fn();tested++;console.log('PASS | '+label);};
 test('Gregorian to Persian calendar exact date',()=>assert.match(date('2026-11-08'),/۱۴۰۵/));
 test('Date never invents time',()=>assert.ok(!date('2026-11-08').includes(':')));

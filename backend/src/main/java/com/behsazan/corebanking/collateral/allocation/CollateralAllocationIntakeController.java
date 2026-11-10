@@ -18,6 +18,13 @@ public class CollateralAllocationIntakeController {
             @RequestBody Request request, Authentication auth) {
         return service.submit(collateralId,request,key,auth);
     }
+    /** Local analyst Stage: scoped to the app's loopback bridge; never a consumer instruction. */
+    @PostMapping("/analyst")
+    public Receipt submitAnalyst(@PathVariable String collateralId,
+            @RequestHeader("Idempotency-Key") String key,
+            @RequestBody Request request,Authentication auth) {
+        return service.submitAnalyst(collateralId,request,key,auth);
+    }
     @GetMapping("/readiness")
     public Readiness readiness(Authentication auth) {return service.readiness(auth);}
     @GetMapping("/journal")

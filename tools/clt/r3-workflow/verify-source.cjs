@@ -5,13 +5,13 @@ const root=path.resolve(__dirname,'../../..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 let checks=0;
 const yes=(test,why)=>{if(!test)throw Error('CLT_R3_WORKFLOW_SOURCE_FAIL '+why);checks++};
-const service=read('backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowService.java');
-const controller=read('backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowController.java');
-const policy=read('backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralR3WorkflowPolicy.java');
+const service=read('backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralWorkflowService.java');
+const controller=read('backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralWorkflowController.java');
+const policy=read('backend/src/main/java/com/behsazan/corebanking/collateral/workflow/CollateralWorkflowPolicy.java');
 const security=read('backend/src/main/java/com/behsazan/corebanking/collateral/prototype/CltUnifiedPrototypeSecurityConfiguration.java');
-const ui=read('frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.ts');
-const html=read('frontend/src/app/features/collateral/collateral-r3-draft-worklist.component.html');
-const client=read('frontend/src/app/features/collateral/collateral-r3-workflow.service.ts');
+const ui=read('frontend/src/app/features/collateral/collateral-draft-worklist.component.ts');
+const html=read('frontend/src/app/features/collateral/collateral-draft-worklist.component.html');
+const client=read('frontend/src/app/features/collateral/collateral-workflow.service.ts');
 const ddl=read('database/oracle/clt/r3workflow/01_R3_STAGE_TRANSITIONS_CANDIDATE_NOT_APPROVED.sql');
 const roadmap=read('docs/collateral/CLT-ROADMAP-R1.0-FA.md');
 const gaps=read('docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md');
@@ -27,7 +27,7 @@ yes(service.includes("EVENT_CODE = 'REQUEST_CREATED'"),'creation_audit_guard');
 yes(service.includes('FOR UPDATE'),'row_lock');
 yes(service.includes('RECORD_VERSION = RECORD_VERSION + 1'),'optimistic_update');
 yes(service.includes('DECISION_REASON, EVENT_AT'),'reason_audit_event');
-yes(service.includes('CollateralR3WorkflowPolicy.requiresCurrentDomainValidation(action)') &&
+yes(service.includes('CollateralWorkflowPolicy.requiresCurrentDomainValidation(action)') &&
     service.includes('validateForStageDecision(kind, collateralId, id, action, auth)'),
     'submit_and_review_revalidation');
 yes(policy.includes('action == Action.SUBMIT || action == Action.REVIEW'),

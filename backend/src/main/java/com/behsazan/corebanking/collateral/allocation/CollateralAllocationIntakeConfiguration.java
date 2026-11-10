@@ -1,5 +1,7 @@
 package com.behsazan.corebanking.collateral.allocation;
 
+import javax.sql.DataSource;
+import org.springframework.core.env.Environment;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +15,9 @@ public class CollateralAllocationIntakeConfiguration {
     @Bean(destroyMethod = "close")
     @ConditionalOnProperty(prefix = "core-banking.collateral.allocation.intake",
             name = "request-writes-enabled", havingValue = "true")
-    CollateralAllocationIntakeWriterPool collateralAllocationIntakeWriterPool(CollateralAllocationIntakeProperties p) {
+    CollateralAllocationIntakeWriterPool collateralAllocationIntakeWriterPool(CollateralAllocationIntakeProperties p, DataSource applicationDataSource, Environment environment) {
+        if (environment.getProperty("core-banking.collateral.prototype.enabled", Boolean.class, false))
+            return new CollateralAllocationIntakeWriterPool(applicationDataSource);
         return new CollateralAllocationIntakeWriterPool(p);
     }
 }

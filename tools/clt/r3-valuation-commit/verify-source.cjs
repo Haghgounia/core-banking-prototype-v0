@@ -4,12 +4,12 @@ const root=path.resolve(process.argv[2]||process.cwd());
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const base='backend/src/main/java/com/behsazan/corebanking/collateral/workflow/';
 const web='frontend/src/app/features/collateral/';
-const service=read(base+'CollateralR3ValuationCommitService.java');
-const policy=read(base+'CollateralR3ValuationCommitPolicy.java');
-const ctrl=read(base+'CollateralR3WorkflowController.java');
-const frontend=read(web+'collateral-r3-workflow.service.ts');
-const component=read(web+'collateral-r3-draft-worklist.component.ts');
-const html=read(web+'collateral-r3-draft-worklist.component.html');
+const service=read(base+'CollateralValuationCommitService.java');
+const policy=read(base+'CollateralValuationCommitPolicy.java');
+const ctrl=read(base+'CollateralWorkflowController.java');
+const frontend=read(web+'collateral-workflow.service.ts');
+const component=read(web+'collateral-draft-worklist.component.ts');
+const html=read(web+'collateral-draft-worklist.component.html');
 const sql=read('database/oracle/clt/r3valuationpost/01_VALUATION_POSTING_SCHEMA_CANDIDATE_NOT_APPROVED.sql');
 let n=0;
 const has=(test,label)=>{if(!test)throw new Error('CLT_R3_VALUATION_SOURCE_FAIL:'+label);n++;};
@@ -38,7 +38,7 @@ const checks=[
  [service.includes('PREPARED') && service.includes('COMMITTED'),'ledger in transaction'],
  [service.includes('preflight.inspect("valuation"'),'server stage evidence'],
  [service.includes('workflow.validateForStageDecision'),'live revalidation'],
- [service.includes('CollateralR3StageFingerprint.digest'),'payload integrity'],
+ [service.includes('CollateralStageFingerprint.digest'),'payload integrity'],
  [service.includes('requireSupersession') && service.includes('predecessor('),'predecessor guard'],
  [service.includes('requirePeriod(') && service.includes('requireValuer('),'independent rules'],
  [service.includes('requireAmount('),'currency and value guard'],
@@ -71,16 +71,16 @@ const checks=[
  [fs.existsSync(path.join(root,'docs/collateral/CLT-R3-VALUATION-TRANSACTION-CONTRACT-FA.md')),'contract exists'],
  [read('docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md').includes('D-06'),'gap tracker updated'],
  [read('docs/collateral/CLT-ROADMAP-R1.0-FA.md').includes('CLT-R3-VALUATION-ATOMIC-COMMIT'),'roadmap checkpoint'],
- [fs.existsSync(path.join(root,'backend/src/test/java/com/behsazan/corebanking/collateral/workflow/CollateralR3ValuationCommitPolicyTest.java')),'JUnit'],
- [read(base+'CollateralR3InsuranceCommitService.java').includes('r3-posting.insurance-enabled:false'),'existing insurance unaffected'],
- [read(base+'CollateralR3SponsorCommitService.java').includes('sponsor-enabled:false'),'existing sponsor unaffected'],
+ [fs.existsSync(path.join(root,'backend/src/test/java/com/behsazan/corebanking/collateral/workflow/CollateralValuationCommitPolicyTest.java')),'JUnit'],
+ [read(base+'CollateralInsuranceCommitService.java').includes('r3-posting.insurance-enabled:false'),'existing insurance unaffected'],
+ [read(base+'CollateralSponsorCommitService.java').includes('sponsor-enabled:false'),'existing sponsor unaffected'],
 ];
 for (const [x,label] of checks)has(x,label);
 let ts;
 try {ts=require(path.join(root,'frontend','node_modules','typescript'));}
 catch {try{ts=require('typescript');}catch{}}
 if(!ts){const {execFileSync}=require('child_process');const globalDir=execFileSync(process.platform==='win32'?'npm.cmd':'npm',['root','-g'],{encoding:'utf8',timeout:5000}).trim();ts=require(path.join(globalDir,'typescript'));}
-for(const fn of ['collateral-r3-workflow.service.ts','collateral-r3-draft-worklist.component.ts']){
+for(const fn of ['collateral-workflow.service.ts','collateral-draft-worklist.component.ts']){
  const src=ts.createSourceFile(fn,read(web+fn),ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
  has(src.parseDiagnostics.length===0,'typescript parse '+fn);
 }

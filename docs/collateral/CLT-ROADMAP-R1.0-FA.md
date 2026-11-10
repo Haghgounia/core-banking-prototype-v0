@@ -290,3 +290,20 @@
 - گیت `core-banking.collateral.r3-posting.valuation-enabled=false`، Release/Rule بانک، دیکشنری DBA و آزمون Oracle پیش از DML ضروری است. هیچ DDL یا عملیات قطعی خودکار اجرا نمی‌شود.
 - G-07/G-18/G-09/G-10 و D-06 در وضعیت **OPEN** باقی‌اند؛ `FINAL` به‌تنهایی دلیل کفایت برای تخصیص R4 نیست.
 - اسناد: `CLT-R3-VALUATION-ATOMIC-COMMIT-CHECKPOINT-2026-11-09.md`، `CLT-R3-VALUATION-TRANSACTION-CONTRACT-FA.md` و `QA-REPORT.json` در Patch. بعدی: جمع‌بندی شکاف‌های R3، لغو بیمه طبق G-06 و معیار عبور به R4.
+
+## Checkpoint 2026-11-10 — R3 Insurance Cancellation / G-06 (بدون تغییر فازهای مصوب)
+
+- بر مبنای سورس نصب‌شده ارزیابی R3، پیش‌بررسی اثر احتمالی لغو بیمه از Oracle واقعی، Stage مستقل Maker/Reviewer و نامزد ثبت اتمیک **Append-only** رویداد لغو به سورس اضافه شد؛ فرم سفارشی بیمه بازنویسی نمی‌شود و کارتابل جدید در صفحه جزئیات وثیقه کنار فرم فعلی نمایش داده می‌شود.
+- تنها اقدام فعال بدون Migration مصوب، GET شواهد است؛ `automaticCancellationAllowed=false` و هر ردیف تخصیص حتی `USED='NO'` موجب Block رویداد نهایی است. هیچ تخصیص/پوشش قبلی خودکار ابطال یا معتبر اعلام نمی‌شود.
+- Stage و Final دو Flag مستقل با پیش‌فرض خاموش دارند؛ `01_CANCELLATION_EVENT_SCHEMA_CANDIDATE_NOT_APPROVED.sql` هیچ DDL واقعی اجرا نمی‌کند. Event/Audit نیازمند Triggerهای Append-only و موافقت مستقل بانک است.
+- مدارک جدید: `CLT-R3-CANCELLATION-LIFECYCLE-CONTRACT-FA.md` و `CLT-R3-CANCELLATION-CHECKPOINT-2026-11-10.md`؛ شواهد آزمون در بسته Patch به‌صورت `QA-REPORT.json` و `SOURCE-DIFF.patch`.
+- وضعیت R3 همچنان **ACTIVE/BANK-GATED**؛ G-04/G-06/G-09 و D-07 **OPEN**، Oracle Live و UAT نهایی انجام نشده‌اند. گام بعد: **جمع‌بندی شکاف‌ها و Traceability انتهای R3**، نه تغییر/بستن خودکار R3 یا عبور بدون تصویب به R4.
+
+
+## Checkpoint 2026-11-10 — BUC-driven development after R3; **no change to canonical phase names**
+
+- Based on **user supplied** `core-banking-prototype-v0-2026-11-10-0815.zip`, development no longer waits exclusively on R3 bank/DBA gates to proceed to code for **R4/BUC09** and **R5/BUC10**, but those gates remain formally **OPEN**. R0..R7 labels, order and exit criteria in §4 remain unchanged.
+- New R4/R5 *analyst Stage only* UI/API request+receipt support, using the project's shared DataSource for local-prototype Stage opt-in, without allocation/unallocation financial DML. R5/BUC11 final release remains preflight/read-only.
+- Permanent Java/Angular identifiers move from R3-named to domain-named; canonical workflow API has legacy alias. Old files are removed by guarded installer. Business forms preserved.
+- Both Stage flags default off; DBA SQL candidate does not run in install. No Oracle, Maven/Angular full build or UAT acceptance claimed.
+- See [BUC Delivery Checkpoint](CLT-USECASE-DELIVERY-CHECKPOINT-2026-11-10.md) and [Naming ADR](CLT-STABLE-DOMAIN-NAMING-2026-11-10-FA.md). Next developer task: continue true BUC09/BUC10 domain posting only after validated bank domain & concurrency decisions; BUC11/12 and other BUCs are tracked to end-to-end acceptance.

@@ -3,9 +3,9 @@ const path = require('path');
 const root = path.resolve(process.argv[2] || '.');
 const dir = path.join(root,'backend/src/main/java/com/behsazan/corebanking/collateral/lifecycle');
 function load(name) { return fs.readFileSync(path.join(dir,name),'utf8'); }
-const policy=load('CollateralR3LifecycleEvidencePolicy.java');
-const service=load('CollateralR3LifecycleEvidenceService.java');
-const controller=load('CollateralR3LifecycleEvidenceController.java');
+const policy=load('CollateralLifecycleEvidencePolicy.java');
+const service=load('CollateralLifecycleEvidenceService.java');
+const controller=load('CollateralLifecycleEvidenceController.java');
 const checks = [
   [service.includes('DataSource applicationDataSource'), 'SHARED_APPLICATION_DATASOURCE'],
   [service.includes('new JdbcTemplate(applicationDataSource)'), 'JDBC_SHARED'],
@@ -23,7 +23,7 @@ const checks = [
   [service.includes('Asia/Tehran'), 'ORACLE_LOCAL_CLOCK'],
   [service.includes('rows.size() != 1'), 'NOT_FOUND_OR_FORBIDDEN'],
   [service.includes('registry.readsEnabled()') && service.includes('reference.readsEnabled()'), 'READ_FLAGS'],
-  [controller.includes('@GetMapping("/{collateralId}/r3/lifecycle-evidence")'), 'GET_ONLY_ROUTE'],
+  [controller.includes('"/{collateralId}/r3/lifecycle-evidence"') && controller.includes('@GetMapping('), 'GET_ONLY_ROUTE'],
   [controller.includes('ConditionalOnProperty'), 'PROTOTYPE_GATE'],
   [!controller.includes('@PostMapping') && !controller.includes('@PutMapping'), 'NO_WRITE_ENDPOINT'],
   [!(/\b(INSERT|UPDATE|DELETE|MERGE|CREATE TABLE|ALTER TABLE|DROP TABLE)\b/.test(service) ), 'NO_DML_DDL'],

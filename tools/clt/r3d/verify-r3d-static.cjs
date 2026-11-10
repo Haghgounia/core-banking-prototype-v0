@@ -8,7 +8,7 @@ const panel=read(base+'collateral-insurance-panel.component.ts');
 const html=read(base+'collateral-insurance-panel.component.html');
 const uat=read(base+'collateral-uat-workbench.component.ts');
 const uatHtml=read(base+'collateral-uat-workbench.component.html');
-const policy=read(base+'clt-r3d-insurance-form-preview-policy.ts');
+const policy=read(base+'collateral-insurance-form-preview-policy.ts');
 const reference=read(base+'clt-reference.service.ts');
 const checks=[];
 function check(name,condition){assert.ok(condition,'CLT_R3D_STATIC_FAIL '+name);checks.push(name);console.log('PASS | '+name);}
@@ -41,11 +41,11 @@ function typescript(){
 }
 const ts=typescript();
 if(ts){
- const script=ts.transpileModule(policy,{fileName:'clt-r3d-insurance-form-preview-policy.ts',
+ const script=ts.transpileModule(policy,{fileName:'collateral-insurance-form-preview-policy.ts',
   reportDiagnostics:true,compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}});
  check('pure preview policy TypeScript syntax',!script.diagnostics?.length);
  const sandbox={exports:{}};const vm=require('node:vm');vm.runInNewContext(script.outputText,sandbox,{timeout:1000});
- const validate=sandbox.exports.cltR3dPreviewIssues;
+ const validate=sandbox.exports.cltInsurancePreviewIssues;
  check('pure preview policy executable',typeof validate==='function');
  const ok={insuranceNumber:'INS-1001',depositNumber:'SAFE-01',insuranceAmount:'100.0001',receivedAmount:'0',
   taxAmount:'',validFrom:'2026-11-07',validTo:'2026-11-08',justification:'Analyst preview only'};

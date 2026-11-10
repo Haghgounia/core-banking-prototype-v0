@@ -1,5 +1,5 @@
-import com.behsazan.corebanking.collateral.workflow.CollateralR3SponsorCommitPolicy;
-import com.behsazan.corebanking.collateral.workflow.CollateralR3SponsorCommitPolicy.*;
+import com.behsazan.corebanking.collateral.workflow.CollateralSponsorCommitPolicy;
+import com.behsazan.corebanking.collateral.workflow.CollateralSponsorCommitPolicy.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,22 +22,22 @@ public class R3SponsorCommitSmoke {
     private static Release approved() { return new Release("POLICY-REVISION-20261109","G05-DECISION-2026-11-09", "DBA-APPROVAL-2026-11-09", "G09-CONTRACT-APPROVED", "BANK-DECISION-OWNER", true); }
     private static StageEvidence stage() { return new StageEvidence("REVIEWED","3",true,true,false,"maker-01","checker-02"); }
     private static void guard(Command cmd,StageEvidence facts,Release release,boolean enabled,boolean schema,boolean auth) {
-        CollateralR3SponsorCommitPolicy.guard(cmd,facts,release,enabled,schema,auth);
+        CollateralSponsorCommitPolicy.guard(cmd,facts,release,enabled,schema,auth);
     }
     public static void main(String[] args) {
         guard(command(),stage(),approved(),true,true,true);yes(true,"valid");
-        yes(CollateralR3SponsorCommitPolicy.version("3").equals("3"),"version ok");
-        yes(CollateralR3SponsorCommitPolicy.key(command().idempotencyKey()).equals(command().idempotencyKey()),"key ok");
-        yes(CollateralR3SponsorCommitPolicy.reason("  some good reason  ").equals("some good reason"),"reason normalized");
-        fails(IllegalArgumentException.class,()->CollateralR3SponsorCommitPolicy.version("1"),"stale v1");
-        fails(IllegalArgumentException.class,()->CollateralR3SponsorCommitPolicy.version("2"),"stale v2");
-        fails(IllegalArgumentException.class,()->CollateralR3SponsorCommitPolicy.version("4"),"future v4");
-        fails(IllegalArgumentException.class,()->CollateralR3SponsorCommitPolicy.version(null),"null version");
-        fails(IllegalArgumentException.class,()->CollateralR3SponsorCommitPolicy.key("short"),"key short");
-        fails(IllegalArgumentException.class,()->CollateralR3SponsorCommitPolicy.key("wrong key with spaces"),"key space");
-        fails(IllegalArgumentException.class,()->CollateralR3SponsorCommitPolicy.key(null),"null key");
-        fails(IllegalArgumentException.class,()->CollateralR3SponsorCommitPolicy.reason("no"),"reason short");
-        fails(IllegalArgumentException.class,()->CollateralR3SponsorCommitPolicy.reason("x".repeat(501)),"reason long");
+        yes(CollateralSponsorCommitPolicy.version("3").equals("3"),"version ok");
+        yes(CollateralSponsorCommitPolicy.key(command().idempotencyKey()).equals(command().idempotencyKey()),"key ok");
+        yes(CollateralSponsorCommitPolicy.reason("  some good reason  ").equals("some good reason"),"reason normalized");
+        fails(IllegalArgumentException.class,()->CollateralSponsorCommitPolicy.version("1"),"stale v1");
+        fails(IllegalArgumentException.class,()->CollateralSponsorCommitPolicy.version("2"),"stale v2");
+        fails(IllegalArgumentException.class,()->CollateralSponsorCommitPolicy.version("4"),"future v4");
+        fails(IllegalArgumentException.class,()->CollateralSponsorCommitPolicy.version(null),"null version");
+        fails(IllegalArgumentException.class,()->CollateralSponsorCommitPolicy.key("short"),"key short");
+        fails(IllegalArgumentException.class,()->CollateralSponsorCommitPolicy.key("wrong key with spaces"),"key space");
+        fails(IllegalArgumentException.class,()->CollateralSponsorCommitPolicy.key(null),"null key");
+        fails(IllegalArgumentException.class,()->CollateralSponsorCommitPolicy.reason("no"),"reason short");
+        fails(IllegalArgumentException.class,()->CollateralSponsorCommitPolicy.reason("x".repeat(501)),"reason long");
         fails(IllegalStateException.class,()->guard(command(),stage(),approved(),false,true,true),"feature off");
         fails(IllegalStateException.class,()->guard(command(),stage(),approved(),true,false,true),"schema off");
         fails(SecurityException.class,()->guard(command(),stage(),approved(),true,true,false),"no auth");
@@ -67,18 +67,18 @@ public class R3SponsorCommitSmoke {
         for(StageEvidence x:bad) fails(IllegalStateException.class,()->guard(command(),x,approved(),true,true,true),"stage gate");
         fails(IllegalArgumentException.class,()->guard(null,stage(),approved(),true,true,true),"null command");
         fails(IllegalArgumentException.class,()->guard(command(),null,approved(),true,true,true),"null stage");
-        CollateralR3SponsorCommitPolicy.checkReplay(command(),command().idempotencyKey(),"aaa","aaa","checker");yes(true,"exact replay");
-        fails(IllegalStateException.class,()->CollateralR3SponsorCommitPolicy.checkReplay(command(),"different-key","aaa","aaa","checker"),"replay key mismatch");
-        fails(IllegalStateException.class,()->CollateralR3SponsorCommitPolicy.checkReplay(command(),command().idempotencyKey(),"aaa","bbb","checker"),"replay hash mismatch");
-        fails(IllegalStateException.class,()->CollateralR3SponsorCommitPolicy.checkReplay(command(),command().idempotencyKey(),"aaa","aaa",null),"replay no actor");
-        CollateralR3SponsorCommitPolicy.requireExactlyOne(1L,"fail");yes(true,"one audit");
-        fails(IllegalStateException.class,()->CollateralR3SponsorCommitPolicy.requireExactlyOne(0L,"no audit"),"no audit");
-        fails(IllegalStateException.class,()->CollateralR3SponsorCommitPolicy.requireExactlyOne(2L,"duplicate"),"dup audit");
-        yes(CollateralR3SponsorCommitPolicy.decimal(new BigDecimal("12"),"bad").equals(new BigDecimal("12")),"decimal ok");
-        fails(IllegalStateException.class,()->CollateralR3SponsorCommitPolicy.decimal(new BigDecimal("0"),"bad"),"zero id");
-        fails(IllegalStateException.class,()->CollateralR3SponsorCommitPolicy.decimal(null,"bad"),"missing id");
-        fails(IllegalStateException.class,()->CollateralR3SponsorCommitPolicy.decimal(new BigDecimal("1".repeat(20)),"bad"),"huge id");
-        yes(CollateralR3SponsorCommitPolicy.unresolvedOutsideAdd().size()==2,"unresolved not hidden");
+        CollateralSponsorCommitPolicy.checkReplay(command(),command().idempotencyKey(),"aaa","aaa","checker");yes(true,"exact replay");
+        fails(IllegalStateException.class,()->CollateralSponsorCommitPolicy.checkReplay(command(),"different-key","aaa","aaa","checker"),"replay key mismatch");
+        fails(IllegalStateException.class,()->CollateralSponsorCommitPolicy.checkReplay(command(),command().idempotencyKey(),"aaa","bbb","checker"),"replay hash mismatch");
+        fails(IllegalStateException.class,()->CollateralSponsorCommitPolicy.checkReplay(command(),command().idempotencyKey(),"aaa","aaa",null),"replay no actor");
+        CollateralSponsorCommitPolicy.requireExactlyOne(1L,"fail");yes(true,"one audit");
+        fails(IllegalStateException.class,()->CollateralSponsorCommitPolicy.requireExactlyOne(0L,"no audit"),"no audit");
+        fails(IllegalStateException.class,()->CollateralSponsorCommitPolicy.requireExactlyOne(2L,"duplicate"),"dup audit");
+        yes(CollateralSponsorCommitPolicy.decimal(new BigDecimal("12"),"bad").equals(new BigDecimal("12")),"decimal ok");
+        fails(IllegalStateException.class,()->CollateralSponsorCommitPolicy.decimal(new BigDecimal("0"),"bad"),"zero id");
+        fails(IllegalStateException.class,()->CollateralSponsorCommitPolicy.decimal(null,"bad"),"missing id");
+        fails(IllegalStateException.class,()->CollateralSponsorCommitPolicy.decimal(new BigDecimal("1".repeat(20)),"bad"),"huge id");
+        yes(CollateralSponsorCommitPolicy.unresolvedOutsideAdd().size()==2,"unresolved not hidden");
         System.out.println("CLT_R3_SPONSOR_COMMIT_JAVA21_PASS="+checks+"/"+checks);
     }
 }

@@ -1,9 +1,9 @@
-import com.behsazan.corebanking.collateral.workflow.CollateralR3ValuationCommitPolicy;
+import com.behsazan.corebanking.collateral.workflow.CollateralValuationCommitPolicy;
 import com.behsazan.corebanking.collateral.valuation.CollateralValuationModels;
 import com.behsazan.corebanking.collateral.valuation.CollateralValuationPolicy;
 import java.time.LocalDate;
 import java.util.List;
-import static com.behsazan.corebanking.collateral.workflow.CollateralR3ValuationCommitPolicy.*;
+import static com.behsazan.corebanking.collateral.workflow.CollateralValuationCommitPolicy.*;
 
 /** Standalone Java 21 executable tests: no Spring/Oracle or test dependency required. */
 public final class R3ValuationCommitSmoke {

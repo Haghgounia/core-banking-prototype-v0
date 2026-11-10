@@ -5,6 +5,7 @@ import com.behsazan.corebanking.collateral.allocation.CollateralAllocationIntake
 import com.behsazan.corebanking.collateral.capacity.CollateralCapacityPolicy;
 import com.behsazan.corebanking.collateral.introduction.CollateralIntroductionService;
 import com.behsazan.corebanking.collateral.registry.CollateralRegistryPolicy;
+import com.behsazan.corebanking.collateral.prototype.CltAnalystStageIdentity;
 import com.behsazan.corebanking.collateral.registry.CollateralRegistryRepository;
 import com.behsazan.corebanking.collateral.unallocation.CollateralUnallocationIntakeModels.*;
 import java.math.BigDecimal;
@@ -93,6 +94,17 @@ public class CollateralUnallocationIntakeService {
         return new Context(token,actor.branch(),CollateralUnallocationIntakePolicy.actor(actor.subject()),
                 CollateralAllocationIntakePolicy.clientId(client),module,domain);
     }
+    /** Local Stage uses the allocation's observed MODULE_ID but never attests its consumer domain. */
+    private Context analystCaller(Authentication auth,String rawDomain,
+            String collateralId,String allocationId) {
+        JwtAuthenticationToken jwt = CltAnalystStageIdentity.require(auth);
+        String domain = CollateralCapacityPolicy.domain(rawDomain);
+        var actor = identity.actor(jwt);
+        registry.byId(actor.branch(),collateralId);
+        var allocation = allocationRepository.allocationById(collateralId,allocationId,actor.branch());
+        return new Context(jwt,actor.branch(),CollateralUnallocationIntakePolicy.actor(actor.subject()),
+                CltAnalystStageIdentity.clientId(),allocation.moduleId(),domain);
+    }
     private void checkSnapshot(CollateralUnallocationModels.AllocationLine a,
             CollateralUnallocationPolicy.Normalized n,String module) {
         if(!module.equals(a.moduleId()))
@@ -111,7 +123,18 @@ public class CollateralUnallocationIntakeService {
             CollateralUnallocationModels.PreviewRequest request,String rawKey,String ifMatch,
             Authentication auth) {
         CollateralUnallocationPolicy.Normalized n=CollateralUnallocationPolicy.normalize(request,ifMatch);
-        Context caller=caller(auth,n.consumerDomain());
+        return submitForCaller(rawCollateral,rawAllocation,n,rawKey,caller(auth,n.consumerDomain()));
+    }
+    public Receipt submitAnalyst(String rawCollateral,String rawAllocation,
+            CollateralUnallocationModels.PreviewRequest request,String rawKey,String ifMatch,
+            Authentication auth) {
+        CollateralUnallocationPolicy.Normalized n=CollateralUnallocationPolicy.normalize(request,ifMatch);
+        String collateral=numeric(rawCollateral),allocation=numeric(rawAllocation);
+        return submitForCaller(collateral,allocation,n,rawKey,
+                analystCaller(auth,n.consumerDomain(),collateral,allocation));
+    }
+    private Receipt submitForCaller(String rawCollateral,String rawAllocation,
+            CollateralUnallocationPolicy.Normalized n,String rawKey,Context caller) {
         String collateral=numeric(rawCollateral),allocation=numeric(rawAllocation);
         String key=CollateralUnallocationPolicy.idempotencyKey(rawKey);
         String digest=CollateralUnallocationPolicy.digest(collateral,allocation,
@@ -161,8 +184,19 @@ public class CollateralUnallocationIntakeService {
     public Receipt cancel(String rawCollateral,String rawAllocation,String rawRequest,
             CancelRequest body,String rawKey,String ifMatch,Authentication auth){
         if(body==null)throw new IllegalArgumentException("CLT_R5B_CANCEL_BODY_REQUIRED");
+        return cancelForCaller(rawCollateral,rawAllocation,rawRequest,body,rawKey,ifMatch,
+                caller(auth,body.consumerDomain()));
+    }
+    public Receipt cancelAnalyst(String rawCollateral,String rawAllocation,String rawRequest,
+            CancelRequest body,String rawKey,String ifMatch,Authentication auth) {
+        if(body==null)throw new IllegalArgumentException("CLT_R5B_CANCEL_BODY_REQUIRED");
+        String collateral=numeric(rawCollateral),allocation=numeric(rawAllocation);
+        return cancelForCaller(rawCollateral,rawAllocation,rawRequest,body,rawKey,ifMatch,
+                analystCaller(auth,body.consumerDomain(),collateral,allocation));
+    }
+    private Receipt cancelForCaller(String rawCollateral,String rawAllocation,String rawRequest,
+            CancelRequest body,String rawKey,String ifMatch,Context caller) {
         String reason=CollateralUnallocationIntakePolicy.reason(body.reasonReference());
-        Context caller=caller(auth,body.consumerDomain());
         String collateral=numeric(rawCollateral),allocation=numeric(rawAllocation),request=numeric(rawRequest);
         registry.byId(caller.branch(),collateral); // Recheck owner branch for cancellation.
         String actionKey=CollateralUnallocationPolicy.idempotencyKey(rawKey);

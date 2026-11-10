@@ -1,0 +1,128 @@
+{
+  "marker": "CLT-R3-CANCELLATION-LIFECYCLE-2026-11-10",
+  "root": "D:\\Projects\\core-banking-prototype-v0",
+  "baseline": "core-banking-prototype-v0-2026-11-09-R3-VALUATION-ATOMIC-COMMIT-SOURCE.zip",
+  "installedAt": "2026-11-10T04:36:00.721Z",
+  "changed": [
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/insurance/cancellation/CollateralR3InsuranceCancellationController.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "b7959e944a19e92a58665b47c8984984b8b1f8c4a297d377947ef5e693e66002"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/insurance/cancellation/CollateralR3InsuranceCancellationExceptionHandler.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "a86bd49bf8e4453dfa326aa8b703d4b34be6f12ddc3e9f6b4fd4714c2e822767"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/insurance/cancellation/CollateralR3InsuranceCancellationPolicy.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "26a36743b6e414445f1964f047a962cde8d2120791c2f5988775140c37cd80cc"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/insurance/cancellation/CollateralR3InsuranceCancellationService.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "8e01a95f237301bb3fd8d372302a0f7b953e639a3f524aa834e2f9e721121348"
+    },
+    {
+      "path": "backend/src/main/java/com/behsazan/corebanking/collateral/prototype/CltUnifiedPrototypeSecurityConfiguration.java",
+      "existed": true,
+      "baselineSha256": "e1221b363095eb049e547b1b453f470ce14b2efabe0c75b751f014b92bddc74d",
+      "payloadSha256": "904dd342c08129b874d89800a2d7c21c52368079c3afda51f18c83ae9709c35f"
+    },
+    {
+      "path": "backend/src/test/java/com/behsazan/corebanking/collateral/insurance/cancellation/CollateralR3InsuranceCancellationPolicyTest.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "af7651d9b5e298c1eeb51b18f00b248a3cfff0cffce7a83ba037dffca3739338"
+    },
+    {
+      "path": "database/oracle/clt/r3cancellation/00_CANCELLATION_READONLY_DICTIONARY.sql",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "29635f6d08c2a26daeffc351c4e30f8d5818eeb2d390aef5c3d54bef07770868"
+    },
+    {
+      "path": "database/oracle/clt/r3cancellation/01_CANCELLATION_EVENT_SCHEMA_CANDIDATE_NOT_APPROVED.sql",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "15e0574ad9698d970d99af86834b9d0907a7d9795d1fd929759ac9f551c0d4b0"
+    },
+    {
+      "path": "docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md",
+      "existed": true,
+      "baselineSha256": "701302c8c3a689684edf3c4f15ca22d03131b9395eba987133c89aaae9103a89",
+      "payloadSha256": "599c3b12edb7d4be4ad8270a58b3cbc7b9d0382a3fe4cd8dc413047916142857"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-CANCELLATION-CHECKPOINT-2026-11-10.md",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "e25d6024389897eb7a1d154e7bc3240ac6a8a826818fb5575373935c2484dd8f"
+    },
+    {
+      "path": "docs/collateral/CLT-R3-CANCELLATION-LIFECYCLE-CONTRACT-FA.md",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "22cdd7e2cee61c32282a3827c644b5e2ca105b9afc9240323e58e6f2334b6cd7"
+    },
+    {
+      "path": "docs/collateral/CLT-ROADMAP-R1.0-FA.md",
+      "existed": true,
+      "baselineSha256": "d6bf75b6f7c81a81c8350fb179efb561af7accf174f3e79e40ba0bc5e3566b8e",
+      "payloadSha256": "6840cadf3bbf6e02a225ee27c58df7e58cfccfb20bd8d1b499612cefebce4942"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-insurance-cancellation.component.html",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "829e801d1a232f7682992d9e6e60ea52f2990bb97377a81afceed732e1cb49ed"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-insurance-cancellation.component.scss",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "b6f929b08611f0e2619b017cdd7651e5097df039753921844922964de7b18311"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-insurance-cancellation.component.ts",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "124458e2e0888121df3478d7fe84ed94a322a32d42bf475d054503f0f716157e"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-r3-insurance-cancellation.service.ts",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "19229679d6ec720d97f34fcb3b3eba8ce825ce02023c21eefc776a31abd8a930"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.html",
+      "existed": true,
+      "baselineSha256": "e0459c8779b2b9ab6b9e41ad83e0c41c713af8525b53e84fe0e1df1692f4ca6c",
+      "payloadSha256": "6cb6a712106ddaf45c542d73d7da3801581dc534bdfeaf36614c0ab54f125cbb"
+    },
+    {
+      "path": "frontend/src/app/features/collateral/collateral-registry.component.ts",
+      "existed": true,
+      "baselineSha256": "0548c98a84a1b6a0092025c63615e28a7cc3d0d4588abf7ed2cbaa8049379b2f",
+      "payloadSha256": "60e17049c331f343d2bc57a80adda9806d95edd365b4a501a1dde308be40ec9f"
+    },
+    {
+      "path": "tools/clt/r3-cancellation/R3CancellationSmoke.java",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "0c06ee91936d04a74ac61959be7a623ebc5a9955b777bf270a6d3d7664611b56"
+    },
+    {
+      "path": "tools/clt/r3-cancellation/verify-source.cjs",
+      "existed": false,
+      "baselineSha256": null,
+      "payloadSha256": "68ad4723b78d357b202fa37122b4723d2bce15259b1d92e28ba7e8bed285dbcd"
+    }
+  ]
+}

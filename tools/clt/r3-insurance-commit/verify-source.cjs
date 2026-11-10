@@ -4,15 +4,15 @@ const root=path.resolve(process.argv[2]||process.cwd());
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const java='backend/src/main/java/com/behsazan/corebanking/collateral/workflow/';
 const web='frontend/src/app/features/collateral/';
-const service=read(java+'CollateralR3InsuranceCommitService.java');
-const policy=read(java+'CollateralR3InsuranceCommitPolicy.java');
-const controller=read(java+'CollateralR3WorkflowController.java');
-const client=read(web+'collateral-r3-workflow.service.ts');
-const component=read(web+'collateral-r3-draft-worklist.component.ts');
-const html=read(web+'collateral-r3-draft-worklist.component.html');
+const service=read(java+'CollateralInsuranceCommitService.java');
+const policy=read(java+'CollateralInsuranceCommitPolicy.java');
+const controller=read(java+'CollateralWorkflowController.java');
+const client=read(web+'collateral-workflow.service.ts');
+const component=read(web+'collateral-draft-worklist.component.ts');
+const html=read(web+'collateral-draft-worklist.component.html');
 const candidate=read('database/oracle/clt/r3insurancepost/01_INSURANCE_POSTING_SCHEMA_CANDIDATE_NOT_APPROVED.sql');
-const sponsor=read(java+'CollateralR3SponsorCommitService.java');
-const preflight=read(java+'CollateralR3PostingReadinessService.java');
+const sponsor=read(java+'CollateralSponsorCommitService.java');
+const preflight=read(java+'CollateralPostingReadinessService.java');
 let n=0;
 function has(ok,code){if(!ok)throw Error('CLT_R3_INSURANCE_SOURCE_FAIL:'+code);n++;}
 const tests=[
@@ -34,7 +34,7 @@ const tests=[
   [service.includes('RETURNING COLLATERAL_INSURANCE_ID INTO ?'),'Oracle generated id'],
   [service.includes('preflight.inspect("insurance"'), 'server preflight'],
   [service.includes('workflow.validateForStageDecision'),'server live insurance revalidation'],
-  [service.includes('CollateralR3StageFingerprint.digest'),'hash from Stage'],
+  [service.includes('CollateralStageFingerprint.digest'),'hash from Stage'],
   [service.includes('requireCoverage('),'coverage guard'],
   [service.includes('checkPredecessor(') && service.includes('requireRenewal('),'renewal guard'],
   [service.includes('PREVIOUS_INSURANCE_ID'),'renewal lineage persisted'],
@@ -67,7 +67,7 @@ const tests=[
   [read('docs/collateral/CLT-GAP-REGISTER-R1.0-FA.md').includes('D-05'),'canonical gap register updated'],
   [read('docs/collateral/CLT-ROADMAP-R1.0-FA.md').includes('CLT-R3-INSURANCE-ATOMIC-COMMIT'),'roadmap checkpoint'],
   [fs.existsSync(path.join(root,'docs/collateral/CLT-R3-INSURANCE-TRANSACTION-CONTRACT-FA.md')),'contract'],
-  [fs.existsSync(path.join(root,'backend/src/test/java/com/behsazan/corebanking/collateral/workflow/CollateralR3InsuranceCommitPolicyTest.java')),'JUnit'],
+  [fs.existsSync(path.join(root,'backend/src/test/java/com/behsazan/corebanking/collateral/workflow/CollateralInsuranceCommitPolicyTest.java')),'JUnit'],
 ];
 for(const [ok,code] of tests)has(ok,code);
 let ts;
@@ -81,7 +81,7 @@ if (!ts) {
   ts=require(path.join(globalDir,'typescript'));
  } catch { throw Error('CLT_R3_INSURANCE_TYPESCRIPT_MODULE_REQUIRED_FOR_QA'); }
 }
-for (const f of ['collateral-r3-workflow.service.ts','collateral-r3-draft-worklist.component.ts']) {
+for (const f of ['collateral-workflow.service.ts','collateral-draft-worklist.component.ts']) {
  const src=ts.createSourceFile(f,read(web+f),ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
  has(src.parseDiagnostics.length===0,'TypeScript parse '+f);
 }

@@ -14,12 +14,12 @@ import org.springframework.web.server.ResponseStatusException;
 /** Writes ONLY 3 proposed CLT_ALLOCATION_REQUEST* staging tables in one JDBC transaction. */
 @Repository
 public class CollateralAllocationIntakeRepository {
-    public record Stored(String id, String collateralId, String consumerDomain,
+    public record Stored(String id, String collateralId, String branchCode, String consumerDomain,
             String caseReference, String fileNumber, String amount, String currency,
             String requestStatus, String createdAt, String version, int debtorCount,
             boolean sponsorConflict, String digest) {}
     private static final String SELECT = """
-            SELECT REQUEST_ID,COLLATERAL_ID,CONSUMER_DOMAIN,CASE_REFERENCE,FILE_NUMBER,
+            SELECT REQUEST_ID,COLLATERAL_ID,BRANCH_CODE,CONSUMER_DOMAIN,CASE_REFERENCE,FILE_NUMBER,
                    AMOUNT,CURRENCY_CODE,REQUEST_STATUS,RECORD_VERSION,DEBTOR_COUNT,
                    SPONSOR_CONFLICT,PAYLOAD_DIGEST,
                    TO_CHAR(CREATED_AT,'YYYY-MM-DD\"T\"HH24:MI:SS.FF3') AS CREATED_AT_TEXT
@@ -28,7 +28,7 @@ public class CollateralAllocationIntakeRepository {
     private static Stored map(ResultSet rs, int row) throws SQLException {
         return new Stored(rs.getBigDecimal("REQUEST_ID").toPlainString(),
                 rs.getBigDecimal("COLLATERAL_ID").toPlainString(),
-                rs.getString("CONSUMER_DOMAIN"),rs.getString("CASE_REFERENCE"),
+                rs.getString("BRANCH_CODE"),rs.getString("CONSUMER_DOMAIN"),rs.getString("CASE_REFERENCE"),
                 rs.getBigDecimal("FILE_NUMBER").toPlainString(),
                 rs.getBigDecimal("AMOUNT").toPlainString(), rs.getString("CURRENCY_CODE"),
                 rs.getString("REQUEST_STATUS"),rs.getString("CREATED_AT_TEXT"),

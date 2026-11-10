@@ -1,4 +1,4 @@
-import com.behsazan.corebanking.collateral.workflow.CollateralR3WorkflowPolicy;
+import com.behsazan.corebanking.collateral.workflow.CollateralWorkflowPolicy;
 import com.behsazan.corebanking.collateral.sponsor.CollateralSponsorPolicy;
 import com.behsazan.corebanking.collateral.insurance.CollateralInsurancePolicy;
 import com.behsazan.corebanking.collateral.insurance.CollateralInsuranceModels;
@@ -22,25 +22,25 @@ public final class R3ReviewSmoke {
         ok(rejected, name);
     }
     public static void main(String[] args) {
-        var action = CollateralR3WorkflowPolicy.Action.class;
-        for (var kind : CollateralR3WorkflowPolicy.Kind.values()) {
+        var action = CollateralWorkflowPolicy.Action.class;
+        for (var kind : CollateralWorkflowPolicy.Kind.values()) {
             ok(kind.table.startsWith("COLLATERAL_"), "fixed Stage enum " + kind);
             ok(kind.eventTable.startsWith("COLLATERAL_"), "fixed event enum " + kind);
-            same(CollateralR3WorkflowPolicy.Kind.parse(kind.name().toLowerCase()), kind, "parse " + kind);
+            same(CollateralWorkflowPolicy.Kind.parse(kind.name().toLowerCase()), kind, "parse " + kind);
         }
-        ok(CollateralR3WorkflowPolicy.requiresCurrentDomainValidation(CollateralR3WorkflowPolicy.Action.SUBMIT), "submit revalidate");
-        ok(CollateralR3WorkflowPolicy.requiresCurrentDomainValidation(CollateralR3WorkflowPolicy.Action.REVIEW), "review revalidate");
-        ok(!CollateralR3WorkflowPolicy.requiresCurrentDomainValidation(CollateralR3WorkflowPolicy.Action.REJECT), "reject not blocked by ineligibility");
-        ok(!CollateralR3WorkflowPolicy.requiresCurrentDomainValidation(CollateralR3WorkflowPolicy.Action.WITHDRAW), "withdraw not blocked by ineligibility");
-        same(CollateralR3WorkflowPolicy.next("DRAFT", CollateralR3WorkflowPolicy.Action.SUBMIT,true,false), "SUBMITTED", "submit");
-        same(CollateralR3WorkflowPolicy.next("SUBMITTED", CollateralR3WorkflowPolicy.Action.REVIEW,false,true), "REVIEWED", "independent reviewer");
-        same(CollateralR3WorkflowPolicy.next("SUBMITTED", CollateralR3WorkflowPolicy.Action.REJECT,false,true), "REJECTED", "independent reject");
-        same(CollateralR3WorkflowPolicy.next("SUBMITTED", CollateralR3WorkflowPolicy.Action.WITHDRAW,true,false), "WITHDRAWN", "maker withdrawal");
-        rejects(() -> CollateralR3WorkflowPolicy.next("SUBMITTED", CollateralR3WorkflowPolicy.Action.REVIEW,true,true), "maker cannot review own Stage");
-        rejects(() -> CollateralR3WorkflowPolicy.next("REJECTED", CollateralR3WorkflowPolicy.Action.REVIEW,false,true), "no review of rejected Stage");
-        rejects(() -> CollateralR3WorkflowPolicy.next("SUBMITTED", CollateralR3WorkflowPolicy.Action.REVIEW,false,false), "review scope required");
-        rejects(() -> CollateralR3WorkflowPolicy.reason("too"), "reason must be detailed");
-        same(CollateralR3WorkflowPolicy.version("1").toPlainString(), "1", "record version");
+        ok(CollateralWorkflowPolicy.requiresCurrentDomainValidation(CollateralWorkflowPolicy.Action.SUBMIT), "submit revalidate");
+        ok(CollateralWorkflowPolicy.requiresCurrentDomainValidation(CollateralWorkflowPolicy.Action.REVIEW), "review revalidate");
+        ok(!CollateralWorkflowPolicy.requiresCurrentDomainValidation(CollateralWorkflowPolicy.Action.REJECT), "reject not blocked by ineligibility");
+        ok(!CollateralWorkflowPolicy.requiresCurrentDomainValidation(CollateralWorkflowPolicy.Action.WITHDRAW), "withdraw not blocked by ineligibility");
+        same(CollateralWorkflowPolicy.next("DRAFT", CollateralWorkflowPolicy.Action.SUBMIT,true,false), "SUBMITTED", "submit");
+        same(CollateralWorkflowPolicy.next("SUBMITTED", CollateralWorkflowPolicy.Action.REVIEW,false,true), "REVIEWED", "independent reviewer");
+        same(CollateralWorkflowPolicy.next("SUBMITTED", CollateralWorkflowPolicy.Action.REJECT,false,true), "REJECTED", "independent reject");
+        same(CollateralWorkflowPolicy.next("SUBMITTED", CollateralWorkflowPolicy.Action.WITHDRAW,true,false), "WITHDRAWN", "maker withdrawal");
+        rejects(() -> CollateralWorkflowPolicy.next("SUBMITTED", CollateralWorkflowPolicy.Action.REVIEW,true,true), "maker cannot review own Stage");
+        rejects(() -> CollateralWorkflowPolicy.next("REJECTED", CollateralWorkflowPolicy.Action.REVIEW,false,true), "no review of rejected Stage");
+        rejects(() -> CollateralWorkflowPolicy.next("SUBMITTED", CollateralWorkflowPolicy.Action.REVIEW,false,false), "review scope required");
+        rejects(() -> CollateralWorkflowPolicy.reason("too"), "reason must be detailed");
+        same(CollateralWorkflowPolicy.version("1").toPlainString(), "1", "record version");
         var sponsor = CollateralSponsorPolicy.candidate("123", null, "Approved staged candidate");
         same(sponsor.partyId(), "123", "sponsor Party decimal");
         ok(CollateralSponsorPolicy.blockers("42", "123", "ACTIVE", "Y", "ACTIVE", false,true).isEmpty(), "eligible sponsor intake");

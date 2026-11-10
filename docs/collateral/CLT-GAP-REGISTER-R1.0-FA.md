@@ -171,3 +171,27 @@
 | D-06 (فنی/DBA) | در Service موجودیت Identity، Unique دوگانه sequence/supersedes، FK مرکب و CAS بررسی می‌شوند؛ SQL تشخیص فقط خواندنی است | تطبیق DB فیزیکی واقعی و داده‌های گذشته با مشخصات `Collateral_DB_Specification_FA(2).html` و امضای Migration/Recovery پیش از فعال‌سازی | OPEN |
 
 **محدودیت:** این نسخه اثبات اتصال زنده Oracle نیست و Feature Flag ارزیابی خاموش می‌ماند. جداول Release/Rule/Ledger فقط کاندید هستند؛ هیچ بانک/DBA Approval جعل یا هیچ Gap بسته نشده است.
+
+## 2026-11-10 — G-06 Cancellation implementation checkpoint (CLT R3)
+
+| شناسه | تغییر و شاهد در سورس | مانع باز | وضعیت |
+|---|---|---|---|
+| G-06 | پیش‌بررسی شعبه‌محور، درخواست Stage با Maker/Reviewer/Audit، Event نامزد Append-only، Receipt و UI مستقل؛ حذف یا ویرایش بیمه‌نامه تاریخی وجود ندارد | تصویب قرارداد لغو/زمان اثر، سوابق و اثر بر تعهد و پوشش، ترمینال موفق Oracle | **OPEN** |
+| G-04 | کنترل محافظه‌کارانه شرط پوشش جایگزین هم‌نوع/هم‌ارز در نامزد Posting | سیاست مجموعه پوشش‌های الزامی، حدود و پذیرش بیمه‌گر مصوب نیست | **OPEN** |
+| G-09 | شرط Decision Ref برای R4 و Integration و قرارداد Consumer در Release نامزد | پیاده‌سازی/پذیرش عملیاتی R4 و شرکت بیمه و روال ارزیابی اثر خارج از این Patch | **OPEN** |
+| D-07 | جداول Stage/Impact/Release/Event و Triggerهای Append-only به‌صورت SQL Candidate؛ گیت سخت‌گیرانه Dictionary در Backend | مهاجرت امضاشده DBA، تطبیق اوراکل زنده، آزمون هم‌زمانی و تفکیک دسترسی | **OPEN** |
+
+**گیت مهم:** هر ردیف در `CLT.COLLATERAL_ALLOCATION` به‌صورت Fail Closed مانع Posting لغو است؛ استفاده از `USED='NO'` به‌عنوان مجوز حذف مسئولیت صحیح نیست. حتی در نبود ردیف تخصیص، نیاز به مصوبه رسمی کفایت جایگزین و تأیید مستقل باقی می‌ماند.
+
+
+## Checkpoint 2026-11-10 — R4/R5 staged analyst requests + stable domain naming
+
+| Gap / boundary | Evidence in this delivery | Bank / Oracle dependency | State |
+|---|---|---|---|
+| G-02 | Persistent analyst request idempotency in the already documented R4C **candidate staging** model; no financial allocation | Consumer-authenticated obligations, durable final register and Oracle capacity lock | **OPEN** |
+| G-09/G-13 | Local Stage branch binding checked by existing application principal; no external obligation attestations | Approved consumer contract and cross-branch introduction scope | **OPEN** |
+| G-04/G-05/G-07/G-10/G-18 | Existing sponsor/insurance/valuation policies and evidence preserved | Bank rules, valuation, insurance coverage, Oracle final activation | **OPEN** |
+| G-16 | No new write to `COLLATERAL_TRANSACTION` | Reconcile default `PENDING` vs status master | **OPEN** |
+| R5 G-19..G-22 (as referenced in phase-status records) | Local R5B Stage request and withdrawal with If-Match; no financial impact | Approved module mapping, domain-owner instruction, final unallocation and release semantics | **OPEN — verify exact official gap indexing** |
+
+**No gap closure:** `CLT_LOCAL_ANALYST` is an internally created local Stage actor, not external consumer attestation. Phase exit remains governed independently of source progress; [checkpoint](CLT-USECASE-DELIVERY-CHECKPOINT-2026-11-10.md).

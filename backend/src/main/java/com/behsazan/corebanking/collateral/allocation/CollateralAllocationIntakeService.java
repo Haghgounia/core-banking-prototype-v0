@@ -6,6 +6,7 @@ import com.behsazan.corebanking.collateral.allocation.CollateralAllocationReques
 import com.behsazan.corebanking.collateral.capacity.CollateralCapacityService;
 import com.behsazan.corebanking.collateral.introduction.CollateralIntroductionService;
 import com.behsazan.corebanking.collateral.registry.CollateralRegistryPolicy;
+import com.behsazan.corebanking.collateral.prototype.CltAnalystStageIdentity;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.ObjectProvider;
@@ -112,6 +113,50 @@ public class CollateralAllocationIntakeService {
             return response;
         }
     }
+    /** Persist a branch-bound ANALYST request, never a consumer-authorized allocation. */
+    public Receipt submitAnalyst(String rawCollateral, Request input, String rawKey, Authentication auth) {
+        JwtAuthenticationToken jwt = CltAnalystStageIdentity.require(auth);
+        Normalized normalized = CollateralAllocationRequestPolicy.normalize(input);
+        var actor = identity.actor(jwt);
+        String branch = actor.branch();
+        String subject = CollateralAllocationIntakePolicy.actor(actor.subject());
+        String collateral = CollateralRegistryPolicy.id(rawCollateral).toPlainString();
+        String client = CltAnalystStageIdentity.clientId();
+        String key = CollateralAllocationRequestPolicy.key(rawKey);
+        String digest = CollateralAllocationRequestPolicy.digest(branch, client, collateral, normalized);
+        CollateralAllocationIntakeWriterPool pool = pool();
+        try {
+            Receipt result = pool.transaction().execute(tx -> {
+                var existing = journal.byKey(pool, normalized.consumerDomain(), client, key, true);
+                if (existing != null) {
+                    CollateralAllocationIntakePolicy.requireReplayMatch(existing.digest(),digest,existing.requestStatus());
+                    // Do not reveal another branch's request on key collision.
+                    if (!branch.equals(existing.branchCode())
+                            || !collateral.equals(existing.collateralId()))
+                        throw new ResponseStatusException(HttpStatus.CONFLICT,"CLT_ALLOCATION_ANALYST_REPLAY_SCOPE_MISMATCH");
+                    return receipt(existing,true);
+                }
+                capacity.evidenceForVerifiedBranch(collateral, branch);
+                boolean conflict = !sponsorRepository.sponsorDebtorMatches(
+                        collateral,branch,normalized.debtors()).isEmpty();
+                return receipt(journal.insert(pool,collateral,branch,subject,client,key,digest,
+                        normalized,conflict),false);
+            });
+            if (result == null) throw new IllegalStateException("CLT_ALLOCATION_ANALYST_STAGE_TX_EMPTY");
+            return result;
+        } catch (DuplicateKeyException duplicate) {
+            Receipt replay = pool.transaction().execute(tx -> {
+                var row = journal.byKey(pool,normalized.consumerDomain(),client,key,true);
+                if (row == null || !collateral.equals(row.collateralId()))
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,"CLT_ALLOCATION_ANALYST_CONCURRENT_CONFLICT");
+                CollateralAllocationIntakePolicy.requireReplayMatch(row.digest(),digest,row.requestStatus());
+                return receipt(row,true);
+            });
+            if (replay == null) throw new IllegalStateException("CLT_ALLOCATION_ANALYST_REPLAY_EMPTY");
+            return replay;
+        }
+    }
+
     public Receipt receiptById(String collateralId, String requestId,
             String domain, Authentication auth) {
         JwtAuthenticationToken jwt=token(auth,"SCOPE_clt.allocation.request");

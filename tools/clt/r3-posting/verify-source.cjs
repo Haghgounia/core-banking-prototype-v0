@@ -4,14 +4,14 @@ const root=path.resolve(process.argv[2] || process.cwd());
 const t=rel=>fs.readFileSync(path.join(root,rel),'utf8');
 const source='backend/src/main/java/com/behsazan/corebanking/collateral/workflow/';
 const ui='frontend/src/app/features/collateral/';
-const svc=t(source+'CollateralR3PostingReadinessService.java');
-const policy=t(source+'CollateralR3PostingReadinessPolicy.java');
-const shared=t(source+'CollateralR3StageFingerprint.java');
-const workflow=t(source+'CollateralR3WorkflowService.java');
-const controller=t(source+'CollateralR3WorkflowController.java');
-const frontendService=t(ui+'collateral-r3-workflow.service.ts');
-const component=t(ui+'collateral-r3-draft-worklist.component.ts');
-const template=t(ui+'collateral-r3-draft-worklist.component.html');
+const svc=t(source+'CollateralPostingReadinessService.java');
+const policy=t(source+'CollateralPostingReadinessPolicy.java');
+const shared=t(source+'CollateralStageFingerprint.java');
+const workflow=t(source+'CollateralWorkflowService.java');
+const controller=t(source+'CollateralWorkflowController.java');
+const frontendService=t(ui+'collateral-workflow.service.ts');
+const component=t(ui+'collateral-draft-worklist.component.ts');
+const template=t(ui+'collateral-draft-worklist.component.html');
 let checks=0;
 const check=(condition,message)=>{if(!condition)throw Error('R3_POSTING_CONTRACT_FAILED:'+message);checks++;};
 for(const kind of ['SPONSOR','INSURANCE','VALUATION']){
@@ -24,8 +24,8 @@ check(svc.includes('sharedDataSource') && !svc.includes('DriverManager') && !svc
 check(svc.includes('DECISION_REASON') && svc.includes('EVENT_ACTOR<>r.MAKER_SUBJECT'), 'audited independent review');
 check(svc.includes('CREATED_AUDIT_COUNT') && svc.includes('SUBMITTED_AUDIT_COUNT')
  && svc.includes('INDEPENDENT_REVIEW_AUDIT_COUNT'),'three event types');
-check(svc.includes('CollateralR3StageFingerprint.digest'), 're-read oracle stage fingerprint');
-check(workflow.includes('CollateralR3StageFingerprint.digest'), 'same digest in reviewer flow');
+check(svc.includes('CollateralStageFingerprint.digest'), 're-read oracle stage fingerprint');
+check(workflow.includes('CollateralStageFingerprint.digest'), 'same digest in reviewer flow');
 check(shared.includes('case SPONSOR ->')&&shared.includes('case INSURANCE ->')&&shared.includes('case VALUATION ->'), 'identical three canonical domains');
 check(!/jdbc\.(update|execute|batchUpdate)\(/.test(svc),'read-only posting service');
 check(!/(@PostMapping|@PutMapping|@DeleteMapping)/.test(controller.slice(controller.indexOf('Non-mutating posting preflight'),controller.indexOf('@PostMapping'))), 'new route GET only');
@@ -40,7 +40,7 @@ check(fs.existsSync(path.join(root,'docs/collateral/CLT-R3-POSTING-DECISION-MATR
 check(fs.existsSync(path.join(root,'docs/collateral/CLT-R3-POSTING-PREFLIGHT-CHECKPOINT-2026-11-09.md')), 'checkpoint');
 // TS syntax-only (actual Angular dependency compilation is a separately documented gate).
 const ts=require('/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript/lib/typescript.js');
-for (const file of ['collateral-r3-workflow.service.ts','collateral-r3-draft-worklist.component.ts']) {
+for (const file of ['collateral-workflow.service.ts','collateral-draft-worklist.component.ts']) {
  const obj=ts.createSourceFile(file,t(ui+file),ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
  check(obj.parseDiagnostics.length===0,'TypeScript parse '+file);
 }

@@ -1,5 +1,5 @@
-import com.behsazan.corebanking.collateral.workflow.CollateralR3PostingReadinessPolicy;
-import com.behsazan.corebanking.collateral.workflow.CollateralR3WorkflowPolicy.Kind;
+import com.behsazan.corebanking.collateral.workflow.CollateralPostingReadinessPolicy;
+import com.behsazan.corebanking.collateral.workflow.CollateralWorkflowPolicy.Kind;
 
 /** No database or framework. Pure bank decision safety smoke. */
 public class R3PostingSmoke {
@@ -9,16 +9,16 @@ public class R3PostingSmoke {
         if (!test) throw new AssertionError(label);
         passed++;
     }
-    static CollateralR3PostingReadinessPolicy.Facts f(Kind kind,String status,String version,
+    static CollateralPostingReadinessPolicy.Facts f(Kind kind,String status,String version,
             String digest,long created,long submitted,long reviewed,long events,
             long conflicts,String collateralStatus,String typeStatus,
             String current,String supersedes,boolean ref) {
-        return new CollateralR3PostingReadinessPolicy.Facts(kind,"77","88",status,version,H,digest,
+        return new CollateralPostingReadinessPolicy.Facts(kind,"77","88",status,version,H,digest,
                 created,submitted,reviewed,events,conflicts,collateralStatus,typeStatus,current,supersedes,ref);
     }
     public static void main(String[] args) {
         for (Kind kind: Kind.values()) {
-            var good=CollateralR3PostingReadinessPolicy.evaluate(f(kind,"REVIEWED","3",H,1,1,1,3,0,
+            var good=CollateralPostingReadinessPolicy.evaluate(f(kind,"REVIEWED","3",H,1,1,1,3,0,
                     "ACTIVE","ACTIVE",null,null,true));
             require(good.stageIntegrityVerified(),kind+" stage good");
             require(!good.finalPostingEligible(),kind+" no final permit");
@@ -26,7 +26,7 @@ public class R3PostingSmoke {
             require(!good.policyApproved(),kind+" no approved policy");
             require(good.mandatoryApprovalGates().stream().anyMatch(x->x.startsWith("G-09")),kind+" integration gap");
             require(good.integrityBlockers().isEmpty(),kind+" no false blocker");
-            var invalid=CollateralR3PostingReadinessPolicy.evaluate(f(kind,"SUBMITTED","2","b".repeat(64),
+            var invalid=CollateralPostingReadinessPolicy.evaluate(f(kind,"SUBMITTED","2","b".repeat(64),
                     0,0,0,0,2,"RELEASED","INACTIVE",null,null,true));
             for (String code: new String[]{"STAGE_REVIEWED","STAGE_VERSION","PAYLOAD_FINGERPRINT",
                     "CREATED_AUDIT","SUBMITTED_AUDIT","INDEPENDENT_REVIEW_AUDIT","AUDIT_EVENT_COUNT",
@@ -35,16 +35,16 @@ public class R3PostingSmoke {
             }
             require(!invalid.stageIntegrityVerified(),kind+" not consistent");
         }
-        var v=CollateralR3PostingReadinessPolicy.evaluate(f(Kind.VALUATION,"REVIEWED","3",H,
+        var v=CollateralPostingReadinessPolicy.evaluate(f(Kind.VALUATION,"REVIEWED","3",H,
                 1,1,1,3,0,"ACTIVE","ACTIVE","8","9",false));
         require(v.integrityBlockers().contains("VALUATION_SUPERSESSION_STABLE"),"stale pointer");
         require(v.checks().stream().anyMatch(c->c.result().equals("UNKNOWN")),"missing ref unknown");
-        var unknown=CollateralR3PostingReadinessPolicy.evaluate(f(Kind.VALUATION,"REVIEWED","3",H,
+        var unknown=CollateralPostingReadinessPolicy.evaluate(f(Kind.VALUATION,"REVIEWED","3",H,
                 1,1,1,3,0,"ACTIVE","ACTIVE",null,null,false));
         require(!unknown.stageIntegrityVerified(),"unknown ref does not certify integrity");
         require(!unknown.finalPostingEligible(),"no false posting");
         try {
-            CollateralR3PostingReadinessPolicy.evaluate(f(Kind.SPONSOR,"REVIEWED","3",H,
+            CollateralPostingReadinessPolicy.evaluate(f(Kind.SPONSOR,"REVIEWED","3",H,
                     -1,1,1,3,0,"ACTIVE","ACTIVE",null,null,true));
             throw new AssertionError("negative accepted");
         } catch (IllegalArgumentException ok) {passed++;}

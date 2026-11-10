@@ -4,14 +4,14 @@ const root=path.resolve(process.argv[2]||process.cwd());
 const get=p=>fs.readFileSync(path.join(root,p),'utf8');
 const base='backend/src/main/java/com/behsazan/corebanking/collateral/workflow/';
 const ui='frontend/src/app/features/collateral/';
-const service=get(base+'CollateralR3SponsorCommitService.java');
-const policy=get(base+'CollateralR3SponsorCommitPolicy.java');
-const controller=get(base+'CollateralR3WorkflowController.java');
-const workflow=get(base+'CollateralR3WorkflowService.java');
-const read=get(base+'CollateralR3PostingReadinessService.java');
-const client=get(ui+'collateral-r3-workflow.service.ts');
-const component=get(ui+'collateral-r3-draft-worklist.component.ts');
-const html=get(ui+'collateral-r3-draft-worklist.component.html');
+const service=get(base+'CollateralSponsorCommitService.java');
+const policy=get(base+'CollateralSponsorCommitPolicy.java');
+const controller=get(base+'CollateralWorkflowController.java');
+const workflow=get(base+'CollateralWorkflowService.java');
+const read=get(base+'CollateralPostingReadinessService.java');
+const client=get(ui+'collateral-workflow.service.ts');
+const component=get(ui+'collateral-draft-worklist.component.ts');
+const html=get(ui+'collateral-draft-worklist.component.html');
 const candidate=get('database/oracle/clt/r3posting/01_SPONSOR_POSTING_LEDGER_RELEASE_CANDIDATE_NOT_APPROVED.sql');
 let checks=0;
 function check(ok,message){if(!ok)throw Error('CLT_R3_COMMIT_CONTRACT_FAIL:'+message);checks++;}
@@ -26,7 +26,7 @@ check(service.includes('SEQ_CLT_R3_POSTING_LEDGER.NEXTVAL'), 'ledger sequence');
 check(service.includes("'PREPARED'") && service.includes("'COMMITTED'"), 'transactional receipt lifecycle');
 check(service.includes('RETURNING COLLATERAL_SPONSOR_ID INTO ?'), 'oracle returned generated key');
 check(service.includes('preflight.inspect("sponsor"') && service.includes('workflow.validateForStageDecision'), 'in-transaction revalidation');
-check(service.includes('CollateralR3StageFingerprint.digest'), 'digest recomputed from locked Oracle Stage');
+check(service.includes('CollateralStageFingerprint.digest'), 'digest recomputed from locked Oracle Stage');
 check(service.includes('SCOPE_clt.collateral.review') && service.includes('SCOPE_clt.collateral.read'), 'scoped final write');
 check(service.includes('who.branch()') && service.includes('who.subject()'), 'principal branch and actor');
 check(service.includes('RELEASE_STATUS=\'APPROVED\''), 'approved release');
@@ -59,7 +59,7 @@ if (!ts) {
  } catch {}
 }
 if (ts) {
- for(const file of ['collateral-r3-workflow.service.ts','collateral-r3-draft-worklist.component.ts']) {
+ for(const file of ['collateral-workflow.service.ts','collateral-draft-worklist.component.ts']) {
   const source=ts.createSourceFile(file,get(ui+file),ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
   check(source.parseDiagnostics.length===0,'typescript syntax '+file);
  }

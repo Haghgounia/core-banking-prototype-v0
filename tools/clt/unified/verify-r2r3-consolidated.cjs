@@ -18,7 +18,7 @@ const src={repo:read(main+'registry/CollateralRegistryRepository.java'),
  registryHTML:read(ui+'collateral-registry.component.html'),
  api:read(ui+'collateral-registry.service.ts'),
  introTS:read(ui+'collateral-introduction.component.ts'),
- utility:read(ui+'clt-r2r3-presentation.ts')};
+ utility:read(ui+'collateral-presentation.ts')};
 let passed=0;const good=(name,yes)=>{assert.ok(yes,`CLT_R2_R3_CONTRACT_FAIL: ${name}`);passed++;console.log('PASS | '+name);};
 for(const k of ['partyId','typeId','statusCode']){
  good(k+' parameter accepted by backend',src.ctrl.includes('@RequestParam(required = false) String '+k));
@@ -40,7 +40,7 @@ good('shared writer restricted to local loopback',src.config.includes('CLT_INTRO
 good('draft-only flag declared in local overlay',src.overlay.includes('CLT_DRAFT_WRITES_ENABLED')&&src.overlay.includes('review-workflow-enabled: false'));
 good('staging schema and sequence checked before write',src.introRepo.includes('ALL_TABLES')&&src.introRepo.includes('ALL_SEQUENCES')&&src.introRepo.includes('ALL_TAB_COLUMNS'));
 good('readiness reflects staging metadata',src.introSvc.includes('repository.draftSchemaReady(staging)'));
-good('read-back proof required before claiming draft persisted',src.introTS.includes('cltR3PersistedDraftMatches(persisted, draft)'));
+good('read-back proof required before claiming draft persisted',src.introTS.includes('cltPersistedDraftMatches(persisted, draft)'));
 good('draft exact POST allowlist',src.sec.includes('HttpMethod.POST, "/api/v1/collaterals/introduction-drafts").permitAll()'));
 good('no final collateral POST enabled',src.sec.includes('.anyRequest().denyAll()')&&!src.sec.includes('HttpMethod.POST, "/api/v1/collaterals"'));
 good('review workflow not enabled in local mode',src.overlay.includes('review-workflow-enabled: false'));
